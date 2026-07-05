@@ -45,7 +45,18 @@ white-space:nowrap;
 }
 
 .logo span{
+
 color:#0A84FF;
+
+text-shadow:
+
+0 0 10px #0A84FF,
+
+0 0 20px #0A84FF,
+
+0 0 40px #0A84FF;
+
+}
 }
 
 nav{
@@ -118,14 +129,27 @@ font-weight:700;
 }
 
 .hero h1{
-font-size:72px;
-line-height:1.1;
+
+font-size:80px;
+
+font-weight:800;
+
+line-height:1.05;
+
+}
 }
 
 .hero h2{
-font-size:58px;
-margin-top:10px;
-margin-bottom:30px;
+
+font-size:72px;
+
+font-weight:700;
+
+margin-top:5px;
+
+margin-bottom:25px;
+
+}
 }
 
 .hero span{
