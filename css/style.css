@@ -129,10 +129,15 @@ margin-bottom:30px;
 }
 
 .hero span{
-color:#0A84FF;
+
+color:#4C9CFF;
+
 text-shadow:
-0 0 10px rgba(10,132,255,.8),
-0 0 25px rgba(10,132,255,.8);
+0 0 6px rgba(76,156,255,.18);
+
+font-weight:800;
+
+}
 }
 
 .hero-text{
