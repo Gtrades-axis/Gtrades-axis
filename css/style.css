@@ -104,79 +104,51 @@ background:#0A84FF;
 
 /* ================= HERO ================= */
 
+/* ================= HERO ================= */
+
 .hero{
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-text-align:center;
-padding:140px 8% 80px;
-background:
-radial-gradient(circle at top right,rgba(10,132,255,.18),transparent 35%),
-linear-gradient(#07090d,#101722);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:140px 8% 80px;
+    background:
+    radial-gradient(circle at top right,rgba(10,132,255,.18),transparent 35%),
+    linear-gradient(#07090d,#101722);
 }
 
 .hero-content{
-max-width:900px;
-}
-
-.small-title{
-letter-spacing:3px;
-color:#0A84FF;
-font-size:14px;
-margin-bottom:20px;
-font-weight:700;
+    max-width:1000px;
 }
 
 .hero h1{
-
-font-size:80px;
-
-font-weight:800;
-
-line-height:1.05;
-
-}
+    font-size:5.5rem;
+    font-weight:800;
+    line-height:1;
+    margin-bottom:10px;
 }
 
 .hero h2{
-
-font-size:72px;
-
-font-weight:700;
-
-margin-top:5px;
-
-margin-bottom:25px;
-
-}
+    font-size:4rem;
+    font-weight:700;
+    color:#ffffff;
+    margin-bottom:30px;
 }
 
 .hero span{
-
-color:#4C9CFF;
-
-text-shadow:
-0 0 6px rgba(76,156,255,.18);
-
-font-weight:800;
-
-}
+    color:#0A84FF;
+    text-shadow:
+        0 0 10px rgba(10,132,255,.8),
+        0 0 25px rgba(10,132,255,.9),
+        0 0 50px rgba(10,132,255,.9);
 }
 
 .hero-text{
-font-size:21px;
-max-width:760px;
-margin:auto;
-color:#c4cdd8;
-}
-
-.hero-buttons{
-margin-top:40px;
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
+    font-size:1.3rem;
+    color:#c4cdd8;
+    max-width:800px;
+    margin:0 auto 40px;
 }
 
 /* ================= SECTIONS ================= */
