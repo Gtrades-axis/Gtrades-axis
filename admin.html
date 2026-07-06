@@ -314,7 +314,113 @@ Resources
 <!-- ===================== QUICK ACTIONS ===================== -->
 
 <section class="quick-actions">
+<section id="resources" class="admin-panel">
 
+<h2>
+
+<i class="fas fa-folder-open"></i>
+
+Publish Premium Resource
+
+</h2>
+
+<form id="resourceForm">
+
+<div class="form-group">
+
+<label>Title</label>
+
+<input
+type="text"
+id="resourceTitle"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Category</label>
+
+<select id="resourceCategory">
+
+<option>PDF</option>
+
+<option>Indicator</option>
+
+<option>Trading Journal</option>
+
+<option>Strategy</option>
+
+<option>Template</option>
+
+<option>Video</option>
+
+<option>Other</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Description</label>
+
+<textarea
+id="resourceDescription"
+rows="5"
+required></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label>Download Link</label>
+
+<input
+type="url"
+id="resourceURL"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Thumbnail Image (Optional)</label>
+
+<input
+type="url"
+id="resourceImage">
+
+</div>
+
+<div class="form-group">
+
+<label>
+
+<input
+type="checkbox"
+id="resourcePremium"
+checked>
+
+Premium Resource
+
+</label>
+
+</div>
+
+<button
+type="submit"
+class="publish-btn">
+
+<i class="fas fa-upload"></i>
+
+Publish Resource
+
+</button>
+
+</form>
+
+</section>
 <h2>
 
 Quick Actions
