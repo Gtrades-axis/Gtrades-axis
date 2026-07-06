@@ -1,0 +1,129 @@
+/* ==========================================
+   GTRADES-AXIS PREMIUM DASHBOARD
+========================================== */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+
+font-family:'Poppins',sans-serif;
+
+background:#0B0F19;
+
+color:#ffffff;
+
+min-height:100vh;
+
+}
+
+a{
+
+text-decoration:none;
+
+color:inherit;
+
+}
+
+img{
+
+max-width:100%;
+
+display:block;
+
+}
+
+/* ================= HEADER ================= */
+
+.dashboard-header{
+
+width:100%;
+
+background:#111827;
+
+padding:18px 8%;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+border-bottom:1px solid rgba(255,255,255,.08);
+
+position:sticky;
+
+top:0;
+
+z-index:1000;
+
+}
+
+.dashboard-header nav{
+
+display:flex;
+
+gap:35px;
+
+align-items:center;
+
+}
+
+.dashboard-header nav a{
+
+color:#d1d5db;
+
+font-size:15px;
+
+font-weight:500;
+
+transition:.3s;
+
+}
+
+.dashboard-header nav a:hover,
+
+.dashboard-header nav a.active{
+
+color:#0A84FF;
+
+}
+
+.logo{
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+font-size:24px;
+
+font-weight:700;
+
+}
+
+.logo img{
+
+width:48px;
+
+height:48px;
+
+object-fit:contain;
+
+}
+
+.logo span{
+
+color:#fff;
+
+}
+
+.logo b{
+
+color:#0A84FF;
+
+}
