@@ -1304,128 +1304,131 @@ flex-wrap:wrap;
 
 /*================ FOOTER =================*/
 
+/* ================= FOOTER ================= */
+
 footer{
-
-background:#05070B;
-
-padding:90px 0 30px;
-
-border-top:1px solid rgba(255,255,255,.06);
-
+background:#05070b;
+padding:80px 8% 30px;
+border-top:1px solid rgba(255,255,255,.08);
 }
 
 .footer-grid{
-
 display:grid;
-
-grid-template-columns:2fr 1fr 1fr 1.3fr;
-
+grid-template-columns:2fr 1fr 1fr 1fr;
 gap:50px;
-
-margin-bottom:50px;
-
 }
 
 .footer-logo{
-
-display:flex;
-
-align-items:center;
-
-gap:15px;
-
-margin-bottom:20px;
-
+width:70px;
+margin-bottom:15px;
 }
 
-.footer-logo img{
-
-width:60px;
-
+.footer-about h2{
+font-size:30px;
+margin-bottom:15px;
 }
 
-.footer-logo span{
-
-color:var(--primary);
-
+.footer-about span{
+color:#0A84FF;
 }
 
 .footer-about p{
-
-color:var(--text);
-
+color:#bfc8d4;
+line-height:1.8;
 }
 
 .footer-links h3,
-
 .footer-contact h3{
-
 margin-bottom:20px;
-
-font-size:24px;
-
+color:#0A84FF;
 }
 
 .footer-links ul{
-
-display:flex;
-
-flex-direction:column;
-
-gap:15px;
-
+list-style:none;
+padding:0;
 }
 
-.footer-links a,
+.footer-links li{
+margin-bottom:12px;
+}
 
-.footer-contact a{
-
-color:var(--text);
-
+.footer-links a{
+text-decoration:none;
+color:#d0d8e4;
 transition:.3s;
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
 }
 
-.footer-links a:hover,
-
-.footer-contact a:hover{
-
-color:var(--primary);
-
-padding-left:8px;
-
+.footer-links a:hover{
+color:#0A84FF;
+padding-left:6px;
 }
 
-.footer-contact{
+.footer-contact p{
+margin-bottom:12px;
+color:#d0d8e4;
+}
 
-display:flex;
+.footer-contact i{
+color:#0A84FF;
+width:25px;
+}
 
-flex-direction:column;
-
-gap:15px;
-
+footer hr{
+margin:40px 0 20px;
+border:0;
+border-top:1px solid rgba(255,255,255,.08);
 }
 
 .copyright{
-
-border-top:1px solid rgba(255,255,255,.08);
-
-padding-top:30px;
-
 text-align:center;
-
-color:#8D98A6;
-
-font-size:15px;
-
+color:#9aa8bb;
+line-height:2;
 }
 
+.copyright strong{
+color:#0A84FF;
+font-size:18px;
+}
+
+#scrollTop{
+position:fixed;
+right:25px;
+bottom:25px;
+width:50px;
+height:50px;
+border:none;
+border-radius:50%;
+background:#0A84FF;
+color:#fff;
+cursor:pointer;
+font-size:18px;
+box-shadow:0 0 20px rgba(10,132,255,.4);
+display:none;
+z-index:999;
+}
+
+#scrollTop:hover{
+transform:translateY(-5px);
+}
+
+@media(max-width:900px){
+
+.footer-grid{
+grid-template-columns:1fr;
+text-align:center;
+}
+
+.footer-logo{
+margin:auto;
+margin-bottom:20px;
+}
+
+.footer-contact i{
+width:auto;
+margin-right:8px;
+}
+
+}
 /*================ SCROLL BUTTON =================*/
 
 #scrollTop{
