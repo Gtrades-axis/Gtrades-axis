@@ -77,7 +77,7 @@ email:email,
 role:"student",
 
 active:false,
-
+premium:false,
 createdAt:serverTimestamp()
 
 }); 
