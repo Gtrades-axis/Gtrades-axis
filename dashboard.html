@@ -5,81 +5,149 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
 
 <title>Dashboard | GTRADES-AXIS™</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/dashboard.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="css/dashboard.css">
 
 </head>
 
 <body>
 
-<header class="dashboard-header">
+<div class="dashboard">
 
-<div class="logo">
+<!-- SIDEBAR -->
 
-<img src="images/logo.png" alt="Logo">
+<aside class="sidebar">
 
-<span>GTRADES-<b>AXIS™</b></span>
+<div class="brand">
+
+<img src="images/logo.png">
+
+<h2>
+
+GTRADES
+
+<span>
+
+AXIS™
+
+</span>
+
+</h2>
 
 </div>
 
-<nav>
+<ul>
 
-<a href="dashboard.html" class="active">
+<li class="active">
+
+<a href="dashboard.html">
+
+<i class="fa-solid fa-house"></i>
 
 Dashboard
 
 </a>
 
+</li>
+
+<li>
+
 <a href="academy.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
 
 Academy
 
 </a>
 
+</li>
+
+<li>
+
 <a href="resources.html">
+
+<i class="fa-solid fa-folder-open"></i>
 
 Resources
 
 </a>
 
-<a href="strategy.html">
+</li>
 
-Strategy
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Trading Journal
 
 </a>
 
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-download"></i>
+
+Downloads
+
+</a>
+
+</li>
+
+<li>
+
 <a href="contact.html">
+
+<i class="fa-solid fa-headset"></i>
 
 Support
 
 </a>
 
-</nav>
+</li>
 
-<button id="logoutBtn" class="btn">
+</ul>
+
+<button
+id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
 
 Logout
 
 </button>
 
-</header>
+</aside>
 
-<section class="dashboard-hero">
+<!-- MAIN -->
 
-<div class="welcome">
+<main class="main">
+
+<header class="topbar">
+
+<div>
 
 <h1>
 
@@ -97,25 +165,128 @@ Trader
 
 <p>
 
-Logged in as
-
-<strong id="userEmail">
+<span id="userEmail">
 
 Loading...
 
-</strong>
+</span>
 
 </p>
 
 </div>
 
+<div class="member">
+
+PREMIUM MEMBER
+
+</div>
+
+</header>
+<!-- HERO BANNER -->
+
+<section class="hero-banner">
+
+<div class="hero-overlay">
+
+<div>
+
+<h2>
+
+Master Smart Money Concepts
+
+</h2>
+
+<p>
+
+Continue your journey with premium lessons, downloadable resources and professional trading tools.
+
+</p>
+
+<a href="academy.html" class="primary-btn">
+
+Continue Learning
+
+</a>
+
+</div>
+
+<div class="hero-badge">
+
+<i class="fa-solid fa-crown"></i>
+
+Premium Access
+
+</div>
+
+</div>
+
 </section>
 
-<section class="dashboard-grid">
+<!-- QUICK STATS -->
 
-<div class="dashboard-card">
+<section class="stats">
 
-<i class="fas fa-graduation-cap"></i>
+<div class="stat-card">
+
+<i class="fa-solid fa-book-open"></i>
+
+<h3>120+</h3>
+
+<p>Premium Lessons</p>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-file-pdf"></i>
+
+<h3>75+</h3>
+
+<p>Trading PDFs</p>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-download"></i>
+
+<h3>40+</h3>
+
+<p>Downloads</p>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-video"></i>
+
+<h3>90+</h3>
+
+<p>Video Lessons</p>
+
+</div>
+
+</section>
+
+<!-- QUICK ACCESS -->
+
+<section class="quick-access">
+
+<h2>
+
+Quick Access
+
+</h2>
+
+<div class="cards">
+
+<a href="academy.html" class="feature-card">
+
+<div class="icon">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+</div>
 
 <h3>
 
@@ -125,21 +296,19 @@ Premium Academy
 
 <p>
 
-Access all premium trading lessons.
+Continue learning ICT & Smart Money Concepts.
 
 </p>
 
-<a href="academy.html" class="btn">
-
-Open
-
 </a>
 
+<a href="resources.html" class="feature-card">
+
+<div class="icon">
+
+<i class="fa-solid fa-folder-open"></i>
+
 </div>
-
-<div class="dashboard-card">
-
-<i class="fas fa-folder-open"></i>
 
 <h3>
 
@@ -149,44 +318,19 @@ Resources
 
 <p>
 
-Indicators, PDFs, Excel Journals and Templates.
+Indicators, PDFs, Templates & Trading Tools.
 
 </p>
 
-<a href="resources.html" class="btn">
-
-Open
-
 </a>
 
-</div>
-<div class="dashboard-card">
+<a href="#" class="feature-card">
 
-<i class="fas fa-download"></i>
+<div class="icon">
 
-<h3>
-
-Downloads
-
-</h3>
-
-<p>
-
-Download indicators, templates and premium tools.
-
-</p>
-
-<a href="resources.html" class="btn">
-
-Download
-
-</a>
+<i class="fa-solid fa-chart-line"></i>
 
 </div>
-
-<div class="dashboard-card">
-
-<i class="fas fa-chart-line"></i>
 
 <h3>
 
@@ -196,213 +340,231 @@ Trading Journal
 
 <p>
 
-Track your performance and improve consistency.
+Review your trades and measure your consistency.
 
 </p>
 
-<a href="#" class="btn">
-
-Coming Soon
-
 </a>
+
+<a href="#" class="feature-card">
+
+<div class="icon">
+
+<i class="fa-solid fa-download"></i>
 
 </div>
 
-<div class="dashboard-card">
-
-<i class="fas fa-users"></i>
-
 <h3>
 
-Community
+Downloads
 
 </h3>
 
 <p>
 
-Join discussions with other GTRADES members.
+Download premium files available to members.
 
 </p>
-
-<a href="https://t.me/+iywzAr5VaI80Mjhk"
-
-target="_blank"
-
-class="btn">
-
-Join
-
-</a>
-
-</div>
-
-<div class="dashboard-card">
-
-<i class="fas fa-video"></i>
-
-<h3>
-
-Premium Videos
-
-</h3>
-
-<p>
-
-Watch premium strategy breakdowns and lessons.
-
-</p>
-
-<a href="academy.html"
-
-class="btn">
-
-Watch
 
 </a>
 
 </div>
 
 </section>
+<!-- ===================== DASHBOARD CONTENT ===================== -->
 
-<section class="dashboard-news">
+<section class="dashboard-content">
 
-<h2>
+    <!-- LEFT COLUMN -->
 
-Latest Announcements
+    <div class="left-column">
 
-</h2>
+        <div class="panel">
 
-<div class="announcement">
+            <h2>
+                <i class="fa-solid fa-bullhorn"></i>
+                Latest Announcements
+            </h2>
 
-<h3>
+            <div class="news-item">
 
-Welcome to GTRADES-AXIS Premium
+                <span class="tag">NEW</span>
 
-</h3>
+                <h3>Welcome to GTRADES-AXIS Premium</h3>
 
-<p>
+                <p>
+                    Your premium membership is active.
+                    Start with Module 1 before proceeding to advanced lessons.
+                </p>
 
-You now have access to premium trading education, downloadable resources, and the members dashboard.
+            </div>
 
-Continue building consistency by following the Academy lessons in order.
+            <div class="news-item">
 
-</p>
+                <span class="tag">UPDATE</span>
 
-</div>
+                <h3>Weekly Market Outlook</h3>
 
-<div class="announcement">
+                <p>
+                    Fresh outlooks for EURJPY, GBPJPY, AUDJPY,
+                    USDJPY and Gold are uploaded every weekend.
+                </p>
 
-<h3>
+            </div>
 
-Weekly Market Outlook
+            <div class="news-item">
 
-</h3>
+                <span class="tag">RESOURCE</span>
 
-<p>
+                <h3>Trading Journal Updated</h3>
 
-Every weekend a fresh market outlook will be uploaded covering EUUSD, GBPUSD, Gold and major market opportunities.
+                <p>
+                    Download the latest version from the Resources page.
+                </p>
 
-</p>
+            </div>
 
-</div>
+        </div>
 
-<div class="announcement">
+        <div class="panel">
 
-<h3>
+            <h2>
 
-New Resources
+                <i class="fa-solid fa-calendar-days"></i>
 
-</h3>
+                Trading Calendar
 
-<p>
+            </h2>
 
-Check the Resources page regularly for updated indicators, trading journals, PDFs and templates.
+            <ul class="calendar-list">
 
-</p>
+                <li>
 
-</div>
+                    <strong>Monday</strong>
+
+                    Weekly Bias & Planning
+
+                </li>
+
+                <li>
+
+                    <strong>Tuesday</strong>
+
+                    London Session Review
+
+                </li>
+
+                <li>
+
+                    <strong>Wednesday</strong>
+
+                    Midweek Market Analysis
+
+                </li>
+
+                <li>
+
+                    <strong>Thursday</strong>
+
+                    Trade Management Session
+
+                </li>
+
+                <li>
+
+                    <strong>Friday</strong>
+
+                    Weekly Recap & Journal
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+
+    <div class="right-column">
+
+        <div class="panel">
+
+            <h2>
+
+                <i class="fa-solid fa-chart-simple"></i>
+
+                Market Watch
+
+            </h2>
+
+            <div class="market-grid">
+
+                <div>
+
+                    <h4>EURJPY</h4>
+
+                    <p>Watch London Continuations</p>
+
+                </div>
+
+                <div>
+
+                    <h4>GBPJPY</h4>
+
+                    <p>Liquidity Sweep Focus</p>
+
+                </div>
+
+                <div>
+
+                    <h4>AUDJPY</h4>
+
+                    <p>Trend Continuation</p>
+
+                </div>
+
+                <div>
+
+                    <h4>XAU/USD</h4>
+
+                    <p>NY Session Volatility</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="panel progress-panel">
+
+            <h2>
+
+                <i class="fa-solid fa-trophy"></i>
+
+                Learning Progress
+
+            </h2>
+
+            <p>Overall Academy Progress</p>
+
+            <div class="progress-bar">
+
+                <div class="progress-fill" style="width:18%"></div>
+
+            </div>
+
+            <h3>18%</h3>
+
+            <p>
+
+                Complete the beginner modules to unlock
+                advanced Smart Money Concepts.
+
+            </p>
+
+        </div>
+
+    </div>
 
 </section>
-<section class="dashboard-stats">
-
-<h2>Your Premium Benefits</h2>
-
-<div class="stats-grid">
-
-<div class="stat-box">
-
-<h3>100+</h3>
-
-<p>Premium Lessons</p>
-
-</div>
-
-<div class="stat-box">
-
-<h3>50+</h3>
-
-<p>Trading PDFs</p>
-
-</div>
-
-<div class="stat-box">
-
-<h3>25+</h3>
-
-<p>Trading Templates</p>
-
-</div>
-
-<div class="stat-box">
-
-<h3>24/7</h3>
-
-<p>Community Support</p>
-
-</div>
-
-</div>
-
-</section>
-
-<footer class="dashboard-footer">
-
-<div class="footer-logo">
-
-<img src="images/logo.png" alt="GTRADES-AXIS Logo">
-
-<h2>GTRADES-AXIS™</h2>
-
-</div>
-
-<p>
-
-Trade with Structure. Execute with Precision.
-
-</p>
-
-<div class="footer-links">
-
-<a href="academy.html">Academy</a>
-
-<a href="resources.html">Resources</a>
-
-<a href="strategy.html">Strategy</a>
-
-<a href="contact.html">Support</a>
-
-</div>
-
-<p class="copyright">
-
-© 2026 GTRADES-AXIS™. All Rights Reserved.
-
-</p>
-
-</footer>
-
-<script type="module" src="js/auth.js"></script>
-
-</body>
-
-</html>
