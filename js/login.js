@@ -1,82 +1,68 @@
 import { auth } from "./firebase.js";
 
 import {
-
-signInWithEmailAndPassword,
-
-GoogleAuthProvider,
-
-signInWithPopup
-
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 const form = document.getElementById("loginForm");
-
 const googleBtn = document.getElementById("googleLogin");
 
-form.addEventListener("submit", loginUser);
+// Email Login
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-googleBtn.addEventListener("click", googleLogin);
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-async function loginUser(e){
+    try {
 
-e.preventDefault();
+        await signInWithEmailAndPassword(auth, email, password);
 
-const email = document.getElementById("email").value.trim();
+        window.location.href = "dashboard.html";
 
-const password = document.getElementById("password").value;
+    } catch (error) {
 
-try{
+        let message = "";
 
-const userCredential = await signInWithEmailAndPassword(
+        switch (error.code) {
 
-auth,
+            case "auth/invalid-credential":
+                message = "Invalid email or password.";
+                break;
 
-email,
+            case "auth/user-not-found":
+                message = "Account not found.";
+                break;
 
-password
+            case "auth/wrong-password":
+                message = "Incorrect password.";
+                break;
 
-);
+            default:
+                message = error.message;
+        }
 
-const user = userCredential.user;
- import { auth } from "./firebase.js";
+        alert(message);
+    }
+});
 
-import {
+// Google Login
+googleBtn.addEventListener("click", async () => {
 
-signInWithEmailAndPassword,
+    try {
 
-GoogleAuthProvider,
+        const provider = new GoogleAuthProvider();
 
-signInWithPopup
+        await signInWithPopup(auth, provider);
 
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        window.location.href = "dashboard.html";
 
-const form = document.getElementById("loginForm");
+    } catch (error) {
 
-const googleBtn = document.getElementById("googleLogin");
+        alert(error.message);
 
-form.addEventListener("submit", loginUser);
+    }
 
-googleBtn.addEventListener("click", googleLogin);
-
-async function loginUser(e){
-
-e.preventDefault();
-
-const email = document.getElementById("email").value.trim();
-
-const password = document.getElementById("password").value;
-
-try{
-
-const userCredential = await signInWithEmailAndPassword(
-
-auth,
-
-email,
-
-password
-
-);
-
-const user = userCredential.user; 
+});
