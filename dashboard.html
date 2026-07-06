@@ -11,6 +11,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="css/style.css">
@@ -22,11 +24,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <body>
 
-<header>
+<header class="dashboard-header">
 
 <div class="logo">
 
-<img src="images/logo.png">
+<img src="images/logo.png" alt="Logo">
 
 <span>GTRADES-<b>AXIS™</b></span>
 
@@ -34,15 +36,35 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <nav>
 
-<a href="dashboard.html">Dashboard</a>
+<a href="dashboard.html" class="active">
 
-<a href="academy.html">Academy</a>
+Dashboard
 
-<a href="strategy.html">Strategy</a>
+</a>
 
-<a href="resources.html">Resources</a>
+<a href="academy.html">
 
-<a href="contact.html">Support</a>
+Academy
+
+</a>
+
+<a href="resources.html">
+
+Resources
+
+</a>
+
+<a href="strategy.html">
+
+Strategy
+
+</a>
+
+<a href="contact.html">
+
+Support
+
+</a>
 
 </nav>
 
@@ -54,19 +76,21 @@ Logout
 
 </header>
 
-<section class="dashboard">
+<section class="dashboard-hero">
 
-<div class="dashboard-card">
+<div class="welcome">
 
 <h1>
 
-Welcome,
+Welcome back,
 
 <span id="userName">
 
 Trader
 
 </span>
+
+👋
 
 </h1>
 
@@ -83,3 +107,301 @@ Loading...
 </p>
 
 </div>
+
+</section>
+
+<section class="dashboard-grid">
+
+<div class="dashboard-card">
+
+<i class="fas fa-graduation-cap"></i>
+
+<h3>
+
+Premium Academy
+
+</h3>
+
+<p>
+
+Access all premium trading lessons.
+
+</p>
+
+<a href="academy.html" class="btn">
+
+Open
+
+</a>
+
+</div>
+
+<div class="dashboard-card">
+
+<i class="fas fa-folder-open"></i>
+
+<h3>
+
+Resources
+
+</h3>
+
+<p>
+
+Indicators, PDFs, Excel Journals and Templates.
+
+</p>
+
+<a href="resources.html" class="btn">
+
+Open
+
+</a>
+
+</div>
+<div class="dashboard-card">
+
+<i class="fas fa-download"></i>
+
+<h3>
+
+Downloads
+
+</h3>
+
+<p>
+
+Download indicators, templates and premium tools.
+
+</p>
+
+<a href="resources.html" class="btn">
+
+Download
+
+</a>
+
+</div>
+
+<div class="dashboard-card">
+
+<i class="fas fa-chart-line"></i>
+
+<h3>
+
+Trading Journal
+
+</h3>
+
+<p>
+
+Track your performance and improve consistency.
+
+</p>
+
+<a href="#" class="btn">
+
+Coming Soon
+
+</a>
+
+</div>
+
+<div class="dashboard-card">
+
+<i class="fas fa-users"></i>
+
+<h3>
+
+Community
+
+</h3>
+
+<p>
+
+Join discussions with other GTRADES members.
+
+</p>
+
+<a href="https://t.me/+iywzAr5VaI80Mjhk"
+
+target="_blank"
+
+class="btn">
+
+Join
+
+</a>
+
+</div>
+
+<div class="dashboard-card">
+
+<i class="fas fa-video"></i>
+
+<h3>
+
+Premium Videos
+
+</h3>
+
+<p>
+
+Watch premium strategy breakdowns and lessons.
+
+</p>
+
+<a href="academy.html"
+
+class="btn">
+
+Watch
+
+</a>
+
+</div>
+
+</section>
+
+<section class="dashboard-news">
+
+<h2>
+
+Latest Announcements
+
+</h2>
+
+<div class="announcement">
+
+<h3>
+
+Welcome to GTRADES-AXIS Premium
+
+</h3>
+
+<p>
+
+You now have access to premium trading education, downloadable resources, and the members dashboard.
+
+Continue building consistency by following the Academy lessons in order.
+
+</p>
+
+</div>
+
+<div class="announcement">
+
+<h3>
+
+Weekly Market Outlook
+
+</h3>
+
+<p>
+
+Every weekend a fresh market outlook will be uploaded covering EUUSD, GBPUSD, Gold and major market opportunities.
+
+</p>
+
+</div>
+
+<div class="announcement">
+
+<h3>
+
+New Resources
+
+</h3>
+
+<p>
+
+Check the Resources page regularly for updated indicators, trading journals, PDFs and templates.
+
+</p>
+
+</div>
+
+</section>
+<section class="dashboard-stats">
+
+<h2>Your Premium Benefits</h2>
+
+<div class="stats-grid">
+
+<div class="stat-box">
+
+<h3>100+</h3>
+
+<p>Premium Lessons</p>
+
+</div>
+
+<div class="stat-box">
+
+<h3>50+</h3>
+
+<p>Trading PDFs</p>
+
+</div>
+
+<div class="stat-box">
+
+<h3>25+</h3>
+
+<p>Trading Templates</p>
+
+</div>
+
+<div class="stat-box">
+
+<h3>24/7</h3>
+
+<p>Community Support</p>
+
+</div>
+
+</div>
+
+</section>
+
+<footer class="dashboard-footer">
+
+<div class="footer-logo">
+
+<img src="images/logo.png" alt="GTRADES-AXIS Logo">
+
+<h2>GTRADES-AXIS™</h2>
+
+</div>
+
+<p>
+
+Trade with Structure. Execute with Precision.
+
+</p>
+
+<div class="footer-links">
+
+<a href="academy.html">Academy</a>
+
+<a href="resources.html">Resources</a>
+
+<a href="strategy.html">Strategy</a>
+
+<a href="contact.html">Support</a>
+
+</div>
+
+<p class="copyright">
+
+© 2026 GTRADES-AXIS™. All Rights Reserved.
+
+</p>
+
+</footer>
+
+<script type="module" src="js/auth.js"></script>
+
+</body>
+
+</html>
