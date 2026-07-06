@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+
+Admin Dashboard | GTRADES-AXIS™
+
+</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="css/admin.css">
+
+</head>
+
+<body>
+
+<div class="admin-container">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img
+src="images/logo.png"
+alt="logo">
+
+<h2>
+
+GTRADES
+
+<span>
+
+AXIS™
+
+</span>
+
+</h2>
+
+<p>
+
+Administrator
+
+</p>
+
+</div>
+
+<ul>
+
+<li class="active">
+
+<a href="#">
+
+<i class="fas fa-chart-pie"></i>
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#members">
+
+<i class="fas fa-users"></i>
+
+Members
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#resources">
+
+<i class="fas fa-folder-open"></i>
+
+Resources
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#courses">
+
+<i class="fas fa-graduation-cap"></i>
+
+Courses
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#payments">
+
+<i class="fas fa-money-bill-wave"></i>
+
+Payments
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#announcements">
+
+<i class="fas fa-bullhorn"></i>
+
+Announcements
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#settings">
+
+<i class="fas fa-cog"></i>
+
+Settings
+
+</a>
+
+</li>
+
+</ul>
+
+<button
+id="logoutBtn">
+
+<i class="fas fa-sign-out-alt"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+
+<div class="main-content">
+
+<header class="topbar">
+
+<div>
+
+<h1>
+
+Admin Dashboard
+
+</h1>
+
+<p>
+
+Welcome back,
+
+<span id="adminName">
+
+Administrator
+
+</span>
+
+</p>
+
+</div>
+
+<div class="admin-badge">
+
+ADMIN
+
+</div>
+
+</header>
+<!-- ===================== DASHBOARD STATS ===================== -->
+
+<section class="stats-grid">
+
+<div class="stat-card">
+
+<div class="stat-icon blue">
+
+<i class="fas fa-users"></i>
+
+</div>
+
+<div>
+
+<h2 id="totalUsers">
+
+0
+
+</h2>
+
+<p>
+
+Total Members
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-icon green">
+
+<i class="fas fa-crown"></i>
+
+</div>
+
+<div>
+
+<h2 id="premiumUsers">
+
+0
+
+</h2>
+
+<p>
+
+Premium Members
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-icon orange">
+
+<i class="fas fa-user-clock"></i>
+
+</div>
+
+<div>
+
+<h2 id="pendingUsers">
+
+0
+
+</h2>
+
+<p>
+
+Pending Approval
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-icon red">
+
+<i class="fas fa-folder"></i>
+
+</div>
+
+<div>
+
+<h2 id="totalResources">
+
+0
+
+</h2>
+
+<p>
+
+Resources
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ===================== QUICK ACTIONS ===================== -->
+
+<section class="quick-actions">
+
+<h2>
+
+Quick Actions
+
+</h2>
+
+<div class="action-grid">
+
+<button id="addResourceBtn">
+
+<i class="fas fa-upload"></i>
+
+Upload Resource
+
+</button>
+
+<button id="addCourseBtn">
+
+<i class="fas fa-video"></i>
+
+Add Course
+
+</button>
+
+<button id="announcementBtn">
+
+<i class="fas fa-bullhorn"></i>
+
+New Announcement
+
+</button>
+
+<button id="refreshBtn">
+
+<i class="fas fa-rotate"></i>
+
+Refresh Data
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ===================== RECENT MEMBERS ===================== -->
+
+<section class="members-section">
+
+<div class="section-header">
+
+<h2>
+
+Recent Members
+
+</h2>
+
+</div>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Email</th>
+
+<th>Premium</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="membersTable">
+
+<tr>
+
+<td colspan="5">
+
+Loading members...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
