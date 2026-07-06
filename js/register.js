@@ -7,6 +7,15 @@ createUserWithEmailAndPassword,
 updateProfile
 
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import {
+
+doc,
+
+setDoc,
+
+serverTimestamp
+
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const form = document.getElementById("registerForm");
 
@@ -59,10 +68,24 @@ await updateProfile(user,{
 displayName:name
 
 });
-alert("Welcome to GTRADES-AXIS™, " + name + "!");
+ await setDoc(doc(db,"users",user.uid),{
 
-window.location.href = "dashboard.html";
+name:name,
 
+email:email,
+
+role:"student",
+
+active:false,
+
+createdAt:serverTimestamp()
+
+}); 
+alert(
+"Account created successfully!\n\nYour account is awaiting administrator approval."
+);
+
+window.location.href="login.html";
 }catch(error){
 
 let message = "";
