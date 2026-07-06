@@ -1,121 +1,100 @@
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import {
-
-onAuthStateChanged,
-
-signOut
-
+    onAuthStateChanged,
+    signOut
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-// Wait for Firebase authentication state
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(auth, async (user) => {
 
-// ---------- USER LOGGED IN ----------
+    const page = window.location.pathname.split("/").pop();
 
-if(user){
+    const publicPages = [
+        "",
+        "index.html",
+        "login.html",
+        "register.html",
+        "forgot-password.html"
+    ];
 
-// Display user name if element exists
+    // Not logged in
+    if (!user) {
 
-const userName=document.getElementById("userName");
+        if (!publicPages.includes(page)) {
+            window.location.href = "login.html";
+        }
 
-if(userName){
+        return;
+    }
 
-userName.textContent=user.displayName || "Trader";
+    // Logged in
+    const docRef = doc(db, "users", user.uid);
 
-}
+    const docSnap = await getDoc(docRef);
 
-// Display email if element exists
+    if (!docSnap.exists()) {
 
-const userEmail=document.getElementById("userEmail");
+        alert("Your account could not be found.");
 
-if(userEmail){
+        await signOut(auth);
 
-userEmail.textContent=user.email;
+        window.location.href = "login.html";
 
-}
+        return;
 
-// Prevent logged-in users from seeing login pages
+    }
 
-const page=window.location.pathname;
+    const data = docSnap.data();
 
-if(
+    // Account awaiting approval
 
-page.includes("login.html") ||
+    if (data.active === false) {
 
-page.includes("register.html") ||
+        alert("Your account is awaiting administrator approval.");
 
-page.includes("forgot-password.html")
+        await signOut(auth);
 
-){
+        window.location.href = "login.html";
 
-window.location.href="dashboard.html";
+        return;
 
-}
+    }
 
-}
+    // Display user info
 
-// ---------- USER NOT LOGGED IN ----------
+    const userName = document.getElementById("userName");
 
-else{
+    if (userName) {
 
-const page=window.location.pathname;
+        userName.textContent = data.name;
 
-const publicPages=[
+    }
 
-"/",
+    const userEmail = document.getElementById("userEmail");
 
-"/index.html",
+    if (userEmail) {
 
-"/login.html",
+        userEmail.textContent = data.email;
 
-"/register.html",
-
-"/forgot-password.html"
-
-];
-
-const current=page.substring(page.lastIndexOf("/"));
-
-if(
-
-!publicPages.includes(current)
-
-&& current!==""
-
-){
-
-window.location.href="login.html";
-
-}
-
-}
+    }
 
 });
 
-// ================= LOGOUT =================
+const logoutBtn = document.getElementById("logoutBtn");
 
-const logoutBtn=document.getElementById("logoutBtn");
+if (logoutBtn) {
 
-if(logoutBtn){
+    logoutBtn.addEventListener("click", async () => {
 
-logoutBtn.addEventListener("click",()=>{
+        await signOut(auth);
 
-signOut(auth)
+        window.location.href = "login.html";
 
-.then(()=>{
-
-window.location.href="login.html";
-
-})
-
-.catch((error)=>{
-
-alert(error.message);
-
-});
-
-});
+    });
 
 }
