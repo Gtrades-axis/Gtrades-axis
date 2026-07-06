@@ -1,17 +1,204 @@
-<section class="premium-resources">
+<!DOCTYPE html>
+<html lang="en">
 
-<h1>Premium Resources</h1>
+<head>
 
-<p>
+    <meta charset="UTF-8">
 
-Download your premium trading resources.
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-</p>
-</body>
+    <title>Premium Resources | GTRADES-AXIS™</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img src="images/logo.png" alt="Logo">
+
+            <h2>GTRADES-AXIS™</h2>
+
+        </div>
+
+        <ul class="menu">
+
+            <li>
+
+                <a href="dashboard.html">
+
+                    <i class="fas fa-home"></i>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+            <li class="active">
+
+                <a href="resources.html">
+
+                    <i class="fas fa-folder-open"></i>
+
+                    Premium Resources
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="academy.html">
+
+                    <i class="fas fa-graduation-cap"></i>
+
+                    Academy
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="#">
+
+                    <i class="fas fa-user"></i>
+
+                    My Profile
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="#" id="logoutBtn">
+
+                    <i class="fas fa-sign-out-alt"></i>
+
+                    Logout
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <!-- Top Bar -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Premium Resources</h1>
+
+                <p>
+
+                    Download your premium trading tools and learning materials.
+
+                </p>
+
+            </div>
+
+        </header>
+
+        <!-- Search -->
+
+        <section class="resource-search">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search resources...">
+
+        </section>
+
+        <!-- Categories -->
+
+        <section class="resource-filters">
+
+            <button class="filter-btn active" data-category="All">
+
+                All
+
+            </button>
+
+            <button class="filter-btn" data-category="PDF">
+
+                PDFs
+
+            </button>
+
+            <button class="filter-btn" data-category="Indicator">
+
+                Indicators
+
+            </button>
+
+            <button class="filter-btn" data-category="Trading Journal">
+
+                Journals
+
+            </button>
+
+            <button class="filter-btn" data-category="Strategy">
+
+                Strategies
+
+            </button>
+
+            <button class="filter-btn" data-category="Video">
+
+                Videos
+
+            </button>
+
+        </section>
+
+        <!-- Resource Cards -->
+
+        <section>
+
+            <div
+                id="resourceContainer"
+                class="resource-grid">
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script type="module" src="js/authGuard.js"></script>
+
 <script type="module" src="js/loadResources.js"></script>
 
 </body>
 
-</div>
-
-</section>
+</html>
