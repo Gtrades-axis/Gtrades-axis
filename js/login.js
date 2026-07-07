@@ -1,14 +1,47 @@
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import {
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const form = document.getElementById("loginForm");
 const googleBtn = document.getElementById("googleLogin");
+async function ensureUserDocument(user) {
 
+    const userRef = doc(db, "users", user.uid);
+
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+
+        await setDoc(userRef, {
+
+            name: user.displayName || "",
+
+            email: user.email,
+
+            role: "premium",
+
+            active: true,
+
+            createdAt: serverTimestamp()
+
+        });
+
+    }
+
+    return await getDoc(userRef);
+
+}
 // Email Login
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -17,10 +50,44 @@ form.addEventListener("submit", async (e) => {
     const password = document.getElementById("password").value;
 
     try {
+const userCredential = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+);
 
-        await signInWithEmailAndPassword(auth, email, password);
+const user = userCredential.user;
 
-        window.location.href = "dashboard.html";
+// Make sure the Firestore user document exists
+const docSnap = await ensureUserDocument(user);
+
+const data = docSnap.data();
+
+// Admin
+// Check if account is active
+if (data.active === false) {
+
+    alert("Your account is awaiting administrator approval.");
+
+    return;
+
+}
+
+// Administrator
+if (data.role === "admin") {
+
+    window.location.href = "admin.html";
+
+}
+
+// Premium Member
+else {
+
+    window.location.href = "dashboard.html";
+
+
+
+}
 
     } catch (error) {
 
@@ -55,10 +122,42 @@ googleBtn.addEventListener("click", async () => {
 
         const provider = new GoogleAuthProvider();
 
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
 
-        window.location.href = "dashboard.html";
+        const user = result.user;
 
+        // Ensure Firestore user exists
+        const docSnap = await ensureUserDocument(user);
+
+        const data = docSnap.data();
+
+        // Check if account is active
+        if (data.active === false) {
+
+            alert("Your account is awaiting administrator approval.");
+
+            return;
+
+        }
+
+        // Redirect based on role
+        if (data.role === "admin") {
+
+            window.location.href = "admin.html";
+
+        } else {
+
+            window.location.href = "dashboard.html";
+
+        }
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+
+});
     } catch (error) {
 
         alert(error.message);
