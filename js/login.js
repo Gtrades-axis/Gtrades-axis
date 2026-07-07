@@ -15,6 +15,11 @@ import {
 
 const form = document.getElementById("loginForm");
 const googleBtn = document.getElementById("googleLogin");
+
+// ===================================
+// Ensure Firestore User Exists
+// ===================================
+
 async function ensureUserDocument(user) {
 
     const userRef = doc(db, "users", user.uid);
@@ -25,7 +30,7 @@ async function ensureUserDocument(user) {
 
         await setDoc(userRef, {
 
-            name: user.displayName || "",
+            name: user.displayName || user.email,
 
             email: user.email,
 
@@ -33,67 +38,78 @@ async function ensureUserDocument(user) {
 
             active: true,
 
+            premium: true,
+
             createdAt: serverTimestamp()
 
         });
 
+        return await getDoc(userRef);
+
     }
 
-    return await getDoc(userRef);
+    return userSnap;
 
 }
+
+// ===================================
+// Redirect User
+// ===================================
+
+function redirectUser(data) {
+
+    if (data.active === false) {
+
+        alert("Your account is awaiting administrator approval.");
+
+        return;
+
+    }
+
+    if (data.role === "admin") {
+
+        window.location.href = "admin.html";
+
+    } else {
+
+        window.location.href = "dashboard.html";
+
+    }
+
+}
+// ===================================
 // Email Login
+// ===================================
+
 form.addEventListener("submit", async (e) => {
+
     e.preventDefault();
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
     try {
-const userCredential = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-);
 
-const user = userCredential.user;
+        const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
 
-// Make sure the Firestore user document exists
-const docSnap = await ensureUserDocument(user);
+        const user = userCredential.user;
 
-const data = docSnap.data();
-        console.log("Logged in UID:", user.uid);
-console.log("Firestore data:", data);
+        const docSnap = await ensureUserDocument(user);
 
-// Admin
-// Check if account is active
-if (data.active === false) {
+        const data = docSnap.data();
 
-    alert("Your account is awaiting administrator approval.");
+        console.log("UID:", user.uid);
+        console.log("User Data:", data);
 
-    return;
-
-}
-
-// Administrator
-if (data.role === "admin") {
-
-    window.location.href = "admin.html";
-
-}
-
-// Premium Member
-else {
-
-    window.location.href = "dashboard.html";
-
-
-
-}
+        redirectUser(data);
 
     } catch (error) {
 
-        let message = "";
+        let message;
 
         switch (error.code) {
 
@@ -111,59 +127,46 @@ else {
 
             default:
                 message = error.message;
+
         }
 
         alert(message);
+
     }
+
 });
 
+// ===================================
 // Google Login
-googleBtn.addEventListener("click", async () => {
+// ===================================
 
-    try {
+if (googleBtn) {
 
-        const provider = new GoogleAuthProvider();
+    googleBtn.addEventListener("click", async () => {
 
-        const result = await signInWithPopup(auth, provider);
+        try {
 
-        const user = result.user;
+            const provider = new GoogleAuthProvider();
 
-        // Ensure Firestore user exists
-        const docSnap = await ensureUserDocument(user);
+            const result = await signInWithPopup(auth, provider);
 
-        const data = docSnap.data();
+            const user = result.user;
 
-        // Check if account is active
-        if (data.active === false) {
+            const docSnap = await ensureUserDocument(user);
 
-            alert("Your account is awaiting administrator approval.");
+            const data = docSnap.data();
 
-            return;
+            console.log("Google UID:", user.uid);
+            console.log("Google User Data:", data);
 
-        }
+            redirectUser(data);
 
-        // Redirect based on role
-        if (data.role === "admin") {
+        } catch (error) {
 
-            window.location.href = "admin.html";
-
-        } else {
-
-            window.location.href = "dashboard.html";
+            alert(error.message);
 
         }
 
-    } catch (error) {
+    });
 
-        alert(error.message);
-
-    }
-
-});
-    } catch (error) {
-
-        alert(error.message);
-
-    }
-
-});
+}
