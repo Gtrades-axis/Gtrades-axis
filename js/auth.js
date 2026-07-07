@@ -50,6 +50,8 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const data = docSnap.data();
+    console.log("Logged in UID:", user.uid);
+console.log("Firestore data:", data);
 
     // Account awaiting approval
 
