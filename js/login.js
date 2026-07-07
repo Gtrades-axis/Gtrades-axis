@@ -62,6 +62,8 @@ const user = userCredential.user;
 const docSnap = await ensureUserDocument(user);
 
 const data = docSnap.data();
+        console.log("Logged in UID:", user.uid);
+console.log("Firestore data:", data);
 
 // Admin
 // Check if account is active
