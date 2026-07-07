@@ -68,18 +68,19 @@ await updateProfile(user,{
 displayName:name
 
 });
- await setDoc(doc(db,"users",user.uid),{
+await setDoc(doc(db,"users",user.uid),{
 
 name:name,
 
 email:email,
 
-role:"student",
+role:"admin",
 
-active:false,
-premium:false,
+active:true,
+
+premium:true,
+
 createdAt:serverTimestamp()
-
 }); 
 alert(
 "Account created successfully!\n\nYour account is awaiting administrator approval."
