@@ -16,15 +16,15 @@ import {
 const form = document.getElementById("loginForm");
 const googleBtn = document.getElementById("googleLogin");
 
-// ===================================
-// Ensure Firestore User Exists
-// ===================================
+// ==============================
+// Ensure Firestore user exists
+// ==============================
 
 async function ensureUserDocument(user) {
 
     const userRef = doc(db, "users", user.uid);
 
-    const userSnap = await getDoc(userRef);
+    let userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
 
@@ -44,7 +44,7 @@ async function ensureUserDocument(user) {
 
         });
 
-        return await getDoc(userRef);
+        userSnap = await getDoc(userRef);
 
     }
 
@@ -52,9 +52,9 @@ async function ensureUserDocument(user) {
 
 }
 
-// ===================================
-// Redirect User
-// ===================================
+// ==============================
+// Redirect user
+// ==============================
 
 function redirectUser(data) {
 
@@ -77,68 +77,53 @@ function redirectUser(data) {
     }
 
 }
-// ===================================
+
+// ==============================
 // Email Login
-// ===================================
+// ==============================
 
-form.addEventListener("submit", async (e) => {
+if (form) {
 
-    e.preventDefault();
+    form.addEventListener("submit", async (e) => {
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+        e.preventDefault();
 
-    try {
+        const email = document.getElementById("email").value.trim();
 
-        const userCredential = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+        const password = document.getElementById("password").value;
 
-        const user = userCredential.user;
+        try {
 
-        const docSnap = await ensureUserDocument(user);
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-        const data = docSnap.data();
+            const user = userCredential.user;
 
-        console.log("UID:", user.uid);
-        console.log("User Data:", data);
+            const docSnap = await ensureUserDocument(user);
 
-        redirectUser(data);
+            const data = docSnap.data();
 
-    } catch (error) {
+            console.log("UID:", user.uid);
+            console.log("User Data:", data);
 
-        let message;
+            redirectUser(data);
 
-        switch (error.code) {
+        } catch (error) {
 
-            case "auth/invalid-credential":
-                message = "Invalid email or password.";
-                break;
-
-            case "auth/user-not-found":
-                message = "Account not found.";
-                break;
-
-            case "auth/wrong-password":
-                message = "Incorrect password.";
-                break;
-
-            default:
-                message = error.message;
+            alert(error.message);
 
         }
 
-        alert(message);
+    });
 
-    }
+}
 
-});
-
-// ===================================
+// ==============================
 // Google Login
-// ===================================
+// ==============================
 
 if (googleBtn) {
 
@@ -155,9 +140,6 @@ if (googleBtn) {
             const docSnap = await ensureUserDocument(user);
 
             const data = docSnap.data();
-
-            console.log("Google UID:", user.uid);
-            console.log("Google User Data:", data);
 
             redirectUser(data);
 
