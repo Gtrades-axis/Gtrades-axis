@@ -133,7 +133,115 @@ text-shadow:
 0 0 60px var(--primary);
 
 }
+/* =======================================
+HEADER ACTIONS
+======================================= */
 
+.nav-buttons{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+margin-left:auto;
+
+}
+
+.nav-buttons a{
+
+white-space:nowrap;
+
+}
+
+.login-btn{
+
+background:transparent;
+
+border:2px solid #0A84FF;
+
+padding:10px 20px;
+
+border-radius:8px;
+
+font-weight:600;
+
+color:#fff;
+
+text-decoration:none;
+
+transition:.3s;
+
+}
+
+.login-btn:hover{
+
+background:#0A84FF;
+
+}
+
+.register-btn{
+
+background:#0A84FF;
+
+padding:10px 20px;
+
+border-radius:8px;
+
+color:#fff;
+
+text-decoration:none;
+
+font-weight:600;
+
+transition:.3s;
+
+}
+
+.register-btn:hover{
+
+background:#006be0;
+
+}
+
+.dashboard-btn{
+
+display:none;
+
+background:#FFD700;
+
+padding:10px 20px;
+
+border-radius:8px;
+
+font-weight:700;
+
+color:#111;
+
+text-decoration:none;
+
+}
+
+.nav-buttons i{
+
+font-size:20px;
+
+}
+
+@media(max-width:992px){
+
+.nav-buttons{
+
+flex-wrap:wrap;
+
+justify-content:center;
+
+margin-top:20px;
+
+}
+
+}
 /*================ NAVIGATION ================*/
 
 nav ul{
