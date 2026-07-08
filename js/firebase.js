@@ -1,43 +1,52 @@
-// ============================
-// GTRADES-AXIS Firebase Config
-// ============================
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { db } from "../firebase.js";
 
 import {
-    getAuth
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-import {
-    getFirestore
+    collection,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// Firebase Configuration
+const table = document.getElementById("membersTable");
 
-const firebaseConfig = {
+async function loadMembers() {
 
-    apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+    const snapshot = await getDocs(collection(db, "users"));
 
-    authDomain: "gtrades-axis.firebaseapp.com",
+    table.innerHTML = "";
 
-    projectId: "gtrades-axis",
+    snapshot.forEach(doc => {
 
-    storageBucket: "gtrades-axis.firebasestorage.app",
+        const data = doc.data();
 
-    messagingSenderId: "111456545888",
+        table.innerHTML += `
 
-    appId: "1:111456545888:web:f0526c142d7ea5e22fe705"
+        <tr>
 
-};
+            <td>${data.name}</td>
 
-// Initialize Firebase
+            <td>${data.email}</td>
 
-const app = initializeApp(firebaseConfig);
+            <td>${data.role}</td>
 
-// Authentication
+            <td>${data.paymentStatus || "unpaid"}</td>
 
-export const auth = getAuth(app);
+            <td>${data.active ? "Active" : "Pending"}</td>
 
-// Firestore Database
+            <td>
 
-export const db = getFirestore(app);
+                <button class="approve-btn">
+
+                    Manage
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+loadMembers();
