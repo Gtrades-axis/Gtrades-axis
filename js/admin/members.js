@@ -10,7 +10,6 @@ const table = document.getElementById("membersTable");
 async function loadMembers() {
 
     const snapshot = await getDocs(collection(db, "users"));
-    console.log("Users:", snapshot.size);
 
     table.innerHTML = "";
 
