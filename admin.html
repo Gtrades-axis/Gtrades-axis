@@ -39,7 +39,53 @@
         </table>
 
     </div>
+<!-- Member Management Modal -->
 
+<div id="memberModal" class="member-modal">
+
+    <div class="member-modal-content">
+
+        <span id="closeModal" class="close-modal">&times;</span>
+
+        <h2>Member Details</h2>
+
+        <p><strong>Name:</strong> <span id="modalName"></span></p>
+
+        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+
+        <p><strong>Role:</strong> <span id="modalRole"></span></p>
+
+        <p><strong>Payment:</strong> <span id="modalPayment"></span></p>
+
+        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+
+        <div class="modal-actions">
+
+            <button id="approveBtn" class="approve-btn">
+                ✅ Approve Member
+            </button>
+
+            <button id="premiumBtn" class="premium-btn">
+                ⭐ Make Premium
+            </button>
+
+            <button id="adminBtn" class="admin-btn">
+                👑 Make Admin
+            </button>
+
+            <button id="suspendBtn" class="suspend-btn">
+                ⛔ Suspend
+            </button>
+
+            <button id="deleteBtn" class="delete-btn">
+                🗑 Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 </main>
 
 <script type="module" src="js/admin/members.js"></script>
