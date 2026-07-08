@@ -2,7 +2,10 @@ import { db } from "../firebase.js";
 
 import {
     collection,
-    getDocs
+    getDocs,
+    doc,
+    updateDoc,
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const table = document.getElementById("membersTable");
@@ -27,7 +30,7 @@ const modalPayment = document.getElementById("modalPayment");
 const modalStatus = document.getElementById("modalStatus");
 
 let members = [];
-
+let selectedMember = null;
 // =============================
 // LOAD MEMBERS
 // =============================
@@ -167,6 +170,7 @@ function addManageEvents() {
             const id = button.dataset.id;
 
             const member = members.find(user => user.id === id);
+            selectedMember = member;
 
             if (!member) return;
 
@@ -213,3 +217,110 @@ window.onclick = (e) => {
 // =============================
 
 loadMembers();
+// ===================================
+// APPROVE MEMBER
+// ===================================
+
+document.getElementById("approveBtn").onclick = async () => {
+
+    if (!selectedMember) return;
+
+    await updateDoc(doc(db, "users", selectedMember.id), {
+
+        active: true,
+        paymentStatus: "paid"
+
+    });
+
+    modal.style.display = "none";
+
+    loadMembers();
+
+};
+
+// ===================================
+// MAKE PREMIUM
+// ===================================
+
+document.getElementById("premiumBtn").onclick = async () => {
+
+    if (!selectedMember) return;
+
+    await updateDoc(doc(db, "users", selectedMember.id), {
+
+        premium: true,
+        role: "premium"
+
+    });
+
+    modal.style.display = "none";
+
+    loadMembers();
+
+};
+
+// ===================================
+// MAKE ADMIN
+// ===================================
+
+document.getElementById("adminBtn").onclick = async () => {
+
+    if (!selectedMember) return;
+
+    await updateDoc(doc(db, "users", selectedMember.id), {
+
+        role: "admin",
+        premium: true,
+        active: true
+
+    });
+
+    modal.style.display = "none";
+
+    loadMembers();
+
+};
+
+// ===================================
+// SUSPEND
+// ===================================
+
+document.getElementById("suspendBtn").onclick = async () => {
+
+    if (!selectedMember) return;
+
+    await updateDoc(doc(db, "users", selectedMember.id), {
+
+        active: false
+
+    });
+
+    modal.style.display = "none";
+
+    loadMembers();
+
+};
+
+// ===================================
+// DELETE MEMBER
+// ===================================
+
+document.getElementById("deleteBtn").onclick = async () => {
+
+    if (!selectedMember) return;
+
+    const confirmDelete = confirm(
+        "Delete this member?"
+    );
+
+    if (!confirmDelete) return;
+
+    await deleteDoc(
+        doc(db, "users", selectedMember.id)
+    );
+
+    modal.style.display = "none";
+
+    loadMembers();
+
+};
