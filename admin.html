@@ -43,3 +43,12 @@
 </main>
 
 <script type="module" src="js/admin/members.js"></script>
+catch (error) {
+
+    console.error("Firestore Error:", error);
+    console.log("Error Code:", error.code);
+    console.log("Error Message:", error.message);
+
+    alert(error.message);
+
+}
