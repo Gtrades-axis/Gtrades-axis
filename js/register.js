@@ -74,12 +74,10 @@ name:name,
 
 email:email,
 
-role:"admin",
-
-active:true,
-
-premium:true,
-
+role: "pending",
+active: false,
+premium: false,
+paymentStatus: "unpaid",
 createdAt:serverTimestamp()
 }); 
 alert(
