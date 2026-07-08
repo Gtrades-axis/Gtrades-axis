@@ -4,7 +4,7 @@ import {
     collection,
     getDocs,
     doc,
-    updateDoc,
+    updateDoc,F
     deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
