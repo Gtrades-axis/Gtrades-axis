@@ -1,91 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GTRADES AXIS | Admin Portal</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- ===========================
+SIDEBAR
+============================ -->
+
+<aside class="sidebar">
+
+<div class="brand">
+
+<img src="images/logo.png" alt="Logo">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+</div>
+
+<ul>
+
+<li class="active">
+
+<a href="#">
+
+<i class="fa-solid fa-users"></i>
+
+Members
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-book"></i>
+
+Academy
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-credit-card"></i>
+
+Payments
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-gear"></i>
+
+Settings
+
+</a>
+
+</li>
+
+</ul>
+
+<button id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- ===========================
+MAIN CONTENT
+============================ -->
+
 <main class="admin-content">
 
-    <div class="page-header">
+<!-- Top -->
 
-        <h1>Members Management</h1>
+<div class="topbar">
 
-        <p>Manage all registered members.</p>
+<div>
 
-    </div>
+<h1>Admin Dashboard</h1>
 
-    <div class="table-container">
+<p>
 
-        <table class="members-table">
+Welcome back Administrator
 
-            <thead>
+</p>
 
-                <tr>
+</div>
 
-                    <th>Name</th>
+<div class="admin-profile">
 
-                    <th>Email</th>
+<i class="fa-solid fa-user-shield"></i>
 
-                    <th>Role</th>
+<span id="userName">
 
-                    <th>Payment</th>
+Administrator
 
-                    <th>Status</th>
+</span>
 
-                    <th>Action</th>
+</div>
 
-                </tr>
+</div>
 
-            </thead>
+<!-- Statistics -->
 
-            <tbody id="membersTable">
+<div class="stats-grid">
 
-            </tbody>
+<div class="stat-card">
 
-        </table>
+<h2 id="totalMembers">
 
-    </div>
-<!-- Member Management Modal -->
+0
+
+</h2>
+
+<p>Total Members</p>
+
+</div>
+
+<div class="stat-card">
+
+<h2 id="pendingMembers">
+
+0
+
+</h2>
+
+<p>Pending</p>
+
+</div>
+
+<div class="stat-card">
+
+<h2 id="premiumMembers">
+
+0
+
+</h2>
+
+<p>Premium</p>
+
+</div>
+
+<div class="stat-card">
+
+<h2 id="adminMembers">
+
+0
+
+</h2>
+
+<p>Admins</p>
+
+</div>
+
+</div>
+
+<!-- Members -->
+
+<section class="members-section">
+
+<div class="section-header">
+
+<h2>
+
+Members Management
+
+</h2>
+
+<input
+type="text"
+id="searchMembers"
+placeholder="Search members...">
+
+</div>
+
+<div class="table-container">
+
+<table class="members-table">
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Email</th>
+
+<th>Role</th>
+
+<th>Payment</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="membersTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+</main>
+
+<!-- ===========================
+MEMBER MODAL
+============================ -->
 
 <div id="memberModal" class="member-modal">
 
-    <div class="member-modal-content">
+<div class="member-modal-content">
 
-        <span id="closeModal" class="close-modal">&times;</span>
+<span
+id="closeModal"
+class="close-modal">
 
-        <h2>Member Details</h2>
+&times;
 
-        <p><strong>Name:</strong> <span id="modalName"></span></p>
+</span>
 
-        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+<h2>
 
-        <p><strong>Role:</strong> <span id="modalRole"></span></p>
+Member Details
 
-        <p><strong>Payment:</strong> <span id="modalPayment"></span></p>
+</h2>
 
-        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+<hr>
 
-        <div class="modal-actions">
+<p>
 
-            <button id="approveBtn" class="approve-btn">
-                ✅ Approve Member
-            </button>
+<strong>Name:</strong>
 
-            <button id="premiumBtn" class="premium-btn">
-                ⭐ Make Premium
-            </button>
+<span id="modalName"></span>
 
-            <button id="adminBtn" class="admin-btn">
-                👑 Make Admin
-            </button>
+</p>
 
-            <button id="suspendBtn" class="suspend-btn">
-                ⛔ Suspend
-            </button>
+<p>
 
-            <button id="deleteBtn" class="delete-btn">
-                🗑 Delete
-            </button>
+<strong>Email:</strong>
 
-        </div>
+<span id="modalEmail"></span>
 
-    </div>
+</p>
+
+<p>
+
+<strong>Role:</strong>
+
+<span id="modalRole"></span>
+
+</p>
+
+<p>
+
+<strong>Payment:</strong>
+
+<span id="modalPayment"></span>
+
+</p>
+
+<p>
+
+<strong>Status:</strong>
+
+<span id="modalStatus"></span>
+
+</p>
+
+<div class="modal-actions">
+
+<button
+id="approveBtn"
+class="approve-btn">
+
+✅ Approve
+
+</button>
+
+<button
+id="premiumBtn"
+class="premium-btn">
+
+⭐ Premium
+
+</button>
+
+<button
+id="adminBtn"
+class="admin-btn">
+
+👑 Make Admin
+
+</button>
+
+<button
+id="suspendBtn"
+class="suspend-btn">
+
+⛔ Suspend
+
+</button>
+
+<button
+id="deleteBtn"
+class="delete-btn">
+
+🗑 Delete
+
+</button>
 
 </div>
-</main>
+
+</div>
+
+</div>
+
+<script type="module" src="js/authGuard.js"></script>
 
 <script type="module" src="js/admin/members.js"></script>
+
+</body>
+
+</html>
