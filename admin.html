@@ -114,16 +114,16 @@ Logout
 <!-- ===========================
 MAIN CONTENT
 ============================ -->
-<main class="admin-content">
+<<main class="admin-content">
 
-    <div class="page-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage members, resources and payments.</p>
-    </div>
+<div class="page-header">
+    <h1>Admin Dashboard</h1>
+    <p>Manage members, resources and payments.</p>
+</div>
 
-    <!-- Statistics -->
+<!-- Statistics -->
 
-    <section class="stats-grid">
+<section class="stats-grid">
 
 <div class="stat-card">
 <h2 id="totalMembers">0</h2>
@@ -132,7 +132,7 @@ MAIN CONTENT
 
 <div class="stat-card">
 <h2 id="premiumMembers">0</h2>
-<p>Premium</p>
+<p>Premium Members</p>
 </div>
 
 <div class="stat-card">
@@ -164,6 +164,13 @@ MAIN CONTENT
 <h2 id="todayCount">0</h2>
 <p>Joined Today</p>
 </div>
+
+</section>
+
+</section>
+
+<!-- Dashboard -->
+
 <section class="dashboard-grid">
 
 <div class="dashboard-card">
@@ -184,7 +191,94 @@ MAIN CONTENT
 
 </thead>
 
-<tbody id="recentMembers">
+<section class="dashboard-grid">
+
+    <div class="dashboard-card">
+
+        <h2>Members Management</h2>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search members...">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="membersTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Latest Resources</h2>
+
+        <div id="latestResources">
+
+            No resources uploaded.
+
+        </div>
+
+    </div>
+
+</section>
+
+</section>
+
+<!-- Members -->
+
+<section class="admin-section">
+
+<h2>Members Management</h2>
+
+<input
+type="text"
+id="memberSearch"
+placeholder="Search members...">
+
+<div class="table-container">
+
+<table class="members-table">
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Email</th>
+
+<th>Role</th>
+
+<th>Payment</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="membersTable">
 
 </tbody>
 
@@ -192,75 +286,68 @@ MAIN CONTENT
 
 </div>
 
-<div class="dashboard-card">
+</section>
 
-<h2>Latest Resources</h2>
-
-<div id="latestResources">
-
-No resources yet.
-
-</div>
-
-</div>
+<!-- Resources -->
 
 <section class="admin-section">
 
-    <h2>Resource Management</h2>
+<h2>Resource Management</h2>
 
-    <form id="resourceForm" class="resource-form">
+<form id="resourceForm" class="resource-form">
 
-        <input
-            type="text"
-            id="resourceTitle"
-            placeholder="Resource Title"
-            required>
+<input
+type="text"
+id="resourceTitle"
+placeholder="Resource Title"
+required>
 
-        <select id="resourceCategory">
+<select id="resourceCategory">
 
-            <option value="PDF">PDF</option>
+<option value="PDF">PDF</option>
 
-            <option value="Indicator">Indicator</option>
+<option value="Indicator">Indicator</option>
 
-            <option value="Trading Journal">Trading Journal</option>
+<option value="Trading Journal">Trading Journal</option>
 
-            <option value="Strategy">Strategy</option>
+<option value="Strategy">Strategy</option>
 
-            <option value="Video">Video</option>
+<option value="Video">Video</option>
 
-        </select>
+</select>
 
-        <textarea
-            id="resourceDescription"
-            placeholder="Short Description"
-            rows="4"></textarea>
+<textarea
+id="resourceDescription"
+placeholder="Description"
+rows="4"></textarea>
 
-        <input
-            type="file"
-            id="resourceFile"
-            required>
+<input
+type="file"
+id="resourceFile"
+required>
 
-        <label class="premium-check">
+<label class="premium-check">
 
-            <input
-                type="checkbox"
-                id="premiumOnly">
+<input
+type="checkbox"
+id="premiumOnly">
 
-            Premium Members Only
+Premium Members Only
 
-        </label>
+</label>
 
-        <button
-            type="submit"
-            class="upload-btn">
+<button
+type="submit"
+class="upload-btn">
 
-            Upload Resource
+Upload Resource
 
-        </button>
+</button>
 
-    </form>
+</form>
 
 </section>
+
 </main>
 
 <!-- MEMBER MODAL -->
@@ -324,50 +411,7 @@ No resources yet.
 <!-- RESOURCE MANAGEMENT -->
 <!-- ========================= -->
 
-<section class="admin-section">
-
-    <h2>Resource Management</h2>
-
-    <form id="resourceForm">
-
-        <input
-            type="text"
-            id="resourceTitle"
-            placeholder="Resource Title"
-            required
-        >
-
-        <select id="resourceCategory">
-
-            <option value="PDF">PDF</option>
-
-            <option value="Indicator">Indicator</option>
-
-            <option value="Template">Template</option>
-
-            <option value="Checklist">Checklist</option>
-
-        </select>
-
-        <input
-            type="url"
-            id="resourceLink"
-            placeholder="Download URL"
-            required
-        >
-
-        <button type="submit">
-
-            Upload Resource
-
-        </button>
-
-    </form>
-
 </section>
-<script type="module" src="js/admin/resources.js"></script>
 <script type="module" src="js/admin.js"></script>
-
 <script type="module" src="js/admin/members.js"></script>
-
 <script type="module" src="js/admin/resources.js"></script>
