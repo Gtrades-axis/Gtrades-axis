@@ -52,38 +52,32 @@ if (form) {
 
             if (user.role === "admin") {
 
-    window.location.href = "admin.html";
+                window.location.href = "admin.html";
+                return;
 
-    return;
+            }
 
-}
+            if (user.role === "premium") {
 
-if (user.role === "premium") {
+                window.location.href = "dashboard.html";
+                return;
 
-    window.location.href = "dashboard.html";
+            }
 
-    return;
+            if (user.role === "pending") {
 
-}
+                alert("Your account is awaiting administrator approval.");
+                return;
 
-if (user.role === "pending") {
-
-    alert("Your account is awaiting administrator approval.");
-
-    return;
-
-}
             }
 
             alert("Your account is not configured correctly.");
 
         } catch (error) {
 
-            console.log(error);
-            console.log(error.code);
-            console.log(error.message);
+            console.error(error);
 
-            alert(error.code);
+            alert(error.message);
 
         }
 
