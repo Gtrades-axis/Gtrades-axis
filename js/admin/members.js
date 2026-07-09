@@ -84,24 +84,36 @@ document.getElementById("approveBtn").onclick = async () => {
 
     if (!selectedMember) {
 
-        alert("Select a member first.");
+        alert("Please select a member.");
 
         return;
 
     }
 
-    await updateDoc(doc(db, "users", selectedMember), {
+    try {
 
-        role: "premium",
-        premium: true,
-        active: true,
-        paymentStatus: "paid"
+        await updateDoc(doc(db, "users", selectedMember), {
 
-    });
+            role: "premium",
+            premium: true,
+            active: true,
+            paymentStatus: "paid"
 
-    alert("Member Approved");
+        });
 
-    loadMembers();
+        alert("Member approved successfully!");
+
+        document.getElementById("memberModal").style.display = "none";
+
+        loadMembers();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
 
 };
 document.getElementById("closeModal").onclick = () => {
