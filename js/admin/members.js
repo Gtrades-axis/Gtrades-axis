@@ -2,9 +2,7 @@ import { db } from "../firebase.js";
 
 import {
     collection,
-    getDocs,
-    doc,
-    updateDoc
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const table = document.getElementById("membersTable");
@@ -15,44 +13,37 @@ async function loadMembers() {
 
     table.innerHTML = "";
 
-    snapshot.forEach((userDoc) => {
+    snapshot.forEach(doc => {
 
-        const user = userDoc.data();
+        const data = doc.data();
 
-        const row = document.createElement("tr");
+        table.innerHTML += `
 
-        row.innerHTML = `
-            <td>${user.name || "-"}</td>
-            <td>${user.email || "-"}</td>
-            <td>${user.role || "pending"}</td>
-            <td>${user.paymentStatus || "unpaid"}</td>
-            <td>${user.active ? "Active" : "Pending"}</td>
+        <tr>
+
+            <td>${data.name}</td>
+
+            <td>${data.email}</td>
+
+            <td>${data.role}</td>
+
+            <td>${data.paymentStatus || "unpaid"}</td>
+
+            <td>${data.active ? "Active" : "Pending"}</td>
+
             <td>
-                <button class="approve-btn"
-                    data-id="${userDoc.id}">
-                    Approve
+
+                <button class="approve-btn">
+
+                    Manage
+
                 </button>
+
             </td>
+
+        </tr>
+
         `;
-
-        row.querySelector(".approve-btn").addEventListener("click", async () => {
-
-            await updateDoc(doc(db, "users", userDoc.id), {
-
-                active: true,
-                premium: true,
-                paymentStatus: "paid",
-                role: "premium"
-
-            });
-
-            alert("Member Approved");
-
-            loadMembers();
-
-        });
-
-        table.appendChild(row);
 
     });
 
