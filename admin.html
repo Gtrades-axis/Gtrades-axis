@@ -159,7 +159,7 @@ Administrator
 
 </h2>
 
-<p>Total Members</p>
+<h2 id="totalMembers">0</h2>
 
 </div>
 
@@ -171,7 +171,7 @@ Administrator
 
 </h2>
 
-<p>Pending</p>
+<h2 id="pendingMembers">0</h2>
 
 </div>
 
@@ -183,7 +183,7 @@ Administrator
 
 </h2>
 
-<p>Premium</p>
+<h2 id="premiumMembers">0</h2>
 
 </div>
 
@@ -195,7 +195,7 @@ Administrator
 
 </h2>
 
-<p>Admins</p>
+<h2 id="adminMembers">0</h2>
 
 </div>
 
@@ -350,3 +350,54 @@ class="delete-btn">
 </body>
 
 </html>
+<!-- ========================= -->
+<!-- RESOURCE MANAGEMENT -->
+<!-- ========================= -->
+
+<section class="admin-section">
+
+    <h2>Resource Management</h2>
+
+    <form id="resourceForm">
+
+        <input
+            type="text"
+            id="resourceTitle"
+            placeholder="Resource Title"
+            required
+        >
+
+        <select id="resourceCategory">
+
+            <option value="PDF">PDF</option>
+
+            <option value="Indicator">Indicator</option>
+
+            <option value="Template">Template</option>
+
+            <option value="Checklist">Checklist</option>
+
+        </select>
+
+        <input
+            type="url"
+            id="resourceLink"
+            placeholder="Download URL"
+            required
+        >
+
+        <button type="submit">
+
+            Upload Resource
+
+        </button>
+
+    </form>
+
+</section>
+<script type="module" src="js/admin/resources.js"></script>
+<script type="module" src="js/admin.js"></script>
+
+<script type="module" src="js/admin/members.js"></script>
+
+<script type="module" src="js/admin/resources.js"></script>

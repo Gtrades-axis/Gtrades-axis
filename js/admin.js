@@ -1,48 +1,41 @@
-import { auth, db } from "./firebase.js";
+import { db } from "./firebase.js";
 
 import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-import {
-    doc,
-    getDoc
+    collection,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-onAuthStateChanged(auth, async (user) => {
+async function loadDashboardStats() {
 
-    if (!user) {
+    const snapshot = await getDocs(collection(db, "users"));
 
-        window.location.href = "login.html";
+    let total = 0;
+    let pending = 0;
+    let premium = 0;
+    let admins = 0;
 
-        return;
+    snapshot.forEach(doc => {
 
-    }
+        total++;
 
-    const snap = await getDoc(doc(db, "users", user.uid));
+        const user = doc.data();
 
-    if (!snap.exists()) {
+        if (user.active === false)
+            pending++;
 
-        alert("Account not found.");
+        if (user.premium === true)
+            premium++;
 
-        window.location.href = "login.html";
+        if (user.role === "admin")
+            admins++;
 
-        return;
+    });
 
-    }
+    document.getElementById("totalMembers").innerHTML = total;
+    document.getElementById("pendingMembers").innerHTML = pending;
+    document.getElementById("premiumMembers").innerHTML = premium;
+    document.getElementById("adminMembers").innerHTML = admins;
 
-    const data = snap.data();
+}
 
-    if (data.role !== "admin") {
-
-        alert("Access denied.");
-
-        window.location.href = "dashboard.html";
-
-        return;
-
-    }
-
-    document.body.style.display = "block";
-
-});
+loadDashboardStats();

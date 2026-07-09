@@ -2,99 +2,112 @@ import { db } from "./firebase.js";
 
 import {
     collection,
-    getDocs,
-    query,
-    orderBy
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const container = document.getElementById("resourceContainer");
+const container = document.getElementById("resourcesContainer");
 
-async function loadResources() {
+const searchInput = document.getElementById("searchInput");
 
-    try {
+const filterButtons = document.querySelectorAll(".filter-btn");
 
-        const q = query(
-            collection(db, "resources"),
-            orderBy("createdAt", "desc")
-        );
+let resources = [];
 
-        const snapshot = await getDocs(q);
+let currentCategory = "All";
 
-        console.log("Documents found:", snapshot.size);
+async function loadResources(){
 
-        container.innerHTML = "";
+    const snapshot = await getDocs(collection(db,"resources"));
 
-        if (snapshot.empty) {
+    resources = [];
 
-            container.innerHTML = `
-                <div class="resource-empty">
-                    <h2>No Resources Available</h2>
-                    <p>Resources will appear here once uploaded.</p>
-                </div>
-            `;
+    snapshot.forEach(doc=>{
 
-            return;
-
-        }
-
-        snapshot.forEach(doc => {
-
-            const data = doc.data();
-
-            console.log(data);
-
-            container.innerHTML += `
-
-                <div class="resource-card">
-
-                    <img
-                    src="${data.thumbnail || 'images/logo.png'}"
-                    class="resource-image">
-
-                    <div class="resource-content">
-
-                        <span class="category">
-                            ${data.category}
-                        </span>
-
-                        <h3>${data.title}</h3>
-
-                        <p>${data.description}</p>
-
-                        <a
-                            href="${data.downloadURL}"
-                            target="_blank"
-                            class="download-btn">
-
-                            <i class="fas fa-download"></i>
-
-                            Download
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            `;
-
+        resources.push({
+            id:doc.id,
+            ...doc.data()
         });
 
-    }
+    });
 
-    catch (error) {
-
-        console.error(error);
-
-        container.innerHTML = `
-            <div class="resource-empty">
-                <h2>Error Loading Resources</h2>
-                <p>${error.message}</p>
-            </div>
-        `;
-
-    }
+    displayResources();
 
 }
+
+function displayResources(){
+
+    container.innerHTML = "";
+
+    let filtered = resources.filter(resource=>{
+
+        const categoryMatch =
+            currentCategory==="All" ||
+            resource.category===currentCategory;
+
+        const searchMatch =
+            resource.title.toLowerCase()
+            .includes(searchInput.value.toLowerCase());
+
+        return categoryMatch && searchMatch;
+
+    });
+
+    if(filtered.length===0){
+
+        container.innerHTML=`
+
+        <div class="empty-state">
+
+            <h3>No resources found.</h3>
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    filtered.forEach(resource=>{
+
+        container.innerHTML+=`
+
+        <div class="resource-card">
+
+            <h3>${resource.title}</h3>
+
+            <p>${resource.category}</p>
+
+            <a href="${resource.link}" target="_blank">
+
+                Download
+
+            </a>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+searchInput.addEventListener("input",displayResources);
+
+filterButtons.forEach(button=>{
+
+    button.addEventListener("click",()=>{
+
+        filterButtons.forEach(btn=>btn.classList.remove("active"));
+
+        button.classList.add("active");
+
+        currentCategory=button.dataset.category;
+
+        displayResources();
+
+    });
+
+});
 
 loadResources();
