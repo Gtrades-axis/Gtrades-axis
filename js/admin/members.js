@@ -1,135 +1,123 @@
 import { db } from "../firebase.js";
 
 import {
-    collection,
-    getDocs,
-    doc,
-    updateDoc
+collection,
+getDocs,
+query,
+orderBy
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const table = document.getElementById("membersTable");
+const table=document.getElementById("membersTable");
 
-const nameEl = document.getElementById("modalName");
-const emailEl = document.getElementById("modalEmail");
-const roleEl = document.getElementById("modalRole");
-const paymentEl = document.getElementById("modalPayment");
-const statusEl = document.getElementById("modalStatus");
+let members=[];
 
-let selectedMember = null;
+async function loadMembers(){
 
-async function loadMembers() {
+members=[];
 
-    const snapshot = await getDocs(collection(db, "users"));
+table.innerHTML="";
 
-    table.innerHTML = "";
+const q=query(
+collection(db,"users"),
+orderBy("createdAt","desc")
+);
 
-    snapshot.forEach((userDoc) => {
+const snapshot=await getDocs(q);
 
-        const user = userDoc.data();
+let total=0;
+let admins=0;
+let premium=0;
+let pending=0;
 
-        table.innerHTML += `
-        <tr>
-            <td>${user.name || ""}</td>
-            <td>${user.email || ""}</td>
-            <td>${user.role || ""}</td>
-            <td>${user.paymentStatus || "unpaid"}</td>
-            <td>${user.active ? "Active" : "Pending"}</td>
-            <td>
-                <button
-                    class="approve-btn"
-                    onclick="selectMember(
-                        '${userDoc.id}',
-                        '${user.name}',
-                        '${user.email}',
-                        '${user.role}',
-                        '${user.paymentStatus}',
-                        '${user.active}'
-                    )">
-                    Manage
-                </button>
-            </td>
-        </tr>
-        `;
-    });
+snapshot.forEach(doc=>{
+
+const user=doc.data();
+
+members.push({
+
+id:doc.id,
+
+...user
+
+});
+
+total++;
+
+if(user.role==="admin") admins++;
+
+if(user.role==="premium") premium++;
+
+if(user.active===false) pending++;
+
+table.innerHTML+=`
+
+<tr>
+
+<td>${user.name}</td>
+
+<td>${user.email}</td>
+
+<td>${user.role}</td>
+
+<td>${user.paymentStatus}</td>
+
+<td>${user.active?"Active":"Pending"}</td>
+
+<td>
+
+<button
+class="approve-btn"
+onclick="manageMember('${doc.id}')">
+
+Manage
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+updateCards(total,premium,pending,admins);
+
+}
+
+function updateCards(total,premium,pending,admins){
+
+document.getElementById("totalMembers").innerHTML=total;
+
+document.getElementById("premiumMembers").innerHTML=premium;
+
+document.getElementById("pendingMembers").innerHTML=pending;
+
+document.getElementById("adminMembers").innerHTML=admins;
+
+}
+
+window.manageMember=function(id){
+
+const member=members.find(m=>m.id===id);
+
+if(!member)return;
+
+selectedMember=member;
+
+document.getElementById("modalName").textContent=member.name;
+
+document.getElementById("modalEmail").textContent=member.email;
+
+document.getElementById("modalRole").textContent=member.role;
+
+document.getElementById("modalPayment").textContent=member.paymentStatus;
+
+document.getElementById("modalStatus").textContent=
+member.active?"Active":"Pending";
+
+document.getElementById("memberModal").style.display="flex";
 
 }
 
 loadMembers();
-
-window.selectMember = function (
-    id,
-    name,
-    email,
-    role,
-    payment,
-    active
-) {
-
-    selectedMember = id;
-
-    document.getElementById("modalName").textContent = name;
-    document.getElementById("modalEmail").textContent = email;
-    document.getElementById("modalRole").textContent = role;
-    document.getElementById("modalPayment").textContent = payment;
-    document.getElementById("modalStatus").textContent =
-        active === "true" || active === true
-            ? "Active"
-            : "Pending";
-
-    document.getElementById("memberModal").style.display = "flex";
-
-};
-
-document.getElementById("approveBtn").onclick = async () => {
-
-    if (!selectedMember) {
-
-        alert("Please select a member.");
-
-        return;
-
-    }
-
-    try {
-
-        await updateDoc(doc(db, "users", selectedMember), {
-
-            role: "premium",
-            premium: true,
-            active: true,
-            paymentStatus: "paid"
-
-        });
-
-        alert("Member approved successfully!");
-
-        document.getElementById("memberModal").style.display = "none";
-
-        loadMembers();
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(error.message);
-
-    }
-
-};
-document.getElementById("closeModal").onclick = () => {
-
-    document.getElementById("memberModal").style.display = "none";
-
-};
-
-window.onclick = (event) => {
-
-    const modal = document.getElementById("memberModal");
-
-    if (event.target === modal) {
-
-        modal.style.display = "none";
-
-    }
-
-};
