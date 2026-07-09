@@ -1,52 +1,25 @@
-import { db } from "../firebase.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+const firebaseConfig = {
 
-const table = document.getElementById("membersTable");
+    apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
 
-async function loadMembers() {
+    authDomain: "gtrades-axis.firebaseapp.com",
 
-    const snapshot = await getDocs(collection(db, "users"));
+    projectId: "gtrades-axis",
 
-    table.innerHTML = "";
+    storageBucket: "gtrades-axis.firebasestorage.app",
 
-    snapshot.forEach(doc => {
+    messagingSenderId: "111456545888",
 
-        const data = doc.data();
+    appId: "1:111456545888:web:f0526c142d7ea5e22fe705"
 
-        table.innerHTML += `
+};
 
-        <tr>
+const app = initializeApp(firebaseConfig);
 
-            <td>${data.name}</td>
+export const auth = getAuth(app);
 
-            <td>${data.email}</td>
-
-            <td>${data.role}</td>
-
-            <td>${data.paymentStatus || "unpaid"}</td>
-
-            <td>${data.active ? "Active" : "Pending"}</td>
-
-            <td>
-
-                <button class="approve-btn">
-
-                    Manage
-
-                </button>
-
-            </td>
-
-        </tr>
-
-        `;
-
-    });
-
-}
-
-loadMembers();
+export const db = getFirestore(app);
