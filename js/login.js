@@ -52,16 +52,27 @@ if (form) {
 
             if (user.role === "admin") {
 
-                window.location.href = "admin.html";
-                return;
+    window.location.href = "admin.html";
 
-            }
+    return;
 
-            if (user.role === "premium") {
+}
 
-                window.location.href = "dashboard.html";
-                return;
+if (user.role === "premium") {
 
+    window.location.href = "dashboard.html";
+
+    return;
+
+}
+
+if (user.role === "pending") {
+
+    alert("Your account is awaiting administrator approval.");
+
+    return;
+
+}
             }
 
             alert("Your account is not configured correctly.");
