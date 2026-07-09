@@ -8,17 +8,17 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-s
 
 const firebaseConfig = {
 
-    apiKey:"YOUR_KEY",
+    apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
 
-    authDomain:"YOUR_DOMAIN",
+    authDomain: "gtrades-axis.firebaseapp.com",
 
-    projectId:"YOUR_PROJECT",
+    projectId: "gtrades-axis",
 
-    storageBucket:"YOUR_BUCKET",
+    storageBucket: "gtrades-axis.firebasestorage.app",
 
-    messagingSenderId:"YOUR_SENDER",
+    messagingSenderId: "111456545888",
 
-    appId:"YOUR_APP_ID"
+    appId: "1:111456545888:web:f0526c142d7ea5e22fe705"
 
 };
 
