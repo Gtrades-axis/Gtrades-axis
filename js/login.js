@@ -1,86 +1,15 @@
 import { auth, db } from "./firebase.js";
 
 import {
-    signInWithEmailAndPassword,
-    GoogleAuthProvider,
-    signInWithPopup
+    signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
     doc,
-    getDoc,
-    setDoc,
-    serverTimestamp
+    getDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const form = document.getElementById("loginForm");
-const googleBtn = document.getElementById("googleLogin");
-
-// ==============================
-// Ensure Firestore user exists
-// ==============================
-
-async function ensureUserDocument(user) {
-
-    const userRef = doc(db, "users", user.uid);
-
-    let userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-
-        await setDoc(userRef, {
-
-            name: user.displayName || user.email,
-
-            email: user.email,
-
-            role: "premium",
-
-            active: true,
-
-            premium: true,
-
-            createdAt: serverTimestamp()
-
-        });
-
-        userSnap = await getDoc(userRef);
-
-    }
-
-    return userSnap;
-
-}
-
-// ==============================
-// Redirect user
-// ==============================
-
-function redirectUser(data) {
-
-    if (data.active === false) {
-
-        alert("Your account is awaiting administrator approval.");
-
-        return;
-
-    }
-
-    if (data.role === "admin") {
-
-        window.location.href = "admin.html";
-
-    } else {
-
-        window.location.href = "dashboard.html";
-
-    }
-
-}
-
-// ==============================
-// Email Login
-// ==============================
 
 if (form) {
 
@@ -89,61 +18,62 @@ if (form) {
         e.preventDefault();
 
         const email = document.getElementById("email").value.trim();
-
         const password = document.getElementById("password").value;
 
         try {
 
-            const userCredential = await signInWithEmailAndPassword(
+            const credential = await signInWithEmailAndPassword(
                 auth,
                 email,
                 password
             );
 
-            const user = userCredential.user;
+            const uid = credential.user.uid;
 
-            const docSnap = await ensureUserDocument(user);
+            const snap = await getDoc(doc(db, "users", uid));
 
-            const data = docSnap.data();
+            if (!snap.exists()) {
 
-            console.log("UID:", user.uid);
-            console.log("User Data:", data);
+                alert("Account not found.");
 
-            redirectUser(data);
+                return;
 
-        } catch (error) {
+            }
 
-            alert(error.message);
+            const user = snap.data();
+
+            // Pending member
+            if (!user.active) {
+
+                alert("Your account is awaiting administrator approval.");
+
+                return;
+
+            }
+
+            // Administrator
+            if (user.role === "admin") {
+
+                window.location.href = "admin.html";
+
+                return;
+
+            }
+
+            // Premium Member
+            if (user.role === "premium") {
+
+                window.location.href = "dashboard.html";
+
+                return;
+
+            }
+
+            alert("Your account is not configured correctly.");
 
         }
 
-    });
-
-}
-
-// ==============================
-// Google Login
-// ==============================
-
-if (googleBtn) {
-
-    googleBtn.addEventListener("click", async () => {
-
-        try {
-
-            const provider = new GoogleAuthProvider();
-
-            const result = await signInWithPopup(auth, provider);
-
-            const user = result.user;
-
-            const docSnap = await ensureUserDocument(user);
-
-            const data = docSnap.data();
-
-            redirectUser(data);
-
-        } catch (error) {
+        catch (error) {
 
             alert(error.message);
 
