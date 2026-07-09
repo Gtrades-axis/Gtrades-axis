@@ -42,7 +42,6 @@ if (form) {
 
             const user = snap.data();
 
-            // Pending member
             if (!user.active) {
 
                 alert("Your account is awaiting administrator approval.");
@@ -51,37 +50,29 @@ if (form) {
 
             }
 
-            // Administrator
             if (user.role === "admin") {
 
                 window.location.href = "admin.html";
-
                 return;
 
             }
 
-            // Premium Member
             if (user.role === "premium") {
 
                 window.location.href = "dashboard.html";
-
                 return;
 
             }
 
             alert("Your account is not configured correctly.");
 
-        }
+        } catch (error) {
 
-      catch (error) {
+            console.log(error);
+            console.log(error.code);
+            console.log(error.message);
 
-    console.log(error);
-    console.log(error.code);
-    console.log(error.message);
-
-    alert(error.code);
-
-}
+            alert(error.code);
 
         }
 
