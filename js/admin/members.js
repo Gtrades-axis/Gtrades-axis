@@ -1,73 +1,114 @@
 import { db } from "../firebase.js";
 
 import {
-collection,
-getDocs,
-query,
-orderBy
+    collection,
+    getDocs,
+    doc,
+    updateDoc,
+    deleteDoc,
+    query,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const table=document.getElementById("membersTable");
+const table = document.getElementById("membersTable");
+const searchMember = document.getElementById("searchMember");
 
-let members=[];
+let allMembers = [];
+
+// Stats
+const totalMembers = document.getElementById("totalMembers");
+const pendingMembers = document.getElementById("pendingMembers");
+const premiumMembers = document.getElementById("premiumMembers");
+const adminMembers = document.getElementById("adminMembers");
+
+// Modal
+const modal = document.getElementById("memberModal");
+
+const closeModal = document.getElementById("closeModal");
+
+const modalName = document.getElementById("modalName");
+const modalEmail = document.getElementById("modalEmail");
+const modalRole = document.getElementById("modalRole");
+const modalPayment = document.getElementById("modalPayment");
+const modalStatus = document.getElementById("modalStatus");
+
+let selectedMember = null;
 
 async function loadMembers(){
 
-members=[];
+    const q = query(
+        collection(db,"users"),
+        orderBy("createdAt","desc")
+    );
 
-table.innerHTML="";
+    const snapshot = await getDocs(q);
 
-const q=query(
-collection(db,"users"),
-orderBy("createdAt","desc")
-);
+    table.innerHTML="";
 
-const snapshot=await getDocs(q);
+allMembers=[];
 
-let total=0;
-let admins=0;
-let premium=0;
-let pending=0;
+    let total=0;
+    let pending=0;
+    let premium=0;
+    let admins=0;
 
-snapshot.forEach(doc=>{
+    snapshot.forEach((member)=>{
 
-const user=doc.data();
+        
+        allMembers.push({
 
-members.push({
+    id:member.id,
 
-id:doc.id,
-
-...user
+    ...member.data()
 
 });
+        const data=member.data();
 
-total++;
+        total++;
 
-if(user.role==="admin") admins++;
+        if(data.role==="pending") pending++;
 
-if(user.role==="premium") premium++;
+        if(data.role==="premium") premium++;
 
-if(user.active===false) pending++;
+        if(data.role==="admin") admins++;
+
+       const badge =
+data.role==="admin"
+?
+'<span class="badge adminBadge">ADMIN</span>'
+:
+data.role==="premium"
+?
+'<span class="badge premiumBadge">PREMIUM</span>'
+:
+'<span class="badge pendingBadge">PENDING</span>';
+
+const status =
+data.active
+?
+'<span class="status activeStatus">ACTIVE</span>'
+:
+'<span class="status pendingStatus">PENDING</span>';
 
 table.innerHTML+=`
 
 <tr>
 
-<td>${user.name}</td>
+<td>${data.name}</td>
 
-<td>${user.email}</td>
+<td>${data.email}</td>
 
-<td>${user.role}</td>
+<td>${badge}</td>
 
-<td>${user.paymentStatus}</td>
+<td>${data.paymentStatus}</td>
 
-<td>${user.active?"Active":"Pending"}</td>
+<td>${status}</td>
 
 <td>
 
 <button
-class="approve-btn"
-onclick="manageMember('${doc.id}')">
+class="manage-btn"
+data-id="${member.id}">
 
 Manage
 
@@ -79,45 +120,168 @@ Manage
 
 `;
 
-});
 
-updateCards(total,premium,pending,admins);
+    });
+
+    totalMembers.textContent=total;
+    pendingMembers.textContent=pending;
+    premiumMembers.textContent=premium;
+    adminMembers.textContent=admins;
+
+    document.querySelectorAll(".manage-btn").forEach(btn=>{
+
+        btn.onclick=()=>{
+
+            const id=btn.dataset.id;
+
+            snapshot.forEach((member)=>{
+
+                if(member.id===id){
+
+                    selectedMember={
+                        id,
+                        ...member.data()
+                    };
+
+                }
+
+            });
+
+            modalName.textContent=selectedMember.name;
+            modalEmail.textContent=selectedMember.email;
+            modalRole.textContent=selectedMember.role;
+            modalPayment.textContent=selectedMember.paymentStatus;
+            modalStatus.textContent=
+                selectedMember.active ? "Active":"Pending";
+
+            modal.style.display="flex";
+
+        };
+
+    });
 
 }
 
-function updateCards(total,premium,pending,admins){
+closeModal.onclick=()=>{
 
-document.getElementById("totalMembers").innerHTML=total;
+    modal.style.display="none";
 
-document.getElementById("premiumMembers").innerHTML=premium;
+};
 
-document.getElementById("pendingMembers").innerHTML=pending;
+window.onclick=(e)=>{
 
-document.getElementById("adminMembers").innerHTML=admins;
+    if(e.target===modal){
 
-}
+        modal.style.display="none";
 
-window.manageMember=function(id){
+    }
 
-const member=members.find(m=>m.id===id);
+};
 
-if(!member)return;
+document.getElementById("approveBtn").onclick=async()=>{
 
-selectedMember=member;
+    if(!selectedMember) return;
 
-document.getElementById("modalName").textContent=member.name;
+    await updateDoc(doc(db,"users",selectedMember.id),{
 
-document.getElementById("modalEmail").textContent=member.email;
+        active:true,
 
-document.getElementById("modalRole").textContent=member.role;
+        paymentStatus:"paid"
 
-document.getElementById("modalPayment").textContent=member.paymentStatus;
+    });
 
-document.getElementById("modalStatus").textContent=
-member.active?"Active":"Pending";
+    modal.style.display="none";
 
-document.getElementById("memberModal").style.display="flex";
+    loadMembers();
 
-}
+};
+
+document.getElementById("premiumBtn").onclick=async()=>{
+
+    if(!selectedMember) return;
+
+    await updateDoc(doc(db,"users",selectedMember.id),{
+
+        role:"premium",
+
+        premium:true
+
+    });
+
+    modal.style.display="none";
+
+    loadMembers();
+
+};
+
+document.getElementById("adminBtn").onclick=async()=>{
+
+    if(!selectedMember) return;
+
+    await updateDoc(doc(db,"users",selectedMember.id),{
+
+        role:"admin",
+
+        premium:true,
+
+        active:true
+
+    });
+
+    modal.style.display="none";
+
+    loadMembers();
+
+};
+
+document.getElementById("suspendBtn").onclick=async()=>{
+
+    if(!selectedMember) return;
+
+    await updateDoc(doc(db,"users",selectedMember.id),{
+
+        active:false
+
+    });
+
+    modal.style.display="none";
+
+    loadMembers();
+
+};
+
+document.getElementById("deleteBtn").onclick=async()=>{
+
+    if(!selectedMember) return;
+
+    if(!confirm("Delete this member?")) return;
+
+    await deleteDoc(doc(db,"users",selectedMember.id));
+
+    modal.style.display="none";
+
+    loadMembers();
+
+};
 
 loadMembers();
+searchMember.addEventListener("keyup",()=>{
+
+const keyword=searchMember.value.toLowerCase();
+
+const rows=document.querySelectorAll("#membersTable tr");
+
+rows.forEach(row=>{
+
+const text=row.innerText.toLowerCase();
+
+row.style.display=
+text.includes(keyword)
+?
+""
+:
+"none";
+
+});
+
+});

@@ -114,79 +114,63 @@ Logout
 <!-- ===========================
 MAIN CONTENT
 ============================ -->
-
 <main class="admin-content">
 
-<!-- Top -->
+    <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage members, resources and payments.</p>
+    </div>
 
-<div class="topbar">
+    <!-- Statistics -->
 
-<div>
-
-<h1>Admin Dashboard</h1>
-
-<p>
-
-Welcome back Administrator
-
-</p>
-
-</div>
-
-<div class="admin-profile">
-
-<i class="fa-solid fa-user-shield"></i>
-
-<span id="userName">
-
-Administrator
-
-</span>
-
-</div>
-
-</div>
-
-<!-- Statistics -->
-
-<div class="stats-grid">
+    <section class="stats-grid">
 
 <div class="stat-card">
-
-<h2 id="totalMembers">
-
-0
-
 <h2 id="totalMembers">0</h2>
-
-<h2 id="premiumMembers">0</h2>
-
-<h2 id="pendingMembers">0</h2>
-
-<h2 id="adminMembers">0</h2>
-
-<!-- Members -->
-
-<section class="members-section">
-
-<div class="section-header">
-
-<h2>
-
-Members Management
-
-</h2>
-
-<input
-type="text"
-id="searchMembers"
-placeholder="Search members...">
-
+<p>Total Members</p>
 </div>
 
-<div class="table-container">
+<div class="stat-card">
+<h2 id="premiumMembers">0</h2>
+<p>Premium</p>
+</div>
 
-<table class="members-table">
+<div class="stat-card">
+<h2 id="pendingMembers">0</h2>
+<p>Pending</p>
+</div>
+
+<div class="stat-card">
+<h2 id="adminMembers">0</h2>
+<p>Admins</p>
+</div>
+
+<div class="stat-card">
+<h2 id="resourceCount">0</h2>
+<p>Resources</p>
+</div>
+
+<div class="stat-card">
+<h2 id="lessonCount">0</h2>
+<p>Academy Lessons</p>
+</div>
+
+<div class="stat-card">
+<h2 id="paymentCount">0</h2>
+<p>Payments</p>
+</div>
+
+<div class="stat-card">
+<h2 id="todayCount">0</h2>
+<p>Joined Today</p>
+</div>
+<section class="dashboard-grid">
+
+<div class="dashboard-card">
+
+<h2>Recent Members</h2>
+
+<table>
 
 <thead>
 
@@ -196,19 +180,11 @@ placeholder="Search members...">
 
 <th>Email</th>
 
-<th>Role</th>
-
-<th>Payment</th>
-
-<th>Status</th>
-
-<th>Action</th>
-
 </tr>
 
 </thead>
 
-<tbody id="membersTable">
+<tbody id="recentMembers">
 
 </tbody>
 
@@ -216,104 +192,124 @@ placeholder="Search members...">
 
 </div>
 
-</section>
+<div class="dashboard-card">
+
+<h2>Latest Resources</h2>
+
+<div id="latestResources">
+
+No resources yet.
+
+</div>
+
+</div>
+
+
+    </section>
+
+    <!-- Members -->
+
+    <section class="members-section">
+
+        <div class="section-header">
+
+            <h2>Members Management</h2>
+
+            <input
+    type="text"
+    id="searchMember"
+    placeholder="Search by name or email...">
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="members-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="membersTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
 
 </main>
 
-<!-- ===========================
-MEMBER MODAL
-============================ -->
+<!-- MEMBER MODAL -->
 
-<div id="memberModal" class="member-modal">
+<div class="modal" id="memberModal">
 
-<div class="member-modal-content">
+    <div class="modal-box">
 
-<span
-id="closeModal"
-class="close-modal">
+        <span class="close-modal" id="closeModal">&times;</span>
 
-&times;
+        <h2>Member Details</h2>
 
-</span>
+        <div class="member-info">
 
-<h2>
+            <p><strong>Name</strong></p>
+            <span id="modalName"></span>
 
-Member Details
+            <p><strong>Email</strong></p>
+            <span id="modalEmail"></span>
 
-</h2>
+            <p><strong>Role</strong></p>
+            <span id="modalRole"></span>
 
-<hr>
+            <p><strong>Payment</strong></p>
+            <span id="modalPayment"></span>
 
-<p>
+            <p><strong>Status</strong></p>
+            <span id="modalStatus"></span>
 
-<strong>Name:</strong>
+        </div>
 
-<span id="modalName" style="color:#ffffff;font-weight:600;"></span>
+        <div class="modal-buttons">
 
-<span id="modalEmail" style="color:#ffffff;font-weight:600;"></span>
+            <button id="approveBtn" class="btn approve">
+                ✅ Approve
+            </button>
 
-<span id="modalRole" style="color:#ffffff;font-weight:600;"></span>
+            <button id="premiumBtn" class="btn premium">
+                ⭐ Premium
+            </button>
 
-<span id="modalPayment" style="color:#ffffff;font-weight:600;"></span>
+            <button id="adminBtn" class="btn admin">
+                👑 Admin
+            </button>
 
-<span id="modalStatus" style="color:#ffffff;font-weight:600;"></span>
-</p>
+            <button id="suspendBtn" class="btn suspend">
+                ⛔ Suspend
+            </button>
 
-<div class="modal-actions">
+            <button id="deleteBtn" class="btn delete">
+                🗑 Delete
+            </button>
 
-<button
-id="approveBtn"
-class="approve-btn">
+        </div>
 
-✅ Approve
-
-</button>
-
-<button
-id="premiumBtn"
-class="premium-btn">
-
-⭐ Premium
-
-</button>
-
-<button
-id="adminBtn"
-class="admin-btn">
-
-👑 Make Admin
-
-</button>
-
-<button
-id="suspendBtn"
-class="suspend-btn">
-
-⛔ Suspend
-
-</button>
-
-<button
-id="deleteBtn"
-class="delete-btn">
-
-🗑 Delete
-
-</button>
+    </div>
 
 </div>
 
-</div>
-
-</div>
-
-<script type="module" src="js/authGuard.js"></script>
-
-<script type="module" src="js/admin/members.js"></script>
-
-</body>
-
-</html>
 <!-- ========================= -->
 <!-- RESOURCE MANAGEMENT -->
 <!-- ========================= -->
