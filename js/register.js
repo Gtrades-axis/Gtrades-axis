@@ -13,64 +13,71 @@ import {
 
 const form = document.getElementById("registerForm");
 
-form.addEventListener("submit", async (e) => {
+if (form) {
 
-    e.preventDefault();
+    form.addEventListener("submit", async (e) => {
 
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const confirm = document.getElementById("confirmPassword").value;
+        e.preventDefault();
 
-    if (password !== confirm) {
-        alert("Passwords do not match.");
-        return;
-    }
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
 
-    if (password.length < 6) {
-        alert("Password must be at least 6 characters.");
-        return;
-    }
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return;
+        }
 
-    try {
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters.");
+            return;
+        }
 
-        const cred = await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+        try {
 
-        await updateProfile(cred.user, {
-            displayName: name
-        });
+            const userCredential =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
 
-        await setDoc(doc(db, "users", cred.user.uid), {
+            await updateProfile(userCredential.user, {
 
-            name: name,
-            email: email,
+                displayName: name
 
-            role: "pending",
+            });
 
-            premium: false,
+            await setDoc(doc(db, "users", userCredential.user.uid), {
 
-            active: false,
+                name: name,
+                email: email,
 
-            paymentStatus: "unpaid",
+                role: "pending",
 
-            createdAt: serverTimestamp()
+                premium: false,
 
-        });
+                active: false,
 
-        alert(
-            "Registration successful.\n\nPlease make payment and wait for administrator approval."
-        );
+                paymentStatus: "unpaid",
 
-        window.location.href = "login.html";
+                createdAt: serverTimestamp()
 
-    } catch (err) {
+            });
 
-        alert(err.message);
+            alert(
+                "Registration successful!\n\nYour account is pending payment approval."
+            );
 
-    }
+            window.location.href = "login.html";
 
-});
+        } catch (error) {
+
+            alert(error.message);
+
+        }
+
+    });
+
+}
