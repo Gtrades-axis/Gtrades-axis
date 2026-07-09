@@ -19,57 +19,42 @@ async function loadMembers() {
 
         const user = userDoc.data();
 
-        table.innerHTML += `
+        const row = document.createElement("tr");
 
-        <tr>
-
-            <td>${user.name}</td>
-
-            <td>${user.email}</td>
-
-            <td>${user.role}</td>
-
-            <td>${user.paymentStatus}</td>
-
+        row.innerHTML = `
+            <td>${user.name || "-"}</td>
+            <td>${user.email || "-"}</td>
+            <td>${user.role || "pending"}</td>
+            <td>${user.paymentStatus || "unpaid"}</td>
             <td>${user.active ? "Active" : "Pending"}</td>
-
             <td>
-
                 <button class="approve-btn"
-
-                onclick="approveMember('${userDoc.id}')">
-
-                Approve
-
+                    data-id="${userDoc.id}">
+                    Approve
                 </button>
-
             </td>
-
-        </tr>
-
         `;
 
+        row.querySelector(".approve-btn").addEventListener("click", async () => {
+
+            await updateDoc(doc(db, "users", userDoc.id), {
+
+                active: true,
+                premium: true,
+                paymentStatus: "paid",
+                role: "premium"
+
+            });
+
+            alert("Member Approved");
+
+            loadMembers();
+
+        });
+
+        table.appendChild(row);
+
     });
-
-}
-
-window.approveMember = async function(uid){
-
-    await updateDoc(doc(db,"users",uid),{
-
-        role:"premium",
-
-        active:true,
-
-        premium:true,
-
-        paymentStatus:"paid"
-
-    });
-
-    alert("Member Approved!");
-
-    loadMembers();
 
 }
 
