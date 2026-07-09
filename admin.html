@@ -204,53 +204,63 @@ No resources yet.
 
 </div>
 
+<section class="admin-section">
 
-    </section>
+    <h2>Resource Management</h2>
 
-    <!-- Members -->
+    <form id="resourceForm" class="resource-form">
 
-    <section class="members-section">
+        <input
+            type="text"
+            id="resourceTitle"
+            placeholder="Resource Title"
+            required>
 
-        <div class="section-header">
+        <select id="resourceCategory">
 
-            <h2>Members Management</h2>
+            <option value="PDF">PDF</option>
+
+            <option value="Indicator">Indicator</option>
+
+            <option value="Trading Journal">Trading Journal</option>
+
+            <option value="Strategy">Strategy</option>
+
+            <option value="Video">Video</option>
+
+        </select>
+
+        <textarea
+            id="resourceDescription"
+            placeholder="Short Description"
+            rows="4"></textarea>
+
+        <input
+            type="file"
+            id="resourceFile"
+            required>
+
+        <label class="premium-check">
 
             <input
-    type="text"
-    id="searchMember"
-    placeholder="Search by name or email...">
+                type="checkbox"
+                id="premiumOnly">
 
-        </div>
+            Premium Members Only
 
-        <div class="table-wrapper">
+        </label>
 
-            <table class="members-table">
+        <button
+            type="submit"
+            class="upload-btn">
 
-                <thead>
+            Upload Resource
 
-                    <tr>
+        </button>
 
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                        <th>Action</th>
+    </form>
 
-                    </tr>
-
-                </thead>
-
-                <tbody id="membersTable">
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
+</section>
 </main>
 
 <!-- MEMBER MODAL -->

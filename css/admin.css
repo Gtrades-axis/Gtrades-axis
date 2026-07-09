@@ -976,3 +976,90 @@ border-bottom:1px solid #283341;
 color:white;
 
 }
+.resource-form{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:20px;
+
+margin-top:20px;
+
+}
+
+.resource-form input,
+
+.resource-form select,
+
+.resource-form textarea{
+
+padding:14px;
+
+border-radius:10px;
+
+border:1px solid #293241;
+
+background:#0d1117;
+
+color:white;
+
+font-size:15px;
+
+}
+
+.resource-form textarea{
+
+grid-column:span 2;
+
+resize:none;
+
+}
+
+.resource-form input[type=file]{
+
+padding:12px;
+
+}
+
+.premium-check{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+color:white;
+
+font-weight:600;
+
+}
+
+.upload-btn{
+
+background:#1f8bff;
+
+color:white;
+
+border:none;
+
+padding:14px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+font-weight:bold;
+
+transition:.3s;
+
+}
+
+.upload-btn:hover{
+
+background:#0b74ff;
+
+transform:translateY(-2px);
+
+}
