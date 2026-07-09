@@ -1,41 +1,63 @@
-import { db } from "./firebase.js";
+import { db, storage } from "../firebase.js";
 
 import {
-    collection,
-    getDocs
+
+collection,
+
+addDoc,
+
+serverTimestamp
+
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-async function loadDashboardStats() {
+import {
 
-    const snapshot = await getDocs(collection(db, "users"));
+ref,
 
-    let total = 0;
-    let pending = 0;
-    let premium = 0;
-    let admins = 0;
+uploadBytes,
 
-    snapshot.forEach(doc => {
+getDownloadURL
 
-        total++;
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 
-        const user = doc.data();
+const form = document.getElementById("resourceForm");
 
-        if (user.active === false)
-            pending++;
+form.addEventListener("submit", async(e)=>{
 
-        if (user.premium === true)
-            premium++;
+    e.preventDefault();
 
-        if (user.role === "admin")
-            admins++;
+    const file = document.getElementById("resourceFile").files[0];
+
+    if(!file){
+
+        alert("Select a file.");
+
+        return;
+
+    }
+
+    const storageRef = ref(storage,"resources/"+file.name);
+
+    await uploadBytes(storageRef,file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+
+    await addDoc(collection(db,"resources"),{
+
+        title:document.getElementById("resourceTitle").value,
+
+        category:document.getElementById("resourceCategory").value,
+
+        link:downloadURL,
+
+        fileName:file.name,
+
+        createdAt:serverTimestamp()
 
     });
 
-    document.getElementById("totalMembers").innerHTML = total;
-    document.getElementById("pendingMembers").innerHTML = pending;
-    document.getElementById("premiumMembers").innerHTML = premium;
-    document.getElementById("adminMembers").innerHTML = admins;
+    alert("Resource uploaded successfully.");
 
-}
+    form.reset();
 
-loadDashboardStats();
+});
