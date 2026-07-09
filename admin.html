@@ -7,19 +7,20 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>GTRADES AXIS | Admin Portal</title>
+<title>GTRADES AXIS™ | Admin Dashboard</title>
 
 <link rel="stylesheet" href="css/style.css">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 </head>
 
 <body>
 
-<!-- ===========================
+<!-- ==========================
 SIDEBAR
-============================ -->
+=========================== -->
 
 <aside class="sidebar">
 
@@ -55,7 +56,7 @@ Members
 
 <a href="#">
 
-<i class="fa-solid fa-book"></i>
+<i class="fa-solid fa-graduation-cap"></i>
 
 Academy
 
@@ -91,6 +92,18 @@ Payments
 
 <a href="#">
 
+<i class="fa-solid fa-chart-line"></i>
+
+Analytics
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
 <i class="fa-solid fa-gear"></i>
 
 Settings
@@ -111,148 +124,119 @@ Logout
 
 </aside>
 
-<!-- ===========================
+<!-- ==========================
 MAIN CONTENT
-============================ -->
-<<main class="admin-content">
+=========================== -->
+
+<main class="admin-content">
 
 <div class="page-header">
-    <h1>Admin Dashboard</h1>
-    <p>Manage members, resources and payments.</p>
+
+<h1>Admin Dashboard</h1>
+
+<p>
+
+Welcome back Administrator
+
+</p>
+
 </div>
 
-<!-- Statistics -->
+<!-- ==========================
+STATISTICS
+=========================== -->
 
 <section class="stats-grid">
 
 <div class="stat-card">
+
 <h2 id="totalMembers">0</h2>
+
 <p>Total Members</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="premiumMembers">0</h2>
+
 <p>Premium Members</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="pendingMembers">0</h2>
-<p>Pending</p>
+
+<p>Pending Approval</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="adminMembers">0</h2>
-<p>Admins</p>
+
+<p>Administrators</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="resourceCount">0</h2>
+
 <p>Resources</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="lessonCount">0</h2>
+
 <p>Academy Lessons</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="paymentCount">0</h2>
+
 <p>Payments</p>
+
 </div>
 
 <div class="stat-card">
+
 <h2 id="todayCount">0</h2>
+
 <p>Joined Today</p>
+
 </div>
 
 </section>
 
-</section>
-
-<!-- Dashboard -->
-
-<section class="dashboard-grid">
-
-<div class="dashboard-card">
-
-<h2>Recent Members</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Name</th>
-
-<th>Email</th>
-
-</tr>
-
-</thead>
-
-<section class="dashboard-grid">
-
-    <div class="dashboard-card">
-
-        <h2>Members Management</h2>
-
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search members...">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                    <th>Action</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="membersTable">
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    <div class="dashboard-card">
-
-        <h2>Latest Resources</h2>
-
-        <div id="latestResources">
-
-            No resources uploaded.
-
-        </div>
-
-    </div>
-
-</section>
-
-</section>
-
-<!-- Members -->
+<!-- ==========================
+MEMBERS
+=========================== -->
 
 <section class="admin-section">
 
-<h2>Members Management</h2>
+<div class="section-header">
+
+<h2>
+
+Members Management
+
+</h2>
 
 <input
+
 type="text"
-id="memberSearch"
+
+id="searchMember"
+
 placeholder="Search members...">
+
+</div>
 
 <div class="table-container">
 
@@ -279,6 +263,15 @@ placeholder="Search members...">
 </thead>
 
 <tbody id="membersTable">
+    <tr>
+
+<td colspan="6" style="text-align:center;padding:25px;">
+
+Loading members...
+
+</td>
+
+</tr>
 
 </tbody>
 
@@ -288,11 +281,17 @@ placeholder="Search members...">
 
 </section>
 
-<!-- Resources -->
+<!-- ==========================
+RESOURCE MANAGEMENT
+=========================== -->
 
 <section class="admin-section">
 
-<h2>Resource Management</h2>
+<h2>
+
+Resource Management
+
+</h2>
 
 <form id="resourceForm" class="resource-form">
 
@@ -304,32 +303,62 @@ required>
 
 <select id="resourceCategory">
 
-<option value="PDF">PDF</option>
+<option value="PDF">
 
-<option value="Indicator">Indicator</option>
+PDF
 
-<option value="Trading Journal">Trading Journal</option>
+</option>
 
-<option value="Strategy">Strategy</option>
+<option value="Indicator">
 
-<option value="Video">Video</option>
+Indicator
+
+</option>
+
+<option value="Trading Journal">
+
+Trading Journal
+
+</option>
+
+<option value="Strategy">
+
+Strategy
+
+</option>
+
+<option value="Video">
+
+Video
+
+</option>
 
 </select>
 
 <textarea
+
 id="resourceDescription"
-placeholder="Description"
-rows="4"></textarea>
+
+rows="4"
+
+placeholder="Resource Description">
+
+</textarea>
 
 <input
+
 type="file"
+
 id="resourceFile"
+
 required>
 
 <label class="premium-check">
 
 <input
+
 type="checkbox"
+
 id="premiumOnly">
 
 Premium Members Only
@@ -337,8 +366,12 @@ Premium Members Only
 </label>
 
 <button
+
 type="submit"
+
 class="upload-btn">
+
+<i class="fa-solid fa-upload"></i>
 
 Upload Resource
 
@@ -348,70 +381,149 @@ Upload Resource
 
 </section>
 
-</main>
+<!-- ==========================
+MEMBER MODAL
+=========================== -->
 
-<!-- MEMBER MODAL -->
+<div class="modal"
 
-<div class="modal" id="memberModal">
+id="memberModal">
 
-    <div class="modal-box">
+<div class="modal-box">
 
-        <span class="close-modal" id="closeModal">&times;</span>
+<span
 
-        <h2>Member Details</h2>
+id="closeModal"
 
-        <div class="member-info">
+class="close-modal">
 
-            <p><strong>Name</strong></p>
-            <span id="modalName"></span>
+&times;
 
-            <p><strong>Email</strong></p>
-            <span id="modalEmail"></span>
+</span>
 
-            <p><strong>Role</strong></p>
-            <span id="modalRole"></span>
+<h2>
 
-            <p><strong>Payment</strong></p>
-            <span id="modalPayment"></span>
+Member Details
 
-            <p><strong>Status</strong></p>
-            <span id="modalStatus"></span>
+</h2>
 
-        </div>
+<div class="member-info">
 
-        <div class="modal-buttons">
+<p>
 
-            <button id="approveBtn" class="btn approve">
-                ✅ Approve
-            </button>
+<strong>Name</strong>
 
-            <button id="premiumBtn" class="btn premium">
-                ⭐ Premium
-            </button>
+</p>
 
-            <button id="adminBtn" class="btn admin">
-                👑 Admin
-            </button>
+<span id="modalName"></span>
 
-            <button id="suspendBtn" class="btn suspend">
-                ⛔ Suspend
-            </button>
+<p>
 
-            <button id="deleteBtn" class="btn delete">
-                🗑 Delete
-            </button>
+<strong>Email</strong>
 
-        </div>
+</p>
 
-    </div>
+<span id="modalEmail"></span>
+
+<p>
+
+<strong>Role</strong>
+
+</p>
+
+<span id="modalRole"></span>
+
+<p>
+
+<strong>Payment</strong>
+
+</p>
+
+<span id="modalPayment"></span>
+
+<p>
+
+<strong>Status</strong>
+
+</p>
+
+<span id="modalStatus"></span>
 
 </div>
 
-<!-- ========================= -->
-<!-- RESOURCE MANAGEMENT -->
-<!-- ========================= -->
+<div class="modal-buttons">
 
-</section>
+<button
+
+id="approveBtn"
+
+class="btn approve">
+
+✅ Approve
+
+</button>
+
+<button
+
+id="premiumBtn"
+
+class="btn premium">
+
+⭐ Premium
+
+</button>
+
+<button
+
+id="adminBtn"
+
+class="btn admin">
+
+👑 Make Admin
+
+</button>
+
+<button
+
+id="suspendBtn"
+
+class="btn suspend">
+
+⛔ Suspend
+
+</button>
+
+<button
+
+id="deleteBtn"
+
+class="btn delete">
+
+🗑 Delete
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+<!-- ==========================
+END MAIN
+=========================== -->
+
+</main>
+
+<!-- ==========================
+SCRIPTS
+=========================== -->
+
 <script type="module" src="js/admin.js"></script>
+
 <script type="module" src="js/admin/members.js"></script>
+
 <script type="module" src="js/admin/resources.js"></script>
+
+</body>
+
+</html>
