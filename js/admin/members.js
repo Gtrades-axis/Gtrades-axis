@@ -2,7 +2,9 @@ import { db } from "../firebase.js";
 
 import {
     collection,
-    getDocs
+    getDocs,
+    doc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const table = document.getElementById("membersTable");
@@ -13,29 +15,31 @@ async function loadMembers() {
 
     table.innerHTML = "";
 
-    snapshot.forEach(doc => {
+    snapshot.forEach((userDoc) => {
 
-        const data = doc.data();
+        const user = userDoc.data();
 
         table.innerHTML += `
 
         <tr>
 
-            <td>${data.name}</td>
+            <td>${user.name}</td>
 
-            <td>${data.email}</td>
+            <td>${user.email}</td>
 
-            <td>${data.role}</td>
+            <td>${user.role}</td>
 
-            <td>${data.paymentStatus || "unpaid"}</td>
+            <td>${user.paymentStatus}</td>
 
-            <td>${data.active ? "Active" : "Pending"}</td>
+            <td>${user.active ? "Active" : "Pending"}</td>
 
             <td>
 
-                <button class="approve-btn">
+                <button class="approve-btn"
 
-                    Manage
+                onclick="approveMember('${userDoc.id}')">
+
+                Approve
 
                 </button>
 
@@ -46,6 +50,26 @@ async function loadMembers() {
         `;
 
     });
+
+}
+
+window.approveMember = async function(uid){
+
+    await updateDoc(doc(db,"users",uid),{
+
+        role:"premium",
+
+        active:true,
+
+        premium:true,
+
+        paymentStatus:"paid"
+
+    });
+
+    alert("Member Approved!");
+
+    loadMembers();
 
 }
 
