@@ -2,7 +2,9 @@ import { db } from "./firebase.js";
 
 import {
     collection,
-    getDocs
+    getDocs,
+    query,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const container = document.getElementById("resourcesContainer");
@@ -15,16 +17,25 @@ let resources = [];
 
 let currentCategory = "All";
 
-async function loadResources(){
+// ======================
+// LOAD RESOURCES
+// ======================
 
-    const snapshot = await getDocs(collection(db,"resources"));
+async function loadResources() {
+
+    const q = query(
+        collection(db, "resources"),
+        orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
 
     resources = [];
 
-    snapshot.forEach(doc=>{
+    snapshot.forEach(doc => {
 
         resources.push({
-            id:doc.id,
+            id: doc.id,
             ...doc.data()
         });
 
@@ -33,6 +44,10 @@ async function loadResources(){
     displayResources();
 
 }
+
+// ======================
+// DISPLAY
+// ======================
 
 function displayResources() {
 
@@ -45,9 +60,9 @@ function displayResources() {
             resource.category === currentCategory;
 
         const searchMatch =
-            resource.title.toLowerCase().includes(
-                searchInput.value.toLowerCase()
-            );
+            resource.title
+            .toLowerCase()
+            .includes(searchInput.value.toLowerCase());
 
         return categoryMatch && searchMatch;
 
@@ -56,41 +71,118 @@ function displayResources() {
     if (filtered.length === 0) {
 
         container.innerHTML = `
-            <div class="empty-state">
-                <h2>No Resources Found</h2>
-            </div>
+
+        <div class="empty-state">
+
+            <h2>No Resources Found</h2>
+
+            <p>No resources have been uploaded yet.</p>
+
+        </div>
+
         `;
 
         return;
+
     }
 
     filtered.forEach(resource => {
 
+        let icon = "📄";
+
+        if(resource.category==="indicators") icon="📈";
+
+        if(resource.category==="journals") icon="📒";
+
+        if(resource.category==="strategies") icon="🎯";
+
+        if(resource.category==="videos") icon="🎥";
+
         container.innerHTML += `
+
         <div class="resource-card">
 
-            <h3>${resource.title}</h3>
+            <div class="resource-header">
 
-            <p>${resource.description || ""}</p>
+                <span class="resource-icon">
 
-            <span class="category">${resource.category}</span>
+                    ${icon}
 
-            <br><br>
+                </span>
 
-            <a class="download-btn"
-               href="${resource.link}"
-               target="_blank">
+                ${resource.premiumOnly ?
 
-               📥 Download
+                `<span class="premium-badge">
 
-            </a>
+                    PREMIUM
+
+                </span>`
+
+                : ""}
+
+            </div>
+
+            <h3>
+
+                ${resource.title}
+
+            </h3>
+
+            <p>
+
+                ${resource.description || ""}
+
+            </p>
+
+            <div class="resource-footer">
+
+                <span>
+
+                    ${resource.category.toUpperCase()}
+
+                </span>
+
+                <a
+                    href="${resource.link}"
+                    target="_blank"
+                    class="download-btn">
+
+                    Download
+
+                </a>
+
+            </div>
 
         </div>
+
         `;
 
     });
 
 }
+
+// ======================
+// SEARCH
+// ======================
+
+searchInput.addEventListener("input", displayResources);
+
+// ======================
+// FILTERS
+// ======================
+
+filterButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        filterButtons.forEach(btn =>
+            btn.classList.remove("active"));
+
+        button.classList.add("active");
+
+        currentCategory = button.dataset.category;
+
+        displayResources();
 
     });
 
