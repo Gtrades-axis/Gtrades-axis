@@ -45,6 +45,6 @@ form.addEventListener("submit", async (e) => {
 
     alert("Resource Added Successfully!");
 
-    form.reset();
+form.reset();
 
 });

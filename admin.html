@@ -299,13 +299,17 @@ RESOURCE MANAGEMENT
 
         <select id="resourceCategory">
 
-            <option value="PDF">PDF</option>
-            <option value="Indicator">Indicator</option>
-            <option value="Journal">Trading Journal</option>
-            <option value="Strategy">Strategy</option>
-            <option value="Video">Video</option>
+    <option value="pdf">PDF</option>
 
-        </select>
+    <option value="indicators">Indicators</option>
+
+    <option value="journals">Trading Journal</option>
+
+    <option value="strategies">Strategy</option>
+
+    <option value="videos">Video</option>
+
+</select>
 
         <textarea
             id="resourceDescription"
@@ -313,10 +317,10 @@ RESOURCE MANAGEMENT
             rows="4"></textarea>
 
         <input
-            type="url"
-            id="resourceLink"
-            placeholder="Paste GitHub RAW Download URL"
-            required>
+    type="text"
+    id="resourceFileName"
+    placeholder="Example: PhotonChecklist.pdf"
+    required>
 
         <label>
 
