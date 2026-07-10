@@ -34,77 +34,63 @@ async function loadResources(){
 
 }
 
-function displayResources(){
+function displayResources() {
 
     container.innerHTML = "";
 
-    let filtered = resources.filter(resource=>{
+    const filtered = resources.filter(resource => {
 
         const categoryMatch =
-            currentCategory==="All" ||
-            resource.category===currentCategory;
+            currentCategory === "All" ||
+            resource.category === currentCategory;
 
         const searchMatch =
-            resource.title.toLowerCase()
-            .includes(searchInput.value.toLowerCase());
+            resource.title.toLowerCase().includes(
+                searchInput.value.toLowerCase()
+            );
 
         return categoryMatch && searchMatch;
 
     });
 
-    if(filtered.length===0){
+    if (filtered.length === 0) {
 
-        container.innerHTML=`
-
-        <div class="empty-state">
-
-            <h3>No resources found.</h3>
-
-        </div>
-
+        container.innerHTML = `
+            <div class="empty-state">
+                <h2>No Resources Found</h2>
+            </div>
         `;
 
         return;
-
     }
 
-    filtered.forEach(resource=>{
+    filtered.forEach(resource => {
 
-        container.innerHTML+=`
-
+        container.innerHTML += `
         <div class="resource-card">
 
             <h3>${resource.title}</h3>
 
-            <p>${resource.category}</p>
+            <p>${resource.description || ""}</p>
 
-            <a href="${resource.link}" target="_blank">
+            <span class="category">${resource.category}</span>
 
-                Download
+            <br><br>
+
+            <a class="download-btn"
+               href="${resource.link}"
+               target="_blank">
+
+               📥 Download
 
             </a>
 
         </div>
-
         `;
 
     });
 
 }
-
-searchInput.addEventListener("input",displayResources);
-
-filterButtons.forEach(button=>{
-
-    button.addEventListener("click",()=>{
-
-        filterButtons.forEach(btn=>btn.classList.remove("active"));
-
-        button.classList.add("active");
-
-        currentCategory=button.dataset.category;
-
-        displayResources();
 
     });
 
