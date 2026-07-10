@@ -13,21 +13,37 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const title = document.getElementById("resourceTitle").value;
+
     const category = document.getElementById("resourceCategory").value;
+
     const description = document.getElementById("resourceDescription").value;
-    const link = document.getElementById("resourceLink").value;
+
+    const filename = document.getElementById("resourceFileName").value;
+
     const premiumOnly = document.getElementById("premiumOnly").checked;
 
-    await addDoc(collection(db, "resources"), {
+    const link =
+`https://gtrades-axis.github.io/Gtrades-axis/resources/${category}/${filename}`;
+
+    await addDoc(collection(db,"resources"),{
+
         title,
+
         category,
+
         description,
-        link,
+
         premiumOnly,
-        createdAt: serverTimestamp()
+
+        filename,
+
+        link,
+
+        createdAt:serverTimestamp()
+
     });
 
-    alert("Resource added successfully.");
+    alert("Resource Added Successfully!");
 
     form.reset();
 
