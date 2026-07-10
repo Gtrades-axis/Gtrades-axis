@@ -1,67 +1,34 @@
-import { db, storage } from "../firebase.js";
+import { db } from "../firebase.js";
 
 import {
-
-collection,
-
-addDoc,
-
-serverTimestamp
-
+    collection,
+    addDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import {
+const form = document.getElementById("resourceForm");
 
-ref,
+form.addEventListener("submit", async (e) => {
 
-uploadBytes,
+    e.preventDefault();
 
-getDownloadURL
+    const title = document.getElementById("resourceTitle").value;
+    const category = document.getElementById("resourceCategory").value;
+    const description = document.getElementById("resourceDescription").value;
+    const link = document.getElementById("resourceLink").value;
+    const premiumOnly = document.getElementById("premiumOnly").checked;
 
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+    await addDoc(collection(db, "resources"), {
+        title,
+        category,
+        description,
+        link,
+        premiumOnly,
+        createdAt: serverTimestamp()
+    });
 
-const form=document.getElementById("resourceForm");
+    alert("Resource added successfully.");
 
-form.addEventListener("submit",async(e)=>{
-
-e.preventDefault();
-
-const file=document.getElementById("resourceFile").files[0];
-
-if(!file){
-
-alert("Choose a file");
-
-return;
-
-}
-
-const storageRef=ref(storage,"resources/"+Date.now()+"_"+file.name);
-
-await uploadBytes(storageRef,file);
-
-const downloadURL=await getDownloadURL(storageRef);
-
-await addDoc(collection(db,"resources"),{
-
-title:document.getElementById("resourceTitle").value,
-
-category:document.getElementById("resourceCategory").value,
-
-description:document.getElementById("resourceDescription").value,
-
-premiumOnly:document.getElementById("premiumOnly").checked,
-
-fileName:file.name,
-
-link:downloadURL,
-
-createdAt:serverTimestamp()
-
-});
-
-alert("Resource uploaded successfully.");
-
-form.reset();
+    form.reset();
 
 });

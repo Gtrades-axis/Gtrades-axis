@@ -14,7 +14,7 @@ const firebaseConfig = {
 
     projectId: "gtrades-axis",
 
-    storageBucket: "gtrades-axis.firebasestorage.app",
+    storageBucket: "gtrades-axis.appspot.com",
 
     messagingSenderId: "111456545888",
 

@@ -1,35 +1,35 @@
 import { db } from "../firebase.js";
 
 import {
-collection,
-addDoc,
-serverTimestamp
+    collection,
+    addDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const form=document.getElementById("resourceForm");
+const form = document.getElementById("resourceForm");
 
-form.addEventListener("submit",async(e)=>{
+form.addEventListener("submit", async (e) => {
 
-e.preventDefault();
+    e.preventDefault();
 
-await addDoc(collection(db,"resources"),{
+    await addDoc(collection(db, "resources"), {
 
-title:document.getElementById("resourceTitle").value,
+        title: document.getElementById("resourceTitle").value,
 
-category:document.getElementById("resourceCategory").value,
+        category: document.getElementById("resourceCategory").value,
 
-description:document.getElementById("resourceDescription").value,
+        description: document.getElementById("resourceDescription").value,
 
-link:document.getElementById("resourceLink").value,
+        link: document.getElementById("resourceLink").value,
 
-premiumOnly:document.getElementById("premiumOnly").checked,
+        premiumOnly: document.getElementById("premiumOnly").checked,
 
-createdAt:serverTimestamp()
+        createdAt: serverTimestamp()
 
-});
+    });
 
-alert("Resource Added Successfully.");
+    alert("Resource Added Successfully!");
 
-form.reset();
+    form.reset();
 
 });
