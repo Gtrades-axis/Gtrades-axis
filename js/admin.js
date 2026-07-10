@@ -1,63 +1,35 @@
-import { db, storage } from "../firebase.js";
+import { db } from "../firebase.js";
 
 import {
-
 collection,
-
 addDoc,
-
 serverTimestamp
-
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import {
+const form=document.getElementById("resourceForm");
 
-ref,
+form.addEventListener("submit",async(e)=>{
 
-uploadBytes,
+e.preventDefault();
 
-getDownloadURL
+await addDoc(collection(db,"resources"),{
 
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+title:document.getElementById("resourceTitle").value,
 
-const form = document.getElementById("resourceForm");
+category:document.getElementById("resourceCategory").value,
 
-form.addEventListener("submit", async(e)=>{
+description:document.getElementById("resourceDescription").value,
 
-    e.preventDefault();
+link:document.getElementById("resourceLink").value,
 
-    const file = document.getElementById("resourceFile").files[0];
+premiumOnly:document.getElementById("premiumOnly").checked,
 
-    if(!file){
+createdAt:serverTimestamp()
 
-        alert("Select a file.");
+});
 
-        return;
+alert("Resource Added Successfully.");
 
-    }
-
-    const storageRef = ref(storage,"resources/"+file.name);
-
-    await uploadBytes(storageRef,file);
-
-    const downloadURL = await getDownloadURL(storageRef);
-
-    await addDoc(collection(db,"resources"),{
-
-        title:document.getElementById("resourceTitle").value,
-
-        category:document.getElementById("resourceCategory").value,
-
-        link:downloadURL,
-
-        fileName:file.name,
-
-        createdAt:serverTimestamp()
-
-    });
-
-    alert("Resource uploaded successfully.");
-
-    form.reset();
+form.reset();
 
 });

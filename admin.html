@@ -287,100 +287,58 @@ RESOURCE MANAGEMENT
 
 <section class="admin-section">
 
-<h2>
+    <h2>Resource Management</h2>
 
-Resource Management
+    <form id="resourceForm">
 
-</h2>
+        <input
+            type="text"
+            id="resourceTitle"
+            placeholder="Resource Title"
+            required>
 
-<form id="resourceForm" class="resource-form">
+        <select id="resourceCategory">
 
-<input
-type="text"
-id="resourceTitle"
-placeholder="Resource Title"
-required>
+            <option value="PDF">PDF</option>
+            <option value="Indicator">Indicator</option>
+            <option value="Journal">Trading Journal</option>
+            <option value="Strategy">Strategy</option>
+            <option value="Video">Video</option>
 
-<select id="resourceCategory">
+        </select>
 
-<option value="PDF">
+        <textarea
+            id="resourceDescription"
+            placeholder="Short Description"
+            rows="4"></textarea>
 
-PDF
+        <input
+            type="url"
+            id="resourceLink"
+            placeholder="Paste GitHub RAW Download URL"
+            required>
 
-</option>
+        <label>
 
-<option value="Indicator">
+            <input
+                type="checkbox"
+                id="premiumOnly">
 
-Indicator
+            Premium Members Only
 
-</option>
+        </label>
 
-<option value="Trading Journal">
+        <button
+            type="submit"
+            class="upload-btn">
 
-Trading Journal
+            Save Resource
 
-</option>
+        </button>
 
-<option value="Strategy">
-
-Strategy
-
-</option>
-
-<option value="Video">
-
-Video
-
-</option>
-
-</select>
-
-<textarea
-
-id="resourceDescription"
-
-rows="4"
-
-placeholder="Resource Description">
-
-</textarea>
-
-<input
-
-type="file"
-
-id="resourceFile"
-
-required>
-
-<label class="premium-check">
-
-<input
-
-type="checkbox"
-
-id="premiumOnly">
-
-Premium Members Only
-
-</label>
-
-<button
-
-type="submit"
-
-class="upload-btn">
-
-<i class="fa-solid fa-upload"></i>
-
-Upload Resource
-
-</button>
-
-</form>
+    </form>
 
 </section>
-
 <!-- ==========================
 MEMBER MODAL
 =========================== -->
