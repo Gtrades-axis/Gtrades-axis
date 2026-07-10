@@ -285,62 +285,155 @@ Loading members...
 RESOURCE MANAGEMENT
 =========================== -->
 
+<!-- ========================================= -->
+<!-- RESOURCE MANAGEMENT -->
+<!-- ========================================= -->
+
 <section class="admin-section">
 
-    <h2>Resource Management</h2>
+    <div class="section-header">
 
-    <form id="resourceForm">
+        <div>
 
-        <input
-            type="text"
-            id="resourceTitle"
-            placeholder="Resource Title"
-            required>
+            <h2>📚 Resource Management</h2>
 
-        <select id="resourceCategory">
+            <p>Add premium resources for your members.</p>
 
-    <option value="pdf">PDF</option>
+        </div>
 
-    <option value="indicators">Indicators</option>
+    </div>
 
-    <option value="journals">Trading Journal</option>
+    <form id="resourceForm" class="resource-form">
 
-    <option value="strategies">Strategy</option>
+        <div class="form-group">
 
-    <option value="videos">Video</option>
+            <label>Resource Title</label>
+
+            <input
+                type="text"
+                id="resourceTitle"
+                placeholder="Example: Photon Strategy Guide"
+                required>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Category</label>
+
+            <select id="resourceCategory">
+
+<option value="pdf">PDF</option>
+
+<option value="indicators">Indicators</option>
+
+<option value="journals">Trading Journal</option>
+
+<option value="strategies">Strategies</option>
+
+<option value="videos">Videos</option>
 
 </select>
 
-        <textarea
-            id="resourceDescription"
-            placeholder="Short Description"
-            rows="4"></textarea>
+        </div>
 
-        <input
-    type="text"
-    id="resourceFileName"
-    placeholder="Example: PhotonChecklist.pdf"
-    required>
+        <div class="form-group">
 
-        <label>
+            <label>Description</label>
+
+            <textarea
+                id="resourceDescription"
+                rows="4"
+                placeholder="Short description..."></textarea>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Filename</label>
 
             <input
-                type="checkbox"
-                id="premiumOnly">
+                type="text"
+                id="resourceFileName"
+                placeholder="Example: PhotonStrategy.pdf"
+                required>
 
-            Premium Members Only
+            <small>
 
-        </label>
+                Upload the file to the matching folder in GitHub first,
+                then type only the filename here.
+
+            </small>
+
+        </div>
+
+        <div class="form-group">
+
+            <label class="premium-check">
+
+                <input
+                    type="checkbox"
+                    id="premiumOnly">
+
+                Premium Members Only
+
+            </label>
+
+        </div>
 
         <button
             type="submit"
             class="upload-btn">
+
+            <i class="fa-solid fa-floppy-disk"></i>
 
             Save Resource
 
         </button>
 
     </form>
+
+</section>
+
+<!-- ========================================= -->
+<!-- RESOURCE LIST -->
+<!-- ========================================= -->
+
+<section class="admin-section">
+
+    <div class="section-header">
+
+        <h2>Uploaded Resources</h2>
+
+    </div>
+
+    <div class="table-container">
+
+        <table class="members-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Title</th>
+
+                    <th>Category</th>
+
+                    <th>Premium</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="resourcesTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </section>
 <!-- ==========================
