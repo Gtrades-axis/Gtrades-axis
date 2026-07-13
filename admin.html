@@ -89,7 +89,51 @@ Academy
 
 Resources
 </a>
+<form id="resourceForm">
 
+    <input
+        type="text"
+        id="resourceTitle"
+        placeholder="Resource Title"
+        required>
+
+    <select id="resourceCategory" required>
+
+        <option value="PDF">PDF</option>
+        <option value="Indicator">Indicator</option>
+        <option value="Journal">Journal</option>
+        <option value="Strategy">Strategy</option>
+        <option value="Video">Video</option>
+
+    </select>
+
+    <textarea
+        id="resourceDescription"
+        placeholder="Description"></textarea>
+
+    <input
+        type="url"
+        id="resourceLink"
+        placeholder="Paste GitHub Pages URL"
+        required>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="premiumOnly">
+
+        Premium Only
+
+    </label>
+
+    <button type="submit">
+
+        Save Resource
+
+    </button>
+
+</form>
 </li>
 
 <li>
