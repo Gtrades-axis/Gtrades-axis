@@ -143,12 +143,13 @@ function displayResources() {
                 </span>
 
                 <a
-                    href="${resource.link}"
-                    target="_blank"
-                    class="download-btn">
+                   <p style="color:red;font-size:12px;">
+${resource.link}
+</p>
 
-                    Download
-
+<a href="${resource.link}" target="_blank">
+    Download
+</a>
                 </a>
 
             </div>
