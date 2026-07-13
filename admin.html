@@ -81,14 +81,13 @@ Academy
 
 <li>
 
+<li>
+
 <a href="#resources">
 
 <i class="fa-solid fa-folder-open"></i>
 
 Resources
-</div>
-
-<div id="latestResources"></div>
 </a>
 
 </li>
@@ -729,15 +728,15 @@ RESOURCE MANAGEMENT
 
 <h2>
 
-<i class="fa-solid fa-folder-plus"></i>
+<i class="fa-solid fa-folder-open"></i>
 
-Upload Resource
+Resource Manager
 
 </h2>
 
 <p>
 
-Upload PDFs, Indicators, Journals, Strategies and Videos.
+Manage all premium resources.
 
 </p>
 
@@ -745,82 +744,34 @@ Upload PDFs, Indicators, Journals, Strategies and Videos.
 
 </div>
 
-<form
-id="resourceForm"
-class="resource-form">
-
-<div class="form-grid">
+<div class="resource-toolbar">
 
 <input
 type="text"
-id="resourceTitle"
-placeholder="Resource Title"
-required>
+id="resourceSearch"
+placeholder="🔍 Search Resources">
 
-<select id="resourceCategory">
+<select id="resourceFilter">
 
-<option value="PDF">
+<option value="All">All</option>
 
-PDF
+<option value="PDF">PDF</option>
 
-</option>
+<option value="Indicator">Indicator</option>
 
-<option value="Indicator">
+<option value="Journal">Journal</option>
 
-Indicator
+<option value="Strategy">Strategy</option>
 
-</option>
-
-<option value="Journal">
-
-Trading Journal
-
-</option>
-
-<option value="Strategy">
-
-Strategy
-
-</option>
-
-<option value="Video">
-
-Video
-
-</option>
+<option value="Video">Video</option>
 
 </select>
 
 </div>
 
-<textarea
-id="resourceDescription"
-rows="5"
-placeholder="Short description..."></textarea>
+<div id="latestResources"></div>
 
-<input
-type="url"
-id="resourceLink"
-placeholder="GitHub Pages Download Link"
-required>
-
-<label class="premium-toggle">
-
-<input
-type="checkbox"
-id="premiumOnly">
-
-Premium Members Only
-
-</label>
-
-<button
-type="submit"
-class="upload-btn">
-
-<i class="fa-solid fa-upload"></i>
-
-Save Resource
+<hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
 
 </button>
 
