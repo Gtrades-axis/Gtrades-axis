@@ -19,357 +19,170 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <body>
 
-<!-- =====================================
+<!-- ==========================
 SIDEBAR
-===================================== -->
+========================== -->
 
 <aside class="sidebar">
 
-    <div>
+<div class="logo">
 
-        <div class="brand">
+<img src="images/logo.png">
 
-            <img src="images/logo.png" alt="GTRADES AXIS">
+<h2>
 
-            <h2>GTRADES <span>AXIS</span></h2>
+GTRADES
 
-            <p class="brand-subtitle">
-                Admin Dashboard
-            </p>
+<span>AXIS™</span>
 
-        </div>
+</h2>
 
-        <ul>
+</div>
 
-            <li class="active">
+<nav>
 
-                <a href="#dashboard">
+<ul>
 
-                    <i class="fa-solid fa-chart-line"></i>
+<li class="active">
 
-                    Dashboard
+<a href="#dashboard">
 
-                </a>
+<i class="fa-solid fa-chart-line"></i>
 
-            </li>
+Dashboard
 
-            <li>
+</a>
 
-                <a href="#members">
+</li>
 
-                    <i class="fa-solid fa-users"></i>
+<li>
 
-                    Members
+<a href="#members">
 
-                </a>
+<i class="fa-solid fa-users"></i>
 
-            </li>
+Members
 
-            <li>
+</a>
 
-                <a href="#resources">
+</li>
 
-                    <i class="fa-solid fa-folder-open"></i>
+<li>
 
-                    Resources
+<a href="#academy">
 
-                </a>
+<i class="fa-solid fa-graduation-cap"></i>
 
-            </li>
+Academy
 
-            <li>
+</a>
 
-                <a href="#academy">
+</li>
 
-                    <i class="fa-solid fa-graduation-cap"></i>
+<li>
 
-                    Academy
+<li>
 
-                </a>
+<a href="#resources">
 
-            </li>
+<i class="fa-solid fa-folder-open"></i>
 
-            <li>
+Resources
+</a>
 
-                <a href="#analytics">
+</li>
 
-                    <i class="fa-solid fa-chart-pie"></i>
+<li>
 
-                    Analytics
+<a href="#payments">
 
-                </a>
+<i class="fa-solid fa-credit-card"></i>
 
-            </li>
+Payments
 
-            <li>
+</a>
 
-                <a href="#settings">
+</li>
 
-                    <i class="fa-solid fa-gear"></i>
+<li>
 
-                    Settings
+<a href="#settings">
 
-                </a>
+<i class="fa-solid fa-gear"></i>
 
-            </li>
+Settings
 
-        </ul>
+</a>
 
-    </div>
+</li>
 
-    <button id="logoutBtn">
+</ul>
 
-        <i class="fa-solid fa-right-from-bracket"></i>
+</nav>
 
-        Logout
+<button id="logoutBtn">
 
-    </button>
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
 
 </aside>
 
-<!-- =====================================
-MAIN CONTENT
-===================================== -->
+<!-- ==========================
+MAIN
+========================== -->
 
-<main class="admin-content" id="dashboard">
+<main class="admin-main">
 
-    <!-- TOP BAR -->
+<!-- HEADER -->
 
-    <header class="topbar">
+<header class="topbar">
 
-        <div>
+<div>
 
-            <h1>Dashboard</h1>
+<h1>
 
-            <p>
+Administrator Dashboard
 
-                Welcome back Administrator.
+</h1>
 
-            </p>
+<p>
 
-        </div>
+Welcome back. Manage the entire GTRADES AXIS platform.
 
-        <div class="admin-profile">
+</p>
 
-            <i class="fa-solid fa-user-shield"></i>
+</div>
 
-            <div>
+<div class="admin-box">
 
-                <strong>
+<div class="admin-avatar">
 
-                    GTRADES AXIS
+A
 
-                </strong>
+</div>
 
-                <br>
+<div>
 
-                <small>
+<h3>
 
-                    Super Administrator
+Administrator
 
-                </small>
+</h3>
 
-            </div>
+<p>
 
-        </div>
+System Owner
 
-    </header>
+</p>
 
-    <!-- DASHBOARD STATS -->
+</div>
 
-    <section class="stats-grid">
+</div>
 
-        <div class="stat-card">
-
-            <i class="fa-solid fa-users"></i>
-
-            <h2 id="totalMembers">
-
-                0
-
-            </h2>
-
-            <p>
-
-                Total Members
-
-            </p>
-
-        </div>
-
-        <div class="stat-card">
-
-            <i class="fa-solid fa-crown"></i>
-
-            <h2 id="premiumMembers">
-
-                0
-
-            </h2>
-
-            <p>
-
-                Premium Members
-
-            </p>
-
-        </div>
-
-        <div class="stat-card">
-
-            <i class="fa-solid fa-folder-open"></i>
-
-            <h2 id="resourceCount">
-
-                0
-
-            </h2>
-
-            <p>
-
-                Resources
-
-            </p>
-
-        </div>
-
-        <div class="stat-card">
-
-            <i class="fa-solid fa-chart-line"></i>
-
-            <h2 id="activeMembers">
-
-                0
-
-            </h2>
-
-            <p>
-
-                Active Members
-
-            </p>
-
-        </div>
-
-    </section>
-
-    <!-- QUICK ACTIONS -->
-
-    <section class="dashboard-card">
-
-        <div class="section-header">
-
-            <h2>
-
-                Quick Actions
-
-            </h2>
-
-        </div>
-
-        <div class="quick-actions">
-
-            <button onclick="location.href='#members'">
-
-                <i class="fa-solid fa-users"></i>
-
-                Manage Members
-
-            </button>
-
-            <button onclick="location.href='#resources'">
-
-                <i class="fa-solid fa-folder-open"></i>
-
-                Manage Resources
-
-            </button>
-
-            <button onclick="location.href='#academy'">
-
-                <i class="fa-solid fa-graduation-cap"></i>
-
-                Academy
-
-            </button>
-
-            <button onclick="location.href='#analytics'">
-
-                <i class="fa-solid fa-chart-pie"></i>
-
-                Analytics
-
-            </button>
-
-        </div>
-
-        <!-- =====================================
-MEMBERS MANAGEMENT
-===================================== -->
-
-<section class="dashboard-card" id="members">
-
-    <div class="section-header">
-
-        <div>
-
-            <h2>Members Management</h2>
-
-            <p>Manage all registered GTRADES AXIS members.</p>
-
-        </div>
-
-        <input
-            type="text"
-            id="memberSearch"
-            placeholder="Search member...">
-
-    </div>
-
-    <div class="table-container">
-
-        <table class="members-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>Member</th>
-
-                    <th>Role</th>
-
-                    <th>Status</th>
-
-                    <th>Payment</th>
-
-                    <th>Joined</th>
-
-                    <th>Action</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="membersTable">
-
-                <tr>
-
-                    <td colspan="6" style="text-align:center;padding:40px;">
-
-                        Loading Members...
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</section>
-    </section>
+</header>
 
 <!-- ==========================
 STATISTICS
