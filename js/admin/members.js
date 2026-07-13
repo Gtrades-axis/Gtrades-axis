@@ -1,174 +1,358 @@
 import { db } from "../firebase.js";
 
 import {
-    collection,
-    getDocs,
-    doc,
-    updateDoc,
-    deleteDoc,
-    query,
-    orderBy
+collection,
+getDocs,
+doc,
+getDoc,
+updateDoc,
+deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+/* ===========================================
+ELEMENTS
+=========================================== */
 
 const table = document.getElementById("membersTable");
-const searchMember = document.getElementById("searchMember");
 
-let allMembers = [];
+const search = document.getElementById("memberSearch");
 
-// Stats
-const totalMembers = document.getElementById("totalMembers");
-const pendingMembers = document.getElementById("pendingMembers");
-const premiumMembers = document.getElementById("premiumMembers");
-const adminMembers = document.getElementById("adminMembers");
-
-// Modal
 const modal = document.getElementById("memberModal");
 
 const closeModal = document.getElementById("closeModal");
 
 const modalName = document.getElementById("modalName");
+
 const modalEmail = document.getElementById("modalEmail");
+
 const modalRole = document.getElementById("modalRole");
+
 const modalPayment = document.getElementById("modalPayment");
+
 const modalStatus = document.getElementById("modalStatus");
 
-let selectedMember = null;
+const modalJoined = document.getElementById("modalJoined");
+
+const memberAvatar = document.getElementById("memberAvatar");
+
+/* ===========================================
+DATA
+=========================================== */
+
+let members = [];
+
+let filteredMembers = [];
+
+let selectedUser = null;
+
+/* ===========================================
+LOAD MEMBERS
+=========================================== */
+
+loadMembers();
 
 async function loadMembers(){
 
-    const q = query(
-        collection(db,"users"),
-        orderBy("createdAt","desc")
-    );
+    table.innerHTML=`
 
-    const snapshot = await getDocs(q);
+    <tr>
 
-    table.innerHTML="";
+        <td colspan="6" style="text-align:center;padding:40px;">
 
-allMembers=[];
+            Loading members...
 
-    let total=0;
-    let pending=0;
-    let premium=0;
-    let admins=0;
+        </td>
 
-    snapshot.forEach((member)=>{
+    </tr>
 
-        
-        allMembers.push({
+    `;
 
-    id:member.id,
+    members=[];
 
-    ...member.data()
+    const snapshot = await getDocs(collection(db,"users"));
 
-});
-        const data=member.data();
+    snapshot.forEach(doc=>{
 
-        total++;
+        members.push({
 
-        if(data.role==="pending") pending++;
+            id:doc.id,
 
-        if(data.role==="premium") premium++;
+            ...doc.data()
 
-        if(data.role==="admin") admins++;
-
-       const badge =
-data.role==="admin"
-?
-'<span class="badge adminBadge">ADMIN</span>'
-:
-data.role==="premium"
-?
-'<span class="badge premiumBadge">PREMIUM</span>'
-:
-'<span class="badge pendingBadge">PENDING</span>';
-
-const status =
-data.active
-?
-'<span class="status activeStatus">ACTIVE</span>'
-:
-'<span class="status pendingStatus">PENDING</span>';
-
-table.innerHTML+=`
-
-<tr>
-
-<td>${data.name}</td>
-
-<td>${data.email}</td>
-
-<td>${badge}</td>
-
-<td>${data.paymentStatus}</td>
-
-<td>${status}</td>
-
-<td>
-
-<button
-class="manage-btn"
-data-id="${member.id}">
-
-Manage
-
-</button>
-
-</td>
-
-</tr>
-
-`;
-
+        });
 
     });
 
-    totalMembers.textContent=total;
-    pendingMembers.textContent=pending;
-    premiumMembers.textContent=premium;
-    adminMembers.textContent=admins;
+    filteredMembers=[...members];
 
-    document.querySelectorAll(".manage-btn").forEach(btn=>{
+    renderMembers();
 
-        btn.onclick=()=>{
+}
 
-            const id=btn.dataset.id;
+/* ===========================================
+RENDER TABLE
+=========================================== */
 
-            snapshot.forEach((member)=>{
+function renderMembers(){
 
-                if(member.id===id){
+    table.innerHTML="";
 
-                    selectedMember={
-                        id,
-                        ...member.data()
-                    };
+    if(filteredMembers.length===0){
 
-                }
+        table.innerHTML=`
 
-            });
+        <tr>
 
-            modalName.textContent=selectedMember.name;
-            modalEmail.textContent=selectedMember.email;
-            modalRole.textContent=selectedMember.role;
-            modalPayment.textContent=selectedMember.paymentStatus;
-            modalStatus.textContent=
-                selectedMember.active ? "Active":"Pending";
+            <td colspan="6" style="text-align:center;padding:40px;">
 
-            modal.style.display="flex";
+                No members found.
 
-        };
+            </td>
+
+        </tr>
+
+        `;
+
+        return;
+
+    }
+
+    filteredMembers.forEach(user=>{
+
+        const initials =
+
+        user.name ?
+
+        user.name.charAt(0).toUpperCase()
+
+        :"U";
+
+        table.innerHTML+=`
+
+        <tr>
+
+            <td>
+
+                <div class="user-cell">
+
+                    <div class="member-avatar-small">
+
+                        ${initials}
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+
+                            ${user.name || "Unknown"}
+
+                        </strong>
+
+                        <br>
+
+                        <small>
+
+                            ${user.email || ""}
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </td>
+
+            <td>
+
+                <span class="badge ${user.role || "free"}">
+
+                    ${user.role || "free"}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                <span class="badge ${user.status || "pending"}">
+
+                    ${user.status || "pending"}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                ${user.payment || "Unpaid"}
+
+            </td>
+
+            <td>
+
+                ${formatDate(user.createdAt)}
+
+            </td>
+
+            <td>
+
+                <button
+
+                class="manage-btn"
+
+                data-id="${user.id}">
+
+                Manage
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    attachButtons();
+
+}
+
+/* ===========================================
+DATE
+=========================================== */
+
+function formatDate(date){
+
+    if(!date) return "--";
+
+    try{
+
+        return date.toDate().toLocaleDateString();
+
+    }
+
+    catch{
+
+        return "--";
+
+    }
+
+}
+/* ===========================================
+PART 4B
+SEARCH + MODAL
+=========================================== */
+
+/* ==========================
+SEARCH
+========================== */
+
+search.addEventListener("input",()=>{
+
+    const value=search.value.toLowerCase().trim();
+
+    filteredMembers=members.filter(user=>{
+
+        return(
+
+            (user.name || "").toLowerCase().includes(value) ||
+
+            (user.email || "").toLowerCase().includes(value) ||
+
+            (user.role || "").toLowerCase().includes(value)
+
+        );
+
+    });
+
+    renderMembers();
+
+});
+
+/* ==========================
+MANAGE BUTTONS
+========================== */
+
+function attachButtons(){
+
+    const buttons=document.querySelectorAll(".manage-btn");
+
+    buttons.forEach(button=>{
+
+        button.addEventListener("click",()=>{
+
+            const id=button.dataset.id;
+
+            openMember(id);
+
+        });
 
     });
 
 }
 
-closeModal.onclick=()=>{
+/* ==========================
+OPEN MEMBER
+========================== */
+
+async function openMember(id){
+
+    const ref=doc(db,"users",id);
+
+    const snap=await getDoc(ref);
+
+    if(!snap.exists()){
+
+        alert("Member not found.");
+
+        return;
+
+    }
+
+    selectedUser={
+
+        id:id,
+
+        ...snap.data()
+
+    };
+
+    modalName.textContent=selectedUser.name || "Unknown";
+
+    modalEmail.textContent=selectedUser.email || "--";
+
+    modalRole.textContent=selectedUser.role || "Free";
+
+    modalPayment.textContent=selectedUser.payment || "Unpaid";
+
+    modalStatus.textContent=selectedUser.status || "Pending";
+
+    modalJoined.textContent=formatDate(selectedUser.createdAt);
+
+    memberAvatar.textContent=
+
+        (selectedUser.name || "U")
+
+        .charAt(0)
+
+        .toUpperCase();
+
+    modal.style.display="flex";
+
+}
+
+/* ==========================
+CLOSE MODAL
+========================== */
+
+closeModal.addEventListener("click",()=>{
 
     modal.style.display="none";
 
-};
+});
 
-window.onclick=(e)=>{
+window.addEventListener("click",(e)=>{
 
     if(e.target===modal){
 
@@ -176,112 +360,153 @@ window.onclick=(e)=>{
 
     }
 
-};
+});
 
-document.getElementById("approveBtn").onclick=async()=>{
+/* ==========================
+ESC KEY
+========================== */
 
-    if(!selectedMember) return;
+window.addEventListener("keydown",(e)=>{
 
-    await updateDoc(doc(db,"users",selectedMember.id),{
+    if(e.key==="Escape"){
 
-        active:true,
+        modal.style.display="none";
 
-        paymentStatus:"paid"
-
-    });
-
-    modal.style.display="none";
-
-    loadMembers();
-
-};
-
-document.getElementById("premiumBtn").onclick=async()=>{
-
-    if(!selectedMember) return;
-
-    await updateDoc(doc(db,"users",selectedMember.id),{
-
-        role:"premium",
-
-        premium:true
-
-    });
-
-    modal.style.display="none";
-
-    loadMembers();
-
-};
-
-document.getElementById("adminBtn").onclick=async()=>{
-
-    if(!selectedMember) return;
-
-    await updateDoc(doc(db,"users",selectedMember.id),{
-
-        role:"admin",
-
-        premium:true,
-
-        active:true
-
-    });
-
-    modal.style.display="none";
-
-    loadMembers();
-
-};
-
-document.getElementById("suspendBtn").onclick=async()=>{
-
-    if(!selectedMember) return;
-
-    await updateDoc(doc(db,"users",selectedMember.id),{
-
-        active:false
-
-    });
-
-    modal.style.display="none";
-
-    loadMembers();
-
-};
-
-document.getElementById("deleteBtn").onclick=async()=>{
-
-    if(!selectedMember) return;
-
-    if(!confirm("Delete this member?")) return;
-
-    await deleteDoc(doc(db,"users",selectedMember.id));
-
-    modal.style.display="none";
-
-    loadMembers();
-
-};
-
-loadMembers();
-searchMember.addEventListener("keyup",()=>{
-
-const keyword=searchMember.value.toLowerCase();
-
-const rows=document.querySelectorAll("#membersTable tr");
-
-rows.forEach(row=>{
-
-const text=row.innerText.toLowerCase();
-
-row.style.display=
-text.includes(keyword)
-?
-""
-:
-"none";
+    }
 
 });
+/* ===========================================
+PART 4C
+MEMBER ACTIONS
+=========================================== */
+
+
+/* ==========================
+BUTTONS
+========================== */
+
+const approveBtn=document.getElementById("approveBtn");
+const premiumBtn=document.getElementById("premiumBtn");
+const adminBtn=document.getElementById("adminBtn");
+const suspendBtn=document.getElementById("suspendBtn");
+const deleteBtn=document.getElementById("deleteBtn");
+
+/* ==========================
+APPROVE MEMBER
+========================== */
+
+approveBtn.addEventListener("click",async()=>{
+
+    if(!selectedUser) return;
+
+    await updateDoc(doc(db,"users",selectedUser.id),{
+
+        status:"active"
+
+    });
+
+    alert("Member Approved Successfully.");
+
+    modal.style.display="none";
+
+    loadMembers();
+
+});
+
+/* ==========================
+MAKE PREMIUM
+========================== */
+
+premiumBtn.addEventListener("click",async()=>{
+
+    if(!selectedUser) return;
+
+    await updateDoc(doc(db,"users",selectedUser.id),{
+
+        role:"premium"
+
+    });
+
+    alert("Member is now Premium.");
+
+    modal.style.display="none";
+
+    loadMembers();
+
+});
+
+/* ==========================
+MAKE ADMIN
+========================== */
+
+adminBtn.addEventListener("click",async()=>{
+
+    if(!selectedUser) return;
+
+    await updateDoc(doc(db,"users",selectedUser.id),{
+
+        role:"admin"
+
+    });
+
+    alert("Member promoted to Administrator.");
+
+    modal.style.display="none";
+
+    loadMembers();
+
+});
+
+/* ==========================
+SUSPEND
+========================== */
+
+suspendBtn.addEventListener("click",async()=>{
+
+    if(!selectedUser) return;
+
+    if(!confirm("Suspend this member?")) return;
+
+    await updateDoc(doc(db,"users",selectedUser.id),{
+
+        status:"suspended"
+
+    });
+
+    alert("Member Suspended.");
+
+    modal.style.display="none";
+
+    loadMembers();
+
+});
+
+/* ==========================
+DELETE
+========================== */
+
+deleteBtn.addEventListener("click",async()=>{
+
+    if(!selectedUser) return;
+
+    const confirmDelete=confirm(
+
+        "Delete this member permanently?\n\nThis cannot be undone."
+
+    );
+
+    if(!confirmDelete) return;
+
+    await deleteDoc(
+
+        doc(db,"users",selectedUser.id)
+
+    );
+
+    alert("Member Deleted.");
+
+    modal.style.display="none";
+
+    loadMembers();
 
 });
