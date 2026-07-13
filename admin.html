@@ -903,66 +903,109 @@ Lesson updates appear here.
 
 </section>
 
-<!-- ==========================
-RESOURCE MANAGEMENT
-========================== -->
+<!-- =====================================
+RESOURCES MANAGEMENT
+===================================== -->
 
 <section class="dashboard-card" id="resources">
 
-<div class="card-header">
+    <div class="section-header">
 
-<div>
+        <div>
 
-<h2>
+            <h2>Resource Manager</h2>
 
-<i class="fa-solid fa-folder-open"></i>
+            <p>
+                Add resources hosted in your GitHub repository.
+            </p>
 
-Resource Manager
+        </div>
 
-</h2>
+        <input
+            type="text"
+            id="resourceSearch"
+            placeholder="Search Resources...">
 
-<p>
+    </div>
 
-Manage all premium resources.
+    <!-- RESOURCE FORM -->
 
-</p>
+    <form id="resourceForm" class="resource-form">
 
-</div>
+        <div class="form-grid">
 
-</div>
+            <input
+                type="text"
+                id="resourceTitle"
+                placeholder="Resource Title"
+                required>
 
-<div class="resource-toolbar">
+            <select
+                id="resourceCategory"
+                required>
 
-<input
-type="text"
-id="resourceSearch"
-placeholder="🔍 Search Resources">
+                <option value="">Select Category</option>
 
-<select id="resourceFilter">
+                <option value="PDF">PDF</option>
 
-<option value="All">All</option>
+                <option value="Indicator">Indicator</option>
 
-<option value="PDF">PDF</option>
+                <option value="Journal">Journal</option>
 
-<option value="Indicator">Indicator</option>
+                <option value="Strategy">Strategy</option>
 
-<option value="Journal">Journal</option>
+                <option value="Video">Video</option>
 
-<option value="Strategy">Strategy</option>
+            </select>
 
-<option value="Video">Video</option>
+        </div>
 
-</select>
+        <textarea
+            id="resourceDescription"
+            rows="4"
+            placeholder="Resource Description"></textarea>
 
-</div>
+        <input
+            type="url"
+            id="resourceLink"
+            placeholder="Paste GitHub Pages Download URL"
+            required>
 
-<div id="latestResources"></div>
+        <label class="checkbox-row">
 
-<hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
+            <input
+                type="checkbox"
+                id="premiumOnly">
 
-</button>
+            Premium Members Only
 
-</form>
+        </label>
+
+        <button
+            type="submit"
+            class="upload-btn">
+
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+
+            Save Resource
+
+        </button>
+
+    </form>
+
+    <hr style="margin:35px 0;">
+
+    <!-- RESOURCE LIST -->
+
+    <div id="latestResources">
+
+        <div class="empty-card">
+
+            Loading Resources...
+
+        </div>
+
+    </div>
 
 </section>
 <!-- ==========================
