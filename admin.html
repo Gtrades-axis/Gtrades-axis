@@ -794,11 +794,30 @@ placeholder="🔍 Search Resources">
         id="resourceDescription"
         placeholder="Description"></textarea>
 
+    <div class="file-picker">
+
+    <input
+        type="file"
+        id="resourceFilePicker"
+        hidden>
+
     <input
         type="text"
         id="resourceFile"
-        placeholder="Example: Notion_Trading_Tracker_Import.zip"
+        placeholder="No file selected"
+        readonly
         required>
+
+    <button
+        type="button"
+        id="chooseFileBtn"
+        class="upload-btn">
+
+        📁 Choose File
+
+    </button>
+
+</div>
 
     <label>
 
