@@ -7,27 +7,15 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const form = document.getElementById("resourceForm");
-const chooseBtn = document.getElementById("chooseFileBtn");
-const picker = document.getElementById("resourceFilePicker");
-const fileBox = document.getElementById("resourceFile");
+const chooseFileBtn =
+document.getElementById("chooseFileBtn");
 
-if (chooseBtn && picker && fileBox) {
+const filePicker =
+document.getElementById("resourceFilePicker");
 
-    chooseBtn.addEventListener("click", () => {
-        picker.click();
-    });
+const filenameBox =
+document.getElementById("resourceFile");
 
-    picker.addEventListener("change", () => {
-
-        if (picker.files.length > 0) {
-
-            fileBox.value = picker.files[0].name;
-
-        }
-
-    });
-
-}
 
 if (form) {
 
