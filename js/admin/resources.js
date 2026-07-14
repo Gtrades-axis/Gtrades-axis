@@ -1,223 +1,228 @@
 import { db } from "../firebase.js";
 
 import {
-
-collection,
-getDocs,
-addDoc,
-serverTimestamp,
-doc,
-deleteDoc
-
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp,
+    doc,
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
 /* ===================================
 ELEMENTS
 =================================== */
 
-const form=document.getElementById("resourceForm");
+const form = document.getElementById("resourceForm");
+const container = document.getElementById("latestResources");
+const search = document.getElementById("resourceSearch");
 
-const container=document.getElementById("latestResources");
-
-const search=document.getElementById("resourceSearch");
-
-let resources=[];
+let resources = [];
 
 /* ===================================
-LOAD
+INITIAL LOAD
 =================================== */
 
-await loadResources();
+loadResources();
 
-updateResourceCounter();
 /* ===================================
-UPLOAD
+UPLOAD RESOURCE
 =================================== */
 
-if(form){
+if (form) {
 
-if(form){
+    form.addEventListener("submit", async (e) => {
 
-form.addEventListener("submit",async(e)=>{
+        e.preventDefault();
 
-e.preventDefault();
+        const title = document.getElementById("resourceTitle").value.trim();
 
-const title=document.getElementById("resourceTitle").value;
+        const category = document.getElementById("resourceCategory").value;
 
-const category=document.getElementById("resourceCategory").value;
+        const description = document.getElementById("resourceDescription").value.trim();
 
-const description=document.getElementById("resourceDescription").value;
+        const link = document.getElementById("resourceLink").value.trim();
 
-const link=document.getElementById("resourceLink").value.trim();
-const premium=document.getElementById("premiumOnly").checked;
+        const premiumOnly =
+            document.getElementById("premiumOnly").checked;
 
-await addDoc(collection(db,"resources"),{
+        try {
 
-title,
+            await addDoc(collection(db, "resources"), {
 
-category,
+                title,
+                category,
+                description,
+                link,
+                premiumOnly,
+                createdAt: serverTimestamp()
 
-description,
+            });
 
-link:link.trim(),
+            alert("Resource uploaded successfully.");
 
-premiumOnly:premium,
+            form.reset();
 
-createdAt:serverTimestamp()
+            await loadResources();
 
-});
-});
+        } catch (err) {
 
-alert("Resource Uploaded Successfully.");
+            console.error(err);
 
-form.reset();
+            alert("Failed to upload resource.");
 
-await loadResources();
+        }
 
-updateResourceCounter();
-});
+    });
+
+}
 
 /* ===================================
 LOAD RESOURCES
 =================================== */
 
-async function loadResources(){
+async function loadResources() {
 
-resources=[];
+    resources = [];
 
-const snapshot=await getDocs(collection(db,"resources"));
+    try {
 
-snapshot.forEach(doc=>{
+        const snapshot = await getDocs(collection(db, "resources"));
 
-renderResources();
+        snapshot.forEach(document => {
 
-updateResourceCounter();
-id:doc.id,
+            resources.push({
 
-...doc.data()
+                id: document.id,
 
-});
+                ...document.data()
 
-});
+            });
 
-renderResources();
+        });
+
+        renderResources();
+
+        updateResourceCounter();
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+    }
 
 }
 
 /* ===================================
-DISPLAY
+DISPLAY RESOURCES
 =================================== */
 
-function renderResources(){
+function renderResources() {
 
-if(!container) return;
+    if (!container) return;
 
-container.innerHTML="";
+    container.innerHTML = "";
 
-if(resources.length===0){
+    if (resources.length === 0) {
 
-container.innerHTML=`
+        container.innerHTML = `
 
-<div class="empty-card">
+        <div class="empty-card">
 
-No Resources Uploaded
+            No resources uploaded.
 
-</div>
+        </div>
 
-`;
+        `;
 
-return;
+        return;
 
-}
+    }
 
-resources.forEach(resource=>{
+    resources.forEach(resource => {
 
-container.innerHTML+=`
+        container.innerHTML += `
 
-<div class="admin-resource">
+        <div class="admin-resource">
 
-<div>
+            <div>
 
-<h3>
+                <h3>${resource.title}</h3>
 
-${resource.title}
+                <p>${resource.category}</p>
 
-</h3>
+                <small>${resource.description || ""}</small>
 
-<p>
+            </div>
 
-${resource.category}
+            <div class="resource-actions">
 
-</p>
+                <a
+                    href="${resource.link}"
+                    target="_blank"
+                    class="view-btn">
 
-</div>
+                    Open
 
-<div>
+                </a>
 
-<a
+                <button
+                    class="delete-btn"
+                    data-id="${resource.id}">
 
-href="${resource.link || '#'}"
+                    Delete
 
-target="_blank"
+                </button>
 
-class="view-btn">
+            </div>
 
-Open
+        </div>
 
-</a>
+        `;
 
-<button
+    });
 
-class="delete-btn"
+    attachDelete();
 
-data-id="${resource.id}">
-
-Delete
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-attachDelete();
-
-}
-/* ===================================
-PART 5B
-SEARCH + DELETE + STATS
-=================================== */
-
-/* ===================================
+}/* ===================================
 SEARCH
 =================================== */
 
-if(search){
+if (search) {
 
-search.addEventListener("input",()=>{
+    search.addEventListener("input", () => {
 
-const value=search.value.toLowerCase();
+        const value = search.value.toLowerCase();
 
-const filtered=resources.filter(resource=>{
+        const filtered = resources.filter(resource => {
 
-return(
+            return (
 
-(resource.title || "").toLowerCase().includes(value) ||
+                (resource.title || "")
+                .toLowerCase()
+                .includes(value)
 
-(resource.category || "").toLowerCase().includes(value) ||
+                ||
 
-(resource.description || "").toLowerCase().includes(value)
+                (resource.category || "")
+                .toLowerCase()
+                .includes(value)
 
-);
+                ||
 
-});
+                (resource.description || "")
+                .toLowerCase()
+                .includes(value)
 
-renderFiltered(filtered);
+            );
 
-});
+        });
+
+        renderFiltered(filtered);
+
+    });
 
 }
 
@@ -225,125 +230,138 @@ renderFiltered(filtered);
 RENDER FILTERED
 =================================== */
 
-function renderFiltered(list){
+function renderFiltered(list) {
 
-container.innerHTML="";
+    if (!container) return;
 
-if(list.length===0){
+    container.innerHTML = "";
 
-container.innerHTML=`
+    if (list.length === 0) {
 
-<div class="empty-card">
+        container.innerHTML = `
 
-No matching resources found.
+        <div class="empty-card">
 
-</div>
+            No matching resources found.
 
-`;
+        </div>
 
-return;
+        `;
 
-}
+        return;
 
-list.forEach(resource=>{
+    }
 
-container.innerHTML+=`
+    list.forEach(resource => {
 
-<div class="admin-resource">
+        container.innerHTML += `
 
-<div>
+        <div class="admin-resource">
 
-<h3>${resource.title}</h3>
+            <div>
 
-<p>${resource.category}</p>
+                <h3>${resource.title}</h3>
 
-<small>${resource.description || ""}</small>
+                <p>${resource.category}</p>
 
-</div>
+                <small>${resource.description || ""}</small>
 
-<div class="resource-actions">
+            </div>
 
-href="${resource.link || '#'}"
+            <div class="resource-actions">
 
-target="_blank"
+                <a
+                    href="${resource.link}"
+                    target="_blank"
+                    class="view-btn">
 
-class="view-btn">
+                    Open
 
-Open
+                </a>
 
-</a>
+                <button
+                    class="delete-btn"
+                    data-id="${resource.id}">
 
-<button
+                    Delete
 
-class="delete-btn"
+                </button>
 
-data-id="${resource.id}">
+            </div>
 
-Delete
+        </div>
 
-</button>
+        `;
 
-</div>
+    });
 
-</div>
-
-`;
-
-});
-
-attachDelete();
-
-}
-
-/* ===================================
-DELETE BUTTONS
-=================================== */
-
-function attachDelete(){
-
-document.querySelectorAll(".delete-btn")
-
-.forEach(button=>{
-
-button.onclick=async()=>{
-
-const id=button.dataset.id;
-
-const confirmDelete=confirm(
-
-"Delete this resource permanently?"
-
-);
-
-if(!confirmDelete) return;
-
-await deleteDoc(doc(db,"resources",id));
-
-loadResources();
-
-updateResourceCounter();
-
-alert("Resource Deleted.");
-
-};
-
-});
+    attachDelete();
 
 }
 
 /* ===================================
-RESOURCE COUNTER
+DELETE
 =================================== */
 
-function updateResourceCounter(){
+function attachDelete() {
 
-const count=document.getElementById("resourceCount");
+    document
+    .querySelectorAll(".delete-btn")
+    .forEach(button => {
 
-const overview=document.getElementById("resourceOverview");
+        button.onclick = async () => {
 
-if(count) count.textContent=resources.length;
+            const id = button.dataset.id;
 
-if(overview) overview.textContent=resources.length;
+            const confirmDelete = confirm(
+
+                "Delete this resource?"
+
+            );
+
+            if (!confirmDelete) return;
+
+            try {
+
+                await deleteDoc(
+                    doc(db, "resources", id)
+                );
+
+                await loadResources();
+
+            }
+
+            catch (err) {
+
+                console.error(err);
+
+                alert("Failed to delete resource.");
+
+            }
+
+        };
+
+    });
+
+}
+
+/* ===================================
+COUNTER
+=================================== */
+
+function updateResourceCounter() {
+
+    const count =
+        document.getElementById("resourceCount");
+
+    const overview =
+        document.getElementById("resourceOverview");
+
+    if (count)
+        count.textContent = resources.length;
+
+    if (overview)
+        overview.textContent = resources.length;
 
 }
 
@@ -351,10 +369,10 @@ if(overview) overview.textContent=resources.length;
 AUTO REFRESH
 =================================== */
 
-setInterval(()=>{
+setInterval(async () => {
 
-loadResources();
+    await loadResources();
 
 },30000);
-}
-}
+
+console.log("Resources Manager Loaded");
