@@ -35,16 +35,45 @@ if (form) {
 
         e.preventDefault();
 
-        const title = document.getElementById("resourceTitle").value.trim();
+       const title = document.getElementById("resourceTitle").value.trim();
 
-        const category = document.getElementById("resourceCategory").value;
+const category = document.getElementById("resourceCategory").value;
 
-        const description = document.getElementById("resourceDescription").value.trim();
+const description = document.getElementById("resourceDescription").value.trim();
 
-        const link = document.getElementById("resourceLink").value.trim();
+const filename = document.getElementById("resourceFile").value.trim();
 
-        const premiumOnly =
-            document.getElementById("premiumOnly").checked;
+const premiumOnly =
+    document.getElementById("premiumOnly").checked;
+
+let folder = "";
+
+switch(category){
+
+    case "PDF":
+        folder = "pdf";
+        break;
+
+    case "Indicator":
+        folder = "indicators";
+        break;
+
+    case "Journal":
+        folder = "journals";
+        break;
+
+    case "Strategy":
+        folder = "strategies";
+        break;
+
+    case "Video":
+        folder = "videos";
+        break;
+
+}
+
+const link =
+`https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
 
         try {
 
