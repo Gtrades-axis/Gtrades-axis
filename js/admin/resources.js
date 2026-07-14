@@ -26,11 +26,14 @@ let resources=[];
 LOAD
 =================================== */
 
-loadResources();
+await loadResources();
 
+updateResourceCounter();
 /* ===================================
 UPLOAD
 =================================== */
+
+if(form){
 
 form.addEventListener("submit",async(e)=>{
 
@@ -54,12 +57,13 @@ category,
 
 description,
 
-link,
+link:link.trim(),
 
 premiumOnly:premium,
 
 createdAt:serverTimestamp()
 
+});
 });
 
 alert("Resource Uploaded Successfully.");
@@ -83,6 +87,7 @@ const snapshot=await getDocs(collection(db,"resources"));
 snapshot.forEach(doc=>{
 
 resources.push({
+ updateResourceCounter();   
 
 id:doc.id,
 
@@ -148,7 +153,7 @@ ${resource.category}
 
 <a
 
-href="${resource.link}"
+href="${resource.link || '#'}"
 
 target="_blank"
 
@@ -256,7 +261,7 @@ container.innerHTML+=`
 
 <div class="resource-actions">
 
-<a href="${resource.link}"
+href="${resource.link || '#'}"
 
 target="_blank"
 
@@ -349,3 +354,4 @@ setInterval(()=>{
 loadResources();
 
 },30000);
+}
