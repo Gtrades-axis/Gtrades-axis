@@ -35,6 +35,8 @@ UPLOAD
 
 if(form){
 
+if(form){
+
 form.addEventListener("submit",async(e)=>{
 
 e.preventDefault();
@@ -45,8 +47,7 @@ const category=document.getElementById("resourceCategory").value;
 
 const description=document.getElementById("resourceDescription").value;
 
-const link=document.getElementById("resourceLink").value;
-
+const link=document.getElementById("resourceLink").value.trim();
 const premium=document.getElementById("premiumOnly").checked;
 
 await addDoc(collection(db,"resources"),{
@@ -70,8 +71,9 @@ alert("Resource Uploaded Successfully.");
 
 form.reset();
 
-loadResources();
+await loadResources();
 
+updateResourceCounter();
 });
 
 /* ===================================
@@ -86,9 +88,9 @@ const snapshot=await getDocs(collection(db,"resources"));
 
 snapshot.forEach(doc=>{
 
-resources.push({
- updateResourceCounter();   
+renderResources();
 
+updateResourceCounter();
 id:doc.id,
 
 ...doc.data()
@@ -354,4 +356,5 @@ setInterval(()=>{
 loadResources();
 
 },30000);
+}
 }
