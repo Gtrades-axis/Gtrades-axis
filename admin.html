@@ -772,8 +772,51 @@ placeholder="🔍 Search Resources">
 <div id="latestResources"></div>
 
 <hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
+<form id="resourceForm">
 
-</button>
+    <input
+        type="text"
+        id="resourceTitle"
+        placeholder="Resource Title"
+        required>
+
+    <select id="resourceCategory" required>
+
+        <option value="PDF">PDF</option>
+        <option value="Indicator">Indicator</option>
+        <option value="Journal">Journal</option>
+        <option value="Strategy">Strategy</option>
+        <option value="Video">Video</option>
+
+    </select>
+
+    <textarea
+        id="resourceDescription"
+        placeholder="Description"></textarea>
+
+    <input
+        type="text"
+        id="resourceFile"
+        placeholder="Example: Notion_Trading_Tracker_Import.zip"
+        required>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="premiumOnly">
+
+        Premium Members Only
+
+    </label>
+
+    <button
+        type="submit"
+        class="upload-btn">
+
+        Save Resource
+
+    </button>
 
 </form>
 
