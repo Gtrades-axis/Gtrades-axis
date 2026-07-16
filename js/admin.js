@@ -104,7 +104,6 @@ async function loadResources(){
     if(resourceOverview) resourceOverview.textContent = totalResources;
 
 }
-}
 
 /* ============================
 ACADEMY STATISTICS
