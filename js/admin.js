@@ -14,10 +14,19 @@ limit
 ELEMENTS
 ============================ */
 
-const totalMembers=document.getElementById("totalMembers");
-const premiumMembers=document.getElementById("premiumMembers");
-const adminMembers=document.getElementById("adminMembers");
-const pendingMembers=document.getElementById("pendingMembers");
+if(totalMembers) totalMembers.textContent = total;
+
+if(premiumMembers) premiumMembers.textContent = premium;
+
+if(adminMembers) adminMembers.textContent = admins;
+
+if(pendingMembers) pendingMembers.textContent = pending;
+
+if(todayCount) todayCount.textContent = joinedToday;
+
+if(premiumOverview) premiumOverview.textContent = premium;
+
+if(pendingOverview) pendingOverview.textContent = pending;
 
 const resourceCount=document.getElementById("resourceCount");
 const lessonCount=document.getElementById("lessonCount");
@@ -90,9 +99,11 @@ async function loadResources(){
 
     const totalResources = snapshot.size;
 
-    resourceCount.textContent = totalResources;
-    resourceOverview.textContent = totalResources;
+    if(resourceCount) resourceCount.textContent = totalResources;
 
+    if(resourceOverview) resourceOverview.textContent = totalResources;
+
+}
 }
 
 /* ============================
@@ -101,22 +112,21 @@ ACADEMY STATISTICS
 
 async function loadAcademy(){
 
-    const lessonCount=document.getElementById("lessonCount");
-    const lessonOverview=document.getElementById("lessonOverview");
-
     if(!lessonCount || !lessonOverview) return;
 
     try{
 
-        const snapshot=await getDocs(collection(db,"academy"));
+        const snapshot = await getDocs(collection(db,"academy"));
 
-        lessonCount.textContent=snapshot.size;
-        lessonOverview.textContent=snapshot.size;
+        lessonCount.textContent = snapshot.size;
+
+        lessonOverview.textContent = snapshot.size;
 
     }catch(e){
 
-        lessonCount.textContent="0";
-        lessonOverview.textContent="0";
+        lessonCount.textContent = "0";
+
+        lessonOverview.textContent = "0";
 
     }
 
@@ -126,26 +136,23 @@ async function loadAcademy(){
 PAYMENT STATISTICS
 ============================ */
 
-aasync function loadPayments(){
-
-    const paymentCount=document.getElementById("paymentCount");
+async function loadPayments(){
 
     if(!paymentCount) return;
 
     try{
 
-        const snapshot=await getDocs(collection(db,"payments"));
+        const snapshot = await getDocs(collection(db,"payments"));
 
-        paymentCount.textContent=snapshot.size;
+        paymentCount.textContent = snapshot.size;
 
     }catch(e){
 
-        paymentCount.textContent="0";
+        paymentCount.textContent = "0";
 
     }
 
 }
-
 /* ============================
 RECENT MEMBERS
 ============================ */
