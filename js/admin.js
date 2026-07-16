@@ -495,3 +495,36 @@ setTimeout(()=>{
 },800);
 
 console.log("GTRADES AXIS ADMIN V2 LOADED");
+/* =====================================
+LOGOUT
+===================================== */
+
+import { auth } from "./firebase.js";
+
+import {
+    signOut
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href = "../login.html";
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Failed to log out.");
+
+        }
+
+    });
+
+}
