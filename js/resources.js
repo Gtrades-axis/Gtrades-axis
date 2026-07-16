@@ -6,7 +6,12 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+/* =====================================
+ELEMENTS
+===================================== */
+
 const form = document.getElementById("resourceForm");
+
 const chooseFileBtn =
 document.getElementById("chooseFileBtn");
 
@@ -15,38 +20,38 @@ document.getElementById("resourceFilePicker");
 
 const filenameBox =
 document.getElementById("resourceFile");
-/* ==========================
-FILE PICKER
-========================== */
 
-console.log("Button:", chooseBtn);
-console.log("Picker:", picker);
+/* =====================================
+FILE PICKER
+===================================== */
+
+console.log("Button:", chooseFileBtn);
+console.log("Picker:", filePicker);
 console.log("Textbox:", filenameBox);
 
-if (chooseBtn && picker && filenameBox) {
+if (chooseFileBtn && filePicker && filenameBox) {
 
-    chooseBtn.onclick = function () {
+    chooseFileBtn.addEventListener("click", () => {
 
-        console.log("Button clicked");
+        filePicker.click();
 
-        picker.click();
+    });
 
-    };
+    filePicker.addEventListener("change", () => {
 
-    picker.onchange = function () {
+        if (filePicker.files.length > 0) {
 
-        console.log("File selected", picker.files);
-
-        if (picker.files.length > 0) {
-
-            filenameBox.value = picker.files[0].name;
+            filenameBox.value = filePicker.files[0].name;
 
         }
 
-    };
+    });
 
 }
 
+/* =====================================
+SUBMIT
+===================================== */
 
 if (form) {
 
@@ -54,19 +59,36 @@ if (form) {
 
 }
 
+/* =====================================
+PUBLISH RESOURCE
+===================================== */
+
 async function publishResource(e) {
 
     e.preventDefault();
 
-    const title = document.getElementById("resourceTitle").value.trim();
+    const title =
+        document.getElementById("resourceTitle").value.trim();
 
-    const category = document.getElementById("resourceCategory").value;
+    const category =
+        document.getElementById("resourceCategory").value;
 
-    const description = document.getElementById("resourceDescription").value.trim();
+    const description =
+        document.getElementById("resourceDescription").value.trim();
 
-    const filename = document.getElementById("resourceFile").value.trim();
+    const filename =
+        filenameBox.value.trim();
 
-    const premiumOnly = document.getElementById("premiumOnly").checked;
+    const premiumOnly =
+        document.getElementById("premiumOnly").checked;
+
+    if (!filename) {
+
+        alert("Please choose a file first.");
+
+        return;
+
+    }
 
     let folder = "";
 
@@ -92,10 +114,12 @@ async function publishResource(e) {
             folder = "videos";
             break;
 
+        default:
+            folder = "";
     }
 
     const link =
-        `https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
+`https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
 
     try {
 
@@ -114,7 +138,11 @@ async function publishResource(e) {
 
         form.reset();
 
-    } catch (error) {
+        filenameBox.value = "";
+
+    }
+
+    catch (error) {
 
         console.error(error);
 

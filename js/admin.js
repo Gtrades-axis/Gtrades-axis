@@ -532,3 +532,32 @@ if (logoutBtn) {
     });
 
 }
+const liveDate = document.getElementById("liveDate");
+
+function updateClock() {
+
+    if (!liveDate) return;
+
+    const now = new Date();
+
+    liveDate.innerHTML = now.toLocaleString("en-GB", {
+
+        weekday: "short",
+
+        day: "numeric",
+
+        month: "short",
+
+        year: "numeric",
+
+        hour: "2-digit",
+
+        minute: "2-digit"
+
+    });
+
+}
+
+updateClock();
+
+setInterval(updateClock, 1000);

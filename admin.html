@@ -136,239 +136,114 @@ MAIN
 
 <main class="admin-main">
 
-<!-- HEADER -->
+<header class="admin-header">
 
-<header class="topbar">
+    <div>
 
-<div>
+        <h1>GTRADES-AXIS ADMIN</h1>
 
-<h1>
+        <p>
+            Manage Members • Academy • Resources
+        </p>
 
-Administrator Dashboard
+    </div>
 
-</h1>
+    <div class="admin-header-right">
 
-<p>
+        <div id="liveDate"></div>
 
-Welcome back. Manage the entire GTRADES AXIS platform.
+        <button
+            id="logoutBtn"
+            class="logout-btn">
 
-</p>
+            <i class="fa-solid fa-right-from-bracket"></i>
 
-</div>
+            Logout
 
-<div class="admin-box">
+        </button>
 
-<div class="admin-avatar">
-
-A
-
-</div>
-
-<div>
-
-<h3>
-
-Administrator
-
-</h3>
-
-<p>
-
-System Owner
-
-</p>
-
-</div>
-
-</div>
+    </div>
 
 </header>
 
 <!-- ==========================
-STATISTICS
-========================== -->
-
 <section class="stats-grid">
 
-<div class="stat-card blue">
+    <div class="stat-card">
 
-<div>
+        <div class="stat-icon blue">
 
-<h2 id="totalMembers">
+            <i class="fa-solid fa-users"></i>
 
-0
+        </div>
 
-</h2>
+        <div>
 
-<p>
+            <h2 id="totalMembers">0</h2>
 
-Total Members
+            <p>Total Members</p>
 
-</p>
+        </div>
 
-</div>
+    </div>
 
-<i class="fa-solid fa-users"></i>
+    <div class="stat-card">
 
-</div>
+        <div class="stat-icon gold">
 
-<div class="stat-card gold">
+            <i class="fa-solid fa-crown"></i>
 
-<div>
+        </div>
 
-<h2 id="premiumMembers">
+        <div>
 
-0
+            <h2 id="premiumMembers">0</h2>
 
-</h2>
+            <p>Premium Members</p>
 
-<p>
+        </div>
 
-Premium Members
+    </div>
 
-</p>
+    <div class="stat-card">
 
-</div>
+        <div class="stat-icon green">
 
-<i class="fa-solid fa-crown"></i>
+            <i class="fa-solid fa-folder-open"></i>
 
-</div>
+        </div>
 
-<div class="stat-card green">
+        <div>
 
-<div>
+            <h2 id="resourceCount">0</h2>
 
-<h2 id="adminMembers">
+            <p>Resources</p>
 
-0
+        </div>
 
-</h2>
+    </div>
 
-<p>
+    <div class="stat-card">
 
-Administrators
+        <div class="stat-icon purple">
 
-</p>
+            <i class="fa-solid fa-graduation-cap"></i>
 
-</div>
+        </div>
 
-<i class="fa-solid fa-user-shield"></i>
+        <div>
 
-</div>
+            <h2 id="lessonCount">0</h2>
 
-<div class="stat-card red">
+            <p>Academy Lessons</p>
 
-<div>
+        </div>
 
-<h2 id="pendingMembers">
-
-0
-
-</h2>
-
-<p>
-
-Pending Approval
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-user-clock"></i>
-
-</div>
-
-<div class="stat-card purple">
-
-<div>
-
-<h2 id="resourceCount">
-
-0
-
-</h2>
-
-<p>
-
-Resources
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-folder-open"></i>
-
-</div>
-
-<div class="stat-card cyan">
-
-<div>
-
-<h2 id="lessonCount">
-
-0
-
-</h2>
-
-<p>
-
-Academy Lessons
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-book-open"></i>
-
-</div>
-
-<div class="stat-card orange">
-
-<div>
-
-<h2 id="paymentCount">
-
-0
-
-</h2>
-
-<p>
-
-Payments
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-money-bill-wave"></i>
-
-</div>
-
-<div class="stat-card teal">
-
-<div>
-
-<h2 id="todayCount">
-
-0
-
-</h2>
-
-<p>
-
-Joined Today
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-calendar-day"></i>
-
-</div>
+    </div>
 
 </section>
 
-<!-- ==========================
+<!- ==========================
 QUICK ACTIONS
 ========================== -->
 
@@ -411,7 +286,95 @@ Payments
 <!-- ==========================
 DASHBOARD GRID STARTS
 ========================== -->
+<div class="dashboard-grid">
 
+    <!-- Quick Actions -->
+
+    <div class="dashboard-card">
+
+        <h2>
+
+            <i class="fa-solid fa-bolt"></i>
+
+            Quick Actions
+
+        </h2>
+
+        <div class="quick-grid">
+
+            <button class="quick-btn" onclick="location.href='#resources'">
+
+                <i class="fa-solid fa-folder-plus"></i>
+
+                Add Resource
+
+            </button>
+
+            <button class="quick-btn" onclick="location.href='#members'">
+
+                <i class="fa-solid fa-users"></i>
+
+                Members
+
+            </button>
+
+            <button class="quick-btn" onclick="location.href='#academy'">
+
+                <i class="fa-solid fa-graduation-cap"></i>
+
+                Academy
+
+            </button>
+
+            <button class="quick-btn">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                Analytics
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Activity Feed -->
+
+    <div class="dashboard-card">
+
+        <h2>
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            Recent Activity
+
+        </h2>
+
+        <div class="activity-feed">
+
+            <div class="activity-item">
+
+                <div class="activity-icon blue">
+
+                    <i class="fa-solid fa-folder-plus"></i>
+
+                </div>
+
+                <div>
+
+                    <h4>System Ready</h4>
+
+                    <p>Waiting for activity...</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 <section class="dashboard-grid">
     <!-- ==========================
 MEMBERS MANAGEMENT
@@ -526,7 +489,13 @@ Latest Resources
 
 <div class="empty-card">
 
-No resources uploaded.
+<i class="fa-solid fa-folder-open"></i>
+
+<h3>No Resources Yet</h3>
+
+<p>Publish your first resource to make it available to students.</p>
+
+</div>
 
 </div>
 

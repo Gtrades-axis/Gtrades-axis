@@ -170,115 +170,63 @@ function renderResources() {
 
     if (!container) return;
 
-    container.innerHTML = "";
+  container.innerHTML += `
 
-    if (resources.length === 0) {
+<div class="resource-card">
 
-        container.innerHTML = `
+    <div class="resource-left">
 
-            <div class="empty-card">
+        <div class="resource-icon">
 
-                No Resources Uploaded
+            <i class="fa-solid fa-folder-open"></i>
 
-            </div>
+        </div>
 
-        `;
+        <div>
 
-        return;
+            <h3>${resource.title}</h3>
 
-    }
+            <p>${resource.description || "No description"}</p>
 
-    resources.forEach(resource => {
+            <div class="resource-tags">
 
-        container.innerHTML += `
+                <span>${resource.category}</span>
 
-        <div class="admin-resource">
-
-            <div>
-
-                <h3>${resource.title}</h3>
-
-                <p>${resource.category}</p>
-
-                <small>${resource.description}</small>
-
-            </div>
-
-            <div>
-
-                <a
-                    href="${resource.link}"
-                    target="_blank"
-                    class="view-btn">
-
-                    Open
-
-                </a>
-
-                <button
-                    class="delete-btn"
-                    data-id="${resource.id}">
-
-                    Delete
-
-                </button>
+                ${resource.premiumOnly
+                    ? `<span class="premium-tag">Premium</span>`
+                    : `<span class="free-tag">Free</span>`}
 
             </div>
 
         </div>
 
-        `;
+    </div>
 
-    });
+    <div class="resource-right">
 
-    attachDelete();
+        <a
+            href="${resource.link}"
+            target="_blank"
+            class="open-btn">
 
-}
+            <i class="fa-solid fa-eye"></i>
 
-/* =====================================
-DELETE
-===================================== */
+            Open
 
-function attachDelete() {
+        </a>
 
-    document.querySelectorAll(".delete-btn").forEach(button => {
+        <button
+            class="delete-btn"
+            data-id="${resource.id}">
 
-        button.onclick = async () => {
+            <i class="fa-solid fa-trash"></i>
 
-            if (!confirm("Delete this resource?")) return;
+            Delete
 
-            await deleteDoc(doc(db, "resources", button.dataset.id));
+        </button>
 
-            loadResources();
+    </div>
 
-        };
+</div>
 
-    });
-
-}
-
-/* =====================================
-SEARCH
-===================================== */
-
-if (search) {
-
-    search.addEventListener("input", () => {
-
-        const value = search.value.toLowerCase();
-
-        document.querySelectorAll(".admin-resource").forEach(card => {
-
-            card.style.display =
-
-                card.innerText.toLowerCase().includes(value)
-
-                    ? "flex"
-
-                    : "none";
-
-        });
-
-    });
-
-}
+`;
