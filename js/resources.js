@@ -15,6 +15,29 @@ document.getElementById("resourceFilePicker");
 
 const filenameBox =
 document.getElementById("resourceFile");
+/* ==========================
+FILE PICKER
+========================== */
+
+if (chooseFileBtn && filePicker && filenameBox) {
+
+    chooseFileBtn.addEventListener("click", () => {
+
+        filePicker.click();
+
+    });
+
+    filePicker.addEventListener("change", () => {
+
+        if (filePicker.files.length > 0) {
+
+            filenameBox.value = filePicker.files[0].name;
+
+        }
+
+    });
+
+}
 
 
 if (form) {
