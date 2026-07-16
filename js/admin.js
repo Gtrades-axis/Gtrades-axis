@@ -511,17 +511,21 @@ if (logoutBtn) {
 
     logoutBtn.addEventListener("click", async () => {
 
+        const confirmLogout = confirm("Are you sure you want to logout?");
+
+        if (!confirmLogout) return;
+
         try {
 
             await signOut(auth);
 
-            window.location.href = "../login.html";
+            window.location.href = "login.html";
 
         } catch (error) {
 
             console.error(error);
 
-            alert("Failed to log out.");
+            alert(error.message);
 
         }
 
