@@ -19,23 +19,31 @@ document.getElementById("resourceFile");
 FILE PICKER
 ========================== */
 
-if (chooseFileBtn && filePicker && filenameBox) {
+console.log("Button:", chooseBtn);
+console.log("Picker:", picker);
+console.log("Textbox:", filenameBox);
 
-    chooseFileBtn.addEventListener("click", () => {
+if (chooseBtn && picker && filenameBox) {
 
-        filePicker.click();
+    chooseBtn.onclick = function () {
 
-    });
+        console.log("Button clicked");
 
-    filePicker.addEventListener("change", () => {
+        picker.click();
 
-        if (filePicker.files.length > 0) {
+    };
 
-            filenameBox.value = filePicker.files[0].name;
+    picker.onchange = function () {
+
+        console.log("File selected", picker.files);
+
+        if (picker.files.length > 0) {
+
+            filenameBox.value = picker.files[0].name;
 
         }
 
-    });
+    };
 
 }
 
