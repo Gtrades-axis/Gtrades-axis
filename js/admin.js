@@ -495,6 +495,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 const logoutBtn = document.getElementById("logoutBtn");
+console.log("Logout button:", logoutBtn);
 
 if (logoutBtn) {
 
