@@ -170,7 +170,27 @@ function renderResources() {
 
     if (!container) return;
 
-  container.innerHTML += `
+    container.innerHTML = "";
+
+    if (resources.length === 0) {
+
+        container.innerHTML = `
+
+        <div class="empty-card">
+
+            No resources uploaded.
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    resources.forEach(resource => {
+
+        container.innerHTML += `
 
 <div class="resource-card">
 
@@ -192,9 +212,11 @@ function renderResources() {
 
                 <span>${resource.category}</span>
 
-                ${resource.premiumOnly
+                ${
+                    resource.premiumOnly
                     ? `<span class="premium-tag">Premium</span>`
-                    : `<span class="free-tag">Free</span>`}
+                    : `<span class="free-tag">Free</span>`
+                }
 
             </div>
 
@@ -205,8 +227,11 @@ function renderResources() {
     <div class="resource-right">
 
         <a
+
             href="${resource.link}"
+
             target="_blank"
+
             class="open-btn">
 
             <i class="fa-solid fa-eye"></i>
@@ -216,7 +241,9 @@ function renderResources() {
         </a>
 
         <button
+
             class="delete-btn"
+
             data-id="${resource.id}">
 
             <i class="fa-solid fa-trash"></i>
@@ -230,3 +257,27 @@ function renderResources() {
 </div>
 
 `;
+
+    });
+
+    attachDelete();
+
+}
+
+function attachDelete() {
+
+    document.querySelectorAll(".delete-btn").forEach(button => {
+
+        button.addEventListener("click", async () => {
+
+            if (!confirm("Delete this resource?")) return;
+
+            await deleteDoc(doc(db, "resources", button.dataset.id));
+
+            loadResources();
+
+        });
+
+    });
+
+}
