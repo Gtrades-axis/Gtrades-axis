@@ -2,103 +2,44 @@ import { db } from "../firebase.js";
 
 import {
     collection,
-    getDocs,
     addDoc,
-    serverTimestamp,
+    getDocs,
+    deleteDoc,
     doc,
-    deleteDoc
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-/* ===================================
+/* =====================================
 ELEMENTS
-=================================== */
+===================================== */
 
 const form = document.getElementById("resourceForm");
 const container = document.getElementById("latestResources");
 const search = document.getElementById("resourceSearch");
 
+const chooseBtn = document.getElementById("chooseFileBtn");
+const picker = document.getElementById("resourceFilePicker");
+const filenameBox = document.getElementById("resourceFile");
+
 let resources = [];
 
-/* ===================================
-INITIAL LOAD
-=================================== */
+/* =====================================
+FILE PICKER
+===================================== */
 
-loadResources();
+if (chooseBtn && picker && filenameBox) {
 
-/* ===================================
-UPLOAD RESOURCE
-=================================== */
+    chooseBtn.addEventListener("click", () => {
 
-if (form) {
+        picker.click();
 
-    form.addEventListener("submit", async (e) => {
+    });
 
-        e.preventDefault();
+    picker.addEventListener("change", () => {
 
-       const title = document.getElementById("resourceTitle").value.trim();
+        if (picker.files.length > 0) {
 
-const category = document.getElementById("resourceCategory").value;
-
-const description = document.getElementById("resourceDescription").value.trim();
-
-const filename = document.getElementById("resourceFile").value.trim();
-
-const premiumOnly =
-    document.getElementById("premiumOnly").checked;
-
-let folder = "";
-
-switch(category){
-
-    case "PDF":
-        folder = "pdf";
-        break;
-
-    case "Indicator":
-        folder = "indicators";
-        break;
-
-    case "Journal":
-        folder = "journals";
-        break;
-
-    case "Strategy":
-        folder = "strategies";
-        break;
-
-    case "Video":
-        folder = "videos";
-        break;
-
-}
-
-const link =
-`https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
-
-        try {
-
-            await addDoc(collection(db, "resources"), {
-
-                title,
-                category,
-                description,
-                link,
-                premiumOnly,
-                createdAt: serverTimestamp()
-
-            });
-
-            alert("Resource uploaded successfully.");
-
-            form.reset();
-
-            await loadResources();
-
-        } catch (err) {
-
-            console.error(err);
-
-            alert("Failed to upload resource.");
+            filenameBox.value = picker.files[0].name;
 
         }
 
@@ -106,47 +47,124 @@ const link =
 
 }
 
-/* ===================================
-LOAD RESOURCES
-=================================== */
+/* =====================================
+LOAD
+===================================== */
 
-async function loadResources() {
+loadResources();
 
-    resources = [];
+/* =====================================
+SAVE RESOURCE
+===================================== */
 
-    try {
+if (form) {
 
-        const snapshot = await getDocs(collection(db, "resources"));
+    form.addEventListener("submit", publishResource);
 
-        snapshot.forEach(document => {
+}
 
-            resources.push({
+async function publishResource(e) {
 
-                id: document.id,
+    e.preventDefault();
 
-                ...document.data()
+    const title = document.getElementById("resourceTitle").value.trim();
 
-            });
+    const category = document.getElementById("resourceCategory").value;
 
-        });
+    const description = document.getElementById("resourceDescription").value.trim();
 
-        renderResources();
+    const filename = document.getElementById("resourceFile").value.trim();
 
-        updateResourceCounter();
+    const premiumOnly = document.getElementById("premiumOnly").checked;
+
+    let folder = "";
+
+    switch (category) {
+
+        case "PDF":
+            folder = "pdf";
+            break;
+
+        case "Indicator":
+            folder = "indicators";
+            break;
+
+        case "Journal":
+            folder = "journals";
+            break;
+
+        case "Strategy":
+            folder = "strategies";
+            break;
+
+        case "Video":
+            folder = "videos";
+            break;
 
     }
 
-    catch (err) {
+    const link =
+        `https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
 
-        console.error(err);
+    try {
+
+        await addDoc(collection(db, "resources"), {
+
+            title,
+            category,
+            description,
+            link,
+            premiumOnly,
+            createdAt: serverTimestamp()
+
+        });
+
+        alert("✅ Resource Published Successfully");
+
+        form.reset();
+
+        filenameBox.value = "";
+
+        loadResources();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
 
     }
 
 }
 
-/* ===================================
-DISPLAY RESOURCES
-=================================== */
+/* =====================================
+LOAD RESOURCES
+===================================== */
+
+async function loadResources() {
+
+    resources = [];
+
+    const snapshot = await getDocs(collection(db, "resources"));
+
+    snapshot.forEach(docSnap => {
+
+        resources.push({
+
+            id: docSnap.id,
+            ...docSnap.data()
+
+        });
+
+    });
+
+    renderResources();
+
+}
+
+/* =====================================
+DISPLAY
+===================================== */
 
 function renderResources() {
 
@@ -158,11 +176,11 @@ function renderResources() {
 
         container.innerHTML = `
 
-        <div class="empty-card">
+            <div class="empty-card">
 
-            No resources uploaded.
+                No Resources Uploaded
 
-        </div>
+            </div>
 
         `;
 
@@ -182,123 +200,12 @@ function renderResources() {
 
                 <p>${resource.category}</p>
 
-                <small>${resource.description || ""}</small>
+                <small>${resource.description}</small>
 
             </div>
-
-            <div class="resource-actions">
-
-                <a
-                    href="${resource.link}"
-                    target="_blank"
-                    class="view-btn">
-
-                    Open
-
-                </a>
-
-                <button
-                    class="delete-btn"
-                    data-id="${resource.id}">
-
-                    Delete
-
-                </button>
-
-            </div>
-
-        </div>
-
-        `;
-
-    });
-
-    attachDelete();
-
-}/* ===================================
-SEARCH
-=================================== */
-
-if (search) {
-
-    search.addEventListener("input", () => {
-
-        const value = search.value.toLowerCase();
-
-        const filtered = resources.filter(resource => {
-
-            return (
-
-                (resource.title || "")
-                .toLowerCase()
-                .includes(value)
-
-                ||
-
-                (resource.category || "")
-                .toLowerCase()
-                .includes(value)
-
-                ||
-
-                (resource.description || "")
-                .toLowerCase()
-                .includes(value)
-
-            );
-
-        });
-
-        renderFiltered(filtered);
-
-    });
-
-}
-
-/* ===================================
-RENDER FILTERED
-=================================== */
-
-function renderFiltered(list) {
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    if (list.length === 0) {
-
-        container.innerHTML = `
-
-        <div class="empty-card">
-
-            No matching resources found.
-
-        </div>
-
-        `;
-
-        return;
-
-    }
-
-    list.forEach(resource => {
-
-        container.innerHTML += `
-
-        <div class="admin-resource">
 
             <div>
 
-                <h3>${resource.title}</h3>
-
-                <p>${resource.category}</p>
-
-                <small>${resource.description || ""}</small>
-
-            </div>
-
-            <div class="resource-actions">
-
                 <a
                     href="${resource.link}"
                     target="_blank"
@@ -328,45 +235,21 @@ function renderFiltered(list) {
 
 }
 
-/* ===================================
+/* =====================================
 DELETE
-=================================== */
+===================================== */
 
 function attachDelete() {
 
-    document
-    .querySelectorAll(".delete-btn")
-    .forEach(button => {
+    document.querySelectorAll(".delete-btn").forEach(button => {
 
         button.onclick = async () => {
 
-            const id = button.dataset.id;
+            if (!confirm("Delete this resource?")) return;
 
-            const confirmDelete = confirm(
+            await deleteDoc(doc(db, "resources", button.dataset.id));
 
-                "Delete this resource?"
-
-            );
-
-            if (!confirmDelete) return;
-
-            try {
-
-                await deleteDoc(
-                    doc(db, "resources", id)
-                );
-
-                await loadResources();
-
-            }
-
-            catch (err) {
-
-                console.error(err);
-
-                alert("Failed to delete resource.");
-
-            }
+            loadResources();
 
         };
 
@@ -374,34 +257,28 @@ function attachDelete() {
 
 }
 
-/* ===================================
-COUNTER
-=================================== */
+/* =====================================
+SEARCH
+===================================== */
 
-function updateResourceCounter() {
+if (search) {
 
-    const count =
-        document.getElementById("resourceCount");
+    search.addEventListener("input", () => {
 
-    const overview =
-        document.getElementById("resourceOverview");
+        const value = search.value.toLowerCase();
 
-    if (count)
-        count.textContent = resources.length;
+        document.querySelectorAll(".admin-resource").forEach(card => {
 
-    if (overview)
-        overview.textContent = resources.length;
+            card.style.display =
+
+                card.innerText.toLowerCase().includes(value)
+
+                    ? "flex"
+
+                    : "none";
+
+        });
+
+    });
 
 }
-
-/* ===================================
-AUTO REFRESH
-=================================== */
-
-setInterval(async () => {
-
-    await loadResources();
-
-},30000);
-
-console.log("Resources Manager Loaded");
