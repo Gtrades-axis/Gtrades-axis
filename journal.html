@@ -1,1098 +1,234 @@
-<main class="main-content">
+<body>
 
-<!-- ===========================
-HEADER
-=========================== -->
+<div class="dashboard-container">
 
-<div class="topbar">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-<div>
+        <div class="logo">
+            <img src="images/logo.png" alt="Logo">
+            <h2>GTRADES <span>AXIS™</span></h2>
+        </div>
 
-<h1>Professional Trading Journal</h1>
+        <nav>
 
-<p>Record every trade with complete market structure analysis.</p>
+            <a href="dashboard.html">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
 
-</div>
+            <a href="premium-academy.html">
+                <i class="fa-solid fa-graduation-cap"></i>
+                Academy
+            </a>
 
-<div class="member-badge">
+            <a href="downloads.html">
+                <i class="fa-solid fa-folder-open"></i>
+                Resources
+            </a>
 
-<i class="fa-solid fa-crown"></i>
+            <a class="active" href="journal.html">
+                <i class="fa-solid fa-chart-line"></i>
+                Trading Journal
+            </a>
 
-Premium
+            <a href="profile.html">
+                <i class="fa-solid fa-user"></i>
+                Profile
+            </a>
 
-</div>
+            <a href="support.html">
+                <i class="fa-solid fa-headset"></i>
+                Support
+            </a>
 
-</div>
+        </nav>
 
-<!-- ===========================
-STATS
-=========================== -->
+        <button id="logoutBtn" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
 
-<section class="stats-grid">
+    </aside>
 
-<div class="stat-card">
-<i class="fa-solid fa-chart-column"></i>
-<div>
-<h2 id="totalTrades">0</h2>
-<p>Total Trades</p>
-</div>
-</div>
+    <!-- MAIN -->
 
-<div class="stat-card">
-<i class="fa-solid fa-trophy"></i>
-<div>
-<h2 id="wins">0</h2>
-<p>Wins</p>
-</div>
-</div>
+    <main class="main-content">
 
-<div class="stat-card">
-<i class="fa-solid fa-xmark"></i>
-<div>
-<h2 id="losses">0</h2>
-<p>Losses</p>
-</div>
-</div>
+        <div class="topbar">
 
-<div class="stat-card">
-<i class="fa-solid fa-percent"></i>
-<div>
-<h2 id="winRate">0%</h2>
-<p>Win Rate</p>
-</div>
-</div>
+            <div>
 
-<div class="stat-card">
-<i class="fa-solid fa-scale-balanced"></i>
-<div>
-<h2 id="averageRR">0</h2>
-<p>Average RR</p>
-</div>
-</div>
+                <h1>Professional Trading Journal</h1>
 
-<div class="stat-card">
-<i class="fa-solid fa-sack-dollar"></i>
-<div>
-<h2 id="netProfit">$0</h2>
-<p>Net Profit</p>
-</div>
-</div>
+                <p>Track your trading performance like a funded trader.</p>
 
-</section>
+            </div>
 
-<!-- ===========================
-NEW TRADE
-=========================== -->
+            <a href="journal/new-trade.html" class="btn btn-primary">
 
-<section class="latest-card">
+                <i class="fa-solid fa-plus"></i>
 
-<h2>
+                New Trade
 
-<i class="fa-solid fa-plus"></i>
+            </a>
 
-New Trade
+        </div>
 
-</h2>
+        <!-- STATS -->
 
-<form id="tradeForm">
+        <section class="stats-grid">
 
-<h3>Trade Information</h3>
+            <div class="stat-card">
+                <i class="fa-solid fa-chart-column"></i>
+                <div>
+                    <h2 id="totalTrades">0</h2>
+                    <p>Total Trades</p>
+                </div>
+            </div>
 
-<div class="journal-grid">
+            <div class="stat-card">
+                <i class="fa-solid fa-trophy"></i>
+                <div>
+                    <h2 id="wins">0</h2>
+                    <p>Wins</p>
+                </div>
+            </div>
 
-<input type="date" id="tradeDate" required>
+            <div class="stat-card">
+                <i class="fa-solid fa-xmark"></i>
+                <div>
+                    <h2 id="losses">0</h2>
+                    <p>Losses</p>
+                </div>
+            </div>
 
-<input type="time" id="tradeTime">
+            <div class="stat-card">
+                <i class="fa-solid fa-percent"></i>
+                <div>
+                    <h2 id="winRate">0%</h2>
+                    <p>Win Rate</p>
+                </div>
+            </div>
 
-<input type="text" id="pair" placeholder="Pair">
+            <div class="stat-card">
+                <i class="fa-solid fa-scale-balanced"></i>
+                <div>
+                    <h2 id="averageRR">0</h2>
+                    <p>Average RR</p>
+                </div>
+            </div>
 
-<select id="direction">
+            <div class="stat-card">
+                <i class="fa-solid fa-sack-dollar"></i>
+                <div>
+                    <h2 id="netProfit">$0</h2>
+                    <p>Net Profit</p>
+                </div>
+            </div>
 
-<option>BUY</option>
+        </section>
 
-<option>SELL</option>
+        <!-- CHARTS -->
 
-</select>
+        <section class="analytics-grid">
 
-<input type="text" id="broker" placeholder="Broker">
+            <div class="chart-card">
 
-<input type="text" id="account" placeholder="Account">
+                <h3>Equity Curve</h3>
 
-<input type="number" id="lotSize" step="0.01" placeholder="Lot Size">
+                <canvas id="equityChart"></canvas>
 
-<input type="text" id="challenge" placeholder="Prop Firm Account">
+            </div>
 
-</div>
+            <div class="chart-card">
 
-<!-- ===========================
-HTF
-=========================== -->
+                <h3>Monthly Performance</h3>
 
-<h3>Higher Timeframe (4H - Daily)</h3>
+                <canvas id="monthlyChart"></canvas>
 
-<div class="journal-grid">
+            </div>
 
-<select id="htfTrend">
+        </section>
 
-<option>Bullish</option>
+        <!-- QUICK STATS -->
 
-<option>Bearish</option>
+        <section class="ai-review">
 
-<option>Range</option>
+            <div class="review-card">
 
-</select>
+                <h3>Best Pair</h3>
 
-<select id="htfSwing">
+                <h1 id="bestPair">-</h1>
 
-<option>Higher High</option>
+            </div>
 
-<option>Higher Low</option>
+            <div class="review-card">
 
-<option>Lower High</option>
+                <h3>Worst Pair</h3>
 
-<option>Lower Low</option>
+                <h1 id="worstPair">-</h1>
 
-</select>
+            </div>
 
-<select id="htfInternal">
+            <div class="review-card">
 
-<option>Bullish BOS</option>
+                <h3>Best Session</h3>
 
-<option>Bearish BOS</option>
+                <h1 id="bestSession">-</h1>
 
-<option>Bullish CHOCH</option>
+            </div>
 
-<option>Bearish CHOCH</option>
+            <div class="review-card">
 
-<option>None</option>
+                <h3>Current Streak</h3>
 
-</select>
+                <h1 id="winStreak">0</h1>
 
-<select id="htfPOI">
+            </div>
 
-<option>Demand</option>
+        </section>
 
-<option>Supply</option>
+        <!-- RECENT TRADES -->
 
-<option>Discount</option>
+        <section class="latest-card">
 
-<option>Premium</option>
+            <div class="card-header">
 
-<option>Liquidity</option>
+                <h2>
 
-</select>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
 
-</div>
+                    Recent Trades
 
-<!-- ===========================
-MTF
-=========================== -->
+                </h2>
 
-<h3>Medium Timeframe (15M - 1H)</h3>
+                <a href="journal/history.html" class="btn btn-secondary">
 
-<div class="journal-grid">
+                    View All
 
-<select id="mtfTrend">
+                </a>
 
-<option>Bullish</option>
+            </div>
 
-<option>Bearish</option>
+            <div id="recentTrades">
 
-<option>Range</option>
+                <div class="loading-card">
 
-</select>
+                    No trades recorded yet.
 
-<select id="mtfSwing">
+                </div>
 
-<option>Higher High</option>
+            </div>
 
-<option>Higher Low</option>
+        </section>
 
-<option>Lower High</option>
-
-<option>Lower Low</option>
-
-</select>
-
-<select id="mtfInternal">
-
-<option>Bullish BOS</option>
-
-<option>Bearish BOS</option>
-
-<option>Bullish CHOCH</option>
-
-<option>Bearish CHOCH</option>
-
-<option>None</option>
-
-</select>
-
-<select id="mtfPOI">
-
-<option>Demand</option>
-
-<option>Supply</option>
-
-<option>Discount</option>
-
-<option>Premium</option>
-
-<option>Liquidity</option>
-
-</select>
-
-</div>
-<!-- ===========================
-LOWER TIMEFRAME
-=========================== -->
-
-<h3>Lower Timeframe Entry (1M - 5M)</h3>
-
-<div class="journal-grid">
-
-<select id="ltfTrend">
-
-<option>Bullish</option>
-
-<option>Bearish</option>
-
-<option>Range</option>
-
-</select>
-
-<select id="ltfSwing">
-
-<option>Higher High</option>
-
-<option>Higher Low</option>
-
-<option>Lower High</option>
-
-<option>Lower Low</option>
-
-</select>
-
-<select id="ltfInternal">
-
-<option>Bullish BOS</option>
-
-<option>Bearish BOS</option>
-
-<option>Bullish CHOCH</option>
-
-<option>Bearish CHOCH</option>
-
-<option>Liquidity Sweep</option>
-
-<option>None</option>
-
-</select>
-
-<select id="entryModel">
-
-<option>Photon Continuation</option>
-
-<option>Photon Reversal</option>
-
-<option>Mitigation</option>
-
-<option>Breaker</option>
-
-<option>CHOCH Entry</option>
-
-<option>BOS Entry</option>
-
-<option>Liquidity Sweep</option>
-
-</select>
-
-</div>
-
-<!-- ===========================
-SESSION
-=========================== -->
-
-<h3>Trading Session</h3>
-
-<div class="journal-grid">
-
-<select id="session">
-
-<option>Asia</option>
-
-<option>Frankfurt</option>
-
-<option>London Open</option>
-
-<option>London Killzone</option>
-
-<option>New York AM</option>
-
-<option>New York PM</option>
-
-</select>
-
-<select id="day">
-
-<option>Monday</option>
-
-<option>Tuesday</option>
-
-<option>Wednesday</option>
-
-<option>Thursday</option>
-
-<option>Friday</option>
-
-</select>
-
-<select id="news">
-
-<option>No High Impact News</option>
-
-<option>High Impact News</option>
-
-<option>Medium Impact News</option>
-
-</select>
-
-<select id="marketCondition">
-
-<option>Trending</option>
-
-<option>Range</option>
-
-<option>Expansion</option>
-
-<option>Accumulation</option>
-
-<option>Distribution</option>
-
-</select>
-
-</div>
-
-<!-- ===========================
-ENTRY DETAILS
-=========================== -->
-
-<h3>Entry Details</h3>
-
-<div class="journal-grid">
-
-<input
-type="number"
-id="entry"
-step="0.00001"
-placeholder="Entry Price">
-
-<input
-type="number"
-id="sl"
-step="0.00001"
-placeholder="Stop Loss">
-
-<input
-type="number"
-id="tp"
-step="0.00001"
-placeholder="Take Profit">
-
-<input
-type="number"
-id="risk"
-step="0.01"
-placeholder="Risk %">
-
-<input
-type="number"
-id="rr"
-step="0.01"
-placeholder="Risk Reward">
-
-<input
-type="number"
-id="expectedProfit"
-step="0.01"
-placeholder="Expected Profit">
-
-<input
-type="number"
-id="profit"
-step="0.01"
-placeholder="Actual Profit">
-
-<input
-type="number"
-id="profitPercent"
-step="0.01"
-placeholder="Profit %">
-
-</div>
-
-<!-- ===========================
-TRADE MANAGEMENT
-=========================== -->
-
-<h3>Trade Management</h3>
-
-<div class="journal-grid">
-
-<select id="partialTaken">
-
-<option>No Partial</option>
-
-<option>25%</option>
-
-<option>50%</option>
-
-<option>75%</option>
-
-<option>100%</option>
-
-</select>
-
-<select id="moveBE">
-
-<option>No</option>
-
-<option>Yes</option>
-
-</select>
-
-<select id="trailingStop">
-
-<option>No</option>
-
-<option>Yes</option>
-
-</select>
-
-<select id="exitReason">
-
-<option>Take Profit</option>
-
-<option>Stop Loss</option>
-
-<option>Manual Close</option>
-
-<option>Break Even</option>
-
-<option>Partial Close</option>
-
-</select>
-
-<select id="result">
-
-<option>Win</option>
-
-<option>Loss</option>
-
-<option>Break Even</option>
-
-</select>
-
-<input
-type="number"
-id="holdingTime"
-placeholder="Holding Time (Minutes)">
-
-</div>
-<!-- ===========================
-PSYCHOLOGY
-=========================== -->
-
-<h3>Trading Psychology</h3>
-
-<div class="journal-grid">
-
-<select id="emotionBefore">
-
-<option>Confident</option>
-
-<option>Calm</option>
-
-<option>Focused</option>
-
-<option>Fear</option>
-
-<option>Greedy</option>
-
-<option>FOMO</option>
-
-<option>Revenge</option>
-
-<option>Frustrated</option>
-
-<option>Tired</option>
-
-</select>
-
-<select id="emotionAfter">
-
-<option>Satisfied</option>
-
-<option>Happy</option>
-
-<option>Neutral</option>
-
-<option>Disappointed</option>
-
-<option>Angry</option>
-
-<option>Confident</option>
-
-<option>Motivated</option>
-
-</select>
-
-<select id="planFollowed">
-
-<option>Yes</option>
-
-<option>No</option>
-
-</select>
-
-<select id="discipline">
-
-<option>Excellent</option>
-
-<option>Good</option>
-
-<option>Average</option>
-
-<option>Poor</option>
-
-</select>
-
-</div>
-
-<!-- ===========================
-COMMON MISTAKES
-=========================== -->
-
-<h3>Mistakes</h3>
-
-<div class="journal-grid">
-
-<select id="mistake">
-
-<option>None</option>
-
-<option>Entered Early</option>
-
-<option>Entered Late</option>
-
-<option>Ignored HTF</option>
-
-<option>Ignored MTF</option>
-
-<option>Ignored LTF Confirmation</option>
-
-<option>Moved Stop Loss</option>
-
-<option>Closed Early</option>
-
-<option>Over Leveraged</option>
-
-<option>News Trade</option>
-
-<option>FOMO</option>
-
-<option>Revenge Trade</option>
-
-<option>Poor Risk Management</option>
-
-</select>
-
-<select id="executionQuality">
-
-<option>Excellent</option>
-
-<option>Good</option>
-
-<option>Average</option>
-
-<option>Poor</option>
-
-</select>
-
-</div>
-
-<!-- ===========================
-CHECKLIST
-=========================== -->
-
-<h3>Pre-Trade Checklist</h3>
-
-<div class="checklist-grid">
-
-<label><input type="checkbox" id="htfCheck"> HTF Bias Confirmed</label>
-
-<label><input type="checkbox" id="mtfCheck"> MTF Bias Confirmed</label>
-
-<label><input type="checkbox" id="ltfCheck"> LTF Confirmation</label>
-
-<label><input type="checkbox" id="liquidityCheck"> Liquidity Sweep</label>
-
-<label><input type="checkbox" id="bosCheck"> BOS / CHOCH Confirmed</label>
-
-<label><input type="checkbox" id="sessionCheck"> Correct Session</label>
-
-<label><input type="checkbox" id="riskCheck"> Risk Calculated</label>
-
-<label><input type="checkbox" id="newsCheck"> News Checked</label>
-
-<label><input type="checkbox" id="rulesCheck"> Trade Matches Plan</label>
-
-<label><input type="checkbox" id="psychologyCheck"> Psychology Good</label>
-
-</div>
-
-<!-- ===========================
-SCREENSHOTS
-=========================== -->
-
-<h3>Trade Screenshots</h3>
-
-<div class="journal-grid">
-
-<div class="upload-box">
-
-<label>Before Entry</label>
-
-<input type="file" id="beforeImage" accept="image/*">
-
-</div>
-
-<div class="upload-box">
-
-<label>During Trade</label>
-
-<input type="file" id="duringImage" accept="image/*">
-
-</div>
-
-<div class="upload-box">
-
-<label>After Exit</label>
-
-<input type="file" id="afterImage" accept="image/*">
-
-</div>
-
-</div>
-
-<!-- ===========================
-NOTES
-=========================== -->
-
-<h3>Trade Notes</h3>
-
-<textarea
-
-id="tradeReason"
-
-rows="4"
-
-placeholder="Why did you take this trade?">
-
-</textarea>
-
-<textarea
-
-id="executionNotes"
-
-rows="4"
-
-placeholder="Describe your execution...">
-
-</textarea>
-
-<textarea
-
-id="lesson"
-
-rows="4"
-
-placeholder="Lessons learned...">
-
-</textarea>
-
-<textarea
-
-id="improvement"
-
-rows="4"
-
-placeholder="What will you improve next time?">
-
-</textarea>
-
-<div class="save-section">
-
-<button
-
-type="submit"
-
-class="btn btn-primary">
-
-<i class="fa-solid fa-floppy-disk"></i>
-
-Save Trade
-
-</button>
-
-<button
-
-type="reset"
-
-class="btn btn-secondary">
-
-<i class="fa-solid fa-rotate-left"></i>
-
-Reset
-
-</button>
-
-</div>
-
-</form>
-
-</section>
-<!-- ===========================
-TRADE HISTORY
-=========================== -->
-
-<section class="latest-card">
-
-<div class="card-header">
-
-<h2>
-
-<i class="fa-solid fa-clock-rotate-left"></i>
-
-Trade History
-
-</h2>
-
-<input
-type="text"
-id="tradeSearch"
-placeholder="Search Pair, Setup, Session...">
-
-</div>
-
-<div class="filter-grid">
-
-<select id="filterPair">
-
-<option value="">All Pairs</option>
-
-</select>
-
-<select id="filterSession">
-
-<option value="">All Sessions</option>
-
-</select>
-
-<select id="filterResult">
-
-<option value="">All Results</option>
-
-<option>Win</option>
-
-<option>Loss</option>
-
-<option>Break Even</option>
-
-</select>
-
-<select id="filterMonth">
-
-<option value="">All Months</option>
-
-</select>
-
-</div>
-
-<div id="tradeHistory">
-
-<div class="loading-card">
-
-No trades recorded yet.
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-PERFORMANCE
-=========================== -->
-
-<section class="latest-card">
-
-<h2>
-
-<i class="fa-solid fa-chart-simple"></i>
-
-Performance Analytics
-
-</h2>
-
-<div class="analytics-grid">
-
-<div class="chart-card">
-
-<h3>Equity Curve</h3>
-
-<canvas id="equityChart"></canvas>
-
-</div>
-
-<div class="chart-card">
-
-<h3>Monthly Profit</h3>
-
-<canvas id="monthlyChart"></canvas>
-
-</div>
-
-<div class="chart-card">
-
-<h3>Win Rate by Pair</h3>
-
-<canvas id="pairChart"></canvas>
-
-</div>
-
-<div class="chart-card">
-
-<h3>Win Rate by Session</h3>
-
-<canvas id="sessionChart"></canvas>
-
-</div>
-
-<div class="chart-card">
-
-<h3>Setup Performance</h3>
-
-<canvas id="setupChart"></canvas>
-
-</div>
-
-<div class="chart-card">
-
-<h3>Risk Distribution</h3>
-
-<canvas id="riskChart"></canvas>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-AI REVIEW
-=========================== -->
-
-<section class="latest-card">
-
-<h2>
-
-<i class="fa-solid fa-robot"></i>
-
-Journal Review
-
-</h2>
-
-<div class="ai-review">
-
-<div class="review-card">
-
-<h3>Best Pair</h3>
-
-<h1 id="bestPair">-</h1>
-
-</div>
-
-<div class="review-card">
-
-<h3>Worst Pair</h3>
-
-<h1 id="worstPair">-</h1>
-
-</div>
-
-<div class="review-card">
-
-<h3>Best Session</h3>
-
-<h1 id="bestSession">-</h1>
-
-</div>
-
-<div class="review-card">
-
-<h3>Current Win Streak</h3>
-
-<h1 id="winStreak">0</h1>
-
-</div>
-
-</div>
-
-<div class="journal-summary">
-
-<h3>Trading Notes</h3>
-
-<ul id="journalInsights">
-
-<li>No insights available yet.</li>
-
-</ul>
-
-</div>
-
-</section>
-
-<!-- ===========================
-MONTH SUMMARY
-=========================== -->
-
-<section class="latest-card">
-
-<h2>
-
-<i class="fa-solid fa-calendar-days"></i>
-
-Monthly Summary
-
-</h2>
-
-<div class="stats-grid">
-
-<div class="stat-card">
-
-<i class="fa-solid fa-list"></i>
-
-<div>
-
-<h2 id="monthTrades">0</h2>
-
-<p>Trades</p>
-
-</div>
-
-</div>
-
-<div class="stat-card">
-
-<i class="fa-solid fa-dollar-sign"></i>
-
-<div>
-
-<h2 id="monthProfit">$0</h2>
-
-<p>Profit</p>
-
-</div>
-
-</div>
-
-<div class="stat-card">
-
-<i class="fa-solid fa-scale-balanced"></i>
-
-<div>
-
-<h2 id="monthRR">0</h2>
-
-<p>Average RR</p>
-
-</div>
-
-</div>
-
-<div class="stat-card">
-
-<i class="fa-solid fa-percent"></i>
-
-<div>
-
-<h2 id="monthWinRate">0%</h2>
-
-<p>Win Rate</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===========================
-EXPORT
-=========================== -->
-
-<section class="latest-card">
-
-<h2>
-
-<i class="fa-solid fa-download"></i>
-
-Export Journal
-
-</h2>
-
-<div class="export-buttons">
-
-<button id="exportPDF" class="btn btn-primary">
-
-<i class="fa-solid fa-file-pdf"></i>
-
-Export PDF
-
-</button>
-
-<button id="exportExcel" class="btn btn-primary">
-
-<i class="fa-solid fa-file-excel"></i>
-
-Export Excel
-
-</button>
-
-<button id="backupJournal" class="btn btn-secondary">
-
-<i class="fa-solid fa-cloud-arrow-down"></i>
-
-Backup Journal
-
-</button>
-
-</div>
-
-</section>
-
-</main>
+    </main>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script type="module" src="js/authGuard.js"></script>
-
 <script type="module" src="js/journal.js"></script>
 
 </body>
-
-</html>
