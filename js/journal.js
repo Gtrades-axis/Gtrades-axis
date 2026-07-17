@@ -140,6 +140,7 @@ tradeForm.addEventListener("submit", saveTrade);
 async function saveTrade(e) {
 
     e.preventDefault();
+    console.log("Save button clicked");
 
     const trade = {
 
