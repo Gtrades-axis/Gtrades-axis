@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Trading Analytics | GTRADES-AXIS™</title>
+
+<link rel="stylesheet" href="../css/journal.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<main class="main-content">
+
+<!-- =======================================
+HEADER
+======================================= -->
+
+<div class="topbar">
+
+<div>
+
+<h1>
+
+<i class="fa-solid fa-chart-pie"></i>
+
+Trading Analytics
+
+</h1>
+
+<p>
+
+Analyze your trading performance professionally.
+
+</p>
+
+</div>
+
+<div>
+
+<a href="../journal.html" class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Dashboard
+
+</a>
+
+</div>
+
+</div>
+
+<!-- =======================================
+SUMMARY CARDS
+======================================= -->
+
+<section class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-chart-column"></i>
+
+<div>
+
+<h2 id="analyticsTrades">0</h2>
+
+<p>Total Trades</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-percent"></i>
+
+<div>
+
+<h2 id="analyticsWinRate">0%</h2>
+
+<p>Win Rate</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-scale-balanced"></i>
+
+<div>
+
+<h2 id="analyticsRR">0</h2>
+
+<p>Average RR</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-sack-dollar"></i>
+
+<div>
+
+<h2 id="analyticsProfit">$0</h2>
+
+<p>Net Profit</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-fire"></i>
+
+<div>
+
+<h2 id="analyticsStreak">0</h2>
+
+<p>Win Streak</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-bullseye"></i>
+
+<div>
+
+<h2 id="analyticsExpectancy">0</h2>
+
+<p>Expectancy</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =======================================
+EQUITY CURVE
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Equity Curve
+
+</h2>
+
+<canvas id="equityChart"></canvas>
+
+</section>
+
+<!-- =======================================
+MONTHLY PERFORMANCE
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Monthly Performance
+
+</h2>
+
+<canvas id="monthlyChart"></canvas>
+
+</section>
+
+<!-- =======================================
+PAIR PERFORMANCE
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Pair Performance
+
+</h2>
+
+<canvas id="pairChart"></canvas>
+
+</section>
+
+<!-- =======================================
+SESSION PERFORMANCE
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Session Performance
+
+</h2>
+
+<canvas id="sessionChart"></canvas>
+
+</section>
+<!-- =======================================
+RISK & REWARD DISTRIBUTION
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Risk vs Reward Distribution
+
+</h2>
+
+<canvas id="rrChart"></canvas>
+
+</section>
+
+<!-- =======================================
+PROFIT DISTRIBUTION
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Profit Distribution
+
+</h2>
+
+<canvas id="profitChart"></canvas>
+
+</section>
+
+<!-- =======================================
+PSYCHOLOGY ANALYTICS
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Trading Psychology
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-face-smile"></i>
+
+<div>
+
+<h2 id="confidenceScore">0%</h2>
+
+<p>Confidence</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-brain"></i>
+
+<div>
+
+<h2 id="disciplineScore">0%</h2>
+
+<p>Discipline</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+<div>
+
+<h2 id="mistakeCount">0</h2>
+
+<p>Mistakes</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-book-open"></i>
+
+<div>
+
+<h2 id="planScore">0%</h2>
+
+<p>Plan Followed</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =======================================
+BEST PERFORMANCE
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Performance Summary
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="review-card">
+
+<h3>Best Pair</h3>
+
+<h1 id="bestPair">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Worst Pair</h3>
+
+<h1 id="worstPair">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Best Session</h3>
+
+<h1 id="bestSession">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Worst Session</h3>
+
+<h1 id="worstSession">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Best Trading Day</h3>
+
+<h1 id="bestDay">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Average Holding Time</h3>
+
+<h1 id="averageHolding">0 min</h1>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =======================================
+AI PERFORMANCE REVIEW
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+AI Performance Review
+
+</h2>
+
+<div id="aiSummary">
+
+<ul id="analyticsInsights">
+
+<li>Waiting for enough trading data...</li>
+
+</ul>
+
+</div>
+
+</section>
+
+<!-- =======================================
+MONTHLY SUMMARY
+======================================= -->
+
+<section class="latest-card">
+
+<h2>
+
+Monthly Summary
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-calendar-days"></i>
+
+<div>
+
+<h2 id="monthTrades">0</h2>
+
+<p>Trades This Month</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+
+<div>
+
+<h2 id="monthProfit">$0</h2>
+
+<p>Monthly Profit</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-percent"></i>
+
+<div>
+
+<h2 id="monthWinRate">0%</h2>
+
+<p>Monthly Win Rate</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-scale-balanced"></i>
+
+<div>
+
+<h2 id="monthRR">0</h2>
+
+<p>Monthly Avg RR</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script type="module" src="../js/journal.js"></script>
+
+</body>
+
+</html>
