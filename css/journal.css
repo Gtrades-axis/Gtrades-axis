@@ -1,10 +1,250 @@
-.journal-container{
+/* ==========================================
+GTRADES-AXIS™
+PREMIUM JOURNAL
+========================================== */
+
+*{
+
+margin:0;
+
+padding:0;
+
+box-sizing:border-box;
+
+font-family:"Poppins",sans-serif;
+
+}
+
+body{
+
+background:#f5f7fb;
+
+overflow-x:hidden;
+
+}
+
+/* =========================
+MAIN
+========================= */
+
+.main-content{
+
+padding:35px;
 
 display:flex;
 
 flex-direction:column;
 
 gap:30px;
+
+}
+
+/* =========================
+TOPBAR
+========================= */
+
+.topbar{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+flex-wrap:wrap;
+
+gap:20px;
+
+}
+
+.topbar h1{
+
+font-size:32px;
+
+font-weight:700;
+
+color:#111827;
+
+}
+
+.topbar p{
+
+margin-top:6px;
+
+color:#6b7280;
+
+font-size:15px;
+
+}
+
+.member-badge{
+
+background:#005eff;
+
+color:#fff;
+
+padding:12px 22px;
+
+border-radius:40px;
+
+font-weight:600;
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+box-shadow:0 10px 25px rgba(0,94,255,.25);
+
+}
+
+/* =========================
+CARDS
+========================= */
+
+.latest-card{
+
+background:#fff;
+
+border-radius:20px;
+
+padding:30px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+border:1px solid #eef1f6;
+
+}
+
+.latest-card h2{
+
+margin-bottom:25px;
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+font-size:24px;
+
+font-weight:700;
+
+color:#111827;
+
+}
+
+/* =========================
+STATISTICS
+========================= */
+
+.stats-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:20px;
+
+}
+
+.stat-card{
+
+background:#fff;
+
+border-radius:18px;
+
+padding:25px;
+
+display:flex;
+
+align-items:center;
+
+gap:18px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+transition:.3s;
+
+border:1px solid #eef2f8;
+
+}
+
+.stat-card:hover{
+
+transform:translateY(-6px);
+
+}
+
+.stat-card i{
+
+width:65px;
+
+height:65px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:24px;
+
+background:#005eff;
+
+color:#fff;
+
+border-radius:16px;
+
+}
+
+.stat-card h2{
+
+font-size:30px;
+
+font-weight:700;
+
+margin-bottom:4px;
+
+color:#111827;
+
+}
+
+.stat-card p{
+
+font-size:14px;
+
+color:#6b7280;
+
+}
+/* ==========================================
+FORM
+========================================== */
+
+form{
+
+display:flex;
+
+flex-direction:column;
+
+gap:30px;
+
+}
+
+form h3{
+
+font-size:18px;
+
+font-weight:700;
+
+color:#111827;
+
+padding-bottom:10px;
+
+border-bottom:2px solid #eef2f8;
+
+margin-top:10px;
 
 }
 
@@ -16,7 +256,45 @@ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 
 gap:20px;
 
-margin:25px 0;
+}
+
+/* =========================
+INPUTS
+========================= */
+
+input,
+
+select,
+
+textarea{
+
+width:100%;
+
+padding:15px 18px;
+
+border:1px solid #dbe2ec;
+
+border-radius:12px;
+
+background:#fff;
+
+font-size:15px;
+
+transition:.3s;
+
+outline:none;
+
+}
+
+input:focus,
+
+select:focus,
+
+textarea:focus{
+
+border-color:#005eff;
+
+box-shadow:0 0 0 4px rgba(0,94,255,.15);
 
 }
 
@@ -24,7 +302,212 @@ textarea{
 
 resize:vertical;
 
-margin:20px 0;
+min-height:140px;
+
+}
+
+/* =========================
+UPLOAD BOXES
+========================= */
+
+.upload-box{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+padding:20px;
+
+border:2px dashed #d7dce5;
+
+border-radius:16px;
+
+background:#fafbff;
+
+transition:.3s;
+
+}
+
+.upload-box:hover{
+
+border-color:#005eff;
+
+background:#f4f8ff;
+
+}
+
+.upload-box label{
+
+font-weight:600;
+
+color:#374151;
+
+}
+
+.upload-box input[type="file"]{
+
+padding:10px;
+
+border:none;
+
+background:transparent;
+
+}
+
+/* =========================
+CHECKLIST
+========================= */
+
+.checklist-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+
+gap:18px;
+
+}
+
+.checklist-grid label{
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+padding:15px;
+
+background:#fff;
+
+border:1px solid #e5e7eb;
+
+border-radius:12px;
+
+cursor:pointer;
+
+transition:.3s;
+
+font-weight:500;
+
+}
+
+.checklist-grid label:hover{
+
+background:#f5f9ff;
+
+border-color:#005eff;
+
+}
+
+.checklist-grid input[type="checkbox"]{
+
+width:18px;
+
+height:18px;
+
+accent-color:#005eff;
+
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+.save-section{
+
+display:flex;
+
+gap:15px;
+
+flex-wrap:wrap;
+
+margin-top:10px;
+
+}
+
+.btn{
+
+padding:15px 30px;
+
+border:none;
+
+border-radius:12px;
+
+font-size:15px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.3s;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:10px;
+
+}
+
+.btn-primary{
+
+background:#005eff;
+
+color:#fff;
+
+}
+
+.btn-primary:hover{
+
+background:#0046c7;
+
+transform:translateY(-2px);
+
+}
+
+.btn-secondary{
+
+background:#eef2f8;
+
+color:#111827;
+
+}
+
+.btn-secondary:hover{
+
+background:#dfe6ef;
+
+transform:translateY(-2px);
+
+}
+/* ==========================================
+TRADE HISTORY
+========================================== */
+
+.card-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+gap:20px;
+
+margin-bottom:25px;
+
+flex-wrap:wrap;
+
+}
+
+.card-header input{
+
+max-width:320px;
 
 }
 
@@ -34,43 +517,65 @@ display:flex;
 
 flex-direction:column;
 
-gap:15px;
+gap:20px;
 
-margin-top:20px;
+margin-top:25px;
 
 }
 
+/* =========================
+TRADE CARD
+========================= */
+
 .trade-card{
-
-background:#fff;
-
-padding:20px;
-
-border-radius:15px;
-
-border:1px solid #e5e7eb;
 
 display:flex;
 
 justify-content:space-between;
 
-align-items:center;
+align-items:flex-start;
 
-box-shadow:0 5px 15px rgba(0,0,0,.05);
+gap:25px;
+
+padding:25px;
+
+background:#fff;
+
+border-radius:18px;
+
+border:1px solid #e8edf5;
+
+box-shadow:0 8px 20px rgba(0,0,0,.04);
+
+transition:.3s;
+
+}
+
+.trade-card:hover{
+
+transform:translateY(-4px);
+
+box-shadow:0 15px 35px rgba(0,0,0,.08);
 
 }
 
 .trade-card h3{
 
-margin-bottom:5px;
+font-size:22px;
+
+margin-bottom:10px;
+
+color:#111827;
 
 }
 
 .trade-card p{
 
-color:#666;
-
 font-size:14px;
+
+line-height:1.7;
+
+color:#6b7280;
 
 }
 
@@ -78,21 +583,25 @@ font-size:14px;
 
 display:flex;
 
-gap:10px;
+flex-direction:column;
+
+gap:12px;
 
 }
 
 .trade-actions button{
 
-padding:10px 15px;
+padding:12px 18px;
 
 border:none;
 
-border-radius:8px;
+border-radius:10px;
 
 cursor:pointer;
 
 font-weight:600;
+
+transition:.3s;
 
 }
 
@@ -104,6 +613,12 @@ color:#fff;
 
 }
 
+.edit-btn:hover{
+
+background:#0048d4;
+
+}
+
 .delete-btn{
 
 background:#ef4444;
@@ -112,15 +627,276 @@ color:#fff;
 
 }
 
-@media(max-width:768px){
+.delete-btn:hover{
 
-.trade-card{
+background:#dc2626;
+
+}
+
+/* =========================
+FILTERS
+========================= */
+
+.filter-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+
+gap:18px;
+
+margin:20px 0;
+
+}
+
+/* ==========================================
+ANALYTICS
+========================================== */
+
+.analytics-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+
+gap:25px;
+
+margin-top:25px;
+
+}
+
+.chart-card{
+
+background:#fff;
+
+padding:25px;
+
+border-radius:18px;
+
+border:1px solid #e7edf7;
+
+box-shadow:0 10px 20px rgba(0,0,0,.04);
+
+}
+
+.chart-card h3{
+
+margin-bottom:20px;
+
+font-size:18px;
+
+color:#111827;
+
+font-weight:700;
+
+}
+
+.chart-card canvas{
+
+width:100% !important;
+
+height:320px !important;
+
+}
+
+/* ==========================================
+AI REVIEW
+========================================== */
+
+.ai-review{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:20px;
+
+margin:25px 0;
+
+}
+
+.review-card{
+
+background:linear-gradient(135deg,#005eff,#2b7fff);
+
+color:#fff;
+
+padding:25px;
+
+border-radius:18px;
+
+box-shadow:0 15px 35px rgba(0,94,255,.25);
+
+}
+
+.review-card h3{
+
+font-size:15px;
+
+font-weight:500;
+
+margin-bottom:12px;
+
+opacity:.9;
+
+}
+
+.review-card h1{
+
+font-size:30px;
+
+font-weight:700;
+
+}
+
+.journal-summary{
+
+margin-top:30px;
+
+padding:25px;
+
+border-radius:18px;
+
+background:#f8fbff;
+
+border:1px solid #dce8ff;
+
+}
+
+.journal-summary h3{
+
+margin-bottom:18px;
+
+font-size:20px;
+
+color:#111827;
+
+}
+
+.journal-summary ul{
+
+padding-left:20px;
+
+display:flex;
+
+flex-direction:column;
+
+gap:12px;
+
+}
+
+.journal-summary li{
+
+line-height:1.7;
+
+color:#4b5563;
+
+}
+
+/* ==========================================
+EXPORT
+========================================== */
+
+.export-buttons{
+
+display:flex;
+
+gap:18px;
+
+flex-wrap:wrap;
+
+margin-top:25px;
+
+}
+
+.export-buttons .btn{
+
+min-width:220px;
+
+}
+
+/* ==========================================
+EMPTY STATE
+========================================== */
+
+.loading-card{
+
+padding:50px;
+
+text-align:center;
+
+font-size:18px;
+
+color:#9ca3af;
+
+background:#fafafa;
+
+border-radius:16px;
+
+border:2px dashed #d9dce3;
+
+}
+/* ==========================================
+RESPONSIVE DESIGN
+========================================== */
+
+@media (max-width:1400px){
+
+.analytics-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media (max-width:1200px){
+
+.stats-grid{
+
+grid-template-columns:repeat(3,1fr);
+
+}
+
+.journal-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.analytics-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+@media (max-width:992px){
+
+.main-content{
+
+padding:25px;
+
+}
+
+.topbar{
 
 flex-direction:column;
 
 align-items:flex-start;
 
-gap:15px;
+}
+
+.stats-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.trade-card{
+
+flex-direction:column;
 
 }
 
@@ -128,11 +904,303 @@ gap:15px;
 
 width:100%;
 
+flex-direction:row;
+
 }
 
 .trade-actions button{
 
 flex:1;
+
+}
+
+.card-header{
+
+flex-direction:column;
+
+align-items:stretch;
+
+}
+
+.card-header input{
+
+max-width:100%;
+
+}
+
+.export-buttons{
+
+flex-direction:column;
+
+}
+
+.export-buttons .btn{
+
+width:100%;
+
+}
+
+}
+
+@media (max-width:768px){
+
+.main-content{
+
+padding:20px;
+
+}
+
+.topbar h1{
+
+font-size:26px;
+
+}
+
+.stats-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.journal-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.checklist-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.ai-review{
+
+grid-template-columns:1fr;
+
+}
+
+.analytics-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.review-card h1{
+
+font-size:24px;
+
+}
+
+.chart-card canvas{
+
+height:260px !important;
+
+}
+
+}
+
+@media (max-width:480px){
+
+.main-content{
+
+padding:15px;
+
+}
+
+.latest-card{
+
+padding:20px;
+
+}
+
+.stat-card{
+
+padding:18px;
+
+}
+
+.stat-card i{
+
+width:55px;
+
+height:55px;
+
+font-size:20px;
+
+}
+
+.stat-card h2{
+
+font-size:24px;
+
+}
+
+.btn{
+
+width:100%;
+
+}
+
+.trade-card{
+
+padding:18px;
+
+}
+
+.trade-card h3{
+
+font-size:18px;
+
+}
+
+}
+
+/* ==========================================
+PREMIUM ANIMATIONS
+========================================== */
+
+.stat-card,
+.trade-card,
+.chart-card,
+.review-card,
+.latest-card{
+
+animation:fadeUp .45s ease;
+
+}
+
+@keyframes fadeUp{
+
+0%{
+
+opacity:0;
+
+transform:translateY(18px);
+
+}
+
+100%{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+/* ==========================================
+CUSTOM SCROLLBAR
+========================================== */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+height:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#eef2f8;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#005eff;
+
+border-radius:50px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+background:#0048d4;
+
+}
+
+/* ==========================================
+TABLETS
+========================================== */
+
+@media(min-width:769px) and (max-width:1024px){
+
+.journal-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.stats-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+/* ==========================================
+LARGE DESKTOPS
+========================================== */
+
+@media(min-width:1600px){
+
+.main-content{
+
+max-width:1700px;
+
+margin:auto;
+
+}
+
+.analytics-grid{
+
+grid-template-columns:repeat(3,1fr);
+
+}
+
+}
+
+/* ==========================================
+PRINT
+========================================== */
+
+@media print{
+
+.sidebar,
+
+.topbar,
+
+.export-buttons,
+
+.trade-actions,
+
+button{
+
+display:none !important;
+
+}
+
+.main-content{
+
+padding:0;
+
+}
+
+.latest-card{
+
+box-shadow:none;
+
+border:none;
+
+}
+
+body{
+
+background:#fff;
 
 }
 
