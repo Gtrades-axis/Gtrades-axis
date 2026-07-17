@@ -9,9 +9,10 @@
 
 <title>Premium Resources | GTRADES-AXIS™</title>
 
-<link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/dashboard.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,9 +26,9 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <div class="dashboard">
 
-<!-- ===================================== -->
-<!-- SIDEBAR -->
-<!-- ===================================== -->
+<!-- ===========================
+SIDEBAR
+=========================== -->
 
 <aside class="sidebar">
 
@@ -45,7 +46,7 @@ GTRADES
 
 </div>
 
-<ul>
+<ul class="menu">
 
 <li>
 
@@ -53,7 +54,7 @@ GTRADES
 
 <i class="fa-solid fa-house"></i>
 
-Dashboard
+<span>Dashboard</span>
 
 </a>
 
@@ -65,7 +66,7 @@ Dashboard
 
 <i class="fa-solid fa-folder-open"></i>
 
-Premium Resources
+<span>Premium Resources</span>
 
 </a>
 
@@ -77,7 +78,7 @@ Premium Resources
 
 <i class="fa-solid fa-graduation-cap"></i>
 
-Premium Academy
+<span>Premium Academy</span>
 
 </a>
 
@@ -89,7 +90,7 @@ Premium Academy
 
 <i class="fa-solid fa-circle-play"></i>
 
-Videos
+<span>Videos</span>
 
 </a>
 
@@ -101,7 +102,7 @@ Videos
 
 <i class="fa-solid fa-chart-line"></i>
 
-Trading Journal
+<span>Trading Journal</span>
 
 </a>
 
@@ -113,7 +114,7 @@ Trading Journal
 
 <i class="fa-solid fa-user"></i>
 
-My Profile
+<span>My Profile</span>
 
 </a>
 
@@ -121,11 +122,11 @@ My Profile
 
 <li>
 
-<a href="contact.html">
+<a href="support.html">
 
 <i class="fa-solid fa-headset"></i>
 
-Support
+<span>Support</span>
 
 </a>
 
@@ -143,19 +144,15 @@ Logout
 
 </aside>
 
-<!-- ===================================== -->
-<!-- MAIN CONTENT -->
-<!-- ===================================== -->
+<!-- ===========================
+MAIN CONTENT
+=========================== -->
 
 <main class="main-content">
 
-<!-- ===================================== -->
-<!-- HERO -->
-<!-- ===================================== -->
+<header class="topbar">
 
-<section class="student-hero">
-
-<div class="student-info">
+<div>
 
 <h1>
 
@@ -165,77 +162,17 @@ Premium Resources
 
 <p>
 
-Download premium journals, indicators, PDFs, strategies and trading tools.
+Download all premium trading materials.
 
 </p>
 
 </div>
 
-<div class="student-stats">
+</header>
 
-<div class="student-card">
-
-<i class="fa-solid fa-folder-open"></i>
-
-<h2 id="resourceCount">
-
-0
-
-</h2>
-
-<span>
-
-Resources
-
-</span>
-
-</div>
-
-<div class="student-card">
-
-<i class="fa-solid fa-download"></i>
-
-<h2>
-
-∞
-
-</h2>
-
-<span>
-
-Downloads
-
-</span>
-
-</div>
-
-<div class="student-card">
-
-<i class="fa-solid fa-crown"></i>
-
-<h2>
-
-Premium
-
-</h2>
-
-<span>
-
-Membership
-
-</span>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===================================== -->
 <!-- SEARCH -->
-<!-- ===================================== -->
 
-<section class="resource-search">
+<div class="search-box">
 
 <input
 
@@ -243,81 +180,53 @@ type="text"
 
 id="searchInput"
 
-placeholder="🔍 Search Premium Resources">
+placeholder="Search resources...">
 
-</section>
+</div>
 
-<!-- ===================================== -->
 <!-- FILTERS -->
-<!-- ===================================== -->
 
-<section class="resource-filters">
+<div class="resource-filters">
 
-<button class="filter-btn active"
-
-data-category="All">
+<button class="filter-btn active" data-category="All">
 
 All
 
 </button>
 
-<button
-
-class="filter-btn"
-
-data-category="PDF">
+<button class="filter-btn" data-category="PDF">
 
 PDFs
 
 </button>
 
-<button
-
-class="filter-btn"
-
-data-category="Indicator">
+<button class="filter-btn" data-category="Indicator">
 
 Indicators
 
 </button>
 
-<button
-
-class="filter-btn"
-
-data-category="Journal">
+<button class="filter-btn" data-category="Journal">
 
 Journals
 
 </button>
 
-<button
-
-class="filter-btn"
-
-data-category="Strategy">
+<button class="filter-btn" data-category="Strategy">
 
 Strategies
 
 </button>
 
-<button
-
-class="filter-btn"
-
-data-category="Video">
+<button class="filter-btn" data-category="Video">
 
 Videos
 
 </button>
 
-</section>
+</div>
 
-<!-- ===================================== -->
 <!-- RESOURCE GRID -->
-<!-- ===================================== -->
-
-<section class="resource-library">
 
 <div
 
@@ -325,29 +234,40 @@ id="resourcesContainer"
 
 class="resource-grid">
 
-<div class="loading-card">
-
-<i class="fa-solid fa-spinner fa-spin"></i>
-
-<p>
-
 Loading Resources...
 
-</p>
+</div>
+<!-- ===========================
+FOOTER
+=========================== -->
+
+<footer class="dashboard-footer">
+
+<div class="footer-left">
+
+© 2026 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.
 
 </div>
 
+<div class="footer-right">
+
+Version 1.0
+
 </div>
 
-</section>
+</footer>
 
 </main>
 
 </div>
 
+<!-- ===========================
+SCRIPTS
+=========================== -->
+
 <script type="module" src="js/authGuard.js"></script>
 
-<script type="module" src="js/loadResources.js"></script>
+<script type="module" src="js/resources.js"></script>
 
 </body>
 

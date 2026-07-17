@@ -1,125 +1,396 @@
-import { db } from "./firebase.js";
+import { auth, db } from "./firebase.js";
+
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
     collection,
-    addDoc,
-    serverTimestamp
+    getDocs,
+    query,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const form = document.getElementById("resourceForm");
-const chooseFileBtn =
-document.getElementById("chooseFileBtn");
+/* ==========================================
+ELEMENTS
+========================================== */
 
-const filePicker =
-document.getElementById("resourceFilePicker");
+const logoutBtn = document.getElementById("logoutBtn");
 
-const filenameBox =
-document.getElementById("resourceFile");
-/* ==========================
-FILE PICKER
-========================== */
+const searchInput = document.getElementById("searchInput");
 
-console.log("Button:", chooseBtn);
-console.log("Picker:", picker);
-console.log("Textbox:", filenameBox);
+const container = document.getElementById("resourcesContainer");
 
-if (chooseBtn && picker && filenameBox) {
+const filterButtons =
+document.querySelectorAll(".filter-btn");
 
-    chooseBtn.onclick = function () {
+let resources = [];
 
-        console.log("Button clicked");
+let currentCategory = "All";
 
-        picker.click();
+/* ==========================================
+AUTH
+========================================== */
 
-    };
+onAuthStateChanged(auth, (user) => {
 
-    picker.onchange = function () {
+    if (!user) {
 
-        console.log("File selected", picker.files);
+        window.location.href = "login.html";
 
-        if (picker.files.length > 0) {
+        return;
 
-            filenameBox.value = picker.files[0].name;
+    }
+
+    loadResources();
+
+});
+
+/* ==========================================
+LOGOUT
+========================================== */
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", async () => {
+
+        if (!confirm("Logout?")) return;
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href = "login.html";
 
         }
 
-    };
+        catch (e) {
+
+            console.error(e);
+
+        }
+
+    });
 
 }
 
+/* ==========================================
+LOAD RESOURCES
+========================================== */
 
-if (form) {
+async function loadResources() {
 
-    form.addEventListener("submit", publishResource);
+    resources = [];
 
-}
+    const q = query(
 
-async function publishResource(e) {
+        collection(db, "resources"),
 
-    e.preventDefault();
+        orderBy("createdAt", "desc")
 
-    const title = document.getElementById("resourceTitle").value.trim();
+    );
 
-    const category = document.getElementById("resourceCategory").value;
+    const snapshot = await getDocs(q);
 
-    const description = document.getElementById("resourceDescription").value.trim();
+    snapshot.forEach(doc => {
 
-    const filename = document.getElementById("resourceFile").value.trim();
+        resources.push({
 
-    const premiumOnly = document.getElementById("premiumOnly").checked;
+            id: doc.id,
 
-    let folder = "";
-
-    switch (category) {
-
-        case "PDF":
-            folder = "pdf";
-            break;
-
-        case "Indicator":
-            folder = "indicators";
-            break;
-
-        case "Journal":
-            folder = "journals";
-            break;
-
-        case "Strategy":
-            folder = "strategies";
-            break;
-
-        case "Video":
-            folder = "videos";
-            break;
-
-    }
-
-    const link =
-        `https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
-
-    try {
-
-        await addDoc(collection(db, "resources"), {
-
-            title,
-            category,
-            description,
-            link,
-            premiumOnly,
-            createdAt: serverTimestamp()
+            ...doc.data()
 
         });
 
-        alert("✅ Resource Published Successfully");
+    });
 
-        form.reset();
+    renderResources();
 
-    } catch (error) {
+}
+/* ==========================================
+RENDER RESOURCES
+========================================== */
 
-        console.error(error);
+function renderResources() {
 
-        alert(error.message);
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    let filtered = resources;
+
+    /* CATEGORY FILTER */
+
+    if (currentCategory !== "All") {
+
+        filtered = filtered.filter(resource =>
+            resource.category === currentCategory
+        );
 
     }
 
+    /* SEARCH */
+
+    const keyword = searchInput.value.toLowerCase().trim();
+
+    if (keyword !== "") {
+
+        filtered = filtered.filter(resource =>
+
+            resource.title.toLowerCase().includes(keyword) ||
+
+            (resource.description || "")
+            .toLowerCase()
+            .includes(keyword)
+
+        );
+
+    }
+
+    /* EMPTY */
+
+    if (filtered.length === 0) {
+
+        container.innerHTML = `
+
+<div class="loading-card">
+
+<h3>No resources found.</h3>
+
+</div>
+
+`;
+
+        return;
+
+    }
+
+    /* CARDS */
+
+    filtered.forEach(resource => {
+
+        container.innerHTML += `
+
+<div class="quick-card">
+
+<div class="quick-icon">
+
+<i class="fa-solid fa-folder-open"></i>
+
+</div>
+
+<h3>
+
+${resource.title}
+
+</h3>
+
+<p>
+
+${resource.description || "Premium Trading Resource"}
+
+</p>
+
+<div style="margin:15px 0;">
+
+<span class="member-badge">
+
+${resource.category}
+
+</span>
+
+${
+resource.premiumOnly
+?
+`<span class="member-badge"
+style="background:#e74c3c;margin-left:8px;">
+Premium
+</span>`
+:
+`<span class="member-badge"
+style="background:#18b663;margin-left:8px;">
+Free
+</span>`
 }
+
+</div>
+
+<a
+
+href="${resource.link}"
+
+target="_blank"
+
+class="resource-download">
+
+<i class="fa-solid fa-download"></i>
+
+Download
+
+</a>
+
+</div>
+
+`;
+
+    });
+
+}
+
+/* ==========================================
+SEARCH
+========================================== */
+
+if (searchInput) {
+
+    searchInput.addEventListener("input", () => {
+
+        renderResources();
+
+    });
+
+}
+
+/* ==========================================
+CATEGORY FILTERS
+========================================== */
+
+filterButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        document.querySelector(".filter-btn.active")
+        ?.classList.remove("active");
+
+        button.classList.add("active");
+
+        currentCategory = button.dataset.category;
+
+        renderResources();
+
+    });
+
+});
+/* ==========================================
+AUTO REFRESH
+========================================== */
+
+setInterval(async () => {
+
+    try {
+
+        await loadResources();
+
+    }
+
+    catch (e) {
+
+        console.error("Auto Refresh Failed:", e);
+
+    }
+
+}, 60000);
+
+/* ==========================================
+LOADING STATE
+========================================== */
+
+function showLoading() {
+
+    if (!container) return;
+
+    container.innerHTML = `
+
+    <div class="loading-card">
+
+        <i class="fa-solid fa-spinner fa-spin"></i>
+
+        <h3>Loading Premium Resources...</h3>
+
+    </div>
+
+    `;
+
+}
+
+/* ==========================================
+ERROR STATE
+========================================== */
+
+function showError(message = "Failed to load resources.") {
+
+    if (!container) return;
+
+    container.innerHTML = `
+
+    <div class="loading-card">
+
+        <i class="fa-solid fa-triangle-exclamation"
+        style="font-size:40px;color:#e74c3c;"></i>
+
+        <h3>${message}</h3>
+
+    </div>
+
+    `;
+
+}
+
+/* ==========================================
+INITIAL LOAD
+========================================== */
+
+(async function init() {
+
+    try {
+
+        showLoading();
+
+        await loadResources();
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+        showError();
+
+    }
+
+})();
+
+/* ==========================================
+PAGE VISIBILITY REFRESH
+========================================== */
+
+document.addEventListener("visibilitychange", async () => {
+
+    if (!document.hidden) {
+
+        try {
+
+            await loadResources();
+
+        }
+
+        catch (e) {
+
+            console.error(e);
+
+        }
+
+    }
+
+});
+
+/* ==========================================
+DEBUG
+========================================== */
+
+console.log("======================================");
+
+console.log("GTRADES-AXIS™ Premium Resources Loaded");
+
+console.log("======================================");

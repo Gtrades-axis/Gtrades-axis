@@ -1,28 +1,382 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
 
-<title>Coming Soon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Trading Journal | GTRADES-AXIS™</title>
 
 <link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/journal.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
 <body>
 
-<div style="padding:80px;text-align:center;font-family:Poppins,sans-serif;">
+<div class="dashboard">
 
-<h1>🚧 Coming Soon</h1>
+<aside class="sidebar">
 
-<p>This Premium section is currently under development.</p>
+<div class="brand">
 
-<p><a href="dashboard.html">← Return to Dashboard</a></p>
+<img src="images/logo.png">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
 
 </div>
+
+<ul class="menu">
+
+<li>
+
+<a href="dashboard.html">
+
+<i class="fa-solid fa-house"></i>
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="resources.html">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+</li>
+
+<li>
+
+<a href="premium-academy.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+</li>
+
+<li>
+
+<a href="videos.html">
+
+<i class="fa-solid fa-circle-play"></i>
+
+Videos
+
+</a>
+
+</li>
+
+<li class="active">
+
+<a href="journal.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Trading Journal
+
+</a>
+
+</li>
+
+<li>
+
+<a href="profile.html">
+
+<i class="fa-solid fa-user"></i>
+
+Profile
+
+</a>
+
+</li>
+
+</ul>
+
+<button id="logoutBtn">
+
+Logout
+
+</button>
+
+</aside>
+
+<main class="main-content">
+
+<div class="topbar">
+
+<h1>
+
+Trading Journal
+
+</h1>
+
+<p>
+
+Track every trade professionally.
+
+</p>
+
+</div>
+
+<section class="journal-container">
+
+<!-- ===========================
+STATISTICS
+=========================== -->
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-chart-column"></i>
+
+</div>
+
+<div>
+
+<h2 id="totalTrades">0</h2>
+
+<p>Total Trades</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-bullseye"></i>
+
+</div>
+
+<div>
+
+<h2 id="winRate">0%</h2>
+
+<p>Win Rate</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-scale-balanced"></i>
+
+</div>
+
+<div>
+
+<h2 id="averageRR">0</h2>
+
+<p>Average RR</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-sack-dollar"></i>
+
+</div>
+
+<div>
+
+<h2 id="netProfit">$0</h2>
+
+<p>Net Profit</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ===========================
+NEW TRADE
+=========================== -->
+
+<div class="latest-card">
+
+<h2>
+
+<i class="fa-solid fa-plus"></i>
+
+New Trade
+
+</h2>
+
+<form id="tradeForm">
+
+<div class="journal-grid">
+
+<input
+type="text"
+id="pair"
+placeholder="Pair (EURUSD)"
+required>
+
+<select id="direction">
+
+<option value="">Direction</option>
+
+<option>BUY</option>
+
+<option>SELL</option>
+
+</select>
+
+<input
+type="date"
+id="tradeDate"
+required>
+
+<select id="timeframe">
+
+<option>5M,1M,3M </option>
+
+<option>15M</option>
+
+<option>1H</option>
+
+<option>4H</option>
+
+</select>
+
+<select id="session">
+
+<option>Asia</option>
+
+<option>London</option>
+
+<option>New York</option>
+
+</select>
+
+<input
+type="number"
+step="0.01"
+id="rr"
+placeholder="RR">
+
+<input
+type="number"
+step="0.01"
+id="profit"
+placeholder="Profit">
+
+<select id="result">
+
+<option>Win</option>
+
+<option>Loss</option>
+
+<option>Break Even</option>
+
+</select>
+
+</div>
+
+<textarea
+
+id="notes"
+
+placeholder="Trade Notes"
+
+rows="5">
+
+</textarea>
+
+<button
+
+class="btn btn-primary"
+
+type="submit">
+
+Save Trade
+
+</button>
+
+</form>
+
+</div>
+
+<!-- ===========================
+TRADE HISTORY
+=========================== -->
+
+<div class="latest-card">
+
+<div class="card-header">
+
+<h2>
+
+Trade History
+
+</h2>
+
+<input
+
+id="tradeSearch"
+
+type="text"
+
+placeholder="Search Trade">
+
+</div>
+
+<div id="tradeHistory">
+
+No Trades Yet
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script type="module" src="js/authGuard.js"></script>
+
+<script type="module" src="js/journal.js"></script>
 
 </body>
 

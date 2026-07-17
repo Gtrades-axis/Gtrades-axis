@@ -1,7 +1,8 @@
 import { auth, db } from "./firebase.js";
 
 import {
-    signOut
+    signOut,
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
@@ -14,15 +15,37 @@ import {
     limit
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// =======================================
-// Load Member Information
-// =======================================
+/* ==========================================
+ELEMENTS
+========================================== */
 
-async function loadUser() {
+const logoutBtn = document.getElementById("logoutBtn");
 
-    const user = auth.currentUser;
+const userName = document.getElementById("userName");
 
-    if (!user) return;
+const resourceCount = document.getElementById("resourceCount");
+
+const lessonCount = document.getElementById("lessonCount");
+
+const videoCount = document.getElementById("videoCount");
+
+const latestResources = document.getElementById("latestResources");
+
+const announcements = document.getElementById("announcements");
+
+/* ==========================================
+AUTH
+========================================== */
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+
+        window.location.href = "login.html";
+
+        return;
+
+    }
 
     try {
 
@@ -34,112 +57,367 @@ async function loadUser() {
 
             const data = snap.data();
 
-            const userName = document.getElementById("userName");
+            userName.textContent =
+                data.firstName || data.name || "Trader";
 
-            if (userName) {
+        } else {
 
-                userName.textContent = data.name;
-
-            }
+            userName.textContent = "Trader";
 
         }
 
-    } catch (error) {
+    } catch (e) {
 
-        console.error(error);
+        console.error(e);
+
+    }
+
+    loadDashboard();
+
+});
+
+/* ==========================================
+LOGOUT
+========================================== */
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", async () => {
+
+        if (!confirm("Logout?")) return;
+
+        try {
+
+            await signOut(auth);
+
+            location.href = "login.html";
+
+        }
+
+        catch (e) {
+
+            console.error(e);
+
+            alert(e.message);
+
+        }
+
+    });
+
+}
+
+/* ==========================================
+LOAD DASHBOARD
+========================================== */
+
+async function loadDashboard() {
+
+    await Promise.all([
+
+        loadResources(),
+
+        loadAcademy(),
+
+        loadVideos(),
+
+        loadLatestResources(),
+
+        loadAnnouncements()
+
+    ]);
+
+}
+/* ==========================================
+RESOURCE COUNT
+========================================== */
+
+async function loadResources() {
+
+    try {
+
+        const snapshot = await getDocs(collection(db, "resources"));
+
+        resourceCount.textContent = snapshot.size;
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+        resourceCount.textContent = "0";
 
     }
 
 }
 
-// =======================================
-// Latest Resources
-// =======================================
+/* ==========================================
+ACADEMY COUNT
+========================================== */
+
+async function loadAcademy() {
+
+    try {
+
+        const snapshot = await getDocs(collection(db, "academy"));
+
+        lessonCount.textContent = snapshot.size;
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+        lessonCount.textContent = "0";
+
+    }
+
+}
+
+/* ==========================================
+VIDEO COUNT
+========================================== */
+
+async function loadVideos() {
+
+    try {
+
+        const snapshot = await getDocs(collection(db, "videos"));
+
+        videoCount.textContent = snapshot.size;
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+        videoCount.textContent = "0";
+
+    }
+
+}
+
+/* ==========================================
+LATEST RESOURCES
+========================================== */
 
 async function loadLatestResources() {
-
-    const container = document.getElementById("latestResources");
-
-    if (!container) return;
 
     try {
 
         const q = query(
+
             collection(db, "resources"),
+
+            orderBy("createdAt", "desc"),
+
+            limit(5)
+
+        );
+
+        const snapshot = await getDocs(q);
+
+        latestResources.innerHTML = "";
+
+        if (snapshot.empty) {
+
+            latestResources.innerHTML = `
+
+            <div class="loading-card">
+
+                No Resources Available
+
+            </div>
+
+            `;
+
+            return;
+
+        }
+
+        snapshot.forEach(docSnap => {
+
+            const resource = docSnap.data();
+
+            latestResources.innerHTML += `
+
+<div class="resource-item">
+
+<div class="resource-left">
+
+<h3>${resource.title}</h3>
+
+<p>${resource.description || "Premium Resource"}</p>
+
+</div>
+
+<a
+
+href="${resource.link}"
+
+target="_blank"
+
+class="resource-download">
+
+Download
+
+</a>
+
+</div>
+
+`;
+
+        });
+
+    }
+
+    catch (e) {
+
+        console.error(e);
+
+    }
+
+}
+/* ==========================================
+ANNOUNCEMENTS
+========================================== */
+
+async function loadAnnouncements() {
+
+    try {
+
+        const q = query(
+            collection(db, "announcements"),
             orderBy("createdAt", "desc"),
             limit(5)
         );
 
         const snapshot = await getDocs(q);
 
-        container.innerHTML = "";
+        announcements.innerHTML = "";
 
         if (snapshot.empty) {
 
-            container.innerHTML = "<p>No resources uploaded yet.</p>";
+            announcements.innerHTML = `
+
+            <div class="announcement">
+
+                <h4>No Announcements</h4>
+
+                <p>You're all caught up.</p>
+
+            </div>
+
+            `;
 
             return;
 
         }
 
-        snapshot.forEach(doc => {
+        snapshot.forEach(docSnap => {
 
-            const data = doc.data();
+            const notice = docSnap.data();
 
-            container.innerHTML += `
+            announcements.innerHTML += `
 
-                <div class="latest-item">
+<div class="announcement">
 
-                    <strong>${data.title}</strong><br>
+<h4>${notice.title}</h4>
 
-                    <small>${data.category}</small>
+<p>${notice.message}</p>
 
-                </div>
+</div>
 
-            `;
+`;
 
         });
 
     }
 
-    catch (error) {
+    catch (e) {
 
-        console.error(error);
+        console.error(e);
 
-        container.innerHTML = "<p>Unable to load resources.</p>";
+        announcements.innerHTML = `
+
+        <div class="announcement">
+
+            <h4>Error</h4>
+
+            <p>Failed to load announcements.</p>
+
+        </div>
+
+        `;
 
     }
 
 }
 
-// =======================================
-// Logout
-// =======================================
+/* ==========================================
+AUTO REFRESH
+========================================== */
 
-const logoutBtn = document.getElementById("logoutBtn");
+setInterval(() => {
 
-if (logoutBtn) {
+    loadLatestResources();
 
-    logoutBtn.addEventListener("click", async () => {
+    loadAnnouncements();
 
-        await signOut(auth);
+}, 60000);
 
-        window.location.href = "login.html";
+/* ==========================================
+MOBILE SIDEBAR
+========================================== */
+
+const sidebar = document.querySelector(".sidebar");
+
+const mobileToggle = document.querySelector(".mobile-toggle");
+
+if (mobileToggle) {
+
+    mobileToggle.addEventListener("click", () => {
+
+        sidebar.classList.toggle("active");
 
     });
 
 }
 
-// =======================================
+/* ==========================================
+ACTIVE MENU
+========================================== */
 
-auth.onAuthStateChanged((user) => {
+document.querySelectorAll(".menu li a").forEach(link => {
 
-    if (user) {
+    if (link.href === window.location.href) {
 
-        loadUser();
-
-        loadLatestResources();
+        link.parentElement.classList.add("active");
 
     }
 
 });
+
+/* ==========================================
+SMOOTH PAGE LOAD
+========================================== */
+
+window.addEventListener("load", () => {
+
+    document.body.style.opacity = "1";
+
+});
+
+/* ==========================================
+CONSOLE
+========================================== */
+
+console.log("===================================");
+
+console.log("GTRADES-AXIS Student Dashboard");
+
+console.log("Dashboard Loaded Successfully");
+
+console.log("===================================");
