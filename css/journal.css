@@ -1220,3 +1220,41 @@ box-shadow:0 5px 20px rgba(0,0,0,.25);
 display:block;
 
 }
+/* Main container */
+.journal-container{
+    max-width:1400px;
+    margin:auto;
+    padding:20px;
+}
+
+/* Every card */
+.journal-section{
+    margin-bottom:18px;
+    padding:18px;
+    border-radius:14px;
+}
+
+/* Titles */
+.journal-section h3{
+    margin-bottom:12px;
+}
+
+/* Grid */
+.journal-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+}
+
+/* Inputs */
+.journal-grid input,
+.journal-grid select,
+.journal-grid textarea{
+    padding:10px;
+}
+
+/* Textareas */
+textarea{
+    min-height:70px;
+    resize:vertical;
+}
