@@ -29,231 +29,133 @@
 <body>
 
 
-<div class="dashboard-container">
+<<!-- ======================================================
+JOURNAL DASHBOARD
+====================================================== -->
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+<section class="dashboard-overview">
 
-        <div class="logo">
-            <img src="images/logo.png" alt="Logo">
-            <h2>GTRADES <span>AXIS™</span></h2>
-        </div>
+    <div class="overview-card">
+        <span>Total Trades</span>
+        <h2 id="totalTrades">0</h2>
+    </div>
 
-        <nav>
+    <div class="overview-card">
+        <span>Win Rate</span>
+        <h2 id="winRate">0%</h2>
+    </div>
 
-            <a href="dashboard.html">
-                <i class="fa-solid fa-house"></i>
-                Dashboard
-            </a>
+    <div class="overview-card">
+        <span>Average RR</span>
+        <h2 id="averageRR">0</h2>
+    </div>
 
-            <a href="premium-academy.html">
-                <i class="fa-solid fa-graduation-cap"></i>
-                Academy
-            </a>
+    <div class="overview-card">
+        <span>Net Profit</span>
+        <h2 id="netProfit">$0</h2>
+    </div>
 
-            <a href="downloads.html">
-                <i class="fa-solid fa-folder-open"></i>
-                Resources
-            </a>
+    <div class="overview-card">
+        <span>Wins</span>
+        <h2 id="wins">0</h2>
+    </div>
 
-            <a class="active" href="journal.html">
-                <i class="fa-solid fa-chart-line"></i>
-                Trading Journal
-            </a>
+    <div class="overview-card">
+        <span>Losses</span>
+        <h2 id="losses">0</h2>
+    </div>
 
-            <a href="profile.html">
-                <i class="fa-solid fa-user"></i>
-                Profile
-            </a>
+    <div class="overview-card">
+        <span>Trader Grade</span>
+        <h2 id="traderGrade">-</h2>
+    </div>
 
-            <a href="support.html">
-                <i class="fa-solid fa-headset"></i>
-                Support
-            </a>
+    <div class="overview-card">
+        <span>Consistency</span>
+        <h2 id="consistencyScore">0%</h2>
+    </div>
 
-        </nav>
+</section>
 
-        <button id="logoutBtn" class="logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Logout
-        </button>
+<!-- ======================================================
+CHARTS
+====================================================== -->
 
-    </aside>
+<section class="chart-layout">
 
-    <!-- MAIN -->
+    <div class="chart-box">
 
-    <main class="main-content">
+        <h3>Equity Curve</h3>
 
-        <div class="topbar">
+        <canvas id="equityChart"></canvas>
 
-            <div>
+    </div>
 
-                <h1>Professional Trading Journal</h1>
+    <div class="chart-box">
 
-                <p>Track your trading performance like a funded trader.</p>
+        <h3>Monthly Performance</h3>
 
-            </div>
+        <canvas id="monthlyChart"></canvas>
 
-            <a href="journal/new-trade.html" class="btn btn-primary">
+    </div>
 
-                <i class="fa-solid fa-plus"></i>
+</section>
 
-                New Trade
+<!-- ======================================================
+PERFORMANCE
+====================================================== -->
 
-            </a>
+<section class="performance-grid">
 
-        </div>
+    <div class="performance-card">
 
-        <!-- STATS -->
+        <h3>Best Pair</h3>
 
-        <section class="stats-grid">
+        <h2 id="bestPair">-</h2>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-chart-column"></i>
-                <div>
-                    <h2 id="totalTrades">0</h2>
-                    <p>Total Trades</p>
-                </div>
-            </div>
+    </div>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-trophy"></i>
-                <div>
-                    <h2 id="wins">0</h2>
-                    <p>Wins</p>
-                </div>
-            </div>
+    <div class="performance-card">
 
-            <div class="stat-card">
-                <i class="fa-solid fa-xmark"></i>
-                <div>
-                    <h2 id="losses">0</h2>
-                    <p>Losses</p>
-                </div>
-            </div>
+        <h3>Worst Pair</h3>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-percent"></i>
-                <div>
-                    <h2 id="winRate">0%</h2>
-                    <p>Win Rate</p>
-                </div>
-            </div>
+        <h2 id="worstPair">-</h2>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-scale-balanced"></i>
-                <div>
-                    <h2 id="averageRR">0</h2>
-                    <p>Average RR</p>
-                </div>
-            </div>
+    </div>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-sack-dollar"></i>
-                <div>
-                    <h2 id="netProfit">$0</h2>
-                    <p>Net Profit</p>
-                </div>
-            </div>
+    <div class="performance-card">
 
-        </section>
+        <h3>Best Session</h3>
 
-        <!-- CHARTS -->
+        <h2 id="bestSession">-</h2>
 
-        <section class="analytics-grid">
+    </div>
 
-            <div class="chart-card">
+    <div class="performance-card">
 
-                <h3>Equity Curve</h3>
+        <h3>Win Streak</h3>
 
-                <canvas id="equityChart"></canvas>
+        <h2 id="winStreak">0</h2>
 
-            </div>
+    </div>
 
-            <div class="chart-card">
+    <div class="performance-card">
 
-                <h3>Monthly Performance</h3>
+        <h3>Max Drawdown</h3>
 
-                <canvas id="monthlyChart"></canvas>
+        <h2 id="maxDrawdown">$0</h2>
 
-            </div>
+    </div>
 
-        </section>
+    <div class="performance-card">
 
-        <!-- QUICK STATS -->
+        <h3>Execution Score</h3>
 
-        <section class="ai-review">
+        <h2 id="executionScore">0%</h2>
 
-            <div class="review-card">
+    </div>
 
-                <h3>Best Pair</h3>
-
-                <h1 id="bestPair">-</h1>
-
-            </div>
-
-            <div class="review-card">
-
-                <h3>Worst Pair</h3>
-
-                <h1 id="worstPair">-</h1>
-
-            </div>
-
-            <div class="review-card">
-
-                <h3>Best Session</h3>
-
-                <h1 id="bestSession">-</h1>
-
-            </div>
-
-            <div class="review-card">
-
-                <h3>Current Streak</h3>
-
-                <h1 id="winStreak">0</h1>
-
-            </div>
-
-        </section>
-
-        <!-- RECENT TRADES -->
-
-        <section class="latest-card">
-
-            <div class="card-header">
-
-                <h2>
-
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-
-                    Recent Trades
-
-                </h2>
-
-                <a href="journal/history.html" class="btn btn-secondary">
-
-                    View All
-
-                </a>
-
-            </div>
-
-            <div id="recentTrades">
-
-                <div class="loading-card">
-
-                    No trades recorded yet.
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
+</section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
