@@ -1,39 +1,37 @@
 /* ==========================================================
-   GTRADES AXIS™
-   JOURNAL.CSS
-   PART 1
-   RESET + LAYOUT + VARIABLES
+   GTRADES AXIS™ JOURNAL SYSTEM
+   VERSION 2.0
 ========================================================== */
 
 :root{
 
-    --bg:#0b1120;
+    --bg:#08111f;
+    --sidebar:#101827;
+    --card:#131d2d;
+    --card-light:#192538;
 
-    --panel:#141d2e;
+    --primary:#0f8cff;
+    --primary-hover:#0074dd;
 
-    --panel2:#1b263b;
-
-    --primary:#1d8fff;
-
-    --primary-dark:#0069d9;
-
-    --success:#25d366;
-
+    --success:#00c853;
     --danger:#ff4d4f;
-
-    --warning:#f7b731;
+    --warning:#ffb300;
 
     --text:#ffffff;
-
     --muted:#94a3b8;
 
     --border:rgba(255,255,255,.08);
 
     --radius:14px;
 
-    --shadow:0 8px 30px rgba(0,0,0,.30);
+    --shadow:
+        0 8px 30px rgba(0,0,0,.30);
 
 }
+
+/* ==========================================================
+RESET
+========================================================== */
 
 *{
 
@@ -57,46 +55,84 @@ body{
 
     color:var(--text);
 
-    font-family:Inter,Segoe UI,Arial,sans-serif;
+    font-family:
+    Inter,
+    Segoe UI,
+    Arial,
+    sans-serif;
 
     overflow-x:hidden;
 
 }
 
 /* ==========================================================
-   MAIN LAYOUT
+LAYOUT
 ========================================================== */
 
 .dashboard-container{
 
     display:flex;
 
-    width:100%;
-
     min-height:100vh;
 
 }
 
 /* ==========================================================
-   MAIN CONTENT
+MAIN
 ========================================================== */
 
 .main-content{
 
     flex:1;
 
-    padding:28px;
+    width:100%;
 
-    overflow-y:auto;
-
-    max-width:1600px;
+    max-width:1550px;
 
     margin:auto;
+
+    padding:28px;
 
 }
 
 /* ==========================================================
-   PAGE HEADER
+HEADINGS
+========================================================== */
+
+h1{
+
+    font-size:32px;
+
+    font-weight:700;
+
+}
+
+h2{
+
+    font-size:22px;
+
+    font-weight:600;
+
+}
+
+h3{
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+p{
+
+    color:var(--muted);
+
+    line-height:1.6;
+
+}
+
+/* ==========================================================
+TOPBAR
 ========================================================== */
 
 .topbar{
@@ -107,47 +143,29 @@ body{
 
     align-items:center;
 
-    margin-bottom:24px;
-
     gap:20px;
 
     flex-wrap:wrap;
 
-}
-
-.topbar h1{
-
-    font-size:32px;
-
-    font-weight:700;
-
-    color:#fff;
+    margin-bottom:24px;
 
 }
 
-.topbar p{
+.topbar div{
 
-    margin-top:6px;
+    display:flex;
 
-    color:var(--muted);
+    flex-direction:column;
 
-    font-size:15px;
+    gap:6px;
 
 }
 
 /* ==========================================================
-   BUTTONS
+BUTTONS
 ========================================================== */
 
 .btn{
-
-    border:none;
-
-    outline:none;
-
-    cursor:pointer;
-
-    text-decoration:none;
 
     display:inline-flex;
 
@@ -157,11 +175,17 @@ body{
 
     gap:8px;
 
+    border:none;
+
     border-radius:10px;
 
-    font-weight:600;
+    cursor:pointer;
+
+    text-decoration:none;
 
     transition:.25s;
+
+    font-weight:600;
 
 }
 
@@ -171,47 +195,45 @@ body{
 
     color:#fff;
 
-    padding:12px 20px;
+    padding:13px 22px;
 
 }
 
 .btn-primary:hover{
 
-    background:var(--primary-dark);
+    background:var(--primary-hover);
 
 }
 
 .btn-secondary{
 
-    background:#222f45;
+    background:#22314b;
 
     color:#fff;
 
-    padding:10px 18px;
+    padding:11px 18px;
 
 }
 
 .btn-secondary:hover{
 
-    background:#30415f;
+    background:#2e4263;
 
 }
 
 /* ==========================================================
-   CARDS
+CARDS
 ========================================================== */
 
 .card,
-
-.chart-card,
-
-.review-card,
-
 .stat-card,
+.chart-card,
+.review-card,
+.latest-card,
+.form-section,
+.performance-card{
 
-.latest-card{
-
-    background:var(--panel);
+    background:var(--card);
 
     border:1px solid var(--border);
 
@@ -222,7 +244,7 @@ body{
 }
 /* ==========================================================
    PART 2
-   STATS + ANALYTICS LAYOUT
+   JOURNAL DASHBOARD LAYOUT
 ========================================================== */
 
 /* =========================
@@ -231,11 +253,12 @@ body{
 
 .stats-grid,
 .analytics-grid,
-.performance-grid,
 .ai-review,
-.latest-card{
+.latest-card,
+.performance-grid,
+.form-section{
 
-    margin-bottom:28px;
+    margin-bottom:22px;
 
 }
 
@@ -247,7 +270,7 @@ body{
 
     display:grid;
 
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 
     gap:18px;
 
@@ -265,7 +288,7 @@ body{
 
     gap:16px;
 
-    padding:18px 22px;
+    padding:18px;
 
     min-height:95px;
 
@@ -275,9 +298,9 @@ body{
 
 .stat-card:hover{
 
-    transform:translateY(-3px);
-
     border-color:var(--primary);
+
+    transform:translateY(-3px);
 
 }
 
@@ -289,15 +312,15 @@ body{
 
     border-radius:12px;
 
-    background:rgba(29,143,255,.15);
-
-    color:var(--primary);
-
     display:flex;
+
+    justify-content:center;
 
     align-items:center;
 
-    justify-content:center;
+    background:rgba(15,140,255,.15);
+
+    color:var(--primary);
 
     font-size:22px;
 
@@ -307,15 +330,15 @@ body{
 
 .stat-card div{
 
-    flex:1;
+    display:flex;
+
+    flex-direction:column;
 
 }
 
 .stat-card h2{
 
     font-size:28px;
-
-    font-weight:700;
 
     color:#fff;
 
@@ -346,14 +369,16 @@ body{
 }
 
 /* =========================
-   CHART CARDS
+   CHART CARD
 ========================= */
 
 .chart-card{
 
     padding:20px;
 
-    min-height:340px;
+    display:flex;
+
+    flex-direction:column;
 
 }
 
@@ -361,72 +386,18 @@ body{
 
     margin-bottom:18px;
 
-    color:#fff;
-
-    font-size:18px;
-
 }
 
 .chart-card canvas{
 
-    width:100% !important;
+    width:100%!important;
 
-    height:260px !important;
-
-}
-
-/* =========================
-   PERFORMANCE GRID
-========================= */
-
-.performance-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(4,1fr);
-
-    gap:18px;
-
-}
-
-.performance-card{
-
-    padding:20px;
-
-    text-align:center;
-
-}
-
-.performance-card h2{
-
-    color:var(--muted);
-
-    font-size:14px;
-
-    margin-bottom:10px;
-
-}
-
-.performance-card h1{
-
-    font-size:30px;
-
-    color:#fff;
-
-    margin-bottom:8px;
-
-}
-
-.performance-card p{
-
-    color:var(--primary);
-
-    font-weight:600;
+    height:280px!important;
 
 }
 
 /* =========================
-   INSIGHT CARDS
+   REVIEW GRID
 ========================= */
 
 .ai-review{
@@ -441,7 +412,7 @@ body{
 
 .review-card{
 
-    padding:22px;
+    padding:20px;
 
     text-align:center;
 
@@ -451,9 +422,9 @@ body{
 
     color:var(--muted);
 
-    font-size:14px;
+    margin-bottom:10px;
 
-    margin-bottom:12px;
+    font-size:14px;
 
 }
 
@@ -466,7 +437,7 @@ body{
 }
 
 /* =========================
-   LATEST TRADES
+   RECENT TRADES
 ========================= */
 
 .latest-card{
@@ -483,75 +454,11 @@ body{
 
     align-items:center;
 
-    margin-bottom:20px;
+    margin-bottom:18px;
 
 }
 
 .card-header h2{
-
-    font-size:22px;
-
-    color:#fff;
-
-}
-
-.loading-card{
-
-    padding:30px;
-
-    border:1px dashed rgba(255,255,255,.12);
-
-    border-radius:12px;
-
-    color:var(--muted);
-
-    text-align:center;
-
-}
-/* ==========================================================
-   PART 3
-   NEW TRADE FORM
-========================================================== */
-
-/* =========================
-   FORM CONTAINER
-========================= */
-
-.trade-form{
-
-    width:100%;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:22px;
-
-}
-
-/* =========================
-   FORM SECTIONS
-========================= */
-
-.form-section{
-
-    background:var(--panel);
-
-    border:1px solid var(--border);
-
-    border-radius:14px;
-
-    padding:22px;
-
-}
-
-.form-section h2{
-
-    color:#fff;
-
-    font-size:20px;
-
-    margin-bottom:18px;
 
     display:flex;
 
@@ -562,7 +469,107 @@ body{
 }
 
 /* =========================
-   GRID
+   TRADE LIST
+========================= */
+
+#recentTrades{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.trade-card{
+
+    background:var(--card-light);
+
+    border-radius:12px;
+
+    padding:16px;
+
+    border-left:4px solid transparent;
+
+    transition:.25s;
+
+}
+
+.trade-card:hover{
+
+    border-left-color:var(--primary);
+
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.loading-card{
+
+    padding:28px;
+
+    text-align:center;
+
+    color:var(--muted);
+
+    border:1px dashed rgba(255,255,255,.08);
+
+    border-radius:12px;
+
+}
+/* ==========================================================
+   PART 3
+   NEW TRADE PAGE
+========================================================== */
+
+/* =========================
+   FORM
+========================= */
+
+.trade-form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+/* =========================
+   FORM SECTIONS
+========================= */
+
+.form-section{
+
+    padding:22px;
+
+}
+
+.form-section h2{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:18px;
+
+    color:#fff;
+
+    font-size:20px;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+
+    padding-bottom:10px;
+
+}
+
+/* =========================
+   GRID SYSTEM
 ========================= */
 
 .form-grid{
@@ -596,7 +603,7 @@ body{
 }
 
 /* =========================
-   FIELD
+   LABELS
 ========================= */
 
 .form-group{
@@ -609,13 +616,13 @@ body{
 
 .form-group label{
 
-    color:#cbd5e1;
+    margin-bottom:8px;
+
+    color:#dbe6f5;
 
     font-size:14px;
 
     font-weight:600;
-
-    margin-bottom:8px;
 
 }
 
@@ -624,44 +631,38 @@ body{
 ========================= */
 
 .form-group input,
-
 .form-group select,
-
 .form-group textarea{
-
-    width:100%;
 
     background:#0f172a;
 
     border:1px solid rgba(255,255,255,.08);
 
-    border-radius:10px;
-
     color:#fff;
+
+    border-radius:10px;
 
     padding:12px 14px;
 
-    font-size:14px;
+    transition:.25s;
 
-    transition:.2s;
+    font-size:14px;
 
 }
 
 .form-group input:focus,
-
 .form-group select:focus,
-
 .form-group textarea:focus{
 
     outline:none;
 
     border-color:var(--primary);
 
-    box-shadow:0 0 0 3px rgba(29,143,255,.15);
+    box-shadow:0 0 0 3px rgba(15,140,255,.15);
 
 }
 
-.form-group textarea{
+textarea{
 
     resize:vertical;
 
@@ -669,9 +670,9 @@ body{
 
 }
 
-/* =========================
-   HTF / MTF BOXES
-========================= */
+/* ==========================================================
+   HTF / MTF
+========================================================== */
 
 .analysis-grid{
 
@@ -685,7 +686,7 @@ body{
 
 .analysis-card{
 
-    background:var(--panel2);
+    background:var(--card-light);
 
     border:1px solid rgba(255,255,255,.06);
 
@@ -697,17 +698,17 @@ body{
 
 .analysis-card h3{
 
-    color:#1d8fff;
-
-    font-size:17px;
+    color:var(--primary);
 
     margin-bottom:15px;
 
+    font-size:18px;
+
 }
 
-/* =========================
+/* ==========================================================
    ENTRY MODELS
-========================= */
+========================================================== */
 
 .entry-model-grid{
 
@@ -727,27 +728,33 @@ body{
 
     gap:10px;
 
-    background:#182338;
-
     padding:12px;
+
+    background:#1a263a;
 
     border-radius:10px;
 
     cursor:pointer;
 
-    transition:.2s;
+    transition:.25s;
 
 }
 
 .entry-model-grid label:hover{
 
-    background:#22314d;
+    background:#23334f;
 
 }
 
-/* =========================
+.entry-model-grid input{
+
+    accent-color:var(--primary);
+
+}
+
+/* ==========================================================
    SAVE BUTTON
-========================= */
+========================================================== */
 
 .form-actions{
 
@@ -769,7 +776,7 @@ body{
 
     border-radius:10px;
 
-    padding:14px 28px;
+    padding:14px 30px;
 
     font-size:16px;
 
@@ -783,24 +790,20 @@ body{
 
 .save-trade-btn:hover{
 
-    background:var(--primary-dark);
+    background:var(--primary-hover);
 
 }
 
-/* =========================
+/* ==========================================================
    MOBILE
-========================= */
+========================================================== */
 
-@media(max-width:992px){
+@media(max-width:1000px){
 
 .form-grid,
-
 .form-grid-3,
-
 .form-grid-4,
-
 .analysis-grid,
-
 .entry-model-grid{
 
 grid-template-columns:1fr;
@@ -810,22 +813,22 @@ grid-template-columns:1fr;
 }
 /* ==========================================================
    PART 4
-   HISTORY + RESPONSIVE + FINAL
-========================================================== */
+   HISTORY • ANALYTICS • RESPONSIVE
+==========================================================*/
 
-/* =========================
+/* ===========================
    HISTORY FILTERS
-========================= */
+=========================== */
 
 .history-controls{
 
     display:grid;
 
-    grid-template-columns:2fr 1fr 1fr 1fr;
+    grid-template-columns:2fr repeat(3,1fr);
 
     gap:16px;
 
-    margin-bottom:20px;
+    margin-bottom:22px;
 
 }
 
@@ -834,17 +837,15 @@ grid-template-columns:1fr;
 
     width:100%;
 
-    background:#0f172a;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    color:#fff;
+    padding:12px 14px;
 
     border-radius:10px;
 
-    padding:12px 14px;
+    border:1px solid rgba(255,255,255,.08);
 
-    font-size:14px;
+    background:#0f172a;
+
+    color:#fff;
 
 }
 
@@ -857,11 +858,13 @@ grid-template-columns:1fr;
 
 }
 
-/* =========================
+/* ===========================
    TABLE
-========================= */
+=========================== */
 
 .table-responsive{
+
+    width:100%;
 
     overflow-x:auto;
 
@@ -879,33 +882,29 @@ grid-template-columns:1fr;
 
 .history-table thead{
 
-    background:#182338;
+    background:#1b263b;
 
 }
 
 .history-table th{
 
-    padding:15px;
+    padding:16px;
+
+    text-align:left;
 
     color:#fff;
 
     font-size:14px;
 
-    text-align:left;
-
-    white-space:nowrap;
-
 }
 
 .history-table td{
 
-    padding:15px;
+    padding:16px;
 
     color:#dbe7f5;
 
     border-top:1px solid rgba(255,255,255,.05);
-
-    font-size:14px;
 
     white-space:nowrap;
 
@@ -913,7 +912,7 @@ grid-template-columns:1fr;
 
 .history-table tbody tr{
 
-    transition:.2s;
+    transition:.25s;
 
 }
 
@@ -923,9 +922,9 @@ grid-template-columns:1fr;
 
 }
 
-/* =========================
+/* ===========================
    ACTION BUTTONS
-========================= */
+=========================== */
 
 .action-buttons{
 
@@ -945,13 +944,13 @@ grid-template-columns:1fr;
 
     border-radius:8px;
 
-    cursor:pointer;
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
+
+    cursor:pointer;
 
     color:#fff;
 
@@ -961,13 +960,13 @@ grid-template-columns:1fr;
 
 .view-btn{
 
-    background:#1d8fff;
+    background:#0f8cff;
 
 }
 
 .view-btn:hover{
 
-    background:#0069d9;
+    background:#0074dd;
 
 }
 
@@ -983,9 +982,97 @@ grid-template-columns:1fr;
 
 }
 
-/* =========================
+/* ===========================
+   ANALYTICS PAGE
+=========================== */
+
+.performance-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:18px;
+
+    margin-bottom:22px;
+
+}
+
+.performance-card{
+
+    padding:22px;
+
+    text-align:center;
+
+}
+
+.performance-card h2{
+
+    color:var(--muted);
+
+    font-size:14px;
+
+    margin-bottom:10px;
+
+}
+
+.performance-card h1{
+
+    font-size:28px;
+
+    margin-bottom:8px;
+
+}
+
+.performance-card p{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+}
+
+/* ===========================
+   INSIGHTS
+=========================== */
+
+.insight-card{
+
+    padding:24px;
+
+}
+
+.insight-item{
+
+    background:#1a263a;
+
+    border-left:4px solid var(--primary);
+
+    padding:16px;
+
+    border-radius:10px;
+
+    margin-bottom:14px;
+
+}
+
+.insight-item h4{
+
+    margin-bottom:8px;
+
+    color:#fff;
+
+}
+
+.insight-item p{
+
+    color:#cbd5e1;
+
+}
+
+/* ===========================
    MODAL
-========================= */
+=========================== */
 
 .modal{
 
@@ -1039,19 +1126,13 @@ grid-template-columns:1fr;
 
 }
 
-.modal-header h2{
-
-    color:#fff;
-
-}
-
 .closeModal{
+
+    cursor:pointer;
 
     font-size:28px;
 
     color:#fff;
-
-    cursor:pointer;
 
 }
 
@@ -1059,61 +1140,11 @@ grid-template-columns:1fr;
 
     padding:24px;
 
-    line-height:1.7;
-
 }
 
-#tradeDetails h3{
-
-    color:#1d8fff;
-
-    margin-top:18px;
-
-    margin-bottom:10px;
-
-}
-
-#tradeDetails p{
-
-    color:#d6e2ef;
-
-}
-
-/* =========================
-   RECENT TRADES
-========================= */
-
-#recentTrades{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:14px;
-
-}
-
-.trade-card{
-
-    background:#182338;
-
-    border-radius:12px;
-
-    padding:18px;
-
-    transition:.25s;
-
-}
-
-.trade-card:hover{
-
-    border-left:4px solid var(--primary);
-
-}
-
-/* =========================
+/* ===========================
    SCROLLBAR
-========================= */
+=========================== */
 
 ::-webkit-scrollbar{
 
@@ -1123,23 +1154,23 @@ grid-template-columns:1fr;
 
 }
 
+::-webkit-scrollbar-track{
+
+    background:#0b1120;
+
+}
+
 ::-webkit-scrollbar-thumb{
 
-    background:#1d8fff;
+    background:#0f8cff;
 
     border-radius:20px;
 
 }
 
-::-webkit-scrollbar-track{
-
-    background:#101827;
-
-}
-
-/* =========================
+/* ===========================
    RESPONSIVE
-========================= */
+=========================== */
 
 @media(max-width:1200px){
 
@@ -1155,13 +1186,13 @@ grid-template-columns:1fr;
 
 }
 
-.ai-review{
+.performance-grid{
 
 grid-template-columns:repeat(2,1fr);
 
 }
 
-.performance-grid{
+.ai-review{
 
 grid-template-columns:repeat(2,1fr);
 
@@ -1171,25 +1202,9 @@ grid-template-columns:repeat(2,1fr);
 
 @media(max-width:900px){
 
-.form-grid,
+.main-content{
 
-.form-grid-3,
-
-.form-grid-4,
-
-.analysis-grid,
-
-.entry-model-grid,
-
-.stats-grid,
-
-.performance-grid,
-
-.ai-review,
-
-.history-controls{
-
-grid-template-columns:1fr;
+padding:20px;
 
 }
 
@@ -1201,15 +1216,23 @@ align-items:flex-start;
 
 }
 
-.main-content{
+.stats-grid,
+.performance-grid,
+.ai-review,
+.form-grid,
+.form-grid-3,
+.form-grid-4,
+.analysis-grid,
+.entry-model-grid,
+.history-controls{
 
-padding:18px;
+grid-template-columns:1fr;
 
 }
 
 .chart-card canvas{
 
-height:220px !important;
+height:240px!important;
 
 }
 
@@ -1217,9 +1240,9 @@ height:220px !important;
 
 @media(max-width:600px){
 
-.topbar h1{
+h1{
 
-font-size:24px;
+font-size:26px;
 
 }
 
@@ -1235,20 +1258,7 @@ font-size:22px;
 
 }
 
-.chart-card{
-
-padding:16px;
-
-}
-
-.review-card{
-
-padding:18px;
-
-}
-
 .history-table th,
-
 .history-table td{
 
 padding:10px;
