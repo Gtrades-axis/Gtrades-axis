@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>GTRADES-AXIS™ Trading Journal</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<link rel="stylesheet"
+href="css/style.css">
+
+<link rel="stylesheet"
+href="css/journal.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<!-- ======================================================
+SIDEBAR
+====================================================== -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img src="images/logo.png"
+alt="Logo">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+</div>
+
+<nav>
+
+<a href="dashboard.html">
+
+<i class="fa-solid fa-house"></i>
+
+Dashboard
+
+</a>
+
+<a href="premium-academy.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+<a href="downloads.html">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+<a class="active"
+href="journal.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Trading Journal
+
+</a>
+
+<a href="analytics.html">
+
+<i class="fa-solid fa-chart-pie"></i>
+
+Analytics
+
+</a>
+
+<a href="history.html">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+History
+
+</a>
+
+<a href="profile.html">
+
+<i class="fa-solid fa-user"></i>
+
+Profile
+
+</a>
+
+<a href="support.html">
+
+<i class="fa-solid fa-headset"></i>
+
+Support
+
+</a>
+
+</nav>
+
+<button
+id="logoutBtn"
+class="logout-btn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- ======================================================
+MAIN
+====================================================== -->
+
+<main class="main-content">
+
+<div class="page-header">
+
+<div>
+
+<h1>
+
+Professional Trading Journal
+
+</h1>
+
+<p>
+
+Record • Review • Improve • Repeat
+
+</p>
+
+</div>
+
+<div class="header-actions">
+
+<a
+href="history.html"
+class="btn">
+
+<i class="fa-solid fa-clock"></i>
+
+History
+
+</a>
+
+<a
+href="analytics.html"
+class="btn">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Analytics
+
+</a>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+DASHBOARD
+====================================================== -->
+
+<section class="stats-grid">
+
+<div class="stat-card">
+
+<h3>Total Trades</h3>
+
+<h1 id="totalTrades">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Win Rate</h3>
+
+<h1 id="winRate">0%</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Average RR</h3>
+
+<h1 id="averageRR">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Net Profit</h3>
+
+<h1 id="netProfit">$0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Wins</h3>
+
+<h1 id="wins">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Losses</h3>
+
+<h1 id="losses">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Consistency</h3>
+
+<h1 id="consistency">0%</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Current Streak</h3>
+
+<h1 id="streak">0</h1>
+
+</div>
+
+</section>
+
+<section class="chart-grid">
+
+<div class="chart-card">
+
+<h2>
+
+Equity Curve
+
+</h2>
+
+<canvas id="equityChart"></canvas>
+
+</div>
+
+<div class="chart-card">
+
+<h2>
+
+Monthly Performance
+
+</h2>
+
+<canvas id="monthlyChart"></canvas>
+
+</div>
+
+</section>
+
+<!-- ======================================================
+NEW TRADE
+====================================================== -->
+
+<section class="journal-card">
+
+<h2>
+
+<i class="fa-solid fa-plus"></i>
+
+New Trade
+
+</h2>
+
+<form id="tradeForm">
+
+<h3>
+
+Trade Information
+
+</h3>
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>Date</label>
+
+<input
+type="date"
+id="tradeDate"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Time</label>
+
+<input
+type="time"
+id="tradeTime">
+
+</div>
+
+<div class="form-group">
+
+<label>Pair</label>
+
+<input
+type="text"
+id="pair"
+placeholder="EURUSD">
+
+</div>
+
+<div class="form-group">
+
+<label>Direction</label>
+
+<select id="direction">
+
+<option>BUY</option>
+
+<option>SELL</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Session</label>
+
+<select id="session">
+
+<option>Asian</option>
+
+<option>London</option>
+
+<option>New York</option>
+
+<option>London + NY</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Broker</label>
+
+<input
+type="text"
+id="broker">
+
+</div>
+
+<div class="form-group">
+
+<label>Account</label>
+
+<input
+type="text"
+id="account">
+
+</div>
+
+<div class="form-group">
+
+<label>Lot Size</label>
+
+<input
+type="number"
+step="0.01"
+id="lotSize">
+
+</div>
+
+</div>
+<!-- ======================================================
+HTF ANALYSIS
+====================================================== -->
+
+<h3>
+
+Higher Timeframe Analysis (4H - Daily)
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>HTF Swing Bias</label>
+
+<select id="htfSwing">
+
+<option>Bullish</option>
+
+<option>Bearish</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>HTF Internal Bias</label>
+
+<select id="htfInternal">
+
+<option>Bullish</option>
+
+<option>Bearish</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+MTF ANALYSIS
+====================================================== -->
+
+<h3>
+
+Medium Timeframe Analysis (15M - 1H)
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>MTF Swing Bias</label>
+
+<select id="mtfSwing">
+
+<option>Bullish</option>
+
+<option>Bearish</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>MTF Internal Bias</label>
+
+<select id="mtfInternal">
+
+<option>Bullish</option>
+
+<option>Bearish</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+LTF EXECUTION
+====================================================== -->
+
+<h3>
+
+Lower Timeframe Execution (1M - 5M)
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>LTF Structure</label>
+
+<select id="ltfStructure">
+
+<option>Bullish BOS</option>
+
+<option>Bearish BOS</option>
+
+<option>Bullish CHOCH</option>
+
+<option>Bearish CHOCH</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Liquidity Taken</label>
+
+<select id="liquidity">
+
+<option>Buy Side Liquidity</option>
+
+<option>Sell Side Liquidity</option>
+
+<option>Equal Highs</option>
+
+<option>Equal Lows</option>
+
+<option>None</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Point Of Interest</label>
+
+<select id="poi">
+
+<option>Demand</option>
+
+<option>Supply</option>
+
+<option>Refined POI</option>
+
+<option>Extreme POI</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Photon Entry Model</label>
+
+<select id="entryModel">
+
+<option>LC-2A</option>
+
+<option>LC-1</option>
+
+<option>LTF RE</option>
+
+<option>MTF RE</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Entry Confirmation</label>
+
+<select id="entryConfirmation">
+
+<option>CHOCH</option>
+
+<option>BOS</option>
+
+<option>Liquidity Sweep</option>
+
+<option>POI Mitigation </option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Trade Valid?</label>
+
+<select id="tradeValid">
+
+<option>Yes</option>
+
+<option>No</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+<!-- ======================================================
+RISK MANAGEMENT
+====================================================== -->
+
+<h3>
+
+Risk Management
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>Entry Price</label>
+
+<input
+type="number"
+step="0.00001"
+id="entryPrice">
+
+</div>
+
+<div class="form-group">
+
+<label>Stop Loss</label>
+
+<input
+type="number"
+step="0.00001"
+id="stopLoss">
+
+</div>
+
+<div class="form-group">
+
+<label>Take Profit</label>
+
+<input
+type="number"
+step="0.00001"
+id="takeProfit">
+
+</div>
+
+<div class="form-group">
+
+<label>Risk (%)</label>
+
+<input
+type="number"
+step="0.01"
+id="risk">
+
+</div>
+
+<div class="form-group">
+
+<label>Expected RR</label>
+
+<input
+type="number"
+step="0.1"
+id="expectedRR">
+
+</div>
+
+<div class="form-group">
+
+<label>Actual RR</label>
+
+<input
+type="number"
+step="0.1"
+id="actualRR">
+
+</div>
+
+<div class="form-group">
+
+<label>Commission ($)</label>
+
+<input
+type="number"
+step="0.01"
+id="commission">
+
+</div>
+
+<div class="form-group">
+
+<label>Profit / Loss ($)</label>
+
+<input
+type="number"
+step="0.01"
+id="profit">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+TRADE RESULT
+====================================================== -->
+
+<h3>
+
+Trade Result
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>Outcome</label>
+
+<select id="result">
+
+<option>Win</option>
+
+<option>Loss</option>
+
+<option>Break Even</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Break Even Applied</label>
+
+<select id="breakEven">
+
+<option>No</option>
+
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Partial Taken</label>
+
+<select id="partials">
+
+<option>No</option>
+
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Trailing Stop</label>
+
+<select id="trailing">
+
+<option>No</option>
+
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Execution Quality</label>
+
+<select id="executionQuality">
+
+<option>A+</option>
+
+<option>A</option>
+
+<option>B</option>
+
+<option>C</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Did You Follow Your Plan?</label>
+
+<select id="followedPlan">
+
+<option>Yes</option>
+
+<option>No</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+TRADER PSYCHOLOGY
+====================================================== -->
+
+<h3>
+
+Trader Psychology
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>Confidence Before Entry</label>
+
+<select id="confidence">
+
+<option>Very High</option>
+
+<option>High</option>
+
+<option>Medium</option>
+
+<option>Low</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Emotion During Trade</label>
+
+<select id="emotion">
+
+<option>Calm</option>
+
+<option>Confident</option>
+
+<option>Fear</option>
+
+<option>Greed</option>
+
+<option>FOMO</option>
+
+<option>Revenge</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Discipline</label>
+
+<select id="discipline">
+
+<option>Excellent</option>
+
+<option>Good</option>
+
+<option>Average</option>
+
+<option>Poor</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Patience</label>
+
+<select id="patience">
+
+<option>Excellent</option>
+
+<option>Good</option>
+
+<option>Average</option>
+
+<option>Poor</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+<!-- ======================================================
+TRADE REVIEW
+====================================================== -->
+
+<h3>
+
+Trade Review
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>Trade Summary</label>
+
+<textarea
+id="tradeSummary"
+placeholder="Brief summary of the setup..."></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label>What Went Well?</label>
+
+<textarea
+id="strengths"
+placeholder="Execution, patience, confirmations..."></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label>Mistakes Made</label>
+
+<textarea
+id="mistakes"
+placeholder="Early entry, late exit, overtrading..."></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label>Lesson Learned</label>
+
+<textarea
+id="lessonLearned"
+placeholder="What did this trade teach you?"></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label>Improvement Plan</label>
+
+<textarea
+id="improvementPlan"
+placeholder="How will you improve next time?"></textarea>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+CHART LINKS
+====================================================== -->
+
+<h3>
+
+Chart URLs
+
+</h3>
+
+<div class="journal-section">
+
+<div class="journal-grid">
+
+<div class="form-group">
+
+<label>Before Entry Chart URL</label>
+
+<input
+type="url"
+id="beforeChart"
+
+placeholder="https://...">
+
+</div>
+
+<div class="form-group">
+
+<label>During Trade Chart URL</label>
+
+<input
+type="url"
+id="duringChart"
+
+placeholder="https://...">
+
+</div>
+
+<div class="form-group">
+
+<label>After Trade Chart URL</label>
+
+<input
+type="url"
+id="afterChart"
+
+placeholder="https://...">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+FINAL NOTES
+====================================================== -->
+
+<h3>
+
+Additional Notes
+
+</h3>
+
+<div class="journal-section">
+
+<div class="form-group">
+
+<textarea
+
+id="notes"
+
+rows="6"
+
+placeholder="Anything else worth remembering about this trade...">
+
+</textarea>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+SAVE
+====================================================== -->
+
+<div class="save-container">
+
+<button
+
+type="submit"
+
+class="btn btn-primary"
+
+id="saveTrade">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Save Trade
+
+</button>
+
+</div>
+
+</form>
+
+</section>
+
+</main>
+
+</div>
+
+<script type="module" src="js/journal.js"></script>
+
+</body>
+
+</html>
