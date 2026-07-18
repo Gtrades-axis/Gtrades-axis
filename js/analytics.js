@@ -1,6 +1,6 @@
 // ======================================================
 // GTRADES-AXIS™
-// ANALYTICS ENGINE V3
+// ANALYTICS ENGINE V4
 // PART 1
 // ======================================================
 
@@ -15,40 +15,27 @@ const STORAGE_KEY = "gtradesJournal";
 let trades = [];
 
 // ======================================================
-// CHART OBJECTS
+// CHART REFERENCES
 // ======================================================
 
 let charts = {
-
-    equity:null,
-
-    monthly:null,
-
-    pair:null,
-
-    session:null,
-
-    model:null,
-
-    result:null,
-
-    psychology:null,
-
-    htf:null,
-
-    mtf:null,
-
-    monthlyWin:null
-
+    equity: null,
+    monthly: null,
+    pair: null,
+    session: null,
+    model: null,
+    result: null,
+    psychology: null,
+    htf: null,
+    mtf: null,
+    monthlyWin: null
 };
 
 // ======================================================
 // INITIALIZE
 // ======================================================
 
-document.addEventListener("DOMContentLoaded", initAnalytics);
-
-function initAnalytics(){
+document.addEventListener("DOMContentLoaded", () => {
 
     loadTrades();
 
@@ -60,49 +47,41 @@ function initAnalytics(){
 
     buildInsights();
 
-}
+});
 
 // ======================================================
 // LOAD TRADES
 // ======================================================
 
-function loadTrades(){
+function loadTrades() {
 
-    const stored = localStorage.getItem(STORAGE_KEY);
+    try {
 
-    if(!stored){
+        const stored = localStorage.getItem(STORAGE_KEY);
 
-        trades=[];
+        trades = stored ? JSON.parse(stored) : [];
 
-        return;
+        if (!Array.isArray(trades)) {
 
-    }
-
-    try{
-
-        trades = JSON.parse(stored);
-
-        if(!Array.isArray(trades)){
-
-            trades=[];
+            trades = [];
 
         }
 
-    }catch(error){
+    } catch (err) {
 
-        console.error("Trade data corrupted.",error);
+        console.error("Analytics Load Error:", err);
 
-        trades=[];
+        trades = [];
 
     }
 
 }
 
 // ======================================================
-// SAFE NUMBER
+// HELPERS
 // ======================================================
 
-function num(value){
+function num(value) {
 
     const n = Number(value);
 
@@ -110,39 +89,49 @@ function num(value){
 
 }
 
+function setText(id, value) {
+
+    const el = document.getElementById(id);
+
+    if (el) el.textContent = value;
+
+}
+
+function destroyChart(chart) {
+
+    if (chart) chart.destroy();
+
+}
+
 // ======================================================
 // OVERVIEW
 // ======================================================
 
-function updateOverview(){
+function updateOverview() {
 
     const totalTrades = trades.length;
 
-    const wins = trades.filter(t=>t.result==="Win").length;
+    const wins = trades.filter(t => t.result === "Win").length;
 
-    const losses = trades.filter(t=>t.result==="Loss").length;
+    const losses = trades.filter(t => t.result === "Loss").length;
 
-    const breakeven = trades.filter(t=>t.result==="Break Even").length;
+    let grossProfit = 0;
 
-    let grossProfit=0;
+    let grossLoss = 0;
 
-    let grossLoss=0;
+    let totalRR = 0;
 
-    let totalRR=0;
-
-    trades.forEach(trade=>{
+    trades.forEach(trade => {
 
         const profit = num(trade.profit);
 
-        const rr = num(trade.actualRR);
+        totalRR += num(trade.actualRR);
 
-        totalRR += rr;
-
-        if(profit>=0){
+        if (profit >= 0) {
 
             grossProfit += profit;
 
-        }else{
+        } else {
 
             grossLoss += Math.abs(profit);
 
@@ -150,71 +139,55 @@ function updateOverview(){
 
     });
 
-    const netProfit = grossProfit-grossLoss;
+    const netProfit = grossProfit - grossLoss;
 
     const winRate = totalTrades
-        ? ((wins/totalTrades)*100).toFixed(1)
+        ? ((wins / totalTrades) * 100).toFixed(1)
         : "0";
 
-    const avgRR = totalTrades
-        ? (totalRR/totalTrades).toFixed(2)
+    const averageRR = totalTrades
+        ? (totalRR / totalTrades).toFixed(2)
         : "0";
 
     const profitFactor = grossLoss
-        ? (grossProfit/grossLoss).toFixed(2)
+        ? (grossProfit / grossLoss).toFixed(2)
         : grossProfit.toFixed(2);
 
     const expectancy = totalTrades
-        ? (netProfit/totalTrades).toFixed(2)
+        ? (netProfit / totalTrades).toFixed(2)
         : "0";
 
-    const avgWin = wins
-        ? (grossProfit/wins).toFixed(2)
+    const averageWin = wins
+        ? (grossProfit / wins).toFixed(2)
         : "0";
 
-    const avgLoss = losses
-        ? (grossLoss/losses).toFixed(2)
+    const averageLoss = losses
+        ? (grossLoss / losses).toFixed(2)
         : "0";
 
-    setText("totalTrades",totalTrades);
+    setText("totalTrades", totalTrades);
 
-    setText("winRate",winRate+"%");
+    setText("winRate", winRate + "%");
 
-    setText("averageRR",avgRR);
+    setText("averageRR", averageRR);
 
-    setText("netProfit","$"+netProfit.toFixed(2));
+    setText("netProfit", "$" + netProfit.toFixed(2));
 
-    setText("profitFactor",profitFactor);
+    setText("profitFactor", profitFactor);
 
-    setText("expectancy","$"+expectancy);
+    setText("expectancy", "$" + expectancy);
 
-    setText("averageWin","$"+avgWin);
+    setText("averageWin", "$" + averageWin);
 
-    setText("averageLoss","$"+avgLoss);
-
-}
-
-// ======================================================
-// SAFE TEXT
-// ======================================================
-
-function setText(id,value){
-
-    const el=document.getElementById(id);
-
-    if(el){
-
-        el.textContent=value;
-
-    }
+    setText("averageLoss", "$" + averageLoss);
 
 }
 // ======================================================
-// PART 2
 // PERFORMANCE ANALYSIS
+// PART 2
 // ======================================================
 
-function updatePerformanceCards(){
+function updatePerformanceCards() {
 
     const pairStats = {};
     const sessionStats = {};
@@ -223,258 +196,223 @@ function updatePerformanceCards(){
     const mtfStats = {};
     const psychologyStats = {};
 
-    trades.forEach(trade=>{
+    trades.forEach(trade => {
 
-        const pair = trade.pair || "Unknown";
-        const session = trade.session || "Unknown";
-        const model = trade.entryModel || "Unknown";
+        // ==========================
+        // PAIRS
+        // ==========================
 
-        const htf = trade.htfSwing || "Unknown";
-        const mtf = trade.mtfSwing || "Unknown";
+        if (!pairStats[trade.pair]) {
 
-        const emotion = trade.emotion || "Unknown";
-
-        const profit = num(trade.profit);
-
-        // ===============================
-        // PAIR
-        // ===============================
-
-        if(!pairStats[pair]){
-
-            pairStats[pair]={
-
-                trades:0,
-
-                wins:0,
-
-                profit:0
-
+            pairStats[trade.pair] = {
+                trades: 0,
+                profit: 0,
+                wins: 0
             };
 
         }
 
-        pairStats[pair].trades++;
+        pairStats[trade.pair].trades++;
+        pairStats[trade.pair].profit += num(trade.profit);
 
-        pairStats[pair].profit+=profit;
+        if (trade.result === "Win") {
 
-        if(trade.result==="Win"){
-
-            pairStats[pair].wins++;
+            pairStats[trade.pair].wins++;
 
         }
 
-        // ===============================
+        // ==========================
         // SESSION
-        // ===============================
+        // ==========================
 
-        if(!sessionStats[session]){
+        if (!sessionStats[trade.session]) {
 
-            sessionStats[session]={
-
-                trades:0,
-
-                wins:0,
-
-                profit:0
-
+            sessionStats[trade.session] = {
+                trades: 0,
+                profit: 0,
+                wins: 0
             };
 
         }
 
-        sessionStats[session].trades++;
+        sessionStats[trade.session].trades++;
+        sessionStats[trade.session].profit += num(trade.profit);
 
-        sessionStats[session].profit+=profit;
+        if (trade.result === "Win") {
 
-        if(trade.result==="Win"){
-
-            sessionStats[session].wins++;
+            sessionStats[trade.session].wins++;
 
         }
 
-        // ===============================
+        // ==========================
         // ENTRY MODEL
-        // ===============================
+        // ==========================
 
-        if(!modelStats[model]){
+        if (!modelStats[trade.entryModel]) {
 
-            modelStats[model]={
-
-                trades:0,
-
-                wins:0,
-
-                profit:0
-
+            modelStats[trade.entryModel] = {
+                trades: 0,
+                wins: 0
             };
 
         }
 
-        modelStats[model].trades++;
+        modelStats[trade.entryModel].trades++;
 
-        modelStats[model].profit+=profit;
+        if (trade.result === "Win") {
 
-        if(trade.result==="Win"){
-
-            modelStats[model].wins++;
+            modelStats[trade.entryModel].wins++;
 
         }
 
-        // ===============================
+        // ==========================
         // HTF
-        // ===============================
+        // ==========================
 
-        htfStats[htf]=(htfStats[htf]||0)+1;
+        if (!htfStats[trade.htfSwing]) {
 
-        // ===============================
+            htfStats[trade.htfSwing] = 0;
+
+        }
+
+        htfStats[trade.htfSwing]++;
+
+        // ==========================
         // MTF
-        // ===============================
+        // ==========================
 
-        mtfStats[mtf]=(mtfStats[mtf]||0)+1;
+        if (!mtfStats[trade.mtfSwing]) {
 
-        // ===============================
+            mtfStats[trade.mtfSwing] = 0;
+
+        }
+
+        mtfStats[trade.mtfSwing]++;
+
+        // ==========================
         // PSYCHOLOGY
-        // ===============================
+        // ==========================
 
-        psychologyStats[emotion]=(psychologyStats[emotion]||0)+1;
+        if (!psychologyStats[trade.emotion]) {
+
+            psychologyStats[trade.emotion] = 0;
+
+        }
+
+        psychologyStats[trade.emotion]++;
 
     });
 
-    // =====================================================
-    // BEST / WORST PAIR
-    // =====================================================
+    // ======================================================
+    // BEST PAIR
+    // ======================================================
 
-    const pairs = Object.entries(pairStats);
+    let bestPair = "-";
+    let bestPairProfit = -999999;
 
-    pairs.sort((a,b)=>b[1].profit-a[1].profit);
+    let worstPair = "-";
+    let worstPairProfit = 999999;
 
-    if(pairs.length){
+    Object.entries(pairStats).forEach(([pair, data]) => {
 
-        setText("bestPair",pairs[0][0]);
+        if (data.profit > bestPairProfit) {
 
-        setText("bestPairProfit",
-            "$"+pairs[0][1].profit.toFixed(2));
+            bestPair = pair;
+            bestPairProfit = data.profit;
 
-        const last=pairs[pairs.length-1];
+        }
 
-        setText("worstPair",last[0]);
+        if (data.profit < worstPairProfit) {
 
-        setText("worstPairProfit",
-            "$"+last[1].profit.toFixed(2));
+            worstPair = pair;
+            worstPairProfit = data.profit;
 
-    }
+        }
 
-    // =====================================================
+    });
+
+    setText("bestPair", bestPair);
+    setText("bestPairProfit", "$" + bestPairProfit.toFixed(2));
+
+    setText("worstPair", worstPair);
+    setText("worstPairProfit", "$" + worstPairProfit.toFixed(2));
+
+    // ======================================================
     // BEST SESSION
-    // =====================================================
+    // ======================================================
 
-    let bestSession="-";
-    let bestSessionRate=0;
+    let bestSession = "-";
+    let bestSessionRate = 0;
 
-    Object.entries(sessionStats).forEach(([name,data])=>{
+    Object.entries(sessionStats).forEach(([session, data]) => {
 
-        const rate=(data.wins/data.trades)*100;
+        const rate = (data.wins / data.trades) * 100;
 
-        if(rate>bestSessionRate){
+        if (rate > bestSessionRate) {
 
-            bestSession=name;
-
-            bestSessionRate=rate;
-
-        }
-
-    });
-
-    setText("bestSession",bestSession);
-
-    setText("bestSessionWinrate",
-        bestSessionRate.toFixed(1)+"%");
-
-    // =====================================================
-    // BEST ENTRY MODEL
-    // =====================================================
-
-    let bestModel="-";
-    let bestModelRate=0;
-
-    Object.entries(modelStats).forEach(([name,data])=>{
-
-        const rate=(data.wins/data.trades)*100;
-
-        if(rate>bestModelRate){
-
-            bestModel=name;
-
-            bestModelRate=rate;
+            bestSessionRate = rate;
+            bestSession = session;
 
         }
 
     });
 
-    setText("bestModel",bestModel);
+    setText("bestSession", bestSession);
+    setText("bestSessionWinrate", bestSessionRate.toFixed(1) + "%");
 
-    setText("bestModelWinrate",
-        bestModelRate.toFixed(1)+"%");
+    // ======================================================
+    // BEST MODEL
+    // ======================================================
 
-    // =====================================================
-    // SAVE FOR CHARTS
-    // =====================================================
+    let bestModel = "-";
+    let bestModelRate = 0;
 
-    window.analyticsData={
+    Object.entries(modelStats).forEach(([model, data]) => {
+
+        const rate = (data.wins / data.trades) * 100;
+
+        if (rate > bestModelRate) {
+
+            bestModelRate = rate;
+            bestModel = model;
+
+        }
+
+    });
+
+    setText("bestModel", bestModel);
+    setText("bestModelWinrate", bestModelRate.toFixed(1) + "%");
+
+    // ======================================================
+    // STORE FOR CHARTS
+    // ======================================================
+
+    window.analyticsData = {
 
         pairStats,
-
         sessionStats,
-
         modelStats,
-
         htfStats,
-
         mtfStats,
-
         psychologyStats
 
     };
 
 }
 // ======================================================
-// PART 3
 // BUILD CHARTS
+// PART 3
 // ======================================================
 
-function destroyChart(chart){
+function buildCharts() {
 
-    if(chart){
+    const data = window.analyticsData;
 
-        chart.destroy();
+    if (!data) return;
 
-    }
-
-}
-
-// ======================================================
-
-function buildCharts(){
-
-    const {
-
-        pairStats,
-
-        sessionStats,
-
-        modelStats,
-
-        htfStats,
-
-        mtfStats,
-
-        psychologyStats
-
-    } = window.analyticsData;
-
-    // ==================================================
+    // ======================================================
     // EQUITY CURVE
-    // ==================================================
+    // ======================================================
 
     destroyChart(charts.equity);
 
@@ -484,168 +422,171 @@ function buildCharts(){
 
     const labels = [];
 
-    trades.forEach((trade,index)=>{
+    trades.forEach((trade, index) => {
 
         running += num(trade.profit);
 
         equity.push(running);
 
-        labels.push(index+1);
+        labels.push(index + 1);
 
     });
 
-    const ctx1 = document.getElementById("equityChart").getContext("2d");
+    charts.equity = new Chart(
 
-    const gradient = ctx1.createLinearGradient(0,0,0,350);
+        document.getElementById("equityChart"),
 
-    gradient.addColorStop(0,"rgba(15,140,255,.45)");
-    gradient.addColorStop(1,"rgba(15,140,255,0)");
+        {
 
-    charts.equity = new Chart(ctx1,{
+            type: "line",
 
-        type:"line",
+            data: {
 
-        data:{
+                labels,
 
-            labels,
+                datasets: [{
 
-            datasets:[{
+                    label: "Equity Curve",
 
-                label:"Equity",
+                    data: equity,
 
-                data:equity,
+                    borderColor: "#0f8cff",
 
-                borderColor:"#0f8cff",
+                    backgroundColor: "rgba(15,140,255,.15)",
 
-                backgroundColor:gradient,
+                    fill: true,
 
-                fill:true,
+                    borderWidth: 3,
 
-                tension:.35,
+                    tension: .35,
 
-                borderWidth:3,
+                    pointRadius: 4
 
-                pointRadius:4
+                }]
 
-            }]
+            },
 
-        },
+            options: defaultOptions()
 
-        options:defaultOptions("Profit")
+        }
 
-    });
+    );
 
-    // ==================================================
+    // ======================================================
     // MONTHLY PROFIT
-    // ==================================================
+    // ======================================================
 
     destroyChart(charts.monthly);
 
-    const monthly={};
+    const monthly = {};
 
-    trades.forEach(trade=>{
+    trades.forEach(trade => {
 
-        if(!trade.tradeDate)return;
+        if (!trade.tradeDate) return;
 
-        const month=trade.tradeDate.substring(0,7);
+        const month = trade.tradeDate.substring(0, 7);
 
-        monthly[month]=(monthly[month]||0)+num(trade.profit);
+        monthly[month] =
+            (monthly[month] || 0) +
+            num(trade.profit);
 
     });
 
-    charts.monthly=new Chart(
+    charts.monthly = new Chart(
 
         document.getElementById("monthlyChart"),
 
         {
 
-            type:"bar",
+            type: "bar",
 
-            data:{
+            data: {
 
-                labels:Object.keys(monthly),
+                labels: Object.keys(monthly),
 
-                datasets:[{
+                datasets: [{
 
-                    label:"Monthly Profit",
+                    label: "Monthly Profit",
 
-                    data:Object.values(monthly),
+                    data: Object.values(monthly),
 
-                    backgroundColor:"#0f8cff",
+                    backgroundColor: "#0f8cff",
 
-                    borderRadius:8
+                    borderRadius: 10
 
                 }]
 
             },
 
-            options:defaultOptions("USD")
+            options: defaultOptions()
 
         }
 
     );
 
-    // ==================================================
+    // ======================================================
     // PAIR PERFORMANCE
-    // ==================================================
+    // ======================================================
 
     destroyChart(charts.pair);
 
-    charts.pair=new Chart(
+    charts.pair = new Chart(
 
         document.getElementById("pairChart"),
 
         {
 
-            type:"bar",
+            type: "bar",
 
-            data:{
+            data: {
 
-                labels:Object.keys(pairStats),
+                labels: Object.keys(data.pairStats),
 
-                datasets:[{
+                datasets: [{
 
-                    label:"Profit",
+                    label: "Profit",
 
-                    data:Object.values(pairStats).map(x=>x.profit),
+                    data: Object.values(data.pairStats)
+                        .map(x => x.profit),
 
-                    backgroundColor:"#00c853",
+                    backgroundColor: "#00c853",
 
-                    borderRadius:8
+                    borderRadius: 10
 
                 }]
 
             },
 
-            options:defaultOptions("Profit")
+            options: defaultOptions()
 
         }
 
     );
 
-    // ==================================================
+    // ======================================================
     // SESSION PERFORMANCE
-    // ==================================================
+    // ======================================================
 
     destroyChart(charts.session);
 
-    charts.session=new Chart(
+    charts.session = new Chart(
 
         document.getElementById("sessionChart"),
 
         {
 
-            type:"doughnut",
+            type: "doughnut",
 
-            data:{
+            data: {
 
-                labels:Object.keys(sessionStats),
+                labels: Object.keys(data.sessionStats),
 
-                datasets:[{
+                datasets: [{
 
-                    data:Object.values(sessionStats).map(x=>x.trades),
+                    data: Object.values(data.sessionStats)
+                        .map(x => x.trades),
 
-                    backgroundColor:[
+                    backgroundColor: [
 
                         "#0f8cff",
 
@@ -661,81 +602,90 @@ function buildCharts(){
 
             },
 
-            options:pieOptions()
+            options: pieOptions()
 
         }
 
     );
 
-    // ==================================================
+    // ======================================================
     // ENTRY MODEL
-    // ==================================================
+    // ======================================================
 
     destroyChart(charts.model);
 
-    charts.model=new Chart(
+    charts.model = new Chart(
 
         document.getElementById("modelChart"),
 
         {
 
-            type:"bar",
+            type: "bar",
 
-            data:{
+            data: {
 
-                labels:Object.keys(modelStats),
+                labels: Object.keys(data.modelStats),
 
-                datasets:[{
+                datasets: [{
 
-                    label:"Trades",
+                    label: "Trades",
 
-                    data:Object.values(modelStats).map(x=>x.trades),
+                    data: Object.values(data.modelStats)
+                        .map(x => x.trades),
 
-                    backgroundColor:"#0f8cff",
+                    backgroundColor: "#0f8cff",
 
-                    borderRadius:8
+                    borderRadius: 10
 
                 }]
 
             },
 
-            options:defaultOptions("Trades")
+            options: defaultOptions()
 
         }
 
     );
 
-    // ==================================================
-    // RESULT DISTRIBUTION
-    // ==================================================
+    // ======================================================
+    // RESULT PIE
+    // ======================================================
 
     destroyChart(charts.result);
 
-    charts.result=new Chart(
+    charts.result = new Chart(
 
         document.getElementById("resultChart"),
 
         {
 
-            type:"pie",
+            type: "pie",
 
-            data:{
+            data: {
 
-                labels:["Win","Loss","Break Even"],
+                labels: [
 
-                datasets:[{
+                    "Win",
 
-                    data:[
+                    "Loss",
 
-                        trades.filter(t=>t.result==="Win").length,
+                    "Break Even"
 
-                        trades.filter(t=>t.result==="Loss").length,
+                ],
 
-                        trades.filter(t=>t.result==="Break Even").length
+                datasets: [{
+
+                    data: [
+
+                        trades.filter(t => t.result === "Win").length,
+
+                        trades.filter(t => t.result === "Loss").length,
+
+                        trades.filter(t => t.result === "Break Even").length
 
                     ],
 
-                    backgroundColor:[
+                    backgroundColor: [
 
                         "#00c853",
 
@@ -749,7 +699,7 @@ function buildCharts(){
 
             },
 
-            options:pieOptions()
+            options: pieOptions()
 
         }
 
@@ -758,10 +708,8 @@ function buildCharts(){
 }
 // ======================================================
 // PART 4
-// REMAINING CHARTS + INSIGHTS
+// FINAL
 // ======================================================
-
-const d = window.analyticsData;
 
 // ======================================================
 // PSYCHOLOGY
@@ -779,11 +727,11 @@ type:"doughnut",
 
 data:{
 
-labels:Object.keys(d.psychologyStats),
+labels:Object.keys(window.analyticsData.psychologyStats),
 
 datasets:[{
 
-data:Object.values(d.psychologyStats),
+data:Object.values(window.analyticsData.psychologyStats),
 
 backgroundColor:[
 
@@ -812,12 +760,12 @@ options:pieOptions()
 );
 
 // ======================================================
-// HTF BIAS
+// HTF
 // ======================================================
 
 destroyChart(charts.htf);
 
-charts.htf = new Chart(
+charts.htf=new Chart(
 
 document.getElementById("htfChart"),
 
@@ -827,11 +775,11 @@ type:"pie",
 
 data:{
 
-labels:Object.keys(d.htfStats),
+labels:Object.keys(window.analyticsData.htfStats),
 
 datasets:[{
 
-data:Object.values(d.htfStats),
+data:Object.values(window.analyticsData.htfStats),
 
 backgroundColor:[
 
@@ -852,12 +800,12 @@ options:pieOptions()
 );
 
 // ======================================================
-// MTF BIAS
+// MTF
 // ======================================================
 
 destroyChart(charts.mtf);
 
-charts.mtf = new Chart(
+charts.mtf=new Chart(
 
 document.getElementById("mtfChart"),
 
@@ -867,11 +815,11 @@ type:"pie",
 
 data:{
 
-labels:Object.keys(d.mtfStats),
+labels:Object.keys(window.analyticsData.mtfStats),
 
 datasets:[{
 
-data:Object.values(d.mtfStats),
+data:Object.values(window.analyticsData.mtfStats),
 
 backgroundColor:[
 
@@ -897,17 +845,17 @@ options:pieOptions()
 
 destroyChart(charts.monthlyWin);
 
-const monthStats = {};
+const monthWin={};
 
 trades.forEach(trade=>{
 
-if(!trade.tradeDate) return;
+if(!trade.tradeDate)return;
 
-const month = trade.tradeDate.substring(0,7);
+const month=trade.tradeDate.substring(0,7);
 
-if(!monthStats[month]){
+if(!monthWin[month]){
 
-monthStats[month]={
+monthWin[month]={
 
 wins:0,
 
@@ -917,17 +865,17 @@ total:0
 
 }
 
-monthStats[month].total++;
+monthWin[month].total++;
 
 if(trade.result==="Win"){
 
-monthStats[month].wins++;
+monthWin[month].wins++;
 
 }
 
 });
 
-charts.monthlyWin = new Chart(
+charts.monthlyWin=new Chart(
 
 document.getElementById("monthlyWinChart"),
 
@@ -937,15 +885,15 @@ type:"line",
 
 data:{
 
-labels:Object.keys(monthStats),
+labels:Object.keys(monthWin),
 
 datasets:[{
 
 label:"Win Rate",
 
-data:Object.values(monthStats).map(m=>
+data:Object.values(monthWin).map(x=>
 
-((m.wins/m.total)*100).toFixed(1)
+((x.wins/x.total)*100).toFixed(1)
 
 ),
 
@@ -955,15 +903,15 @@ backgroundColor:"rgba(15,140,255,.18)",
 
 fill:true,
 
-tension:.35,
+borderWidth:3,
 
-borderWidth:3
+tension:.35
 
 }]
 
 },
 
-options:defaultOptions("%")
+options:defaultOptions()
 
 }
 
@@ -977,19 +925,21 @@ buildInsights();
 
 }
 
+// ======================================================
+
 function buildInsights(){
 
-const container=document.getElementById("analyticsInsights");
+const panel=document.getElementById("analyticsInsights");
 
-if(!container) return;
+if(!panel)return;
 
 if(trades.length===0){
 
-container.innerHTML=`
+panel.innerHTML=`
 
 <div class="loading-card">
 
-No trading data available.
+No trading history found.
 
 </div>
 
@@ -999,25 +949,25 @@ return;
 
 }
 
-const total = trades.length;
+const wins=trades.filter(t=>t.result==="Win").length;
 
-const wins = trades.filter(t=>t.result==="Win").length;
+const losses=trades.filter(t=>t.result==="Loss").length;
 
-const losses = trades.filter(t=>t.result==="Loss").length;
+const be=trades.filter(t=>t.result==="Break Even").length;
 
-container.innerHTML=`
+panel.innerHTML=`
 
 <div class="insight-item">
 
 <h4>Total Trades</h4>
 
-<p>${total}</p>
+<p>${trades.length}</p>
 
 </div>
 
 <div class="insight-item">
 
-<h4>Wins</h4>
+<h4>Winning Trades</h4>
 
 <p>${wins}</p>
 
@@ -1025,9 +975,17 @@ container.innerHTML=`
 
 <div class="insight-item">
 
-<h4>Losses</h4>
+<h4>Losing Trades</h4>
 
 <p>${losses}</p>
+
+</div>
+
+<div class="insight-item">
+
+<h4>Break Even</h4>
+
+<p>${be}</p>
 
 </div>
 
@@ -1041,17 +999,17 @@ container.innerHTML=`
 
 <div class="insight-item">
 
-<h4>Best Entry Model</h4>
+<h4>Best Session</h4>
 
-<p>${document.getElementById("bestModel").textContent}</p>
+<p>${document.getElementById("bestSession").textContent}</p>
 
 </div>
 
 <div class="insight-item">
 
-<h4>Best Session</h4>
+<h4>Best Entry Model</h4>
 
-<p>${document.getElementById("bestSession").textContent}</p>
+<p>${document.getElementById("bestModel").textContent}</p>
 
 </div>
 
@@ -1060,10 +1018,8 @@ container.innerHTML=`
 }
 
 // ======================================================
-// DEFAULT OPTIONS
-// ======================================================
 
-function defaultOptions(title){
+function defaultOptions(){
 
 return{
 
@@ -1099,17 +1055,7 @@ y:{
 
 ticks:{color:"#94a3b8"},
 
-grid:{color:"rgba(255,255,255,.05)"},
-
-title:{
-
-display:true,
-
-text:title,
-
-color:"#94a3b8"
-
-}
+grid:{color:"rgba(255,255,255,.05)"}
 
 }
 
@@ -1139,7 +1085,7 @@ labels:{
 
 color:"#ffffff",
 
-padding:16
+padding:15
 
 }
 
