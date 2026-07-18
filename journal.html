@@ -1,1134 +1,889 @@
-<!DOCTYPE html>
-<html lang="en">
+/* ==========================================================
+GTRADES-AXIS™ JOURNAL
+PART 1
+CORE LAYOUT
+========================================================== */
 
-<head>
+:root{
 
-<meta charset="UTF-8">
+    --bg:#0b1120;
+    --card:#121b2c;
+    --card2:#182338;
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    --border:rgba(255,255,255,.06);
 
-<title>Trading Journal | GTRADES-AXIS™</title>
+    --primary:#1d8fff;
+    --primary-hover:#0c78ef;
 
-<link rel="preconnect"
-href="https://fonts.googleapis.com">
+    --text:#ffffff;
+    --muted:#9fb3c8;
 
-<link rel="preconnect"
-href="https://fonts.gstatic.com"
-crossorigin>
+    --radius:16px;
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-rel="stylesheet">
+}
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+/* ========================================================== */
 
-<link rel="stylesheet"
-href="css/style.css">
+.main-content{
 
-<link rel="stylesheet"
-href="css/journal.css">
+    flex:1;
 
-</head>
+    padding:30px;
 
-<body>
+    background:var(--bg);
 
-<div class="dashboard-container">
+    min-height:100vh;
 
-<!-- ===========================
-SIDEBAR
-=========================== -->
+    overflow-y:auto;
 
-<aside class="sidebar">
+}
 
-<div class="logo">
+/* ==========================================================
+PAGE HEADER
+========================================================== */
 
-<img src="images/logo.png" alt="Logo">
+.page-header{
 
-<h2>
+    display:flex;
 
-GTRADES
+    justify-content:space-between;
 
-<span>AXIS™</span>
+    align-items:center;
 
-</h2>
+    margin-bottom:28px;
 
-</div>
+}
 
-<nav>
+.page-header h1{
 
-<a href="dashboard.html">
+    font-size:32px;
 
-<i class="fa-solid fa-house"></i>
+    font-weight:700;
 
-Dashboard
+    color:var(--text);
 
-</a>
+}
 
-<a href="premium-academy.html">
+.page-header p{
 
-<i class="fa-solid fa-graduation-cap"></i>
+    color:var(--muted);
 
-Academy
+    margin-top:6px;
 
-</a>
+    font-size:15px;
 
-<a href="downloads.html">
+}
 
-<i class="fa-solid fa-folder-open"></i>
+/* ==========================================================
+BUTTONS
+========================================================== */
 
-Resources
+.btn{
 
-</a>
+    display:inline-flex;
 
-<a class="active"
-href="journal.html">
+    align-items:center;
 
-<i class="fa-solid fa-chart-line"></i>
+    justify-content:center;
 
-Trading Journal
+    gap:10px;
 
-</a>
+    padding:12px 22px;
 
-<a href="profile.html">
+    background:var(--primary);
 
-<i class="fa-solid fa-user"></i>
+    color:white;
 
-Profile
+    border:none;
 
-</a>
+    border-radius:10px;
 
-<a href="support.html">
+    font-weight:600;
 
-<i class="fa-solid fa-headset"></i>
+    cursor:pointer;
 
-Support
+    text-decoration:none;
 
-</a>
+    transition:.25s;
 
-</nav>
+}
 
-<button
-id="logoutBtn"
-class="logout-btn">
+.btn:hover{
 
-<i class="fa-solid fa-right-from-bracket"></i>
+    background:var(--primary-hover);
 
-Logout
+}
 
-</button>
+/* ==========================================================
+DASHBOARD STATS
+========================================================== */
 
-</aside>
+.stats-grid{
 
-<!-- ===========================
-MAIN
-=========================== -->
+    display:grid;
 
-<main class="main-content">
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
 
-<div class="page-header">
+    gap:18px;
 
-<div>
+    margin-bottom:28px;
 
-<h1>
+}
 
-Professional Trading Journal
+.stat-card{
 
-</h1>
+    background:var(--card);
 
-<p>
+    border:1px solid var(--border);
 
-Photon Framework Trade Recorder
+    border-radius:var(--radius);
 
-</p>
+    padding:22px;
 
-</div>
+    transition:.25s;
 
-<a href="journal/history.html"
-class="btn">
+}
 
-<i class="fa-solid fa-clock-rotate-left"></i>
+.stat-card:hover{
 
-History
+    transform:translateY(-3px);
 
-</a>
+}
 
-</div>
+.stat-card h3{
 
-<!-- ===========================
-STATS
-=========================== -->
+    color:var(--muted);
 
-<section class="stats-grid">
+    font-size:14px;
 
-<div class="stat-card">
+    font-weight:500;
 
-<h3>Total Trades</h3>
+    margin-bottom:10px;
 
-<h1 id="totalTrades">0</h1>
+}
 
-</div>
+.stat-card h1{
 
-<div class="stat-card">
+    color:white;
 
-<h3>Win Rate</h3>
+    font-size:34px;
 
-<h1 id="winRate">0%</h1>
+    font-weight:700;
 
-</div>
+}
 
-<div class="stat-card">
-
-<h3>Average RR</h3>
-
-<h1 id="averageRR">0</h1>
-
-</div>
-
-<div class="stat-card">
-
-<h3>Net Profit</h3>
-
-<h1 id="netProfit">$0</h1>
-
-</div>
-
-<div class="stat-card">
-
-<h3>Wins</h3>
-
-<h1 id="wins">0</h1>
-
-</div>
-
-<div class="stat-card">
-
-<h3>Losses</h3>
-
-<h1 id="losses">0</h1>
-
-</div>
-
-<div class="stat-card">
-
-<h3>Trader Grade</h3>
-
-<h1 id="traderGrade">-</h1>
-
-</div>
-
-<div class="stat-card">
-
-<h3>Consistency</h3>
-
-<h1 id="consistencyScore">0%</h1>
-
-</div>
-
-</section>
-
-<!-- ===========================
+/* ==========================================================
 CHARTS
-=========================== -->
+========================================================== */
 
-<section class="chart-grid">
+.chart-grid{
 
-<div class="chart-card">
+    display:grid;
 
-<h2>
+    grid-template-columns:2fr 1fr;
 
-Equity Curve
+    gap:20px;
 
-</h2>
+    margin-bottom:30px;
 
-<canvas id="equityChart"></canvas>
+}
 
-</div>
+.chart-card{
 
-<div class="chart-card">
+    background:var(--card);
 
-<h2>
+    border:1px solid var(--border);
 
-Monthly Performance
+    border-radius:var(--radius);
 
-</h2>
+    padding:22px;
 
-<canvas id="monthlyChart"></canvas>
+}
 
-</div>
+.chart-card h2{
 
-</section>
+    font-size:18px;
 
-<!-- ===========================
-NEW TRADE
-=========================== -->
+    margin-bottom:18px;
 
-<section class="journal-card">
+    color:white;
 
-<h2>
+}
 
-<i class="fa-solid fa-plus"></i>
+.chart-card canvas{
 
-New Trade
+    width:100% !important;
 
-</h2>
+    height:320px !important;
 
-<form id="tradeForm">
+}
 
-<h3>
+/* ==========================================================
+RESPONSIVE
+========================================================== */
 
-Trade Information
+@media(max-width:1000px){
 
-</h3>
+.chart-grid{
 
-<div class="journal-grid">
+grid-template-columns:1fr;
 
-<input
-type="date"
-id="tradeDate"
-required>
+}
 
-<input
-type="time"
-id="tradeTime">
+}
 
-<input
-type="text"
-id="pair"
-placeholder="Pair">
+@media(max-width:768px){
 
-<select id="direction">
+.main-content{
 
-<option>BUY</option>
+padding:18px;
 
-<option>SELL</option>
+}
 
-</select>
+.page-header{
 
-<input
-type="text"
-id="session"
-placeholder="Session">
+flex-direction:column;
 
-<input
-type="text"
-id="broker"
-placeholder="Broker">
+align-items:flex-start;
 
-<input
-type="text"
-id="account"
-placeholder="Account">
+gap:15px;
 
-<input
-type="number"
-id="lotSize"
-step="0.01"
-placeholder="Lot Size">
+}
 
-</div>
-<!-- ======================================================
-HTF ANALYSIS (4H - DAILY)
-====================================================== -->
+}
+/* ==========================================================
+JOURNAL FORM
+PART 2
+========================================================== */
 
-<h3>
-    Higher Timeframe (4H - Daily)
-</h3>
+.journal-card{
 
-<div class="journal-section">
+    background:var(--card);
 
-    <div class="section-title">
-        HTF Swing Structure
-    </div>
+    border:1px solid var(--border);
 
-    <div class="journal-grid">
+    border-radius:var(--radius);
 
-        <div class="form-group">
-            <label>Swing Bias</label>
+    padding:28px;
 
-            <select id="htfSwingBias">
+    margin-bottom:28px;
 
-                <option>Bullish</option>
+}
 
-                <option>Bearish</option>
+.journal-card h2{
 
-            </select>
+    font-size:24px;
 
-        </div>
+    margin-bottom:25px;
 
-        <div class="form-group">
+    color:white;
 
-            <label>Swing Structure</label>
+    display:flex;
 
-            <select id="htfSwingStructure">
+    align-items:center;
 
-                <option>HH</option>
+    gap:10px;
 
-                <option>HL</option>
+}
 
-                <option>LH</option>
+/* ==========================================================
+SECTION TITLES
+========================================================== */
 
-                <option>LL</option>
+.journal-card h3{
 
-            </select>
+    margin-top:28px;
 
-        </div>
+    margin-bottom:18px;
 
-        <div class="form-group">
+    color:#49a5ff;
 
-            <label>Swing BOS</label>
+    font-size:18px;
 
-            <select id="htfSwingBos">
+    font-weight:600;
 
-                <option>Bullish BOS</option>
+    border-left:4px solid var(--primary);
 
-                <option>Bearish BOS</option>
+    padding-left:12px;
 
-                <option>None</option>
+}
 
-            </select>
+.section-title{
 
-        </div>
+    color:#49a5ff;
 
-        <div class="form-group">
+    font-size:16px;
 
-            <label>Swing POI</label>
+    font-weight:600;
 
-            <select id="htfSwingPoi">
+    margin-bottom:15px;
 
-                <option>Demand</option>
+}
 
-                <option>Supply</option>
+/* ==========================================================
+SECTION BOXES
+========================================================== */
 
-                <option>Premium</option>
+.journal-section{
 
-                <option>Discount</option>
+    background:var(--card2);
 
-                <option>Equilibrium</option>
+    border:1px solid rgba(255,255,255,.04);
 
-            </select>
+    border-radius:14px;
 
-        </div>
+    padding:20px;
 
-    </div>
+    margin-bottom:20px;
 
-</div>
+}
 
-<div class="journal-section">
+/* ==========================================================
+GRID
+========================================================== */
 
-    <div class="section-title">
+.journal-grid{
 
-        HTF Internal Structure
+    display:grid;
 
-    </div>
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 
-    <div class="journal-grid">
+    gap:16px;
 
-        <div class="form-group">
+}
 
-            <label>Internal Bias</label>
+/* ==========================================================
+FORM GROUP
+========================================================== */
 
-            <select id="htfInternalBias">
+.form-group{
 
-                <option>Bullish</option>
+    display:flex;
 
-                <option>Bearish</option>
+    flex-direction:column;
 
-            </select>
+}
 
-        </div>
+.form-group label{
 
-        <div class="form-group">
+    color:var(--muted);
 
-            <label>Internal Structure</label>
+    font-size:13px;
 
-            <select id="htfInternalStructure">
+    margin-bottom:6px;
 
-                <option>Bullish BOS</option>
+    font-weight:500;
 
-                <option>Bearish BOS</option>
+}
 
-                <option>Bullish CHOCH</option>
+/* ==========================================================
+INPUTS
+========================================================== */
 
-                <option>Bearish CHOCH</option>
+.form-group input,
 
-            </select>
+.form-group select,
 
-        </div>
+.form-group textarea{
 
-        <div class="form-group">
+    width:100%;
 
-            <label>Internal POI</label>
+    background:#0d1627;
 
-            <select id="htfInternalPoi">
+    color:white;
 
-                <option>Demand</option>
+    border:1px solid rgba(255,255,255,.08);
 
-                <option>Supply</option>
+    border-radius:10px;
 
-                <option>Premium</option>
+    padding:12px 14px;
 
-                <option>Discount</option>
+    font-size:14px;
 
-                <option>Equilibrium</option>
+    transition:.25s;
 
-            </select>
+}
 
-        </div>
+.form-group input:focus,
 
-    </div>
+.form-group select:focus,
 
-</div>
+.form-group textarea:focus{
 
-<!-- ======================================================
-MTF ANALYSIS (15M - 1H)
-====================================================== -->
+    outline:none;
 
-<h3>
+    border-color:var(--primary);
 
-Medium Timeframe (15M - 1H)
+    box-shadow:0 0 0 3px rgba(29,143,255,.18);
 
-</h3>
+}
 
-<div class="journal-section">
+/* ==========================================================
+TEXTAREA
+========================================================== */
 
-    <div class="section-title">
+.form-group textarea{
 
-        MTF Swing Structure
+    resize:vertical;
 
-    </div>
+    min-height:90px;
 
-    <div class="journal-grid">
+}
 
-        <div class="form-group">
+/* ==========================================================
+SELECT
+========================================================== */
 
-            <label>Swing Bias</label>
+.form-group select{
 
-            <select id="mtfSwingBias">
+    cursor:pointer;
 
-                <option>Bullish</option>
+}
 
-                <option>Bearish</option>
+/* ==========================================================
+INPUT PLACEHOLDER
+========================================================== */
 
-            </select>
+.form-group input::placeholder,
 
-        </div>
+.form-group textarea::placeholder{
 
-        <div class="form-group">
+    color:#6d7f96;
 
-            <label>Swing Structure</label>
+}
+/* ==========================================================
+CONFLUENCE CHIPS
+PART 3
+========================================================== */
 
-            <select id="mtfSwingStructure">
+.chips-grid{
 
-                <option>HH</option>
+    display:grid;
 
-                <option>HL</option>
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 
-                <option>LH</option>
+    gap:14px;
 
-                <option>LL</option>
+}
 
-            </select>
+.chips-grid label{
 
-        </div>
+    display:flex;
 
-        <div class="form-group">
+    align-items:center;
 
-            <label>Swing BOS</label>
+    gap:10px;
 
-            <select id="mtfSwingBos">
+    padding:12px 16px;
 
-                <option>Bullish BOS</option>
+    background:#0d1627;
 
-                <option>Bearish BOS</option>
+    border:1px solid rgba(255,255,255,.08);
 
-                <option>None</option>
+    border-radius:10px;
 
-            </select>
+    cursor:pointer;
 
-        </div>
+    color:#d8e4f2;
 
-        <div class="form-group">
+    transition:.25s;
 
-            <label>Swing POI</label>
+    font-size:14px;
 
-            <select id="mtfSwingPoi">
+    font-weight:500;
 
-                <option>Demand</option>
+}
 
-                <option>Supply</option>
+.chips-grid label:hover{
 
-                <option>Premium</option>
+    border-color:#1d8fff;
 
-                <option>Discount</option>
+    background:#13213a;
 
-                <option>Equilibrium</option>
+}
 
-            </select>
+.chips-grid input[type="checkbox"]{
 
-        </div>
+    width:18px;
 
-    </div>
+    height:18px;
 
-</div>
+    accent-color:#1d8fff;
 
-<div class="journal-section">
+}
 
-    <div class="section-title">
+/* ==========================================================
+SAVE BUTTON
+========================================================== */
 
-        MTF Internal Structure
+.save-container{
 
-    </div>
+    display:flex;
 
-    <div class="journal-grid">
+    justify-content:flex-end;
 
-        <div class="form-group">
+    margin-top:30px;
 
-            <label>Internal Bias</label>
+}
 
-            <select id="mtfInternalBias">
+.save-container .btn{
 
-                <option>Bullish</option>
+    min-width:220px;
 
-                <option>Bearish</option>
+    font-size:16px;
 
-            </select>
+}
 
-        </div>
+/* ==========================================================
+FILE UPLOAD
+========================================================== */
 
-        <div class="form-group">
+input[type="file"]{
 
-            <label>Internal Structure</label>
+    padding:10px;
 
-            <select id="mtfInternalStructure">
+    background:#0d1627;
 
-                <option>Bullish BOS</option>
+    color:#d8e4f2;
 
-                <option>Bearish BOS</option>
+    border-radius:10px;
 
-                <option>Bullish CHOCH</option>
+    border:1px solid rgba(255,255,255,.08);
 
-                <option>Bearish CHOCH</option>
+}
 
-            </select>
+/* ==========================================================
+SMALL CARDS
+========================================================== */
 
-        </div>
+.review-card{
 
-        <div class="form-group">
+    background:var(--card);
 
-            <label>Internal POI</label>
+    border:1px solid var(--border);
 
-            <select id="mtfInternalPoi">
+    border-radius:14px;
 
-                <option>Demand</option>
+    padding:20px;
 
-                <option>Supply</option>
+}
 
-                <option>Premium</option>
+.review-card h3{
 
-                <option>Discount</option>
+    color:var(--muted);
 
-                <option>Equilibrium</option>
+    font-size:14px;
 
-            </select>
+    margin-bottom:10px;
 
-        </div>
+}
 
-    </div>
+.review-card h2{
 
-</div>
-<!-- ======================================================
-LTF ENTRY (1M - 5M)
-====================================================== -->
+    color:#fff;
 
-<h3>
+    font-size:26px;
 
-Lower Timeframe Entry (1M - 5M)
+}
 
-</h3>
+/* ==========================================================
+TABLETS
+========================================================== */
 
-<div class="journal-section">
+@media(max-width:900px){
 
-    <div class="section-title">
+    .chips-grid{
 
-        Market Structure
+        grid-template-columns:1fr 1fr;
 
-    </div>
+    }
 
-    <div class="journal-grid">
+}
 
-        <div class="form-group">
+@media(max-width:600px){
 
-            <label>Entry Bias</label>
+    .chips-grid{
 
-            <select id="ltfBias">
+        grid-template-columns:1fr;
 
-                <option>Bullish</option>
+    }
 
-                <option>Bearish</option>
+    .save-container{
 
-            </select>
+        justify-content:center;
 
-        </div>
+    }
 
-        <div class="form-group">
+    .save-container .btn{
 
-            <label>Market Shift</label>
+        width:100%;
 
-            <select id="ltfShift">
+    }
 
-                <option>Bullish BOS</option>
+}
+/* ==========================================================
+PART 4
+FINAL POLISH
+========================================================== */
 
-                <option>Bearish BOS</option>
+/* Smooth scrolling */
 
-                <option>Bullish CHOCH</option>
+html{
 
-                <option>Bearish CHOCH</option>
+    scroll-behavior:smooth;
 
-            </select>
+}
 
-        </div>
+/* ==========================================================
+SECTION SPACING
+========================================================== */
 
-        <div class="form-group">
+.journal-card{
 
-            <label>Liquidity</label>
+    display:flex;
 
-            <select id="ltfLiquidity">
+    flex-direction:column;
 
-                <option>Liquidity Sweep</option>
+    gap:22px;
 
-                <option>Internal Liquidity</option>
+}
 
-                <option>External Liquidity</option>
+.journal-section{
 
-                <option>Equal Highs</option>
+    transition:.25s;
 
-                <option>Equal Lows</option>
+}
 
-                <option>None</option>
+.journal-section:hover{
 
-            </select>
+    border-color:rgba(29,143,255,.25);
 
-        </div>
+    box-shadow:0 6px 20px rgba(0,0,0,.20);
 
-        <div class="form-group">
+}
 
-            <label>POI</label>
+/* ==========================================================
+HEADINGS
+========================================================== */
 
-            <select id="ltfPoi">
+h2,h3,h4{
 
-                <option>Demand</option>
+    letter-spacing:.3px;
 
-                <option>Supply</option>
+}
 
-                <option>Refined POI</option>
+.section-title{
 
-                <option>Extreme POI</option>
+    display:flex;
 
-            </select>
+    align-items:center;
 
-        </div>
+    gap:8px;
 
-    </div>
+    margin-bottom:18px;
 
-</div>
+}
 
-<!-- ======================================================
-ENTRY MODEL
-====================================================== -->
+/* ==========================================================
+INPUT HOVER
+========================================================== */
 
-<div class="journal-section">
+.form-group input:hover,
 
-    <div class="section-title">
+.form-group select:hover,
 
-        Photon Entry Model
+.form-group textarea:hover{
 
-    </div>
+    border-color:#2b95ff;
 
-    <div class="journal-grid">
+}
 
-        <div class="form-group">
+/* ==========================================================
+CUSTOM SCROLLBAR
+========================================================== */
 
-            <label>Entry Model</label>
+::-webkit-scrollbar{
 
-            <select id="entryModel">
+    width:10px;
 
-                <option>LC-2A</option>
+}
 
-                <option>LC-1</option>
+::-webkit-scrollbar-track{
 
-                <option>LTF RE</option>
+    background:#09101d;
 
-                <option>MTF RE</option>
+}
 
-            </select>
+::-webkit-scrollbar-thumb{
 
-        </div>
+    background:#2b95ff;
 
-        <div class="form-group">
+    border-radius:20px;
 
-            <label>Entry Confirmation</label>
+}
 
-            <select id="entryConfirmation">
+::-webkit-scrollbar-thumb:hover{
 
-                <option>Photon Confirmation</option>
+    background:#4ca8ff;
 
-                <option>BOS Confirmation</option>
+}
 
-                <option>CHOCH Confirmation</option>
+/* ==========================================================
+CHART CARD
+========================================================== */
 
-                <option>Mitigation</option>
+.chart-card{
 
-                <option>Sweep</option>
+    transition:.25s;
 
-            </select>
+}
 
-        </div>
+.chart-card:hover{
 
-        <div class="form-group">
+    transform:translateY(-3px);
 
-            <label>Execution Quality</label>
+}
 
-            <select id="executionQuality">
+/* ==========================================================
+STAT CARD
+========================================================== */
 
-                <option>A+</option>
+.stat-card{
 
-                <option>A</option>
+    position:relative;
 
-                <option>B</option>
+    overflow:hidden;
 
-                <option>C</option>
+}
 
-            </select>
+.stat-card::before{
 
-        </div>
+    content:"";
 
-        <div class="form-group">
+    position:absolute;
 
-            <label>Trade Valid?</label>
+    left:0;
 
-            <select id="tradeValid">
+    top:0;
 
-                <option>Yes</option>
+    width:4px;
 
-                <option>No</option>
+    height:100%;
 
-            </select>
+    background:#1d8fff;
 
-        </div>
+}
 
-    </div>
+/* ==========================================================
+ANIMATION
+========================================================== */
 
-</div>
+@keyframes fadeUp{
 
-<!-- ======================================================
-CONFLUENCES
-====================================================== -->
+    from{
 
-<h3>
+        opacity:0;
 
-Trade Confluences
+        transform:translateY(15px);
 
-</h3>
+    }
 
-<div class="journal-section">
+    to{
 
-    <div class="chips-grid">
+        opacity:1;
 
-        <label><input type="checkbox" id="confHTFSwing"> HTF Swing Alignment</label>
+        transform:translateY(0);
 
-        <label><input type="checkbox" id="confHTFInternal"> HTF Internal Alignment</label>
+    }
 
-        <label><input type="checkbox" id="confMTFSwing"> MTF Swing Alignment</label>
+}
 
-        <label><input type="checkbox" id="confMTFInternal"> MTF Internal Alignment</label>
+.page-header,
 
-        <label><input type="checkbox" id="confHTFDemand"> HTF Demand</label>
+.stats-grid,
 
-        <label><input type="checkbox" id="confHTFSupply"> HTF Supply</label>
+.chart-grid,
 
-        <label><input type="checkbox" id="confMTFDemand"> MTF Demand</label>
+.journal-card{
 
-        <label><input type="checkbox" id="confMTFSupply"> MTF Supply</label>
+    animation:fadeUp .45s ease;
 
-        <label><input type="checkbox" id="confPremium"> Premium</label>
+}
 
-        <label><input type="checkbox" id="confDiscount"> Discount</label>
+/* ==========================================================
+SAVE BUTTON
+========================================================== */
 
-        <label><input type="checkbox" id="confSweep"> Liquidity Sweep</label>
+.btn-primary{
 
-        <label><input type="checkbox" id="confChoch"> CHOCH</label>
+    box-shadow:0 10px 25px rgba(29,143,255,.25);
 
-        <label><input type="checkbox" id="confBos"> BOS</label>
+}
 
-        <label><input type="checkbox" id="confMitigation"> Mitigation</label>
+.btn-primary:hover{
 
-        <label><input type="checkbox" id="confRefined"> Refined POI</label>
+    transform:translateY(-2px);
 
-        <label><input type="checkbox" id="confExtreme"> Extreme POI</label>
+}
 
-    </div>
+/* ==========================================================
+FORM GRID IMPROVEMENTS
+========================================================== */
 
-</div>
-<!-- ======================================================
-RISK MANAGEMENT
-====================================================== -->
+.journal-grid{
 
-<h3>Risk Management</h3>
+    align-items:start;
 
-<div class="journal-section">
+}
 
-    <div class="journal-grid">
+.form-group{
 
-        <div class="form-group">
-            <label>Entry Price</label>
-            <input type="number" step="0.00001" id="entryPrice">
-        </div>
+    min-width:0;
 
-        <div class="form-group">
-            <label>Stop Loss</label>
-            <input type="number" step="0.00001" id="stopLoss">
-        </div>
+}
 
-        <div class="form-group">
-            <label>Take Profit</label>
-            <input type="number" step="0.00001" id="takeProfit">
-        </div>
+/* ==========================================================
+RESPONSIVE
+========================================================== */
 
-        <div class="form-group">
-            <label>Risk (%)</label>
-            <input type="number" step="0.01" id="riskPercent">
-        </div>
+@media(max-width:1200px){
 
-        <div class="form-group">
-            <label>Lot Size</label>
-            <input type="number" step="0.01" id="lotSize">
-        </div>
+    .stats-grid{
 
-        <div class="form-group">
-            <label>Expected RR</label>
-            <input type="number" step="0.10" id="expectedRR">
-        </div>
+        grid-template-columns:repeat(2,1fr);
 
-        <div class="form-group">
-            <label>Actual RR</label>
-            <input type="number" step="0.10" id="actualRR">
-        </div>
+    }
 
-        <div class="form-group">
-            <label>Commission</label>
-            <input type="number" step="0.01" id="commission">
-        </div>
+}
 
-        <div class="form-group">
-            <label>Profit / Loss</label>
-            <input type="number" step="0.01" id="profit">
-        </div>
+@media(max-width:768px){
 
-        <div class="form-group">
-            <label>Result</label>
-            <select id="result">
-                <option>Win</option>
-                <option>Loss</option>
-                <option>Break Even</option>
-            </select>
-        </div>
+    .stats-grid{
 
-    </div>
+        grid-template-columns:1fr;
 
-</div>
+    }
 
-<!-- ======================================================
-TRADE MANAGEMENT
-====================================================== -->
+    .journal-grid{
 
-<h3>Trade Management</h3>
+        grid-template-columns:1fr;
 
-<div class="journal-section">
+    }
 
-    <div class="journal-grid">
+    .page-header{
 
-        <div class="form-group">
-            <label>Break Even Applied</label>
-            <select id="breakEven">
-                <option>Yes</option>
-                <option>No</option>
-            </select>
-        </div>
+        text-align:center;
 
-        <div class="form-group">
-            <label>Partial Taken</label>
-            <select id="partials">
-                <option>Yes</option>
-                <option>No</option>
-            </select>
-        </div>
+    }
 
-        <div class="form-group">
-            <label>Trailing Stop</label>
-            <select id="trailing">
-                <option>Yes</option>
-                <option>No</option>
-            </select>
-        </div>
+    .page-header .btn{
 
-        <div class="form-group">
-            <label>Management Quality</label>
-            <select id="management">
-                <option>Excellent</option>
-                <option>Good</option>
-                <option>Average</option>
-                <option>Poor</option>
-            </select>
-        </div>
+        width:100%;
 
-    </div>
+    }
 
-</div>
+}
 
-<!-- ======================================================
-PSYCHOLOGY
-====================================================== -->
-
-<h3>Psychology</h3>
-
-<div class="journal-section">
-
-    <div class="journal-grid">
-
-        <div class="form-group">
-            <label>Confidence</label>
-            <select id="confidence">
-                <option>Very High</option>
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Discipline</label>
-            <select id="discipline">
-                <option>Excellent</option>
-                <option>Good</option>
-                <option>Average</option>
-                <option>Poor</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Emotion</label>
-            <select id="emotion">
-                <option>Calm</option>
-                <option>Confident</option>
-                <option>Fear</option>
-                <option>Greed</option>
-                <option>FOMO</option>
-                <option>Revenge</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Followed Plan?</label>
-            <select id="followedPlan">
-                <option>Yes</option>
-                <option>No</option>
-            </select>
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ======================================================
-TRADE REVIEW
-====================================================== -->
-
-<h3>Trade Review</h3>
-
-<div class="journal-section">
-
-    <div class="journal-grid">
-
-        <div class="form-group">
-            <label>What Went Well?</label>
-            <textarea id="strengths"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Mistakes</label>
-            <textarea id="mistakes"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Lesson Learned</label>
-            <textarea id="lesson"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Improvement</label>
-            <textarea id="improvement"></textarea>
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ======================================================
-SCREENSHOTS
-====================================================== -->
-
-<h3>Screenshots</h3>
-
-<div class="journal-section">
-
-    <div class="journal-grid">
-
-        <div class="form-group">
-            <label>Before Entry</label>
-            <input type="file" id="beforeImage" accept="image/*">
-        </div>
-
-        <div class="form-group">
-            <label>During Trade</label>
-            <input type="file" id="duringImage" accept="image/*">
-        </div>
-
-        <div class="form-group">
-            <label>After Trade</label>
-            <input type="file" id="afterImage" accept="image/*">
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ======================================================
-SAVE
-====================================================== -->
-
-<div class="save-container">
-
-    <button type="submit" class="btn btn-primary">
-
-        <i class="fa-solid fa-floppy-disk"></i>
-
-        Save Trade
-
-    </button>
-
-</div>
-
-</form>
-
-</main>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script type="module" src="js/journal.js"></script>
-
-</body>
-
-</html>
+/* ==========================================================
+END OF FILE
+========================================================== */
