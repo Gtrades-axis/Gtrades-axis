@@ -5,16 +5,22 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Trade History | GTRADES-AXIS™</title>
 
-<link rel="stylesheet"
-href="../css/journal.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<link rel="stylesheet" href="css/style.css">
+
+<link rel="stylesheet" href="css/history.css">
 
 </head>
 
@@ -22,45 +28,129 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
 <div class="dashboard-container">
 
-<main class="main-content">
+<!-- ======================================================
+SIDEBAR
+====================================================== -->
 
-<!-- =======================================
-HEADER
-======================================= -->
+<aside class="sidebar">
 
-<div class="topbar">
+<div class="logo">
 
-<div>
+<img src="images/logo.png" alt="Logo">
 
-<h1>
+<h2>
 
-<i class="fa-solid fa-clock-rotate-left"></i>
+GTRADES
 
-Trade History
+<span>AXIS™</span>
 
-</h1>
-
-<p>
-
-View, search and manage every trade.
-
-</p>
+</h2>
 
 </div>
 
-<div>
+<nav>
 
-<a href="../journal.html"
-class="btn btn-secondary">
+<a href="dashboard.html">
 
-<i class="fa-solid fa-arrow-left"></i>
+<i class="fa-solid fa-house"></i>
 
 Dashboard
 
 </a>
 
-<a href="new-trade.html"
-class="btn btn-primary">
+<a href="premium-academy.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+<a href="downloads.html">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+<a href="journal.html">
+
+<i class="fa-solid fa-book"></i>
+
+Trading Journal
+
+</a>
+
+<a href="analytics.html">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Analytics
+
+</a>
+
+<a class="active" href="history.html">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+History
+
+</a>
+
+<a href="profile.html">
+
+<i class="fa-solid fa-user"></i>
+
+Profile
+
+</a>
+
+<a href="support.html">
+
+<i class="fa-solid fa-headset"></i>
+
+Support
+
+</a>
+
+</nav>
+
+<button id="logoutBtn" class="logout-btn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- ======================================================
+MAIN CONTENT
+====================================================== -->
+
+<main class="main-content">
+
+<div class="page-header">
+
+<div>
+
+<h1>
+
+Trading History
+
+</h1>
+
+<p>
+
+Review every trade you've taken.
+
+</p>
+
+</div>
+
+<a href="journal.html" class="btn">
 
 <i class="fa-solid fa-plus"></i>
 
@@ -70,85 +160,51 @@ New Trade
 
 </div>
 
-</div>
-
-<!-- =======================================
-SUMMARY
-======================================= -->
+<!-- ======================================================
+SUMMARY CARDS
+====================================================== -->
 
 <section class="stats-grid">
 
 <div class="stat-card">
 
-<i class="fa-solid fa-chart-column"></i>
+<h3>Total Trades</h3>
 
-<div>
-
-<h2 id="historyTrades">0</h2>
-
-<p>Total Trades</p>
-
-</div>
+<h1 id="historyTotalTrades">0</h1>
 
 </div>
 
 <div class="stat-card">
 
-<i class="fa-solid fa-percent"></i>
+<h3>Total Wins</h3>
 
-<div>
-
-<h2 id="historyWinRate">0%</h2>
-
-<p>Win Rate</p>
-
-</div>
+<h1 id="historyWins">0</h1>
 
 </div>
 
 <div class="stat-card">
 
-<i class="fa-solid fa-scale-balanced"></i>
+<h3>Total Losses</h3>
 
-<div>
-
-<h2 id="historyRR">0</h2>
-
-<p>Average RR</p>
-
-</div>
+<h1 id="historyLosses">0</h1>
 
 </div>
 
 <div class="stat-card">
 
-<i class="fa-solid fa-sack-dollar"></i>
+<h3>Win Rate</h3>
 
-<div>
-
-<h2 id="historyProfit">$0</h2>
-
-<p>Net Profit</p>
-
-</div>
+<h1 id="historyWinRate">0%</h1>
 
 </div>
 
 </section>
 
-<!-- =======================================
-SEARCH
-======================================= -->
+<!-- ======================================================
+SEARCH & FILTERS
+====================================================== -->
 
-<section class="latest-card">
-
-<h2>
-
-Trade Search
-
-</h2>
-
-<div class="journal-grid">
+<section class="history-controls">
 
 <input
 
@@ -156,41 +212,43 @@ type="text"
 
 id="tradeSearch"
 
-placeholder="Search Pair, Setup, Session...">
+placeholder="Search Pair...">
 
 <select id="filterPair">
 
-<option value="">All Pairs</option>
+<option value="">
 
-<option>EURUSD</option>
+All Pairs
 
-<option>GBPUSD</option>
-
-<option>USDJPY</option>
-
-<option>GBPJPY</option>
-
-<option>XAUUSD</option>
+</option>
 
 </select>
 
 <select id="filterSession">
 
-<option value="">All Sessions</option>
+<option value="">
 
-<option>Asia</option>
+All Sessions
 
-<option>Frankfurt</option>
+</option>
+
+<option>Asian</option>
 
 <option>London</option>
 
 <option>New York</option>
 
+<option>London + NY</option>
+
 </select>
 
 <select id="filterResult">
 
-<option value="">All Results</option>
+<option value="">
+
+All Results
+
+</option>
 
 <option>Win</option>
 
@@ -200,55 +258,40 @@ placeholder="Search Pair, Setup, Session...">
 
 </select>
 
-<select id="filterMonth">
-
-<option value="">All Months</option>
-
-<option>January</option>
-
-<option>February</option>
-
-<option>March</option>
-
-<option>April</option>
-
-<option>May</option>
-
-<option>June</option>
-
-<option>July</option>
-
-<option>August</option>
-
-<option>September</option>
-
-<option>October</option>
-
-<option>November</option>
-
-<option>December</option>
-
-</select>
-
-</div>
-
 </section>
-
-<!-- =======================================
+<!-- ======================================================
 TRADE TABLE
-======================================= -->
+====================================================== -->
 
-<section class="latest-card">
+<section class="history-card">
+
+<div class="table-header">
 
 <h2>
 
-Trade Records
+<i class="fa-solid fa-table"></i>
+
+Trade History
 
 </h2>
 
+<div>
+
+<button id="exportCSV" class="btn">
+
+<i class="fa-solid fa-file-csv"></i>
+
+Export CSV
+
+</button>
+
+</div>
+
+</div>
+
 <div class="table-responsive">
 
-<table class="trade-table">
+<table class="history-table">
 
 <thead>
 
@@ -262,13 +305,13 @@ Trade Records
 
 <th>Session</th>
 
-<th>Setup</th>
+<th>Model</th>
+
+<th>Result</th>
 
 <th>RR</th>
 
-<th>Profit</th>
-
-<th>Result</th>
+<th>P/L</th>
 
 <th>Actions</th>
 
@@ -276,9 +319,17 @@ Trade Records
 
 </thead>
 
-<tbody id="historyTable">
+<tbody id="historyBody">
 
-<!-- Loaded by journal.js -->
+<tr>
+
+<td colspan="9" class="empty">
+
+No trades recorded yet.
+
+</td>
+
+</tr>
 
 </tbody>
 
@@ -287,121 +338,12 @@ Trade Records
 </div>
 
 </section>
-<!-- =======================================
-TRADE DETAILS
-======================================= -->
 
-<section class="latest-card">
+<!-- ======================================================
+TRADE DETAILS MODAL
+====================================================== -->
 
-<h2>
-
-Trade Details
-
-</h2>
-
-<div id="tradeDetails">
-
-<div class="empty-state">
-
-<i class="fa-solid fa-chart-line"></i>
-
-<h3>Select a trade</h3>
-
-<p>Click "View" from the history table.</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- =======================================
-EXPORT
-======================================= -->
-
-<section class="latest-card">
-
-<h2>
-
-Export Journal
-
-</h2>
-
-<div class="export-buttons">
-
-<button
-id="exportPDF"
-class="btn btn-primary">
-
-<i class="fa-solid fa-file-pdf"></i>
-
-Export PDF
-
-</button>
-
-<button
-id="exportExcel"
-class="btn btn-primary">
-
-<i class="fa-solid fa-file-excel"></i>
-
-Export Excel
-
-</button>
-
-<button
-id="refreshHistory"
-class="btn btn-secondary">
-
-<i class="fa-solid fa-rotate"></i>
-
-Refresh
-
-</button>
-
-</div>
-
-</section>
-
-<!-- =======================================
-PAGINATION
-======================================= -->
-
-<section class="pagination-section">
-
-<button
-id="prevPage"
-class="btn btn-secondary">
-
-<i class="fa-solid fa-chevron-left"></i>
-
-Previous
-
-</button>
-
-<span id="pageNumber">
-
-Page 1
-
-</span>
-
-<button
-id="nextPage"
-class="btn btn-secondary">
-
-Next
-
-<i class="fa-solid fa-chevron-right"></i>
-
-</button>
-
-</section>
-
-<!-- =======================================
-EDIT TRADE MODAL
-======================================= -->
-
-<div id="editModal" class="modal">
+<div id="tradeModal" class="modal">
 
 <div class="modal-content">
 
@@ -409,155 +351,37 @@ EDIT TRADE MODAL
 
 <h2>
 
-Edit Trade
+Trade Details
 
 </h2>
 
-<button
-id="closeModal"
-class="close-btn">
+<span class="closeModal">
 
 &times;
 
-</button>
+</span>
 
 </div>
 
-<form id="editTradeForm">
+<div id="tradeDetails">
 
-<div class="journal-grid">
-
-<input
-type="text"
-id="editPair"
-placeholder="Pair">
-
-<select id="editDirection">
-
-<option>BUY</option>
-
-<option>SELL</option>
-
-</select>
-
-<input
-type="number"
-id="editEntry"
-placeholder="Entry">
-
-<input
-type="number"
-id="editSL"
-placeholder="Stop Loss">
-
-<input
-type="number"
-id="editTP"
-placeholder="Take Profit">
-
-<input
-type="number"
-id="editRR"
-placeholder="RR">
-
-<input
-type="number"
-id="editProfit"
-placeholder="Profit">
-
-<select id="editResult">
-
-<option>Win</option>
-
-<option>Loss</option>
-
-<option>Break Even</option>
-
-</select>
-
-</div>
-
-<div class="save-section">
-
-<button
-type="submit"
-class="btn btn-primary">
-
-<i class="fa-solid fa-floppy-disk"></i>
-
-Save Changes
-
-</button>
-
-<button
-type="button"
-id="cancelEdit"
-class="btn btn-secondary">
-
-Cancel
-
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-<!-- =======================================
-DELETE CONFIRMATION
-======================================= -->
-
-<div id="deleteModal" class="modal">
-
-<div class="modal-content">
-
-<h2>
-
-Delete Trade?
-
-</h2>
-
-<p>
-
-This action cannot be undone.
-
-</p>
-
-<div class="save-section">
-
-<button
-id="confirmDelete"
-class="btn btn-danger">
-
-Delete
-
-</button>
-
-<button
-id="cancelDelete"
-class="btn btn-secondary">
-
-Cancel
-
-</button>
+<!-- Loaded by history.js -->
 
 </div>
 
 </div>
 
 </div>
+
+<!-- ======================================================
+SCRIPTS
+====================================================== -->
+
+<script type="module" src="js/history.js"></script>
 
 </main>
 
 </div>
-
-<script type="module" src="../js/journal.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 </body>
 
