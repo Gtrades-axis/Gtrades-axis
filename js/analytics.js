@@ -1,10 +1,25 @@
 // ======================================================
 // GTRADES-AXIS™
-// ANALYTICS
+// ANALYTICS SYSTEM V2
 // PART 1
 // ======================================================
 
-const trades = JSON.parse(localStorage.getItem("gtradesJournal")) || [];
+let trades = JSON.parse(localStorage.getItem("gtradesJournal")) || [];
+
+// ======================================================
+// CHART REFERENCES
+// ======================================================
+
+let equityChart = null;
+let monthlyChart = null;
+let pairChart = null;
+let sessionChart = null;
+let modelChart = null;
+let resultChart = null;
+let psychologyChart = null;
+let htfChart = null;
+let mtfChart = null;
+let monthlyWinChart = null;
 
 // ======================================================
 // INITIALIZE
@@ -12,15 +27,27 @@ const trades = JSON.parse(localStorage.getItem("gtradesJournal")) || [];
 
 window.addEventListener("DOMContentLoaded", () => {
 
-    calculateStatistics();
+    loadAnalytics();
 
 });
+
+// ======================================================
+// LOAD ANALYTICS
+// ======================================================
+
+function loadAnalytics(){
+
+    trades = JSON.parse(localStorage.getItem("gtradesJournal")) || [];
+
+    calculateStatistics();
+
+}
 
 // ======================================================
 // CALCULATE STATISTICS
 // ======================================================
 
-function calculateStatistics() {
+function calculateStatistics(){
 
     const totalTrades = trades.length;
 
@@ -34,7 +61,7 @@ function calculateStatistics() {
 
     let totalRR = 0;
 
-    trades.forEach(trade => {
+    trades.forEach(trade=>{
 
         const profit = Number(trade.profit || 0);
 
@@ -42,7 +69,7 @@ function calculateStatistics() {
 
         totalRR += rr;
 
-        if (trade.result === "Win") {
+        if(trade.result==="Win"){
 
             wins++;
 
@@ -50,7 +77,7 @@ function calculateStatistics() {
 
         }
 
-        if (trade.result === "Loss") {
+        if(trade.result==="Loss"){
 
             losses++;
 
@@ -60,73 +87,57 @@ function calculateStatistics() {
 
     });
 
-    const winRate =
-        totalTrades === 0
-            ? 0
-            : ((wins / totalTrades) * 100).toFixed(1);
+    const netProfit = grossProfit - grossLoss;
 
-    const averageRR =
-        totalTrades === 0
-            ? 0
-            : (totalRR / totalTrades).toFixed(2);
+    const winRate = totalTrades
+        ? ((wins/totalTrades)*100).toFixed(1)
+        : 0;
 
-    const netProfit =
-        grossProfit - grossLoss;
+    const averageRR = totalTrades
+        ? (totalRR/totalTrades).toFixed(2)
+        : 0;
 
-    const profitFactor =
-        grossLoss === 0
-            ? grossProfit
-            : (grossProfit / grossLoss).toFixed(2);
+    const profitFactor = grossLoss
+        ? (grossProfit/grossLoss).toFixed(2)
+        : grossProfit.toFixed(2);
 
-    const expectancy =
-        totalTrades === 0
-            ? 0
-            : (netProfit / totalTrades).toFixed(2);
+    const expectancy = totalTrades
+        ? (netProfit/totalTrades).toFixed(2)
+        : 0;
 
-    const averageWin =
-        wins === 0
-            ? 0
-            : (grossProfit / wins).toFixed(2);
+    const averageWin = wins
+        ? (grossProfit/wins).toFixed(2)
+        : 0;
 
-    const averageLoss =
-        losses === 0
-            ? 0
-            : (grossLoss / losses).toFixed(2);
+    const averageLoss = losses
+        ? (grossLoss/losses).toFixed(2)
+        : 0;
 
-    // ======================================================
-    // UPDATE HTML
-    // ======================================================
+    // ==========================
+    // UPDATE DASHBOARD
+    // ==========================
 
-    document.getElementById("totalTrades").textContent =
-        totalTrades;
+    document.getElementById("totalTrades").textContent = totalTrades;
 
-    document.getElementById("winRate").textContent =
-        winRate + "%";
+    document.getElementById("winRate").textContent = winRate + "%";
 
-    document.getElementById("averageRR").textContent =
-        averageRR;
+    document.getElementById("averageRR").textContent = averageRR;
 
-    document.getElementById("netProfit").textContent =
-        "$" + netProfit.toFixed(2);
+    document.getElementById("netProfit").textContent = "$" + netProfit.toFixed(2);
 
-    document.getElementById("profitFactor").textContent =
-        profitFactor;
+    document.getElementById("profitFactor").textContent = profitFactor;
 
-    document.getElementById("expectancy").textContent =
-        "$" + expectancy;
+    document.getElementById("expectancy").textContent = "$" + expectancy;
 
-    document.getElementById("averageWin").textContent =
-        "$" + averageWin;
+    document.getElementById("averageWin").textContent = "$" + averageWin;
 
-    document.getElementById("averageLoss").textContent =
-        "$" + averageLoss;
-
-    // Continue
+    document.getElementById("averageLoss").textContent = "$" + averageLoss;
 
     calculatePerformance();
 
 }
 // ======================================================
+// PART 2
 // PERFORMANCE ANALYSIS
 // ======================================================
 
@@ -138,11 +149,17 @@ function calculatePerformance(){
 
     const modelStats = {};
 
+    const htfStats = {};
+
+    const mtfStats = {};
+
+    const psychologyStats = {};
+
     trades.forEach(trade=>{
 
-        // ==========================
-        // PAIRS
-        // ==========================
+        // =====================================
+        // PAIR
+        // =====================================
 
         if(!pairStats[trade.pair]){
 
@@ -158,7 +175,7 @@ function calculatePerformance(){
 
         }
 
-        pairStats[trade.pair].profit += Number(trade.profit||0);
+        pairStats[trade.pair].profit+=Number(trade.profit||0);
 
         pairStats[trade.pair].trades++;
 
@@ -168,9 +185,9 @@ function calculatePerformance(){
 
         }
 
-        // ==========================
+        // =====================================
         // SESSION
-        // ==========================
+        // =====================================
 
         if(!sessionStats[trade.session]){
 
@@ -186,7 +203,7 @@ function calculatePerformance(){
 
         }
 
-        sessionStats[trade.session].profit += Number(trade.profit||0);
+        sessionStats[trade.session].profit+=Number(trade.profit||0);
 
         sessionStats[trade.session].trades++;
 
@@ -196,9 +213,9 @@ function calculatePerformance(){
 
         }
 
-        // ==========================
+        // =====================================
         // ENTRY MODEL
-        // ==========================
+        // =====================================
 
         if(!modelStats[trade.entryModel]){
 
@@ -214,7 +231,7 @@ function calculatePerformance(){
 
         }
 
-        modelStats[trade.entryModel].profit += Number(trade.profit||0);
+        modelStats[trade.entryModel].profit+=Number(trade.profit||0);
 
         modelStats[trade.entryModel].trades++;
 
@@ -224,37 +241,63 @@ function calculatePerformance(){
 
         }
 
+        // =====================================
+        // HTF BIAS
+        // =====================================
+
+        const htfBias=trade.htfSwing||"Unknown";
+
+        htfStats[htfBias]=(htfStats[htfBias]||0)+1;
+
+        // =====================================
+        // MTF BIAS
+        // =====================================
+
+        const mtfBias=trade.mtfSwing||"Unknown";
+
+        mtfStats[mtfBias]=(mtfStats[mtfBias]||0)+1;
+
+        // =====================================
+        // PSYCHOLOGY
+        // =====================================
+
+        const emotion=trade.emotion||"Unknown";
+
+        psychologyStats[emotion]=(psychologyStats[emotion]||0)+1;
+
     });
 
-    // ======================================================
+    // =====================================
     // BEST / WORST PAIR
-    // ======================================================
+    // =====================================
 
-    const pairArray = Object.entries(pairStats);
+    const pairArray=Object.entries(pairStats);
 
     pairArray.sort((a,b)=>b[1].profit-a[1].profit);
 
     if(pairArray.length){
 
-        document.getElementById("bestPair").textContent = pairArray[0][0];
+        document.getElementById("bestPair").textContent=
+        pairArray[0][0];
 
-        document.getElementById("bestPairProfit").textContent =
+        document.getElementById("bestPairProfit").textContent=
         "$"+pairArray[0][1].profit.toFixed(2);
 
-        const last = pairArray[pairArray.length-1];
+        const last=pairArray[pairArray.length-1];
 
-        document.getElementById("worstPair").textContent = last[0];
+        document.getElementById("worstPair").textContent=
+        last[0];
 
-        document.getElementById("worstPairProfit").textContent =
+        document.getElementById("worstPairProfit").textContent=
         "$"+last[1].profit.toFixed(2);
 
     }
 
-    // ======================================================
+    // =====================================
     // BEST SESSION
-    // ======================================================
+    // =====================================
 
-    let bestSession="";
+    let bestSession="-";
 
     let bestSessionRate=0;
 
@@ -264,24 +307,25 @@ function calculatePerformance(){
 
         if(rate>bestSessionRate){
 
-            bestSessionRate=rate;
-
             bestSession=session;
+
+            bestSessionRate=rate;
 
         }
 
     });
 
-    document.getElementById("bestSession").textContent = bestSession || "-";
+    document.getElementById("bestSession").textContent=
+    bestSession;
 
-    document.getElementById("bestSessionWinrate").textContent =
+    document.getElementById("bestSessionWinrate").textContent=
     bestSessionRate.toFixed(1)+"%";
 
-    // ======================================================
+    // =====================================
     // BEST ENTRY MODEL
-    // ======================================================
+    // =====================================
 
-    let bestModel="";
+    let bestModel="-";
 
     let bestModelRate=0;
 
@@ -291,405 +335,333 @@ function calculatePerformance(){
 
         if(rate>bestModelRate){
 
-            bestModelRate=rate;
-
             bestModel=model;
+
+            bestModelRate=rate;
 
         }
 
     });
 
-    document.getElementById("bestModel").textContent =
-    bestModel || "-";
+    document.getElementById("bestModel").textContent=
+    bestModel;
 
-    document.getElementById("bestModelWinrate").textContent =
+    document.getElementById("bestModelWinrate").textContent=
     bestModelRate.toFixed(1)+"%";
 
-    // ======================================================
-    // CONTINUE
-    // ======================================================
+    // =====================================
+    // BUILD CHARTS
+    // =====================================
 
-    buildCharts(pairStats,sessionStats,modelStats);
+    buildCharts(
+
+        pairStats,
+
+        sessionStats,
+
+        modelStats,
+
+        htfStats,
+
+        mtfStats,
+
+        psychologyStats
+
+    );
 
 }
 // ======================================================
-// PERFORMANCE ANALYSIS
+// PART 3
+// PROFESSIONAL CHARTS
 // ======================================================
 
-function calculatePerformance(){
+function destroyChart(chart){
 
-    const pairStats = {};
+    if(chart){
 
-    const sessionStats = {};
-
-    const modelStats = {};
-
-    trades.forEach(trade=>{
-
-        // ==========================
-        // PAIRS
-        // ==========================
-
-        if(!pairStats[trade.pair]){
-
-            pairStats[trade.pair]={
-
-                profit:0,
-
-                wins:0,
-
-                trades:0
-
-            };
-
-        }
-
-        pairStats[trade.pair].profit += Number(trade.profit||0);
-
-        pairStats[trade.pair].trades++;
-
-        if(trade.result==="Win"){
-
-            pairStats[trade.pair].wins++;
-
-        }
-
-        // ==========================
-        // SESSION
-        // ==========================
-
-        if(!sessionStats[trade.session]){
-
-            sessionStats[trade.session]={
-
-                profit:0,
-
-                wins:0,
-
-                trades:0
-
-            };
-
-        }
-
-        sessionStats[trade.session].profit += Number(trade.profit||0);
-
-        sessionStats[trade.session].trades++;
-
-        if(trade.result==="Win"){
-
-            sessionStats[trade.session].wins++;
-
-        }
-
-        // ==========================
-        // ENTRY MODEL
-        // ==========================
-
-        if(!modelStats[trade.entryModel]){
-
-            modelStats[trade.entryModel]={
-
-                profit:0,
-
-                wins:0,
-
-                trades:0
-
-            };
-
-        }
-
-        modelStats[trade.entryModel].profit += Number(trade.profit||0);
-
-        modelStats[trade.entryModel].trades++;
-
-        if(trade.result==="Win"){
-
-            modelStats[trade.entryModel].wins++;
-
-        }
-
-    });
-
-    // ======================================================
-    // BEST / WORST PAIR
-    // ======================================================
-
-    const pairArray = Object.entries(pairStats);
-
-    pairArray.sort((a,b)=>b[1].profit-a[1].profit);
-
-    if(pairArray.length){
-
-        document.getElementById("bestPair").textContent = pairArray[0][0];
-
-        document.getElementById("bestPairProfit").textContent =
-        "$"+pairArray[0][1].profit.toFixed(2);
-
-        const last = pairArray[pairArray.length-1];
-
-        document.getElementById("worstPair").textContent = last[0];
-
-        document.getElementById("worstPairProfit").textContent =
-        "$"+last[1].profit.toFixed(2);
+        chart.destroy();
 
     }
 
-    // ======================================================
-    // BEST SESSION
-    // ======================================================
+}
 
-    let bestSession="";
-
-    let bestSessionRate=0;
-
-    Object.entries(sessionStats).forEach(([session,data])=>{
-
-        const rate=(data.wins/data.trades)*100;
-
-        if(rate>bestSessionRate){
-
-            bestSessionRate=rate;
-
-            bestSession=session;
-
-        }
-
-    });
-
-    document.getElementById("bestSession").textContent = bestSession || "-";
-
-    document.getElementById("bestSessionWinrate").textContent =
-    bestSessionRate.toFixed(1)+"%";
-
-    // ======================================================
-    // BEST ENTRY MODEL
-    // ======================================================
-
-    let bestModel="";
-
-    let bestModelRate=0;
-
-    Object.entries(modelStats).forEach(([model,data])=>{
-
-        const rate=(data.wins/data.trades)*100;
-
-        if(rate>bestModelRate){
-
-            bestModelRate=rate;
-
-            bestModel=model;
-
-        }
-
-    });
-
-    document.getElementById("bestModel").textContent =
-    bestModel || "-";
-
-    document.getElementById("bestModelWinrate").textContent =
-    bestModelRate.toFixed(1)+"%";
-
-    // ======================================================
-    // CONTINUE
-    // ======================================================
-
-    buildCharts(pairStats,sessionStats,modelStats);
-
-}// ======================================================
+// ======================================================
 // BUILD CHARTS
 // ======================================================
 
-function buildCharts(pairStats, sessionStats, modelStats){
+function buildCharts(
 
-// ===============================
-// EQUITY CURVE
-// ===============================
+    pairStats,
+    sessionStats,
+    modelStats,
+    htfStats,
+    mtfStats,
+    psychologyStats
 
-const equityLabels=[];
+){
 
-const equityData=[];
+    // =====================================
+    // EQUITY CURVE
+    // =====================================
 
-let running=0;
+    destroyChart(equityChart);
 
-trades.forEach((trade,index)=>{
+    let running = 0;
 
-    equityLabels.push(index+1);
+    const equityData = [];
 
-    running+=Number(trade.profit||0);
+    const equityLabels = [];
 
-    equityData.push(running);
+    trades.forEach((trade,index)=>{
 
-});
+        running += Number(trade.profit || 0);
 
-if(document.getElementById("equityChart")){
+        equityData.push(running);
 
-new Chart(document.getElementById("equityChart"),{
+        equityLabels.push(index+1);
 
-type:"line",
+    });
 
-data:{
+    const equityCtx =
+        document.getElementById("equityChart").getContext("2d");
 
-labels:equityLabels,
+    const equityGradient =
+        equityCtx.createLinearGradient(0,0,0,350);
 
-datasets:[{
+    equityGradient.addColorStop(0,"rgba(15,140,255,.45)");
+    equityGradient.addColorStop(1,"rgba(15,140,255,0)");
 
-label:"Equity",
+    equityChart = new Chart(equityCtx,{
 
-data:equityData,
+        type:"line",
 
-borderWidth:3,
+        data:{
 
-tension:.3
+            labels:equityLabels,
 
-}]
+            datasets:[{
+
+                label:"Equity",
+
+                data:equityData,
+
+                borderColor:"#0f8cff",
+
+                backgroundColor:equityGradient,
+
+                fill:true,
+
+                tension:.35,
+
+                borderWidth:3,
+
+                pointRadius:4,
+
+                pointHoverRadius:6
+
+            }]
+
+        },
+
+        options:defaultOptions("USD")
+
+    });
+
+    // =====================================
+    // MONTHLY PERFORMANCE
+    // =====================================
+
+    destroyChart(monthlyChart);
+
+    const monthly={};
+
+    trades.forEach(trade=>{
+
+        if(!trade.tradeDate) return;
+
+        const month = trade.tradeDate.substring(0,7);
+
+        monthly[month] =
+            (monthly[month] || 0) +
+            Number(trade.profit || 0);
+
+    });
+
+    monthlyChart = new Chart(
+
+        document.getElementById("monthlyChart"),
+
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:Object.keys(monthly),
+
+                datasets:[{
+
+                    label:"Monthly Profit",
+
+                    data:Object.values(monthly),
+
+                    backgroundColor:"#0f8cff",
+
+                    borderRadius:8
+
+                }]
+
+            },
+
+            options:defaultOptions("USD")
+
+        }
+
+    );
+
+    // =====================================
+    // PAIR PERFORMANCE
+    // =====================================
+
+    destroyChart(pairChart);
+
+    pairChart = new Chart(
+
+        document.getElementById("pairChart"),
+
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:Object.keys(pairStats),
+
+                datasets:[{
+
+                    label:"Profit",
+
+                    data:Object.values(pairStats).map(x=>x.profit),
+
+                    backgroundColor:"#00c853",
+
+                    borderRadius:8
+
+                }]
+
+            },
+
+            options:defaultOptions("USD")
+
+        }
+
+    );
+
+    // =====================================
+    // SESSION PERFORMANCE
+    // =====================================
+
+    destroyChart(sessionChart);
+
+    sessionChart = new Chart(
+
+        document.getElementById("sessionChart"),
+
+        {
+
+            type:"doughnut",
+
+            data:{
+
+                labels:Object.keys(sessionStats),
+
+                datasets:[{
+
+                    data:Object.values(sessionStats).map(x=>x.trades),
+
+                    backgroundColor:[
+
+                        "#0f8cff",
+
+                        "#00c853",
+
+                        "#ffb300",
+
+                        "#ff4d4f"
+
+                    ]
+
+                }]
+
+            },
+
+            options:pieOptions()
+
+        }
+
+    );
+
+    // =====================================
+    // ENTRY MODELS
+    // =====================================
+
+    destroyChart(modelChart);
+
+    modelChart = new Chart(
+
+        document.getElementById("modelChart"),
+
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:Object.keys(modelStats),
+
+                datasets:[{
+
+                    label:"Trades",
+
+                    data:Object.values(modelStats).map(x=>x.trades),
+
+                    backgroundColor:"#0f8cff",
+
+                    borderRadius:8
+
+                }]
+
+            },
+
+            options:defaultOptions("Trades")
+
+        }
+
+    );
 
 }
+// ======================================================
+// PART 4
+// REMAINING CHARTS + INSIGHTS
+// ======================================================
 
-});
+// =====================================
+// RESULT CHART
+// =====================================
 
-}
+destroyChart(resultChart);
 
-// ===============================
-// MONTHLY PERFORMANCE
-// ===============================
+const winCount = trades.filter(t=>t.result==="Win").length;
+const lossCount = trades.filter(t=>t.result==="Loss").length;
+const beCount = trades.filter(t=>t.result==="Break Even").length;
 
-const monthly={};
+resultChart = new Chart(
 
-trades.forEach(trade=>{
+document.getElementById("resultChart"),
 
-if(!trade.tradeDate) return;
+{
 
-const month=trade.tradeDate.substring(0,7);
-
-monthly[month]=(monthly[month]||0)+Number(trade.profit||0);
-
-});
-
-if(document.getElementById("monthlyChart")){
-
-new Chart(document.getElementById("monthlyChart"),{
-
-type:"bar",
-
-data:{
-
-labels:Object.keys(monthly),
-
-datasets:[{
-
-label:"Profit",
-
-data:Object.values(monthly)
-
-}]
-
-}
-
-});
-
-}
-
-// ===============================
-// PAIR PERFORMANCE
-// ===============================
-
-if(document.getElementById("pairChart")){
-
-new Chart(document.getElementById("pairChart"),{
-
-type:"bar",
-
-data:{
-
-labels:Object.keys(pairStats),
-
-datasets:[{
-
-label:"Profit",
-
-data:Object.values(pairStats).map(x=>x.profit)
-
-}]
-
-}
-
-});
-
-}
-
-// ===============================
-// SESSION PERFORMANCE
-// ===============================
-
-if(document.getElementById("sessionChart")){
-
-new Chart(document.getElementById("sessionChart"),{
-
-type:"bar",
-
-data:{
-
-labels:Object.keys(sessionStats),
-
-datasets:[{
-
-label:"Profit",
-
-data:Object.values(sessionStats).map(x=>x.profit)
-
-}]
-
-}
-
-});
-
-}
-
-// ===============================
-// ENTRY MODELS
-// ===============================
-
-if(document.getElementById("modelChart")){
-
-new Chart(document.getElementById("modelChart"),{
-
-type:"bar",
-
-data:{
-
-labels:Object.keys(modelStats),
-
-datasets:[{
-
-label:"Profit",
-
-data:Object.values(modelStats).map(x=>x.profit)
-
-}]
-
-}
-
-});
-
-}
-
-// ===============================
-// WIN / LOSS
-// ===============================
-
-const wins=trades.filter(t=>t.result==="Win").length;
-
-const losses=trades.filter(t=>t.result==="Loss").length;
-
-const be=trades.filter(t=>t.result==="Break Even").length;
-
-if(document.getElementById("resultChart")){
-
-new Chart(document.getElementById("resultChart"),{
-
-type:"pie",
+type:"doughnut",
 
 data:{
 
@@ -697,18 +669,398 @@ labels:["Wins","Losses","Break Even"],
 
 datasets:[{
 
-data:[wins,losses,be]
+data:[winCount,lossCount,beCount],
+
+backgroundColor:[
+
+"#00c853",
+
+"#ff4d4f",
+
+"#ffb300"
+
+]
 
 }]
+
+},
+
+options:pieOptions()
+
+}
+
+);
+
+// =====================================
+// PSYCHOLOGY
+// =====================================
+
+destroyChart(psychologyChart);
+
+psychologyChart = new Chart(
+
+document.getElementById("psychologyChart"),
+
+{
+
+type:"pie",
+
+data:{
+
+labels:Object.keys(psychologyStats),
+
+datasets:[{
+
+data:Object.values(psychologyStats),
+
+backgroundColor:[
+
+"#0f8cff",
+
+"#00c853",
+
+"#ffb300",
+
+"#ff4d4f",
+
+"#9c27b0"
+
+]
+
+}]
+
+},
+
+options:pieOptions()
+
+}
+
+);
+
+// =====================================
+// HTF
+// =====================================
+
+destroyChart(htfChart);
+
+htfChart = new Chart(
+
+document.getElementById("htfChart"),
+
+{
+
+type:"pie",
+
+data:{
+
+labels:Object.keys(htfStats),
+
+datasets:[{
+
+data:Object.values(htfStats),
+
+backgroundColor:[
+
+"#00c853",
+
+"#ff4d4f"
+
+]
+
+}]
+
+},
+
+options:pieOptions()
+
+}
+
+);
+
+// =====================================
+// MTF
+// =====================================
+
+destroyChart(mtfChart);
+
+mtfChart = new Chart(
+
+document.getElementById("mtfChart"),
+
+{
+
+type:"pie",
+
+data:{
+
+labels:Object.keys(mtfStats),
+
+datasets:[{
+
+data:Object.values(mtfStats),
+
+backgroundColor:[
+
+"#00c853",
+
+"#ff4d4f"
+
+]
+
+}]
+
+},
+
+options:pieOptions()
+
+}
+
+);
+
+// =====================================
+// MONTHLY WINRATE
+// =====================================
+
+destroyChart(monthlyWinChart);
+
+const monthlyWin={};
+
+trades.forEach(trade=>{
+
+if(!trade.tradeDate)return;
+
+const month=trade.tradeDate.substring(0,7);
+
+if(!monthlyWin[month]){
+
+monthlyWin[month]={
+
+wins:0,
+
+total:0
+
+};
+
+}
+
+monthlyWin[month].total++;
+
+if(trade.result==="Win"){
+
+monthlyWin[month].wins++;
 
 }
 
 });
 
+monthlyWinChart=new Chart(
+
+document.getElementById("monthlyWinChart"),
+
+{
+
+type:"line",
+
+data:{
+
+labels:Object.keys(monthlyWin),
+
+datasets:[{
+
+label:"Win Rate",
+
+data:Object.values(monthlyWin).map(x=>
+
+((x.wins/x.total)*100).toFixed(1)
+
+),
+
+borderColor:"#0f8cff",
+
+backgroundColor:"rgba(15,140,255,.15)",
+
+fill:true,
+
+tension:.35
+
+}]
+
+},
+
+options:defaultOptions("%")
+
 }
 
-// Continue
+);
 
-buildPsychologyCharts();
+// =====================================
+// INSIGHTS
+// =====================================
+
+const insights=document.getElementById("analyticsInsights");
+
+if(insights){
+
+let html="";
+
+if(trades.length===0){
+
+html=`
+
+<div class="loading-card">
+
+No trades available.
+
+</div>
+
+`;
+
+}else{
+
+html+=`
+
+<div class="insight-item">
+
+<h4>Total Trades</h4>
+
+<p>${trades.length} trades analysed.</p>
+
+</div>
+
+`;
+
+html+=`
+
+<div class="insight-item">
+
+<h4>Best Pair</h4>
+
+<p>${document.getElementById("bestPair").textContent}</p>
+
+</div>
+
+`;
+
+html+=`
+
+<div class="insight-item">
+
+<h4>Best Entry Model</h4>
+
+<p>${document.getElementById("bestModel").textContent}</p>
+
+</div>
+
+`;
+
+html+=`
+
+<div class="insight-item">
+
+<h4>Best Session</h4>
+
+<p>${document.getElementById("bestSession").textContent}</p>
+
+</div>
+
+`;
+
+}
+
+insights.innerHTML=html;
+
+}
+
+}
+
+// ======================================================
+// DEFAULT OPTIONS
+// ======================================================
+
+function defaultOptions(label){
+
+return{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+
+labels:{
+
+color:"#ffffff"
+
+}
+
+}
+
+},
+
+scales:{
+
+x:{
+
+ticks:{color:"#94a3b8"},
+
+grid:{color:"rgba(255,255,255,.05)"}
+
+},
+
+y:{
+
+ticks:{color:"#94a3b8"},
+
+grid:{color:"rgba(255,255,255,.05)"},
+
+title:{
+
+display:true,
+
+text:label,
+
+color:"#94a3b8"
+
+}
+
+}
+
+}
+
+};
+
+}
+
+// ======================================================
+
+function pieOptions(){
+
+return{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+
+position:"bottom",
+
+labels:{
+
+color:"#ffffff",
+
+padding:18
+
+}
+
+}
+
+}
+
+};
 
 }
