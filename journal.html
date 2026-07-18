@@ -3,256 +3,1125 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    <title>Professional Trading Journal | GTRADES AXIS™</title>
+<title>Trading Journal | GTRADES-AXIS™</title>
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/journal.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="css/style.css">
+
+<link rel="stylesheet"
+href="css/journal.css">
 
 </head>
 
 <body>
 
-
 <div class="dashboard-container">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+<!-- ===========================
+SIDEBAR
+=========================== -->
 
-        <div class="logo">
-            <img src="images/logo.png" alt="Logo">
-            <h2>GTRADES <span>AXIS™</span></h2>
+<aside class="sidebar">
+
+<div class="logo">
+
+<img src="images/logo.png" alt="Logo">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+</div>
+
+<nav>
+
+<a href="dashboard.html">
+
+<i class="fa-solid fa-house"></i>
+
+Dashboard
+
+</a>
+
+<a href="premium-academy.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+<a href="downloads.html">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+<a class="active"
+href="journal.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Trading Journal
+
+</a>
+
+<a href="profile.html">
+
+<i class="fa-solid fa-user"></i>
+
+Profile
+
+</a>
+
+<a href="support.html">
+
+<i class="fa-solid fa-headset"></i>
+
+Support
+
+</a>
+
+</nav>
+
+<button
+id="logoutBtn"
+class="logout-btn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- ===========================
+MAIN
+=========================== -->
+
+<main class="main-content">
+
+<div class="page-header">
+
+<div>
+
+<h1>
+
+Professional Trading Journal
+
+</h1>
+
+<p>
+
+Photon Framework Trade Recorder
+
+</p>
+
+</div>
+
+<a href="journal/history.html"
+class="btn">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+History
+
+</a>
+
+</div>
+
+<!-- ===========================
+STATS
+=========================== -->
+
+<section class="stats-grid">
+
+<div class="stat-card">
+
+<h3>Total Trades</h3>
+
+<h1 id="totalTrades">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Win Rate</h3>
+
+<h1 id="winRate">0%</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Average RR</h3>
+
+<h1 id="averageRR">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Net Profit</h3>
+
+<h1 id="netProfit">$0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Wins</h3>
+
+<h1 id="wins">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Losses</h3>
+
+<h1 id="losses">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Trader Grade</h3>
+
+<h1 id="traderGrade">-</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Consistency</h3>
+
+<h1 id="consistencyScore">0%</h1>
+
+</div>
+
+</section>
+
+<!-- ===========================
+CHARTS
+=========================== -->
+
+<section class="chart-grid">
+
+<div class="chart-card">
+
+<h2>
+
+Equity Curve
+
+</h2>
+
+<canvas id="equityChart"></canvas>
+
+</div>
+
+<div class="chart-card">
+
+<h2>
+
+Monthly Performance
+
+</h2>
+
+<canvas id="monthlyChart"></canvas>
+
+</div>
+
+</section>
+
+<!-- ===========================
+NEW TRADE
+=========================== -->
+
+<section class="journal-card">
+
+<h2>
+
+<i class="fa-solid fa-plus"></i>
+
+New Trade
+
+</h2>
+
+<form id="tradeForm">
+
+<h3>
+
+Trade Information
+
+</h3>
+
+<div class="journal-grid">
+
+<input
+type="date"
+id="tradeDate"
+required>
+
+<input
+type="time"
+id="tradeTime">
+
+<input
+type="text"
+id="pair"
+placeholder="Pair">
+
+<select id="direction">
+
+<option>BUY</option>
+
+<option>SELL</option>
+
+</select>
+
+<input
+type="text"
+id="session"
+placeholder="Session">
+
+<input
+type="text"
+id="broker"
+placeholder="Broker">
+
+<input
+type="text"
+id="account"
+placeholder="Account">
+
+<input
+type="number"
+id="lotSize"
+step="0.01"
+placeholder="Lot Size">
+
+</div>
+<!-- ======================================================
+HTF ANALYSIS (4H - DAILY)
+====================================================== -->
+
+<h3>
+    Higher Timeframe (4H - Daily)
+</h3>
+
+<div class="journal-section">
+
+    <div class="section-title">
+        HTF Swing Structure
+    </div>
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+            <label>Swing Bias</label>
+
+            <select id="htfSwingBias">
+
+                <option>Bullish</option>
+
+                <option>Bearish</option>
+
+            </select>
+
         </div>
 
-        <nav>
+        <div class="form-group">
 
-            <a href="dashboard.html">
-                <i class="fa-solid fa-house"></i>
-                Dashboard
-            </a>
+            <label>Swing Structure</label>
 
-            <a href="premium-academy.html">
-                <i class="fa-solid fa-graduation-cap"></i>
-                Academy
-            </a>
+            <select id="htfSwingStructure">
 
-            <a href="downloads.html">
-                <i class="fa-solid fa-folder-open"></i>
-                Resources
-            </a>
+                <option>HH</option>
 
-            <a class="active" href="journal.html">
-                <i class="fa-solid fa-chart-line"></i>
-                Trading Journal
-            </a>
+                <option>HL</option>
 
-            <a href="profile.html">
-                <i class="fa-solid fa-user"></i>
-                Profile
-            </a>
+                <option>LH</option>
 
-            <a href="support.html">
-                <i class="fa-solid fa-headset"></i>
-                Support
-            </a>
+                <option>LL</option>
 
-        </nav>
-
-        <button id="logoutBtn" class="logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Logout
-        </button>
-
-    </aside>
-
-    <!-- MAIN -->
-
-    <main class="main-content">
-
-        <div class="topbar">
-
-            <div>
-
-                <h1>Professional Trading Journal</h1>
-
-                <p>Track your trading performance like a funded trader.</p>
-
-            </div>
-
-            <a href="journal/new-trade.html" class="btn btn-primary">
-
-                <i class="fa-solid fa-plus"></i>
-
-                New Trade
-
-            </a>
+            </select>
 
         </div>
 
-        <!-- STATS -->
+        <div class="form-group">
 
-        <section class="stats-grid">
+            <label>Swing BOS</label>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-chart-column"></i>
-                <div>
-                    <h2 id="totalTrades">0</h2>
-                    <p>Total Trades</p>
-                </div>
-            </div>
+            <select id="htfSwingBos">
 
-            <div class="stat-card">
-                <i class="fa-solid fa-trophy"></i>
-                <div>
-                    <h2 id="wins">0</h2>
-                    <p>Wins</p>
-                </div>
-            </div>
+                <option>Bullish BOS</option>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-xmark"></i>
-                <div>
-                    <h2 id="losses">0</h2>
-                    <p>Losses</p>
-                </div>
-            </div>
+                <option>Bearish BOS</option>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-percent"></i>
-                <div>
-                    <h2 id="winRate">0%</h2>
-                    <p>Win Rate</p>
-                </div>
-            </div>
+                <option>None</option>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-scale-balanced"></i>
-                <div>
-                    <h2 id="averageRR">0</h2>
-                    <p>Average RR</p>
-                </div>
-            </div>
+            </select>
 
-            <div class="stat-card">
-                <i class="fa-solid fa-sack-dollar"></i>
-                <div>
-                    <h2 id="netProfit">$0</h2>
-                    <p>Net Profit</p>
-                </div>
-            </div>
+        </div>
 
-        </section>
+        <div class="form-group">
 
-        <!-- CHARTS -->
+            <label>Swing POI</label>
 
-        <section class="analytics-grid">
+            <select id="htfSwingPoi">
 
-            <div class="chart-card">
+                <option>Demand</option>
 
-                <h3>Equity Curve</h3>
+                <option>Supply</option>
 
-                <canvas id="equityChart"></canvas>
+                <option>Premium</option>
 
-            </div>
+                <option>Discount</option>
 
-            <div class="chart-card">
+                <option>Equilibrium</option>
 
-                <h3>Monthly Performance</h3>
+            </select>
 
-                <canvas id="monthlyChart"></canvas>
+        </div>
 
-            </div>
+    </div>
 
-        </section>
+</div>
 
-        <!-- QUICK STATS -->
+<div class="journal-section">
 
-        <section class="ai-review">
+    <div class="section-title">
 
-            <div class="review-card">
+        HTF Internal Structure
 
-                <h3>Best Pair</h3>
+    </div>
 
-                <h1 id="bestPair">-</h1>
+    <div class="journal-grid">
 
-            </div>
+        <div class="form-group">
 
-            <div class="review-card">
+            <label>Internal Bias</label>
 
-                <h3>Worst Pair</h3>
+            <select id="htfInternalBias">
 
-                <h1 id="worstPair">-</h1>
+                <option>Bullish</option>
 
-            </div>
+                <option>Bearish</option>
 
-            <div class="review-card">
+            </select>
 
-                <h3>Best Session</h3>
+        </div>
 
-                <h1 id="bestSession">-</h1>
+        <div class="form-group">
 
-            </div>
+            <label>Internal Structure</label>
 
-            <div class="review-card">
+            <select id="htfInternalStructure">
 
-                <h3>Current Streak</h3>
+                <option>Bullish BOS</option>
 
-                <h1 id="winStreak">0</h1>
+                <option>Bearish BOS</option>
 
-            </div>
+                <option>Bullish CHOCH</option>
 
-        </section>
+                <option>Bearish CHOCH</option>
 
-        <!-- RECENT TRADES -->
+            </select>
 
-        <section class="latest-card">
+        </div>
 
-            <div class="card-header">
+        <div class="form-group">
 
-                <h2>
+            <label>Internal POI</label>
 
-                    <i class="fa-solid fa-clock-rotate-left"></i>
+            <select id="htfInternalPoi">
 
-                    Recent Trades
+                <option>Demand</option>
 
-                </h2>
+                <option>Supply</option>
 
-                <a href="journal/history.html" class="btn btn-secondary">
+                <option>Premium</option>
 
-                    View All
+                <option>Discount</option>
 
-                </a>
+                <option>Equilibrium</option>
 
-            </div>
+            </select>
 
-            <div id="recentTrades">
+        </div>
 
-                <div class="loading-card">
+    </div>
 
-                    No trades recorded yet.
+</div>
 
-                </div>
+<!-- ======================================================
+MTF ANALYSIS (15M - 1H)
+====================================================== -->
 
-            </div>
+<h3>
 
-        </section>
+Medium Timeframe (15M - 1H)
 
-    </main>
+</h3>
+
+<div class="journal-section">
+
+    <div class="section-title">
+
+        MTF Swing Structure
+
+    </div>
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+
+            <label>Swing Bias</label>
+
+            <select id="mtfSwingBias">
+
+                <option>Bullish</option>
+
+                <option>Bearish</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Swing Structure</label>
+
+            <select id="mtfSwingStructure">
+
+                <option>HH</option>
+
+                <option>HL</option>
+
+                <option>LH</option>
+
+                <option>LL</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Swing BOS</label>
+
+            <select id="mtfSwingBos">
+
+                <option>Bullish BOS</option>
+
+                <option>Bearish BOS</option>
+
+                <option>None</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Swing POI</label>
+
+            <select id="mtfSwingPoi">
+
+                <option>Demand</option>
+
+                <option>Supply</option>
+
+                <option>Premium</option>
+
+                <option>Discount</option>
+
+                <option>Equilibrium</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="journal-section">
+
+    <div class="section-title">
+
+        MTF Internal Structure
+
+    </div>
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+
+            <label>Internal Bias</label>
+
+            <select id="mtfInternalBias">
+
+                <option>Bullish</option>
+
+                <option>Bearish</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Internal Structure</label>
+
+            <select id="mtfInternalStructure">
+
+                <option>Bullish BOS</option>
+
+                <option>Bearish BOS</option>
+
+                <option>Bullish CHOCH</option>
+
+                <option>Bearish CHOCH</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Internal POI</label>
+
+            <select id="mtfInternalPoi">
+
+                <option>Demand</option>
+
+                <option>Supply</option>
+
+                <option>Premium</option>
+
+                <option>Discount</option>
+
+                <option>Equilibrium</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ======================================================
+LTF ENTRY (1M - 5M)
+====================================================== -->
+
+<h3>
+
+Lower Timeframe Entry (1M - 5M)
+
+</h3>
+
+<div class="journal-section">
+
+    <div class="section-title">
+
+        Market Structure
+
+    </div>
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+
+            <label>Entry Bias</label>
+
+            <select id="ltfBias">
+
+                <option>Bullish</option>
+
+                <option>Bearish</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Market Shift</label>
+
+            <select id="ltfShift">
+
+                <option>Bullish BOS</option>
+
+                <option>Bearish BOS</option>
+
+                <option>Bullish CHOCH</option>
+
+                <option>Bearish CHOCH</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Liquidity</label>
+
+            <select id="ltfLiquidity">
+
+                <option>Liquidity Sweep</option>
+
+                <option>Internal Liquidity</option>
+
+                <option>External Liquidity</option>
+
+                <option>Equal Highs</option>
+
+                <option>Equal Lows</option>
+
+                <option>None</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>POI</label>
+
+            <select id="ltfPoi">
+
+                <option>Demand</option>
+
+                <option>Supply</option>
+
+                <option>Refined POI</option>
+
+                <option>Extreme POI</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+ENTRY MODEL
+====================================================== -->
+
+<div class="journal-section">
+
+    <div class="section-title">
+
+        Photon Entry Model
+
+    </div>
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+
+            <label>Entry Model</label>
+
+            <select id="entryModel">
+
+                <option>LC-2A</option>
+
+                <option>LC-1</option>
+
+                <option>LTF RE</option>
+
+                <option>MTF RE</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Entry Confirmation</label>
+
+            <select id="entryConfirmation">
+
+                <option>Photon Confirmation</option>
+
+                <option>BOS Confirmation</option>
+
+                <option>CHOCH Confirmation</option>
+
+                <option>Mitigation</option>
+
+                <option>Sweep</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Execution Quality</label>
+
+            <select id="executionQuality">
+
+                <option>A+</option>
+
+                <option>A</option>
+
+                <option>B</option>
+
+                <option>C</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Trade Valid?</label>
+
+            <select id="tradeValid">
+
+                <option>Yes</option>
+
+                <option>No</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+CONFLUENCES
+====================================================== -->
+
+<h3>
+
+Trade Confluences
+
+</h3>
+
+<div class="journal-section">
+
+    <div class="chips-grid">
+
+        <label><input type="checkbox" id="confHTFSwing"> HTF Swing Alignment</label>
+
+        <label><input type="checkbox" id="confHTFInternal"> HTF Internal Alignment</label>
+
+        <label><input type="checkbox" id="confMTFSwing"> MTF Swing Alignment</label>
+
+        <label><input type="checkbox" id="confMTFInternal"> MTF Internal Alignment</label>
+
+        <label><input type="checkbox" id="confHTFDemand"> HTF Demand</label>
+
+        <label><input type="checkbox" id="confHTFSupply"> HTF Supply</label>
+
+        <label><input type="checkbox" id="confMTFDemand"> MTF Demand</label>
+
+        <label><input type="checkbox" id="confMTFSupply"> MTF Supply</label>
+
+        <label><input type="checkbox" id="confPremium"> Premium</label>
+
+        <label><input type="checkbox" id="confDiscount"> Discount</label>
+
+        <label><input type="checkbox" id="confSweep"> Liquidity Sweep</label>
+
+        <label><input type="checkbox" id="confChoch"> CHOCH</label>
+
+        <label><input type="checkbox" id="confBos"> BOS</label>
+
+        <label><input type="checkbox" id="confMitigation"> Mitigation</label>
+
+        <label><input type="checkbox" id="confRefined"> Refined POI</label>
+
+        <label><input type="checkbox" id="confExtreme"> Extreme POI</label>
+
+    </div>
+
+</div>
+<!-- ======================================================
+RISK MANAGEMENT
+====================================================== -->
+
+<h3>Risk Management</h3>
+
+<div class="journal-section">
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+            <label>Entry Price</label>
+            <input type="number" step="0.00001" id="entryPrice">
+        </div>
+
+        <div class="form-group">
+            <label>Stop Loss</label>
+            <input type="number" step="0.00001" id="stopLoss">
+        </div>
+
+        <div class="form-group">
+            <label>Take Profit</label>
+            <input type="number" step="0.00001" id="takeProfit">
+        </div>
+
+        <div class="form-group">
+            <label>Risk (%)</label>
+            <input type="number" step="0.01" id="riskPercent">
+        </div>
+
+        <div class="form-group">
+            <label>Lot Size</label>
+            <input type="number" step="0.01" id="lotSize">
+        </div>
+
+        <div class="form-group">
+            <label>Expected RR</label>
+            <input type="number" step="0.10" id="expectedRR">
+        </div>
+
+        <div class="form-group">
+            <label>Actual RR</label>
+            <input type="number" step="0.10" id="actualRR">
+        </div>
+
+        <div class="form-group">
+            <label>Commission</label>
+            <input type="number" step="0.01" id="commission">
+        </div>
+
+        <div class="form-group">
+            <label>Profit / Loss</label>
+            <input type="number" step="0.01" id="profit">
+        </div>
+
+        <div class="form-group">
+            <label>Result</label>
+            <select id="result">
+                <option>Win</option>
+                <option>Loss</option>
+                <option>Break Even</option>
+            </select>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+TRADE MANAGEMENT
+====================================================== -->
+
+<h3>Trade Management</h3>
+
+<div class="journal-section">
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+            <label>Break Even Applied</label>
+            <select id="breakEven">
+                <option>Yes</option>
+                <option>No</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Partial Taken</label>
+            <select id="partials">
+                <option>Yes</option>
+                <option>No</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Trailing Stop</label>
+            <select id="trailing">
+                <option>Yes</option>
+                <option>No</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Management Quality</label>
+            <select id="management">
+                <option>Excellent</option>
+                <option>Good</option>
+                <option>Average</option>
+                <option>Poor</option>
+            </select>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+PSYCHOLOGY
+====================================================== -->
+
+<h3>Psychology</h3>
+
+<div class="journal-section">
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+            <label>Confidence</label>
+            <select id="confidence">
+                <option>Very High</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Discipline</label>
+            <select id="discipline">
+                <option>Excellent</option>
+                <option>Good</option>
+                <option>Average</option>
+                <option>Poor</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Emotion</label>
+            <select id="emotion">
+                <option>Calm</option>
+                <option>Confident</option>
+                <option>Fear</option>
+                <option>Greed</option>
+                <option>FOMO</option>
+                <option>Revenge</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Followed Plan?</label>
+            <select id="followedPlan">
+                <option>Yes</option>
+                <option>No</option>
+            </select>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+TRADE REVIEW
+====================================================== -->
+
+<h3>Trade Review</h3>
+
+<div class="journal-section">
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+            <label>What Went Well?</label>
+            <textarea id="strengths"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Mistakes</label>
+            <textarea id="mistakes"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Lesson Learned</label>
+            <textarea id="lesson"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Improvement</label>
+            <textarea id="improvement"></textarea>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+SCREENSHOTS
+====================================================== -->
+
+<h3>Screenshots</h3>
+
+<div class="journal-section">
+
+    <div class="journal-grid">
+
+        <div class="form-group">
+            <label>Before Entry</label>
+            <input type="file" id="beforeImage" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>During Trade</label>
+            <input type="file" id="duringImage" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>After Trade</label>
+            <input type="file" id="afterImage" accept="image/*">
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+SAVE
+====================================================== -->
+
+<div class="save-container">
+
+    <button type="submit" class="btn btn-primary">
+
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Save Trade
+
+    </button>
+
+</div>
+
+</form>
+
+</main>
 
 </div>
 
@@ -261,5 +1130,5 @@
 <script type="module" src="js/journal.js"></script>
 
 </body>
-</body>
+
 </html>
