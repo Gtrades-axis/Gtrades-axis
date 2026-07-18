@@ -1,889 +1,639 @@
-/* ==========================================================
-GTRADES-AXIS™ JOURNAL
-PART 1
-CORE LAYOUT
-========================================================== */
+<!DOCTYPE html>
+<html lang="en">
 
-:root{
+<head>
 
-    --bg:#0b1120;
-    --card:#121b2c;
-    --card2:#182338;
+<meta charset="UTF-8">
 
-    --border:rgba(255,255,255,.06);
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    --primary:#1d8fff;
-    --primary-hover:#0c78ef;
+<title>Trading Journal | GTRADES-AXIS™</title>
 
-    --text:#ffffff;
-    --muted:#9fb3c8;
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
 
-    --radius:16px;
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
 
-}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
 
-/* ========================================================== */
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-.main-content{
+<link rel="stylesheet"
+href="css/style.css">
 
-    flex:1;
+<link rel="stylesheet"
+href="css/journal.css">
 
-    padding:30px;
+</head>
 
-    background:var(--bg);
+<body>
 
-    min-height:100vh;
+<div class="dashboard-container">
 
-    overflow-y:auto;
+<!-- ===========================
+SIDEBAR
+=========================== -->
 
-}
+<aside class="sidebar">
 
-/* ==========================================================
-PAGE HEADER
-========================================================== */
+<div class="logo">
 
-.page-header{
+<img src="images/logo.png" alt="Logo">
 
-    display:flex;
+<h2>
 
-    justify-content:space-between;
+GTRADES
 
-    align-items:center;
+<span>AXIS™</span>
 
-    margin-bottom:28px;
+</h2>
 
-}
+</div>
 
-.page-header h1{
+<nav>
 
-    font-size:32px;
+<a href="dashboard.html">
 
-    font-weight:700;
+<i class="fa-solid fa-house"></i>
 
-    color:var(--text);
+Dashboard
 
-}
+</a>
 
-.page-header p{
+<a href="premium-academy.html">
 
-    color:var(--muted);
+<i class="fa-solid fa-graduation-cap"></i>
 
-    margin-top:6px;
+Academy
 
-    font-size:15px;
+</a>
 
-}
+<a href="downloads.html">
 
-/* ==========================================================
-BUTTONS
-========================================================== */
+<i class="fa-solid fa-folder-open"></i>
 
-.btn{
+Resources
 
-    display:inline-flex;
+</a>
 
-    align-items:center;
+<a class="active"
+href="journal.html">
 
-    justify-content:center;
+<i class="fa-solid fa-chart-line"></i>
 
-    gap:10px;
+Trading Journal
 
-    padding:12px 22px;
+</a>
 
-    background:var(--primary);
+<a href="profile.html">
 
-    color:white;
+<i class="fa-solid fa-user"></i>
 
-    border:none;
+Profile
 
-    border-radius:10px;
+</a>
 
-    font-weight:600;
+<a href="support.html">
 
-    cursor:pointer;
+<i class="fa-solid fa-headset"></i>
 
-    text-decoration:none;
+Support
 
-    transition:.25s;
+</a>
 
-}
+</nav>
 
-.btn:hover{
+<button
+id="logoutBtn"
+class="logout-btn">
 
-    background:var(--primary-hover);
+<i class="fa-solid fa-right-from-bracket"></i>
 
-}
+Logout
 
-/* ==========================================================
-DASHBOARD STATS
-========================================================== */
+</button>
 
-.stats-grid{
+</aside>
 
-    display:grid;
+<!-- ===========================
+MAIN
+=========================== -->
 
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+<main class="main-content">
 
-    gap:18px;
+<div class="page-header">
 
-    margin-bottom:28px;
+<div>
 
-}
+<h1>
 
-.stat-card{
+Professional Trading Journal
 
-    background:var(--card);
+</h1>
 
-    border:1px solid var(--border);
+<p>
 
-    border-radius:var(--radius);
+Photon Framework Trade Recorder
 
-    padding:22px;
+</p>
 
-    transition:.25s;
+</div>
 
-}
+<a href="journal/history.html"
+class="btn">
 
-.stat-card:hover{
+<i class="fa-solid fa-clock-rotate-left"></i>
 
-    transform:translateY(-3px);
+History
 
-}
+</a>
 
-.stat-card h3{
+</div>
 
-    color:var(--muted);
+<!-- ===========================
+STATS
+=========================== -->
 
-    font-size:14px;
+<section class="stats-grid">
 
-    font-weight:500;
+<div class="stat-card">
 
-    margin-bottom:10px;
+<h3>Total Trades</h3>
 
-}
+<h1 id="totalTrades">0</h1>
 
-.stat-card h1{
+</div>
 
-    color:white;
+<div class="stat-card">
 
-    font-size:34px;
+<h3>Win Rate</h3>
 
-    font-weight:700;
+<h1 id="winRate">0%</h1>
 
-}
+</div>
 
-/* ==========================================================
+<div class="stat-card">
+
+<h3>Average RR</h3>
+
+<h1 id="averageRR">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Net Profit</h3>
+
+<h1 id="netProfit">$0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Wins</h3>
+
+<h1 id="wins">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Losses</h3>
+
+<h1 id="losses">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Trader Grade</h3>
+
+<h1 id="traderGrade">-</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Consistency</h3>
+
+<h1 id="consistencyScore">0%</h1>
+
+</div>
+
+</section>
+
+<!-- ===========================
 CHARTS
-========================================================== */
+=========================== -->
 
-.chart-grid{
+<section class="chart-grid">
 
-    display:grid;
+<div class="chart-card">
 
-    grid-template-columns:2fr 1fr;
+<h2>
 
-    gap:20px;
+Equity Curve
 
-    margin-bottom:30px;
+</h2>
 
-}
+<canvas id="equityChart"></canvas>
 
-.chart-card{
+</div>
 
-    background:var(--card);
+<div class="chart-card">
 
-    border:1px solid var(--border);
+<h2>
 
-    border-radius:var(--radius);
+Monthly Performance
 
-    padding:22px;
+</h2>
 
-}
+<canvas id="monthlyChart"></canvas>
 
-.chart-card h2{
+</div>
 
-    font-size:18px;
+</section>
 
-    margin-bottom:18px;
+<!-- ===========================
+NEW TRADE
+=========================== -->
 
-    color:white;
+<section class="journal-card">
 
-}
+<h2>
 
-.chart-card canvas{
+<i class="fa-solid fa-plus"></i>
 
-    width:100% !important;
+New Trade
 
-    height:320px !important;
+</h2>
 
-}
+<form id="tradeForm">
 
-/* ==========================================================
-RESPONSIVE
-========================================================== */
+<h3>
 
-@media(max-width:1000px){
+Trade Information
 
-.chart-grid{
+</h3>
 
-grid-template-columns:1fr;
+<div class="journal-grid">
 
-}
+<input
+type="date"
+id="tradeDate"
+required>
 
-}
+<input
+type="time"
+id="tradeTime">
 
-@media(max-width:768px){
+<input
+type="text"
+id="pair"
+placeholder="Pair">
 
-.main-content{
+<select id="direction">
 
-padding:18px;
+<option>BUY</option>
 
-}
+<option>SELL</option>
 
-.page-header{
+</select>
 
-flex-direction:column;
+<input
+type="text"
+id="session"
+placeholder="Session">
 
-align-items:flex-start;
+<input
+type="text"
+id="broker"
+placeholder="Broker">
 
-gap:15px;
+<input
+type="text"
+id="account"
+placeholder="Account">
 
-}
+<input
+type="number"
+id="lotSize"
+step="0.01"
+placeholder="Lot Size">
 
-}
-/* ==========================================================
-JOURNAL FORM
-PART 2
-========================================================== */
+</div>
+<!-- ======================================================
+HTF ANALYSIS (4H - DAILY)
+====================================================== -->
 
-.journal-card{
+<h3>
+    Higher Timeframe (4H - Daily)
+</h3>
 
-    background:var(--card);
+<div class="journal-section">
 
-    border:1px solid var(--border);
+    <div class="section-title">
+        HTF Swing Structure
+    </div>
 
-    border-radius:var(--radius);
+    <div class="journal-grid">
 
-    padding:28px;
+        <div class="form-group">
+            <label>Swing Bias</label>
 
-    margin-bottom:28px;
+            <select id="htfSwingBias">
 
-}
+                <option>Bullish</option>
 
-.journal-card h2{
+                <option>Bearish</option>
 
-    font-size:24px;
+            </select>
 
-    margin-bottom:25px;
+        </div>
 
-    color:white;
+        <div class="form-group">
 
-    display:flex;
+            <label>Swing Structure</label>
 
-    align-items:center;
+            <select id="htfSwingStructure">
 
-    gap:10px;
+                <option>HH</option>
 
-}
+                <option>HL</option>
 
-/* ==========================================================
-SECTION TITLES
-========================================================== */
+                <option>LH</option>
 
-.journal-card h3{
+                <option>LL</option>
 
-    margin-top:28px;
+            </select>
 
-    margin-bottom:18px;
+        </div>
 
-    color:#49a5ff;
+        <div class="form-group">
 
-    font-size:18px;
+            <label>Swing BOS</label>
 
-    font-weight:600;
+            <select id="htfSwingBos">
 
-    border-left:4px solid var(--primary);
+                <option>Bullish BOS</option>
 
-    padding-left:12px;
+                <option>Bearish BOS</option>
 
-}
+                <option>None</option>
 
-.section-title{
+            </select>
 
-    color:#49a5ff;
+        </div>
 
-    font-size:16px;
+        <div class="form-group">
 
-    font-weight:600;
+            <label>Swing POI</label>
 
-    margin-bottom:15px;
+            <select id="htfSwingPoi">
 
-}
+                <option>Demand</option>
 
-/* ==========================================================
-SECTION BOXES
-========================================================== */
+                <option>Supply</option>
 
-.journal-section{
+                <option>Premium</option>
 
-    background:var(--card2);
+                <option>Discount</option>
 
-    border:1px solid rgba(255,255,255,.04);
+                <option>Equilibrium</option>
 
-    border-radius:14px;
+            </select>
 
-    padding:20px;
+        </div>
 
-    margin-bottom:20px;
+    </div>
 
-}
+</div>
 
-/* ==========================================================
-GRID
-========================================================== */
+<div class="journal-section">
 
-.journal-grid{
+    <div class="section-title">
 
-    display:grid;
+        HTF Internal Structure
 
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    </div>
 
-    gap:16px;
+    <div class="journal-grid">
 
-}
+        <div class="form-group">
 
-/* ==========================================================
-FORM GROUP
-========================================================== */
+            <label>Internal Bias</label>
 
-.form-group{
+            <select id="htfInternalBias">
 
-    display:flex;
+                <option>Bullish</option>
 
-    flex-direction:column;
+                <option>Bearish</option>
 
-}
+            </select>
 
-.form-group label{
+        </div>
 
-    color:var(--muted);
+        <div class="form-group">
 
-    font-size:13px;
+            <label>Internal Structure</label>
 
-    margin-bottom:6px;
+            <select id="htfInternalStructure">
 
-    font-weight:500;
+                <option>Bullish BOS</option>
 
-}
+                <option>Bearish BOS</option>
 
-/* ==========================================================
-INPUTS
-========================================================== */
+                <option>Bullish CHOCH</option>
 
-.form-group input,
+                <option>Bearish CHOCH</option>
 
-.form-group select,
+            </select>
 
-.form-group textarea{
+        </div>
 
-    width:100%;
+        <div class="form-group">
 
-    background:#0d1627;
+            <label>Internal POI</label>
 
-    color:white;
+            <select id="htfInternalPoi">
 
-    border:1px solid rgba(255,255,255,.08);
+                <option>Demand</option>
 
-    border-radius:10px;
+                <option>Supply</option>
 
-    padding:12px 14px;
+                <option>Premium</option>
 
-    font-size:14px;
+                <option>Discount</option>
 
-    transition:.25s;
+                <option>Equilibrium</option>
 
-}
+            </select>
 
-.form-group input:focus,
+        </div>
 
-.form-group select:focus,
+    </div>
 
-.form-group textarea:focus{
+</div>
 
-    outline:none;
+<!-- ======================================================
+MTF ANALYSIS (15M - 1H)
+====================================================== -->
 
-    border-color:var(--primary);
+<h3>
 
-    box-shadow:0 0 0 3px rgba(29,143,255,.18);
+Medium Timeframe (15M - 1H)
 
-}
+</h3>
 
-/* ==========================================================
-TEXTAREA
-========================================================== */
+<div class="journal-section">
 
-.form-group textarea{
+    <div class="section-title">
 
-    resize:vertical;
+        MTF Swing Structure
 
-    min-height:90px;
+    </div>
 
-}
+    <div class="journal-grid">
 
-/* ==========================================================
-SELECT
-========================================================== */
+        <div class="form-group">
 
-.form-group select{
+            <label>Swing Bias</label>
 
-    cursor:pointer;
+            <select id="mtfSwingBias">
 
-}
+                <option>Bullish</option>
 
-/* ==========================================================
-INPUT PLACEHOLDER
-========================================================== */
+                <option>Bearish</option>
 
-.form-group input::placeholder,
+            </select>
 
-.form-group textarea::placeholder{
+        </div>
 
-    color:#6d7f96;
+        <div class="form-group">
 
-}
-/* ==========================================================
-CONFLUENCE CHIPS
-PART 3
-========================================================== */
+            <label>Swing Structure</label>
 
-.chips-grid{
+            <select id="mtfSwingStructure">
 
-    display:grid;
+                <option>HH</option>
 
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+                <option>HL</option>
 
-    gap:14px;
+                <option>LH</option>
 
-}
+                <option>LL</option>
 
-.chips-grid label{
+            </select>
 
-    display:flex;
+        </div>
 
-    align-items:center;
+        <div class="form-group">
 
-    gap:10px;
+            <label>Swing BOS</label>
 
-    padding:12px 16px;
+            <select id="mtfSwingBos">
 
-    background:#0d1627;
+                <option>Bullish BOS</option>
 
-    border:1px solid rgba(255,255,255,.08);
+                <option>Bearish BOS</option>
 
-    border-radius:10px;
+                <option>None</option>
 
-    cursor:pointer;
+            </select>
 
-    color:#d8e4f2;
+        </div>
 
-    transition:.25s;
+        <div class="form-group">
 
-    font-size:14px;
+            <label>Swing POI</label>
 
-    font-weight:500;
+            <select id="mtfSwingPoi">
 
-}
+                <option>Demand</option>
 
-.chips-grid label:hover{
+                <option>Supply</option>
 
-    border-color:#1d8fff;
+                <option>Premium</option>
 
-    background:#13213a;
+                <option>Discount</option>
 
-}
+                <option>Equilibrium</option>
 
-.chips-grid input[type="checkbox"]{
+            </select>
 
-    width:18px;
+        </div>
 
-    height:18px;
+    </div>
 
-    accent-color:#1d8fff;
+</div>
 
-}
+<div class="journal-section">
 
-/* ==========================================================
-SAVE BUTTON
-========================================================== */
+    <div class="section-title">
 
-.save-container{
+        MTF Internal Structure
 
-    display:flex;
+    </div>
 
-    justify-content:flex-end;
+    <div class="journal-grid">
 
-    margin-top:30px;
+        <div class="form-group">
 
-}
+            <label>Internal Bias</label>
 
-.save-container .btn{
+            <select id="mtfInternalBias">
 
-    min-width:220px;
+                <option>Bullish</option>
 
-    font-size:16px;
+                <option>Bearish</option>
 
-}
+            </select>
 
-/* ==========================================================
-FILE UPLOAD
-========================================================== */
+        </div>
 
-input[type="file"]{
+        <div class="form-group">
 
-    padding:10px;
+            <label>Internal Structure</label>
 
-    background:#0d1627;
+            <select id="mtfInternalStructure">
 
-    color:#d8e4f2;
+                <option>Bullish BOS</option>
 
-    border-radius:10px;
+                <option>Bearish BOS</option>
 
-    border:1px solid rgba(255,255,255,.08);
+                <option>Bullish CHOCH</option>
 
-}
+                <option>Bearish CHOCH</option>
 
-/* ==========================================================
-SMALL CARDS
-========================================================== */
+            </select>
 
-.review-card{
+        </div>
 
-    background:var(--card);
+        <div class="form-group">
 
-    border:1px solid var(--border);
+            <label>Internal POI</label>
 
-    border-radius:14px;
+            <select id="mtfInternalPoi">
 
-    padding:20px;
+                <option>Demand</option>
 
-}
+                <option>Supply</option>
 
-.review-card h3{
+                <option>Premium</option>
 
-    color:var(--muted);
+                <option>Discount</option>
 
-    font-size:14px;
+                <option>Equilibrium</option>
 
-    margin-bottom:10px;
+            </select>
 
-}
+        </div>
 
-.review-card h2{
+    </div>
 
-    color:#fff;
-
-    font-size:26px;
-
-}
-
-/* ==========================================================
-TABLETS
-========================================================== */
-
-@media(max-width:900px){
-
-    .chips-grid{
-
-        grid-template-columns:1fr 1fr;
-
-    }
-
-}
-
-@media(max-width:600px){
-
-    .chips-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .save-container{
-
-        justify-content:center;
-
-    }
-
-    .save-container .btn{
-
-        width:100%;
-
-    }
-
-}
-/* ==========================================================
-PART 4
-FINAL POLISH
-========================================================== */
-
-/* Smooth scrolling */
-
-html{
-
-    scroll-behavior:smooth;
-
-}
-
-/* ==========================================================
-SECTION SPACING
-========================================================== */
-
-.journal-card{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:22px;
-
-}
-
-.journal-section{
-
-    transition:.25s;
-
-}
-
-.journal-section:hover{
-
-    border-color:rgba(29,143,255,.25);
-
-    box-shadow:0 6px 20px rgba(0,0,0,.20);
-
-}
-
-/* ==========================================================
-HEADINGS
-========================================================== */
-
-h2,h3,h4{
-
-    letter-spacing:.3px;
-
-}
-
-.section-title{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:8px;
-
-    margin-bottom:18px;
-
-}
-
-/* ==========================================================
-INPUT HOVER
-========================================================== */
-
-.form-group input:hover,
-
-.form-group select:hover,
-
-.form-group textarea:hover{
-
-    border-color:#2b95ff;
-
-}
-
-/* ==========================================================
-CUSTOM SCROLLBAR
-========================================================== */
-
-::-webkit-scrollbar{
-
-    width:10px;
-
-}
-
-::-webkit-scrollbar-track{
-
-    background:#09101d;
-
-}
-
-::-webkit-scrollbar-thumb{
-
-    background:#2b95ff;
-
-    border-radius:20px;
-
-}
-
-::-webkit-scrollbar-thumb:hover{
-
-    background:#4ca8ff;
-
-}
-
-/* ==========================================================
-CHART CARD
-========================================================== */
-
-.chart-card{
-
-    transition:.25s;
-
-}
-
-.chart-card:hover{
-
-    transform:translateY(-3px);
-
-}
-
-/* ==========================================================
-STAT CARD
-========================================================== */
-
-.stat-card{
-
-    position:relative;
-
-    overflow:hidden;
-
-}
-
-.stat-card::before{
-
-    content:"";
-
-    position:absolute;
-
-    left:0;
-
-    top:0;
-
-    width:4px;
-
-    height:100%;
-
-    background:#1d8fff;
-
-}
-
-/* ==========================================================
-ANIMATION
-========================================================== */
-
-@keyframes fadeUp{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(15px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
-
-}
-
-.page-header,
-
-.stats-grid,
-
-.chart-grid,
-
-.journal-card{
-
-    animation:fadeUp .45s ease;
-
-}
-
-/* ==========================================================
-SAVE BUTTON
-========================================================== */
-
-.btn-primary{
-
-    box-shadow:0 10px 25px rgba(29,143,255,.25);
-
-}
-
-.btn-primary:hover{
-
-    transform:translateY(-2px);
-
-}
-
-/* ==========================================================
-FORM GRID IMPROVEMENTS
-========================================================== */
-
-.journal-grid{
-
-    align-items:start;
-
-}
-
-.form-group{
-
-    min-width:0;
-
-}
-
-/* ==========================================================
-RESPONSIVE
-========================================================== */
-
-@media(max-width:1200px){
-
-    .stats-grid{
-
-        grid-template-columns:repeat(2,1fr);
-
-    }
-
-}
-
-@media(max-width:768px){
-
-    .stats-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .journal-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .page-header{
-
-        text-align:center;
-
-    }
-
-    .page-header .btn{
-
-        width:100%;
-
-    }
-
-}
-
-/* ==========================================================
-END OF FILE
-========================================================== */
+</div>
