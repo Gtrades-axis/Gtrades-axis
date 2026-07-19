@@ -2,126 +2,264 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | GTRADES-AXIS™</title>
 
-<title>Create Account | GTRADES-AXIS™</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ---- GLOBAL RESET & STYLES ---- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<link rel="stylesheet" href="css/style.css">
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0e17;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+        }
 
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px 32px 36px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-logo {
+            display: block;
+            width: 70px;
+            margin: 0 auto 16px;
+        }
+
+        .login-card h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .login-card h1 span {
+            background: linear-gradient(135deg, #0f8cff, #00c853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-card > p {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        /* ---- FORM ---- */
+        .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #0f8cff;
+            background: rgba(15, 140, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(15, 140, 255, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: #475569;
+        }
+
+        /* ---- BUTTON ---- */
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00c853, #00e676);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 200, 83, 0.35);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ---- LINKS ---- */
+        .login-links {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .login-links a {
+            color: #0f8cff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: #64748b;
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .back-home:hover {
+            color: #94a3b8;
+        }
+
+        /* ---- ERROR / SUCCESS MESSAGES ---- */
+        .msg {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .msg.error {
+            background: rgba(255, 77, 79, 0.15);
+            border: 1px solid rgba(255, 77, 79, 0.25);
+            color: #ff4d4f;
+            display: block;
+        }
+
+        .msg.success {
+            background: rgba(0, 200, 83, 0.15);
+            border: 1px solid rgba(0, 200, 83, 0.25);
+            color: #00c853;
+            display: block;
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px 18px 24px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="login-container">
+    <div class="login-container">
 
-<div class="login-card">
+        <div class="login-card">
 
-<img src="images/logo.png" class="login-logo">
+            <img src="images/logo.png" class="login-logo" alt="GTRADES-AXIS Logo">
 
-<h1>
+            <h1>Create <span>Account</span></h1>
 
-Create Account
+            <p>Join the GTRADES-AXIS Academy</p>
 
-</h1>
+            <!-- Error / Success message placeholders -->
+            <div id="errorMsg" class="msg"></div>
+            <div id="successMsg" class="msg"></div>
 
-<p>
+            <form id="registerForm">
 
-Join the GTRADES-AXIS Academy
+                <div class="input-group">
+                    <i class="fa fa-user"></i>
+                    <input type="text" id="name" placeholder="Full Name" required>
+                </div>
 
-</p>
+                <div class="input-group">
+                    <i class="fa fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email Address" required>
+                </div>
 
-<form id="registerForm">
+                <div class="input-group">
+                    <i class="fa fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password (min. 6 characters)" required>
+                </div>
 
-<div class="input-group">
+                <div class="input-group">
+                    <i class="fa fa-check-circle"></i>
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                </div>
 
-<i class="fa fa-user"></i>
+                <button type="submit" class="login-btn">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
 
-<input
-type="text"
-id="name"
-placeholder="Full Name"
-required>
+            </form>
 
-</div>
+            <div class="login-links">
+                Already have an account? <a href="login.html">Log in</a>
+            </div>
 
-<div class="input-group">
+            <a class="back-home" href="index.html">← Back to Home</a>
 
-<i class="fa fa-envelope"></i>
+        </div>
 
-<input
-type="email"
-id="email"
-placeholder="Email Address"
-required>
+    </div>
 
-</div>
+    <!-- ============================================================
+         SINGLE AUTH SCRIPT – handles registration, login, guard
+         ============================================================ -->
+    <script type="module" src="js/auth.js"></script>
 
-<div class="input-group">
+</body>
 
-<i class="fa fa-lock"></i>
-
-<input
-type="password"
-id="password"
-placeholder="Password"
-required>
-
-</div>
-
-<div class="input-group">
-
-<i class="fa fa-lock"></i>
-
-<input
-type="password"
-id="confirmPassword"
-placeholder="Confirm Password"
-required>
-
-</div>
-
-<button
-type="submit"
-class="login-btn">
-
-Create Account
-
-</button>
-
-</form>
-
-<div class="login-links">
-
-<a href="login.html">
-
-Already have an account?
-
-Login
-
-</a>
-
-</div>
-
-<a
-class="back-home"
-
-href="index.html">
-
-← Back to Home
-
-</a>
-
-</div>
-
-</div>
-<script type="module" src="js/register.js"></script>
+</html>

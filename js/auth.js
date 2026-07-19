@@ -1,5 +1,6 @@
 // ============================================================
 // GTRADES-AXIS™ – COMPLETE AUTH & ROLE GUARD
+// (Includes confirm password check)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -21,27 +22,21 @@ onAuthStateChanged(auth, async (user) => {
     const publicPages = ['index.html', 'login.html', 'register.html'];
 
     if (!user && !publicPages.includes(currentPage)) {
-        // Not logged in → redirect to login
         window.location.href = 'login.html';
         return;
     }
 
     if (user && (currentPage === 'login.html' || currentPage === 'register.html')) {
-        // Already logged in → go to dashboard
         window.location.href = 'dashboard.html';
         return;
     }
 
-    // ============================================================
-    // 2. ROLE-BASED ACCESS (e.g., Academy)
-    // ============================================================
+    // Role-based access for academy
     if (user && currentPage === 'academy.html') {
         try {
             const userDoc = await getDoc(doc(db, "users", user.uid));
             const role = userDoc.exists() ? userDoc.data().role : 'member';
-
             if (role !== 'premium' && role !== 'admin') {
-                // Not premium → redirect to dashboard with message
                 alert('Academy access requires a Premium subscription.');
                 window.location.href = 'dashboard.html';
             }
@@ -53,7 +48,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ============================================================
-// 3. LOGIN FUNCTION
+// 2. LOGIN FUNCTION
 // ============================================================
 
 export async function loginUser(email, password) {
@@ -66,22 +61,19 @@ export async function loginUser(email, password) {
 }
 
 // ============================================================
-// 4. REGISTER FUNCTION (creates user + Firestore profile)
+// 3. REGISTER FUNCTION (creates user + Firestore profile)
 // ============================================================
 
 export async function registerUser(name, email, password) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
-        // Update display name
         await updateProfile(user, { displayName: name });
 
-        // 🔥 CREATE USER PROFILE IN FIRESTORE (with default role)
         await setDoc(doc(db, "users", user.uid), {
             name: name,
             email: email,
-            role: 'member',        // 'member', 'premium', 'admin'
+            role: 'member',
             createdAt: new Date().toISOString(),
             uid: user.uid
         });
@@ -93,7 +85,7 @@ export async function registerUser(name, email, password) {
 }
 
 // ============================================================
-// 5. LOGOUT FUNCTION
+// 4. LOGOUT FUNCTION
 // ============================================================
 
 export async function logoutUser() {
@@ -102,7 +94,7 @@ export async function logoutUser() {
 }
 
 // ============================================================
-// 6. GET CURRENT USER DATA (for dashboard)
+// 5. GET CURRENT USER DATA
 // ============================================================
 
 export async function getCurrentUserData() {
@@ -113,7 +105,7 @@ export async function getCurrentUserData() {
 }
 
 // ============================================================
-// 7. AUTO-BIND FORM HANDLERS (if forms exist on the page)
+// 6. AUTO-BIND FORM HANDLERS
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -152,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- REGISTER FORM ---
+    // --- REGISTER FORM (with confirm password check) ---
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
@@ -160,10 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = document.getElementById('name')?.value.trim();
             const email = document.getElementById('email')?.value.trim();
             const password = document.getElementById('password')?.value;
+            const confirmPassword = document.getElementById('confirmPassword')?.value;
             const errorEl = document.getElementById('errorMsg');
+            const successEl = document.getElementById('successMsg');
             const btn = registerForm.querySelector('button[type="submit"]');
 
-            if (!name || !email || !password) {
+            if (!name || !email || !password || !confirmPassword) {
                 if (errorEl) errorEl.textContent = 'Please fill in all fields.';
                 return;
             }
@@ -171,18 +165,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (errorEl) errorEl.textContent = 'Password must be at least 6 characters.';
                 return;
             }
+            if (password !== confirmPassword) {
+                if (errorEl) errorEl.textContent = 'Passwords do not match.';
+                return;
+            }
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
             if (errorEl) errorEl.textContent = '';
+            if (successEl) successEl.textContent = '';
 
             const result = await registerUser(name, email, password);
             if (result.success) {
-                // Redirect handled by onAuthStateChanged
+                if (successEl) successEl.textContent = 'Account created! Redirecting...';
+                setTimeout(() => window.location.href = 'dashboard.html', 1200);
             } else {
                 let msg = 'Registration failed. Please try again.';
                 if (result.code === 'auth/email-already-in-use') msg = 'Email already registered. Please log in.';
                 else if (result.code === 'auth/invalid-email') msg = 'Invalid email address.';
+                else if (result.code === 'auth/network-request-failed') msg = 'Network error. Check your internet connection.';
                 if (errorEl) errorEl.textContent = msg;
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
