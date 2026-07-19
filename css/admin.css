@@ -637,7 +637,7 @@ transition:.25s;
 
 .members-table tbody tr:hover{
 
-background:#F5F9FF;
+background:#cdd0d4;
 
 }
 
@@ -2255,7 +2255,7 @@ background:#0A84FF;
 body {
     background: #0a0e17;
     font-family: 'Poppins', sans-serif;
-    color: #e2e8f0;
+    color: #18273b;
 }
 
 .admin-container {
