@@ -993,7 +993,15 @@ SCRIPTS
 <script type="module" src="js/admin/members.js"></script>
 
 <script type="module" src="js/admin/resources.js"></script>
+<script type="module">
+    import { auth } from "../js/firebase.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
+    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "login.html";
+    });
+</script>
 </body>
 
 </html>
