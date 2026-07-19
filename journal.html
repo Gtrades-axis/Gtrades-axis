@@ -403,6 +403,51 @@ href="css/journal.css">
     color: #0f8cff;
 }
 
+/* --- Sidebar Navigation Improvements --- */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px;
+    gap: 6px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar nav a i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.sidebar nav a:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+}
+
+.sidebar nav a.active {
+    background: rgba(15, 140, 255, 0.12);
+    color: #0f8cff;
+    border-left: 3px solid #0f8cff;
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
     .journal-card {
@@ -441,6 +486,14 @@ href="css/journal.css">
         width: 100%;
         justify-content: center;
     }
+
+    .sidebar {
+        padding: 12px 10px;
+    }
+    .sidebar nav a {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -459,6 +512,12 @@ href="css/journal.css">
     
     .stat-card h3 {
         font-size: 0.55rem;
+    }
+
+    .sidebar nav a {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        gap: 10px;
     }
 }
 
@@ -488,12 +547,6 @@ input[type="time"]:focus {
     box-shadow: 0 0 20px rgba(15, 140, 255, 0.08);
 }
 
-/* --- Sidebar active state enhancement --- */
-.sidebar nav a.active {
-    background: rgba(15, 140, 255, 0.12);
-    border-left: 3px solid #0f8cff;
-}
-
 /* --- Logo enhancement --- */
 .logo h2 span {
     background: linear-gradient(135deg, #0f8cff, #00c853);
@@ -520,7 +573,7 @@ input[type="time"]:focus {
 <div class="dashboard-container">
 
 <!-- ======================================================
-SIDEBAR
+SIDEBAR (Logout button removed)
 ====================================================== -->
 
 <aside class="sidebar">
@@ -609,15 +662,7 @@ Support
 
 </nav>
 
-<button
-id="logoutBtn"
-class="logout-btn">
-
-<i class="fa-solid fa-right-from-bracket"></i>
-
-Logout
-
-</button>
+<!-- Logout button removed as requested -->
 
 </aside>
 
