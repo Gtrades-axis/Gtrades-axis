@@ -242,7 +242,14 @@ suspendBtn.addEventListener("click", async () => {
 deleteBtn.addEventListener("click", async () => {
     if (!selectedUser) return;
     if (!confirm("Delete this member permanently?\n\nThis cannot be undone.")) return;
-    await deleteDoc(doc(db, "users", selectedUser.id));
-    alert("Member Deleted.");
-    modal.style.display = "none";
+    try {
+        await deleteDoc(doc(db, "users", selectedUser.id));
+        alert("Member Deleted.");
+        modal.style.display = "none";
+        // Optionally refresh the table
+        loadMembersRealtime(); // or refreshDashboard()
+    } catch (error) {
+        console.error("Delete error:", error);
+        alert("Failed to delete: " + error.message);
+    }
 });
