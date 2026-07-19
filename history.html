@@ -22,6 +22,74 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 <link rel="stylesheet" href="css/history.css">
 
+<style>
+/* ============================================
+   SIDEBAR - TIGHT SPACING (matching Journal)
+   ============================================ */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 4px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar nav a i {
+    width: 18px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.sidebar nav a:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+}
+
+.sidebar nav a.active {
+    background: rgba(15, 140, 255, 0.12);
+    color: #0f8cff;
+    border-left: 3px solid #0f8cff;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        padding: 10px 8px;
+    }
+    .sidebar nav a {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar nav a {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        gap: 8px;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -29,7 +97,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 <div class="dashboard-container">
 
 <!-- ======================================================
-SIDEBAR
+SIDEBAR - Removed: Academy, Resources, Profile, Support, Logout
 ====================================================== -->
 
 <aside class="sidebar">
@@ -58,22 +126,6 @@ Dashboard
 
 </a>
 
-<a href="premium-academy.html">
-
-<i class="fa-solid fa-graduation-cap"></i>
-
-Academy
-
-</a>
-
-<a href="downloads.html">
-
-<i class="fa-solid fa-folder-open"></i>
-
-Resources
-
-</a>
-
 <a href="journal.html">
 
 <i class="fa-solid fa-book"></i>
@@ -98,31 +150,9 @@ History
 
 </a>
 
-<a href="profile.html">
-
-<i class="fa-solid fa-user"></i>
-
-Profile
-
-</a>
-
-<a href="support.html">
-
-<i class="fa-solid fa-headset"></i>
-
-Support
-
-</a>
-
 </nav>
 
-<button id="logoutBtn" class="logout-btn">
-
-<i class="fa-solid fa-right-from-bracket"></i>
-
-Logout
-
-</button>
+<!-- Logout button removed -->
 
 </aside>
 
@@ -150,6 +180,17 @@ Review every trade you've taken.
 
 </div>
 
+<div class="header-actions">
+
+<!-- BACK BUTTON ADDED -->
+<a href="#" onclick="history.back(); return false;" class="btn" title="Go Back">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Back
+
+</a>
+
 <a href="journal.html" class="btn">
 
 <i class="fa-solid fa-plus"></i>
@@ -157,6 +198,8 @@ Review every trade you've taken.
 New Trade
 
 </a>
+
+</div>
 
 </div>
 
