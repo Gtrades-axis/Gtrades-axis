@@ -2,125 +2,337 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | GTRADES-AXIS™</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-<title>Login | GTRADES-AXIS™</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0e17;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+        }
 
-<link rel="stylesheet" href="css/style.css">
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px 32px 36px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        .login-logo {
+            display: block;
+            width: 70px;
+            margin: 0 auto 16px;
+        }
 
+        .login-card h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .login-card h1 span {
+            background: linear-gradient(135deg, #0f8cff, #00c853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-card > p {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #0f8cff;
+            background: rgba(15, 140, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(15, 140, 255, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: #475569;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0f8cff, #0077e6);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(15, 140, 255, 0.35);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-links {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .login-links a {
+            color: #0f8cff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: #64748b;
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .back-home:hover {
+            color: #94a3b8;
+        }
+
+        .msg {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .msg.error {
+            background: rgba(255, 77, 79, 0.15);
+            border: 1px solid rgba(255, 77, 79, 0.25);
+            color: #ff4d4f;
+            display: block;
+        }
+
+        .msg.success {
+            background: rgba(0, 200, 83, 0.15);
+            border: 1px solid rgba(0, 200, 83, 0.25);
+            color: #00c853;
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px 18px 24px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="login-container">
+    <div class="login-container">
 
-<div class="login-card">
+        <div class="login-card">
 
-<img src="images/logo.png" class="login-logo">
+            <img src="images/logo.png" class="login-logo" alt="GTRADES-AXIS Logo">
 
-<h1>
+            <h1>Welcome <span>Back</span></h1>
 
-Welcome Back
+            <p>Log in to your trading dashboard</p>
 
-</h1>
+            <div id="errorMsg" class="msg"></div>
+            <div id="successMsg" class="msg"></div>
 
-<p>
+            <form id="loginForm">
 
-Login to access your Academy Resources
+                <div class="input-group">
+                    <i class="fa fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email Address" required>
+                </div>
 
-</p>
+                <div class="input-group">
+                    <i class="fa fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
 
-<form id="loginForm">
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Log In
+                </button>
 
-<div class="input-group">
+            </form>
 
-<i class="fa fa-envelope"></i>
+            <div class="login-links">
+                Don't have an account? <a href="register.html">Create one</a>
+            </div>
 
-<input
-type="email"
-id="email"
-placeholder="Email Address"
-required>
+            <a class="back-home" href="index.html">← Back to Home</a>
 
-</div>
+        </div>
 
-<div class="input-group">
+    </div>
 
-<i class="fa fa-lock"></i>
+    <script type="module">
+        // ------------------------------------------------------------
+        // 1. FIREBASE CONFIG – YOUR REAL CONFIG
+        // ------------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+            authDomain: "gtrades-axis.firebaseapp.com",
+            databaseURL: "https://gtrades-axis-default-rtdb.firebaseio.com",
+            projectId: "gtrades-axis",
+            storageBucket: "gtrades-axis.firebasestorage.app",
+            messagingSenderId: "111456545888",
+            appId: "1:111456545888:web:f0526c142d7ea5e22fe705",
+            measurementId: "G-FGJ8N1DDPD"
+        };
 
-<input
-type="password"
-id="password"
-placeholder="Password"
-required>
+        // ------------------------------------------------------------
+        // 2. IMPORT FIREBASE SDK
+        // ------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-</div>
+        // ------------------------------------------------------------
+        // 3. INITIALIZE
+        // ------------------------------------------------------------
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-<button
-type="submit"
-class="login-btn">
+        // ------------------------------------------------------------
+        // 4. REDIRECT IF ALREADY LOGGED IN
+        // ------------------------------------------------------------
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'dashboard.html';
+            }
+        });
 
-Login
+        // ------------------------------------------------------------
+        // 5. GET DOM ELEMENTS
+        // ------------------------------------------------------------
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const btn = document.getElementById('loginBtn');
+        const errorEl = document.getElementById('errorMsg');
+        const successEl = document.getElementById('successMsg');
 
-</button>
+        // ------------------------------------------------------------
+        // 6. FORM SUBMIT HANDLER
+        // ------------------------------------------------------------
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-</form>
+            errorEl.className = 'msg';
+            successEl.className = 'msg';
+            errorEl.textContent = '';
+            successEl.textContent = '';
 
-<div class="login-links">
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
-<a href="forgot-password.html">
+            if (!email || !password) {
+                errorEl.textContent = 'Please fill in all fields.';
+                errorEl.className = 'msg error';
+                return;
+            }
 
-Forgot Password?
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
 
-</a>
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // Redirect handled by onAuthStateChanged
+            } catch (error) {
+                console.error('Login error:', error);
+                let msg = `Login failed: ${error.code}`;
+                const explanations = {
+                    'auth/user-not-found': 'No account found with this email.',
+                    'auth/wrong-password': 'Incorrect password.',
+                    'auth/too-many-requests': 'Too many failed attempts. Please wait.',
+                    'auth/network-request-failed': 'Network error – check your internet connection.',
+                };
+                if (explanations[error.code]) {
+                    msg += ` – ${explanations[error.code]}`;
+                }
+                errorEl.textContent = msg;
+                errorEl.className = 'msg error';
 
-<a href="register.html">
-
-Create Account
-
-</a>
-
-</div>
-
-<div class="divider">
-
-OR
-
-</div>
-
-<button
-id="googleLogin"
-class="google-btn">
-
-<i class="fab fa-google"></i>
-
-Continue with Google
-
-</button>
-
-<a
-class="back-home"
-
-href="index.html">
-
-← Back to Home
-
-</a>
-
-</div>
-
-</div>
-
-<script type="module" src="js/login.js"></script>
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
+            }
+        });
+    </script>
 
 </body>
+
+</html>
