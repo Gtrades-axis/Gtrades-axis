@@ -47,47 +47,44 @@ let selectedUser = null;
 /* ===========================================
 LOAD MEMBERS
 =========================================== */
+import { db, auth } from "../firebase.js";
+import {
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+    updateDoc,
+    deleteDoc
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-loadMembers();
+// ... (your existing DOM element references)
 
-async function loadMembers(){
+let members = [];
+let filteredMembers = [];
+let selectedUser = null;
 
-    table.innerHTML=`
-
-    <tr>
-
-        <td colspan="6" style="text-align:center;padding:40px;">
-
-            Loading members...
-
-        </td>
-
-    </tr>
-
-    `;
-
-    members=[];
-
-    const snapshot = await getDocs(collection(db,"users"));
-
-    snapshot.forEach(doc=>{
-
-        members.push({
-
-            id:doc.id,
-
-            ...doc.data()
-
+// Wait for auth before loading members
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Optionally check if user is admin
+        getDoc(doc(db, "users", user.uid)).then(docSnap => {
+            if (docSnap.exists() && docSnap.data().role === "admin") {
+                loadMembers();
+            } else {
+                table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">
+                    Access Denied. Admin only.
+                </td></tr>`;
+            }
         });
+    } else {
+        window.location.href = "login.html";
+    }
+});
 
-    });
-
-    filteredMembers=[...members];
-
-    renderMembers();
-
+async function loadMembers() {
+    // ... (the rest of your loadMembers with try/catch)
 }
-
 /* ===========================================
 RENDER TABLE
 =========================================== */
