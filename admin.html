@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GTRADES AXIS™ | Admin Dashboard</title>
+
+<link rel="stylesheet" href="css/admin.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- ==========================
+SIDEBAR
+========================== -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo">
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+</div>
+
+<nav>
+
+<ul>
+
+<li class="active">
+
+<a href="#dashboard">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#members">
+
+<i class="fa-solid fa-users"></i>
+
+Members
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#academy">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+</li>
+
+<li>
+
+<li>
+
+<a href="#resources">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+</a>
+
+</li>
+
+<li>
+
+<a href="#payments">
+
+<i class="fa-solid fa-credit-card"></i>
+
+Payments
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#settings">
+
+<i class="fa-solid fa-gear"></i>
+
+Settings
+
+</a>
+
+</li>
+
+</ul>
+
+</nav>
+
+<button id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- ==========================
+MAIN
+========================== -->
+
+<main class="admin-main">
+
+<header class="admin-header">
+
+    <div>
+
+        <h1>GTRADES-AXIS ADMIN</h1>
+
+        <p>
+            Manage Members • Academy • Resources
+        </p>
+
+    </div>
+
+    <div class="admin-header-right">
+
+        <div id="liveDate"></div>
+
+        
+
+    </div>
+
+</header>
+
+<!-- ==========================
+<section class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-icon blue">
+
+            <i class="fa-solid fa-users"></i>
+
+        </div>
+
+        <div>
+
+            <h2 id="totalMembers">0</h2>
+
+            <p>Total Members</p>
+
+        </div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="stat-icon gold">
+
+            <i class="fa-solid fa-crown"></i>
+
+        </div>
+
+        <div>
+
+            <h2 id="premiumMembers">0</h2>
+
+            <p>Premium Members</p>
+
+        </div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="stat-icon green">
+
+            <i class="fa-solid fa-folder-open"></i>
+
+        </div>
+
+        <div>
+
+            <h2 id="resourceCount">0</h2>
+
+            <p>Resources</p>
+
+        </div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="stat-icon purple">
+
+            <i class="fa-solid fa-graduation-cap"></i>
+
+        </div>
+
+        <div>
+
+            <h2 id="lessonCount">0</h2>
+
+            <p>Academy Lessons</p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!- ==========================
+QUICK ACTIONS
+========================== -->
+
+<section class="quick-actions">
+
+<button>
+
+<i class="fa-solid fa-user-plus"></i>
+
+Add Member
+
+</button>
+
+<button>
+
+<i class="fa-solid fa-folder-plus"></i>
+
+New Resource
+
+</button>
+
+<button>
+
+<i class="fa-solid fa-book-medical"></i>
+
+Add Lesson
+
+</button>
+
+<button>
+
+<i class="fa-solid fa-credit-card"></i>
+
+Payments
+
+</button>
+
+</section>
+
+<!-- ==========================
+DASHBOARD GRID STARTS
+========================== -->
+<div class="dashboard-grid">
+
+    <!-- Quick Actions -->
+
+    <div class="dashboard-card">
+
+        <h2>
+
+            <i class="fa-solid fa-bolt"></i>
+
+            Quick Actions
+
+        </h2>
+
+        <div class="quick-grid">
+
+            <button class="quick-btn" onclick="location.href='#resources'">
+
+                <i class="fa-solid fa-folder-plus"></i>
+
+                Add Resource
+
+            </button>
+
+            <button class="quick-btn" onclick="location.href='#members'">
+
+                <i class="fa-solid fa-users"></i>
+
+                Members
+
+            </button>
+
+            <button class="quick-btn" onclick="location.href='#academy'">
+
+                <i class="fa-solid fa-graduation-cap"></i>
+
+                Academy
+
+            </button>
+
+            <button class="quick-btn">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                Analytics
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Activity Feed -->
+
+    <div class="dashboard-card">
+
+        <h2>
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            Recent Activity
+
+        </h2>
+
+        <div class="activity-feed">
+
+            <div class="activity-item">
+
+                <div class="activity-icon blue">
+
+                    <i class="fa-solid fa-folder-plus"></i>
+
+                </div>
+
+                <div>
+
+                    <h4>System Ready</h4>
+
+                    <p>Waiting for activity...</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<section class="dashboard-grid">
+    <!-- ==========================
+MEMBERS MANAGEMENT
+========================== -->
+
+<div class="dashboard-card large" id="members">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>
+
+                <i class="fa-solid fa-users"></i>
+
+                Members Management
+
+            </h2>
+
+            <p>
+
+                Manage all registered users.
+
+            </p>
+
+        </div>
+
+        <input
+            type="text"
+            id="memberSearch"
+            placeholder="🔍 Search member...">
+
+    </div>
+
+    <div class="table-container">
+
+        <table class="members-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>User</th>
+
+                    <th>Membership</th>
+
+                    <th>Status</th>
+
+                    <th>Payment</th>
+
+                    <th>Joined</th>
+
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="membersTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- ==========================
+RIGHT PANEL
+========================== -->
+
+<div class="right-panel">
+
+<!-- Recent Members -->
+
+<div class="dashboard-card">
+
+<h2>
+
+<i class="fa-solid fa-user-clock"></i>
+
+Recent Members
+
+</h2>
+
+<div id="recentMembers">
+
+<div class="empty-card">
+
+No members yet.
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Latest Resources -->
+
+<div class="dashboard-card">
+
+<h2>
+
+<i class="fa-solid fa-folder-open"></i>
+
+Latest Resources
+
+</h2>
+
+<div id="latestResources">
+
+<div class="empty-card">
+
+<i class="fa-solid fa-folder-open"></i>
+
+<h3>No Resources Yet</h3>
+
+<p>Publish your first resource to make it available to students.</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Quick Statistics -->
+
+<div class="dashboard-card">
+
+<h2>
+
+<i class="fa-solid fa-chart-column"></i>
+
+Platform Overview
+
+</h2>
+
+<div class="overview-list">
+
+<div class="overview-item">
+
+<span>
+
+Premium Members
+
+</span>
+
+<strong id="premiumOverview">
+
+0
+
+</strong>
+
+</div>
+
+<div class="overview-item">
+
+<span>
+
+Pending Approval
+
+</span>
+
+<strong id="pendingOverview">
+
+0
+
+</strong>
+
+</div>
+
+<div class="overview-item">
+
+<span>
+
+Resources
+
+</span>
+
+<strong id="resourceOverview">
+
+0
+
+</strong>
+
+</div>
+
+<div class="overview-item">
+
+<span>
+
+Lessons
+
+</span>
+
+<strong id="lessonOverview">
+
+0
+
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Recent Activity -->
+
+<div class="dashboard-card">
+
+<h2>
+
+<i class="fa-solid fa-bolt"></i>
+
+Recent Activity
+
+</h2>
+
+<div class="activity-feed">
+
+<div class="activity-item">
+
+<div class="activity-icon blue">
+
+<i class="fa-solid fa-user-plus"></i>
+
+</div>
+
+<div>
+
+<h4>
+
+New member registrations
+
+</h4>
+
+<p>
+
+Live updates appear here.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="activity-item">
+
+<div class="activity-icon green">
+
+<i class="fa-solid fa-folder-plus"></i>
+
+</div>
+
+<div>
+
+<h4>
+
+Latest resource uploads
+
+</h4>
+
+<p>
+
+Recent uploads appear here.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="activity-item">
+
+<div class="activity-icon gold">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+</div>
+
+<div>
+
+<h4>
+
+Academy updates
+
+</h4>
+
+<p>
+
+Lesson updates appear here.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ==========================
+RESOURCE MANAGEMENT
+========================== -->
+
+<section class="dashboard-card" id="resources">
+
+<div class="card-header">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resource Manager
+
+</h2>
+
+<p>
+
+Manage all premium resources.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="resource-toolbar">
+
+<input
+type="text"
+id="resourceSearch"
+placeholder="🔍 Search Resources">
+
+<select id="resourceFilter">
+
+<option value="All">All</option>
+
+<option value="PDF">PDF</option>
+
+<option value="Indicator">Indicator</option>
+
+<option value="Journal">Journal</option>
+
+<option value="Strategy">Strategy</option>
+
+<option value="Video">Video</option>
+
+</select>
+
+</div>
+
+<div id="latestResources"></div>
+
+<hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
+<form id="resourceForm">
+
+    <input
+        type="text"
+        id="resourceTitle"
+        placeholder="Resource Title"
+        required>
+
+    <select id="resourceCategory" required>
+
+        <option value="PDF">PDF</option>
+        <option value="Indicator">Indicator</option>
+        <option value="Journal">Journal</option>
+        <option value="Strategy">Strategy</option>
+        <option value="Video">Video</option>
+
+    </select>
+
+    <textarea
+        id="resourceDescription"
+        placeholder="Description"></textarea>
+
+   <div class="file-picker">
+
+ <input type="file" id="resourceFilePicker" hidden>
+
+<input
+    type="text"
+    id="resourceFile"
+    readonly
+    placeholder="Choose a file">
+
+<button
+    type="button"
+    id="chooseFileBtn">
+
+    📁 Choose File
+
+</button>
+
+</div>
+</div>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="premiumOnly">
+
+        Premium Members Only
+
+    </label>
+
+    <button
+        type="submit"
+        class="upload-btn">
+
+        Save Resource
+
+    </button>
+
+</form>
+
+</section>
+<!-- ==========================
+MEMBER MANAGEMENT MODAL
+========================== -->
+
+<div class="member-modal" id="memberModal">
+
+    <div class="member-modal-content">
+
+        <span class="close-modal" id="closeModal">&times;</span>
+
+        <h2>
+
+            <i class="fa-solid fa-user"></i>
+
+            Member Details
+
+        </h2>
+
+        <div class="member-profile">
+
+            <div class="member-avatar" id="memberAvatar">
+
+                U
+
+            </div>
+
+            <div>
+
+                <h3 id="modalName">
+
+                    Member Name
+
+                </h3>
+
+                <p id="modalEmail">
+
+                    member@email.com
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="member-details">
+
+            <div class="detail-box">
+
+                <label>
+
+                    Membership
+
+                </label>
+
+                <span id="modalRole">
+
+                    Free
+
+                </span>
+
+            </div>
+
+            <div class="detail-box">
+
+                <label>
+
+                    Status
+
+                </label>
+
+                <span id="modalStatus">
+
+                    Pending
+
+                </span>
+
+            </div>
+
+            <div class="detail-box">
+
+                <label>
+
+                    Payment
+
+                </label>
+
+                <span id="modalPayment">
+
+                    Unpaid
+
+                </span>
+
+            </div>
+
+            <div class="detail-box">
+
+                <label>
+
+                    Joined
+
+                </label>
+
+                <span id="modalJoined">
+
+                    --
+
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                id="approveBtn"
+                class="approve-btn">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                Approve
+
+            </button>
+
+            <button
+                id="premiumBtn"
+                class="premium-btn">
+
+                <i class="fa-solid fa-crown"></i>
+
+                Premium
+
+            </button>
+
+            <button
+                id="adminBtn"
+                class="admin-btn">
+
+                <i class="fa-solid fa-user-shield"></i>
+
+                Admin
+
+            </button>
+
+            <button
+                id="suspendBtn"
+                class="suspend-btn">
+
+                <i class="fa-solid fa-ban"></i>
+
+                Suspend
+
+            </button>
+
+            <button
+                id="deleteBtn"
+                class="delete-btn">
+
+                <i class="fa-solid fa-trash"></i>
+
+                Delete
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================
+FOOTER
+========================== -->
+
+<footer class="admin-footer">
+
+    <p>
+
+        © 2026 GTRADES AXIS™ |
+
+        Professional Trading Platform
+
+    </p>
+
+</footer>
+
+</main>
+
+<!-- ==========================
+SCRIPTS
+========================== -->
+
+<script type="module" src="js/admin.js"></script>
+
+<script type="module" src="js/admin/members.js"></script>
+
+<script type="module" src="js/admin/resources.js"></script>
+
+</body>
+
+</html>

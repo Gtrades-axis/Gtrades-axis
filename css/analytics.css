@@ -1,0 +1,497 @@
+/* ======================================================
+   GTRADES-AXIS™ ANALYTICS STYLES
+   TIGHT SPACING - FIXED
+   ====================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #0a0e17;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 12px;
+}
+
+/* ======================================================
+   PAGE HEADER - TIGHT
+   ====================================================== */
+
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.analytics-header .header-left h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #0f8cff, #00c853);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.analytics-header .header-left h1 i {
+    -webkit-text-fill-color: #0f8cff;
+    font-size: 1.3rem;
+}
+
+.analytics-header .header-left p {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    -webkit-text-fill-color: #94a3b8;
+    margin-top: 0px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.header-actions .btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(15, 140, 255, 0.12);
+    color: #0f8cff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.header-actions .btn:hover {
+    background: rgba(15, 140, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.header-actions .btn-primary {
+    background: #0f8cff;
+    color: #fff;
+}
+
+.header-actions .btn-primary:hover {
+    background: #0077e6;
+    color: #fff;
+}
+
+/* ======================================================
+   MAIN CONTAINER
+   ====================================================== */
+
+.analytics-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 12px 40px;
+}
+
+/* ======================================================
+   STATS GRID - EXTRA TIGHT
+   ====================================================== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-2px);
+    border-color: rgba(15, 140, 255, 0.25);
+}
+
+.stat-card .stat-label {
+    font-size: 0.55rem;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+}
+
+.stat-card .stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1.2;
+}
+
+.stat-card .stat-value.positive {
+    color: #00c853;
+}
+
+.stat-card .stat-value.negative {
+    color: #ff4d4f;
+}
+
+.stat-card .stat-value.neutral {
+    color: #ffb300;
+}
+
+.stat-card .stat-sub {
+    font-size: 0.6rem;
+    color: #64748b;
+    margin-top: 1px;
+}
+
+/* ======================================================
+   PERFORMANCE CARDS - EXTRA TIGHT
+   ====================================================== */
+
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.perf-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: all 0.3s ease;
+}
+
+.perf-card:hover {
+    border-color: rgba(15, 140, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.perf-card .perf-label {
+    font-size: 0.55rem;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.perf-card .perf-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 1px 0;
+}
+
+.perf-card .perf-sub {
+    font-size: 0.65rem;
+    color: #64748b;
+}
+
+/* ======================================================
+   CHART GRID - EXTRA TIGHT
+   ====================================================== */
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.chart-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 12px 14px 14px;
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    border-color: rgba(15, 140, 255, 0.15);
+}
+
+.chart-card .chart-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chart-card .chart-title i {
+    color: #0f8cff;
+    font-size: 0.9rem;
+}
+
+.chart-card .chart-wrapper {
+    position: relative;
+    height: 180px;
+}
+
+/* ======================================================
+   INSIGHTS - EXTRA TIGHT
+   ====================================================== */
+
+.insights-section {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px 16px 16px;
+    margin-top: 4px;
+}
+
+.insights-section .insights-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.insights-section .insights-title i {
+    color: #ffb300;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 6px;
+}
+
+.insight-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.insight-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.insight-item .insight-label {
+    font-size: 0.5rem;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.insight-item .insight-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-top: 1px;
+}
+
+.insight-item .insight-value.green {
+    color: #00c853;
+}
+.insight-item .insight-value.red {
+    color: #ff4d4f;
+}
+.insight-item .insight-value.gold {
+    color: #ffb300;
+}
+.insight-item .insight-value.blue {
+    color: #0f8cff;
+}
+
+/* ======================================================
+   LOADING / EMPTY STATE
+   ====================================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 30px 16px;
+    color: #94a3b8;
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 2rem;
+    color: #0f8cff;
+    display: block;
+    margin-bottom: 10px;
+    opacity: 0.6;
+}
+
+.empty-state h3 {
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    margin-bottom: 4px;
+}
+
+.empty-state p {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 1024px) {
+    .chart-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 8px;
+    }
+    
+    .analytics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0 8px;
+    }
+
+    .analytics-container {
+        padding: 0 8px 30px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1rem;
+    }
+
+    .stat-card {
+        padding: 8px 10px;
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .chart-card .chart-wrapper {
+        height: 160px;
+    }
+
+    .performance-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .insights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 6px;
+    }
+    
+    .analytics-container {
+        padding: 0 6px 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+
+    .stat-card {
+        padding: 6px 8px;
+        border-radius: 8px;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 0.9rem;
+    }
+    
+    .stat-card .stat-label {
+        font-size: 0.45rem;
+    }
+
+    .performance-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+    }
+    
+    .perf-card {
+        padding: 6px 10px;
+    }
+    
+    .perf-card .perf-value {
+        font-size: 0.9rem;
+    }
+
+    .insights-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+    }
+    
+    .insight-item {
+        padding: 6px 10px;
+    }
+    
+    .insight-item .insight-value {
+        font-size: 0.8rem;
+    }
+
+    .analytics-header .header-left h1 {
+        font-size: 1.1rem;
+    }
+
+    .header-actions .btn {
+        padding: 5px 10px;
+        font-size: 0.65rem;
+    }
+
+    .chart-card {
+        padding: 10px 10px 12px;
+        border-radius: 10px;
+    }
+
+    .chart-card .chart-wrapper {
+        height: 140px;
+    }
+    
+    .chart-card .chart-title {
+        font-size: 0.65rem;
+        margin-bottom: 6px;
+    }
+}
+/* ULTRA TIGHT - Override if needed */
+.stats-grid { gap: 4px; }
+.stat-card { padding: 6px 8px; }
+.stat-card .stat-value { font-size: 0.9rem; }
+.chart-grid { gap: 6px; }
+.chart-card { padding: 8px 10px; }
+.chart-card .chart-wrapper { height: 140px; }
+.insights-grid { gap: 4px; }
+.insight-item { padding: 4px 8px; }
