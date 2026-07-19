@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔥 YOUR REAL CONFIG (copied from Firebase Console)
+// Your real config – I copied from your message
 const firebaseConfig = {
   apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
   authDomain: "gtrades-axis.firebaseapp.com",

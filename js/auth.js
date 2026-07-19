@@ -10,25 +10,25 @@ import {
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ============================================================
-// 1. PAGE GUARD – runs on every page
+// 1. PAGE GUARD – runs once when the page loads
 // ============================================================
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html"];
 
-  // If not logged in and trying to access protected page → redirect to login
+  // If NOT logged in and trying to access a protected page → go to login
   if (!user && !publicPages.includes(currentPage)) {
     window.location.href = "login.html";
     return;
   }
 
-  // If logged in and on public page → redirect to dashboard
+  // If logged in and on a public page → go to dashboard
   if (user && publicPages.includes(currentPage)) {
     window.location.href = "dashboard.html";
     return;
   }
 
-  // (Optional) Role check for academy.html
+  // (Optional) Academy role check
   if (user && currentPage === "academy.html") {
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -45,19 +45,19 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ============================================================
-// 2. LOGIN FUNCTION (used by login form)
+// 2. LOGIN FUNCTION
 // ============================================================
 export async function loginUser(email, password) {
   try {
     await signInWithEmailAndPassword(auth, email, password);
     return { success: true };
   } catch (error) {
-    return { success: false, code: error.code, message: error.message };
+    return { success: false, code: error.code };
   }
 }
 
 // ============================================================
-// 3. REGISTER FUNCTION (used by register form)
+// 3. REGISTER FUNCTION
 // ============================================================
 export async function registerUser(name, email, password) {
   try {
@@ -72,7 +72,7 @@ export async function registerUser(name, email, password) {
     });
     return { success: true };
   } catch (error) {
-    return { success: false, code: error.code, message: error.message };
+    return { success: false, code: error.code };
   }
 }
 
@@ -81,11 +81,11 @@ export async function registerUser(name, email, password) {
 // ============================================================
 export async function logoutUser() {
   await signOut(auth);
-  window.location.href = "login.html";
+  // The guard will automatically redirect to login
 }
 
 // ============================================================
-// 5. AUTO‑BIND FORM HANDLERS (only if forms exist on page)
+// 5. AUTO‑BIND FORM HANDLERS (only if forms exist)
 // ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   // --- Login form ---
@@ -109,19 +109,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const result = await loginUser(email, password);
       if (!result.success) {
-        let msg = "Login failed: " + result.code;
+        let msg = "Login failed.";
         const map = {
-          "auth/user-not-found": "No account found with this email.",
+          "auth/user-not-found": "No account found.",
           "auth/wrong-password": "Incorrect password.",
           "auth/too-many-requests": "Too many attempts. Please wait.",
-          "auth/network-request-failed": "Network error – check your internet.",
+          "auth/network-request-failed": "Network error – check your connection.",
         };
-        if (map[result.code]) msg += " – " + map[result.code];
+        if (map[result.code]) msg = map[result.code];
         if (errorEl) errorEl.textContent = msg;
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
       }
-      // On success, the page guard will redirect.
+      // On success, the guard will redirect.
     });
   }
 
@@ -159,15 +159,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await registerUser(name, email, password);
       if (result.success) {
         if (successEl) successEl.textContent = "Account created! Redirecting...";
-        // Redirect will happen via onAuthStateChanged
+        // Redirect handled by guard
       } else {
-        let msg = "Registration failed: " + result.code;
+        let msg = "Registration failed.";
         const map = {
           "auth/email-already-in-use": "Email already registered.",
           "auth/invalid-email": "Invalid email address.",
-          "auth/network-request-failed": "Network error – check your internet.",
+          "auth/network-request-failed": "Network error – check your connection.",
         };
-        if (map[result.code]) msg += " – " + map[result.code];
+        if (map[result.code]) msg = map[result.code];
         if (errorEl) errorEl.textContent = msg;
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
