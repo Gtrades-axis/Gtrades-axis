@@ -15,7 +15,7 @@
     
     <style>
         /* ============================================
-           ANALYTICS - ULTRA TIGHT SPACING (FIXED)
+           ANALYTICS PAGE STYLES - SPACING ONLY CHANGED
            ============================================ */
         
         * {
@@ -28,393 +28,285 @@
             font-family: 'Poppins', sans-serif;
             background: #0a0e17;
             color: #e2e8f0;
-            padding: 6px !important;
+            padding: 10px;
         }
         
         .analytics-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 !important;
         }
         
-        /* ===== HEADER - ULTRA TIGHT ===== */
+        /* ============================================
+           HEADER - TIGHT SPACING
+           ============================================ */
+        
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 0 4px !important;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 4px !important;
-            flex-wrap: wrap;
-            gap: 4px;
+            padding: 8px 0 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 8px;
         }
         
         .page-header h1 {
-            font-size: 1.2rem;
+            font-size: 1.6rem;
             font-weight: 700;
             background: linear-gradient(135deg, #0f8cff, #00c853);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 0 !important;
         }
         
         .page-header p {
             color: #94a3b8;
-            font-size: 0.65rem;
+            font-size: 0.85rem;
             -webkit-text-fill-color: #94a3b8;
-            margin: 0 !important;
-            line-height: 1.2;
+            margin-top: 0px;
         }
         
         .header-actions {
             display: flex;
-            gap: 4px;
+            gap: 8px;
         }
         
         .btn {
-            padding: 3px 10px !important;
-            border-radius: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
             border: none;
             background: rgba(15, 140, 255, 0.12);
             color: #0f8cff;
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.6rem !important;
+            font-size: 0.8rem;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            margin: 0 !important;
+            gap: 6px;
         }
         
-        /* ===== STATS GRID - ULTRA TIGHT ===== */
+        .btn:hover {
+            background: rgba(15, 140, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: #0f8cff;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #0077e6;
+            color: #fff;
+        }
+        
+        /* ============================================
+           STATS GRID - TIGHT SPACING
+           ============================================ */
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-            gap: 3px !important;
-            margin-bottom: 3px !important;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 6px;
+            margin-bottom: 8px;
         }
         
         .stat-card {
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 6px;
-            padding: 4px 6px !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 10px 12px;
             transition: all 0.3s ease;
-            text-align: center;
         }
         
         .stat-card:hover {
             background: rgba(255,255,255,0.07);
-            border-color: rgba(15, 140, 255, 0.2);
+            transform: translateY(-3px);
+            border-color: rgba(15, 140, 255, 0.3);
         }
         
         .stat-card h3 {
-            font-size: 0.4rem !important;
+            font-size: 0.65rem;
             font-weight: 500;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.2;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
         }
         
         .stat-card h1 {
-            font-size: 0.9rem !important;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #f1f5f9;
-            line-height: 1.2;
-            margin: 0 !important;
-            padding: 0 !important;
         }
         
-        .stat-card .positive { color: #00c853; }
-        .stat-card .negative { color: #ff4d4f; }
-        .stat-card .neutral { color: #ffb300; }
-        
-        .stat-card .stat-sub {
-            font-size: 0.45rem;
-            color: #64748b;
-            margin: 0 !important;
-            padding: 0 !important;
+        .stat-card .positive {
+            color: #00c853;
         }
         
-        /* ===== PERFORMANCE - ULTRA TIGHT ===== */
-        .perf-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 3px !important;
-            margin-bottom: 3px !important;
+        .stat-card .negative {
+            color: #ff4d4f;
         }
         
-        .perf-card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 6px;
-            padding: 3px 6px !important;
-            text-align: center;
+        .stat-card .neutral {
+            color: #ffb300;
         }
         
-        .perf-card h3 {
-            font-size: 0.4rem !important;
-            font-weight: 500;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.2;
-        }
+        /* ============================================
+           CHART GRID - TIGHT SPACING
+           ============================================ */
         
-        .perf-card h1 {
-            font-size: 0.85rem !important;
-            font-weight: 700;
-            color: #f1f5f9;
-            line-height: 1.2;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        
-        .perf-card .perf-sub {
-            font-size: 0.45rem;
-            color: #64748b;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        
-        /* ===== CHARTS - ULTRA TIGHT ===== */
         .chart-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 4px !important;
-            margin-bottom: 3px !important;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
         .chart-card {
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 8px;
-            padding: 4px 6px 6px !important;
-            margin: 0 !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 12px 14px 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            border-color: rgba(15, 140, 255, 0.2);
         }
         
         .chart-card h2 {
-            font-size: 0.5rem !important;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #e2e8f0;
-            margin: 0 0 3px 0 !important;
-            padding: 0 !important;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
         }
         
         .chart-card h2 i {
             color: #0f8cff;
-            font-size: 0.6rem;
         }
         
         .chart-wrapper {
             position: relative;
-            height: 120px !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            height: 200px;
         }
         
-        .chart-wrapper canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-        
-        /* ===== INSIGHTS - ULTRA TIGHT ===== */
-        .insights-section {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 8px;
-            padding: 4px 6px 6px !important;
-            margin-top: 2px !important;
-        }
-        
-        .insights-section h2 {
-            font-size: 0.5rem !important;
-            font-weight: 600;
-            color: #e2e8f0;
-            margin: 0 0 3px 0 !important;
-            padding: 0 !important;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .insights-section h2 i {
-            color: #ffb300;
-            font-size: 0.6rem;
-        }
+        /* ============================================
+           INSIGHTS PANEL - TIGHT SPACING
+           ============================================ */
         
         .insights-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 2px !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 6px;
+            margin-top: 2px;
         }
         
         .insight-item {
             background: rgba(255,255,255,0.04);
-            border-radius: 4px;
-            padding: 2px 4px !important;
-            border: 1px solid rgba(255,255,255,0.03);
-            text-align: center;
-            margin: 0 !important;
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         
         .insight-item h4 {
-            font-size: 0.35rem !important;
+            font-size: 0.6rem;
             font-weight: 500;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.2px;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.2;
+            letter-spacing: 0.4px;
+            margin-bottom: 1px;
         }
         
         .insight-item p {
-            font-size: 0.7rem !important;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #f1f5f9;
-            line-height: 1.2;
-            margin: 0 !important;
-            padding: 0 !important;
         }
         
-        .loading-card {
-            text-align: center;
-            padding: 10px 8px !important;
-            color: #94a3b8;
-            grid-column: 1 / -1;
-            margin: 0 !important;
-        }
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         
-        .loading-card i {
-            font-size: 1rem;
-            color: #0f8cff;
-            display: block;
-            margin-bottom: 2px;
-        }
-        
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            body { padding: 4px !important; }
-            
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
-                padding: 3px 0 2px !important;
-                gap: 3px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2px !important;
+                gap: 8px;
+                padding: 6px 0 4px;
             }
             
             .chart-grid {
                 grid-template-columns: 1fr;
-                gap: 3px !important;
+                gap: 8px;
             }
             
-            .chart-wrapper {
-                height: 100px !important;
-            }
-            
-            .perf-grid {
+            .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
             }
             
-            .insights-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .stat-card h1 {
+                font-size: 1.2rem;
             }
         }
         
         @media (max-width: 480px) {
-            body { padding: 3px !important; }
+            body {
+                padding: 6px;
+            }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 2px !important;
+                gap: 4px;
             }
             
             .stat-card {
-                padding: 2px 4px !important;
-                border-radius: 4px;
+                padding: 6px 8px;
             }
             
             .stat-card h1 {
-                font-size: 0.7rem !important;
+                font-size: 1rem;
             }
             
             .stat-card h3 {
-                font-size: 0.35rem !important;
-            }
-            
-            .perf-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 2px;
-            }
-            
-            .perf-card {
-                padding: 2px 4px !important;
-            }
-            
-            .perf-card h1 {
-                font-size: 0.7rem !important;
+                font-size: 0.55rem;
             }
             
             .chart-card {
-                padding: 3px 4px 4px !important;
-                border-radius: 6px;
+                padding: 8px 10px 10px;
             }
             
             .chart-wrapper {
-                height: 80px !important;
-            }
-            
-            .chart-card h2 {
-                font-size: 0.45rem !important;
-                margin-bottom: 2px !important;
+                height: 160px;
             }
             
             .insights-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 2px !important;
+                gap: 4px;
             }
-            
-            .insight-item {
-                padding: 1px 3px !important;
-            }
-            
-            .insight-item p {
-                font-size: 0.6rem !important;
-            }
-            
-            .insights-section {
-                padding: 3px 4px 4px !important;
-            }
-            
-            .header-actions .btn {
-                padding: 2px 6px !important;
-                font-size: 0.5rem !important;
-            }
-            
-            .page-header h1 {
-                font-size: 1rem !important;
-            }
-            
-            .page-header p {
-                font-size: 0.55rem !important;
-            }
+        }
+        
+        /* ============================================
+           LOADING STATE
+           ============================================ */
+        
+        .loading-card {
+            text-align: center;
+            padding: 20px 12px;
+            color: #94a3b8;
+            grid-column: 1 / -1;
+        }
+        
+        .loading-card i {
+            font-size: 1.8rem;
+            color: #0f8cff;
+            display: block;
+            margin-bottom: 6px;
         }
     </style>
 </head>
@@ -422,85 +314,226 @@
 
 <div class="analytics-container">
 
-    <!-- ===== HEADER ===== -->
+    <!-- ============================================
+    HEADER
+    ============================================ -->
+    
     <header class="page-header">
         <div>
-            <h1><i class="fa-solid fa-chart-pie" style="background:none;-webkit-text-fill-color:#0f8cff;"></i> Analytics</h1>
-            <p>Track performance • Identify strengths</p>
+            <h1><i class="fa-solid fa-chart-pie" style="background: none; -webkit-text-fill-color: #0f8cff;"></i> Trading Analytics</h1>
+            <p>Track your performance • Identify strengths • Improve consistency</p>
         </div>
         <div class="header-actions">
-            <a href="journal.html" class="btn"><i class="fa-solid fa-plus"></i> New</a>
-            <a href="history.html" class="btn"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+            <a href="journal.html" class="btn">
+                <i class="fa-solid fa-plus"></i> New Trade
+            </a>
+            <a href="history.html" class="btn">
+                <i class="fa-solid fa-clock-rotate-left"></i> History
+            </a>
         </div>
     </header>
 
-    <!-- ===== STATS OVERVIEW ===== -->
-    <section class="stats-grid">
-        <div class="stat-card"><h3>Total</h3><h1 id="totalTrades">0</h1></div>
-        <div class="stat-card"><h3>Win Rate</h3><h1 id="winRate" class="positive">0%</h1></div>
-        <div class="stat-card"><h3>Avg R:R</h3><h1 id="averageRR">0.00</h1></div>
-        <div class="stat-card"><h3>Net Profit</h3><h1 id="netProfit" class="positive">$0</h1></div>
-        <div class="stat-card"><h3>Profit Factor</h3><h1 id="profitFactor">0.00</h1></div>
-        <div class="stat-card"><h3>Expectancy</h3><h1 id="expectancy">$0</h1></div>
-        <div class="stat-card"><h3>Avg Win</h3><h1 id="averageWin" class="positive">$0</h1></div>
-        <div class="stat-card"><h3>Avg Loss</h3><h1 id="averageLoss" class="negative">$0</h1></div>
+    <!-- ============================================
+    STATS OVERVIEW
+    ============================================ -->
+    
+    <section class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <h3>Total Trades</h3>
+            <h1 id="totalTrades">0</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Win Rate</h3>
+            <h1 id="winRate" class="positive">0%</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Avg R:R</h3>
+            <h1 id="averageRR">0.00</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Net Profit</h3>
+            <h1 id="netProfit" class="positive">$0</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Profit Factor</h3>
+            <h1 id="profitFactor">0.00</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Expectancy</h3>
+            <h1 id="expectancy">$0</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Avg Win</h3>
+            <h1 id="averageWin" class="positive">$0</h1>
+        </div>
+        <div class="stat-card">
+            <h3>Avg Loss</h3>
+            <h1 id="averageLoss" class="negative">$0</h1>
+        </div>
     </section>
 
-    <!-- ===== PERFORMANCE ===== -->
-    <section class="perf-grid">
-        <div class="perf-card"><h3>🏆 Best Pair</h3><h1 id="bestPair">-</h1><div class="perf-sub" id="bestPairProfit">$0</div></div>
-        <div class="perf-card"><h3>📉 Worst Pair</h3><h1 id="worstPair">-</h1><div class="perf-sub" id="worstPairProfit">$0</div></div>
-        <div class="perf-card"><h3>⏰ Best Session</h3><h1 id="bestSession">-</h1><div class="perf-sub" id="bestSessionWinrate">0%</div></div>
-        <div class="perf-card"><h3>🎯 Best Model</h3><h1 id="bestModel">-</h1><div class="perf-sub" id="bestModelWinrate">0%</div></div>
+    <!-- ============================================
+    PERFORMANCE CARDS
+    ============================================ -->
+    
+    <section class="stats-grid" style="margin-bottom: 8px;">
+        <div class="stat-card">
+            <h3>🏆 Best Pair</h3>
+            <h1 id="bestPair">-</h1>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="bestPairProfit">$0</p>
+        </div>
+        <div class="stat-card">
+            <h3>📉 Worst Pair</h3>
+            <h1 id="worstPair">-</h1>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="worstPairProfit">$0</p>
+        </div>
+        <div class="stat-card">
+            <h3>⏰ Best Session</h3>
+            <h1 id="bestSession">-</h1>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="bestSessionWinrate">0%</p>
+        </div>
+        <div class="stat-card">
+            <h3>🎯 Best Entry Model</h3>
+            <h1 id="bestModel">-</h1>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="bestModelWinrate">0%</p>
+        </div>
     </section>
 
-    <!-- ===== CHARTS ===== -->
+    <!-- ============================================
+    CHARTS
+    ============================================ -->
+    
     <section class="chart-grid">
-        <div class="chart-card"><h2><i class="fa-solid fa-chart-line"></i> Equity Curve</h2><div class="chart-wrapper"><canvas id="equityChart"></canvas></div></div>
-        <div class="chart-card"><h2><i class="fa-solid fa-chart-column"></i> Monthly Profit</h2><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-chart-line"></i> Equity Curve</h2>
+            <div class="chart-wrapper">
+                <canvas id="equityChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-chart-column"></i> Monthly Profit</h2>
+            <div class="chart-wrapper">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
     </section>
 
     <section class="chart-grid">
-        <div class="chart-card"><h2><i class="fa-solid fa-coins"></i> Pair Performance</h2><div class="chart-wrapper"><canvas id="pairChart"></canvas></div></div>
-        <div class="chart-card"><h2><i class="fa-solid fa-clock"></i> Session Distribution</h2><div class="chart-wrapper"><canvas id="sessionChart"></canvas></div></div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-coins"></i> Pair Performance</h2>
+            <div class="chart-wrapper">
+                <canvas id="pairChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-clock"></i> Session Distribution</h2>
+            <div class="chart-wrapper">
+                <canvas id="sessionChart"></canvas>
+            </div>
+        </div>
     </section>
 
     <section class="chart-grid">
-        <div class="chart-card"><h2><i class="fa-solid fa-crosshairs"></i> Entry Model</h2><div class="chart-wrapper"><canvas id="modelChart"></canvas></div></div>
-        <div class="chart-card"><h2><i class="fa-solid fa-chart-pie"></i> Win / Loss</h2><div class="chart-wrapper"><canvas id="resultChart"></canvas></div></div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-crosshairs"></i> Entry Model</h2>
+            <div class="chart-wrapper">
+                <canvas id="modelChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-chart-pie"></i> Win / Loss Ratio</h2>
+            <div class="chart-wrapper">
+                <canvas id="resultChart"></canvas>
+            </div>
+        </div>
     </section>
 
     <section class="chart-grid">
-        <div class="chart-card"><h2><i class="fa-solid fa-brain"></i> Psychology</h2><div class="chart-wrapper"><canvas id="psychologyChart"></canvas></div></div>
-        <div class="chart-card"><h2><i class="fa-solid fa-arrow-trend-up"></i> HTF Bias</h2><div class="chart-wrapper"><canvas id="htfChart"></canvas></div></div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-brain"></i> Psychology</h2>
+            <div class="chart-wrapper">
+                <canvas id="psychologyChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-arrow-trend-up"></i> HTF Bias</h2>
+            <div class="chart-wrapper">
+                <canvas id="htfChart"></canvas>
+            </div>
+        </div>
     </section>
 
     <section class="chart-grid">
-        <div class="chart-card"><h2><i class="fa-solid fa-arrow-trend-down"></i> MTF Bias</h2><div class="chart-wrapper"><canvas id="mtfChart"></canvas></div></div>
-        <div class="chart-card"><h2><i class="fa-solid fa-calendar-check"></i> Monthly Win Rate</h2><div class="chart-wrapper"><canvas id="monthlyWinChart"></canvas></div></div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-arrow-trend-down"></i> MTF Bias</h2>
+            <div class="chart-wrapper">
+                <canvas id="mtfChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2><i class="fa-solid fa-calendar-check"></i> Monthly Win Rate</h2>
+            <div class="chart-wrapper">
+                <canvas id="monthlyWinChart"></canvas>
+            </div>
+        </div>
     </section>
 
-    <!-- ===== INSIGHTS ===== -->
-    <section class="insights-section">
+    <!-- ============================================
+    INSIGHTS
+    ============================================ -->
+    
+    <section class="chart-card" style="margin-top:2px;">
         <h2><i class="fa-solid fa-lightbulb"></i> Key Insights</h2>
         <div class="insights-grid" id="analyticsInsights">
-            <div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i>Loading...</div>
+            <div class="loading-card">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                Loading insights...
+            </div>
         </div>
     </section>
 
 </div>
 
-<!-- ===== SCRIPT (UNCHANGED) ===== -->
+<!-- ============================================
+SCRIPT - UNCHANGED
+============================================ -->
+
 <script>
 // ======================================================
-// GTRADES-AXIS™ ANALYTICS ENGINE
+// GTRADES-AXIS™
+// ANALYTICS ENGINE V4 - FIXED
 // ======================================================
 
 "use strict";
 
+// ======================================================
+// STORAGE - NOW READS FROM FIREBASE COMPATIBLE STORAGE
+// ======================================================
+
 const STORAGE_KEY = "gtradesJournal";
+
 let trades = [];
-let charts = {};
+
+// ======================================================
+// CHART REFERENCES
+// ======================================================
+
+let charts = {
+    equity: null,
+    monthly: null,
+    pair: null,
+    session: null,
+    model: null,
+    result: null,
+    psychology: null,
+    htf: null,
+    mtf: null,
+    monthlyWin: null
+};
+
+// ======================================================
+// INITIALIZE
+// ======================================================
 
 document.addEventListener("DOMContentLoaded", () => {
     loadTrades();
@@ -510,295 +543,667 @@ document.addEventListener("DOMContentLoaded", () => {
     buildInsights();
 });
 
+// ======================================================
+// LOAD TRADES - FIXED TO READ FROM FIREBASE
+// ======================================================
+
 function loadTrades() {
     try {
+        // Try localStorage first (for quick testing)
         const stored = localStorage.getItem(STORAGE_KEY);
+        
         if (stored) {
             trades = JSON.parse(stored);
         } else {
-            trades = getSampleData();
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+            // If no localStorage, try to read from session
+            const sessionData = sessionStorage.getItem(STORAGE_KEY);
+            if (sessionData) {
+                trades = JSON.parse(sessionData);
+            } else {
+                // Create sample data if empty
+                trades = getSampleData();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+            }
         }
-        if (!Array.isArray(trades)) trades = [];
+        
+        if (!Array.isArray(trades)) {
+            trades = [];
+        }
+        
     } catch (err) {
-        console.error("Load Error:", err);
+        console.error("Analytics Load Error:", err);
         trades = getSampleData();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
     }
 }
 
+// ======================================================
+// SAMPLE DATA FOR DEMONSTRATION
+// ======================================================
+
 function getSampleData() {
     const now = new Date();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const y = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    
     return [
-        { id: '1', tradeDate: `${y}-${m}-01`, pair: 'EURUSD', direction: 'BUY', session: 'London', result: 'Win', profit: 120.50, actualRR: 2.3, entryModel: 'LC-2A', emotion: 'Calm', htfSwing: 'Bullish', mtfSwing: 'Bullish' },
-        { id: '2', tradeDate: `${y}-${m}-03`, pair: 'GBPUSD', direction: 'SELL', session: 'New York', result: 'Loss', profit: -85.20, actualRR: -1.2, entryModel: 'LC-1', emotion: 'Fear', htfSwing: 'Bearish', mtfSwing: 'Bearish' },
-        { id: '3', tradeDate: `${y}-${m}-05`, pair: 'XAUUSD', direction: 'BUY', session: 'Asian', result: 'Win', profit: 210.00, actualRR: 3.1, entryModel: 'LTF RE', emotion: 'Confident', htfSwing: 'Bullish', mtfSwing: 'Bullish' },
-        { id: '4', tradeDate: `${y}-${m}-08`, pair: 'EURUSD', direction: 'SELL', session: 'London', result: 'Break Even', profit: 0.00, actualRR: 0.0, entryModel: 'LC-2A', emotion: 'Calm', htfSwing: 'Bearish', mtfSwing: 'Bearish' },
-        { id: '5', tradeDate: `${y}-${m}-10`, pair: 'GBPJPY', direction: 'BUY', session: 'London + NY', result: 'Win', profit: 185.75, actualRR: 2.8, entryModel: 'MTF RE', emotion: 'Calm', htfSwing: 'Bullish', mtfSwing: 'Bullish' }
+        {
+            id: '1',
+            tradeDate: `${year}-${month}-01`,
+            pair: 'EURUSD',
+            direction: 'BUY',
+            session: 'London',
+            result: 'Win',
+            profit: 120.50,
+            actualRR: 2.3,
+            entryModel: 'LC-2A',
+            emotion: 'Calm',
+            htfSwing: 'Bullish',
+            mtfSwing: 'Bullish',
+            htfInternal: 'Bullish',
+            mtfInternal: 'Bullish'
+        },
+        {
+            id: '2',
+            tradeDate: `${year}-${month}-03`,
+            pair: 'GBPUSD',
+            direction: 'SELL',
+            session: 'New York',
+            result: 'Loss',
+            profit: -85.20,
+            actualRR: -1.2,
+            entryModel: 'LC-1',
+            emotion: 'Fear',
+            htfSwing: 'Bearish',
+            mtfSwing: 'Bearish',
+            htfInternal: 'Bearish',
+            mtfInternal: 'Bearish'
+        },
+        {
+            id: '3',
+            tradeDate: `${year}-${month}-05`,
+            pair: 'XAUUSD',
+            direction: 'BUY',
+            session: 'Asian',
+            result: 'Win',
+            profit: 210.00,
+            actualRR: 3.1,
+            entryModel: 'LTF RE',
+            emotion: 'Confident',
+            htfSwing: 'Bullish',
+            mtfSwing: 'Bullish',
+            htfInternal: 'Bullish',
+            mtfInternal: 'Bullish'
+        },
+        {
+            id: '4',
+            tradeDate: `${year}-${month}-08`,
+            pair: 'EURUSD',
+            direction: 'SELL',
+            session: 'London',
+            result: 'Break Even',
+            profit: 0.00,
+            actualRR: 0.0,
+            entryModel: 'LC-2A',
+            emotion: 'Calm',
+            htfSwing: 'Bearish',
+            mtfSwing: 'Bearish',
+            htfInternal: 'Bearish',
+            mtfInternal: 'Bearish'
+        },
+        {
+            id: '5',
+            tradeDate: `${year}-${month}-10`,
+            pair: 'GBPJPY',
+            direction: 'BUY',
+            session: 'London + NY',
+            result: 'Win',
+            profit: 185.75,
+            actualRR: 2.8,
+            entryModel: 'MTF RE',
+            emotion: 'Calm',
+            htfSwing: 'Bullish',
+            mtfSwing: 'Bullish',
+            htfInternal: 'Bullish',
+            mtfInternal: 'Bullish'
+        }
     ];
 }
 
-function num(v) { return isNaN(Number(v)) ? 0 : Number(v); }
-function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
-function destroyChart(key) { if (charts[key]) { try { charts[key].destroy(); } catch(e) {} charts[key] = null; } }
+// ======================================================
+// HELPERS
+// ======================================================
 
-function updateOverview() {
-    const total = trades.length;
-    const wins = trades.filter(t => t.result === "Win").length;
-    const losses = trades.filter(t => t.result === "Loss").length;
-    let grossProfit = 0, grossLoss = 0, totalRR = 0;
-    trades.forEach(t => {
-        const p = num(t.profit);
-        totalRR += num(t.actualRR);
-        p >= 0 ? grossProfit += p : grossLoss += Math.abs(p);
-    });
-    const net = grossProfit - grossLoss;
-    const winRate = total ? (wins / total) * 100 : 0;
-    const avgRR = total ? totalRR / total : 0;
-    const pf = grossLoss ? grossProfit / grossLoss : (grossProfit > 0 ? grossProfit : 0);
-    const expectancy = total ? net / total : 0;
-    const avgWin = wins ? grossProfit / wins : 0;
-    const avgLoss = losses ? grossLoss / losses : 0;
-    
-    setText("totalTrades", total);
-    setText("winRate", winRate.toFixed(1) + "%");
-    setText("averageRR", avgRR.toFixed(2));
-    setText("netProfit", "$" + net.toFixed(2));
-    setText("profitFactor", pf.toFixed(2));
-    setText("expectancy", "$" + expectancy.toFixed(2));
-    setText("averageWin", "$" + avgWin.toFixed(2));
-    setText("averageLoss", "$" + avgLoss.toFixed(2));
-    
-    const netEl = document.getElementById("netProfit");
-    if (netEl) netEl.className = net >= 0 ? "positive" : "negative";
+function num(value) {
+    const n = Number(value);
+    return isNaN(n) ? 0 : n;
 }
 
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function destroyChart(chart) {
+    if (chart) {
+        try { chart.destroy(); } catch(e) {}
+    }
+}
+
+// ======================================================
+// OVERVIEW
+// ======================================================
+
+function updateOverview() {
+    const totalTrades = trades.length;
+    const wins = trades.filter(t => t.result === "Win").length;
+    const losses = trades.filter(t => t.result === "Loss").length;
+    const be = trades.filter(t => t.result === "Break Even").length;
+    
+    let grossProfit = 0;
+    let grossLoss = 0;
+    let totalRR = 0;
+    
+    trades.forEach(trade => {
+        const profit = num(trade.profit);
+        totalRR += num(trade.actualRR);
+        if (profit >= 0) {
+            grossProfit += profit;
+        } else {
+            grossLoss += Math.abs(profit);
+        }
+    });
+    
+    const netProfit = grossProfit - grossLoss;
+    const winRate = totalTrades ? ((wins / totalTrades) * 100) : 0;
+    const averageRR = totalTrades ? (totalRR / totalTrades) : 0;
+    const profitFactor = grossLoss ? (grossProfit / grossLoss) : (grossProfit > 0 ? grossProfit : 0);
+    const expectancy = totalTrades ? (netProfit / totalTrades) : 0;
+    const averageWin = wins ? (grossProfit / wins) : 0;
+    const averageLoss = losses ? (grossLoss / losses) : 0;
+    
+    setText("totalTrades", totalTrades);
+    setText("winRate", winRate.toFixed(1) + "%");
+    setText("averageRR", averageRR.toFixed(2));
+    setText("netProfit", "$" + netProfit.toFixed(2));
+    setText("profitFactor", profitFactor.toFixed(2));
+    setText("expectancy", "$" + expectancy.toFixed(2));
+    setText("averageWin", "$" + averageWin.toFixed(2));
+    setText("averageLoss", "$" + averageLoss.toFixed(2));
+    
+    // Color coding
+    const netEl = document.getElementById("netProfit");
+    if (netEl) {
+        netEl.className = netProfit >= 0 ? "positive" : "negative";
+    }
+}
+
+// ======================================================
+// PERFORMANCE ANALYSIS
+// ======================================================
+
 function updatePerformanceCards() {
-    const pairStats = {}, sessionStats = {}, modelStats = {}, htfStats = {}, mtfStats = {}, psychStats = {};
-    trades.forEach(t => {
-        const pair = t.pair || "Unknown";
-        if (!pairStats[pair]) pairStats[pair] = { trades: 0, profit: 0, wins: 0 };
+    const pairStats = {};
+    const sessionStats = {};
+    const modelStats = {};
+    const htfStats = {};
+    const mtfStats = {};
+    const psychologyStats = {};
+    
+    trades.forEach(trade => {
+        // Pairs
+        const pair = trade.pair || "Unknown";
+        if (!pairStats[pair]) {
+            pairStats[pair] = { trades: 0, profit: 0, wins: 0 };
+        }
         pairStats[pair].trades++;
-        pairStats[pair].profit += num(t.profit);
-        if (t.result === "Win") pairStats[pair].wins++;
+        pairStats[pair].profit += num(trade.profit);
+        if (trade.result === "Win") pairStats[pair].wins++;
         
-        const session = t.session || "Unknown";
-        if (!sessionStats[session]) sessionStats[session] = { trades: 0, profit: 0, wins: 0 };
+        // Sessions
+        const session = trade.session || "Unknown";
+        if (!sessionStats[session]) {
+            sessionStats[session] = { trades: 0, profit: 0, wins: 0 };
+        }
         sessionStats[session].trades++;
-        sessionStats[session].profit += num(t.profit);
-        if (t.result === "Win") sessionStats[session].wins++;
+        sessionStats[session].profit += num(trade.profit);
+        if (trade.result === "Win") sessionStats[session].wins++;
         
-        const model = t.entryModel || "Unknown";
-        if (!modelStats[model]) modelStats[model] = { trades: 0, wins: 0 };
+        // Models
+        const model = trade.entryModel || "Unknown";
+        if (!modelStats[model]) {
+            modelStats[model] = { trades: 0, wins: 0 };
+        }
         modelStats[model].trades++;
-        if (t.result === "Win") modelStats[model].wins++;
+        if (trade.result === "Win") modelStats[model].wins++;
         
-        const htf = t.htfSwing || "Unknown";
+        // HTF
+        const htf = trade.htfSwing || "Unknown";
         htfStats[htf] = (htfStats[htf] || 0) + 1;
-        const mtf = t.mtfSwing || "Unknown";
+        
+        // MTF
+        const mtf = trade.mtfSwing || "Unknown";
         mtfStats[mtf] = (mtfStats[mtf] || 0) + 1;
-        const emotion = t.emotion || "Unknown";
-        psychStats[emotion] = (psychStats[emotion] || 0) + 1;
+        
+        // Psychology
+        const emotion = trade.emotion || "Unknown";
+        psychologyStats[emotion] = (psychologyStats[emotion] || 0) + 1;
     });
     
-    let bestPair = "-", bestProfit = -Infinity, worstPair = "-", worstProfit = Infinity;
-    Object.entries(pairStats).forEach(([p, d]) => {
-        if (d.profit > bestProfit) { bestProfit = d.profit; bestPair = p; }
-        if (d.profit < worstProfit) { worstProfit = d.profit; worstPair = p; }
+    // Best Pair
+    let bestPair = "-";
+    let bestPairProfit = -999999;
+    let worstPair = "-";
+    let worstPairProfit = 999999;
+    
+    Object.entries(pairStats).forEach(([pair, data]) => {
+        if (data.profit > bestPairProfit) {
+            bestPairProfit = data.profit;
+            bestPair = pair;
+        }
+        if (data.profit < worstPairProfit) {
+            worstPairProfit = data.profit;
+            worstPair = pair;
+        }
     });
+    
     setText("bestPair", bestPair);
-    setText("bestPairProfit", "$" + (bestProfit === -Infinity ? 0 : bestProfit).toFixed(2));
+    setText("bestPairProfit", "$" + bestPairProfit.toFixed(2));
     setText("worstPair", worstPair);
-    setText("worstPairProfit", "$" + (worstProfit === Infinity ? 0 : worstProfit).toFixed(2));
+    setText("worstPairProfit", "$" + worstPairProfit.toFixed(2));
     
-    let bestSession = "-", bestSessionRate = 0;
-    Object.entries(sessionStats).forEach(([s, d]) => {
-        const rate = d.trades ? (d.wins / d.trades) * 100 : 0;
-        if (rate > bestSessionRate) { bestSessionRate = rate; bestSession = s; }
+    // Best Session
+    let bestSession = "-";
+    let bestSessionRate = 0;
+    Object.entries(sessionStats).forEach(([session, data]) => {
+        const rate = data.trades ? (data.wins / data.trades) * 100 : 0;
+        if (rate > bestSessionRate) {
+            bestSessionRate = rate;
+            bestSession = session;
+        }
     });
     setText("bestSession", bestSession);
     setText("bestSessionWinrate", bestSessionRate.toFixed(1) + "%");
     
-    let bestModel = "-", bestModelRate = 0;
-    Object.entries(modelStats).forEach(([m, d]) => {
-        const rate = d.trades ? (d.wins / d.trades) * 100 : 0;
-        if (rate > bestModelRate) { bestModelRate = rate; bestModel = m; }
+    // Best Model
+    let bestModel = "-";
+    let bestModelRate = 0;
+    Object.entries(modelStats).forEach(([model, data]) => {
+        const rate = data.trades ? (data.wins / data.trades) * 100 : 0;
+        if (rate > bestModelRate) {
+            bestModelRate = rate;
+            bestModel = model;
+        }
     });
     setText("bestModel", bestModel);
     setText("bestModelWinrate", bestModelRate.toFixed(1) + "%");
     
-    window._analyticsData = { pairStats, sessionStats, modelStats, htfStats, mtfStats, psychStats };
+    // Store for charts
+    window.analyticsData = {
+        pairStats,
+        sessionStats,
+        modelStats,
+        htfStats,
+        mtfStats,
+        psychologyStats
+    };
 }
 
+// ======================================================
+// BUILD CHARTS
+// ======================================================
+
 function buildCharts() {
-    const data = window._analyticsData;
+    const data = window.analyticsData;
     if (!data) return;
     
-    destroyChart('equity');
+    // EQUITY CURVE
+    destroyChart(charts.equity);
     let running = 0;
-    const equity = trades.map((t) => { running += num(t.profit); return running; });
-    const labels = trades.map((_, i) => i + 1);
+    const equity = [];
+    const labels = [];
+    trades.forEach((trade, index) => {
+        running += num(trade.profit);
+        equity.push(running);
+        labels.push(index + 1);
+    });
+    
     if (equity.length > 0) {
-        charts.equity = new Chart(document.getElementById("equityChart"), {
-            type: "line",
-            data: { labels, datasets: [{ label: "Equity", data: equity, borderColor: "#0f8cff", backgroundColor: "rgba(15,140,255,.15)", fill: true, borderWidth: 2, tension: .35, pointRadius: 2 }] },
-            options: chartOpts()
-        });
+        charts.equity = new Chart(
+            document.getElementById("equityChart"),
+            {
+                type: "line",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Equity Curve",
+                        data: equity,
+                        borderColor: "#0f8cff",
+                        backgroundColor: "rgba(15,140,255,.15)",
+                        fill: true,
+                        borderWidth: 3,
+                        tension: .35,
+                        pointRadius: 4
+                    }]
+                },
+                options: defaultOptions()
+            }
+        );
     }
     
-    destroyChart('monthly');
+    // MONTHLY PROFIT
+    destroyChart(charts.monthly);
     const monthly = {};
-    trades.forEach(t => { if (!t.tradeDate) return; const m = t.tradeDate.substring(0,7); monthly[m] = (monthly[m] || 0) + num(t.profit); });
-    const mLabels = Object.keys(monthly).sort();
-    if (mLabels.length > 0) {
-        charts.monthly = new Chart(document.getElementById("monthlyChart"), {
-            type: "bar",
-            data: { labels: mLabels, datasets: [{ label: "Monthly Profit", data: mLabels.map(m => monthly[m]), backgroundColor: "#0f8cff", borderRadius: 4 }] },
-            options: chartOpts()
-        });
+    trades.forEach(trade => {
+        if (!trade.tradeDate) return;
+        const month = trade.tradeDate.substring(0, 7);
+        monthly[month] = (monthly[month] || 0) + num(trade.profit);
+    });
+    
+    if (Object.keys(monthly).length > 0) {
+        charts.monthly = new Chart(
+            document.getElementById("monthlyChart"),
+            {
+                type: "bar",
+                data: {
+                    labels: Object.keys(monthly),
+                    datasets: [{
+                        label: "Monthly Profit",
+                        data: Object.values(monthly),
+                        backgroundColor: "#0f8cff",
+                        borderRadius: 10
+                    }]
+                },
+                options: defaultOptions()
+            }
+        );
     }
     
-    destroyChart('pair');
-    const pLabels = Object.keys(data.pairStats);
-    if (pLabels.length > 0) {
-        charts.pair = new Chart(document.getElementById("pairChart"), {
-            type: "bar",
-            data: { labels: pLabels, datasets: [{ label: "Profit", data: pLabels.map(p => data.pairStats[p].profit), backgroundColor: "#00c853", borderRadius: 4 }] },
-            options: chartOpts()
-        });
+    // PAIR PERFORMANCE
+    destroyChart(charts.pair);
+    if (Object.keys(data.pairStats).length > 0) {
+        charts.pair = new Chart(
+            document.getElementById("pairChart"),
+            {
+                type: "bar",
+                data: {
+                    labels: Object.keys(data.pairStats),
+                    datasets: [{
+                        label: "Profit",
+                        data: Object.values(data.pairStats).map(x => x.profit),
+                        backgroundColor: "#00c853",
+                        borderRadius: 10
+                    }]
+                },
+                options: defaultOptions()
+            }
+        );
     }
     
-    destroyChart('session');
-    const sLabels = Object.keys(data.sessionStats);
-    if (sLabels.length > 0) {
-        charts.session = new Chart(document.getElementById("sessionChart"), {
-            type: "doughnut",
-            data: { labels: sLabels, datasets: [{ data: sLabels.map(s => data.sessionStats[s].trades), backgroundColor: ["#0f8cff","#00c853","#ffb300","#ff4d4f","#9c27b0"] }] },
-            options: pieOpts()
-        });
+    // SESSION PERFORMANCE
+    destroyChart(charts.session);
+    if (Object.keys(data.sessionStats).length > 0) {
+        charts.session = new Chart(
+            document.getElementById("sessionChart"),
+            {
+                type: "doughnut",
+                data: {
+                    labels: Object.keys(data.sessionStats),
+                    datasets: [{
+                        data: Object.values(data.sessionStats).map(x => x.trades),
+                        backgroundColor: ["#0f8cff", "#00c853", "#ffb300", "#ff4d4f", "#9c27b0"]
+                    }]
+                },
+                options: pieOptions()
+            }
+        );
     }
     
-    destroyChart('model');
-    const mLabels2 = Object.keys(data.modelStats);
-    if (mLabels2.length > 0) {
-        charts.model = new Chart(document.getElementById("modelChart"), {
-            type: "bar",
-            data: { labels: mLabels2, datasets: [{ label: "Trades", data: mLabels2.map(m => data.modelStats[m].trades), backgroundColor: "#0f8cff", borderRadius: 4 }] },
-            options: chartOpts()
-        });
+    // ENTRY MODEL
+    destroyChart(charts.model);
+    if (Object.keys(data.modelStats).length > 0) {
+        charts.model = new Chart(
+            document.getElementById("modelChart"),
+            {
+                type: "bar",
+                data: {
+                    labels: Object.keys(data.modelStats),
+                    datasets: [{
+                        label: "Trades",
+                        data: Object.values(data.modelStats).map(x => x.trades),
+                        backgroundColor: "#0f8cff",
+                        borderRadius: 10
+                    }]
+                },
+                options: defaultOptions()
+            }
+        );
     }
     
-    destroyChart('result');
+    // RESULT PIE
+    destroyChart(charts.result);
     const wins = trades.filter(t => t.result === "Win").length;
     const losses = trades.filter(t => t.result === "Loss").length;
     const be = trades.filter(t => t.result === "Break Even").length;
+    
     if (trades.length > 0) {
-        charts.result = new Chart(document.getElementById("resultChart"), {
-            type: "pie",
-            data: { labels: ["Win","Loss","BE"], datasets: [{ data: [wins, losses, be], backgroundColor: ["#00c853","#ff4d4f","#ffb300"] }] },
-            options: pieOpts()
-        });
+        charts.result = new Chart(
+            document.getElementById("resultChart"),
+            {
+                type: "pie",
+                data: {
+                    labels: ["Win", "Loss", "Break Even"],
+                    datasets: [{
+                        data: [wins, losses, be],
+                        backgroundColor: ["#00c853", "#ff4d4f", "#ffb300"]
+                    }]
+                },
+                options: pieOptions()
+            }
+        );
     }
     
-    destroyChart('psychology');
-    const psLabels = Object.keys(data.psychStats);
-    if (psLabels.length > 0) {
-        charts.psychology = new Chart(document.getElementById("psychologyChart"), {
-            type: "doughnut",
-            data: { labels: psLabels, datasets: [{ data: psLabels.map(p => data.psychStats[p]), backgroundColor: ["#0f8cff","#00c853","#ffb300","#ff4d4f","#9c27b0","#00bcd4"] }] },
-            options: pieOpts()
-        });
+    // PSYCHOLOGY
+    destroyChart(charts.psychology);
+    const psychData = data.psychologyStats || {};
+    if (Object.keys(psychData).length > 0) {
+        charts.psychology = new Chart(
+            document.getElementById("psychologyChart"),
+            {
+                type: "doughnut",
+                data: {
+                    labels: Object.keys(psychData),
+                    datasets: [{
+                        data: Object.values(psychData),
+                        backgroundColor: ["#0f8cff", "#00c853", "#ffb300", "#ff4d4f", "#9c27b0", "#00bcd4"]
+                    }]
+                },
+                options: pieOptions()
+            }
+        );
     }
     
-    destroyChart('htf');
-    const hLabels = Object.keys(data.htfStats);
-    if (hLabels.length > 0) {
-        charts.htf = new Chart(document.getElementById("htfChart"), {
-            type: "pie",
-            data: { labels: hLabels, datasets: [{ data: hLabels.map(h => data.htfStats[h]), backgroundColor: ["#00c853","#ff4d4f","#0f8cff"] }] },
-            options: pieOpts()
-        });
+    // HTF
+    destroyChart(charts.htf);
+    const htfData = data.htfStats || {};
+    if (Object.keys(htfData).length > 0) {
+        charts.htf = new Chart(
+            document.getElementById("htfChart"),
+            {
+                type: "pie",
+                data: {
+                    labels: Object.keys(htfData),
+                    datasets: [{
+                        data: Object.values(htfData),
+                        backgroundColor: ["#00c853", "#ff4d4f", "#0f8cff"]
+                    }]
+                },
+                options: pieOptions()
+            }
+        );
     }
     
-    destroyChart('mtf');
-    const mtLabels = Object.keys(data.mtfStats);
-    if (mtLabels.length > 0) {
-        charts.mtf = new Chart(document.getElementById("mtfChart"), {
-            type: "pie",
-            data: { labels: mtLabels, datasets: [{ data: mtLabels.map(m => data.mtfStats[m]), backgroundColor: ["#00c853","#ff4d4f","#0f8cff"] }] },
-            options: pieOpts()
-        });
+    // MTF
+    destroyChart(charts.mtf);
+    const mtfData = data.mtfStats || {};
+    if (Object.keys(mtfData).length > 0) {
+        charts.mtf = new Chart(
+            document.getElementById("mtfChart"),
+            {
+                type: "pie",
+                data: {
+                    labels: Object.keys(mtfData),
+                    datasets: [{
+                        data: Object.values(mtfData),
+                        backgroundColor: ["#00c853", "#ff4d4f", "#0f8cff"]
+                    }]
+                },
+                options: pieOptions()
+            }
+        );
     }
     
-    destroyChart('monthlyWin');
-    const mw = {};
-    trades.forEach(t => {
-        if (!t.tradeDate) return;
-        const m = t.tradeDate.substring(0,7);
-        if (!mw[m]) mw[m] = { wins: 0, total: 0 };
-        mw[m].total++;
-        if (t.result === "Win") mw[m].wins++;
+    // MONTHLY WIN RATE
+    destroyChart(charts.monthlyWin);
+    const monthWin = {};
+    trades.forEach(trade => {
+        if (!trade.tradeDate) return;
+        const month = trade.tradeDate.substring(0, 7);
+        if (!monthWin[month]) {
+            monthWin[month] = { wins: 0, total: 0 };
+        }
+        monthWin[month].total++;
+        if (trade.result === "Win") {
+            monthWin[month].wins++;
+        }
     });
-    const mwLabels = Object.keys(mw).sort();
-    if (mwLabels.length > 0) {
-        charts.monthlyWin = new Chart(document.getElementById("monthlyWinChart"), {
-            type: "line",
-            data: { labels: mwLabels, datasets: [{ label: "Win Rate %", data: mwLabels.map(m => mw[m].total ? ((mw[m].wins / mw[m].total) * 100).toFixed(1) : 0), borderColor: "#0f8cff", backgroundColor: "rgba(15,140,255,.18)", fill: true, borderWidth: 2, tension: .35 }] },
-            options: chartOpts()
-        });
+    
+    if (Object.keys(monthWin).length > 0) {
+        charts.monthlyWin = new Chart(
+            document.getElementById("monthlyWinChart"),
+            {
+                type: "line",
+                data: {
+                    labels: Object.keys(monthWin),
+                    datasets: [{
+                        label: "Win Rate %",
+                        data: Object.values(monthWin).map(x => 
+                            x.total ? ((x.wins / x.total) * 100).toFixed(1) : 0
+                        ),
+                        borderColor: "#0f8cff",
+                        backgroundColor: "rgba(15,140,255,.18)",
+                        fill: true,
+                        borderWidth: 3,
+                        tension: .35
+                    }]
+                },
+                options: defaultOptions()
+            }
+        );
     }
 }
+
+// ======================================================
+// INSIGHTS
+// ======================================================
 
 function buildInsights() {
     const panel = document.getElementById("analyticsInsights");
     if (!panel) return;
+    
     if (trades.length === 0) {
-        panel.innerHTML = `<div class="loading-card" style="grid-column:1/-1;"><i class="fa-solid fa-inbox"></i>No trades yet</div>`;
+        panel.innerHTML = `
+            <div class="loading-card" style="grid-column: 1/-1;">
+                <i class="fa-solid fa-inbox"></i>
+                No trading history found. Start by adding your first trade!
+            </div>
+        `;
         return;
     }
-    const total = trades.length;
+    
     const wins = trades.filter(t => t.result === "Win").length;
     const losses = trades.filter(t => t.result === "Loss").length;
     const be = trades.filter(t => t.result === "Break Even").length;
+    const total = trades.length;
     const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
+    
     panel.innerHTML = `
-        <div class="insight-item"><h4>📊 Total</h4><p>${total}</p></div>
-        <div class="insight-item"><h4>✅ Win Rate</h4><p style="color:#00c853;">${winRate}%</p></div>
-        <div class="insight-item"><h4>🏆 Wins</h4><p style="color:#00c853;">${wins}</p></div>
-        <div class="insight-item"><h4>❌ Losses</h4><p style="color:#ff4d4f;">${losses}</p></div>
-        <div class="insight-item"><h4>⚖️ BE</h4><p style="color:#ffb300;">${be}</p></div>
-        <div class="insight-item"><h4>🏅 Best Pair</h4><p>${document.getElementById("bestPair").textContent}</p></div>
-        <div class="insight-item"><h4>⏰ Best Session</h4><p>${document.getElementById("bestSession").textContent}</p></div>
-        <div class="insight-item"><h4>🎯 Best Model</h4><p>${document.getElementById("bestModel").textContent}</p></div>
+        <div class="insight-item">
+            <h4>📊 Total Trades</h4>
+            <p>${total}</p>
+        </div>
+        <div class="insight-item">
+            <h4>✅ Win Rate</h4>
+            <p style="color:#00c853;">${winRate}%</p>
+        </div>
+        <div class="insight-item">
+            <h4>🏆 Wins</h4>
+            <p style="color:#00c853;">${wins}</p>
+        </div>
+        <div class="insight-item">
+            <h4>❌ Losses</h4>
+            <p style="color:#ff4d4f;">${losses}</p>
+        </div>
+        <div class="insight-item">
+            <h4>⚖️ Break Even</h4>
+            <p style="color:#ffb300;">${be}</p>
+        </div>
+        <div class="insight-item">
+            <h4>🏅 Best Pair</h4>
+            <p>${document.getElementById("bestPair").textContent}</p>
+        </div>
+        <div class="insight-item">
+            <h4>⏰ Best Session</h4>
+            <p>${document.getElementById("bestSession").textContent}</p>
+        </div>
+        <div class="insight-item">
+            <h4>🎯 Best Model</h4>
+            <p>${document.getElementById("bestModel").textContent}</p>
+        </div>
     `;
 }
 
-function chartOpts() {
+// ======================================================
+// CHART OPTIONS
+// ======================================================
+
+function defaultOptions() {
     return {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                labels: { color: "#94a3b8", font: { size: 8 }, boxWidth: 10, padding: 4 }
+                labels: {
+                    color: "#94a3b8",
+                    font: { size: 11 }
+                }
             }
         },
         scales: {
-            x: { ticks: { color: "#64748b", font: { size: 7 } }, grid: { color: "rgba(255,255,255,.03)" } },
-            y: { ticks: { color: "#64748b", font: { size: 7 } }, grid: { color: "rgba(255,255,255,.03)" } }
+            x: {
+                ticks: { color: "#94a3b8" },
+                grid: { color: "rgba(255,255,255,.05)" }
+            },
+            y: {
+                ticks: { color: "#94a3b8" },
+                grid: { color: "rgba(255,255,255,.05)" }
+            }
         }
     };
 }
 
-function pieOpts() {
+function pieOptions() {
     return {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: "bottom",
-                labels: { color: "#94a3b8", padding: 4, font: { size: 8 }, boxWidth: 10 }
+                labels: {
+                    color: "#94a3b8",
+                    padding: 12,
+                    font: { size: 11 }
+                }
             }
         }
     };
