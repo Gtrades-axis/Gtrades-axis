@@ -15,7 +15,7 @@
     
     <style>
         /* ============================================
-           ANALYTICS PAGE STYLES - TIGHT SPACING
+           ANALYTICS PAGE STYLES - SPACING ONLY CHANGED
            ============================================ */
         
         * {
@@ -28,7 +28,7 @@
             font-family: 'Poppins', sans-serif;
             background: #0a0e17;
             color: #e2e8f0;
-            padding: 16px;
+            padding: 10px;
         }
         
         .analytics-container {
@@ -37,16 +37,16 @@
         }
         
         /* ============================================
-           HEADER - TIGHTER
+           HEADER - TIGHT SPACING
            ============================================ */
         
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0 14px;
+            padding: 8px 0 6px;
             border-bottom: 1px solid rgba(255,255,255,0.06);
-            margin-bottom: 18px;
+            margin-bottom: 8px;
         }
         
         .page-header h1 {
@@ -61,16 +61,16 @@
             color: #94a3b8;
             font-size: 0.85rem;
             -webkit-text-fill-color: #94a3b8;
-            margin-top: 1px;
+            margin-top: 0px;
         }
         
         .header-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         
         .btn {
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 8px;
             border: none;
             background: rgba(15, 140, 255, 0.12);
@@ -100,22 +100,22 @@
         }
         
         /* ============================================
-           STATS GRID - TIGHTER
+           STATS GRID - TIGHT SPACING
            ============================================ */
         
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
+            gap: 6px;
+            margin-bottom: 8px;
         }
         
         .stat-card {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 14px 16px;
+            border-radius: 10px;
+            padding: 10px 12px;
             transition: all 0.3s ease;
         }
         
@@ -131,7 +131,7 @@
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         
         .stat-card h1 {
@@ -153,22 +153,22 @@
         }
         
         /* ============================================
-           CHART GRID - TIGHTER
+           CHART GRID - TIGHT SPACING
            ============================================ */
         
         .chart-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 16px;
-            margin-bottom: 18px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
         .chart-card {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 16px 18px 18px;
+            border-radius: 12px;
+            padding: 12px 14px 14px;
             transition: all 0.3s ease;
         }
         
@@ -180,7 +180,7 @@
             font-size: 0.85rem;
             font-weight: 600;
             color: #e2e8f0;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -192,24 +192,24 @@
         
         .chart-wrapper {
             position: relative;
-            height: 210px;
+            height: 200px;
         }
         
         /* ============================================
-           INSIGHTS PANEL - TIGHTER
+           INSIGHTS PANEL - TIGHT SPACING
            ============================================ */
         
         .insights-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 10px;
-            margin-top: 4px;
+            gap: 6px;
+            margin-top: 2px;
         }
         
         .insight-item {
             background: rgba(255,255,255,0.04);
-            border-radius: 10px;
-            padding: 12px 14px;
+            border-radius: 8px;
+            padding: 8px 12px;
             border: 1px solid rgba(255,255,255,0.05);
         }
         
@@ -219,7 +219,7 @@
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         
         .insight-item p {
@@ -236,18 +236,18 @@
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
-                padding: 12px 0 10px;
+                gap: 8px;
+                padding: 6px 0 4px;
             }
             
             .chart-grid {
                 grid-template-columns: 1fr;
-                gap: 14px;
+                gap: 8px;
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
+                gap: 6px;
             }
             
             .stat-card h1 {
@@ -257,16 +257,16 @@
         
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 6px;
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
+                gap: 4px;
             }
             
             .stat-card {
-                padding: 10px 12px;
+                padding: 6px 8px;
             }
             
             .stat-card h1 {
@@ -278,16 +278,16 @@
             }
             
             .chart-card {
-                padding: 12px 14px 14px;
+                padding: 8px 10px 10px;
             }
             
             .chart-wrapper {
-                height: 170px;
+                height: 160px;
             }
             
             .insights-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 8px;
+                gap: 4px;
             }
         }
         
@@ -297,7 +297,7 @@
         
         .loading-card {
             text-align: center;
-            padding: 30px 16px;
+            padding: 20px 12px;
             color: #94a3b8;
             grid-column: 1 / -1;
         }
@@ -306,7 +306,7 @@
             font-size: 1.8rem;
             color: #0f8cff;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
     </style>
 </head>
@@ -376,26 +376,26 @@
     PERFORMANCE CARDS
     ============================================ -->
     
-    <section class="stats-grid" style="margin-bottom: 18px;">
+    <section class="stats-grid" style="margin-bottom: 8px;">
         <div class="stat-card">
             <h3>🏆 Best Pair</h3>
             <h1 id="bestPair">-</h1>
-            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="bestPairProfit">$0</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="bestPairProfit">$0</p>
         </div>
         <div class="stat-card">
             <h3>📉 Worst Pair</h3>
             <h1 id="worstPair">-</h1>
-            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="worstPairProfit">$0</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="worstPairProfit">$0</p>
         </div>
         <div class="stat-card">
             <h3>⏰ Best Session</h3>
             <h1 id="bestSession">-</h1>
-            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="bestSessionWinrate">0%</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="bestSessionWinrate">0%</p>
         </div>
         <div class="stat-card">
             <h3>🎯 Best Entry Model</h3>
             <h1 id="bestModel">-</h1>
-            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="bestModelWinrate">0%</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:1px;" id="bestModelWinrate">0%</p>
         </div>
     </section>
 
@@ -482,7 +482,7 @@
     INSIGHTS
     ============================================ -->
     
-    <section class="chart-card" style="margin-top:4px;">
+    <section class="chart-card" style="margin-top:2px;">
         <h2><i class="fa-solid fa-lightbulb"></i> Key Insights</h2>
         <div class="insights-grid" id="analyticsInsights">
             <div class="loading-card">
@@ -495,7 +495,7 @@
 </div>
 
 <!-- ============================================
-SCRIPT
+SCRIPT - UNCHANGED
 ============================================ -->
 
 <script>
