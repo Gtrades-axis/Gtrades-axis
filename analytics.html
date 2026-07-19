@@ -15,7 +15,7 @@
     
     <style>
         /* ============================================
-           ANALYTICS PAGE STYLES
+           ANALYTICS PAGE STYLES - TIGHT SPACING
            ============================================ */
         
         * {
@@ -28,7 +28,7 @@
             font-family: 'Poppins', sans-serif;
             background: #0a0e17;
             color: #e2e8f0;
-            padding: 20px;
+            padding: 16px;
         }
         
         .analytics-container {
@@ -37,20 +37,20 @@
         }
         
         /* ============================================
-           HEADER
+           HEADER - TIGHTER
            ============================================ */
         
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 30px 0;
+            padding: 16px 0 14px;
             border-bottom: 1px solid rgba(255,255,255,0.06);
-            margin-bottom: 30px;
+            margin-bottom: 18px;
         }
         
         .page-header h1 {
-            font-size: 2rem;
+            font-size: 1.6rem;
             font-weight: 700;
             background: linear-gradient(135deg, #0f8cff, #00c853);
             -webkit-background-clip: text;
@@ -59,28 +59,29 @@
         
         .page-header p {
             color: #94a3b8;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             -webkit-text-fill-color: #94a3b8;
+            margin-top: 1px;
         }
         
         .header-actions {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
         
         .btn {
-            padding: 10px 22px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             border: none;
             background: rgba(15, 140, 255, 0.12);
             color: #0f8cff;
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         .btn:hover {
@@ -99,42 +100,42 @@
         }
         
         /* ============================================
-           STATS GRID
+           STATS GRID - TIGHTER
            ============================================ */
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 18px;
-            margin-bottom: 35px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
         }
         
         .stat-card {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 20px 22px;
+            border-radius: 12px;
+            padding: 14px 16px;
             transition: all 0.3s ease;
         }
         
         .stat-card:hover {
             background: rgba(255,255,255,0.07);
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             border-color: rgba(15, 140, 255, 0.3);
         }
         
         .stat-card h3 {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             font-weight: 500;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            letter-spacing: 0.4px;
+            margin-bottom: 4px;
         }
         
         .stat-card h1 {
-            font-size: 1.7rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #f1f5f9;
         }
@@ -152,22 +153,22 @@
         }
         
         /* ============================================
-           CHART GRID
+           CHART GRID - TIGHTER
            ============================================ */
         
         .chart-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-            margin-bottom: 35px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
         }
         
         .chart-card {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 14px;
+            padding: 16px 18px 18px;
             transition: all 0.3s ease;
         }
         
@@ -176,13 +177,13 @@
         }
         
         .chart-card h2 {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #e2e8f0;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .chart-card h2 i {
@@ -191,38 +192,38 @@
         
         .chart-wrapper {
             position: relative;
-            height: 260px;
+            height: 210px;
         }
         
         /* ============================================
-           INSIGHTS PANEL
+           INSIGHTS PANEL - TIGHTER
            ============================================ */
         
         .insights-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 4px;
         }
         
         .insight-item {
             background: rgba(255,255,255,0.04);
-            border-radius: 12px;
-            padding: 16px 20px;
+            border-radius: 10px;
+            padding: 12px 14px;
             border: 1px solid rgba(255,255,255,0.05);
         }
         
         .insight-item h4 {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 500;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
         }
         
         .insight-item p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #f1f5f9;
         }
@@ -235,25 +236,58 @@
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 12px;
+                gap: 10px;
+                padding: 12px 0 10px;
             }
             
             .chart-grid {
                 grid-template-columns: 1fr;
+                gap: 14px;
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card h1 {
+                font-size: 1.2rem;
             }
         }
         
         @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 10px 12px;
             }
             
             .stat-card h1 {
-                font-size: 1.3rem;
+                font-size: 1rem;
+            }
+            
+            .stat-card h3 {
+                font-size: 0.55rem;
+            }
+            
+            .chart-card {
+                padding: 12px 14px 14px;
+            }
+            
+            .chart-wrapper {
+                height: 170px;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
         }
         
@@ -263,15 +297,16 @@
         
         .loading-card {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px 16px;
             color: #94a3b8;
+            grid-column: 1 / -1;
         }
         
         .loading-card i {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: #0f8cff;
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -341,26 +376,26 @@
     PERFORMANCE CARDS
     ============================================ -->
     
-    <section class="stats-grid" style="margin-bottom: 35px;">
+    <section class="stats-grid" style="margin-bottom: 18px;">
         <div class="stat-card">
             <h3>🏆 Best Pair</h3>
             <h1 id="bestPair">-</h1>
-            <p style="font-size:0.85rem; color:#94a3b8; margin-top:4px;" id="bestPairProfit">$0</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="bestPairProfit">$0</p>
         </div>
         <div class="stat-card">
             <h3>📉 Worst Pair</h3>
             <h1 id="worstPair">-</h1>
-            <p style="font-size:0.85rem; color:#94a3b8; margin-top:4px;" id="worstPairProfit">$0</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="worstPairProfit">$0</p>
         </div>
         <div class="stat-card">
             <h3>⏰ Best Session</h3>
             <h1 id="bestSession">-</h1>
-            <p style="font-size:0.85rem; color:#94a3b8; margin-top:4px;" id="bestSessionWinrate">0%</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="bestSessionWinrate">0%</p>
         </div>
         <div class="stat-card">
             <h3>🎯 Best Entry Model</h3>
             <h1 id="bestModel">-</h1>
-            <p style="font-size:0.85rem; color:#94a3b8; margin-top:4px;" id="bestModelWinrate">0%</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;" id="bestModelWinrate">0%</p>
         </div>
     </section>
 
@@ -447,7 +482,7 @@
     INSIGHTS
     ============================================ -->
     
-    <section class="chart-card" style="margin-top:10px;">
+    <section class="chart-card" style="margin-top:4px;">
         <h2><i class="fa-solid fa-lightbulb"></i> Key Insights</h2>
         <div class="insights-grid" id="analyticsInsights">
             <div class="loading-card">
