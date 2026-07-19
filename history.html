@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade History | GTRADES-AXIS™</title>
 
-<meta charset="UTF-8">
+  <!-- === ULTRA‑SAFE GUARD === -->
+  <meta http-equiv="refresh" content="0; url=login.html">
+  <script>
+    // Cancel the refresh if user is logged in (we'll check via auth)
+    // This will be overridden by auth.js once loaded.
+    // But we'll also check a session flag.
+    if (sessionStorage.getItem('gtrades_user_logged_in') === 'true') {
+      // Stop the meta refresh by removing it
+      document.querySelector('meta[http-equiv="refresh"]').content = '';
+    }
+  </script>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Trade History | GTRADES-AXIS™</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-<link rel="stylesheet" href="css/style.css">
-
-<link rel="stylesheet" href="css/history.css">
-
+  <!-- your other head elements -->
+</head>
+<body>
+  <!-- content -->
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
 <style>
 /* ============================================
    SIDEBAR - TIGHT SPACING (matching Journal)

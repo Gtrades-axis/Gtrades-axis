@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ============================================================
+     ULTRA‑SAFE GUARD – runs before page renders
+     ============================================================ -->
+<script>
+  // If Firebase Auth is not loaded yet, redirect immediately.
+  // This prevents any visible content from appearing.
+  (function() {
+    // Check if user is already logged in (from session)
+    // Note: this is a fallback; the real guard is in auth.js
+    // But to be safe, we'll redirect if no auth state is found.
+    // Since we can't sync check Firebase, we'll use a simple approach:
+    // If the page has no user session, redirect to login.
+    // We'll use sessionStorage as a quick indicator (set on login).
+    const isLoggedIn = sessionStorage.getItem('gtrades_user_logged_in');
+    if (!isLoggedIn) {
+      // If not set, we assume not logged in – redirect.
+      // But we must be careful not to redirect if we are on login/register pages.
+      const currentPage = window.location.pathname.split('/').pop() || '';
+      const publicPages = ['login.html', 'register.html', 'index.html', 'pending.html', 'access-denied.html'];
+      if (!publicPages.includes(currentPage)) {
+        window.location.href = 'login.html';
+      }
+    }
+  })();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics | GTRADES-AXIS™</title>

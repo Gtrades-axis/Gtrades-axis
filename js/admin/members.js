@@ -1,4 +1,7 @@
-// js/admin/members.js
+// ============================================================
+// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT (COMPLETE)
+// ============================================================
+
 import { db, auth } from "../firebase.js";
 import {
     collection,
@@ -36,6 +39,7 @@ const deleteBtn = document.getElementById("deleteBtn");
 let members = [];
 let filteredMembers = [];
 let selectedUser = null;
+let unsubscribeMembers = null; // to clean up listener if needed
 
 // ============================================================
 // 1. AUTH GUARD – load only if admin
@@ -76,9 +80,15 @@ onAuthStateChanged(auth, async (user) => {
 // 2. LOAD MEMBERS (real-time)
 // ============================================================
 function loadMembersRealtime() {
+    // Clean up previous listener if any
+    if (unsubscribeMembers) {
+        unsubscribeMembers();
+        unsubscribeMembers = null;
+    }
+
     table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">Loading members...</td></tr>`;
 
-    onSnapshot(collection(db, "users"), (snapshot) => {
+    unsubscribeMembers = onSnapshot(collection(db, "users"), (snapshot) => {
         members = [];
         snapshot.forEach(doc => {
             members.push({ id: doc.id, ...doc.data() });
@@ -208,46 +218,111 @@ window.addEventListener("click", (e) => { if (e.target === modal) modal.style.di
 window.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.style.display = "none"; });
 
 // ============================================================
-// 9. ACTION BUTTONS
+// 9. ACTION BUTTONS – with error handling + auto-refresh
 // ============================================================
+
+// ----- APPROVE -----
 approveBtn.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    await updateDoc(doc(db, "users", selectedUser.id), { active: true, status: "active" });
-    alert("Member Approved Successfully.");
-    modal.style.display = "none";
-});
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
 
-premiumBtn.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    await updateDoc(doc(db, "users", selectedUser.id), { role: "premium" });
-    alert("Member is now Premium.");
-    modal.style.display = "none";
-});
-
-adminBtn.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    await updateDoc(doc(db, "users", selectedUser.id), { role: "admin" });
-    alert("Member promoted to Administrator.");
-    modal.style.display = "none";
-});
-
-suspendBtn.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    if (!confirm("Suspend this member?")) return;
-    await updateDoc(doc(db, "users", selectedUser.id), { active: false, status: "suspended" });
-    alert("Member Suspended.");
-    modal.style.display = "none";
-});
-
-deleteBtn.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    if (!confirm("Delete this member permanently?\n\nThis cannot be undone.")) return;
     try {
-        await deleteDoc(doc(db, "users", selectedUser.id));
+        const userRef = doc(db, "users", selectedUser.id);
+        await updateDoc(userRef, {
+            active: true,
+            status: "active"
+        });
+        alert("Member Approved Successfully.");
+        modal.style.display = "none";
+        // Refresh the table automatically
+        loadMembersRealtime();
+    } catch (error) {
+        console.error("Approval error:", error);
+        alert("Failed to approve: " + error.message);
+    }
+});
+
+// ----- MAKE PREMIUM -----
+premiumBtn.addEventListener("click", async () => {
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
+
+    try {
+        const userRef = doc(db, "users", selectedUser.id);
+        await updateDoc(userRef, {
+            role: "premium"
+        });
+        alert("Member is now Premium.");
+        modal.style.display = "none";
+        loadMembersRealtime();
+    } catch (error) {
+        console.error("Premium promotion error:", error);
+        alert("Failed to promote: " + error.message);
+    }
+});
+
+// ----- MAKE ADMIN -----
+adminBtn.addEventListener("click", async () => {
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
+
+    try {
+        const userRef = doc(db, "users", selectedUser.id);
+        await updateDoc(userRef, {
+            role: "admin"
+        });
+        alert("Member promoted to Administrator.");
+        modal.style.display = "none";
+        loadMembersRealtime();
+    } catch (error) {
+        console.error("Admin promotion error:", error);
+        alert("Failed to promote: " + error.message);
+    }
+});
+
+// ----- SUSPEND -----
+suspendBtn.addEventListener("click", async () => {
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
+    if (!confirm("Suspend this member?")) return;
+
+    try {
+        const userRef = doc(db, "users", selectedUser.id);
+        await updateDoc(userRef, {
+            active: false,
+            status: "suspended"
+        });
+        alert("Member Suspended.");
+        modal.style.display = "none";
+        loadMembersRealtime();
+    } catch (error) {
+        console.error("Suspend error:", error);
+        alert("Failed to suspend: " + error.message);
+    }
+});
+
+// ----- DELETE -----
+deleteBtn.addEventListener("click", async () => {
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
+    if (!confirm("Delete this member permanently?\n\nThis cannot be undone.")) return;
+
+    try {
+        const userRef = doc(db, "users", selectedUser.id);
+        await deleteDoc(userRef);
         alert("Member Deleted.");
         modal.style.display = "none";
-        // Optionally refresh the table
-        loadMembersRealtime(); // or refreshDashboard()
+        loadMembersRealtime();
     } catch (error) {
         console.error("Delete error:", error);
         alert("Failed to delete: " + error.message);

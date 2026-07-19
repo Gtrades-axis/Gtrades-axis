@@ -10,6 +10,20 @@ content="width=device-width, initial-scale=1.0">
 
 <title>GTRADES-AXIS™ Trading Journal</title>
 
+<!-- ============================================================
+     🔐 ULTRA‑SAFE GUARD – redirects immediately if not logged in
+     ============================================================ -->
+<meta http-equiv="refresh" content="0; url=login.html">
+<script>
+  // Cancel the meta refresh if the user is already logged in
+  // (session flag is set on login)
+  (function() {
+    if (sessionStorage.getItem('gtrades_user_logged_in') === 'true') {
+      document.querySelector('meta[http-equiv="refresh"]').content = '';
+    }
+  })();
+</script>
+
 <link rel="preconnect"
 href="https://fonts.googleapis.com">
 
@@ -1613,6 +1627,12 @@ Save Trade
 
 </div>
 
+<!-- ============================================================
+     🔐 AUTH GUARD – must be included on every protected page
+     ============================================================ -->
+<script type="module" src="js/auth.js"></script>
+
+<!-- Your existing journal logic – keep it after auth.js -->
 <script type="module" src="js/journal.js"></script>
 
 </body>
