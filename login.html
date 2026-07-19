@@ -1,126 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Login | GTRADES-AXIS™</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="css/style.css">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | GTRADES-AXIS™</title>
+  <!-- your styles (same as before) -->
 </head>
-
 <body>
+  <div class="login-container">
+    <div class="login-card">
+      <img src="images/logo.png" class="login-logo" alt="Logo" />
+      <h1>Welcome <span>Back</span></h1>
+      <p>Log in to your trading dashboard</p>
 
-<div class="login-container">
+      <div id="errorMsg" class="msg"></div>
+      <div id="successMsg" class="msg"></div>
 
-<div class="login-card">
+      <form id="loginForm">
+        <div class="input-group">
+          <i class="fa fa-envelope"></i>
+          <input type="email" id="email" placeholder="Email Address" required />
+        </div>
+        <div class="input-group">
+          <i class="fa fa-lock"></i>
+          <input type="password" id="password" placeholder="Password" required />
+        </div>
+        <button type="submit" class="login-btn">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Log In
+        </button>
+      </form>
 
-<img src="images/logo.png" class="login-logo">
+      <div class="login-links">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
+      <a class="back-home" href="index.html">← Back to Home</a>
+    </div>
+  </div>
 
-<h1>
+  <!-- ✅ Only one script – does everything -->
+   <script type="module" src="js/auth.js"></script>
 
-Welcome Back
-
-</h1>
-
-<p>
-
-Login to access your Academy Resources
-
-</p>
-
-<form id="loginForm">
-
-<div class="input-group">
-
-<i class="fa fa-envelope"></i>
-
-<input
-type="email"
-id="email"
-placeholder="Email Address"
-required>
-
-</div>
-
-<div class="input-group">
-
-<i class="fa fa-lock"></i>
-
-<input
-type="password"
-id="password"
-placeholder="Password"
-required>
-
-</div>
-
-<button
-type="submit"
-class="login-btn">
-
-Login
-
-</button>
-
-</form>
-
-<div class="login-links">
-
-<a href="forgot-password.html">
-
-Forgot Password?
-
-</a>
-
-<a href="register.html">
-
-Create Account
-
-</a>
-
-</div>
-
-<div class="divider">
-
-OR
-
-</div>
-
-<button
-id="googleLogin"
-class="google-btn">
-
-<i class="fab fa-google"></i>
-
-Continue with Google
-
-</button>
-
-<a
-class="back-home"
-
-href="index.html">
-
-← Back to Home
-
-</a>
-
-</div>
-
-</div>
-
-<script type="module" src="js/login.js"></script>
 
 </body>
+</html>
