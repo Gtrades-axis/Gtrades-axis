@@ -12,12 +12,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
+        /* (styles unchanged – keep your existing styles) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Poppins', sans-serif;
             background: #0a0e17;
@@ -27,12 +27,10 @@
             justify-content: center;
             padding: 20px;
         }
-
         .login-container {
             width: 100%;
             max-width: 440px;
         }
-
         .login-card {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(20px);
@@ -41,13 +39,11 @@
             padding: 40px 32px 36px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
         }
-
         .login-logo {
             display: block;
             width: 70px;
             margin: 0 auto 16px;
         }
-
         .login-card h1 {
             text-align: center;
             font-size: 1.8rem;
@@ -55,25 +51,21 @@
             color: #f1f5f9;
             margin-bottom: 4px;
         }
-
         .login-card h1 span {
             background: linear-gradient(135deg, #0f8cff, #00c853);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .login-card > p {
             text-align: center;
             color: #94a3b8;
             font-size: 0.9rem;
             margin-bottom: 28px;
         }
-
         .input-group {
             position: relative;
             margin-bottom: 18px;
         }
-
         .input-group i {
             position: absolute;
             left: 14px;
@@ -83,7 +75,6 @@
             font-size: 1rem;
             pointer-events: none;
         }
-
         .input-group input {
             width: 100%;
             padding: 14px 16px 14px 46px;
@@ -96,17 +87,14 @@
             transition: all 0.3s ease;
             outline: none;
         }
-
         .input-group input:focus {
             border-color: #0f8cff;
             background: rgba(15, 140, 255, 0.06);
             box-shadow: 0 0 0 3px rgba(15, 140, 255, 0.1);
         }
-
         .input-group input::placeholder {
             color: #475569;
         }
-
         .login-btn {
             width: 100%;
             padding: 14px;
@@ -121,35 +109,29 @@
             transition: all 0.3s ease;
             margin-top: 8px;
         }
-
         .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 30px rgba(0, 200, 83, 0.35);
         }
-
         .login-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-
         .login-links {
             text-align: center;
             margin-top: 20px;
             color: #94a3b8;
             font-size: 0.85rem;
         }
-
         .login-links a {
             color: #0f8cff;
             text-decoration: none;
             font-weight: 500;
         }
-
         .login-links a:hover {
             text-decoration: underline;
         }
-
         .back-home {
             display: block;
             text-align: center;
@@ -158,11 +140,9 @@
             font-size: 0.8rem;
             text-decoration: none;
         }
-
         .back-home:hover {
             color: #94a3b8;
         }
-
         .msg {
             padding: 10px 14px;
             border-radius: 10px;
@@ -170,21 +150,18 @@
             margin-bottom: 16px;
             display: none;
         }
-
         .msg.error {
             background: rgba(255, 77, 79, 0.15);
             border: 1px solid rgba(255, 77, 79, 0.25);
             color: #ff4d4f;
             display: block;
         }
-
         .msg.success {
             background: rgba(0, 200, 83, 0.15);
             border: 1px solid rgba(0, 200, 83, 0.25);
             color: #00c853;
             display: block;
         }
-
         @media (max-width: 480px) {
             .login-card {
                 padding: 28px 18px 24px;
@@ -246,9 +223,6 @@
 
     </div>
 
-    <!-- ============================================================
-         ALL LOGIC IN ONE PLACE – NO EXTERNAL JS FILE NEEDED
-         ============================================================ -->
     <script type="module">
         // ------------------------------------------------------------
         // 1. FIREBASE CONFIG – REPLACE WITH YOUR OWN
@@ -307,24 +281,21 @@
         const successEl = document.getElementById('successMsg');
 
         // ------------------------------------------------------------
-        // 6. FORM SUBMIT HANDLER (with confirm password check)
+        // 6. FORM SUBMIT HANDLER – NOW SHOWS EXACT ERROR
         // ------------------------------------------------------------
         form.addEventListener('submit', async (e) => {
-            e.preventDefault(); // ✅ PREVENT DEFAULT RELOAD
+            e.preventDefault();
 
-            // Clear old messages
             errorEl.className = 'msg';
             successEl.className = 'msg';
             errorEl.textContent = '';
             successEl.textContent = '';
 
-            // Get values
             const name = nameInput.value.trim();
             const email = emailInput.value.trim();
             const password = passwordInput.value;
             const confirm = confirmInput.value;
 
-            // Validate
             if (!name || !email || !password || !confirm) {
                 errorEl.textContent = 'Please fill in all fields.';
                 errorEl.className = 'msg error';
@@ -341,59 +312,49 @@
                 return;
             }
 
-            // Disable button and show spinner
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
 
             try {
-                // Create user with email/password
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-
-                // Update display name
                 await updateProfile(user, { displayName: name });
-
-                // Create user profile in Firestore
                 await setDoc(doc(db, 'users', user.uid), {
-                    name: name,
-                    email: email,
+                    name,
+                    email,
                     role: 'member',
                     createdAt: new Date().toISOString(),
                     uid: user.uid
                 });
 
-                // Success!
                 successEl.textContent = 'Account created! Redirecting...';
                 successEl.className = 'msg success';
-
-                // Redirect after a moment
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
 
             } catch (error) {
-                console.error('Registration error:', error);
-                let msg = 'Registration failed. Please try again.';
-                if (error.code === 'auth/email-already-in-use') {
-                    msg = 'This email is already registered. Please log in.';
-                } else if (error.code === 'auth/invalid-email') {
-                    msg = 'Invalid email address.';
-                } else if (error.code === 'auth/network-request-failed') {
-                    msg = 'Network error – please check your internet connection.';
+                console.error('🔥 Full registration error:', error);
+                // Build a user-friendly message with the error code
+                let msg = `Registration failed: ${error.code}`;
+                // Optionally add a human-readable explanation
+                const explanations = {
+                    'auth/email-already-in-use': 'This email is already registered.',
+                    'auth/invalid-email': 'Invalid email address.',
+                    'auth/weak-password': 'Password is too weak (min 6 characters).',
+                    'auth/network-request-failed': 'Network error – check your internet connection.',
+                    'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
+                };
+                if (explanations[error.code]) {
+                    msg += ` – ${explanations[error.code]}`;
                 }
                 errorEl.textContent = msg;
                 errorEl.className = 'msg error';
 
-                // Re-enable button
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
             }
         });
 
-        // ------------------------------------------------------------
-        // 7. (Optional) Log to console that the script is loaded
-        // ------------------------------------------------------------
-        console.log('✅ Registration page loaded with Firebase.');
+        console.log('✅ Registration page loaded. Make sure Firebase Auth & Firestore are enabled.');
     </script>
 
 </body>
