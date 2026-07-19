@@ -403,38 +403,38 @@ href="css/journal.css">
     color: #0f8cff;
 }
 
-/* --- Sidebar Navigation Improvements --- */
+/* --- Sidebar Navigation - Compact --- */
 .sidebar {
     display: flex;
     flex-direction: column;
-    padding: 20px 16px;
-    gap: 6px;
+    padding: 16px 12px;
+    gap: 4px;
 }
 
 .sidebar nav {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     flex: 1;
 }
 
 .sidebar nav a {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 18px;
-    border-radius: 12px;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
     color: #94a3b8;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
 }
 
 .sidebar nav a i {
-    width: 20px;
+    width: 18px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .sidebar nav a:hover {
@@ -488,11 +488,12 @@ href="css/journal.css">
     }
 
     .sidebar {
-        padding: 12px 10px;
+        padding: 10px 8px;
     }
     .sidebar nav a {
-        padding: 10px 14px;
-        font-size: 0.85rem;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        gap: 10px;
     }
 }
 
@@ -515,9 +516,9 @@ href="css/journal.css">
     }
 
     .sidebar nav a {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        gap: 10px;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        gap: 8px;
     }
 }
 
@@ -573,7 +574,7 @@ input[type="time"]:focus {
 <div class="dashboard-container">
 
 <!-- ======================================================
-SIDEBAR (Logout button removed)
+SIDEBAR - Removed: Academy, Resources, Profile, Support
 ====================================================== -->
 
 <aside class="sidebar">
@@ -603,22 +604,6 @@ Dashboard
 
 </a>
 
-<a href="premium-academy.html">
-
-<i class="fa-solid fa-graduation-cap"></i>
-
-Academy
-
-</a>
-
-<a href="downloads.html">
-
-<i class="fa-solid fa-folder-open"></i>
-
-Resources
-
-</a>
-
 <a class="active"
 href="journal.html">
 
@@ -644,25 +629,9 @@ History
 
 </a>
 
-<a href="profile.html">
-
-<i class="fa-solid fa-user"></i>
-
-Profile
-
-</a>
-
-<a href="support.html">
-
-<i class="fa-solid fa-headset"></i>
-
-Support
-
-</a>
-
 </nav>
 
-<!-- Logout button removed as requested -->
+<!-- Logout button removed -->
 
 </aside>
 
