@@ -486,3 +486,12 @@ body {
         margin-bottom: 6px;
     }
 }
+/* ULTRA TIGHT - Override if needed */
+.stats-grid { gap: 4px; }
+.stat-card { padding: 6px 8px; }
+.stat-card .stat-value { font-size: 0.9rem; }
+.chart-grid { gap: 6px; }
+.chart-card { padding: 8px 10px; }
+.chart-card .chart-wrapper { height: 140px; }
+.insights-grid { gap: 4px; }
+.insight-item { padding: 4px 8px; }
