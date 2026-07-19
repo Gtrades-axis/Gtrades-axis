@@ -4,17 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Create Account | GTRADES-AXIS™</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
-        /* ---- GLOBAL RESET & STYLES ---- */
         * {
             margin: 0;
             padding: 0;
@@ -72,7 +69,6 @@
             margin-bottom: 28px;
         }
 
-        /* ---- FORM ---- */
         .input-group {
             position: relative;
             margin-bottom: 18px;
@@ -111,7 +107,6 @@
             color: #475569;
         }
 
-        /* ---- BUTTON ---- */
         .login-btn {
             width: 100%;
             padding: 14px;
@@ -138,7 +133,6 @@
             transform: none;
         }
 
-        /* ---- LINKS ---- */
         .login-links {
             text-align: center;
             margin-top: 20px;
@@ -169,7 +163,6 @@
             color: #94a3b8;
         }
 
-        /* ---- ERROR / SUCCESS MESSAGES ---- */
         .msg {
             padding: 10px 14px;
             border-radius: 10px;
@@ -192,7 +185,6 @@
             display: block;
         }
 
-        /* ---- RESPONSIVE ---- */
         @media (max-width: 480px) {
             .login-card {
                 padding: 28px 18px 24px;
@@ -213,7 +205,6 @@
 
             <p>Join the GTRADES-AXIS Academy</p>
 
-            <!-- Error / Success message placeholders -->
             <div id="errorMsg" class="msg"></div>
             <div id="successMsg" class="msg"></div>
 
@@ -231,7 +222,7 @@
 
                 <div class="input-group">
                     <i class="fa fa-lock"></i>
-                    <input type="password" id="password" placeholder="Password (min. 6 characters)" required>
+                    <input type="password" id="password" placeholder="Password (min. 6 chars)" required>
                 </div>
 
                 <div class="input-group">
@@ -239,7 +230,7 @@
                     <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
                 </div>
 
-                <button type="submit" class="login-btn">
+                <button type="submit" class="login-btn" id="registerBtn">
                     <i class="fa-solid fa-user-plus"></i> Create Account
                 </button>
 
@@ -256,9 +247,154 @@
     </div>
 
     <!-- ============================================================
-         SINGLE AUTH SCRIPT – handles registration, login, guard
+         ALL LOGIC IN ONE PLACE – NO EXTERNAL JS FILE NEEDED
          ============================================================ -->
-    <script type="module" src="js/auth.js"></script>
+    <script type="module">
+        // ------------------------------------------------------------
+        // 1. FIREBASE CONFIG – REPLACE WITH YOUR OWN
+        // ------------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // ------------------------------------------------------------
+        // 2. IMPORT FIREBASE SDK
+        // ------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            updateProfile,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // ------------------------------------------------------------
+        // 3. INITIALIZE
+        // ------------------------------------------------------------
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ------------------------------------------------------------
+        // 4. REDIRECT IF ALREADY LOGGED IN
+        // ------------------------------------------------------------
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        // ------------------------------------------------------------
+        // 5. GET DOM ELEMENTS
+        // ------------------------------------------------------------
+        const form = document.getElementById('registerForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirmPassword');
+        const btn = document.getElementById('registerBtn');
+        const errorEl = document.getElementById('errorMsg');
+        const successEl = document.getElementById('successMsg');
+
+        // ------------------------------------------------------------
+        // 6. FORM SUBMIT HANDLER (with confirm password check)
+        // ------------------------------------------------------------
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // ✅ PREVENT DEFAULT RELOAD
+
+            // Clear old messages
+            errorEl.className = 'msg';
+            successEl.className = 'msg';
+            errorEl.textContent = '';
+            successEl.textContent = '';
+
+            // Get values
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+
+            // Validate
+            if (!name || !email || !password || !confirm) {
+                errorEl.textContent = 'Please fill in all fields.';
+                errorEl.className = 'msg error';
+                return;
+            }
+            if (password.length < 6) {
+                errorEl.textContent = 'Password must be at least 6 characters.';
+                errorEl.className = 'msg error';
+                return;
+            }
+            if (password !== confirm) {
+                errorEl.textContent = 'Passwords do not match.';
+                errorEl.className = 'msg error';
+                return;
+            }
+
+            // Disable button and show spinner
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
+
+            try {
+                // Create user with email/password
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Update display name
+                await updateProfile(user, { displayName: name });
+
+                // Create user profile in Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    name: name,
+                    email: email,
+                    role: 'member',
+                    createdAt: new Date().toISOString(),
+                    uid: user.uid
+                });
+
+                // Success!
+                successEl.textContent = 'Account created! Redirecting...';
+                successEl.className = 'msg success';
+
+                // Redirect after a moment
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                let msg = 'Registration failed. Please try again.';
+                if (error.code === 'auth/email-already-in-use') {
+                    msg = 'This email is already registered. Please log in.';
+                } else if (error.code === 'auth/invalid-email') {
+                    msg = 'Invalid email address.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    msg = 'Network error – please check your internet connection.';
+                }
+                errorEl.textContent = msg;
+                errorEl.className = 'msg error';
+
+                // Re-enable button
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+            }
+        });
+
+        // ------------------------------------------------------------
+        // 7. (Optional) Log to console that the script is loaded
+        // ------------------------------------------------------------
+        console.log('✅ Registration page loaded with Firebase.');
+    </script>
 
 </body>
 
