@@ -1,11 +1,10 @@
 // ============================================================
-// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT (COMPLETE)
+// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT (DEBUG)
 // ============================================================
 
 import { db, auth } from "../firebase.js";
 import {
     collection,
-    getDocs,
     doc,
     getDoc,
     updateDoc,
@@ -36,29 +35,33 @@ const adminBtn = document.getElementById("adminBtn");
 const suspendBtn = document.getElementById("suspendBtn");
 const deleteBtn = document.getElementById("deleteBtn");
 
-let members = [];
-let filteredMembers = [];
 let selectedUser = null;
-let unsubscribeMembers = null; // to clean up listener if needed
+let unsubscribeMembers = null;
 
 // ============================================================
 // 1. AUTH GUARD – load only if admin
 // ============================================================
 onAuthStateChanged(auth, async (user) => {
+    console.log("🔐 members.js: auth state changed", user ? user.uid : "null");
     if (!user) {
+        console.warn("⚠️ members.js: No user, redirecting to login");
         window.location.href = "login.html";
         return;
     }
 
     try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
+        console.log("📄 members.js: admin user doc exists?", userDoc.exists());
         if (!userDoc.exists()) {
+            console.warn("⚠️ members.js: Admin user doc missing, redirecting to login");
             window.location.href = "login.html";
             return;
         }
 
         const userData = userDoc.data();
+        console.log("👤 members.js: Admin user data:", userData);
         if (userData.role !== "admin") {
+            console.warn("⚠️ members.js: User role is not admin:", userData.role);
             table.innerHTML = `
                 <tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">
                     <i class="fa-solid fa-lock" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
@@ -68,10 +71,10 @@ onAuthStateChanged(auth, async (user) => {
             return;
         }
 
-        // User is admin – load members
+        console.log("✅ members.js: Admin verified, loading members...");
         loadMembersRealtime();
     } catch (error) {
-        console.error("Auth check failed:", error);
+        console.error("❌ members.js: Auth check failed:", error);
         table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">Error loading members: ${error.message}</td></tr>`;
     }
 });
@@ -80,7 +83,6 @@ onAuthStateChanged(auth, async (user) => {
 // 2. LOAD MEMBERS (real-time)
 // ============================================================
 function loadMembersRealtime() {
-    // Clean up previous listener if any
     if (unsubscribeMembers) {
         unsubscribeMembers();
         unsubscribeMembers = null;
@@ -88,15 +90,49 @@ function loadMembersRealtime() {
 
     table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">Loading members...</td></tr>`;
 
+    console.log("🔄 members.js: Setting up onSnapshot for users collection");
     unsubscribeMembers = onSnapshot(collection(db, "users"), (snapshot) => {
-        members = [];
+        console.log(`📋 members.js: Snapshot received, ${snapshot.size} documents`);
+        let html = "";
+        if (snapshot.empty) {
+            console.warn("⚠️ members.js: No users found");
+            table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">No members found.</td></tr>`;
+            return;
+        }
         snapshot.forEach(doc => {
-            members.push({ id: doc.id, ...doc.data() });
+            const user = doc.data();
+            console.log(`👤 members.js: User: ${user.name} (${user.email}), active: ${user.active}, role: ${user.role}`);
+            const initials = user.name ? user.name.charAt(0).toUpperCase() : "U";
+            const statusClass = user.active === true ? "active" : (user.status || "pending");
+            const roleClass = user.role || "member";
+
+            html += `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="member-avatar-small">${initials}</div>
+                            <div>
+                                <strong>${user.name || "Unknown"}</strong>
+                                <br>
+                                <small>${user.email || ""}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge ${roleClass}">${roleClass}</span></td>
+                    <td><span class="badge ${statusClass}">${statusClass}</span></td>
+                    <td>${user.payment || "Unpaid"}</td>
+                    <td>${formatDate(user.createdAt)}</td>
+                    <td>
+                        <button class="manage-btn" data-id="${doc.id}">Manage</button>
+                    </td>
+                </tr>
+            `;
         });
-        filteredMembers = [...members];
-        renderMembers();
+        table.innerHTML = html;
+        console.log("✅ members.js: Table rendered");
+        attachButtons();
     }, (error) => {
-        console.error("Snapshot error:", error);
+        console.error("❌ members.js: Snapshot error:", error);
         table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">
             Error loading members: ${error.message}
         </td></tr>`;
@@ -104,49 +140,7 @@ function loadMembersRealtime() {
 }
 
 // ============================================================
-// 3. RENDER TABLE
-// ============================================================
-function renderMembers() {
-    table.innerHTML = "";
-
-    if (filteredMembers.length === 0) {
-        table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">No members found.</td></tr>`;
-        return;
-    }
-
-    filteredMembers.forEach(user => {
-        const initials = user.name ? user.name.charAt(0).toUpperCase() : "U";
-        const statusClass = user.active === true ? "active" : (user.status || "pending");
-        const roleClass = user.role || "member";
-
-        table.innerHTML += `
-            <tr>
-                <td>
-                    <div class="user-cell">
-                        <div class="member-avatar-small">${initials}</div>
-                        <div>
-                            <strong>${user.name || "Unknown"}</strong>
-                            <br>
-                            <small>${user.email || ""}</small>
-                        </div>
-                    </div>
-                </td>
-                <td><span class="badge ${roleClass}">${roleClass}</span></td>
-                <td><span class="badge ${statusClass}">${statusClass}</span></td>
-                <td>${user.payment || "Unpaid"}</td>
-                <td>${formatDate(user.createdAt)}</td>
-                <td>
-                    <button class="manage-btn" data-id="${user.id}">Manage</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    attachButtons();
-}
-
-// ============================================================
-// 4. DATE FORMATTER
+// 3. DATE FORMATTER
 // ============================================================
 function formatDate(date) {
     if (!date) return "--";
@@ -160,22 +154,19 @@ function formatDate(date) {
 }
 
 // ============================================================
-// 5. SEARCH
+// 4. SEARCH
 // ============================================================
 search.addEventListener("input", () => {
     const value = search.value.toLowerCase().trim();
-    filteredMembers = members.filter(user => {
-        return (
-            (user.name || "").toLowerCase().includes(value) ||
-            (user.email || "").toLowerCase().includes(value) ||
-            (user.role || "").toLowerCase().includes(value)
-        );
+    const rows = document.querySelectorAll("#membersTable tr");
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(value) ? "" : "none";
     });
-    renderMembers();
 });
 
 // ============================================================
-// 6. MANAGE BUTTONS
+// 5. MANAGE BUTTONS
 // ============================================================
 function attachButtons() {
     document.querySelectorAll(".manage-btn").forEach(button => {
@@ -187,7 +178,7 @@ function attachButtons() {
 }
 
 // ============================================================
-// 7. OPEN MEMBER MODAL
+// 6. OPEN MEMBER MODAL
 // ============================================================
 async function openMember(id) {
     const ref = doc(db, "users", id);
@@ -211,17 +202,15 @@ async function openMember(id) {
 }
 
 // ============================================================
-// 8. MODAL CLOSE
+// 7. MODAL CLOSE
 // ============================================================
 closeModal.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 window.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.style.display = "none"; });
 
 // ============================================================
-// 9. ACTION BUTTONS – with error handling + auto-refresh
+// 8. ACTION BUTTONS
 // ============================================================
-
-// ----- APPROVE -----
 approveBtn.addEventListener("click", async () => {
     if (!selectedUser) {
         alert("No member selected.");
@@ -236,95 +225,58 @@ approveBtn.addEventListener("click", async () => {
         });
         alert("Member Approved Successfully.");
         modal.style.display = "none";
-        // Refresh the table automatically
-        loadMembersRealtime();
+        // No need to call loadMembersRealtime() because onSnapshot updates automatically
     } catch (error) {
         console.error("Approval error:", error);
         alert("Failed to approve: " + error.message);
     }
 });
 
-// ----- MAKE PREMIUM -----
 premiumBtn.addEventListener("click", async () => {
-    if (!selectedUser) {
-        alert("No member selected.");
-        return;
-    }
-
+    if (!selectedUser) return;
     try {
-        const userRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userRef, {
-            role: "premium"
-        });
+        await updateDoc(doc(db, "users", selectedUser.id), { role: "premium" });
         alert("Member is now Premium.");
         modal.style.display = "none";
-        loadMembersRealtime();
     } catch (error) {
-        console.error("Premium promotion error:", error);
-        alert("Failed to promote: " + error.message);
+        alert("Error: " + error.message);
     }
 });
 
-// ----- MAKE ADMIN -----
 adminBtn.addEventListener("click", async () => {
-    if (!selectedUser) {
-        alert("No member selected.");
-        return;
-    }
-
+    if (!selectedUser) return;
     try {
-        const userRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userRef, {
-            role: "admin"
-        });
+        await updateDoc(doc(db, "users", selectedUser.id), { role: "admin" });
         alert("Member promoted to Administrator.");
         modal.style.display = "none";
-        loadMembersRealtime();
     } catch (error) {
-        console.error("Admin promotion error:", error);
-        alert("Failed to promote: " + error.message);
+        alert("Error: " + error.message);
     }
 });
 
-// ----- SUSPEND -----
 suspendBtn.addEventListener("click", async () => {
-    if (!selectedUser) {
-        alert("No member selected.");
-        return;
-    }
+    if (!selectedUser) return;
     if (!confirm("Suspend this member?")) return;
-
     try {
-        const userRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userRef, {
+        await updateDoc(doc(db, "users", selectedUser.id), {
             active: false,
             status: "suspended"
         });
         alert("Member Suspended.");
         modal.style.display = "none";
-        loadMembersRealtime();
     } catch (error) {
-        console.error("Suspend error:", error);
-        alert("Failed to suspend: " + error.message);
+        alert("Error: " + error.message);
     }
 });
 
-// ----- DELETE -----
 deleteBtn.addEventListener("click", async () => {
-    if (!selectedUser) {
-        alert("No member selected.");
-        return;
-    }
+    if (!selectedUser) return;
     if (!confirm("Delete this member permanently?\n\nThis cannot be undone.")) return;
-
     try {
-        const userRef = doc(db, "users", selectedUser.id);
-        await deleteDoc(userRef);
+        await deleteDoc(doc(db, "users", selectedUser.id));
         alert("Member Deleted.");
         modal.style.display = "none";
-        loadMembersRealtime();
     } catch (error) {
-        console.error("Delete error:", error);
-        alert("Failed to delete: " + error.message);
+        alert("Error: " + error.message);
     }
 });
