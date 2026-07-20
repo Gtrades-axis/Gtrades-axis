@@ -72,7 +72,7 @@ export async function loginUser(email, password) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// 3. REGISTER – with explicit alert on Firestore failure
+// 3. REGISTER – with explicit messaging
 // ────────────────────────────────────────────────────────────────
 export async function registerUser(name, email, password) {
   try {
@@ -97,24 +97,15 @@ export async function registerUser(name, email, password) {
     };
     console.log("📝 Writing to Firestore:", userData);
 
-    // Step 4 – Write to Firestore (with try-catch)
-    try {
-      await setDoc(doc(db, "users", uid), userData);
-      console.log("✅ Firestore document created for:", uid);
-    } catch (firestoreError) {
-      // Show a clear alert so the user knows something went wrong
-      alert("Firestore write failed:\n" + firestoreError.message);
-      console.error("Firestore write error:", firestoreError);
-      // Re-throw so the registration is marked as failed
-      throw firestoreError;
-    }
+    // Step 4 – Write to Firestore
+    await setDoc(doc(db, "users", uid), userData);
+    console.log("✅ Firestore document created for:", uid);
 
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
     return { success: true, uid };
   } catch (error) {
     console.error("❌ Registration error:", error);
-    // Show an alert for the user
-    alert("Registration failed: " + (error.message || "Unknown error"));
+    // Return the error so the form handler can display it
     return { success: false, code: error.code, message: error.message };
   }
 }
@@ -144,6 +135,7 @@ export async function approveUser(uid) {
 // 6. AUTO-BIND FORM HANDLERS
 // ────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // --- LOGIN ---
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -172,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- REGISTER ---
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
@@ -184,6 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const successEl = document.getElementById("successMsg");
       const btn = registerForm.querySelector('button[type="submit"]');
 
+      // Clear previous messages
+      if (errorEl) errorEl.textContent = "";
+      if (successEl) successEl.textContent = "";
+
+      // Validate inputs
       if (!name || !email || !password || !confirm) {
         if (errorEl) errorEl.textContent = "Please fill in all fields.";
         return;
@@ -197,16 +195,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Disable button and show spinner
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
-      if (errorEl) errorEl.textContent = "";
-      if (successEl) successEl.textContent = "";
 
+      // Call registration
       const result = await registerUser(name, email, password);
+
       if (result.success) {
-        if (successEl) successEl.textContent = "Account created! Redirecting to pending approval...";
-        setTimeout(() => window.location.href = "pending.html", 1500);
+        // Show success message
+        if (successEl) {
+          successEl.textContent = "✅ Account created! Awaiting admin approval...";
+          successEl.style.display = "block";
+        }
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          window.location.href = "pending.html";
+        }, 2000);
       } else {
+        // Show error
         let msg = "Registration failed. Please try again.";
         if (result.code === "auth/email-already-in-use") msg = "Email already registered. Please log in.";
         else if (result.code === "auth/invalid-email") msg = "Invalid email address.";
@@ -219,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- LOGOUT ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
