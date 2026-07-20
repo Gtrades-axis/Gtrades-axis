@@ -134,9 +134,6 @@
         </a>
     </div>
 
-    <!-- ============================================================
-    AUTH LOGIC – checks if user document exists and if approved
-    ============================================================ -->
     <script type="module">
         import { auth, db } from "./js/firebase.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
@@ -147,20 +144,15 @@
         const statusTitle = document.getElementById("statusTitle");
         const statusMessage = document.getElementById("statusMessage");
 
-        // Check every 3 seconds if approved
         let checkInterval = null;
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                // Not logged in – redirect to login
                 window.location.href = "login.html";
                 return;
             }
 
-            // Check approval status
             await checkApprovalStatus(user);
-
-            // Set up interval to keep checking
             if (checkInterval) clearInterval(checkInterval);
             checkInterval = setInterval(async () => {
                 await checkApprovalStatus(user);
@@ -172,12 +164,16 @@
                 const userDoc = await getDoc(doc(db, "users", user.uid));
 
                 if (!userDoc.exists()) {
-                    // User document not found – show error
-                    statusCheck.className = "status-check error";
-                    statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> User profile not found. Please contact support.';
-                    statusIcon.className = "fa-solid fa-exclamation-triangle icon-error";
-                    statusTitle.textContent = "⚠️ Profile Error";
-                    statusMessage.innerHTML = "Your user profile could not be found in the database.<br />Please contact support for assistance.";
+                    // ✅ Instead of "Profile Error", show "Awaiting admin approval"
+                    statusCheck.className = "status-check pending";
+                    statusCheck.innerHTML = '<i class="fa-solid fa-clock"></i> Your account is pending admin approval.';
+                    statusIcon.className = "fa-solid fa-clock icon-clock";
+                    statusTitle.textContent = "⏳ Awaiting Admin Approval";
+                    statusMessage.innerHTML = `
+                        Your account has been created successfully.<br />
+                        An administrator will review and activate your account shortly.<br />
+                        <strong>You will be notified once approved.</strong>
+                    `;
                     return;
                 }
 
