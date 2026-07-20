@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ – COMPLETE AUTH GUARD + ROLE CHECKS
+// GTRADES-AXIS™ – AUTH WITH VERBOSE LOGGING
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -10,22 +10,20 @@ import {
   updateProfile,
   signOut,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ------------------------------------------------------------------
-// 1. PAGE GUARD – runs on every page
+// 1. PAGE GUARD (unchanged)
 // ------------------------------------------------------------------
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html", "pending.html", "access-denied.html"];
 
-  // ---- NOT LOGGED IN ----
   if (!user && !publicPages.includes(currentPage)) {
     window.location.href = "login.html";
     return;
   }
 
-  // ---- LOGGED IN ----
   if (user) {
     let userData = null;
     try {
@@ -35,7 +33,6 @@ onAuthStateChanged(auth, async (user) => {
       console.error("Failed to fetch user data:", e);
     }
 
-    // If on public page (except pending/access-denied), redirect based on status
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -46,25 +43,16 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // ---- PROTECTED PAGES ----
     if (!publicPages.includes(currentPage)) {
-      // 1. Check approval (active)
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
 
-      // 2. Premium-only pages
       const premiumPages = [
-        "academy.html",
-        "premium-academy.html",
-        "resources.html",
-        "videos.html",
-        "journal.html",
-        "analytics.html",
-        "history.html"
+        "academy.html", "premium-academy.html", "resources.html",
+        "videos.html", "journal.html", "analytics.html", "history.html"
       ];
-
       if (premiumPages.includes(currentPage)) {
         const role = userData.role || "member";
         if (role !== "premium" && role !== "admin") {
@@ -72,16 +60,10 @@ onAuthStateChanged(auth, async (user) => {
           return;
         }
       }
-
-      // 3. Admin-only pages
-      if (currentPage === "admin.html") {
-        if (userData.role !== "admin") {
-          window.location.href = "access-denied.html";
-          return;
-        }
+      if (currentPage === "admin.html" && userData.role !== "admin") {
+        window.location.href = "access-denied.html";
+        return;
       }
-
-      // All checks passed – user can stay
     }
   }
 });
@@ -93,36 +75,50 @@ export async function loginUser(email, password) {
   try {
     await signInWithEmailAndPassword(auth, email, password);
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
+    console.log("✅ Login successful");
     return { success: true };
   } catch (error) {
+    console.error("❌ Login error:", error.code);
     return { success: false, code: error.code };
   }
 }
 
 // ------------------------------------------------------------------
-// 3. REGISTER FUNCTION – creates user document
+// 3. REGISTER FUNCTION – with detailed logging
 // ------------------------------------------------------------------
 export async function registerUser(name, email, password) {
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
+  console.log("🔐 registerUser called with:", { name, email });
 
-    // 🔥 CRITICAL: Create the user document
-    await setDoc(doc(db, "users", cred.user.uid), {
+  try {
+    // Step 1: Create user in Firebase Auth
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    console.log("✅ Auth user created:", cred.user.uid);
+
+    // Step 2: Update display name
+    await updateProfile(cred.user, { displayName: name });
+    console.log("✅ Profile updated");
+
+    // Step 3: Write user document to Firestore (using plain date string)
+    const userData = {
       name,
       email,
       role: "pending",
       active: false,
       status: "pending",
       payment: "unpaid",
-      createdAt: serverTimestamp(),
+      createdAt: new Date().toISOString(),  // ✅ safe, no import needed
       uid: cred.user.uid,
-    });
+    };
+    console.log("📝 Preparing to write:", userData);
 
-    console.log("✅ User document created for:", cred.user.uid);
+    await setDoc(doc(db, "users", cred.user.uid), userData);
+    console.log("✅ Firestore document created successfully for:", cred.user.uid);
+
     return { success: true };
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("❌ Registration error:", error);
+    console.error("❌ Error code:", error.code);
+    console.error("❌ Error message:", error.message);
     return { success: false, code: error.code };
   }
 }
@@ -137,7 +133,7 @@ export async function logoutUser() {
 }
 
 // ------------------------------------------------------------------
-// 5. ADMIN – approve a user
+// 5. ADMIN APPROVE
 // ------------------------------------------------------------------
 export async function approveUser(uid) {
   try {
@@ -149,12 +145,15 @@ export async function approveUser(uid) {
 }
 
 // ------------------------------------------------------------------
-// 6. AUTO-BIND FORM HANDLERS (only ONE login and ONE register)
+// 6. AUTO-BIND FORM HANDLERS (with console logs)
 // ------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("📄 DOM loaded – attaching form handlers");
+
   // --- LOGIN FORM ---
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
+    console.log("✅ Login form found");
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email")?.value.trim();
@@ -184,15 +183,19 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
       }
-      // On success, the guard will redirect
     });
+  } else {
+    console.warn("⚠️ Login form not found on this page");
   }
 
   // --- REGISTER FORM ---
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
+    console.log("✅ Register form found");
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      console.log("📝 Register form submitted");
+
       const name = document.getElementById("name")?.value.trim();
       const email = document.getElementById("email")?.value.trim();
       const password = document.getElementById("password")?.value;
@@ -220,6 +223,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (successEl) successEl.textContent = "";
 
       const result = await registerUser(name, email, password);
+      console.log("🔁 Registration result:", result);
+
       if (result.success) {
         if (successEl) successEl.textContent = "Account created! Awaiting admin approval...";
         setTimeout(() => window.location.href = "pending.html", 2000);
@@ -229,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "auth/email-already-in-use": "Email already registered.",
           "auth/invalid-email": "Invalid email address.",
           "auth/network-request-failed": "Network error – check your connection.",
+          "auth/too-many-requests": "Too many attempts. Please wait.",
         };
         if (map[result.code]) msg = map[result.code];
         if (errorEl) errorEl.textContent = msg;
@@ -236,11 +242,14 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
       }
     });
+  } else {
+    console.warn("⚠️ Register form not found on this page");
   }
 
   // --- LOGOUT BUTTON ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
+    console.log("✅ Logout button found");
   }
 });
