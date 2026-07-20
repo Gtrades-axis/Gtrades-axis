@@ -5,36 +5,27 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signOut,
-  setPersistence,
-  browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-setPersistence(auth, browserLocalPersistence)
-  .then(() => console.log("✅ Persistence set"))
-  .catch(err => console.error(err));
-
 // ────────────────────────────────────────────────────────────────
-// PAGE GUARD
+// 1. PAGE GUARD (unchanged)
 // ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html", "pending.html", "access-denied.html"];
 
   if (!user && !publicPages.includes(currentPage)) {
-    sessionStorage.removeItem('gtrades_user_logged_in');
     window.location.href = "login.html";
     return;
   }
 
   if (user) {
-    sessionStorage.setItem('gtrades_user_logged_in', 'true');
     let userData = null;
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) userData = docSnap.data();
-      else alert("⚠️ Your user profile is missing in the database. Please contact support.");
-    } catch (e) { alert("❌ Error fetching user data: " + e.message); }
+    } catch (e) { console.error("Fetch user data error:", e); }
 
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
@@ -51,7 +42,7 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "pending.html";
         return;
       }
-      const premiumPages = ["academy.html", "resources.html", "videos.html", "journal.html", "analytics.html", "history.html", "premium-academy.html"];
+      const premiumPages = ["academy.html","premium-academy.html","resources.html","videos.html","journal.html","analytics.html","history.html"];
       if (premiumPages.includes(currentPage)) {
         const role = userData.role || "member";
         if (role !== "premium" && role !== "admin") {
@@ -68,7 +59,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ────────────────────────────────────────────────────────────────
-// LOGIN
+// 2. LOGIN
 // ────────────────────────────────────────────────────────────────
 export async function loginUser(email, password) {
   try {
@@ -81,19 +72,19 @@ export async function loginUser(email, password) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// REGISTER – with alerts
+// 3. REGISTER – creates Firestore document
 // ────────────────────────────────────────────────────────────────
 export async function registerUser(name, email, password) {
   try {
-    alert("1️⃣ Creating Auth user...");
+    // Create Auth user
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const uid = cred.user.uid;
-    alert("✅ Auth user created: " + uid);
 
+    // Update display name
     await updateProfile(cred.user, { displayName: name });
 
-    alert("2️⃣ Writing to Firestore...");
-    await setDoc(doc(db, "users", uid), {
+    // Write to Firestore
+    const userData = {
       name,
       email,
       role: "pending",
@@ -102,19 +93,20 @@ export async function registerUser(name, email, password) {
       payment: "unpaid",
       createdAt: new Date().toISOString(),
       uid,
-    });
-    alert("✅ Firestore document created for: " + uid);
+    };
+    await setDoc(doc(db, "users", uid), userData);
+    console.log("✅ Firestore document created for:", uid);
 
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
     return { success: true, uid };
   } catch (error) {
-    alert("❌ Registration error: " + error.message);
+    console.error("❌ Registration error:", error);
     return { success: false, code: error.code, message: error.message };
   }
 }
 
 // ────────────────────────────────────────────────────────────────
-// LOGOUT
+// 4. LOGOUT
 // ────────────────────────────────────────────────────────────────
 export async function logoutUser() {
   await signOut(auth);
@@ -123,7 +115,7 @@ export async function logoutUser() {
 }
 
 // ────────────────────────────────────────────────────────────────
-// ADMIN APPROVE
+// 5. ADMIN APPROVE
 // ────────────────────────────────────────────────────────────────
 export async function approveUser(uid) {
   try {
@@ -135,7 +127,7 @@ export async function approveUser(uid) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// FORM HANDLERS
+// 6. AUTO-BIND FORM HANDLERS
 // ────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
