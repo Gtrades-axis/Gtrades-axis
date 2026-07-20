@@ -10,7 +10,7 @@ import {
   updateProfile,
   signOut,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ------------------------------------------------------------------
 // 1. PAGE GUARD – runs on every page
@@ -34,7 +34,6 @@ onAuthStateChanged(auth, async (user) => {
       if (docSnap.exists()) userData = docSnap.data();
     } catch (e) {
       console.error("Failed to fetch user data:", e);
-      // If we can't fetch, treat as unapproved
     }
 
     // If on public page (except pending/access-denied), redirect based on status
@@ -70,13 +69,12 @@ onAuthStateChanged(auth, async (user) => {
       if (premiumPages.includes(currentPage)) {
         const role = userData.role || "member";
         if (role !== "premium" && role !== "admin") {
-          // Not premium – show access denied page
           window.location.href = "access-denied.html";
           return;
         }
       }
 
-      // 3. (Optional) Admin-only pages – if you have any
+      // 3. Admin-only pages
       if (currentPage === "admin.html") {
         if (userData.role !== "admin") {
           window.location.href = "access-denied.html";
@@ -90,11 +88,13 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ------------------------------------------------------------------
-// 2. LOGIN FUNCTION (used by login form)
+// 2. LOGIN FUNCTION
 // ------------------------------------------------------------------
 export async function loginUser(email, password) {
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    // Set session flag for meta-refresh guard
+    sessionStorage.setItem('gtrades_user_logged_in', 'true');
     return { success: true };
   } catch (error) {
     return { success: false, code: error.code };
@@ -113,8 +113,9 @@ export async function registerUser(name, email, password) {
       email,
       role: "pending",
       active: false,
+      status: "pending",
       payment: "unpaid",
-      createdAt: new Date().toISOString(),
+      createdAt: serverTimestamp(),  // ✅ better than string
       uid: cred.user.uid,
     });
     return { success: true };
@@ -128,6 +129,7 @@ export async function registerUser(name, email, password) {
 // ------------------------------------------------------------------
 export async function logoutUser() {
   await signOut(auth);
+  sessionStorage.removeItem('gtrades_user_logged_in');
   window.location.href = "login.html";
 }
 
