@@ -5,12 +5,14 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signOut,
+  setPersistence,
+  browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// ────────────────────────────────────────────────────────────────
-// 1. PAGE GUARD (unchanged)
-// ────────────────────────────────────────────────────────────────
+setPersistence(auth, browserLocalPersistence);
+
+// ─── PAGE GUARD ────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html", "pending.html", "access-denied.html"];
@@ -25,8 +27,9 @@ onAuthStateChanged(auth, async (user) => {
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) userData = docSnap.data();
-    } catch (e) { console.error("Fetch user data error:", e); }
+    } catch (e) { console.error("Fetch user error:", e); }
 
+    // Public pages redirect
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -37,12 +40,17 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
+    // Protected pages
     if (!publicPages.includes(currentPage)) {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
-      const premiumPages = ["academy.html","premium-academy.html","resources.html","videos.html","journal.html","analytics.html","history.html"];
+
+      const premiumPages = [
+        "academy.html", "premium-academy.html", "resources.html",
+        "videos.html", "journal.html", "analytics.html", "history.html"
+      ];
       if (premiumPages.includes(currentPage)) {
         const role = userData.role || "member";
         if (role !== "premium" && role !== "admin") {
@@ -50,6 +58,7 @@ onAuthStateChanged(auth, async (user) => {
           return;
         }
       }
+
       if (currentPage === "admin.html" && userData.role !== "admin") {
         window.location.href = "access-denied.html";
         return;
@@ -58,33 +67,13 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// ────────────────────────────────────────────────────────────────
-// 2. LOGIN
-// ────────────────────────────────────────────────────────────────
-export async function loginUser(email, password) {
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    sessionStorage.setItem('gtrades_user_logged_in', 'true');
-    return { success: true };
-  } catch (error) {
-    return { success: false, code: error.code };
-  }
-}
-
-// ────────────────────────────────────────────────────────────────
-// 3. REGISTER – creates Firestore document
-// ────────────────────────────────────────────────────────────────
+// ─── REGISTER ──────────────────────────────────────────────────
 export async function registerUser(name, email, password) {
   try {
-    // Create Auth user
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const uid = cred.user.uid;
-
-    // Update display name
     await updateProfile(cred.user, { displayName: name });
-
-    // Write to Firestore
-    const userData = {
+    await setDoc(doc(db, "users", uid), {
       name,
       email,
       role: "pending",
@@ -93,30 +82,30 @@ export async function registerUser(name, email, password) {
       payment: "unpaid",
       createdAt: new Date().toISOString(),
       uid,
-    };
-    await setDoc(doc(db, "users", uid), userData);
-    console.log("✅ Firestore document created for:", uid);
-
-    sessionStorage.setItem('gtrades_user_logged_in', 'true');
+    });
     return { success: true, uid };
   } catch (error) {
-    console.error("❌ Registration error:", error);
     return { success: false, code: error.code, message: error.message };
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// 4. LOGOUT
-// ────────────────────────────────────────────────────────────────
+// ─── LOGIN ──────────────────────────────────────────────────────
+export async function loginUser(email, password) {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    return { success: true };
+  } catch (error) {
+    return { success: false, code: error.code };
+  }
+}
+
+// ─── LOGOUT ─────────────────────────────────────────────────────
 export async function logoutUser() {
   await signOut(auth);
-  sessionStorage.removeItem('gtrades_user_logged_in');
   window.location.href = "login.html";
 }
 
-// ────────────────────────────────────────────────────────────────
-// 5. ADMIN APPROVE
-// ────────────────────────────────────────────────────────────────
+// ─── ADMIN APPROVE ─────────────────────────────────────────────
 export async function approveUser(uid) {
   try {
     await updateDoc(doc(db, "users", uid), { active: true, status: "active" });
@@ -126,46 +115,17 @@ export async function approveUser(uid) {
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// 6. AUTO-BIND FORM HANDLERS
-// ────────────────────────────────────────────────────────────────
+// ─── AUTO-BIND FORM HANDLERS ──────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email")?.value.trim();
-      const password = document.getElementById("password")?.value;
-      const errorEl = document.getElementById("errorMsg");
-      const btn = loginForm.querySelector('button[type="submit"]');
-      if (!email || !password) { if (errorEl) errorEl.textContent = "Please fill in all fields."; return; }
-      btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
-      if (errorEl) errorEl.textContent = "";
-      const result = await loginUser(email, password);
-      if (!result.success) {
-        let msg = "Login failed.";
-        const map = {
-          "auth/user-not-found": "No account found. Please register first.",
-          "auth/wrong-password": "Incorrect password.",
-          "auth/too-many-requests": "Too many attempts. Please wait.",
-          "auth/network-request-failed": "Network error – check your connection.",
-        };
-        if (map[result.code]) msg = map[result.code];
-        if (errorEl) errorEl.textContent = msg;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
-      }
-    });
-  }
-
+  // Register
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = document.getElementById("name")?.value.trim();
-      const email = document.getElementById("email")?.value.trim();
-      const password = document.getElementById("password")?.value;
-      const confirm = document.getElementById("confirmPassword")?.value;
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirmPassword").value;
       const errorEl = document.getElementById("errorMsg");
       const successEl = document.getElementById("successMsg");
       const btn = registerForm.querySelector('button[type="submit"]');
@@ -191,10 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const result = await registerUser(name, email, password);
       if (result.success) {
-        if (successEl) {
-          successEl.textContent = "✅ Account created! Awaiting admin approval...";
-          successEl.style.display = "block";
-        }
+        if (successEl) successEl.textContent = "✅ Account created! Awaiting admin approval...";
         setTimeout(() => window.location.href = "pending.html", 2000);
       } else {
         let msg = "Registration failed. Please try again.";
@@ -209,6 +166,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Login
+  const loginForm = document.getElementById("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("errorMsg");
+      const btn = loginForm.querySelector('button[type="submit"]');
+
+      if (!email || !password) {
+        if (errorEl) errorEl.textContent = "Please fill in all fields.";
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+      if (errorEl) errorEl.textContent = "";
+
+      const result = await loginUser(email, password);
+      if (!result.success) {
+        let msg = "Login failed.";
+        if (result.code === "auth/user-not-found") msg = "No account found. Please register first.";
+        else if (result.code === "auth/wrong-password") msg = "Incorrect password.";
+        else if (result.code === "auth/too-many-requests") msg = "Too many attempts. Please wait.";
+        else if (result.code === "auth/network-request-failed") msg = "Network error – check your connection.";
+        else msg = result.message || msg;
+        if (errorEl) errorEl.textContent = msg;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
+      }
+    });
+  }
+
+  // Logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
