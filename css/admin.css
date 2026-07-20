@@ -2253,9 +2253,9 @@ background:#0A84FF;
 }
 /* admin.css – add these */
 body {
-    background: #eee;
+    background:#eeeeeef1;
     font-family: 'Poppins', sans-serif;
-    color: #04070b
+    color: #090a0a
 }
 
 .admin-container {
