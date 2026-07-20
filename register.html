@@ -1,83 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
+import { auth, db } from "./firebase.js";
+import {
+    createUserWithEmailAndPassword,
+    updateProfile
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import {
+    doc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | GTRADES-AXIS™</title>
+const form = document.getElementById("registerForm");
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+if (form) {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    <style>
-        /* extra for messages */
-        .msg {
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-            display: none;
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        // --- Validation ---
+        if (!name || !email || !password || !confirmPassword) {
+            alert("Please fill in all fields.");
+            return;
         }
-        .msg.success {
-            background: rgba(0, 200, 83, 0.15);
-            border: 1px solid rgba(0, 200, 83, 0.25);
-            color: #00c853;
-            display: block;
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return;
         }
-        .msg.error {
-            background: rgba(255, 77, 79, 0.15);
-            border: 1px solid rgba(255, 77, 79, 0.25);
-            color: #ff4d4f;
-            display: block;
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters.");
+            return;
         }
-    </style>
-</head>
 
-<body>
+        // --- Disable button and show spinner ---
+        const btn = form.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
 
-    <div class="login-container">
-        <div class="login-card">
-            <img src="images/logo.png" class="login-logo" alt="GTRADES-AXIS Logo">
-            <h1>Create <span style="background:linear-gradient(135deg,#0f8cff,#00c853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Account</span></h1>
-            <p>Join the GTRADES-AXIS Academy</p>
+        try {
+            // 1. Create user in Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            <!-- success & error messages -->
-            <div id="errorMsg" class="msg error" style="display:none;"></div>
-            <div id="successMsg" class="msg success" style="display:none;"></div>
+            // 2. Update display name
+            await updateProfile(user, { displayName: name });
 
-            <form id="registerForm">
-                <div class="input-group">
-                    <i class="fa fa-user"></i>
-                    <input type="text" id="name" placeholder="Full Name" required>
-                </div>
-                <div class="input-group">
-                    <i class="fa fa-envelope"></i>
-                    <input type="email" id="email" placeholder="Email Address" required>
-                </div>
-                <div class="input-group">
-                    <i class="fa fa-lock"></i>
-                    <input type="password" id="password" placeholder="Password (min 6 chars)" required>
-                </div>
-                <div class="input-group">
-                    <i class="fa fa-check-circle"></i>
-                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-                </div>
-                <button type="submit" class="login-btn">
-                    <i class="fa-solid fa-user-plus"></i> Create Account
-                </button>
-            </form>
+            // 3. Write user profile to Firestore (with pending status)
+            await setDoc(doc(db, "users", user.uid), {
+                name: name,
+                email: email,
+                role: "pending",      // waiting for admin approval
+                active: false,        // not yet active
+                status: "pending",
+                payment: "unpaid",
+                createdAt: serverTimestamp(),
+                uid: user.uid
+            });
 
-            <div class="login-links">
-                Already have an account? <a href="login.html">Log in</a>
-            </div>
-            <a class="back-home" href="index.html">← Back to Home</a>
-        </div>
-    </div>
+            // 4. Show success and redirect
+            alert("✅ Account created successfully!\n\nYour account is pending administrator approval.\nYou will be notified once approved.");
 
-    <script type="module" src="js/auth.js"></script>
-</body>
+            // Redirect to pending page
+            window.location.href = "pending.html";
 
-</html>
+        } catch (error) {
+            console.error("Registration error:", error);
+
+            let errorMessage = "Registration failed. Please try again.";
+            if (error.code === "auth/email-already-in-use") {
+                errorMessage = "This email is already registered. Please log in.";
+            } else if (error.code === "auth/invalid-email") {
+                errorMessage = "Invalid email address.";
+            } else if (error.code === "auth/weak-password") {
+                errorMessage = "Password is too weak (min 6 characters).";
+            } else if (error.code === "auth/network-request-failed") {
+                errorMessage = "Network error – check your internet connection.";
+            }
+            alert("❌ " + errorMessage);
+
+            // Re-enable button
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    });
+}

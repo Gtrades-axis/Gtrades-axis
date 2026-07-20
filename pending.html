@@ -35,15 +35,17 @@
         .pending-container .icon-error { color: #ff4d4f; }
         .pending-container h1 { font-size: 1.8rem; color: #f1f5f9; margin-bottom: 8px; }
         .pending-container p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
-        .pending-container .btn { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #0f8cff, #0077e6); color: #fff; border: none; border-radius: 12px; font-weight: 600; text-decoration: none; transition: 0.3s ease; }
+        .pending-container .btn { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #0f8cff, #0077e6); color: #fff; border: none; border-radius: 12px; font-weight: 600; text-decoration: none; transition: 0.3s ease; cursor: pointer; }
         .pending-container .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(15,140,255,0.35); }
-        .pending-container .logout-link { display: block; margin-top: 16px; color: #64748b; font-size: 0.85rem; text-decoration: none; }
+        .pending-container .logout-link { display: block; margin-top: 16px; color: #64748b; font-size: 0.85rem; text-decoration: none; cursor: pointer; }
         .pending-container .logout-link:hover { color: #94a3b8; }
         .status-check { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; background: rgba(255,255,255,0.04); color: #94a3b8; border: 1px solid rgba(255,255,255,0.06); }
         .status-check i { margin-right: 10px; }
         .status-check.pending { color: #ffb300; border-color: rgba(255,179,0,0.2); }
         .status-check.approved { color: #00c853; border-color: rgba(0,200,83,0.2); }
         .status-check.error { color: #ff4d4f; border-color: rgba(255,77,79,0.2); }
+        .refresh-btn { margin-top: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; padding: 8px 20px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: 0.2s ease; }
+        .refresh-btn:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
         @media (max-width:480px) { .pending-container { padding: 32px 20px; } }
     </style>
 </head>
@@ -61,6 +63,8 @@
             <i class="fa-solid fa-spinner fa-spin"></i> Checking approval status...
         </div>
 
+        <button class="refresh-btn" id="refreshStatus"><i class="fa-solid fa-rotate"></i> Check Now</button>
+
         <a href="index.html" class="btn">Back to Home</a>
         <a href="#" id="logoutPending" class="logout-link">
             <i class="fa-solid fa-right-from-bracket"></i> Log out
@@ -76,18 +80,18 @@
         const statusIcon = document.getElementById("statusIcon");
         const statusTitle = document.getElementById("statusTitle");
         const statusMessage = document.getElementById("statusMessage");
+        const refreshBtn = document.getElementById("refreshStatus");
         let checkInterval = null;
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.href = "login.html"; return; }
-            await checkApprovalStatus(user);
-            if (checkInterval) clearInterval(checkInterval);
-            checkInterval = setInterval(async () => {
-                await checkApprovalStatus(user);
-            }, 3000);
-        });
-
+        // ────────────────────────────────────────────────────────────────
+        // Check approval status
+        // ────────────────────────────────────────────────────────────────
         async function checkApprovalStatus(user) {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (!userDoc.exists()) {
@@ -98,8 +102,10 @@
                     statusMessage.innerHTML = "Your user profile could not be found in the database.<br />Please contact support for assistance.";
                     return;
                 }
+
                 const data = userDoc.data();
                 if (data.active === true) {
+                    // Approved – redirect
                     statusCheck.className = "status-check approved";
                     statusCheck.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account approved! Redirecting...';
                     statusIcon.className = "fa-solid fa-check-circle icon-check";
@@ -109,6 +115,8 @@
                     setTimeout(() => window.location.href = "dashboard.html", 1500);
                     return;
                 }
+
+                // Still pending
                 statusCheck.className = "status-check pending";
                 statusCheck.innerHTML = '<i class="fa-solid fa-clock"></i> Still waiting for admin approval. Please check back later.';
                 statusIcon.className = "fa-solid fa-clock icon-clock";
@@ -128,6 +136,39 @@
             }
         }
 
+        // ────────────────────────────────────────────────────────────────
+        // Auth listener
+        // ────────────────────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            await checkApprovalStatus(user);
+
+            if (checkInterval) clearInterval(checkInterval);
+            checkInterval = setInterval(async () => {
+                await checkApprovalStatus(user);
+            }, 5000); // check every 5 seconds
+        });
+
+        // ────────────────────────────────────────────────────────────────
+        // Manual refresh
+        // ────────────────────────────────────────────────────────────────
+        refreshBtn.addEventListener("click", async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            statusCheck.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+            await checkApprovalStatus(user);
+        });
+
+        // ────────────────────────────────────────────────────────────────
+        // Logout
+        // ────────────────────────────────────────────────────────────────
         document.getElementById("logoutPending").addEventListener("click", async (e) => {
             e.preventDefault();
             if (checkInterval) clearInterval(checkInterval);
