@@ -4,19 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pending Approval | GTRADES-AXIS™</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Poppins', sans-serif;
             background: #0a0e17;
@@ -26,95 +19,35 @@
             justify-content: center;
             padding: 20px;
         }
-
         .pending-container {
             max-width: 500px;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255,255,255,0.04);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 24px;
             padding: 48px 40px;
             text-align: center;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
         }
-
-        .pending-container i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
+        .pending-container i { font-size: 4rem; margin-bottom: 20px; }
         .pending-container .icon-clock { color: #ffb300; }
         .pending-container .icon-check { color: #00c853; }
         .pending-container .icon-error { color: #ff4d4f; }
-
-        .pending-container h1 {
-            font-size: 1.8rem;
-            color: #f1f5f9;
-            margin-bottom: 8px;
-        }
-
-        .pending-container p {
-            color: #94a3b8;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        .pending-container .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #0f8cff, #0077e6);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: 0.3s ease;
-        }
-
-        .pending-container .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(15, 140, 255, 0.35);
-        }
-
-        .pending-container .logout-link {
-            display: block;
-            margin-top: 16px;
-            color: #64748b;
-            font-size: 0.85rem;
-            text-decoration: none;
-        }
-
-        .pending-container .logout-link:hover {
-            color: #94a3b8;
-        }
-
-        .status-check {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            background: rgba(255, 255, 255, 0.04);
-            color: #94a3b8;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .status-check i {
-            margin-right: 10px;
-        }
-
-        .status-check.loading { color: #ffb300; border-color: rgba(255, 179, 0, 0.2); }
-        .status-check.approved { color: #00c853; border-color: rgba(0, 200, 83, 0.2); }
-        .status-check.error { color: #ff4d4f; border-color: rgba(255, 77, 79, 0.2); }
-        .status-check.pending { color: #ffb300; border-color: rgba(255, 179, 0, 0.15); }
-
-        @media (max-width: 480px) {
-            .pending-container { padding: 32px 20px; }
-        }
+        .pending-container h1 { font-size: 1.8rem; color: #f1f5f9; margin-bottom: 8px; }
+        .pending-container p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
+        .pending-container .btn { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #0f8cff, #0077e6); color: #fff; border: none; border-radius: 12px; font-weight: 600; text-decoration: none; transition: 0.3s ease; }
+        .pending-container .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(15,140,255,0.35); }
+        .pending-container .logout-link { display: block; margin-top: 16px; color: #64748b; font-size: 0.85rem; text-decoration: none; }
+        .pending-container .logout-link:hover { color: #94a3b8; }
+        .status-check { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; background: rgba(255,255,255,0.04); color: #94a3b8; border: 1px solid rgba(255,255,255,0.06); }
+        .status-check i { margin-right: 10px; }
+        .status-check.pending { color: #ffb300; border-color: rgba(255,179,0,0.2); }
+        .status-check.approved { color: #00c853; border-color: rgba(0,200,83,0.2); }
+        .status-check.error { color: #ff4d4f; border-color: rgba(255,77,79,0.2); }
+        @media (max-width:480px) { .pending-container { padding: 32px 20px; } }
     </style>
 </head>
 <body>
-
     <div class="pending-container">
         <i class="fa-solid fa-clock icon-clock" id="statusIcon"></i>
         <h1 id="statusTitle">⏳ Awaiting Admin Approval</h1>
@@ -124,7 +57,7 @@
             <strong>You will be notified once approved.</strong>
         </p>
 
-        <div class="status-check" id="statusCheck">
+        <div class="status-check pending" id="statusCheck">
             <i class="fa-solid fa-spinner fa-spin"></i> Checking approval status...
         </div>
 
@@ -134,9 +67,6 @@
         </a>
     </div>
 
-    <!-- ============================================================
-    AUTH LOGIC – checks if user document exists and if approved
-    ============================================================ -->
     <script type="module">
         import { auth, db } from "./js/firebase.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
@@ -146,21 +76,11 @@
         const statusIcon = document.getElementById("statusIcon");
         const statusTitle = document.getElementById("statusTitle");
         const statusMessage = document.getElementById("statusMessage");
-
-        // Check every 3 seconds if approved
         let checkInterval = null;
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                // Not logged in – redirect to login
-                window.location.href = "login.html";
-                return;
-            }
-
-            // Check approval status
+            if (!user) { window.location.href = "login.html"; return; }
             await checkApprovalStatus(user);
-
-            // Set up interval to keep checking
             if (checkInterval) clearInterval(checkInterval);
             checkInterval = setInterval(async () => {
                 await checkApprovalStatus(user);
@@ -170,9 +90,7 @@
         async function checkApprovalStatus(user) {
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-
                 if (!userDoc.exists()) {
-                    // User document not found – show error
                     statusCheck.className = "status-check error";
                     statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> User profile not found. Please contact support.';
                     statusIcon.className = "fa-solid fa-exclamation-triangle icon-error";
@@ -180,25 +98,17 @@
                     statusMessage.innerHTML = "Your user profile could not be found in the database.<br />Please contact support for assistance.";
                     return;
                 }
-
-                const userData = userDoc.data();
-
-                if (userData.active === true) {
-                    // Approved! Redirect to dashboard
+                const data = userDoc.data();
+                if (data.active === true) {
                     statusCheck.className = "status-check approved";
                     statusCheck.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account approved! Redirecting...';
                     statusIcon.className = "fa-solid fa-check-circle icon-check";
                     statusTitle.textContent = "✅ Account Approved!";
-                    statusMessage.innerHTML = "Your account has been approved. You will be redirected to the dashboard shortly.";
-
+                    statusMessage.innerHTML = "Your account has been approved. Redirecting to dashboard...";
                     if (checkInterval) clearInterval(checkInterval);
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 1500);
+                    setTimeout(() => window.location.href = "dashboard.html", 1500);
                     return;
                 }
-
-                // Still pending
                 statusCheck.className = "status-check pending";
                 statusCheck.innerHTML = '<i class="fa-solid fa-clock"></i> Still waiting for admin approval. Please check back later.';
                 statusIcon.className = "fa-solid fa-clock icon-clock";
@@ -208,18 +118,16 @@
                     An administrator will review and activate your account shortly.<br />
                     <strong>You will be notified once approved.</strong>
                 `;
-
             } catch (error) {
                 console.error("Approval check error:", error);
                 statusCheck.className = "status-check error";
-                statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error checking approval status. Please refresh.';
+                statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error checking approval. Please refresh.';
                 statusIcon.className = "fa-solid fa-exclamation-triangle icon-error";
                 statusTitle.textContent = "⚠️ Connection Error";
                 statusMessage.innerHTML = "There was a problem connecting to the server.<br />Please refresh the page or try again later.";
             }
         }
 
-        // Logout button
         document.getElementById("logoutPending").addEventListener("click", async (e) => {
             e.preventDefault();
             if (checkInterval) clearInterval(checkInterval);
@@ -228,6 +136,5 @@
             window.location.href = "login.html";
         });
     </script>
-
 </body>
 </html>

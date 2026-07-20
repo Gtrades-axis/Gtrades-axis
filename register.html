@@ -2,24 +2,18 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Create Account | GTRADES-AXIS™</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="css/style.css">
-
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
-        /* ===== extra styles for messages ===== */
+        /* extra for messages */
         .msg {
             padding: 10px 14px;
             border-radius: 10px;
@@ -27,14 +21,12 @@
             margin-bottom: 16px;
             display: none;
         }
-
         .msg.success {
             background: rgba(0, 200, 83, 0.15);
             border: 1px solid rgba(0, 200, 83, 0.25);
             color: #00c853;
             display: block;
         }
-
         .msg.error {
             background: rgba(255, 77, 79, 0.15);
             border: 1px solid rgba(255, 77, 79, 0.25);
@@ -42,66 +34,50 @@
             display: block;
         }
     </style>
-
 </head>
 
 <body>
 
     <div class="login-container">
-
         <div class="login-card">
-
             <img src="images/logo.png" class="login-logo" alt="GTRADES-AXIS Logo">
-
             <h1>Create <span style="background:linear-gradient(135deg,#0f8cff,#00c853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Account</span></h1>
-
             <p>Join the GTRADES-AXIS Academy</p>
 
-            <!-- ✅ Success & Error message placeholders -->
+            <!-- success & error messages -->
             <div id="errorMsg" class="msg error" style="display:none;"></div>
             <div id="successMsg" class="msg success" style="display:none;"></div>
 
             <form id="registerForm">
-
                 <div class="input-group">
                     <i class="fa fa-user"></i>
                     <input type="text" id="name" placeholder="Full Name" required>
                 </div>
-
                 <div class="input-group">
                     <i class="fa fa-envelope"></i>
                     <input type="email" id="email" placeholder="Email Address" required>
                 </div>
-
                 <div class="input-group">
                     <i class="fa fa-lock"></i>
                     <input type="password" id="password" placeholder="Password (min 6 chars)" required>
                 </div>
-
                 <div class="input-group">
                     <i class="fa fa-check-circle"></i>
                     <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
                 </div>
-
-                <button type="submit" class="login-btn" id="registerBtn">
+                <button type="submit" class="login-btn">
                     <i class="fa-solid fa-user-plus"></i> Create Account
                 </button>
-
             </form>
 
             <div class="login-links">
                 Already have an account? <a href="login.html">Log in</a>
             </div>
-
             <a class="back-home" href="index.html">← Back to Home</a>
-
         </div>
-
     </div>
 
-    <!-- ===== ONLY ONE SCRIPT – auth.js handles registration ===== -->
     <script type="module" src="js/auth.js"></script>
-
 </body>
 
 </html>

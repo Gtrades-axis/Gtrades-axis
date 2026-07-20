@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// 🔥 YOUR REAL CONFIG – verify these values
 const firebaseConfig = {
   apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
   authDomain: "gtrades-axis.firebaseapp.com",
@@ -16,5 +15,5 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-console.log("✅ Firebase initialized with Firestore");
+console.log("✅ Firebase & Firestore ready");
 export { auth, db };
