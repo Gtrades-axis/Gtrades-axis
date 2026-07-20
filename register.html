@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | GTRADES-AXIS™</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Register | GTRADES-AXIS™</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
-        .msg { padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
-        .msg.success { background: rgba(0,200,83,0.15); border: 1px solid rgba(0,200,83,0.25); color: #00c853; display: block; }
-        .msg.error { background: rgba(255,77,79,0.15); border: 1px solid rgba(255,77,79,0.25); color: #ff4d4f; display: block; }
+        .msg { padding: 10px; border-radius: 8px; margin-bottom: 16px; display: none; }
+        .msg.success { background: rgba(0,200,83,0.15); color: #00c853; border: 1px solid rgba(0,200,83,0.3); display: block; }
+        .msg.error { background: rgba(255,77,79,0.15); color: #ff4d4f; border: 1px solid rgba(255,77,79,0.3); display: block; }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <img src="images/logo.png" class="login-logo" alt="Logo">
-            <h1>Create <span style="background:linear-gradient(135deg,#0f8cff,#00c853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Account</span></h1>
-            <p>Join the GTRADES-AXIS Academy</p>
+            <h1>Create Account</h1>
+            <p>Join GTRADES-AXIS</p>
             <div id="errorMsg" class="msg error" style="display:none;"></div>
             <div id="successMsg" class="msg success" style="display:none;"></div>
             <form id="registerForm">

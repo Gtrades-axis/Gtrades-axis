@@ -10,6 +10,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+// ─── Keep user logged in ──────────────────────────────────────
 setPersistence(auth, browserLocalPersistence);
 
 // ─── PAGE GUARD ────────────────────────────────────────────────
@@ -17,19 +18,21 @@ onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html", "pending.html", "access-denied.html"];
 
+  // If not logged in and not on a public page → redirect to login
   if (!user && !publicPages.includes(currentPage)) {
     window.location.href = "login.html";
     return;
   }
 
+  // If logged in
   if (user) {
     let userData = null;
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) userData = docSnap.data();
-    } catch (e) { console.error("Fetch user error:", e); }
+    } catch (e) { console.error("Fetch error:", e); }
 
-    // Public pages redirect
+    // On public pages (except pending/access-denied) → redirect based on approval
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -40,13 +43,15 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // Protected pages
+    // On protected pages
     if (!publicPages.includes(currentPage)) {
+      // 1. Must be approved
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
 
+      // 2. Premium pages need premium or admin role
       const premiumPages = [
         "academy.html", "premium-academy.html", "resources.html",
         "videos.html", "journal.html", "analytics.html", "history.html"
@@ -59,6 +64,7 @@ onAuthStateChanged(auth, async (user) => {
         }
       }
 
+      // 3. Admin page requires admin role
       if (currentPage === "admin.html" && userData.role !== "admin") {
         window.location.href = "access-denied.html";
         return;
@@ -83,7 +89,7 @@ export async function registerUser(name, email, password) {
       createdAt: new Date().toISOString(),
       uid,
     });
-    return { success: true, uid };
+    return { success: true };
   } catch (error) {
     return { success: false, code: error.code, message: error.message };
   }
@@ -117,7 +123,7 @@ export async function approveUser(uid) {
 
 // ─── AUTO-BIND FORM HANDLERS ──────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  // Register
+  // ----- REGISTER FORM -----
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
@@ -151,22 +157,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const result = await registerUser(name, email, password);
       if (result.success) {
-        if (successEl) successEl.textContent = "✅ Account created! Awaiting admin approval...";
+        if (successEl) {
+          successEl.textContent = "✅ Account created! Awaiting admin approval...";
+          successEl.style.display = "block";
+        }
         setTimeout(() => window.location.href = "pending.html", 2000);
       } else {
-        let msg = "Registration failed. Please try again.";
-        if (result.code === "auth/email-already-in-use") msg = "Email already registered. Please log in.";
-        else if (result.code === "auth/invalid-email") msg = "Invalid email address.";
-        else if (result.code === "auth/network-request-failed") msg = "Network error – check your connection.";
-        else if (result.message) msg = result.message;
-        if (errorEl) errorEl.textContent = msg;
+        let msg = "Registration failed: ";
+        if (result.code === "auth/email-already-in-use") msg += "Email already registered.";
+        else if (result.code === "auth/invalid-email") msg += "Invalid email address.";
+        else if (result.code === "auth/network-request-failed") msg += "Network error – check your internet.";
+        else msg += result.message || "Unknown error";
+        if (errorEl) {
+          errorEl.textContent = msg;
+          errorEl.style.display = "block";
+        }
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
       }
     });
   }
 
-  // Login
+  // ----- LOGIN FORM -----
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -186,20 +198,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const result = await loginUser(email, password);
       if (!result.success) {
-        let msg = "Login failed.";
-        if (result.code === "auth/user-not-found") msg = "No account found. Please register first.";
-        else if (result.code === "auth/wrong-password") msg = "Incorrect password.";
-        else if (result.code === "auth/too-many-requests") msg = "Too many attempts. Please wait.";
-        else if (result.code === "auth/network-request-failed") msg = "Network error – check your connection.";
-        else msg = result.message || msg;
-        if (errorEl) errorEl.textContent = msg;
+        let msg = "Login failed: ";
+        if (result.code === "auth/user-not-found") msg += "No account found.";
+        else if (result.code === "auth/wrong-password") msg += "Incorrect password.";
+        else if (result.code === "auth/too-many-requests") msg += "Too many attempts. Please wait.";
+        else if (result.code === "auth/network-request-failed") msg += "Network error – check your internet.";
+        else msg += result.message || "Unknown error";
+        if (errorEl) {
+          errorEl.textContent = msg;
+          errorEl.style.display = "block";
+        }
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
       }
     });
   }
 
-  // Logout
+  // ----- LOGOUT BUTTON -----
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
