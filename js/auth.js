@@ -11,8 +11,8 @@ import {
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 setPersistence(auth, browserLocalPersistence)
-  .then(() => console.log("✅ Auth persistence set to local"))
-  .catch((err) => console.error("Persistence error:", err));
+  .then(() => console.log("✅ Persistence set"))
+  .catch(err => console.error(err));
 
 // ────────────────────────────────────────────────────────────────
 // PAGE GUARD
@@ -29,15 +29,13 @@ onAuthStateChanged(auth, async (user) => {
 
   if (user) {
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
-
     let userData = null;
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) userData = docSnap.data();
-      else console.warn("⚠️ User document does not exist in Firestore.");
-    } catch (e) { console.error("Fetch user data error:", e); }
+      else alert("⚠️ Your user profile is missing in the database. Please contact support.");
+    } catch (e) { alert("❌ Error fetching user data: " + e.message); }
 
-    // If on public pages (except pending/access-denied)
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -48,17 +46,12 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // Protected pages
     if (!publicPages.includes(currentPage)) {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
-
-      const premiumPages = [
-        "academy.html", "premium-academy.html", "resources.html",
-        "videos.html", "journal.html", "analytics.html", "history.html"
-      ];
+      const premiumPages = ["academy.html", "resources.html", "videos.html", "journal.html", "analytics.html", "history.html", "premium-academy.html"];
       if (premiumPages.includes(currentPage)) {
         const role = userData.role || "member";
         if (role !== "premium" && role !== "admin") {
@@ -66,7 +59,6 @@ onAuthStateChanged(auth, async (user) => {
           return;
         }
       }
-
       if (currentPage === "admin.html" && userData.role !== "admin") {
         window.location.href = "access-denied.html";
         return;
@@ -89,13 +81,18 @@ export async function loginUser(email, password) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// REGISTER (creates Firestore document with active: false)
+// REGISTER – with alerts
 // ────────────────────────────────────────────────────────────────
 export async function registerUser(name, email, password) {
   try {
+    alert("1️⃣ Creating Auth user...");
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const uid = cred.user.uid;
+    alert("✅ Auth user created: " + uid);
+
     await updateProfile(cred.user, { displayName: name });
+
+    alert("2️⃣ Writing to Firestore...");
     await setDoc(doc(db, "users", uid), {
       name,
       email,
@@ -106,9 +103,12 @@ export async function registerUser(name, email, password) {
       createdAt: new Date().toISOString(),
       uid,
     });
+    alert("✅ Firestore document created for: " + uid);
+
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
     return { success: true, uid };
   } catch (error) {
+    alert("❌ Registration error: " + error.message);
     return { success: false, code: error.code, message: error.message };
   }
 }
@@ -135,7 +135,7 @@ export async function approveUser(uid) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// AUTO-BIND FORM HANDLERS
+// FORM HANDLERS
 // ────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
@@ -163,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
       }
-      // On success, the guard will redirect based on approval status
     });
   }
 
