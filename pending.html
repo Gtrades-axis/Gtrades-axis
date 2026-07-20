@@ -40,9 +40,12 @@
 
         .pending-container i {
             font-size: 4rem;
-            color: #ffb300;
             margin-bottom: 20px;
         }
+
+        .pending-container .icon-clock { color: #ffb300; }
+        .pending-container .icon-check { color: #00c853; }
+        .pending-container .icon-error { color: #ff4d4f; }
 
         .pending-container h1 {
             font-size: 1.8rem;
@@ -86,35 +89,36 @@
             color: #94a3b8;
         }
 
-        /* Auto-check status indicator */
         .status-check {
             margin-top: 16px;
-            padding: 10px;
+            padding: 12px 16px;
             border-radius: 10px;
             font-size: 0.85rem;
             background: rgba(255, 255, 255, 0.04);
             color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .status-check i {
-            font-size: 1rem;
-            color: #0f8cff;
-            margin-right: 8px;
+            margin-right: 10px;
         }
 
+        .status-check.loading { color: #ffb300; border-color: rgba(255, 179, 0, 0.2); }
+        .status-check.approved { color: #00c853; border-color: rgba(0, 200, 83, 0.2); }
+        .status-check.error { color: #ff4d4f; border-color: rgba(255, 77, 79, 0.2); }
+        .status-check.pending { color: #ffb300; border-color: rgba(255, 179, 0, 0.15); }
+
         @media (max-width: 480px) {
-            .pending-container {
-                padding: 32px 20px;
-            }
+            .pending-container { padding: 32px 20px; }
         }
     </style>
 </head>
 <body>
 
     <div class="pending-container">
-        <i class="fa-solid fa-clock"></i>
-        <h1>⏳ Awaiting Admin Approval</h1>
-        <p>
+        <i class="fa-solid fa-clock icon-clock" id="statusIcon"></i>
+        <h1 id="statusTitle">⏳ Awaiting Admin Approval</h1>
+        <p id="statusMessage">
             Your account has been created successfully.<br />
             An administrator will review and activate your account shortly.<br />
             <strong>You will be notified once approved.</strong>
@@ -131,7 +135,7 @@
     </div>
 
     <!-- ============================================================
-    AUTH LOGIC – redirects to dashboard when approved
+    AUTH LOGIC – checks if user document exists and if approved
     ============================================================ -->
     <script type="module">
         import { auth, db } from "./js/firebase.js";
@@ -139,8 +143,13 @@
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         const statusCheck = document.getElementById("statusCheck");
+        const statusIcon = document.getElementById("statusIcon");
+        const statusTitle = document.getElementById("statusTitle");
+        const statusMessage = document.getElementById("statusMessage");
 
-        // Listen for auth state changes
+        // Check every 3 seconds if approved
+        let checkInterval = null;
+
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 // Not logged in – redirect to login
@@ -148,34 +157,74 @@
                 return;
             }
 
-            // Check if user is approved
+            // Check approval status
+            await checkApprovalStatus(user);
+
+            // Set up interval to keep checking
+            if (checkInterval) clearInterval(checkInterval);
+            checkInterval = setInterval(async () => {
+                await checkApprovalStatus(user);
+            }, 3000);
+        });
+
+        async function checkApprovalStatus(user) {
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    if (userData.active === true) {
-                        // Approved! Redirect to dashboard
-                        statusCheck.innerHTML = '<i class="fa-solid fa-check-circle" style="color:#00c853;"></i> Account approved! Redirecting...';
-                        setTimeout(() => {
-                            window.location.href = "dashboard.html";
-                        }, 1500);
-                        return;
-                    } else {
-                        statusCheck.innerHTML = '<i class="fa-solid fa-clock" style="color:#ffb300;"></i> Still waiting for admin approval. Please check back later.';
-                    }
-                } else {
-                    statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle" style="color:#ff4d4f;"></i> User profile not found. Please contact support.';
+
+                if (!userDoc.exists()) {
+                    // User document not found – show error
+                    statusCheck.className = "status-check error";
+                    statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> User profile not found. Please contact support.';
+                    statusIcon.className = "fa-solid fa-exclamation-triangle icon-error";
+                    statusTitle.textContent = "⚠️ Profile Error";
+                    statusMessage.innerHTML = "Your user profile could not be found in the database.<br />Please contact support for assistance.";
+                    return;
                 }
+
+                const userData = userDoc.data();
+
+                if (userData.active === true) {
+                    // Approved! Redirect to dashboard
+                    statusCheck.className = "status-check approved";
+                    statusCheck.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account approved! Redirecting...';
+                    statusIcon.className = "fa-solid fa-check-circle icon-check";
+                    statusTitle.textContent = "✅ Account Approved!";
+                    statusMessage.innerHTML = "Your account has been approved. You will be redirected to the dashboard shortly.";
+
+                    if (checkInterval) clearInterval(checkInterval);
+                    setTimeout(() => {
+                        window.location.href = "dashboard.html";
+                    }, 1500);
+                    return;
+                }
+
+                // Still pending
+                statusCheck.className = "status-check pending";
+                statusCheck.innerHTML = '<i class="fa-solid fa-clock"></i> Still waiting for admin approval. Please check back later.';
+                statusIcon.className = "fa-solid fa-clock icon-clock";
+                statusTitle.textContent = "⏳ Awaiting Admin Approval";
+                statusMessage.innerHTML = `
+                    Your account has been created successfully.<br />
+                    An administrator will review and activate your account shortly.<br />
+                    <strong>You will be notified once approved.</strong>
+                `;
+
             } catch (error) {
                 console.error("Approval check error:", error);
-                statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle" style="color:#ff4d4f;"></i> Error checking approval status. Please refresh.';
+                statusCheck.className = "status-check error";
+                statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error checking approval status. Please refresh.';
+                statusIcon.className = "fa-solid fa-exclamation-triangle icon-error";
+                statusTitle.textContent = "⚠️ Connection Error";
+                statusMessage.innerHTML = "There was a problem connecting to the server.<br />Please refresh the page or try again later.";
             }
-        });
+        }
 
         // Logout button
         document.getElementById("logoutPending").addEventListener("click", async (e) => {
             e.preventDefault();
+            if (checkInterval) clearInterval(checkInterval);
             await signOut(auth);
+            sessionStorage.removeItem('gtrades_user_logged_in');
             window.location.href = "login.html";
         });
     </script>

@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ – AUTH WITH VERBOSE LOGGING
+// GTRADES-AXIS™ – AUTH WITH RELIABLE FIRESTORE WRITES
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -13,7 +13,7 @@ import {
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ------------------------------------------------------------------
-// 1. PAGE GUARD (unchanged)
+// 1. PAGE GUARD
 // ------------------------------------------------------------------
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
@@ -33,6 +33,7 @@ onAuthStateChanged(auth, async (user) => {
       console.error("Failed to fetch user data:", e);
     }
 
+    // If on public page (except pending/access-denied), redirect based on status
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -43,6 +44,7 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
+    // PROTECTED PAGES
     if (!publicPages.includes(currentPage)) {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -69,57 +71,55 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ------------------------------------------------------------------
-// 2. LOGIN FUNCTION
+// 2. LOGIN
 // ------------------------------------------------------------------
 export async function loginUser(email, password) {
   try {
     await signInWithEmailAndPassword(auth, email, password);
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
-    console.log("✅ Login successful");
     return { success: true };
   } catch (error) {
-    console.error("❌ Login error:", error.code);
     return { success: false, code: error.code };
   }
 }
 
 // ------------------------------------------------------------------
-// 3. REGISTER FUNCTION – with detailed logging
+// 3. REGISTER – writes to Firestore with safe timestamp
 // ------------------------------------------------------------------
 export async function registerUser(name, email, password) {
-  console.log("🔐 registerUser called with:", { name, email });
-
   try {
-    // Step 1: Create user in Firebase Auth
+    // Step 1: Create Auth user
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     console.log("✅ Auth user created:", cred.user.uid);
 
-    // Step 2: Update display name
+    // Step 2: Update profile
     await updateProfile(cred.user, { displayName: name });
-    console.log("✅ Profile updated");
 
-    // Step 3: Write user document to Firestore (using plain date string)
+    // Step 3: Write to Firestore using plain JS date (no imports needed)
     const userData = {
-      name,
-      email,
+      name: name,
+      email: email,
       role: "pending",
       active: false,
       status: "pending",
       payment: "unpaid",
-      createdAt: new Date().toISOString(),  // ✅ safe, no import needed
+      createdAt: new Date().toISOString(),
       uid: cred.user.uid,
     };
-    console.log("📝 Preparing to write:", userData);
+    console.log("📝 Writing user data:", userData);
 
     await setDoc(doc(db, "users", cred.user.uid), userData);
-    console.log("✅ Firestore document created successfully for:", cred.user.uid);
+    console.log("✅ Firestore document created for:", cred.user.uid);
 
-    return { success: true };
+    // Set session flag
+    sessionStorage.setItem('gtrades_user_logged_in', 'true');
+
+    return { success: true, uid: cred.user.uid };
   } catch (error) {
     console.error("❌ Registration error:", error);
     console.error("❌ Error code:", error.code);
     console.error("❌ Error message:", error.message);
-    return { success: false, code: error.code };
+    return { success: false, code: error.code, message: error.message };
   }
 }
 
@@ -145,15 +145,12 @@ export async function approveUser(uid) {
 }
 
 // ------------------------------------------------------------------
-// 6. AUTO-BIND FORM HANDLERS (with console logs)
+// 6. AUTO-BIND FORM HANDLERS
 // ------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("📄 DOM loaded – attaching form handlers");
-
-  // --- LOGIN FORM ---
+  // --- LOGIN ---
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
-    console.log("✅ Login form found");
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email")?.value.trim();
@@ -173,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!result.success) {
         let msg = "Login failed.";
         const map = {
-          "auth/user-not-found": "No account found.",
+          "auth/user-not-found": "No account found. Please register first.",
           "auth/wrong-password": "Incorrect password.",
           "auth/too-many-requests": "Too many attempts. Please wait.",
           "auth/network-request-failed": "Network error – check your connection.",
@@ -184,18 +181,13 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
       }
     });
-  } else {
-    console.warn("⚠️ Login form not found on this page");
   }
 
-  // --- REGISTER FORM ---
+  // --- REGISTER ---
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
-    console.log("✅ Register form found");
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      console.log("📝 Register form submitted");
-
       const name = document.getElementById("name")?.value.trim();
       const email = document.getElementById("email")?.value.trim();
       const password = document.getElementById("password")?.value;
@@ -223,15 +215,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (successEl) successEl.textContent = "";
 
       const result = await registerUser(name, email, password);
-      console.log("🔁 Registration result:", result);
+      console.log("Registration result:", result);
 
       if (result.success) {
-        if (successEl) successEl.textContent = "Account created! Awaiting admin approval...";
-        setTimeout(() => window.location.href = "pending.html", 2000);
+        if (successEl) successEl.textContent = "Account created! Redirecting to pending approval...";
+        setTimeout(() => window.location.href = "pending.html", 1500);
       } else {
-        let msg = "Registration failed.";
+        let msg = "Registration failed: " + (result.message || "Unknown error");
         const map = {
-          "auth/email-already-in-use": "Email already registered.",
+          "auth/email-already-in-use": "Email already registered. Please log in.",
           "auth/invalid-email": "Invalid email address.",
           "auth/network-request-failed": "Network error – check your connection.",
           "auth/too-many-requests": "Too many attempts. Please wait.",
@@ -242,14 +234,11 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
       }
     });
-  } else {
-    console.warn("⚠️ Register form not found on this page");
   }
 
-  // --- LOGOUT BUTTON ---
+  // --- LOGOUT ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
-    console.log("✅ Logout button found");
   }
 });
