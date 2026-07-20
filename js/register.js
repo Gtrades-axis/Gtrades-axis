@@ -58,7 +58,7 @@ if (form) {
 
                 premium: false,
 
-                active: false,
+                active: false,       // ✅ IMPORTANT: user is inactive until admin approves
 
                 paymentStatus: "unpaid",
 
@@ -66,11 +66,12 @@ if (form) {
 
             });
 
+            // ✅ MODIFIED: changed message and redirect
             alert(
-                "Registration successful!\n\nYour account is pending payment approval."
+                "Registration successful!\n\nYour account is pending administrator approval."
             );
 
-            window.location.href = "login.html";
+            window.location.href = "pending.html";   // ✅ redirect to pending page
 
         } catch (error) {
 
