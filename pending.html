@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pending Approval | GTRADES-AXIS™</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0e17;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pending-container {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 48px 40px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .pending-container i {
+            font-size: 4rem;
+            color: #ffb300;
+            margin-bottom: 20px;
+        }
+
+        .pending-container h1 {
+            font-size: 1.8rem;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .pending-container p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .pending-container .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #0f8cff, #0077e6);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .pending-container .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(15, 140, 255, 0.35);
+        }
+
+        .pending-container .logout-link {
+            display: block;
+            margin-top: 16px;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .pending-container .logout-link:hover {
+            color: #94a3b8;
+        }
+
+        /* Auto-check status indicator */
+        .status-check {
+            margin-top: 16px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+        }
+
+        .status-check i {
+            font-size: 1rem;
+            color: #0f8cff;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .pending-container {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pending-container">
+        <i class="fa-solid fa-clock"></i>
+        <h1>⏳ Awaiting Admin Approval</h1>
+        <p>
+            Your account has been created successfully.<br />
+            An administrator will review and activate your account shortly.<br />
+            <strong>You will be notified once approved.</strong>
+        </p>
+
+        <div class="status-check" id="statusCheck">
+            <i class="fa-solid fa-spinner fa-spin"></i> Checking approval status...
+        </div>
+
+        <a href="index.html" class="btn">Back to Home</a>
+        <a href="#" id="logoutPending" class="logout-link">
+            <i class="fa-solid fa-right-from-bracket"></i> Log out
+        </a>
+    </div>
+
+    <!-- ============================================================
+    AUTH LOGIC – redirects to dashboard when approved
+    ============================================================ -->
+    <script type="module">
+        import { auth, db } from "./js/firebase.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        const statusCheck = document.getElementById("statusCheck");
+
+        // Listen for auth state changes
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // Not logged in – redirect to login
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Check if user is approved
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.active === true) {
+                        // Approved! Redirect to dashboard
+                        statusCheck.innerHTML = '<i class="fa-solid fa-check-circle" style="color:#00c853;"></i> Account approved! Redirecting...';
+                        setTimeout(() => {
+                            window.location.href = "dashboard.html";
+                        }, 1500);
+                        return;
+                    } else {
+                        statusCheck.innerHTML = '<i class="fa-solid fa-clock" style="color:#ffb300;"></i> Still waiting for admin approval. Please check back later.';
+                    }
+                } else {
+                    statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle" style="color:#ff4d4f;"></i> User profile not found. Please contact support.';
+                }
+            } catch (error) {
+                console.error("Approval check error:", error);
+                statusCheck.innerHTML = '<i class="fa-solid fa-exclamation-triangle" style="color:#ff4d4f;"></i> Error checking approval status. Please refresh.';
+            }
+        });
+
+        // Logout button
+        document.getElementById("logoutPending").addEventListener("click", async (e) => {
+            e.preventDefault();
+            await signOut(auth);
+            window.location.href = "login.html";
+        });
+    </script>
+
+</body>
+</html>
