@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade History | GTRADES-AXIS™</title>
+
+  <!-- === ULTRA‑SAFE GUARD === -->
+  <meta http-equiv="refresh" content="0; url=login.html">
+  <script>
+    // Cancel the refresh if user is logged in (we'll check via auth)
+    // This will be overridden by auth.js once loaded.
+    // But we'll also check a session flag.
+    if (sessionStorage.getItem('gtrades_user_logged_in') === 'true') {
+      // Stop the meta refresh by removing it
+      document.querySelector('meta[http-equiv="refresh"]').content = '';
+    }
+  </script>
+
+  <!-- your other head elements -->
+</head>
+<body>
+  <!-- content -->
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
+<style>
+/* ============================================
+   SIDEBAR - TIGHT SPACING (matching Journal)
+   ============================================ */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 4px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar nav a i {
+    width: 18px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.sidebar nav a:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+}
+
+.sidebar nav a.active {
+    background: rgba(15, 140, 255, 0.12);
+    color: #0f8cff;
+    border-left: 3px solid #0f8cff;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        padding: 10px 8px;
+    }
+    .sidebar nav a {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar nav a {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        gap: 8px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<!-- ======================================================
+SIDEBAR - Removed: Academy, Resources, Profile, Support, Logout
+====================================================== -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img src="images/logo.png" alt="Logo">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+</div>
+
+<nav>
+
+<a href="dashboard.html">
+
+<i class="fa-solid fa-house"></i>
+
+Dashboard
+
+</a>
+
+<a href="journal.html">
+
+<i class="fa-solid fa-book"></i>
+
+Trading Journal
+
+</a>
+
+<a href="analytics.html">
+
+<i class="fa-solid fa-chart-column"></i>
+
+Analytics
+
+</a>
+
+<a class="active" href="history.html">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+History
+
+</a>
+
+</nav>
+
+<!-- Logout button removed -->
+
+</aside>
+
+<!-- ======================================================
+MAIN CONTENT
+====================================================== -->
+
+<main class="main-content">
+
+<div class="page-header">
+
+<div>
+
+<h1>
+
+Trading History
+
+</h1>
+
+<p>
+
+Review every trade you've taken.
+
+</p>
+
+</div>
+
+<div class="header-actions">
+
+<!-- BACK BUTTON ADDED -->
+<a href="#" onclick="history.back(); return false;" class="btn" title="Go Back">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Back
+
+</a>
+
+<a href="journal.html" class="btn">
+
+<i class="fa-solid fa-plus"></i>
+
+New Trade
+
+</a>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+SUMMARY CARDS
+====================================================== -->
+
+<section class="stats-grid">
+
+<div class="stat-card">
+
+<h3>Total Trades</h3>
+
+<h1 id="historyTotalTrades">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Total Wins</h3>
+
+<h1 id="historyWins">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Total Losses</h3>
+
+<h1 id="historyLosses">0</h1>
+
+</div>
+
+<div class="stat-card">
+
+<h3>Win Rate</h3>
+
+<h1 id="historyWinRate">0%</h1>
+
+</div>
+
+</section>
+
+<!-- ======================================================
+SEARCH & FILTERS
+====================================================== -->
+
+<section class="history-controls">
+
+<input
+
+type="text"
+
+id="tradeSearch"
+
+placeholder="Search Pair...">
+
+<select id="filterPair">
+
+<option value="">
+
+All Pairs
+
+</option>
+
+</select>
+
+<select id="filterSession">
+
+<option value="">
+
+All Sessions
+
+</option>
+
+<option>Asian</option>
+
+<option>London</option>
+
+<option>New York</option>
+
+<option>London + NY</option>
+
+</select>
+
+<select id="filterResult">
+
+<option value="">
+
+All Results
+
+</option>
+
+<option>Win</option>
+
+<option>Loss</option>
+
+<option>Break Even</option>
+
+</select>
+
+</section>
+<!-- ======================================================
+TRADE TABLE
+====================================================== -->
+
+<section class="history-card">
+
+<div class="table-header">
+
+<h2>
+
+<i class="fa-solid fa-table"></i>
+
+Trade History
+
+</h2>
+
+<div>
+
+<button id="exportCSV" class="btn">
+
+<i class="fa-solid fa-file-csv"></i>
+
+Export CSV
+
+</button>
+
+</div>
+
+</div>
+
+<div class="table-responsive">
+
+<table class="history-table">
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+
+<th>Pair</th>
+
+<th>Direction</th>
+
+<th>Session</th>
+
+<th>Model</th>
+
+<th>Result</th>
+
+<th>RR</th>
+
+<th>P/L</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="historyBody">
+
+<tr>
+
+<td colspan="9" class="empty">
+
+No trades recorded yet.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<!-- ======================================================
+TRADE DETAILS MODAL
+====================================================== -->
+
+<div id="tradeModal" class="modal">
+
+<div class="modal-content">
+
+<div class="modal-header">
+
+<h2>
+
+Trade Details
+
+</h2>
+
+<span class="closeModal">
+
+&times;
+
+</span>
+
+</div>
+
+<div id="tradeDetails">
+
+<!-- Loaded by history.js -->
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================================================
+SCRIPTS
+====================================================== -->
+
+<script type="module" src="js/history.js"></script>
+
+</main>
+
+</div>
+
+</body>
+
+</html>
