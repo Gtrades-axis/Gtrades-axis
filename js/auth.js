@@ -27,7 +27,6 @@ onAuthStateChanged(auth, async (user) => {
 
   // ---- LOGGED IN ----
   if (user) {
-    // Fetch user data
     let userData = null;
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
@@ -55,7 +54,7 @@ onAuthStateChanged(auth, async (user) => {
         return;
       }
 
-      // 2. Define premium-only pages (require role: premium or admin)
+      // 2. Premium-only pages
       const premiumPages = [
         "academy.html",
         "premium-academy.html",
@@ -82,7 +81,7 @@ onAuthStateChanged(auth, async (user) => {
         }
       }
 
-      // All checks passed – user can stay on page
+      // All checks passed – user can stay
     }
   }
 });
@@ -93,7 +92,6 @@ onAuthStateChanged(auth, async (user) => {
 export async function loginUser(email, password) {
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    // Set session flag for meta-refresh guard
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
     return { success: true };
   } catch (error) {
@@ -102,12 +100,14 @@ export async function loginUser(email, password) {
 }
 
 // ------------------------------------------------------------------
-// 3. REGISTER FUNCTION (creates user with active: false)
+// 3. REGISTER FUNCTION – creates user document
 // ------------------------------------------------------------------
 export async function registerUser(name, email, password) {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
+
+    // 🔥 CRITICAL: Create the user document
     await setDoc(doc(db, "users", cred.user.uid), {
       name,
       email,
@@ -115,11 +115,14 @@ export async function registerUser(name, email, password) {
       active: false,
       status: "pending",
       payment: "unpaid",
-      createdAt: serverTimestamp(),  // ✅ better than string
+      createdAt: serverTimestamp(),
       uid: cred.user.uid,
     });
+
+    console.log("✅ User document created for:", cred.user.uid);
     return { success: true };
   } catch (error) {
+    console.error("Registration error:", error);
     return { success: false, code: error.code };
   }
 }
@@ -134,7 +137,7 @@ export async function logoutUser() {
 }
 
 // ------------------------------------------------------------------
-// 5. ADMIN – approve a user (set active: true)
+// 5. ADMIN – approve a user
 // ------------------------------------------------------------------
 export async function approveUser(uid) {
   try {
@@ -146,10 +149,10 @@ export async function approveUser(uid) {
 }
 
 // ------------------------------------------------------------------
-// 6. AUTO-BIND FORM HANDLERS (login + register)
+// 6. AUTO-BIND FORM HANDLERS (only ONE login and ONE register)
 // ------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // --- LOGIN ---
+  // --- LOGIN FORM ---
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -185,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- REGISTER ---
+  // --- REGISTER FORM ---
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
