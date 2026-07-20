@@ -1,3 +1,7 @@
+// ============================================================
+// GTRADES-AXIS™ – AUTH GUARD (SINGLE SOURCE OF TRUTH)
+// ============================================================
+
 import { auth, db } from "./firebase.js";
 import {
   onAuthStateChanged,
@@ -9,24 +13,33 @@ import {
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ────────────────────────────────────────────────────────────────
-// 1. PAGE GUARD (unchanged)
+// 1. PAGE GUARD – runs on EVERY page
 // ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html", "pending.html", "access-denied.html"];
 
+  // 🚫 NOT LOGGED IN – redirect to login (except public pages)
   if (!user && !publicPages.includes(currentPage)) {
     window.location.href = "login.html";
     return;
   }
 
+  // ✅ LOGGED IN
   if (user) {
+    // Set session flag for navbar (optional)
+    sessionStorage.setItem('gtrades_user_logged_in', 'true');
+
+    // Fetch user data from Firestore
     let userData = null;
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) userData = docSnap.data();
-    } catch (e) { console.error("Fetch user data error:", e); }
+    } catch (e) {
+      console.error("Fetch user data error:", e);
+    }
 
+    // ── Public pages (except pending/access-denied) ──
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -37,12 +50,19 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
+    // ── Protected pages ──
     if (!publicPages.includes(currentPage)) {
+      // 1. Check approval (active)
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
-      const premiumPages = ["academy.html","premium-academy.html","resources.html","videos.html","journal.html","analytics.html","history.html"];
+
+      // 2. Premium‑only pages
+      const premiumPages = [
+        "academy.html", "premium-academy.html", "resources.html",
+        "videos.html", "journal.html", "analytics.html", "history.html"
+      ];
       if (premiumPages.includes(currentPage)) {
         const role = userData.role || "member";
         if (role !== "premium" && role !== "admin") {
@@ -50,10 +70,14 @@ onAuthStateChanged(auth, async (user) => {
           return;
         }
       }
+
+      // 3. Admin‑only page
       if (currentPage === "admin.html" && userData.role !== "admin") {
         window.location.href = "access-denied.html";
         return;
       }
+
+      // All checks passed – stay on page
     }
   }
 });
@@ -72,19 +96,14 @@ export async function loginUser(email, password) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// 3. REGISTER – creates Firestore document
+// 3. REGISTER (creates Firestore document)
 // ────────────────────────────────────────────────────────────────
 export async function registerUser(name, email, password) {
   try {
-    // Create Auth user
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const uid = cred.user.uid;
-
-    // Update display name
     await updateProfile(cred.user, { displayName: name });
-
-    // Write to Firestore
-    const userData = {
+    await setDoc(doc(db, "users", uid), {
       name,
       email,
       role: "pending",
@@ -93,14 +112,10 @@ export async function registerUser(name, email, password) {
       payment: "unpaid",
       createdAt: new Date().toISOString(),
       uid,
-    };
-    await setDoc(doc(db, "users", uid), userData);
-    console.log("✅ Firestore document created for:", uid);
-
+    });
     sessionStorage.setItem('gtrades_user_logged_in', 'true');
     return { success: true, uid };
   } catch (error) {
-    console.error("❌ Registration error:", error);
     return { success: false, code: error.code, message: error.message };
   }
 }
@@ -127,9 +142,10 @@ export async function approveUser(uid) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// 6. AUTO-BIND FORM HANDLERS
+// 6. FORM HANDLERS (only attach if forms exist)
 // ────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // Login form
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -158,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Register form
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
@@ -209,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Logout button
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
