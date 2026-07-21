@@ -183,59 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- REGISTER ---
-  const registerForm = document.getElementById("registerForm");
-  if (registerForm) {
-    registerForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("name")?.value.trim();
-      const email = document.getElementById("email")?.value.trim();
-      const password = document.getElementById("password")?.value;
-      const confirm = document.getElementById("confirmPassword")?.value;
-      const errorEl = document.getElementById("errorMsg");
-      const successEl = document.getElementById("successMsg");
-      const btn = registerForm.querySelector('button[type="submit"]');
-
-      if (!name || !email || !password || !confirm) {
-        if (errorEl) errorEl.textContent = "Please fill in all fields.";
-        return;
-      }
-      if (password.length < 6) {
-        if (errorEl) errorEl.textContent = "Password must be at least 6 characters.";
-        return;
-      }
-      if (password !== confirm) {
-        if (errorEl) errorEl.textContent = "Passwords do not match.";
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
-      if (errorEl) errorEl.textContent = "";
-      if (successEl) successEl.textContent = "";
-
-      const result = await registerUser(name, email, password);
-      console.log("Registration result:", result);
-
-      if (result.success) {
-        if (successEl) successEl.textContent = "Account created! Redirecting to pending approval...";
-        setTimeout(() => window.location.href = "pending.html", 1500);
-      } else {
-        let msg = "Registration failed: " + (result.message || "Unknown error");
-        const map = {
-          "auth/email-already-in-use": "Email already registered. Please log in.",
-          "auth/invalid-email": "Invalid email address.",
-          "auth/network-request-failed": "Network error – check your connection.",
-          "auth/too-many-requests": "Too many attempts. Please wait.",
-        };
-        if (map[result.code]) msg = map[result.code];
-        if (errorEl) errorEl.textContent = msg;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
-      }
-    });
-  }
-
+  
   // --- LOGOUT ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
