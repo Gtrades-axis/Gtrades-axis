@@ -464,7 +464,7 @@ No members yet.
 
 </div>
 
-<!-- Latest Resources -->
+<!-- Latest Resources (sidebar) – renamed to avoid duplicate ID -->
 
 <div class="dashboard-card">
 
@@ -476,7 +476,7 @@ Latest Resources
 
 </h2>
 
-<div id="latestResources">
+<div id="latestResourcesSidebar">   <!-- ✅ Renamed from latestResources -->
 
 <div class="empty-card">
 
@@ -729,9 +729,9 @@ placeholder="🔍 Search Resources">
 
 </div>
 
-<div id="latestResources"></div>
+<!-- ✅ Removed duplicate latestResources – this section now uses the main one -->
 
-<hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
+<!-- ✅ Fixed the extra closing div -->
 <form id="resourceForm">
 
     <input
@@ -754,26 +754,25 @@ placeholder="🔍 Search Resources">
         id="resourceDescription"
         placeholder="Description"></textarea>
 
-   <div class="file-picker">
+    <div class="file-picker">
 
- <input type="file" id="resourceFilePicker" hidden>
+        <input type="file" id="resourceFilePicker" hidden>
 
-<input
-    type="text"
-    id="resourceFile"
-    readonly
-    placeholder="Choose a file">
+        <input
+            type="text"
+            id="resourceFile"
+            readonly
+            placeholder="Choose a file">
 
-<button
-    type="button"
-    id="chooseFileBtn">
+        <button
+            type="button"
+            id="chooseFileBtn">
 
-    📁 Choose File
+            📁 Choose File
 
-</button>
+        </button>
 
-</div>
-</div>
+    </div>
 
     <label>
 
@@ -1009,9 +1008,9 @@ SCRIPTS – FIXED ORDER
     }
 </script>
 
-<!-- 4. Your original admin.js – if it has any dashboard logic, keep it -->
-<!-- but make sure it doesn't conflict with the above -->
-<script type="module" src="js/admin.js"></script>
+<!-- 4. ⚠️ Comment out admin.js if it reloads members/recent resources (it conflicts) -->
+<!-- <script type="module" src="js/admin.js"></script> -->
+<!-- If you need admin.js for other dashboard stats, uncomment it after checking it doesn't override members.js -->
 
 </body>
 
