@@ -3,24 +3,14 @@
 // ============================================================
 
 import { db, auth } from "./firebase.js";
-import { db, auth } from "./firebase.js";
-
 import {
     collection,
     getDocs,
-    getDoc,
-    doc,
     query,
-    where,
     orderBy,
     limit,
-    updateDoc,
-    deleteDoc
+    where
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-import {
-    signOut
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import {
     signOut
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
@@ -49,13 +39,7 @@ const recentMembers = getEl("recentMembers");
 const liveDate = getEl("liveDate");
 const logoutBtn = getEl("logoutBtn");
 const feed = document.querySelector(".activity-feed");
-// ============================================================
-// APPROVAL TABLE
-// ============================================================
 
-const pendingTable = getEl("pendingTableBody");
-
-const approvedTable = getEl("approvedTableBody");
 // ============================================================
 // 2. UTILITY FUNCTIONS
 // ============================================================
@@ -184,37 +168,6 @@ async function loadMemberStats() {
     } catch (error) {
         console.error("loadMemberStats error:", error);
         showNotification("Failed to load member statistics.", "#EF4444");
-        // ============================================================
-// ROLE BADGES
-// ============================================================
-
-function roleBadge(role){
-
-    switch(role){
-
-        case "admin":
-
-            return `<span class="badge red">Admin</span>`;
-
-        case "premium":
-
-            return `<span class="badge gold">Premium</span>`;
-
-        case "student":
-
-            return `<span class="badge blue">Student</span>`;
-
-        case "pending":
-
-            return `<span class="badge gray">Pending</span>`;
-
-        default:
-
-            return `<span class="badge gray">Unknown</span>`;
-
-    }
-
-}
     }
 }
 
@@ -292,303 +245,18 @@ async function loadRecentMembers() {
         recentMembers.innerHTML = `<div class="empty-card">Error loading members.</div>`;
     }
 }
-// ============================================================
-// PENDING MEMBERS
-// ============================================================
-
-async function loadPendingMembers() {
-
-    if (!pendingTable) return;
-
-    pendingTable.innerHTML = "";
-
-    try {
-
-        const q = query(
-
-            collection(db, "users"),
-
-            where("role", "==", "pending")
-
-        );
-
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-
-            pendingTable.innerHTML = `
-
-            <tr>
-
-                <td colspan="6">
-
-                    No pending users.
-
-                </td>
-
-            </tr>
-
-            `;
-
-            return;
-
-        }
-
-        snapshot.forEach((userDoc) => {
-
-            const user = userDoc.data();
-
-            pendingTable.innerHTML += `
-
-            <tr>
-
-                <td>${user.name}</td>
-
-                <td>${user.email}</td>
-
-                <td>${formatDate(user.createdAt)}</td>
-
-                <td>${roleBadge(user.role)}</td>
-
-                <td>
-
-                    <button
-
-                        class="approve-btn"
-
-                        onclick="approveUser('${userDoc.id}')">
-
-                        Approve
-
-                    </button>
-
-                </td>
-
-                <td>
-
-                    <button
-
-                        class="reject-btn"
-
-                        onclick="rejectUser('${userDoc.id}')">
-
-                        Reject
-
-                    </button>
-
-                </td>
-
-            </tr>
-
-            `;
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-    }
-
-}
-// ============================================================
-// APPROVED MEMBERS
-// ============================================================
-
-async function loadApprovedMembers() {
-// ============================================================
-// APPROVE USER
-// ============================================================
-
-window.approveUser = async function(uid){
-
-    if(!confirm("Approve this member?")) return;
-
-    try{
-
-        await updateDoc(doc(db,"users",uid),{
-
-            role:"student",
-
-            active:true,
-
-            approvedAt:new Date()
-
-        });
-
-        showNotification("Member approved successfully.");
-
-        addActivity(
-
-            "fa-solid fa-user-check",
-
-            "Member Approved",
-
-            "A pending member has been activated."
-
-        );
-
-        refreshDashboard();
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        showNotification(
-
-            "Approval failed.",
-
-            "#EF4444"
-
-        );
-
-    }
-
-};
-
-// ============================================================
-// REJECT USER
-// ============================================================
-
-// ============================================================
-// TOGGLE PREMIUM
-// ============================================================
-
-window.togglePremium = async function(uid){
-
-    try{
-
-        const ref = doc(db,"users",uid);
-
-        const snap = await getDoc(ref);
-
-        if(!snap.exists()) return;
-
-        const user = snap.data();
-
-        await updateDoc(ref,{
-
-            premium: !user.premium,
-
-            role: !user.premium ? "premium" : "student"
-
-        });
-
-        showNotification("Membership updated.");
-
-        refreshDashboard();
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-    }
-
-};
-
-// ============================================================
-// MAKE ADMIN
-// ============================================================
-
-window.makeAdmin = async function(uid){
-
-    if(!confirm("Grant Admin privileges?")) return;
-
-    try{
-
-        await updateDoc(doc(db,"users",uid),{
-
-            role:"admin",
-
-            premium:true,
-
-            active:true
-
-        });
-
-        showNotification("Administrator created.");
-
-        refreshDashboard();
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-    }
-
-};
-
-// ============================================================
-// REMOVE ADMIN
-// ============================================================
-
-window.removeAdmin = async function(uid){
-
-    if(!confirm("Remove Admin privileges?")) return;
-
-    try{
-
-        await updateDoc(doc(db,"users",uid),{
-
-            role:"student"
-
-        });
-
-        showNotification("Administrator removed.");
-
-        refreshDashboard();
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-    }
-
-};
-
-// ============================================================
-// SIGN OUT
-// ============================================================
-
-window.adminLogout = async function(){
-
-    await signOut(auth);
-
-    window.location="login.html";
-
-};
 
 // ============================================================
 // 4. REFRESH DASHBOARD
 // ============================================================
 async function refreshDashboard() {
     await Promise.all([
-
-    loadMemberStats(),
-
-    loadResources(),
-
-    loadAcademy(),
-
-    loadPayments(),
-
-    loadRecentMembers(),
-
-    loadPendingMembers(),
-
-    loadApprovedMembers()
-
-]);
+        loadMemberStats(),
+        loadResources(),
+        loadAcademy(),
+        loadPayments(),
+        loadRecentMembers()
+    ]);
 }
 
 // ============================================================
