@@ -1,10 +1,8 @@
 import { auth, db } from "./firebase.js";
-
 import {
     createUserWithEmailAndPassword,
     updateProfile
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
 import {
     doc,
     setDoc,
@@ -14,9 +12,7 @@ import {
 const form = document.getElementById("registerForm");
 
 if (form) {
-
     form.addEventListener("submit", async (e) => {
-
         e.preventDefault();
 
         const name = document.getElementById("name").value.trim();
@@ -28,56 +24,35 @@ if (form) {
             alert("Passwords do not match.");
             return;
         }
-
         if (password.length < 6) {
             alert("Password must be at least 6 characters.");
             return;
         }
 
         try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            const userCredential =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
+            await updateProfile(user, { displayName: name });
 
-            await updateProfile(userCredential.user, {
-
-                displayName: name
-
-            });
-
-            await setDoc(doc(db, "users", userCredential.user.uid), {
-
+            // ✅ Write user document to Firestore
+            await setDoc(doc(db, "users", user.uid), {
                 name: name,
                 email: email,
-
                 role: "pending",
-
-                premium: false,
-
                 active: false,
-
-                paymentStatus: "unpaid",
-
-                createdAt: serverTimestamp()
-
+                status: "pending",
+                payment: "unpaid",
+                createdAt: serverTimestamp(),
+                uid: user.uid
             });
 
-            alert(
-                "Registration successful!\n\nYour account is pending payment approval."
-            );
-
-            window.location.href = "login.html";
+            alert("Registration successful!\n\nYour account is pending administrator approval.");
+            window.location.href = "pending.html";
 
         } catch (error) {
-
+            console.error("Registration error:", error);
             alert(error.message);
-
         }
-
     });
-
 }
