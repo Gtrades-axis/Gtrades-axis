@@ -5,93 +5,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trade History | GTRADES-AXIS™</title>
 
-  <!-- === ULTRA‑SAFE GUARD === -->
-  <meta http-equiv="refresh" content="0; url=login.html">
-  <script>
-    // Cancel the refresh if user is logged in (we'll check via auth)
-    // This will be overridden by auth.js once loaded.
-    // But we'll also check a session flag.
-    if (sessionStorage.getItem('gtrades_user_logged_in') === 'true') {
-      // Stop the meta refresh by removing it
-      document.querySelector('meta[http-equiv="refresh"]').content = '';
-    }
-  </script>
+  <!-- ✅ NO META REFRESH – auth.js handles everything -->
 
   <!-- your other head elements -->
-</head>
-<body>
-  <!-- content -->
-  <script type="module" src="js/auth.js"></script>
-</body>
-</html>
-<style>
-/* ============================================
-   SIDEBAR - TIGHT SPACING (matching Journal)
-   ============================================ */
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    padding: 16px 12px;
-    gap: 4px;
-}
-
-.sidebar nav {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-}
-
-.sidebar nav a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.sidebar nav a i {
-    width: 18px;
-    text-align: center;
-    font-size: 1rem;
-}
-
-.sidebar nav a:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e2e8f0;
-}
-
-.sidebar nav a.active {
-    background: rgba(15, 140, 255, 0.12);
-    color: #0f8cff;
-    border-left: 3px solid #0f8cff;
-}
-
-@media (max-width: 768px) {
+  <style>
+    /* ============================================
+       SIDEBAR - TIGHT SPACING (matching Journal)
+       ============================================ */
     .sidebar {
-        padding: 10px 8px;
+        display: flex;
+        flex-direction: column;
+        padding: 16px 12px;
+        gap: 4px;
     }
-    .sidebar nav a {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        gap: 10px;
-    }
-}
 
-@media (max-width: 480px) {
-    .sidebar nav a {
-        padding: 6px 10px;
-        font-size: 0.75rem;
-        gap: 8px;
+    .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
     }
-}
-</style>
 
+    .sidebar nav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar nav a i {
+        width: 18px;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .sidebar nav a:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #e2e8f0;
+    }
+
+    .sidebar nav a.active {
+        background: rgba(15, 140, 255, 0.12);
+        color: #0f8cff;
+        border-left: 3px solid #0f8cff;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            padding: 10px 8px;
+        }
+        .sidebar nav a {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sidebar nav a {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            gap: 8px;
+        }
+    }
+  </style>
+
+  <!-- Link to your CSS (adjust path if needed) -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/history.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -422,6 +411,10 @@ Trade Details
 SCRIPTS
 ====================================================== -->
 
+<!-- ✅ auth.js guards the page -->
+<script type="module" src="js/auth.js"></script>
+
+<!-- history.js loads the data -->
 <script type="module" src="js/history.js"></script>
 
 </main>
@@ -429,5 +422,4 @@ SCRIPTS
 </div>
 
 </body>
-
 </html>
