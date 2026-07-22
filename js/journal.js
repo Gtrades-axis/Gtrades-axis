@@ -29,14 +29,14 @@ const streak = document.getElementById("streak");
 const equityCanvas = document.getElementById("equityChart");
 const monthlyCanvas = document.getElementById("monthlyChart");
 
-// --- AUTH ---
+// ─── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
   await loadTrades();
 });
 
-// --- LOAD TRADES ---
+// ─── LOAD TRADES FROM FIRESTORE ──────────────────────────────
 async function loadTrades() {
   if (!currentUser) return;
   try {
@@ -55,7 +55,7 @@ async function loadTrades() {
   } catch (error) { console.error("Load trades error:", error); }
 }
 
-// --- SAVE TRADE ---
+// ─── SAVE TRADE ───────────────────────────────────────────────
 async function saveTrade(data) {
   if (!currentUser) throw new Error("Not logged in");
   const payload = { ...data, userId: currentUser.uid };
@@ -75,7 +75,7 @@ async function saveTrade(data) {
   document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
 }
 
-// --- DELETE TRADE ---
+// ─── DELETE ────────────────────────────────────────────────────
 async function deleteTrade(id) {
   if (!confirm("Delete this trade?")) return;
   await deleteDoc(doc(db, "trades", id));
@@ -84,7 +84,7 @@ async function deleteTrade(id) {
   updateCharts();
 }
 
-// --- EDIT TRADE ---
+// ─── EDIT ──────────────────────────────────────────────────────
 function editTrade(id) {
   const trade = trades.find((t) => t.id === id);
   if (!trade) return;
@@ -98,7 +98,7 @@ function editTrade(id) {
   window.scrollTo(0, 0);
 }
 
-// --- UPDATE STATS ---
+// ─── STATS ─────────────────────────────────────────────────────
 function updateStats() {
   const total = trades.length;
   const winsCount = trades.filter((t) => t.result === "Win").length;
@@ -130,12 +130,11 @@ function calculateStreak() {
   return streak;
 }
 
-// --- SAFE CHART UPDATES ---
+// ─── CHARTS (safe) ────────────────────────────────────────────
 function updateCharts() {
   if (typeof Chart === "undefined") return;
   if (!equityCanvas || !monthlyCanvas) return;
 
-  // ✅ Destroy existing charts safely
   if (window.equityChart && typeof window.equityChart.destroy === "function") {
     window.equityChart.destroy();
     window.equityChart = null;
@@ -145,14 +144,13 @@ function updateCharts() {
     window.monthlyChart = null;
   }
 
-  // --- Equity Curve ---
   let running = 0;
   const equityData = trades.map((t) => {
     running += parseFloat(t.profit) || 0;
     return running;
   });
   const labels = trades.map((_, i) => i + 1);
-  if (equityData.length && equityCanvas) {
+  if (equityData.length) {
     window.equityChart = new Chart(equityCanvas, {
       type: "line",
       data: {
@@ -179,7 +177,6 @@ function updateCharts() {
     });
   }
 
-  // --- Monthly Profit ---
   const monthly = {};
   trades.forEach((t) => {
     if (!t.tradeDate) return;
@@ -187,7 +184,7 @@ function updateCharts() {
     monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0);
   });
   const monthLabels = Object.keys(monthly).sort();
-  if (monthLabels.length && monthlyCanvas) {
+  if (monthLabels.length) {
     window.monthlyChart = new Chart(monthlyCanvas, {
       type: "bar",
       data: {
@@ -212,7 +209,7 @@ function updateCharts() {
   }
 }
 
-// --- FORM SUBMIT ---
+// ─── FORM SUBMIT ──────────────────────────────────────────────
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = {
@@ -270,7 +267,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// --- CANCEL EDIT ---
+// ─── CANCEL EDIT ──────────────────────────────────────────────
 document.getElementById("cancelEdit")?.addEventListener("click", () => {
   editingId = null;
   saveBtn.textContent = "Save Trade";

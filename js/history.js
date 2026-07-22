@@ -1,50 +1,32 @@
 import { auth, db } from "./firebase.js";
 import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  doc,
-  deleteDoc,
+  collection, getDocs, query, where, orderBy, doc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-let currentUser = null;
-let trades = [];
+let currentUser = null, trades = [];
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
+  if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
   await loadHistory();
 });
 
 async function loadHistory() {
   try {
-    const q = query(
-      collection(db, "trades"),
-      where("userId", "==", currentUser.uid),
-      orderBy("tradeDate", "desc")
-    );
+    const q = query(collection(db, "trades"), where("userId", "==", currentUser.uid), orderBy("tradeDate", "desc"));
     const snapshot = await getDocs(q);
     trades = [];
-    snapshot.forEach((doc) => {
-      trades.push({ id: doc.id, ...doc.data() });
-    });
+    snapshot.forEach(doc => trades.push({ id: doc.id, ...doc.data() }));
     renderTable();
     updateStats();
-  } catch (error) {
-    console.error("History load error:", error);
-  }
+  } catch (error) { console.error("History load error:", error); }
 }
 
 function updateStats() {
   const total = trades.length;
-  const wins = trades.filter((t) => t.result === "Win").length;
-  const losses = trades.filter((t) => t.result === "Loss").length;
+  const wins = trades.filter(t => t.result === "Win").length;
+  const losses = trades.filter(t => t.result === "Loss").length;
   const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
   document.getElementById("historyTotalTrades").textContent = total;
   document.getElementById("historyWins").textContent = wins;
@@ -60,7 +42,7 @@ function renderTable() {
     return;
   }
   let html = "";
-  trades.forEach((t) => {
+  trades.forEach(t => {
     const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
     const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
     html += `
@@ -85,7 +67,7 @@ function renderTable() {
 }
 
 window.viewTrade = function (id) {
-  const trade = trades.find((t) => t.id === id);
+  const trade = trades.find(t => t.id === id);
   if (!trade) return;
   const details = Object.entries(trade)
     .filter(([key]) => key !== "id" && key !== "userId")
@@ -103,7 +85,7 @@ window.editTrade = function (id) {
 window.deleteTrade = async function (id) {
   if (!confirm("Delete this trade?")) return;
   await deleteDoc(doc(db, "trades", id));
-  trades = trades.filter((t) => t.id !== id);
+  trades = trades.filter(t => t.id !== id);
   renderTable();
   updateStats();
 };
@@ -117,6 +99,7 @@ window.addEventListener("click", (e) => {
   }
 });
 
+// --- Search & filter (unchanged) ---
 document.getElementById("tradeSearch")?.addEventListener("input", filter);
 document.getElementById("filterPair")?.addEventListener("change", filter);
 document.getElementById("filterSession")?.addEventListener("change", filter);
@@ -127,7 +110,7 @@ function filter() {
   const pair = document.getElementById("filterPair").value;
   const session = document.getElementById("filterSession").value;
   const result = document.getElementById("filterResult").value;
-  const filtered = trades.filter((t) => {
+  const filtered = trades.filter(t => {
     const matchSearch = t.pair?.toLowerCase().includes(search) || false;
     const matchPair = pair ? t.pair === pair : true;
     const matchSession = session ? t.session === session : true;
@@ -140,7 +123,7 @@ function filter() {
     return;
   }
   let html = "";
-  filtered.forEach((t) => {
+  filtered.forEach(t => {
     const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
     const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
     html += `
@@ -167,12 +150,12 @@ function filter() {
 document.getElementById("exportCSV")?.addEventListener("click", () => {
   if (!trades.length) return alert("No trades to export.");
   const headers = ["Date", "Pair", "Direction", "Session", "Model", "Result", "RR", "P/L"];
-  const rows = trades.map((t) => [
+  const rows = trades.map(t => [
     t.tradeDate || "", t.pair || "", t.direction || "", t.session || "",
     t.entryModel || "", t.result || "", parseFloat(t.actualRR || 0).toFixed(2),
-    parseFloat(t.profit || 0).toFixed(2),
+    parseFloat(t.profit || 0).toFixed(2)
   ]);
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
