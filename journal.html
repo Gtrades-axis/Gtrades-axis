@@ -4,25 +4,59 @@
 <head>
 
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>GTRADES-AXIS™ Trading Journal</title>
 
-<!-- ============================================================
-     🔐 ULTRA‑SAFE GUARD – redirects immediately if not logged in
-     ============================================================ -->
-<meta http-equiv="refresh" content="0; url=login.html">
-<script>
-  // Cancel the meta refresh if the user is already logged in
-  // (session flag is set on login)
-  (function() {
-    if (sessionStorage.getItem('gtrades_user_logged_in') === 'true') {
-      document.querySelector('meta[http-equiv="refresh"]').content = '';
-    }
-  })();
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/journal.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- ✅ NO META REFRESH – auth.js handles everything -->
+
+<style>
+/* --- your full styles – unchanged --- */
+</style>
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<aside class="sidebar">
+  <!-- ... keep your sidebar exactly as you have ... -->
+</aside>
+
+<main class="main-content">
+
+  <div class="page-header">
+    <div>
+      <h1>📊 Professional Trading Journal</h1>
+      <p>Record • Review • Improve • Repeat</p>
+    </div>
+    <div class="header-actions">
+      <a href="history.html" class="btn"><i class="fa-solid fa-clock"></i> History</a>
+      <a href="analytics.html" class="btn"><i class="fa-solid fa-chart-column"></i> Analytics</a>
+    </div>
+  </div>
+
+  <!-- Stats, charts, form – keep exactly as before -->
+
+</main>
+
+</div>
+
+<!-- ✅ ONLY auth.js – no meta refresh -->
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/journal.js"></script>
+
+</body>
+</html>
 
 <link rel="preconnect"
 href="https://fonts.googleapis.com">
@@ -1231,7 +1265,7 @@ id="commission">
 
 </div>
 
-<div class="form-group">
+<div class="form-group">meta
 
 <label>Profit / Loss ($)</label>
 
