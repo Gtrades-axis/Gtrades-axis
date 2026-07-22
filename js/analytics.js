@@ -2398,6 +2398,7 @@ console.log("GTRADES-AXIS™");
 
 console.log("Professional Analytics Engine Loaded");
 
+
 console.log("Realtime Firestore Sync Active");
 
 console.log("AI Coach Active");
