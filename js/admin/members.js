@@ -167,9 +167,8 @@ window.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.style.
 
 // ─── APPROVE BUTTON ────────────────────────────────────────────
 approveBtn?.addEventListener("click", async () => {
-    console.log("🔘 Approve button clicked. Selected user:", selectedUser);
     if (!selectedUser) {
-        alert("No member selected. Please open a member first.");
+        alert("No member selected.");
         return;
     }
 
@@ -177,15 +176,15 @@ approveBtn?.addEventListener("click", async () => {
         const userRef = doc(db, "users", selectedUser.id);
         await updateDoc(userRef, {
             active: true,
-            status: "active"
+            status: "active",
+            role: "member"   // ✅ CRITICAL – changes role from "pending" to "member"
         });
-        console.log("✅ Firestore updated: active = true for", selectedUser.id);
         alert("✅ Member Approved Successfully!");
         modal.style.display = "none";
         selectedUser = null;
         loadMembersRealtime();
     } catch (error) {
-        console.error("❌ Approval error:", error);
+        console.error("Approval error:", error);
         alert("❌ Failed to approve: " + error.message);
     }
 });
