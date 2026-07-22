@@ -56,8 +56,7 @@ function renderTable() {
   const tbody = document.getElementById("historyBody");
   if (!tbody) return;
   if (trades.length === 0) {
-    tbody.innerHTML =
-      `<tr><td colspan="9" class="empty">No trades recorded yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="empty">No trades recorded yet.</td></tr>`;
     return;
   }
   let html = "";
@@ -85,7 +84,6 @@ function renderTable() {
   tbody.innerHTML = html;
 }
 
-// ─── ACTIONS ────────────────────────────────────────────────────
 window.viewTrade = function (id) {
   const trade = trades.find((t) => t.id === id);
   if (!trade) return;
@@ -100,7 +98,6 @@ window.viewTrade = function (id) {
 };
 
 window.editTrade = function (id) {
-  // Redirect to journal with edit mode
   localStorage.setItem("editTradeId", id);
   window.location.href = "journal.html";
 };
@@ -113,7 +110,7 @@ window.deleteTrade = async function (id) {
   updateStats();
 };
 
-// ─── MODAL CLOSE ────────────────────────────────────────────────
+// Modal close
 document.querySelector(".closeModal")?.addEventListener("click", () => {
   document.getElementById("tradeModal").style.display = "none";
 });
@@ -123,7 +120,7 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// ─── SEARCH & FILTER ────────────────────────────────────────────
+// Search & filter
 document.getElementById("tradeSearch")?.addEventListener("input", filter);
 document.getElementById("filterPair")?.addEventListener("change", filter);
 document.getElementById("filterSession")?.addEventListener("change", filter);
@@ -141,21 +138,6 @@ function filter() {
     const matchResult = result ? t.result === result : true;
     return matchSearch && matchPair && matchSession && matchResult;
   });
-  const tbody = document.getElementById("historyBody");
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No matching trades.</td></tr>`;
-    return;
-  }
-  let html = "";
-  filtered.forEach((t) => {
-    // ... same as renderTable
-    // (I'll reuse the same row logic; you can just call renderTable with filtered)
-  });
-  // For simplicity, just re-render the table with filtered data
-  renderFiltered(filtered);
-}
-
-function renderFiltered(filtered) {
   const tbody = document.getElementById("historyBody");
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="9" class="empty">No matching trades.</td></tr>`;
@@ -186,7 +168,7 @@ function renderFiltered(filtered) {
   tbody.innerHTML = html;
 }
 
-// ─── EXPORT CSV ──────────────────────────────────────────────────
+// Export CSV
 document.getElementById("exportCSV")?.addEventListener("click", () => {
   if (!trades.length) return alert("No trades to export.");
   const headers = ["Date", "Pair", "Direction", "Session", "Model", "Result", "RR", "P/L"];

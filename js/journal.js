@@ -9,7 +9,6 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  getDoc,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
@@ -17,7 +16,6 @@ let currentUser = null;
 let trades = [];
 let editingId = null;
 
-// ─── DOM ELEMENTS ──────────────────────────────────────────────
 const form = document.getElementById("tradeForm");
 const saveBtn = document.getElementById("saveTrade");
 const totalTrades = document.getElementById("totalTrades");
@@ -31,7 +29,6 @@ const streak = document.getElementById("streak");
 const equityChart = document.getElementById("equityChart");
 const monthlyChart = document.getElementById("monthlyChart");
 
-// ─── AUTH GUARD ─────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "login.html";
@@ -41,7 +38,6 @@ onAuthStateChanged(auth, async (user) => {
   await loadTrades();
 });
 
-// ─── LOAD TRADES FROM FIRESTORE ───────────────────────────────
 async function loadTrades() {
   if (!currentUser) return;
   try {
@@ -62,7 +58,6 @@ async function loadTrades() {
   }
 }
 
-// ─── SAVE TRADE ──────────────────────────────────────────────────
 async function saveTrade(data) {
   if (!currentUser) throw new Error("Not logged in");
   const payload = { ...data, userId: currentUser.uid };
@@ -82,7 +77,6 @@ async function saveTrade(data) {
   document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
 }
 
-// ─── DELETE TRADE ───────────────────────────────────────────────
 async function deleteTrade(id) {
   if (!confirm("Delete this trade?")) return;
   await deleteDoc(doc(db, "trades", id));
@@ -91,7 +85,6 @@ async function deleteTrade(id) {
   updateCharts();
 }
 
-// ─── EDIT TRADE (populate form) ────────────────────────────────
 function editTrade(id) {
   const trade = trades.find((t) => t.id === id);
   if (!trade) return;
@@ -105,7 +98,6 @@ function editTrade(id) {
   window.scrollTo(0, 0);
 }
 
-// ─── STATS ──────────────────────────────────────────────────────
 function updateStats() {
   const total = trades.length;
   const winsCount = trades.filter((t) => t.result === "Win").length;
@@ -139,85 +131,76 @@ function calculateStreak() {
   return streak;
 }
 
-// ─── CHARTS ──────────────────────────────────────────────────────
 function updateCharts() {
-  // Simple chart logic – you can keep your existing chart.js code
-  // I'll provide a minimal version; you can replace with your full chart logic
-  if (typeof Chart !== "undefined") {
-    // Destroy old charts if they exist
-    if (window.equityChart) window.equityChart.destroy();
-    if (window.monthlyChart) window.monthlyChart.destroy();
+  if (typeof Chart === "undefined") return;
+  if (window.equityChart) window.equityChart.destroy();
+  if (window.monthlyChart) window.monthlyChart.destroy();
 
-    // Equity curve
-    let running = 0;
-    const equityData = trades.map((t) => {
-      running += parseFloat(t.profit) || 0;
-      return running;
+  let running = 0;
+  const equityData = trades.map((t) => {
+    running += parseFloat(t.profit) || 0;
+    return running;
+  });
+  const labels = trades.map((_, i) => i + 1);
+  if (equityData.length > 0) {
+    window.equityChart = new Chart(equityChart, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Equity Curve",
+          data: equityData,
+          borderColor: "#0f8cff",
+          backgroundColor: "rgba(15,140,255,0.15)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#94a3b8" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+        },
+      },
     });
-    const labels = trades.map((_, i) => i + 1);
+  }
 
-    if (equityData.length > 0) {
-      window.equityChart = new Chart(equityChart, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [{
-            label: "Equity Curve",
-            data: equityData,
-            borderColor: "#0f8cff",
-            backgroundColor: "rgba(15,140,255,0.15)",
-            fill: true,
-            tension: 0.35,
-            pointRadius: 3,
-          }],
+  const monthly = {};
+  trades.forEach((t) => {
+    if (!t.tradeDate) return;
+    const month = t.tradeDate.substring(0, 7);
+    monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0);
+  });
+  const monthLabels = Object.keys(monthly).sort();
+  if (monthLabels.length > 0) {
+    window.monthlyChart = new Chart(monthlyChart, {
+      type: "bar",
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: "Monthly Profit",
+          data: monthLabels.map((m) => monthly[m]),
+          backgroundColor: "#0f8cff",
+          borderRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#94a3b8" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: "#94a3b8" } } },
-          scales: {
-            x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
-            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
-          },
-        },
-      });
-    }
-
-    // Monthly
-    const monthly = {};
-    trades.forEach((t) => {
-      if (!t.tradeDate) return;
-      const month = t.tradeDate.substring(0, 7);
-      monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0);
+      },
     });
-    const monthLabels = Object.keys(monthly).sort();
-    if (monthLabels.length > 0) {
-      window.monthlyChart = new Chart(monthlyChart, {
-        type: "bar",
-        data: {
-          labels: monthLabels,
-          datasets: [{
-            label: "Monthly Profit",
-            data: monthLabels.map((m) => monthly[m]),
-            backgroundColor: "#0f8cff",
-            borderRadius: 6,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: "#94a3b8" } } },
-          scales: {
-            x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
-            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
-          },
-        },
-      });
-    }
   }
 }
 
-// ─── FORM SUBMIT ─────────────────────────────────────────────────
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = {
@@ -267,7 +250,6 @@ form.addEventListener("submit", async (e) => {
     afterChart: document.getElementById("afterChart").value,
     notes: document.getElementById("notes").value,
   };
-
   try {
     await saveTrade(data);
     alert(editingId ? "Trade updated!" : "Trade saved!");
@@ -276,7 +258,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// ─── CANCEL EDIT ─────────────────────────────────────────────────
+// Cancel edit button (if you have one)
 document.getElementById("cancelEdit")?.addEventListener("click", () => {
   editingId = null;
   saveBtn.textContent = "Save Trade";

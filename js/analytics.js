@@ -35,6 +35,11 @@ async function loadTrades() {
   }
 }
 
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
 function updateOverview() {
   const total = trades.length;
   const wins = trades.filter((t) => t.result === "Win").length;
@@ -63,16 +68,13 @@ function updateOverview() {
   const netEl = document.getElementById("netProfit");
   if (netEl) netEl.className = profit >= 0 ? "positive" : "negative";
 
-  // Best/worst pair, session, model
+  // Best/worst pair
   const pairStats = {};
   trades.forEach((t) => {
     const p = t.pair || "Unknown";
     pairStats[p] = (pairStats[p] || 0) + (parseFloat(t.profit) || 0);
   });
-  let bestPair = "-",
-    bestVal = -Infinity,
-    worstPair = "-",
-    worstVal = Infinity;
+  let bestPair = "-", bestVal = -Infinity, worstPair = "-", worstVal = Infinity;
   Object.entries(pairStats).forEach(([k, v]) => {
     if (v > bestVal) { bestVal = v; bestPair = k; }
     if (v < worstVal) { worstVal = v; worstPair = k; }
@@ -81,17 +83,74 @@ function updateOverview() {
   setText("bestPairProfit", "$" + (bestVal === -Infinity ? 0 : bestVal).toFixed(2));
   setText("worstPair", worstPair);
   setText("worstPairProfit", "$" + (worstVal === Infinity ? 0 : worstVal).toFixed(2));
+
+  // Best session
+  const sessionStats = {};
+  trades.forEach((t) => {
+    const s = t.session || "Unknown";
+    if (!sessionStats[s]) sessionStats[s] = { wins: 0, total: 0 };
+    sessionStats[s].total++;
+    if (t.result === "Win") sessionStats[s].wins++;
+  });
+  let bestSession = "-", bestSessionRate = 0;
+  Object.entries(sessionStats).forEach(([s, d]) => {
+    const rate = d.total ? (d.wins / d.total) * 100 : 0;
+    if (rate > bestSessionRate) { bestSessionRate = rate; bestSession = s; }
+  });
+  setText("bestSession", bestSession);
+  setText("bestSessionWinrate", bestSessionRate.toFixed(1) + "%");
+
+  // Best model
+  const modelStats = {};
+  trades.forEach((t) => {
+    const m = t.entryModel || "Unknown";
+    if (!modelStats[m]) modelStats[m] = { wins: 0, total: 0 };
+    modelStats[m].total++;
+    if (t.result === "Win") modelStats[m].wins++;
+  });
+  let bestModel = "-", bestModelRate = 0;
+  Object.entries(modelStats).forEach(([m, d]) => {
+    const rate = d.total ? (d.wins / d.total) * 100 : 0;
+    if (rate > bestModelRate) { bestModelRate = rate; bestModel = m; }
+  });
+  setText("bestModel", bestModel);
+  setText("bestModelWinrate", bestModelRate.toFixed(1) + "%");
 }
 
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
+function chartOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: "#94a3b8", font: { size: 10 } } },
+    },
+    scales: {
+      x: { ticks: { color: "#94a3b8", font: { size: 9 } }, grid: { color: "rgba(255,255,255,0.05)" } },
+      y: { ticks: { color: "#94a3b8", font: { size: 9 } }, grid: { color: "rgba(255,255,255,0.05)" } },
+    },
+  };
 }
 
-// ─── CHARTS ──────────────────────────────────────────────────────
+function pieOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { color: "#94a3b8", padding: 10, font: { size: 10 } },
+      },
+    },
+  };
+}
+
 function buildCharts() {
-  destroyCharts();
-  // Equity
+  // Destroy existing charts
+  Object.keys(charts).forEach((key) => {
+    if (charts[key]) { charts[key].destroy(); charts[key] = null; }
+  });
+
+  // Equity curve
   let running = 0;
   const equity = trades.map((t) => { running += parseFloat(t.profit) || 0; return running; });
   const labels = trades.map((_, i) => i + 1);
@@ -114,7 +173,7 @@ function buildCharts() {
     });
   }
 
-  // Monthly
+  // Monthly profit
   const monthly = {};
   trades.forEach((t) => {
     if (!t.tradeDate) return;
@@ -182,7 +241,7 @@ function buildCharts() {
     });
   }
 
-  // Model
+  // Entry model
   const modelStats = {};
   trades.forEach((t) => {
     const m = t.entryModel || "Unknown";
@@ -205,7 +264,7 @@ function buildCharts() {
     });
   }
 
-  // Result pie
+  // Win/Loss pie
   const wins = trades.filter((t) => t.result === "Win").length;
   const losses = trades.filter((t) => t.result === "Loss").length;
   const be = trades.filter((t) => t.result === "Break Even").length;
@@ -265,7 +324,7 @@ function buildCharts() {
     });
   }
 
-  // MTF
+  // MTF Bias
   const mtf = {};
   trades.forEach((t) => {
     const m = t.mtfSwing || "Unknown";
@@ -316,44 +375,6 @@ function buildCharts() {
       options: chartOptions(),
     });
   }
-}
-
-function chartOptions() {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        labels: { color: "#94a3b8", font: { size: 10 } },
-      },
-    },
-    scales: {
-      x: { ticks: { color: "#94a3b8", font: { size: 9 } }, grid: { color: "rgba(255,255,255,0.05)" } },
-      y: { ticks: { color: "#94a3b8", font: { size: 9 } }, grid: { color: "rgba(255,255,255,0.05)" } },
-    },
-  };
-}
-
-function pieOptions() {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom",
-        labels: { color: "#94a3b8", padding: 10, font: { size: 10 } },
-      },
-    },
-  };
-}
-
-function destroyCharts() {
-  Object.keys(charts).forEach((key) => {
-    if (charts[key]) {
-      charts[key].destroy();
-      charts[key] = null;
-    }
-  });
 }
 
 function buildInsights() {
