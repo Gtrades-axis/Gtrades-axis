@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ – AUTH GUARD (SIMPLIFIED – NO PREMIUM CHECKS)
+// GTRADES-AXIS™ – AUTH GUARD (SIMPLIFIED)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -10,9 +10,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// ------------------------------------------------------------------
-// 1. PAGE GUARD
-// ------------------------------------------------------------------
+// ─── PAGE GUARD ──────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
   const publicPages = ["index.html", "login.html", "register.html", "pending.html", "access-denied.html"];
@@ -27,13 +25,20 @@ onAuthStateChanged(auth, async (user) => {
     try {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) userData = docSnap.data();
+      else {
+        // If no document, they are not approved – redirect to pending
+        window.location.href = "pending.html";
+        return;
+      }
     } catch (e) {
-      console.error("Failed to fetch user data:", e);
+      console.error("Fetch user error:", e);
+      window.location.href = "login.html";
+      return;
     }
 
-    // ─── Public pages (except pending/access-denied) ──────────
+    // ── Public pages (except pending/access-denied) ──
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
-      if (!userData || userData.active !== true) {
+      if (userData.active !== true) {
         window.location.href = "pending.html";
         return;
       } else {
@@ -47,29 +52,26 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // ─── Protected pages (require login + active) ─────────────
+    // ── Protected pages ──
     if (!publicPages.includes(currentPage)) {
-      // 1. Must be approved (active)
-      if (!userData || userData.active !== true) {
+      // 1. Must be approved
+      if (userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
 
-      // 2. Admin‑only page (only for admin role)
+      // 2. Admin page only for admin
       if (currentPage === "admin.html" && userData.role !== "admin") {
         window.location.href = "access-denied.html";
         return;
       }
 
-      // ✅ All other pages are now accessible to any active member
-      // (academy, resources, videos, journal, analytics, history, dashboard, profile, support, etc.)
+      // ✅ All other pages – accessible (academy, resources, videos, journal, analytics, history, etc.)
     }
   }
 });
 
-// ------------------------------------------------------------------
-// 2. LOGIN
-// ------------------------------------------------------------------
+// ─── LOGIN ──────────────────────────────────────────────────────
 export async function loginUser(email, password) {
   try {
     await signInWithEmailAndPassword(auth, email, password);
@@ -80,20 +82,15 @@ export async function loginUser(email, password) {
   }
 }
 
-// ------------------------------------------------------------------
-// 3. LOGOUT
-// ------------------------------------------------------------------
+// ─── LOGOUT ─────────────────────────────────────────────────────
 export async function logoutUser() {
   await signOut(auth);
   sessionStorage.removeItem('gtrades_user_logged_in');
   window.location.href = "login.html";
 }
 
-// ------------------------------------------------------------------
-// 4. AUTO-BIND LOGIN FORM
-// ------------------------------------------------------------------
+// ─── AUTO-BIND LOGIN FORM ────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  // --- LOGIN ---
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -128,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- LOGOUT BUTTON ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", logoutUser);
