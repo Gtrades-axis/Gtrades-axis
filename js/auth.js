@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ – AUTH GUARD + LOGIN/LOGOUT (NO REGISTER)
+// GTRADES-AXIS™ – AUTH GUARD (SIMPLIFIED – NO PREMIUM CHECKS)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -31,6 +31,7 @@ onAuthStateChanged(auth, async (user) => {
       console.error("Failed to fetch user data:", e);
     }
 
+    // ─── Public pages (except pending/access-denied) ──────────
     if (publicPages.includes(currentPage) && currentPage !== "pending.html" && currentPage !== "access-denied.html") {
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
@@ -46,27 +47,22 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
+    // ─── Protected pages (require login + active) ─────────────
     if (!publicPages.includes(currentPage)) {
+      // 1. Must be approved (active)
       if (!userData || userData.active !== true) {
         window.location.href = "pending.html";
         return;
       }
 
-      const premiumPages = [
-        "academy.html", "premium-academy.html", "resources.html",
-        "videos.html", "journal.html", "analytics.html", "history.html"
-      ];
-      if (premiumPages.includes(currentPage)) {
-        const role = userData.role || "member";
-        if (role !== "premium" && role !== "admin") {
-          window.location.href = "access-denied.html";
-          return;
-        }
-      }
+      // 2. Admin‑only page (only for admin role)
       if (currentPage === "admin.html" && userData.role !== "admin") {
         window.location.href = "access-denied.html";
         return;
       }
+
+      // ✅ All other pages are now accessible to any active member
+      // (academy, resources, videos, journal, analytics, history, dashboard, profile, support, etc.)
     }
   }
 });
