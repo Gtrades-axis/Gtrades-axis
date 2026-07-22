@@ -1,188 +1,378 @@
-import { auth, db } from "./firebase.js";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  doc,
-  deleteDoc,
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+// ======================================================
+// GTRADES-AXIS™
+// HISTORY PAGE
+// PART 1
+// ======================================================
 
-let currentUser = null;
-let trades = [];
+let trades = JSON.parse(localStorage.getItem("gtradesJournal")) || [];
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-  currentUser = user;
-  await loadHistory();
-});
+// ======================================================
+// ELEMENTS
+// ======================================================
 
-async function loadHistory() {
-  try {
-    const q = query(
-      collection(db, "trades"),
-      where("userId", "==", currentUser.uid),
-      orderBy("tradeDate", "desc")
-    );
-    const snapshot = await getDocs(q);
-    trades = [];
-    snapshot.forEach((doc) => {
-      trades.push({ id: doc.id, ...doc.data() });
+const historyBody = document.getElementById("historyBody");
+
+const searchInput = document.getElementById("tradeSearch");
+
+const filterPair = document.getElementById("filterPair");
+
+const filterSession = document.getElementById("filterSession");
+
+const filterResult = document.getElementById("filterResult");
+
+// ======================================================
+// LOAD PAGE
+// ======================================================
+
+loadHistory();
+
+populatePairFilter();
+
+updateSummary();
+
+// ======================================================
+// EVENTS
+// ======================================================
+
+searchInput.addEventListener("input", loadHistory);
+
+filterPair.addEventListener("change", loadHistory);
+
+filterSession.addEventListener("change", loadHistory);
+
+filterResult.addEventListener("change", loadHistory);
+
+// ======================================================
+// LOAD HISTORY
+// ======================================================
+
+function loadHistory(){
+
+    historyBody.innerHTML = "";
+
+    let filtered = trades.filter(trade=>{
+
+        const search = searchInput.value.toLowerCase();
+
+        const matchSearch =
+            trade.pair.toLowerCase().includes(search);
+
+        const matchPair =
+            filterPair.value==="" ||
+            trade.pair===filterPair.value;
+
+        const matchSession =
+            filterSession.value==="" ||
+            trade.session===filterSession.value;
+
+        const matchResult =
+            filterResult.value==="" ||
+            trade.result===filterResult.value;
+
+        return matchSearch &&
+               matchPair &&
+               matchSession &&
+               matchResult;
+
     });
-    renderTable();
-    updateStats();
-  } catch (error) {
-    console.error("History load error:", error);
-  }
-}
 
-function updateStats() {
-  const total = trades.length;
-  const wins = trades.filter((t) => t.result === "Win").length;
-  const losses = trades.filter((t) => t.result === "Loss").length;
-  const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
-  document.getElementById("historyTotalTrades").textContent = total;
-  document.getElementById("historyWins").textContent = wins;
-  document.getElementById("historyLosses").textContent = losses;
-  document.getElementById("historyWinRate").textContent = winRate + "%";
-}
+    if(filtered.length===0){
 
-function renderTable() {
-  const tbody = document.getElementById("historyBody");
-  if (!tbody) return;
-  if (trades.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No trades recorded yet.</td></tr>`;
-    return;
-  }
-  let html = "";
-  trades.forEach((t) => {
-    const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
-    const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
-    html += `
-      <tr>
-        <td>${t.tradeDate || "-"}</td>
-        <td>${t.pair || "-"}</td>
-        <td>${t.direction || "-"}</td>
-        <td>${t.session || "-"}</td>
-        <td>${t.entryModel || "-"}</td>
-        <td class="result-${resultClass}">${t.result || "-"}</td>
-        <td>${parseFloat(t.actualRR || 0).toFixed(2)}</td>
-        <td class="${profitClass}">$${parseFloat(t.profit || 0).toFixed(2)}</td>
-        <td>
-          <button onclick="viewTrade('${t.id}')" class="btn-small" title="View"><i class="fa-solid fa-eye"></i></button>
-          <button onclick="editTrade('${t.id}')" class="btn-small" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteTrade('${t.id}')" class="btn-small danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        historyBody.innerHTML=`
+
+        <tr>
+
+        <td colspan="9" class="empty">
+
+        No trades found.
+
         </td>
-      </tr>
-    `;
-  });
-  tbody.innerHTML = html;
+
+        </tr>
+
+        `;
+
+        return;
+
+    }
+
+    filtered.forEach((trade,index)=>{
+
+        historyBody.innerHTML += `
+
+<tr>
+
+<td>${trade.tradeDate}</td>
+
+<td>${trade.pair}</td>
+
+<td>${trade.direction}</td>
+
+<td>${trade.session}</td>
+
+<td>${trade.entryModel}</td>
+
+<td>${trade.result}</td>
+
+<td>${trade.actualRR}</td>
+
+<td>$${Number(trade.profit).toFixed(2)}</td>
+
+<td>
+
+<div class="action-buttons">
+
+<button
+
+class="action-btn view-btn"
+
+onclick="viewTrade(${trade.id})">
+
+<i class="fa-solid fa-eye"></i>
+
+</button>
+
+<button
+
+class="action-btn delete-btn"
+
+onclick="deleteTrade(${trade.id})">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</div>
+
+</td>
+
+</tr>
+
+`;
+
+    });
+
+}
+// ======================================================
+// PAIR FILTER
+// ======================================================
+
+function populatePairFilter(){
+
+    const pairs = [...new Set(trades.map(t => t.pair))];
+
+    pairs.sort();
+
+    pairs.forEach(pair=>{
+
+        const option = document.createElement("option");
+
+        option.value = pair;
+
+        option.textContent = pair;
+
+        filterPair.appendChild(option);
+
+    });
+
 }
 
-window.viewTrade = function (id) {
-  const trade = trades.find((t) => t.id === id);
-  if (!trade) return;
-  const details = Object.entries(trade)
-    .filter(([key]) => key !== "id" && key !== "userId")
-    .map(([key, val]) => `<tr><td><strong>${key}</strong></td><td>${val || "-"}</td></tr>`)
-    .join("");
-  document.getElementById("tradeDetails").innerHTML = `
-    <table class="detail-table"><tbody>${details}</tbody></table>
-  `;
-  document.getElementById("tradeModal").style.display = "flex";
+// ======================================================
+// SUMMARY
+// ======================================================
+
+function updateSummary(){
+
+    const total = trades.length;
+
+    const wins = trades.filter(t=>t.result==="Win").length;
+
+    const losses = trades.filter(t=>t.result==="Loss").length;
+
+    const winRate =
+        total===0
+        ?0
+        :((wins/total)*100).toFixed(1);
+
+    document.getElementById("historyTotalTrades").textContent = total;
+
+    document.getElementById("historyWins").textContent = wins;
+
+    document.getElementById("historyLosses").textContent = losses;
+
+    document.getElementById("historyWinRate").textContent = winRate + "%";
+
+}
+
+// ======================================================
+// DELETE TRADE
+// ======================================================
+
+window.deleteTrade = function(id){
+
+    if(!confirm("Delete this trade?")) return;
+
+    trades = trades.filter(t => t.id !== id);
+
+    localStorage.setItem(
+        "gtradesJournal",
+        JSON.stringify(trades)
+    );
+
+    filterPair.innerHTML = `<option value="">All Pairs</option>`;
+
+    populatePairFilter();
+
+    updateSummary();
+
+    loadHistory();
+
 };
 
-window.editTrade = function (id) {
-  localStorage.setItem("editTradeId", id);
-  window.location.href = "journal.html";
+// ======================================================
+// VIEW TRADE
+// ======================================================
+
+window.viewTrade = function(id){
+
+    const trade = trades.find(t=>t.id===id);
+
+    if(!trade) return;
+
+    const modal = document.getElementById("tradeModal");
+
+    const details = document.getElementById("tradeDetails");
+
+    details.innerHTML = `
+
+<h2>${trade.pair} (${trade.direction})</h2>
+
+<hr>
+
+<h3>Trade Information</h3>
+
+<p><strong>Date:</strong> ${trade.tradeDate}</p>
+
+<p><strong>Time:</strong> ${trade.tradeTime}</p>
+
+<p><strong>Session:</strong> ${trade.session}</p>
+
+<p><strong>Broker:</strong> ${trade.broker}</p>
+
+<p><strong>Lot Size:</strong> ${trade.lotSize}</p>
+
+<hr>
+
+<h3>Higher Timeframe</h3>
+
+<p><strong>Swing:</strong> ${trade.htfSwing}</p>
+
+<p><strong>Internal:</strong> ${trade.htfInternal}</p>
+
+<hr>
+
+<h3>Medium Timeframe</h3>
+
+<p><strong>Swing:</strong> ${trade.mtfSwing}</p>
+
+<p><strong>Internal:</strong> ${trade.mtfInternal}</p>
+
+<hr>
+
+<h3>Execution</h3>
+
+<p><strong>Structure:</strong> ${trade.ltfStructure}</p>
+
+<p><strong>Liquidity:</strong> ${trade.liquidity}</p>
+
+<p><strong>POI:</strong> ${trade.poi}</p>
+
+<p><strong>Entry Model:</strong> ${trade.entryModel}</p>
+
+<p><strong>Confirmation:</strong> ${trade.entryConfirmation}</p>
+
+<hr>
+
+<h3>Risk</h3>
+
+<p><strong>Entry:</strong> ${trade.entryPrice}</p>
+
+<p><strong>SL:</strong> ${trade.stopLoss}</p>
+
+<p><strong>TP:</strong> ${trade.takeProfit}</p>
+
+<p><strong>Expected RR:</strong> ${trade.expectedRR}</p>
+
+<p><strong>Actual RR:</strong> ${trade.actualRR}</p>
+
+<p><strong>Commission:</strong> $${trade.commission}</p>
+
+<p><strong>Profit:</strong> $${trade.profit}</p>
+
+<hr>
+
+<h3>Psychology</h3>
+
+<p><strong>Confidence:</strong> ${trade.confidence}</p>
+
+<p><strong>Emotion:</strong> ${trade.emotion}</p>
+
+<p><strong>Discipline:</strong> ${trade.discipline}</p>
+
+<p><strong>Patience:</strong> ${trade.patience}</p>
+
+<hr>
+
+<h3>Review</h3>
+
+<p><strong>Summary:</strong><br>${trade.tradeSummary}</p>
+
+<p><strong>Strengths:</strong><br>${trade.strengths}</p>
+
+<p><strong>Mistakes:</strong><br>${trade.mistakes}</p>
+
+<p><strong>Lesson:</strong><br>${trade.lessonLearned}</p>
+
+<p><strong>Improvement:</strong><br>${trade.improvementPlan}</p>
+
+<hr>
+
+<h3>Chart URLs</h3>
+
+<p><a href="${trade.beforeChart}" target="_blank">Before Entry</a></p>
+
+<p><a href="${trade.duringChart}" target="_blank">During Trade</a></p>
+
+<p><a href="${trade.afterChart}" target="_blank">After Trade</a></p>
+
+<hr>
+
+<p><strong>Notes:</strong><br>${trade.notes}</p>
+
+`;
+
+    modal.style.display = "flex";
+
 };
 
-window.deleteTrade = async function (id) {
-  if (!confirm("Delete this trade?")) return;
-  await deleteDoc(doc(db, "trades", id));
-  trades = trades.filter((t) => t.id !== id);
-  renderTable();
-  updateStats();
-};
+// ======================================================
+// MODAL
+// ======================================================
 
-// Modal close
-document.querySelector(".closeModal")?.addEventListener("click", () => {
-  document.getElementById("tradeModal").style.display = "none";
-});
-window.addEventListener("click", (e) => {
-  if (e.target === document.getElementById("tradeModal")) {
+document.querySelector(".closeModal").onclick = () => {
+
     document.getElementById("tradeModal").style.display = "none";
-  }
-});
 
-// Search & filter
-document.getElementById("tradeSearch")?.addEventListener("input", filter);
-document.getElementById("filterPair")?.addEventListener("change", filter);
-document.getElementById("filterSession")?.addEventListener("change", filter);
-document.getElementById("filterResult")?.addEventListener("change", filter);
+};
 
-function filter() {
-  const search = document.getElementById("tradeSearch").value.toLowerCase();
-  const pair = document.getElementById("filterPair").value;
-  const session = document.getElementById("filterSession").value;
-  const result = document.getElementById("filterResult").value;
-  const filtered = trades.filter((t) => {
-    const matchSearch = t.pair?.toLowerCase().includes(search) || false;
-    const matchPair = pair ? t.pair === pair : true;
-    const matchSession = session ? t.session === session : true;
-    const matchResult = result ? t.result === result : true;
-    return matchSearch && matchPair && matchSession && matchResult;
-  });
-  const tbody = document.getElementById("historyBody");
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No matching trades.</td></tr>`;
-    return;
-  }
-  let html = "";
-  filtered.forEach((t) => {
-    const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
-    const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
-    html += `
-      <tr>
-        <td>${t.tradeDate || "-"}</td>
-        <td>${t.pair || "-"}</td>
-        <td>${t.direction || "-"}</td>
-        <td>${t.session || "-"}</td>
-        <td>${t.entryModel || "-"}</td>
-        <td class="result-${resultClass}">${t.result || "-"}</td>
-        <td>${parseFloat(t.actualRR || 0).toFixed(2)}</td>
-        <td class="${profitClass}">$${parseFloat(t.profit || 0).toFixed(2)}</td>
-        <td>
-          <button onclick="viewTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-eye"></i></button>
-          <button onclick="editTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteTrade('${t.id}')" class="btn-small danger"><i class="fa-solid fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-  });
-  tbody.innerHTML = html;
-}
+window.onclick = function(e){
 
-// Export CSV
-document.getElementById("exportCSV")?.addEventListener("click", () => {
-  if (!trades.length) return alert("No trades to export.");
-  const headers = ["Date", "Pair", "Direction", "Session", "Model", "Result", "RR", "P/L"];
-  const rows = trades.map((t) => [
-    t.tradeDate || "", t.pair || "", t.direction || "", t.session || "",
-    t.entryModel || "", t.result || "", parseFloat(t.actualRR || 0).toFixed(2),
-    parseFloat(t.profit || 0).toFixed(2),
-  ]);
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "trades.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-});
+    const modal = document.getElementById("tradeModal");
+
+    if(e.target===modal){
+
+        modal.style.display="none";
+
+    }
+
+};
