@@ -883,7 +883,47 @@ RESPONSIVE
     }
 
 }
+#aiInsights{
 
+display:grid;
+
+gap:15px;
+
+margin-top:20px;
+
+}
+
+.insight{
+
+padding:18px;
+
+border-radius:12px;
+
+background:#111827;
+
+border-left:4px solid #3b82f6;
+
+color:#fff;
+
+}
+
+.insight.success{
+
+border-left-color:#22c55e;
+
+}
+
+.insight.good{
+
+border-left-color:#3b82f6;
+
+}
+
+.insight.warning{
+
+border-left-color:#ef4444;
+
+}
 /* ==========================================================
 END OF FILE
 ========================================================== */

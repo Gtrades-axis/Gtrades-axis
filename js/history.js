@@ -1,44 +1,83 @@
 import { auth, db } from "./firebase.js";
+
 import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  doc,
-  deleteDoc,
+    collection,
+    query,
+    where,
+    orderBy,
+    doc,
+    deleteDoc,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 let currentUser = null;
 let trades = [];
+let unsubscribeHistory = null;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-  currentUser = user;
-  await loadHistory();
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+        window.location.href = "login.html";
+
+        return;
+
+    }
+
+    currentUser = user;
+
+    loadHistory();
+
 });
 
-async function loadHistory() {
-  try {
+function loadHistory() {
+
+    if (unsubscribeHistory) {
+
+        unsubscribeHistory();
+
+    }
+
     const q = query(
-      collection(db, "trades"),
-      where("userId", "==", currentUser.uid),
-      orderBy("tradeDate", "desc")
+
+        collection(db, "trades"),
+
+        where("userId", "==", currentUser.uid),
+
+        orderBy("tradeDate", "desc")
+
     );
-    const snapshot = await getDocs(q);
-    trades = [];
-    snapshot.forEach((doc) => {
-      trades.push({ id: doc.id, ...doc.data() });
+
+    unsubscribeHistory = onSnapshot(q, (snapshot) => {
+
+        trades = [];
+
+        snapshot.forEach((docSnap) => {
+
+            trades.push({
+
+                id: docSnap.id,
+
+                ...docSnap.data()
+
+            });
+
+        });
+
+        renderTable();
+
+        updateStats();
+
+    }, (error) => {
+
+        console.error("History realtime error:", error);
+
     });
-    renderTable();
-    updateStats();
-  } catch (error) {
-    console.error("History load error:", error);
-  }
+
 }
 
 function updateStats() {
@@ -103,13 +142,25 @@ window.editTrade = function (id) {
 };
 
 window.deleteTrade = async function (id) {
-  if (!confirm("Delete this trade?")) return;
-  await deleteDoc(doc(db, "trades", id));
-  trades = trades.filter((t) => t.id !== id);
-  renderTable();
-  updateStats();
-};
 
+    if (!confirm("Delete this trade permanently?")) return;
+
+    try {
+
+        await deleteDoc(doc(db, "trades", id));
+
+        // No need to manually remove it.
+        // onSnapshot will refresh automatically.
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Failed to delete trade.");
+
+    }
+
+};
 // Modal close
 document.querySelector(".closeModal")?.addEventListener("click", () => {
   document.getElementById("tradeModal").style.display = "none";
@@ -127,45 +178,140 @@ document.getElementById("filterSession")?.addEventListener("change", filter);
 document.getElementById("filterResult")?.addEventListener("change", filter);
 
 function filter() {
-  const search = document.getElementById("tradeSearch").value.toLowerCase();
-  const pair = document.getElementById("filterPair").value;
-  const session = document.getElementById("filterSession").value;
-  const result = document.getElementById("filterResult").value;
-  const filtered = trades.filter((t) => {
-    const matchSearch = t.pair?.toLowerCase().includes(search) || false;
-    const matchPair = pair ? t.pair === pair : true;
-    const matchSession = session ? t.session === session : true;
-    const matchResult = result ? t.result === result : true;
-    return matchSearch && matchPair && matchSession && matchResult;
-  });
-  const tbody = document.getElementById("historyBody");
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No matching trades.</td></tr>`;
-    return;
-  }
-  let html = "";
-  filtered.forEach((t) => {
-    const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
-    const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
-    html += `
-      <tr>
-        <td>${t.tradeDate || "-"}</td>
-        <td>${t.pair || "-"}</td>
-        <td>${t.direction || "-"}</td>
-        <td>${t.session || "-"}</td>
-        <td>${t.entryModel || "-"}</td>
-        <td class="result-${resultClass}">${t.result || "-"}</td>
-        <td>${parseFloat(t.actualRR || 0).toFixed(2)}</td>
-        <td class="${profitClass}">$${parseFloat(t.profit || 0).toFixed(2)}</td>
-        <td>
-          <button onclick="viewTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-eye"></i></button>
-          <button onclick="editTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteTrade('${t.id}')" class="btn-small danger"><i class="fa-solid fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-  });
-  tbody.innerHTML = html;
+
+    const search =
+        document.getElementById("tradeSearch")?.value.toLowerCase() || "";
+
+    const pair =
+        document.getElementById("filterPair")?.value || "";
+
+    const session =
+        document.getElementById("filterSession")?.value || "";
+
+    const result =
+        document.getElementById("filterResult")?.value || "";
+
+    const filtered = trades.filter((trade) => {
+
+        const matchesSearch =
+
+            (trade.pair || "").toLowerCase().includes(search) ||
+
+            (trade.direction || "").toLowerCase().includes(search) ||
+
+            (trade.entryModel || "").toLowerCase().includes(search);
+
+        const matchesPair =
+            pair === "" || trade.pair === pair;
+
+        const matchesSession =
+            session === "" || trade.session === session;
+
+        const matchesResult =
+            result === "" || trade.result === result;
+
+        return (
+            matchesSearch &&
+            matchesPair &&
+            matchesSession &&
+            matchesResult
+        );
+
+    });
+
+    renderFilteredTable(filtered);
+
+}
+function renderFilteredTable(list) {
+
+    const tbody = document.getElementById("historyBody");
+
+    if (!tbody) return;
+
+    if (list.length === 0) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty">
+                    No matching trades.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    let html = "";
+
+    list.forEach((t) => {
+
+        const profitClass =
+            Number(t.profit) >= 0 ? "positive" : "negative";
+
+        const resultClass =
+            (t.result || "").toLowerCase().replaceAll(" ", "-");
+
+        html += `
+        <tr>
+
+            <td>${t.tradeDate || "-"}</td>
+
+            <td>${t.pair || "-"}</td>
+
+            <td>${t.direction || "-"}</td>
+
+            <td>${t.session || "-"}</td>
+
+            <td>${t.entryModel || "-"}</td>
+
+            <td class="result-${resultClass}">
+                ${t.result || "-"}
+            </td>
+
+            <td>
+                ${Number(t.actualRR || 0).toFixed(2)}
+            </td>
+
+            <td class="${profitClass}">
+                $${Number(t.profit || 0).toFixed(2)}
+            </td>
+
+            <td>
+
+                <button
+                    onclick="viewTrade('${t.id}')"
+                    class="btn-small">
+
+                    <i class="fa-solid fa-eye"></i>
+
+                </button>
+
+                <button
+                    onclick="editTrade('${t.id}')"
+                    class="btn-small">
+
+                    <i class="fa-solid fa-pen"></i>
+
+                </button>
+
+                <button
+                    onclick="deleteTrade('${t.id}')"
+                    class="btn-small danger">
+
+                    <i class="fa-solid fa-trash"></i>
+
+                </button>
+
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
 }
 
 // Export CSV
