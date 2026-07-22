@@ -4,7 +4,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import {
     doc,
-    getDoc
+    getDoc,
+    updateDoc   // ✅ imported updateDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const form = document.getElementById("loginForm");
@@ -17,8 +18,11 @@ if (form) {
         const password = document.getElementById("password").value;
 
         try {
+            // 1. Sign in
             const credential = await signInWithEmailAndPassword(auth, email, password);
             const uid = credential.user.uid;
+
+            // 2. Get user document
             const snap = await getDoc(doc(db, "users", uid));
 
             if (!snap.exists()) {
@@ -28,22 +32,22 @@ if (form) {
 
             const user = snap.data();
 
-            // 🔥 Check approval status
+            // 3. Check approval status
             if (!user.active) {
                 alert("Your account is awaiting administrator approval.");
                 return;
             }
 
-            // 🆕 If role is still "pending" but active is true, treat as member
+            // 4. If role is still "pending" but active is true, auto-upgrade to "member"
             if (user.role === "pending") {
-                // Optionally auto-upgrade role to "member" (recommended)
                 await updateDoc(doc(db, "users", uid), { role: "member" });
-                // Then redirect to dashboard
-                window.location.href = "dashboard.html";
-                return;
+                // (optional) you could also update the local user object, but not needed
             }
 
-            // Role-based redirects
+            // 5. Set session flag for meta-refresh guard (if any)
+            sessionStorage.setItem('gtrades_user_logged_in', 'true');
+
+            // 6. Role-based redirects
             if (user.role === "admin") {
                 window.location.href = "admin.html";
                 return;
@@ -52,7 +56,7 @@ if (form) {
                 window.location.href = "dashboard.html";
                 return;
             }
-            // Default for members
+            // Default for members and auto-upgraded users
             window.location.href = "dashboard.html";
 
         } catch (error) {
