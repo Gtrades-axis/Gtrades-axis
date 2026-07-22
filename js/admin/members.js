@@ -392,27 +392,28 @@ const suspendBtn=document.getElementById("suspendBtn");
 const deleteBtn=document.getElementById("deleteBtn");
 
 /* ==========================
-APPROVE MEMBER
-========================== */
+// ----- APPROVE -----
+approveBtn.addEventListener("click", async () => {
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
 
-approveBtn.addEventListener("click",async()=>{
-
-    if(!selectedUser) return;
-
-    await updateDoc(doc(db,"users",selectedUser.id),{
-
-        status:"active"
-
-    });
-
-    alert("Member Approved Successfully.");
-
-    modal.style.display="none";
-
-    loadMembers();
-
+    try {
+        const userRef = doc(db, "users", selectedUser.id);
+        await updateDoc(userRef, {
+            active: true,
+            status: "active"
+        });
+        alert("✅ Member Approved Successfully. They can now log in.");
+        modal.style.display = "none";
+        // Refresh the table to reflect changes
+        loadMembersRealtime();
+    } catch (error) {
+        console.error("Approval error:", error);
+        alert("❌ Failed to approve: " + error.message);
+    }
 });
-
 /* ==========================
 MAKE PREMIUM
 ========================== */
