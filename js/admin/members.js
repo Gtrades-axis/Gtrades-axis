@@ -405,9 +405,9 @@ approveBtn.addEventListener("click", async () => {
             active: true,
             status: "active"
         });
-        alert("✅ Member Approved Successfully. They can now log in.");
+        alert("✅ Member Approved Successfully! They can now log in.");
         modal.style.display = "none";
-        // Refresh the table to reflect changes
+        // Refresh the table to show updated status
         loadMembersRealtime();
     } catch (error) {
         console.error("Approval error:", error);
