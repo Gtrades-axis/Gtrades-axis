@@ -46,12 +46,12 @@ if (form) {
                 uid: user.uid
             });
 
-            alert("Registration successful!\n\nYour account is pending administrator approval.");
+            alert("✅ Registration successful!\n\nYour account is pending administrator approval.");
             window.location.href = "pending.html";
 
         } catch (error) {
             console.error("Registration error:", error);
-            alert(error.message);
+            alert("❌ Error: " + error.message);
         }
     });
 }
