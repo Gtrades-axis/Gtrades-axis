@@ -1,364 +1,267 @@
-// ======================================================
-// GTRADES-AXIS™ JOURNAL
-// PART 1
-// ======================================================
-
-let trades = JSON.parse(localStorage.getItem("gtradesJournal")) || [];
-
-// ======================================================
-// FORM
-// ======================================================
-
-const tradeForm = document.getElementById("tradeForm");
-
-if (tradeForm) {
-
-    tradeForm.addEventListener("submit", saveTrade);
-
-}
-
-// ======================================================
-// SAVE TRADE
-// ======================================================
-
-function saveTrade(e) {
-
-    e.preventDefault();
-
-    const trade = {
-
-        id: Date.now(),
-
-        // ==========================
-        // BASIC INFO
-        // ==========================
-
-        tradeDate: document.getElementById("tradeDate").value,
-
-        tradeTime: document.getElementById("tradeTime").value,
-
-        pair: document.getElementById("pair").value,
-
-        direction: document.getElementById("direction").value,
-
-        session: document.getElementById("session").value,
-
-        broker: document.getElementById("broker").value,
-
-        account: document.getElementById("account").value,
-
-        lotSize: document.getElementById("lotSize").value,
-
-        // ==========================
-        // HTF
-        // ==========================
-
-        htfSwing: document.getElementById("htfSwing").value,
-
-        htfInternal: document.getElementById("htfInternal").value,
-
-        // ==========================
-        // MTF
-        // ==========================
-
-        mtfSwing: document.getElementById("mtfSwing").value,
-
-        mtfInternal: document.getElementById("mtfInternal").value,
-
-        // ==========================
-        // LTF
-        // ==========================
-
-        ltfStructure: document.getElementById("ltfStructure").value,
-
-        liquidity: document.getElementById("liquidity").value,
-
-        poi: document.getElementById("poi").value,
-
-        entryModel: document.getElementById("entryModel").value,
-
-        entryConfirmation: document.getElementById("entryConfirmation").value,
-
-        tradeValid: document.getElementById("tradeValid").value,
-                // ==========================
-        // RISK MANAGEMENT
-        // ==========================
-
-        entryPrice: document.getElementById("entryPrice").value,
-
-        stopLoss: document.getElementById("stopLoss").value,
-
-        takeProfit: document.getElementById("takeProfit").value,
-
-        risk: document.getElementById("risk").value,
-
-        expectedRR: document.getElementById("expectedRR").value,
-
-        actualRR: document.getElementById("actualRR").value,
-
-        commission: document.getElementById("commission").value,
-
-        profit: document.getElementById("profit").value,
-
-        // ==========================
-        // TRADE RESULT
-        // ==========================
-
-        result: document.getElementById("result").value,
-
-        breakEven: document.getElementById("breakEven").value,
-
-        partials: document.getElementById("partials").value,
-
-        trailing: document.getElementById("trailing").value,
-
-        executionQuality: document.getElementById("executionQuality").value,
-
-        followedPlan: document.getElementById("followedPlan").value,
-
-        // ==========================
-        // PSYCHOLOGY
-        // ==========================
-
-        confidence: document.getElementById("confidence").value,
-
-        emotion: document.getElementById("emotion").value,
-
-        discipline: document.getElementById("discipline").value,
-
-        patience: document.getElementById("patience").value,
-
-        // ==========================
-        // TRADE REVIEW
-        // ==========================
-
-        tradeSummary: document.getElementById("tradeSummary").value,
-
-        strengths: document.getElementById("strengths").value,
-
-        mistakes: document.getElementById("mistakes").value,
-
-        lessonLearned: document.getElementById("lessonLearned").value,
-
-        improvementPlan: document.getElementById("improvementPlan").value,
-
-        // ==========================
-        // CHART URLS
-        // ==========================
-
-        beforeChart: document.getElementById("beforeChart").value,
-
-        duringChart: document.getElementById("duringChart").value,
-
-        afterChart: document.getElementById("afterChart").value,
-
-        // ==========================
-        // NOTES
-        // ==========================
-
-        notes: document.getElementById("notes").value
-
-    };
-        // ==========================
-    // SAVE TRADE
-    // ==========================
-
-    trades.push(trade);
-
-    localStorage.setItem(
-        "gtradesJournal",
-        JSON.stringify(trades)
+import { auth, db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+let currentUser = null;
+let trades = [];
+let editingId = null;
+
+const form = document.getElementById("tradeForm");
+const saveBtn = document.getElementById("saveTrade");
+const totalTrades = document.getElementById("totalTrades");
+const winRate = document.getElementById("winRate");
+const avgRR = document.getElementById("averageRR");
+const netProfit = document.getElementById("netProfit");
+const wins = document.getElementById("wins");
+const losses = document.getElementById("losses");
+const consistency = document.getElementById("consistency");
+const streak = document.getElementById("streak");
+const equityChart = document.getElementById("equityChart");
+const monthlyChart = document.getElementById("monthlyChart");
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = user;
+  await loadTrades();
+});
+
+async function loadTrades() {
+  if (!currentUser) return;
+  try {
+    const q = query(
+      collection(db, "trades"),
+      where("userId", "==", currentUser.uid),
+      orderBy("tradeDate", "desc")
     );
-
-    alert("Trade saved successfully!");
-
-    tradeForm.reset();
-
-    updateDashboard();
-
-}
-
-// ======================================================
-// DASHBOARD
-// ======================================================
-
-updateDashboard();
-
-function updateDashboard() {
-
-    if (!document.getElementById("totalTrades")) return;
-
-    const totalTrades = trades.length;
-
-    const wins = trades.filter(t => t.result === "Win").length;
-
-    const losses = trades.filter(t => t.result === "Loss").length;
-
-    const breakEven = trades.filter(t => t.result === "Break Even").length;
-
-    const winRate =
-        totalTrades === 0
-            ? 0
-            : ((wins / totalTrades) * 100).toFixed(1);
-
-    let totalProfit = 0;
-
-    let totalRR = 0;
-
-    trades.forEach(t => {
-
-        totalProfit += Number(t.profit || 0);
-
-        totalRR += Number(t.actualRR || 0);
-
+    const snapshot = await getDocs(q);
+    trades = [];
+    snapshot.forEach((doc) => {
+      trades.push({ id: doc.id, ...doc.data() });
     });
-
-    const averageRR =
-        totalTrades === 0
-            ? 0
-            : (totalRR / totalTrades).toFixed(2);
-
-    document.getElementById("totalTrades").textContent = totalTrades;
-
-    document.getElementById("wins").textContent = wins;
-
-    document.getElementById("losses").textContent = losses;
-
-    document.getElementById("winRate").textContent =
-        winRate + "%";
-
-    document.getElementById("averageRR").textContent =
-        averageRR;
-
-    document.getElementById("netProfit").textContent =
-        "$" + totalProfit.toFixed(2);
-
-    document.getElementById("consistency").textContent =
-        winRate + "%";
-
-    document.getElementById("streak").textContent =
-        calculateStreak();
-
-    drawCharts();
-
+    updateStats();
+    updateCharts();
+  } catch (error) {
+    console.error("Load trades error:", error);
+  }
 }
 
-// ======================================================
-// CURRENT STREAK
-// ======================================================
+async function saveTrade(data) {
+  if (!currentUser) throw new Error("Not logged in");
+  const payload = { ...data, userId: currentUser.uid };
+  if (editingId) {
+    await updateDoc(doc(db, "trades", editingId), data);
+    const index = trades.findIndex((t) => t.id === editingId);
+    if (index !== -1) trades[index] = { ...trades[index], ...data };
+    editingId = null;
+    saveBtn.textContent = "Save Trade";
+  } else {
+    const ref = await addDoc(collection(db, "trades"), payload);
+    trades.unshift({ id: ref.id, ...payload });
+  }
+  updateStats();
+  updateCharts();
+  form.reset();
+  document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
+}
+
+async function deleteTrade(id) {
+  if (!confirm("Delete this trade?")) return;
+  await deleteDoc(doc(db, "trades", id));
+  trades = trades.filter((t) => t.id !== id);
+  updateStats();
+  updateCharts();
+}
+
+function editTrade(id) {
+  const trade = trades.find((t) => t.id === id);
+  if (!trade) return;
+  editingId = id;
+  Object.keys(trade).forEach((key) => {
+    const el = document.getElementById(key);
+    if (el) el.value = trade[key] ?? "";
+  });
+  document.getElementById("tradeDate").value = trade.tradeDate || "";
+  saveBtn.textContent = "Update Trade";
+  window.scrollTo(0, 0);
+}
+
+function updateStats() {
+  const total = trades.length;
+  const winsCount = trades.filter((t) => t.result === "Win").length;
+  const lossesCount = trades.filter((t) => t.result === "Loss").length;
+  const beCount = trades.filter((t) => t.result === "Break Even").length;
+  const totalRR = trades.reduce((sum, t) => sum + (parseFloat(t.actualRR) || 0), 0);
+  const profit = trades.reduce((sum, t) => sum + (parseFloat(t.profit) || 0), 0);
+  const winRateVal = total ? (winsCount / total) * 100 : 0;
+  const avgRRVal = total ? totalRR / total : 0;
+  const consistencyVal = total ? ((winsCount + beCount) / total) * 100 : 0;
+  const streakVal = calculateStreak();
+
+  totalTrades.textContent = total;
+  winRate.textContent = winRateVal.toFixed(1) + "%";
+  avgRR.textContent = avgRRVal.toFixed(2);
+  netProfit.textContent = "$" + profit.toFixed(2);
+  netProfit.className = profit >= 0 ? "value-positive" : "value-negative";
+  wins.textContent = winsCount;
+  losses.textContent = lossesCount;
+  consistency.textContent = consistencyVal.toFixed(1) + "%";
+  streak.textContent = streakVal;
+}
 
 function calculateStreak() {
-
-    let streak = 0;
-
-    for (let i = trades.length - 1; i >= 0; i--) {
-
-        if (trades[i].result === "Win") {
-
-            streak++;
-
-        } else {
-
-            break;
-
-        }
-
-    }
-
-    return streak;
-
+  let streak = 0;
+  for (let i = trades.length - 1; i >= 0; i--) {
+    if (trades[i].result === "Win") streak++;
+    else if (trades[i].result === "Loss") break;
+    else continue;
+  }
+  return streak;
 }
 
-// ======================================================
-// CHARTS
-// ======================================================
+function updateCharts() {
+  if (typeof Chart === "undefined") return;
+  if (window.equityChart) window.equityChart.destroy();
+  if (window.monthlyChart) window.monthlyChart.destroy();
 
-function drawCharts() {
-
-    if (!document.getElementById("equityChart")) return;
-
-    const labels = [];
-
-    const equity = [];
-
-    let running = 0;
-
-    trades.forEach((trade, index) => {
-
-        labels.push(index + 1);
-
-        running += Number(trade.profit || 0);
-
-        equity.push(running);
-
+  let running = 0;
+  const equityData = trades.map((t) => {
+    running += parseFloat(t.profit) || 0;
+    return running;
+  });
+  const labels = trades.map((_, i) => i + 1);
+  if (equityData.length > 0) {
+    window.equityChart = new Chart(equityChart, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Equity Curve",
+          data: equityData,
+          borderColor: "#0f8cff",
+          backgroundColor: "rgba(15,140,255,0.15)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#94a3b8" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+        },
+      },
     });
+  }
 
-    new Chart(document.getElementById("equityChart"), {
-
-        type: "line",
-
-        data: {
-
-            labels,
-
-            datasets: [
-
-                {
-
-                    label: "Equity",
-
-                    data: equity,
-
-                    borderWidth: 3,
-
-                    tension: 0.3
-
-                }
-
-            ]
-
-        }
-
+  const monthly = {};
+  trades.forEach((t) => {
+    if (!t.tradeDate) return;
+    const month = t.tradeDate.substring(0, 7);
+    monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0);
+  });
+  const monthLabels = Object.keys(monthly).sort();
+  if (monthLabels.length > 0) {
+    window.monthlyChart = new Chart(monthlyChart, {
+      type: "bar",
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: "Monthly Profit",
+          data: monthLabels.map((m) => monthly[m]),
+          backgroundColor: "#0f8cff",
+          borderRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#94a3b8" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+        },
+      },
     });
-
-    const months = {};
-
-    trades.forEach(trade => {
-
-        if (!trade.tradeDate) return;
-
-        const month = trade.tradeDate.substring(0, 7);
-
-        months[month] =
-            (months[month] || 0) +
-            Number(trade.profit || 0);
-
-    });
-
-    new Chart(document.getElementById("monthlyChart"), {
-
-        type: "bar",
-
-        data: {
-
-            labels: Object.keys(months),
-
-            datasets: [
-
-                {
-
-                    label: "Monthly Profit",
-
-                    data: Object.values(months),
-
-                    borderWidth: 1
-
-                }
-
-            ]
-
-        }
-
-    });
-
+  }
 }
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const data = {
+    tradeDate: document.getElementById("tradeDate").value,
+    tradeTime: document.getElementById("tradeTime").value,
+    pair: document.getElementById("pair").value,
+    direction: document.getElementById("direction").value,
+    session: document.getElementById("session").value,
+    broker: document.getElementById("broker").value,
+    account: document.getElementById("account").value,
+    lotSize: parseFloat(document.getElementById("lotSize").value) || 0,
+    htfSwing: document.getElementById("htfSwing").value,
+    htfInternal: document.getElementById("htfInternal").value,
+    mtfSwing: document.getElementById("mtfSwing").value,
+    mtfInternal: document.getElementById("mtfInternal").value,
+    ltfStructure: document.getElementById("ltfStructure").value,
+    liquidity: document.getElementById("liquidity").value,
+    poi: document.getElementById("poi").value,
+    entryModel: document.getElementById("entryModel").value,
+    entryConfirmation: document.getElementById("entryConfirmation").value,
+    tradeValid: document.getElementById("tradeValid").value,
+    entryPrice: parseFloat(document.getElementById("entryPrice").value) || 0,
+    stopLoss: parseFloat(document.getElementById("stopLoss").value) || 0,
+    takeProfit: parseFloat(document.getElementById("takeProfit").value) || 0,
+    risk: parseFloat(document.getElementById("risk").value) || 0,
+    expectedRR: parseFloat(document.getElementById("expectedRR").value) || 0,
+    actualRR: parseFloat(document.getElementById("actualRR").value) || 0,
+    commission: parseFloat(document.getElementById("commission").value) || 0,
+    profit: parseFloat(document.getElementById("profit").value) || 0,
+    result: document.getElementById("result").value,
+    breakEven: document.getElementById("breakEven").value,
+    partials: document.getElementById("partials").value,
+    trailing: document.getElementById("trailing").value,
+    executionQuality: document.getElementById("executionQuality").value,
+    followedPlan: document.getElementById("followedPlan").value,
+    confidence: document.getElementById("confidence").value,
+    emotion: document.getElementById("emotion").value,
+    discipline: document.getElementById("discipline").value,
+    patience: document.getElementById("patience").value,
+    tradeSummary: document.getElementById("tradeSummary").value,
+    strengths: document.getElementById("strengths").value,
+    mistakes: document.getElementById("mistakes").value,
+    lessonLearned: document.getElementById("lessonLearned").value,
+    improvementPlan: document.getElementById("improvementPlan").value,
+    beforeChart: document.getElementById("beforeChart").value,
+    duringChart: document.getElementById("duringChart").value,
+    afterChart: document.getElementById("afterChart").value,
+    notes: document.getElementById("notes").value,
+  };
+  try {
+    await saveTrade(data);
+    alert(editingId ? "Trade updated!" : "Trade saved!");
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+});
+
+// Cancel edit (if you have a cancel button)
+document.getElementById("cancelEdit")?.addEventListener("click", () => {
+  editingId = null;
+  saveBtn.textContent = "Save Trade";
+  form.reset();
+  document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
+});

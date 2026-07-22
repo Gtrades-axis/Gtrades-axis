@@ -5,21 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trade History | GTRADES-AXIS™</title>
 
-  <!-- === ULTRA‑SAFE GUARD === -->
-  <meta http-equiv="refresh" content="0; url=login.html">
-  <script>
-    // Cancel the refresh if user is logged in (we'll check via auth)
-    // This will be overridden by auth.js once loaded.
-    // But we'll also check a session flag.
-    if (sessionStorage.getItem('gtrades_user_logged_in') === 'true') {
-      // Stop the meta refresh by removing it
-      document.querySelector('meta[http-equiv="refresh"]').content = '';
-    }
-  </script>
-
-  <!-- your other head elements -->
+  <!-- CSS links, fonts, etc. (keep your existing) -->
+  <style>
+    /* your existing styles (sidebar, etc.) – keep unchanged */
+  </style>
 </head>
 <body>
+  <!-- your sidebar and content – keep exactly as you have -->
+  <!-- at the bottom: -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/history.js"></script>
+</body>
+</html>
   <!-- content -->
   <script type="module" src="js/auth.js"></script>
 </body>
