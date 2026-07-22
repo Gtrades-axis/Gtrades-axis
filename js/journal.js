@@ -26,15 +26,17 @@ const wins = document.getElementById("wins");
 const losses = document.getElementById("losses");
 const consistency = document.getElementById("consistency");
 const streak = document.getElementById("streak");
-const equityChart = document.getElementById("equityChart");
-const monthlyChart = document.getElementById("monthlyChart");
+const equityCanvas = document.getElementById("equityChart");
+const monthlyCanvas = document.getElementById("monthlyChart");
 
+// --- AUTH ---
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
   await loadTrades();
 });
 
+// --- LOAD TRADES ---
 async function loadTrades() {
   if (!currentUser) return;
   try {
@@ -53,6 +55,7 @@ async function loadTrades() {
   } catch (error) { console.error("Load trades error:", error); }
 }
 
+// --- SAVE TRADE ---
 async function saveTrade(data) {
   if (!currentUser) throw new Error("Not logged in");
   const payload = { ...data, userId: currentUser.uid };
@@ -72,6 +75,7 @@ async function saveTrade(data) {
   document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
 }
 
+// --- DELETE TRADE ---
 async function deleteTrade(id) {
   if (!confirm("Delete this trade?")) return;
   await deleteDoc(doc(db, "trades", id));
@@ -80,6 +84,7 @@ async function deleteTrade(id) {
   updateCharts();
 }
 
+// --- EDIT TRADE ---
 function editTrade(id) {
   const trade = trades.find((t) => t.id === id);
   if (!trade) return;
@@ -93,6 +98,7 @@ function editTrade(id) {
   window.scrollTo(0, 0);
 }
 
+// --- UPDATE STATS ---
 function updateStats() {
   const total = trades.length;
   const winsCount = trades.filter((t) => t.result === "Win").length;
@@ -124,22 +130,56 @@ function calculateStreak() {
   return streak;
 }
 
+// --- SAFE CHART UPDATES ---
 function updateCharts() {
   if (typeof Chart === "undefined") return;
-  if (window.equityChart) window.equityChart.destroy();
-  if (window.monthlyChart) window.monthlyChart.destroy();
+  if (!equityCanvas || !monthlyCanvas) return;
 
+  // ✅ Destroy existing charts safely
+  if (window.equityChart && typeof window.equityChart.destroy === "function") {
+    window.equityChart.destroy();
+    window.equityChart = null;
+  }
+  if (window.monthlyChart && typeof window.monthlyChart.destroy === "function") {
+    window.monthlyChart.destroy();
+    window.monthlyChart = null;
+  }
+
+  // --- Equity Curve ---
   let running = 0;
-  const equityData = trades.map((t) => { running += parseFloat(t.profit) || 0; return running; });
+  const equityData = trades.map((t) => {
+    running += parseFloat(t.profit) || 0;
+    return running;
+  });
   const labels = trades.map((_, i) => i + 1);
-  if (equityData.length) {
-    window.equityChart = new Chart(equityChart, {
+  if (equityData.length && equityCanvas) {
+    window.equityChart = new Chart(equityCanvas, {
       type: "line",
-      data: { labels, datasets: [{ label: "Equity Curve", data: equityData, borderColor: "#0f8cff", backgroundColor: "rgba(15,140,255,0.15)", fill: true, tension: 0.35, pointRadius: 3 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: "#94a3b8" } } }, scales: { x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } }, y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } } } }
+      data: {
+        labels,
+        datasets: [{
+          label: "Equity Curve",
+          data: equityData,
+          borderColor: "#0f8cff",
+          backgroundColor: "rgba(15,140,255,0.15)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#94a3b8" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+        },
+      },
     });
   }
 
+  // --- Monthly Profit ---
   const monthly = {};
   trades.forEach((t) => {
     if (!t.tradeDate) return;
@@ -147,15 +187,32 @@ function updateCharts() {
     monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0);
   });
   const monthLabels = Object.keys(monthly).sort();
-  if (monthLabels.length) {
-    window.monthlyChart = new Chart(monthlyChart, {
+  if (monthLabels.length && monthlyCanvas) {
+    window.monthlyChart = new Chart(monthlyCanvas, {
       type: "bar",
-      data: { labels: monthLabels, datasets: [{ label: "Monthly Profit", data: monthLabels.map((m) => monthly[m]), backgroundColor: "#0f8cff", borderRadius: 6 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: "#94a3b8" } } }, scales: { x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } }, y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } } } }
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: "Monthly Profit",
+          data: monthLabels.map((m) => monthly[m]),
+          backgroundColor: "#0f8cff",
+          borderRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#94a3b8" } } },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.05)" } },
+        },
+      },
     });
   }
 }
 
+// --- FORM SUBMIT ---
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = {
@@ -213,6 +270,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+// --- CANCEL EDIT ---
 document.getElementById("cancelEdit")?.addEventListener("click", () => {
   editingId = null;
   saveBtn.textContent = "Save Trade";
