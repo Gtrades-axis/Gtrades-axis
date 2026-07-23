@@ -1,51 +1,54 @@
 /* ==========================================================
    GTRADES-AXIS™ ANALYTICS
+   DARK DASHBOARD
    PART 1
-   PREMIUM LAYOUT
 ========================================================== */
 
 :root{
 
---primary:#0d6efd;
---primary2:#4da3ff;
+--bg:#0b1220;
+--bg2:#111827;
+--card:#182234;
+--card2:#1d2a3d;
 
---green:#16a34a;
---red:#dc2626;
---orange:#f59e0b;
---purple:#7c3aed;
+--primary:#3b82f6;
+--primary2:#60a5fa;
 
---dark:#111827;
---text:#374151;
---muted:#6b7280;
+--green:#22c55e;
+--red:#ef4444;
+--yellow:#f59e0b;
+--purple:#8b5cf6;
 
---border:#e5e7eb;
+--text:#f8fafc;
+--muted:#94a3b8;
 
---bg:#f5f8fc;
-
---card:#ffffff;
+--border:rgba(255,255,255,.08);
 
 --radius:18px;
 
 --shadow:
-0 12px 35px rgba(15,23,42,.07);
+0 20px 45px rgba(0,0,0,.45);
 
 }
 
 *{
 
 margin:0;
-
 padding:0;
-
 box-sizing:border-box;
-
 font-family:"Poppins",sans-serif;
 
 }
 
 body{
 
-background:var(--bg);
+background:
+
+linear-gradient(
+180deg,
+#08111f 0%,
+#0d1728 40%,
+#111c2f 100%);
 
 color:var(--text);
 
@@ -57,13 +60,13 @@ min-height:100vh;
 CONTAINER
 ========================================================== */
 
-.analytics-container{
+.dashboard{
 
-max-width:1600px;
+max-width:1650px;
 
 margin:auto;
 
-padding:40px;
+padding:35px;
 
 }
 
@@ -71,7 +74,13 @@ padding:40px;
 HEADER
 ========================================================== */
 
-.analytics-header{
+.topbar{
+
+position:sticky;
+
+top:18px;
+
+z-index:999;
 
 display:flex;
 
@@ -79,38 +88,43 @@ justify-content:space-between;
 
 align-items:center;
 
-margin-bottom:35px;
-
 gap:30px;
 
-flex-wrap:wrap;
+margin-bottom:35px;
+
+padding:20px 28px;
+
+border-radius:22px;
+
+background:
+
+rgba(24,34,52,.88);
+
+backdrop-filter:blur(18px);
+
+border:1px solid rgba(255,255,255,.06);
+
+box-shadow:var(--shadow);
 
 }
 
-.header-left{
+.logo-side{
 
 display:flex;
 
 align-items:center;
 
-gap:20px;
+gap:18px;
 
 }
 
-.header-icon{
+.logo-box{
 
-width:70px;
+width:65px;
 
-height:70px;
+height:65px;
 
 border-radius:18px;
-
-background:
-
-linear-gradient(
-135deg,
-var(--primary),
-var(--primary2));
 
 display:flex;
 
@@ -118,31 +132,36 @@ justify-content:center;
 
 align-items:center;
 
-color:#fff;
+font-size:26px;
 
-font-size:28px;
+background:
+
+linear-gradient(
+135deg,
+#2563eb,
+#60a5fa);
+
+color:#fff;
 
 box-shadow:
 
-0 15px 35px rgba(13,110,253,.25);
+0 0 35px rgba(59,130,246,.45);
 
 }
 
-.header-left h1{
+.logo-side h1{
 
 font-size:2rem;
 
 font-weight:700;
 
-color:var(--dark);
+color:#fff;
 
-margin-bottom:5px;
+margin-bottom:3px;
 
 }
 
-.header-left p{
-
-font-size:.95rem;
+.logo-side p{
 
 color:var(--muted);
 
@@ -152,33 +171,29 @@ color:var(--muted);
 BUTTONS
 ========================================================== */
 
-.header-actions{
+.top-actions{
 
 display:flex;
 
-gap:15px;
-
-flex-wrap:wrap;
+gap:14px;
 
 }
 
-.action-btn{
+.top-btn{
 
 padding:13px 24px;
 
 border-radius:12px;
 
-background:#fff;
-
-border:1px solid var(--border);
-
 text-decoration:none;
 
-color:var(--dark);
+background:#23324a;
+
+border:1px solid rgba(255,255,255,.06);
+
+color:#fff;
 
 font-weight:600;
-
-transition:.25s;
 
 display:flex;
 
@@ -186,49 +201,36 @@ align-items:center;
 
 gap:10px;
 
+transition:.3s;
+
 }
 
-.action-btn:hover{
+.top-btn:hover{
+
+background:#2d4365;
 
 transform:translateY(-3px);
 
-box-shadow:var(--shadow);
-
 }
 
-.action-btn.primary{
+.top-btn.primary{
 
 background:
 
 linear-gradient(
 135deg,
-var(--primary),
-var(--primary2));
-
-color:#fff;
+#2563eb,
+#60a5fa);
 
 border:none;
 
 }
 
 /* ==========================================================
-LIVE BAR
+PERFORMANCE BAR
 ========================================================== */
 
 .performance-banner{
-
-margin-bottom:35px;
-
-padding:25px 30px;
-
-background:
-
-linear-gradient(
-135deg,
-#0d6efd,
-#58a6ff);
-
-border-radius:20px;
 
 display:flex;
 
@@ -236,15 +238,23 @@ justify-content:space-between;
 
 align-items:center;
 
-color:#fff;
+padding:28px 35px;
 
-gap:20px;
+margin-bottom:35px;
 
-flex-wrap:wrap;
+border-radius:22px;
+
+background:
+
+linear-gradient(
+135deg,
+#1d4ed8,
+#2563eb,
+#3b82f6);
 
 box-shadow:
 
-0 18px 40px rgba(13,110,253,.20);
+0 15px 45px rgba(37,99,235,.35);
 
 }
 
@@ -252,7 +262,7 @@ box-shadow:
 
 font-size:1.5rem;
 
-margin-bottom:6px;
+margin-bottom:8px;
 
 }
 
@@ -262,15 +272,15 @@ opacity:.9;
 
 }
 
-.sync-status{
+.live-sync{
 
 display:flex;
 
 align-items:center;
 
-gap:10px;
+gap:12px;
 
-padding:12px 20px;
+padding:12px 22px;
 
 background:rgba(255,255,255,.15);
 
@@ -278,21 +288,35 @@ border-radius:50px;
 
 font-weight:600;
 
-backdrop-filter:blur(8px);
+backdrop-filter:blur(10px);
 
 }
 
-.sync-status i{
+.live-sync i{
 
-color:#7CFC8A;
+font-size:12px;
+
+color:#4ade80;
+
+animation:pulse 1.5s infinite;
+
+}
+
+@keyframes pulse{
+
+0%{opacity:.3;}
+
+50%{opacity:1;}
+
+100%{opacity:.3;}
 
 }
 
 /* ==========================================================
-STATS GRID
+CARDS
 ========================================================== */
 
-.stats-grid{
+.cards-grid{
 
 display:grid;
 
@@ -300,29 +324,25 @@ grid-template-columns:
 
 repeat(auto-fit,minmax(260px,1fr));
 
-gap:25px;
+gap:24px;
 
 margin-bottom:35px;
 
 }
 
-/* ==========================================================
-STAT CARD
-========================================================== */
-
-.stat-card{
+.metric-card{
 
 background:var(--card);
 
-padding:26px;
-
 border-radius:20px;
 
-box-shadow:var(--shadow);
+padding:28px;
 
 border:1px solid var(--border);
 
-transition:.30s;
+box-shadow:var(--shadow);
+
+transition:.3s;
 
 position:relative;
 
@@ -330,52 +350,36 @@ overflow:hidden;
 
 }
 
-.stat-card::before{
+.metric-card::before{
 
 content:"";
 
 position:absolute;
 
+top:0;
 left:0;
 
-top:0;
-
 width:100%;
-
-height:5px;
+height:4px;
 
 background:
 
 linear-gradient(
 90deg,
-var(--primary),
-var(--primary2));
+#2563eb,
+#60a5fa);
 
 }
 
-.stat-card:hover{
+.metric-card:hover{
 
-transform:translateY(-6px);
+transform:translateY(-8px);
 
-box-shadow:
-
-0 20px 45px rgba(0,0,0,.10);
+background:#202f46;
 
 }
 
-.stat-top{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-margin-bottom:22px;
-
-}
-
-.stat-icon{
+.metric-icon{
 
 width:58px;
 
@@ -391,85 +395,71 @@ align-items:center;
 
 font-size:22px;
 
+margin-bottom:18px;
+
 color:#fff;
 
 }
 
-.stat-icon.blue{
+.metric-icon.blue{
 
-background:#0d6efd;
+background:#2563eb;
 
 }
 
-.stat-icon.green{
+.metric-icon.green{
 
 background:#16a34a;
 
 }
 
-.stat-icon.red{
+.metric-icon.red{
 
 background:#dc2626;
 
 }
 
-.stat-icon.orange{
+.metric-icon.orange{
 
-background:#f59e0b;
-
-}
-
-.stat-icon.gold{
-
-background:#d97706;
+background:#ea580c;
 
 }
 
-.stat-icon.purple{
+.metric-icon.yellow{
+
+background:#ca8a04;
+
+}
+
+.metric-icon.purple{
 
 background:#7c3aed;
 
 }
 
-.stat-title{
-
-display:block;
-
-font-size:.90rem;
-
-font-weight:500;
+.metric-card p{
 
 color:var(--muted);
 
 margin-bottom:10px;
 
+font-size:.92rem;
+
 }
 
-.stat-value{
+.metric-card h2{
 
 font-size:2rem;
 
 font-weight:700;
 
-color:var(--dark);
-
-}
-
-.positive{
-
-color:#16a34a;
-
-}
-
-.negative{
-
-color:#dc2626;
+color:#fff;
 
 }
 /* ==========================================================
    GTRADES-AXIS™ ANALYTICS
    PART 2
-   PERFORMANCE CARDS + CHARTS
+   PERFORMANCE + CHARTS
 ========================================================== */
 
 /* ==========================================================
@@ -480,51 +470,31 @@ PERFORMANCE GRID
 
 display:grid;
 
-grid-template-columns:
-repeat(auto-fit,minmax(300px,1fr));
+grid-template-columns:repeat(4,1fr);
 
-gap:25px;
+gap:24px;
 
-margin-bottom:40px;
+margin-bottom:35px;
 
 }
 
-/* ==========================================================
-PERFORMANCE CARD
-========================================================== */
-
 .performance-card{
 
-background:#fff;
-
-border-radius:20px;
-
-padding:25px;
-
-display:flex;
-
-align-items:center;
-
-gap:20px;
+background:var(--card);
 
 border:1px solid var(--border);
 
+border-radius:20px;
+
+padding:24px;
+
 box-shadow:var(--shadow);
 
-transition:.3s;
+transition:.35s;
 
 position:relative;
 
 overflow:hidden;
-
-}
-
-.performance-card:hover{
-
-transform:translateY(-6px);
-
-box-shadow:
-0 20px 45px rgba(0,0,0,.10);
 
 }
 
@@ -534,27 +504,44 @@ content:"";
 
 position:absolute;
 
-top:0;
-
 left:0;
+
+top:0;
 
 width:100%;
 
-height:5px;
+height:4px;
 
-background:
-linear-gradient(
+background:linear-gradient(
 90deg,
-var(--primary),
-var(--primary2));
+#2563eb,
+#60a5fa);
+
+}
+
+.performance-card:hover{
+
+transform:translateY(-8px);
+
+background:#202f46;
+
+}
+
+.performance-left{
+
+display:flex;
+
+align-items:center;
+
+gap:18px;
 
 }
 
 .performance-icon{
 
-width:70px;
+width:62px;
 
-height:70px;
+height:62px;
 
 border-radius:18px;
 
@@ -564,7 +551,7 @@ justify-content:center;
 
 align-items:center;
 
-font-size:28px;
+font-size:24px;
 
 color:#fff;
 
@@ -590,81 +577,67 @@ background:#16a34a;
 
 }
 
-.performance-icon.gold{
+.performance-icon.yellow{
 
-background:#d97706;
-
-}
-
-.performance-content{
-
-flex:1;
+background:#ca8a04;
 
 }
 
-.performance-label{
+.performance-left span{
 
 display:block;
 
-font-size:.85rem;
+font-size:.82rem;
 
 color:var(--muted);
 
-margin-bottom:8px;
-
-font-weight:500;
+margin-bottom:6px;
 
 }
 
-.performance-content h2{
+.performance-left h2{
 
-font-size:1.6rem;
+font-size:1.5rem;
 
-font-weight:700;
+color:#fff;
 
-color:var(--dark);
-
-margin-bottom:8px;
+margin-bottom:6px;
 
 }
 
-.performance-content p{
+.performance-left h4{
 
 font-size:.92rem;
 
+font-weight:500;
+
 color:var(--muted);
 
 }
 
-.performance-content strong{
+.performance-left strong{
 
-color:var(--primary);
+color:#60a5fa;
 
 }
 
 /* ==========================================================
-SECTION HEADER
+SECTION TITLE
 ========================================================== */
 
-.section-header{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
+.section-title{
 
 margin:45px 0 25px;
 
 }
 
-.section-header h2{
+.section-title h2{
 
-font-size:1.45rem;
+font-size:1.6rem;
 
 font-weight:700;
 
-color:var(--dark);
+color:#fff;
 
 display:flex;
 
@@ -674,46 +647,59 @@ gap:12px;
 
 }
 
-.section-header h2 i{
+.section-title h2 i{
 
-color:var(--primary);
+color:#3b82f6;
 
 }
 
-.section-header p{
+.section-title p{
 
 margin-top:8px;
 
-font-size:.9rem;
+font-size:.92rem;
 
 color:var(--muted);
 
 }
 
 /* ==========================================================
-CHART GRID
+CHART LAYOUT
 ========================================================== */
 
-.charts-grid{
+.charts-section{
 
-display:grid;
+display:flex;
 
-grid-template-columns:
-repeat(2,1fr);
+flex-direction:column;
 
 gap:28px;
 
-margin-bottom:40px;
+margin-bottom:45px;
 
 }
 
-@media(max-width:1100px){
+/* ==========================================================
+LARGE EQUITY CARD
+========================================================== */
 
-.charts-grid{
+.chart-large{
 
-grid-template-columns:1fr;
+min-height:520px;
 
 }
+
+/* ==========================================================
+SMALL CHART GRID
+========================================================== */
+
+.small-chart-grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:28px;
 
 }
 
@@ -723,36 +709,54 @@ CHART CARD
 
 .chart-card{
 
-background:#fff;
+background:var(--card);
 
-border-radius:20px;
-
-padding:28px;
+border-radius:22px;
 
 border:1px solid var(--border);
 
 box-shadow:var(--shadow);
 
-transition:.3s;
+padding:28px;
+
+transition:.35s;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+.chart-card::before{
+
+content:"";
+
+position:absolute;
+
+left:0;
+
+top:0;
+
+width:100%;
+
+height:4px;
+
+background:linear-gradient(
+90deg,
+#2563eb,
+#60a5fa);
 
 }
 
 .chart-card:hover{
 
-transform:translateY(-5px);
+background:#202f46;
 
-box-shadow:
-0 20px 45px rgba(0,0,0,.10);
-
-}
-
-.chart-card.large{
-
-grid-column:1/-1;
+transform:translateY(-8px);
 
 }
 
-.chart-header{
+.chart-head{
 
 display:flex;
 
@@ -764,7 +768,7 @@ margin-bottom:22px;
 
 }
 
-.chart-title{
+.chart-info{
 
 display:flex;
 
@@ -776,11 +780,11 @@ gap:16px;
 
 .chart-icon{
 
-width:55px;
+width:56px;
 
-height:55px;
+height:56px;
 
-border-radius:15px;
+border-radius:16px;
 
 display:flex;
 
@@ -791,6 +795,8 @@ align-items:center;
 font-size:22px;
 
 color:#fff;
+
+flex-shrink:0;
 
 }
 
@@ -806,95 +812,168 @@ background:#16a34a;
 
 }
 
-.chart-icon.gold{
-
-background:#d97706;
-
-}
-
 .chart-icon.purple{
 
 background:#7c3aed;
 
 }
 
-.chart-title h2{
+.chart-icon.yellow{
 
-font-size:1.15rem;
+background:#ca8a04;
+
+}
+
+.chart-info h2{
+
+font-size:1.2rem;
 
 font-weight:700;
 
-color:var(--dark);
+color:#fff;
 
 margin-bottom:4px;
 
 }
 
-.chart-title p{
+.chart-info p{
 
-font-size:.85rem;
+font-size:.88rem;
 
 color:var(--muted);
 
 }
 
 /* ==========================================================
-CHART AREA
+CHART BODY
 ========================================================== */
 
-.chart-container{
+.chart-body{
+
+height:420px;
 
 position:relative;
 
-width:100%;
+}
 
-height:360px;
+.chart-body.small{
+
+height:300px;
 
 }
 
-.chart-card.large
-.chart-container{
+.chart-body.ai-box{
 
-height:450px;
+height:auto;
+
+min-height:300px;
+
+display:flex;
+
+align-items:flex-start;
 
 }
 
-.chart-container canvas{
+.chart-body canvas{
 
 width:100%!important;
 
 height:100%!important;
 
-display:block;
+}
+
+/* ==========================================================
+CHART DARK BACKGROUND
+========================================================== */
+
+.chart-body{
+
+background:#111b2b;
+
+border-radius:16px;
+
+padding:15px;
+
+}
+
+/* ==========================================================
+RESPONSIVE
+========================================================== */
+
+@media(max-width:1400px){
+
+.performance-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media(max-width:1000px){
+
+.small-chart-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.performance-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.chart-large{
+
+min-height:420px;
+
+}
+
+.chart-body{
+
+height:320px;
+
+}
+
+.chart-body.small{
+
+height:260px;
+
+}
 
 }
 /* ==========================================================
    GTRADES-AXIS™ ANALYTICS
    PART 3
-   AI INSIGHTS • FOOTER • SCROLL BUTTON • RESPONSIVE
+   AI SECTION • FOOTER • SCROLL BUTTON • FINAL POLISH
 ========================================================== */
 
 /* ==========================================================
-AI DASHBOARD
+AI SECTION
 ========================================================== */
 
-.ai-dashboard{
+.ai-section{
 
-margin-top:40px;
+margin-top:35px;
 
-margin-bottom:40px;
+margin-bottom:45px;
 
 }
 
 .ai-card{
 
-background:#fff;
-
-border-radius:20px;
-
-padding:30px;
+background:var(--card);
 
 border:1px solid var(--border);
+
+border-radius:22px;
+
+padding:30px;
 
 box-shadow:var(--shadow);
 
@@ -910,72 +989,26 @@ content:"";
 
 position:absolute;
 
-left:0;
-
 top:0;
+
+left:0;
 
 width:100%;
 
-height:5px;
+height:4px;
 
 background:linear-gradient(
 90deg,
-#0d6efd,
-#58a6ff);
+#2563eb,
+#60a5fa);
 
 }
 
 /* ==========================================================
-AI HEADER
+INSIGHTS
 ========================================================== */
 
-.ai-header{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-margin-bottom:28px;
-
-}
-
-.ai-title{
-
-display:flex;
-
-align-items:center;
-
-gap:18px;
-
-}
-
-.ai-title h2{
-
-font-size:1.4rem;
-
-font-weight:700;
-
-color:var(--dark);
-
-margin-bottom:4px;
-
-}
-
-.ai-title p{
-
-font-size:.9rem;
-
-color:var(--muted);
-
-}
-
-/* ==========================================================
-INSIGHTS GRID
-========================================================== */
-
-.insights-grid{
+#analyticsInsights{
 
 display:grid;
 
@@ -984,15 +1017,17 @@ repeat(auto-fit,minmax(320px,1fr));
 
 gap:20px;
 
+margin-top:10px;
+
 }
 
 .insight-card{
 
-background:#f8fbff;
+background:#111b2b;
 
-border:1px solid #e3ecff;
+border:1px solid rgba(255,255,255,.06);
 
-border-left:5px solid var(--primary);
+border-left:5px solid #3b82f6;
 
 border-radius:16px;
 
@@ -1004,34 +1039,9 @@ transition:.3s;
 
 .insight-card:hover{
 
-transform:translateY(-4px);
+transform:translateY(-5px);
 
-box-shadow:
-0 15px 35px rgba(0,0,0,.08);
-
-}
-
-.insight-card.success{
-
-border-left-color:#16a34a;
-
-background:#f2fdf6;
-
-}
-
-.insight-card.warning{
-
-border-left-color:#f59e0b;
-
-background:#fffaf1;
-
-}
-
-.insight-card.danger{
-
-border-left-color:#dc2626;
-
-background:#fff5f5;
+background:#162338;
 
 }
 
@@ -1039,51 +1049,69 @@ background:#fff5f5;
 
 font-size:1rem;
 
-font-weight:700;
-
 margin-bottom:12px;
 
-color:var(--dark);
+font-weight:700;
+
+color:#fff;
 
 }
 
 .insight-card p{
 
-font-size:.92rem;
+font-size:.9rem;
 
 line-height:1.7;
 
-color:var(--text);
+color:#b7c3d6;
+
+}
+
+.insight-card.success{
+
+border-left-color:#22c55e;
+
+}
+
+.insight-card.warning{
+
+border-left-color:#f59e0b;
+
+}
+
+.insight-card.danger{
+
+border-left-color:#ef4444;
 
 }
 
 /* ==========================================================
-LOADING CARD
+LOADING
 ========================================================== */
 
 .loading-card{
 
 display:flex;
 
-align-items:center;
-
 justify-content:center;
+
+align-items:center;
 
 gap:15px;
 
-padding:60px;
+padding:70px 30px;
+
+color:#94a3b8;
 
 font-size:1rem;
-
-color:var(--muted);
 
 }
 
 .loading-card i{
 
-font-size:1.5rem;
+font-size:26px;
 
-color:var(--primary);
+color:#3b82f6;
 
 }
 
@@ -1093,17 +1121,9 @@ FOOTER
 
 .analytics-footer{
 
-margin-top:60px;
+margin-top:50px;
 
 padding:25px 30px;
-
-background:#fff;
-
-border-radius:20px;
-
-border:1px solid var(--border);
-
-box-shadow:var(--shadow);
 
 display:flex;
 
@@ -1115,6 +1135,14 @@ flex-wrap:wrap;
 
 gap:20px;
 
+background:var(--card);
+
+border-radius:22px;
+
+border:1px solid var(--border);
+
+box-shadow:var(--shadow);
+
 }
 
 .analytics-footer h3{
@@ -1123,25 +1151,21 @@ font-size:1.2rem;
 
 font-weight:700;
 
-color:var(--dark);
+color:#fff;
 
-margin-bottom:5px;
+margin-bottom:6px;
 
 }
 
 .analytics-footer p{
 
-color:var(--muted);
+color:#94a3b8;
 
 font-size:.9rem;
 
 }
 
-.footer-right{
-
-font-weight:600;
-
-color:var(--primary);
+.footer-status{
 
 display:flex;
 
@@ -1149,19 +1173,31 @@ align-items:center;
 
 gap:10px;
 
+padding:12px 20px;
+
+background:#111b2b;
+
+border-radius:40px;
+
+color:#4ade80;
+
+font-weight:600;
+
+border:1px solid rgba(255,255,255,.05);
+
 }
 
 /* ==========================================================
-SCROLL TO TOP BUTTON
+SCROLL BUTTON
 ========================================================== */
 
-.scroll-top-btn{
+.scroll-top{
 
 position:fixed;
 
-bottom:30px;
+right:35px;
 
-right:30px;
+bottom:35px;
 
 width:58px;
 
@@ -1173,8 +1209,8 @@ border-radius:50%;
 
 background:linear-gradient(
 135deg,
-var(--primary),
-var(--primary2));
+#2563eb,
+#60a5fa);
 
 color:#fff;
 
@@ -1183,21 +1219,21 @@ font-size:20px;
 cursor:pointer;
 
 box-shadow:
-0 15px 35px rgba(13,110,253,.35);
+0 10px 30px rgba(37,99,235,.45);
 
 opacity:0;
 
 visibility:hidden;
 
-transform:translateY(20px);
+transform:translateY(25px);
 
 transition:.35s;
 
-z-index:999;
+z-index:9999;
 
 }
 
-.scroll-top-btn.show{
+.scroll-top.show{
 
 opacity:1;
 
@@ -1207,9 +1243,39 @@ transform:translateY(0);
 
 }
 
-.scroll-top-btn:hover{
+.scroll-top:hover{
 
 transform:translateY(-6px);
+
+}
+
+/* ==========================================================
+SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#0b1220;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#2f4d77;
+
+border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+background:#3b82f6;
 
 }
 
@@ -1217,13 +1283,37 @@ transform:translateY(-6px);
 RESPONSIVE
 ========================================================== */
 
+@media(max-width:1200px){
+
+.dashboard{
+
+padding:25px;
+
+}
+
+}
+
 @media(max-width:992px){
 
-.analytics-header{
+.topbar{
+
+position:relative;
+
+top:0;
 
 flex-direction:column;
 
 align-items:flex-start;
+
+}
+
+.top-actions{
+
+width:100%;
+
+justify-content:flex-start;
+
+flex-wrap:wrap;
 
 }
 
@@ -1232,6 +1322,8 @@ align-items:flex-start;
 flex-direction:column;
 
 align-items:flex-start;
+
+gap:18px;
 
 }
 
@@ -1247,25 +1339,31 @@ align-items:flex-start;
 
 @media(max-width:768px){
 
-.analytics-container{
+.dashboard{
 
-padding:20px;
+padding:18px;
 
 }
 
-.header-left h1{
+.cards-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.logo-side h1{
+
+font-size:1.5rem;
+
+}
+
+.metric-card h2{
 
 font-size:1.6rem;
 
 }
 
-.header-actions{
-
-width:100%;
-
-}
-
-.action-btn{
+.top-btn{
 
 flex:1;
 
@@ -1273,27 +1371,9 @@ justify-content:center;
 
 }
 
-.chart-container{
+#analyticsInsights{
 
-height:280px;
-
-}
-
-.chart-card.large .chart-container{
-
-height:340px;
-
-}
-
-.stat-value{
-
-font-size:1.7rem;
-
-}
-
-.performance-content h2{
-
-font-size:1.3rem;
+grid-template-columns:1fr;
 
 }
 
@@ -1301,37 +1381,43 @@ font-size:1.3rem;
 
 @media(max-width:480px){
 
-.stats-grid,
+.logo-box{
 
-.performance-grid,
+width:55px;
 
-.charts-grid,
+height:55px;
 
-.insights-grid{
-
-grid-template-columns:1fr;
+font-size:22px;
 
 }
 
-.header-icon{
+.performance-banner{
 
-width:60px;
-
-height:60px;
-
-font-size:24px;
+padding:22px;
 
 }
 
 .chart-card,
 
-.stat-card,
+.metric-card,
 
 .performance-card,
 
 .ai-card{
 
 padding:20px;
+
+}
+
+.chart-body{
+
+height:260px;
+
+}
+
+.chart-body.small{
+
+height:220px;
 
 }
 

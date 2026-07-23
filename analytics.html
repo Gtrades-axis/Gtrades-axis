@@ -5,29 +5,22 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Analytics | GTRADES-AXIS™</title>
+<title>Trading Analytics | GTRADES-AXIS™</title>
 
-<link rel="preconnect"
-href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 
-<link rel="preconnect"
-href="https://fonts.gstatic.com"
-crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-<link rel="stylesheet"
-href="css/style.css">
+<link rel="stylesheet" href="css/style.css">
 
-<link rel="stylesheet"
-href="css/analytics.css">
+<link rel="stylesheet" href="css/analytics.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -35,17 +28,17 @@ href="css/analytics.css">
 
 <body>
 
-<div class="analytics-container">
+<div class="dashboard">
 
-<!-- =======================================================
+<!-- ===========================
 HEADER
-======================================================= -->
+=========================== -->
 
-<header class="analytics-header">
+<header class="topbar">
 
-<div class="header-left">
+<div class="logo-side">
 
-<div class="header-icon">
+<div class="logo-box">
 
 <i class="fa-solid fa-chart-line"></i>
 
@@ -69,12 +62,11 @@ Professional Performance Dashboard
 
 </div>
 
-<div class="header-actions">
+<div class="top-actions">
 
-<a
-href="#"
+<a href="#"
 onclick="history.back();return false;"
-class="action-btn">
+class="top-btn">
 
 <i class="fa-solid fa-arrow-left"></i>
 
@@ -82,9 +74,8 @@ Back
 
 </a>
 
-<a
-href="journal.html"
-class="action-btn primary">
+<a href="journal.html"
+class="top-btn primary">
 
 <i class="fa-solid fa-plus"></i>
 
@@ -92,9 +83,8 @@ New Trade
 
 </a>
 
-<a
-href="history.html"
-class="action-btn">
+<a href="history.html"
+class="top-btn">
 
 <i class="fa-solid fa-clock-rotate-left"></i>
 
@@ -106,9 +96,9 @@ History
 
 </header>
 
-<!-- =======================================================
-TOP PERFORMANCE BAR
-======================================================= -->
+<!-- ===========================
+PERFORMANCE BAR
+=========================== -->
 
 <section class="performance-banner">
 
@@ -122,53 +112,39 @@ Trading Performance
 
 <p>
 
-Realtime statistics powered by your journal.
+Realtime statistics powered by your trading journal.
 
 </p>
 
 </div>
 
-<div class="sync-status">
+<div class="live-sync">
 
-<i class="fa-solid fa-circle-check"></i>
-
-<span id="syncStatus">
+<i class="fa-solid fa-circle"></i>
 
 Live Sync
-
-</span>
 
 </div>
 
 </section>
 
-<!-- =======================================================
-PRIMARY STATS
-======================================================= -->
+<!-- ===========================
+KPI CARDS
+=========================== -->
 
-<section class="stats-grid">
+<section class="cards-grid">
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon blue">
+<div class="metric-icon blue">
 
 <i class="fa-solid fa-chart-line"></i>
 
 </div>
 
-</div>
+<p>Total Trades</p>
 
-<span class="stat-title">
-
-Total Trades
-
-</span>
-
-<h2
-class="stat-value"
-id="totalTrades">
+<h2 id="totalTrades">
 
 0
 
@@ -176,27 +152,17 @@ id="totalTrades">
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon green">
+<div class="metric-icon green">
 
 <i class="fa-solid fa-bullseye"></i>
 
 </div>
 
-</div>
+<p>Win Rate</p>
 
-<span class="stat-title">
-
-Win Rate
-
-</span>
-
-<h2
-class="stat-value positive"
-id="winRate">
+<h2 id="winRate">
 
 0%
 
@@ -204,27 +170,17 @@ id="winRate">
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon gold">
+<div class="metric-icon orange">
 
 <i class="fa-solid fa-scale-balanced"></i>
 
 </div>
 
-</div>
+<p>Average R:R</p>
 
-<span class="stat-title">
-
-Average R:R
-
-</span>
-
-<h2
-class="stat-value"
-id="averageRR">
+<h2 id="averageRR">
 
 0.00
 
@@ -232,27 +188,17 @@ id="averageRR">
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon purple">
+<div class="metric-icon purple">
 
 <i class="fa-solid fa-wallet"></i>
 
 </div>
 
-</div>
+<p>Net Profit</p>
 
-<span class="stat-title">
-
-Net Profit
-
-</span>
-
-<h2
-class="stat-value positive"
-id="netProfit">
+<h2 id="netProfit">
 
 $0
 
@@ -260,27 +206,17 @@ $0
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon blue">
+<div class="metric-icon blue">
 
 <i class="fa-solid fa-percent"></i>
 
 </div>
 
-</div>
+<p>Profit Factor</p>
 
-<span class="stat-title">
-
-Profit Factor
-
-</span>
-
-<h2
-class="stat-value"
-id="profitFactor">
+<h2 id="profitFactor">
 
 0.00
 
@@ -288,27 +224,17 @@ id="profitFactor">
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon orange">
+<div class="metric-icon yellow">
 
 <i class="fa-solid fa-brain"></i>
 
 </div>
 
-</div>
+<p>Expectancy</p>
 
-<span class="stat-title">
-
-Expectancy
-
-</span>
-
-<h2
-class="stat-value"
-id="expectancy">
+<h2 id="expectancy">
 
 $0
 
@@ -316,27 +242,17 @@ $0
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon green">
+<div class="metric-icon green">
 
 <i class="fa-solid fa-arrow-trend-up"></i>
 
 </div>
 
-</div>
+<p>Average Win</p>
 
-<span class="stat-title">
-
-Average Win
-
-</span>
-
-<h2
-class="stat-value positive"
-id="averageWin">
+<h2 id="averageWin">
 
 $0
 
@@ -344,27 +260,17 @@ $0
 
 </div>
 
-<div class="stat-card">
+<div class="metric-card">
 
-<div class="stat-top">
-
-<div class="stat-icon red">
+<div class="metric-icon red">
 
 <i class="fa-solid fa-arrow-trend-down"></i>
 
 </div>
 
-</div>
+<p>Average Loss</p>
 
-<span class="stat-title">
-
-Average Loss
-
-</span>
-
-<h2
-class="stat-value negative"
-id="averageLoss">
+<h2 id="averageLoss">
 
 $0
 
@@ -373,9 +279,9 @@ $0
 </div>
 
 </section>
-<!-- =======================================================
-PERFORMANCE BREAKDOWN
-======================================================= -->
+<!-- ==========================================================
+PERFORMANCE SUMMARY
+========================================================== -->
 
 <section class="performance-grid">
 
@@ -383,31 +289,23 @@ PERFORMANCE BREAKDOWN
 
     <div class="performance-card">
 
-        <div class="performance-icon blue">
+        <div class="performance-left">
 
-            <i class="fa-solid fa-trophy"></i>
+            <div class="performance-icon blue">
 
-        </div>
+                <i class="fa-solid fa-trophy"></i>
 
-        <div class="performance-content">
+            </div>
 
-            <span class="performance-label">
+            <div>
 
-                Best Pair
+                <span>Best Pair</span>
 
-            </span>
+                <h2 id="bestPair">-</h2>
 
-            <h2 id="bestPair">
+                <h4 id="bestPairProfit">$0</h4>
 
-                -
-
-            </h2>
-
-            <p id="bestPairProfit">
-
-                $0
-
-            </p>
+            </div>
 
         </div>
 
@@ -417,31 +315,23 @@ PERFORMANCE BREAKDOWN
 
     <div class="performance-card">
 
-        <div class="performance-icon red">
+        <div class="performance-left">
 
-            <i class="fa-solid fa-chart-line-down"></i>
+            <div class="performance-icon red">
 
-        </div>
+                <i class="fa-solid fa-chart-line-down"></i>
 
-        <div class="performance-content">
+            </div>
 
-            <span class="performance-label">
+            <div>
 
-                Worst Pair
+                <span>Worst Pair</span>
 
-            </span>
+                <h2 id="worstPair">-</h2>
 
-            <h2 id="worstPair">
+                <h4 id="worstPairProfit">$0</h4>
 
-                -
-
-            </h2>
-
-            <p id="worstPairProfit">
-
-                $0
-
-            </p>
+            </div>
 
         </div>
 
@@ -451,36 +341,33 @@ PERFORMANCE BREAKDOWN
 
     <div class="performance-card">
 
-        <div class="performance-icon green">
+        <div class="performance-left">
 
-            <i class="fa-solid fa-clock"></i>
+            <div class="performance-icon green">
 
-        </div>
+                <i class="fa-solid fa-clock"></i>
 
-        <div class="performance-content">
+            </div>
 
-            <span class="performance-label">
+            <div>
 
-                Best Session
+                <span>Best Session</span>
 
-            </span>
+                <h2 id="bestSession">-</h2>
 
-            <h2 id="bestSession">
+                <h4>
 
-                -
+                    Win Rate
 
-            </h2>
+                    <strong id="bestSessionWinrate">
 
-            <p>
+                        0%
 
-                Win Rate:
-                <strong id="bestSessionWinrate">
+                    </strong>
 
-                    0%
+                </h4>
 
-                </strong>
-
-            </p>
+            </div>
 
         </div>
 
@@ -490,36 +377,33 @@ PERFORMANCE BREAKDOWN
 
     <div class="performance-card">
 
-        <div class="performance-icon gold">
+        <div class="performance-left">
 
-            <i class="fa-solid fa-crosshairs"></i>
+            <div class="performance-icon yellow">
 
-        </div>
+                <i class="fa-solid fa-crosshairs"></i>
 
-        <div class="performance-content">
+            </div>
 
-            <span class="performance-label">
+            <div>
 
-                Best Model
+                <span>Best Model</span>
 
-            </span>
+                <h2 id="bestModel">-</h2>
 
-            <h2 id="bestModel">
+                <h4>
 
-                -
+                    Win Rate
 
-            </h2>
+                    <strong id="bestModelWinrate">
 
-            <p>
+                        0%
 
-                Win Rate:
-                <strong id="bestModelWinrate">
+                    </strong>
 
-                    0%
+                </h4>
 
-                </strong>
-
-            </p>
+            </div>
 
         </div>
 
@@ -527,11 +411,11 @@ PERFORMANCE BREAKDOWN
 
 </section>
 
-<!-- =======================================================
-SECTION TITLE
-======================================================= -->
+<!-- ==========================================================
+CHARTS TITLE
+========================================================== -->
 
-<section class="section-header">
+<section class="section-title">
 
     <div>
 
@@ -545,26 +429,28 @@ SECTION TITLE
 
         <p>
 
-            Analyze your trading performance using real-time visual reports.
+            Analyze your account using real-time visual reports.
 
         </p>
 
     </div>
 
 </section>
-<!-- =======================================================
-CHARTS DASHBOARD
-======================================================= -->
+<!-- ==========================================================
+PERFORMANCE CHARTS
+========================================================== -->
 
-<section class="charts-grid">
+<section class="charts-section">
 
-    <!-- Equity Curve -->
+    <!-- =====================================================
+    EQUITY CURVE
+    ====================================================== -->
 
-    <div class="chart-card large">
+    <div class="chart-card chart-large">
 
-        <div class="chart-header">
+        <div class="chart-head">
 
-            <div class="chart-title">
+            <div class="chart-info">
 
                 <div class="chart-icon blue">
 
@@ -574,182 +460,15 @@ CHARTS DASHBOARD
 
                 <div>
 
-                    <h2>Equity Curve</h2>
-
-                    <p>Growth of your trading account over time</p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="chart-container">
-
-            <canvas id="equityChart"></canvas>
-
-        </div>
-
-    </div>
-
-    <!-- Monthly Profit -->
-
-    <div class="chart-card">
-
-        <div class="chart-header">
-
-            <div class="chart-title">
-
-                <div class="chart-icon green">
-
-                    <i class="fa-solid fa-calendar-days"></i>
-
-                </div>
-
-                <div>
-
-                    <h2>Monthly Profit</h2>
-
-                    <p>Monthly performance breakdown</p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="chart-container">
-
-            <canvas id="monthlyChart"></canvas>
-
-        </div>
-
-    </div>
-
-    <!-- Pair Performance -->
-
-    <div class="chart-card">
-
-        <div class="chart-header">
-
-            <div class="chart-title">
-
-                <div class="chart-icon gold">
-
-                    <i class="fa-solid fa-coins"></i>
-
-                </div>
-
-                <div>
-
-                    <h2>Pair Performance</h2>
-
-                    <p>Profitability by trading pair</p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="chart-container">
-
-            <canvas id="pairChart"></canvas>
-
-        </div>
-
-    </div>
-
-    <!-- Session Performance -->
-
-    <div class="chart-card">
-
-        <div class="chart-header">
-
-            <div class="chart-title">
-
-                <div class="chart-icon purple">
-
-                    <i class="fa-solid fa-clock"></i>
-
-                </div>
-
-                <div>
-
-                    <h2>Trading Sessions</h2>
-
-                    <p>London • New York • Asian performance</p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="chart-container">
-
-            <canvas id="sessionChart"></canvas>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- =======================================================
-AI INSIGHTS SECTION TITLE
-======================================================= -->
-
-<section class="section-header">
-
-    <div>
-
-        <h2>
-
-            <i class="fa-solid fa-brain"></i>
-
-            AI Trading Coach
-
-        </h2>
-
-        <p>
-
-            Personalized insights generated from your journal statistics.
-
-        </p>
-
-    </div>
-
-</section>
-<!-- =======================================================
-AI TRADING INSIGHTS
-======================================================= -->
-
-<section class="ai-dashboard">
-
-    <div class="ai-card">
-
-        <div class="ai-header">
-
-            <div class="ai-title">
-
-                <div class="chart-icon blue">
-
-                    <i class="fa-solid fa-brain"></i>
-
-                </div>
-
-                <div>
-
                     <h2>
 
-                        AI Trading Coach
+                        Equity Curve
 
                     </h2>
 
                     <p>
 
-                        Your journal is analyzed automatically after every trade.
+                        Growth of your trading account over time
 
                     </p>
 
@@ -759,7 +478,236 @@ AI TRADING INSIGHTS
 
         </div>
 
-        <div id="analyticsInsights" class="insights-grid">
+        <div class="chart-body">
+
+            <canvas id="equityChart"></canvas>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+    SMALL CHARTS
+    ====================================================== -->
+
+    <div class="small-chart-grid">
+
+        <!-- Monthly -->
+
+        <div class="chart-card">
+
+            <div class="chart-head">
+
+                <div class="chart-info">
+
+                    <div class="chart-icon green">
+
+                        <i class="fa-solid fa-calendar-days"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Monthly Profit
+
+                        </h2>
+
+                        <p>
+
+                            Monthly trading performance
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="chart-body small">
+
+                <canvas id="monthlyChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- Pair -->
+
+        <div class="chart-card">
+
+            <div class="chart-head">
+
+                <div class="chart-info">
+
+                    <div class="chart-icon blue">
+
+                        <i class="fa-solid fa-coins"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Pair Performance
+
+                        </h2>
+
+                        <p>
+
+                            Most profitable trading pairs
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="chart-body small">
+
+                <canvas id="pairChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- Session -->
+
+        <div class="chart-card">
+
+            <div class="chart-head">
+
+                <div class="chart-info">
+
+                    <div class="chart-icon purple">
+
+                        <i class="fa-solid fa-clock"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Session Distribution
+
+                        </h2>
+
+                        <p>
+
+                            London • New York • Asian
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="chart-body small">
+
+                <canvas id="sessionChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- AI Summary -->
+
+        <div class="chart-card">
+
+            <div class="chart-head">
+
+                <div class="chart-info">
+
+                    <div class="chart-icon yellow">
+
+                        <i class="fa-solid fa-brain"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            AI Summary
+
+                        </h2>
+
+                        <p>
+
+                            Automatic trade analysis
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="chart-body ai-box">
+
+                <div id="analyticsInsights">
+
+                    <div class="loading-card">
+
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+
+                        <span>
+
+                            Analyzing your trading history...
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- ==========================================================
+AI INSIGHTS
+========================================================== -->
+
+<section class="ai-section">
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+
+                <i class="fa-solid fa-brain"></i>
+
+                AI Trading Coach
+
+            </h2>
+
+            <p>
+
+                Personalized insights generated from your trading journal.
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="ai-card">
+
+        <div id="analyticsInsights">
 
             <div class="loading-card">
 
@@ -767,7 +715,7 @@ AI TRADING INSIGHTS
 
                 <span>
 
-                    Analyzing your trading performance...
+                    AI is analyzing your trades...
 
                 </span>
 
@@ -779,13 +727,13 @@ AI TRADING INSIGHTS
 
 </section>
 
-<!-- =======================================================
-PAGE FOOTER
-======================================================= -->
+<!-- ==========================================================
+FOOTER
+========================================================== -->
 
 <footer class="analytics-footer">
 
-    <div class="footer-left">
+    <div>
 
         <h3>
 
@@ -801,15 +749,11 @@ PAGE FOOTER
 
     </div>
 
-    <div class="footer-right">
+    <div class="footer-status">
 
-        <span>
+        <i class="fa-solid fa-circle-check"></i>
 
-            <i class="fa-solid fa-chart-line"></i>
-
-            Trade • Review • Improve
-
-        </span>
+        Analytics Connected
 
     </div>
 
@@ -817,34 +761,33 @@ PAGE FOOTER
 
 </div>
 
-<!-- =======================================================
+<!-- ==========================================================
 SCROLL TO TOP
-======================================================= -->
+========================================================== -->
 
 <button
 id="scrollTopBtn"
-class="scroll-top-btn"
-title="Back to Top">
+class="scroll-top">
 
 <i class="fa-solid fa-arrow-up"></i>
 
 </button>
 
-<!-- =======================================================
+<!-- ==========================================================
 AUTH
-======================================================= -->
+========================================================== -->
 
 <script type="module" src="js/auth.js"></script>
 
-<!-- =======================================================
+<!-- ==========================================================
 ANALYTICS ENGINE
-======================================================= -->
+========================================================== -->
 
 <script type="module" src="js/analytics.js"></script>
 
-<!-- =======================================================
+<!-- ==========================================================
 SCROLL BUTTON
-======================================================= -->
+========================================================== -->
 
 <script>
 
@@ -853,29 +796,29 @@ document.getElementById("scrollTopBtn");
 
 window.addEventListener("scroll",()=>{
 
-    if(window.scrollY>300){
+if(window.scrollY>250){
 
-        scrollBtn.classList.add("show");
+scrollBtn.classList.add("show");
 
-    }else{
+}else{
 
-        scrollBtn.classList.remove("show");
+scrollBtn.classList.remove("show");
 
-    }
+}
+
+});
+
+scrollBtn.onclick=()=>{
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
 
 });
 
-scrollBtn.addEventListener("click",()=>{
-
-    window.scrollTo({
-
-        top:0,
-
-        behavior:"smooth"
-
-    });
-
-});
+};
 
 </script>
 
