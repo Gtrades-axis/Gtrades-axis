@@ -36,6 +36,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   currentUser = user;
+  console.log("✅ User authenticated:", user.uid);
   await loadTrades();
 });
 
@@ -50,6 +51,7 @@ async function loadTrades() {
     snapshot.forEach((doc) => {
       trades.push({ id: doc.id, ...doc.data() });
     });
+    console.log(`📊 Loaded ${trades.length} trades`);
     updateStats();
     updateCharts();
   } catch (error) {
@@ -63,23 +65,30 @@ async function saveTrade(data) {
   if (!currentUser) throw new Error("Not logged in");
   const tradesRef = collection(db, "users", currentUser.uid, "trades");
 
-  if (editingId) {
-    // Update existing trade
-    const docRef = doc(db, "users", currentUser.uid, "trades", editingId);
-    await updateDoc(docRef, data);
-    const index = trades.findIndex((t) => t.id === editingId);
-    if (index !== -1) trades[index] = { ...trades[index], ...data };
-    editingId = null;
-    saveBtn.textContent = "Save Trade";
-  } else {
-    // Add new trade
-    const ref = await addDoc(tradesRef, data);
-    trades.unshift({ id: ref.id, ...data });
+  try {
+    if (editingId) {
+      // Update existing trade
+      const docRef = doc(db, "users", currentUser.uid, "trades", editingId);
+      await updateDoc(docRef, data);
+      const index = trades.findIndex((t) => t.id === editingId);
+      if (index !== -1) trades[index] = { ...trades[index], ...data };
+      editingId = null;
+      saveBtn.textContent = "Save Trade";
+      alert("✅ Trade updated successfully!");
+    } else {
+      // Add new trade
+      const ref = await addDoc(tradesRef, data);
+      trades.unshift({ id: ref.id, ...data });
+      alert("✅ Trade saved successfully!");
+    }
+    updateStats();
+    updateCharts();
+    form.reset();
+    document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
+  } catch (error) {
+    console.error("Save error:", error);
+    alert("❌ Error saving trade: " + error.message);
   }
-  updateStats();
-  updateCharts();
-  form.reset();
-  document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
 }
 
 // ─── DELETE TRADE ─────────────────────────────────────────────
@@ -90,8 +99,9 @@ async function deleteTrade(id) {
     trades = trades.filter((t) => t.id !== id);
     updateStats();
     updateCharts();
+    alert("✅ Trade deleted!");
   } catch (error) {
-    alert("Error deleting trade: " + error.message);
+    alert("❌ Error deleting trade: " + error.message);
   }
 }
 
@@ -141,12 +151,11 @@ function calculateStreak() {
   return streak;
 }
 
-// ─── CHARTS (safe destroy) ────────────────────────────────────
+// ─── CHARTS ────────────────────────────────────────────────────
 function updateCharts() {
   if (typeof Chart === "undefined") return;
   if (!equityCanvas || !monthlyCanvas) return;
 
-  // Destroy old charts safely
   if (window.equityChart && typeof window.equityChart.destroy === "function") {
     window.equityChart.destroy();
     window.equityChart = null;
@@ -156,7 +165,6 @@ function updateCharts() {
     window.monthlyChart = null;
   }
 
-  // Equity Curve
   let running = 0;
   const equityData = trades.map((t) => {
     running += parseFloat(t.profit) || 0;
@@ -190,7 +198,6 @@ function updateCharts() {
     });
   }
 
-  // Monthly Profit
   const monthly = {};
   trades.forEach((t) => {
     if (!t.tradeDate) return;
@@ -273,12 +280,7 @@ form.addEventListener("submit", async (e) => {
     afterChart: document.getElementById("afterChart").value,
     notes: document.getElementById("notes").value,
   };
-  try {
-    await saveTrade(data);
-    alert(editingId ? "Trade updated!" : "Trade saved!");
-  } catch (error) {
-    alert("Error: " + error.message);
-  }
+  await saveTrade(data);
 });
 
 // ─── CANCEL EDIT ──────────────────────────────────────────────
