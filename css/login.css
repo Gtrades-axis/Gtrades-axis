@@ -99,7 +99,7 @@ body::before {
     height: auto;
     max-width: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 10px 30px rgba(15, 140, 255, 0.2));
+    filter: drop-shadow(0 10px 30px rgb(33 35 38 / 20%));
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: block;
     border-radius: 16px;
@@ -113,20 +113,20 @@ body::before {
 .login-card h1 {
     font-size: clamp(1.5rem, 4.5vw, 2.1rem);
     font-weight: 700;
-    color: #fff;
+    color: #fcfafa;
     letter-spacing: -0.5px;
     margin-bottom: 0.2rem;
 }
 
 .login-card h1 .gradient-text {
-    background: linear-gradient(135deg, #0f8cff, #00c853);
+    background: linear-gradient(135deg, #445e75, #00c853);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .login-card .subtitle {
-    color: rgba(255, 255, 255, 0.3);
+    color: #080708;
     font-size: 0.85rem;
     font-weight: 400;
     margin-bottom: 1.8rem;
@@ -150,9 +150,9 @@ body::before {
     display: block;
 }
 .msg.success {
-    background: rgba(0, 200, 83, 0.08);
+    background: rgb(49 90 128 / 8%);
     border: 1px solid rgba(0, 200, 83, 0.12);
-    color: #69db7c;
+    color: #81dea9;
     display: block;
 }
 
@@ -218,16 +218,16 @@ form {
 /* Password toggle */
 .toggle-pw {
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.12);
+    color: #080708;
     font-size: 0.9rem;
     transition: color 0.3s ease;
-    background: transparent;
+    background: #090606;
     border: none;
     padding: 0 0 0 0.4rem;
     flex-shrink: 0;
 }
 .toggle-pw:hover {
-    color: rgba(255, 255, 255, 0.35);
+    color: #080708;
 }
 
 /* ─────────── BUTTON ─────────── */
@@ -293,7 +293,7 @@ form {
 .divider-line {
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    background: linear-gradient(90deg, #ff6b6b, #080708, transparent);
 }
 .divider-text {
     color: rgba(255, 255, 255, 0.06);
@@ -305,17 +305,20 @@ form {
 
 /* ─────────── LINKS ─────────── */
 .login-links {
-    color: rgba(255, 255, 255, 0.2);
-    font-size: 0.85rem;
+    color: #cec4e9;
+    font-size: 1rem;
     font-weight: 400;
 }
 
 .login-links a {
-    color: #0f8cff;
+    color: #865f86;
     text-decoration: none;
     font-weight: 600;
+    font-size: 1.23rem;
     transition: color 0.3s ease;
     position: relative;
+
+    
 }
 
 .login-links a::after {
@@ -340,9 +343,9 @@ form {
 .back-home {
     display: inline-block;
     margin-top: 1.2rem;
-    color: rgba(255, 255, 255, 0.08);
+    color: #bf8383;
     text-decoration: none;
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     font-weight: 400;
     transition: color 0.3s ease, transform 0.3s ease;
 }
