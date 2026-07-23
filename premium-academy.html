@@ -28,26 +28,46 @@
     .page-header p { color:#94a3b8; font-size:0.75rem; }
     .header-actions .btn { padding:4px 10px; border-radius:6px; border:none; background:rgba(255,255,255,0.05); color:#94a3b8; text-decoration:none; font-weight:500; font-size:0.7rem; transition:0.2s; display:inline-flex; align-items:center; gap:4px; }
     .header-actions .btn:hover { background:rgba(255,255,255,0.1); color:#f1f5f9; }
-    .module-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:8px; margin-bottom:12px; }
+
+    /* ── Academy Dashboard ── */
+    .welcome-section { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 16px; }
+    .welcome-section .greeting { font-size:1.1rem; font-weight:600; }
+    .welcome-section .greeting span { color:#0f8cff; }
+    .continue-learning { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+    .continue-learning .info .module-name { font-size:0.9rem; font-weight:500; }
+    .continue-learning .info .lesson-name { font-size:0.8rem; color:#94a3b8; }
+    .continue-learning .btn-continue { padding:6px 18px; background:linear-gradient(135deg,#0f8cff,#00c853); border:none; border-radius:8px; color:#fff; font-weight:500; cursor:pointer; text-decoration:none; font-size:0.8rem; transition:0.2s; }
+    .continue-learning .btn-continue:hover { opacity:0.9; transform:translateY(-2px); }
+
+    .overall-progress { margin-bottom:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:8px 16px; }
+    .overall-progress .label { display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8; }
+    .overall-progress .bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; margin-top:4px; overflow:hidden; }
+    .overall-progress .bar .fill { height:100%; background:linear-gradient(90deg,#0f8cff,#00c853); width:0%; transition:width 0.4s; }
+
+    .module-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; margin-bottom:12px; }
     .module-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; transition:0.2s; }
     .module-card:hover { border-color:rgba(15,140,255,0.25); background:rgba(255,255,255,0.06); }
-    .module-card h3 { font-size:0.95rem; font-weight:600; color:#f1f5f9; margin-bottom:4px; }
-    .module-card .desc { font-size:0.7rem; color:#94a3b8; margin-bottom:8px; }
-    .progress-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; margin-bottom:8px; overflow:hidden; }
-    .progress-bar .fill { height:100%; background:linear-gradient(90deg,#0f8cff,#00c853); width:0%; transition:width 0.3s; }
-    .lesson-list { display:flex; flex-direction:column; gap:4px; }
-    .lesson-item { display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:4px; transition:0.2s; }
-    .lesson-item:hover { background:rgba(255,255,255,0.04); }
-    .lesson-item .icon { width:16px; color:#94a3b8; }
-    .lesson-item .icon.completed { color:#00c853; }
-    .lesson-item .title { font-size:0.75rem; flex:1; color:#e2e8f0; }
-    .lesson-item .badge { font-size:0.55rem; padding:1px 6px; border-radius:4px; background:rgba(15,140,255,0.15); color:#0f8cff; }
-    .quiz-btn { margin-top:6px; padding:4px 12px; background:rgba(255,179,0,0.12); color:#ffb300; border:none; border-radius:6px; font-size:0.65rem; font-weight:500; cursor:pointer; transition:0.2s; }
-    .quiz-btn:hover { background:rgba(255,179,0,0.25); }
-    .cert-badge { color:#00c853; font-size:0.7rem; margin-top:4px; display:inline-flex; align-items:center; gap:4px; }
+    .module-card .header { display:flex; justify-content:space-between; align-items:center; }
+    .module-card .header .title { font-size:0.9rem; font-weight:600; color:#f1f5f9; }
+    .module-card .header .status { font-size:0.6rem; padding:2px 8px; border-radius:4px; }
+    .module-card .header .status.completed { background:rgba(0,200,83,0.15); color:#00c853; }
+    .module-card .header .status.locked { background:rgba(255,255,255,0.05); color:#64748b; }
+    .module-card .header .status.active { background:rgba(15,140,255,0.15); color:#0f8cff; }
+    .module-card .desc { font-size:0.7rem; color:#94a3b8; margin:4px 0 8px; }
+    .module-card .progress-mini { display:flex; justify-content:space-between; font-size:0.6rem; color:#94a3b8; margin-top:4px; }
+    .module-card .progress-mini .bar { height:2px; background:rgba(255,255,255,0.06); border-radius:2px; flex:1; margin:0 8px; }
+    .module-card .progress-mini .bar .fill { height:100%; background:linear-gradient(90deg,#0f8cff,#00c853); width:0%; }
+    .module-card .btn-module { display:inline-block; margin-top:8px; padding:4px 12px; background:rgba(15,140,255,0.12); color:#0f8cff; border:none; border-radius:6px; font-size:0.65rem; font-weight:500; cursor:pointer; text-decoration:none; transition:0.2s; }
+    .module-card .btn-module:hover { background:rgba(15,140,255,0.25); }
+    .module-card .btn-module.locked { background:rgba(255,255,255,0.03); color:#64748b; cursor:not-allowed; pointer-events:none; }
+
+    .achievements { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; margin-bottom:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+    .achievements .badge { display:flex; align-items:center; gap:6px; font-size:0.75rem; color:#94a3b8; }
+    .achievements .badge i { color:#ffb300; }
+
     #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
     #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
-    @media (max-width:768px){ .sidebar{display:none;} .main-content{padding:8px;}.module-grid{grid-template-columns:1fr;} .page-header{flex-direction:column;align-items:flex-start;} }
+    @media (max-width:768px){ .sidebar{display:none;} .main-content{padding:8px;}.module-grid{grid-template-columns:1fr;} .page-header{flex-direction:column;align-items:flex-start;} .welcome-section{flex-direction:column;align-items:flex-start;gap:6px;} .continue-learning{flex-direction:column;align-items:stretch;} .continue-learning .btn-continue{text-align:center;} }
   </style>
 </head>
 <body>
@@ -67,10 +87,10 @@
       <a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
       <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
     </nav>
-    <button id="logoutBtn" class="logout-btn" style="background:none;border:none;color:#ff4d4f;cursor:pointer;margin-top:20px;text-align:left;font-size:0.8rem;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    <button id="logoutBtn" style="background:none;border:none;color:#ff4d4f;cursor:pointer;margin-top:20px;text-align:left;font-size:0.8rem;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <main class="main-content">
 
     <div class="page-header">
@@ -81,9 +101,35 @@
       </div>
     </div>
 
-    <!-- Modules will be injected here -->
+    <!-- Welcome -->
+    <div class="welcome-section">
+      <div class="greeting">Welcome back, <span id="userName">Trader</span> 👋</div>
+      <div style="font-size:0.7rem;color:#94a3b8;"><i class="fa-regular fa-calendar"></i> <span id="todayDate"></span></div>
+    </div>
+
+    <!-- Continue Learning -->
+    <div class="continue-learning" id="continueLearning">
+      <div class="info">
+        <div class="module-name" id="continueModule">Start your first module</div>
+        <div class="lesson-name" id="continueLesson">Begin Module 1</div>
+      </div>
+      <a href="#" class="btn-continue" id="continueBtn">Continue ▶</a>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="overall-progress">
+      <div class="label"><span>Overall Progress</span><span id="progressPercent">0%</span></div>
+      <div class="bar"><div class="fill" id="progressFill" style="width:0%;"></div></div>
+    </div>
+
+    <!-- Modules -->
     <div id="academyContainer" class="module-grid">
-      <div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">Loading modules...</div>
+      <!-- Will be injected by JS -->
+    </div>
+
+    <!-- Achievements -->
+    <div class="achievements" id="achievementsContainer">
+      <span class="badge"><i class="fa-solid fa-trophy"></i> Achievements will appear here</span>
     </div>
 
   </main>
