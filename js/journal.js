@@ -4,7 +4,6 @@ import {
   addDoc,
   getDocs,
   query,
-  where,
   orderBy,
   deleteDoc,
   doc,
@@ -16,6 +15,7 @@ let currentUser = null;
 let trades = [];
 let editingId = null;
 
+// ─── DOM ELEMENTS ──────────────────────────────────────────────
 const form = document.getElementById("tradeForm");
 const saveBtn = document.getElementById("saveTrade");
 const totalTrades = document.getElementById("totalTrades");
@@ -31,20 +31,20 @@ const monthlyCanvas = document.getElementById("monthlyChart");
 
 // ─── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
   currentUser = user;
   await loadTrades();
 });
 
-// ─── LOAD TRADES FROM FIRESTORE ──────────────────────────────
+// ─── LOAD TRADES FROM FIRESTORE (subcollection) ──────────────
 async function loadTrades() {
   if (!currentUser) return;
   try {
-    const q = query(
-      collection(db, "trades"),
-      where("userId", "==", currentUser.uid),
-      orderBy("tradeDate", "desc")
-    );
+    const tradesRef = collection(db, "users", currentUser.uid, "trades");
+    const q = query(tradesRef, orderBy("tradeDate", "desc"));
     const snapshot = await getDocs(q);
     trades = [];
     snapshot.forEach((doc) => {
@@ -52,22 +52,29 @@ async function loadTrades() {
     });
     updateStats();
     updateCharts();
-  } catch (error) { console.error("Load trades error:", error); }
+  } catch (error) {
+    console.error("Load trades error:", error);
+    alert("Error loading trades: " + error.message);
+  }
 }
 
 // ─── SAVE TRADE ───────────────────────────────────────────────
 async function saveTrade(data) {
   if (!currentUser) throw new Error("Not logged in");
-  const payload = { ...data, userId: currentUser.uid };
+  const tradesRef = collection(db, "users", currentUser.uid, "trades");
+
   if (editingId) {
-    await updateDoc(doc(db, "trades", editingId), data);
+    // Update existing trade
+    const docRef = doc(db, "users", currentUser.uid, "trades", editingId);
+    await updateDoc(docRef, data);
     const index = trades.findIndex((t) => t.id === editingId);
     if (index !== -1) trades[index] = { ...trades[index], ...data };
     editingId = null;
     saveBtn.textContent = "Save Trade";
   } else {
-    const ref = await addDoc(collection(db, "trades"), payload);
-    trades.unshift({ id: ref.id, ...payload });
+    // Add new trade
+    const ref = await addDoc(tradesRef, data);
+    trades.unshift({ id: ref.id, ...data });
   }
   updateStats();
   updateCharts();
@@ -75,16 +82,20 @@ async function saveTrade(data) {
   document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
 }
 
-// ─── DELETE ────────────────────────────────────────────────────
+// ─── DELETE TRADE ─────────────────────────────────────────────
 async function deleteTrade(id) {
   if (!confirm("Delete this trade?")) return;
-  await deleteDoc(doc(db, "trades", id));
-  trades = trades.filter((t) => t.id !== id);
-  updateStats();
-  updateCharts();
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid, "trades", id));
+    trades = trades.filter((t) => t.id !== id);
+    updateStats();
+    updateCharts();
+  } catch (error) {
+    alert("Error deleting trade: " + error.message);
+  }
 }
 
-// ─── EDIT ──────────────────────────────────────────────────────
+// ─── EDIT TRADE (populate form) ──────────────────────────────
 function editTrade(id) {
   const trade = trades.find((t) => t.id === id);
   if (!trade) return;
@@ -130,11 +141,12 @@ function calculateStreak() {
   return streak;
 }
 
-// ─── CHARTS (safe) ────────────────────────────────────────────
+// ─── CHARTS (safe destroy) ────────────────────────────────────
 function updateCharts() {
   if (typeof Chart === "undefined") return;
   if (!equityCanvas || !monthlyCanvas) return;
 
+  // Destroy old charts safely
   if (window.equityChart && typeof window.equityChart.destroy === "function") {
     window.equityChart.destroy();
     window.equityChart = null;
@@ -144,6 +156,7 @@ function updateCharts() {
     window.monthlyChart = null;
   }
 
+  // Equity Curve
   let running = 0;
   const equityData = trades.map((t) => {
     running += parseFloat(t.profit) || 0;
@@ -177,6 +190,7 @@ function updateCharts() {
     });
   }
 
+  // Monthly Profit
   const monthly = {};
   trades.forEach((t) => {
     if (!t.tradeDate) return;
