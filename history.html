@@ -7,454 +7,14 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- ✅ DEDICATED HISTORY CSS (separate from general style.css) -->
+  <link rel="stylesheet" href="css/history.css">
 
   <style>
-    /* ============================================================
-       RESET & BASE – TIGHT SPACING
-    ============================================================ */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #0a0e17;
-      color: #e2e8f0;
-      min-height: 100vh;
-    }
-    .dashboard-container {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* ============================================================
-       SIDEBAR
-    ============================================================ */
-    .sidebar {
-      width: 220px;
-      background: rgba(255,255,255,0.03);
-      border-right: 1px solid rgba(255,255,255,0.06);
-      padding: 18px 12px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .sidebar .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .sidebar .logo img { width: 36px; }
-    .sidebar .logo h2 {
-      font-size: 1.1rem;
-      color: #f1f5f9;
-    }
-    .sidebar .logo h2 span {
-      background: linear-gradient(135deg, #0f8cff, #00c853);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .sidebar nav {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .sidebar nav a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-    .sidebar nav a i {
-      width: 18px;
-      text-align: center;
-      font-size: 1rem;
-    }
-    .sidebar nav a:hover {
-      background: rgba(255,255,255,0.05);
-      color: #e2e8f0;
-    }
-    .sidebar nav a.active {
-      background: rgba(15,140,255,0.12);
-      color: #0f8cff;
-      border-left: 3px solid #0f8cff;
-    }
-
-    /* ============================================================
-       MAIN CONTENT – TIGHT
-    ============================================================ */
-    .main-content {
-      flex: 1;
-      padding: 16px 20px 30px;
-      overflow-x: hidden;
-    }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .page-header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #f1f5f9, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .page-header h1 i {
-      -webkit-text-fill-color: #0f8cff;
-    }
-    .page-header p {
-      color: #94a3b8;
-      font-size: 0.8rem;
-      margin-top: 0px;
-    }
-    .header-actions {
-      display: flex;
-      gap: 6px;
-    }
-    .btn {
-      padding: 6px 14px;
-      border-radius: 8px;
-      border: none;
-      background: rgba(255,255,255,0.05);
-      color: #94a3b8;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.78rem;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background: rgba(255,255,255,0.1);
-      color: #f1f5f9;
-      transform: translateY(-2px);
-    }
-    .btn i { color: #0f8cff; }
-
-    /* ============================================================
-       STATS CARDS – TIGHT
-    ============================================================ */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
-      padding: 12px 10px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    .stat-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(15,140,255,0.3);
-      background: rgba(255,255,255,0.06);
-    }
-    .stat-card h3 {
-      font-size: 0.6rem;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      margin-bottom: 4px;
-    }
-    .stat-card h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #f1f5f9;
-      line-height: 1.2;
-    }
-
-    /* ============================================================
-       CONTROLS – TIGHT
-    ============================================================ */
-    .history-controls {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-      align-items: center;
-    }
-    .history-controls input,
-    .history-controls select {
-      padding: 7px 12px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      color: #e2e8f0;
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.8rem;
-      outline: none;
-      transition: 0.2s;
-      min-width: 110px;
-    }
-    .history-controls input:focus,
-    .history-controls select:focus {
-      border-color: #0f8cff;
-      box-shadow: 0 0 0 3px rgba(15,140,255,0.1);
-    }
-    .history-controls input::placeholder {
-      color: #475569;
-    }
-    .history-controls select option {
-      background: #141a26;
-    }
-
-    /* ============================================================
-       TABLE CARD – TIGHT
-    ============================================================ */
-    .history-card {
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 14px 0 0 0;
-      overflow: hidden;
-    }
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 14px 10px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .table-header h2 {
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #e2e8f0;
-    }
-    .table-header h2 i {
-      color: #0f8cff;
-    }
-    .table-header .btn {
-      background: rgba(15,140,255,0.1);
-      color: #0f8cff;
-    }
-    .table-header .btn:hover {
-      background: rgba(15,140,255,0.2);
-    }
-
-    .table-responsive {
-      overflow-x: auto;
-      padding: 0 4px 4px 4px;
-    }
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-      min-width: 650px;
-    }
-    .history-table th {
-      text-align: left;
-      padding: 10px 12px;
-      color: #94a3b8;
-      font-weight: 500;
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.02);
-    }
-    .history-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      vertical-align: middle;
-    }
-    .history-table tr:hover td {
-      background: rgba(255,255,255,0.03);
-    }
-
-    .result-win {
-      color: #00c853;
-      font-weight: 600;
-    }
-    .result-loss {
-      color: #ff4d4f;
-      font-weight: 600;
-    }
-    .result-break-even {
-      color: #ffb300;
-      font-weight: 600;
-    }
-    .positive { color: #00c853; font-weight: 600; }
-    .negative { color: #ff4d4f; font-weight: 600; }
-
-    .btn-small {
-      padding: 4px 6px;
-      background: rgba(255,255,255,0.05);
-      border: none;
-      border-radius: 5px;
-      color: #94a3b8;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.8rem;
-    }
-    .btn-small:hover {
-      background: rgba(255,255,255,0.12);
-      color: #f1f5f9;
-    }
-    .btn-small.danger:hover {
-      background: rgba(255,77,79,0.15);
-      color: #ff4d4f;
-    }
-    .btn-small i { pointer-events: none; }
-
-    .empty {
-      text-align: center;
-      padding: 30px 16px;
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-
-    /* ============================================================
-       MODAL – TIGHT
-    ============================================================ */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 16px;
-    }
-    .modal-content {
-      background: #141a26;
-      border-radius: 16px;
-      max-width: 650px;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding: 20px 24px;
-      border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .modal-header h2 {
-      font-size: 1.1rem;
-      color: #f1f5f9;
-    }
-    .closeModal {
-      font-size: 1.6rem;
-      color: #94a3b8;
-      cursor: pointer;
-      background: none;
-      border: none;
-      transition: 0.2s;
-    }
-    .closeModal:hover {
-      color: #f1f5f9;
-      transform: rotate(90deg);
-    }
-    .detail-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .detail-table td {
-      padding: 6px 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .detail-table td:first-child {
-      font-weight: 500;
-      color: #94a3b8;
-      width: 30%;
-    }
-    .detail-table td:last-child {
-      color: #f1f5f9;
-    }
-
-    /* ============================================================
-       SCROLL TO TOP – TIGHT
-    ============================================================ */
-    #scrollTopBtn {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 999;
-      width: 42px;
-      height: 42px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #0f8cff, #00c853);
-      color: #fff;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(15,140,255,0.35);
-      transition: all 0.3s ease;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(16px);
-    }
-    #scrollTopBtn.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    #scrollTopBtn:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 24px rgba(15,140,255,0.5);
-    }
-
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main-content { padding: 12px 12px 24px; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-      .stat-card h1 { font-size: 1.2rem; }
-      .stat-card { padding: 8px 6px; }
-      .page-header { flex-direction: column; align-items: flex-start; }
-      .header-actions { width: 100%; justify-content: flex-start; }
-      .history-controls input,
-      .history-controls select { min-width: 80px; flex: 1; }
-    }
-    @media (max-width: 480px) {
-      .stats-grid { grid-template-columns: 1fr 1fr; gap: 5px; }
-      .stat-card { padding: 6px 4px; border-radius: 8px; }
-      .stat-card h1 { font-size: 1rem; }
-      .stat-card h3 { font-size: 0.5rem; }
-      .history-table { font-size: 0.7rem; min-width: 550px; }
-      .history-table th,
-      .history-table td { padding: 6px 8px; }
-      .main-content { padding: 8px 8px 16px; }
-    }
+    /* minimal inline – only for modal toggle/backup, rest in history.css */
   </style>
 </head>
 
@@ -462,10 +22,10 @@
 
 <div class="dashboard-container">
 
-  <!-- SIDEBAR -->
+  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="logo">
-      <img src="images/logo.png" alt="Logo">
+      <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" draggable="false">
       <h2>GTRADES <span>AXIS™</span></h2>
     </div>
     <nav>
@@ -473,41 +33,73 @@
       <a href="journal.html"><i class="fa-solid fa-book"></i> Trading Journal</a>
       <a href="analytics.html"><i class="fa-solid fa-chart-column"></i> Analytics</a>
       <a class="active" href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+      <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="support.html"><i class="fa-solid fa-headset"></i> Support</a>
     </nav>
+    <button id="logoutBtn" class="logout-btn">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- ===== MAIN CONTENT ===== -->
   <main class="main-content">
 
-    <!-- HEADER -->
+    <!-- ===== HEADER ===== -->
     <div class="page-header">
       <div>
         <h1><i class="fa-solid fa-clock-rotate-left"></i> Trading History</h1>
-        <p>Review every trade you've taken.</p>
+        <p>Review every trade you've taken with full transparency.</p>
       </div>
       <div class="header-actions">
         <a href="#" onclick="history.back(); return false;" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a>
-        <a href="journal.html" class="btn"><i class="fa-solid fa-plus"></i> New Trade</a>
+        <a href="journal.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Trade</a>
       </div>
     </div>
 
-    <!-- STATS -->
+    <!-- ===== STATS ===== -->
     <section class="stats-grid">
-      <div class="stat-card"><h3>Total Trades</h3><h1 id="historyTotalTrades">0</h1></div>
-      <div class="stat-card"><h3>Total Wins</h3><h1 id="historyWins">0</h1></div>
-      <div class="stat-card"><h3>Total Losses</h3><h1 id="historyLosses">0</h1></div>
-      <div class="stat-card"><h3>Win Rate</h3><h1 id="historyWinRate">0%</h1></div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-list"></i></div>
+        <h3>Total Trades</h3>
+        <h1 id="historyTotalTrades">0</h1>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-check-circle" style="color:#4ade80;"></i></div>
+        <h3>Total Wins</h3>
+        <h1 id="historyWins" style="color:#4ade80;">0</h1>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-times-circle" style="color:#f87171;"></i></div>
+        <h3>Total Losses</h3>
+        <h1 id="historyLosses" style="color:#f87171;">0</h1>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-percent"></i></div>
+        <h3>Win Rate</h3>
+        <h1 id="historyWinRate" style="color:#facc15;">0%</h1>
+      </div>
     </section>
 
-    <!-- CONTROLS -->
+    <!-- ===== CONTROLS ===== -->
     <section class="history-controls">
-      <input type="text" id="tradeSearch" placeholder="🔍 Search Pair...">
+      <input type="text" id="tradeSearch" placeholder="🔍 Search by pair...">
       <select id="filterPair"><option value="">All Pairs</option></select>
-      <select id="filterSession"><option value="">All Sessions</option><option>Asian</option><option>London</option><option>New York</option><option>London + NY</option></select>
-      <select id="filterResult"><option value="">All Results</option><option>Win</option><option>Loss</option><option>Break Even</option></select>
+      <select id="filterSession">
+        <option value="">All Sessions</option>
+        <option>Asian</option>
+        <option>London</option>
+        <option>New York</option>
+        <option>London + NY</option>
+      </select>
+      <select id="filterResult">
+        <option value="">All Results</option>
+        <option>Win</option>
+        <option>Loss</option>
+        <option>Break Even</option>
+      </select>
     </section>
 
-    <!-- TABLE -->
+    <!-- ===== TABLE ===== -->
     <section class="history-card">
       <div class="table-header">
         <h2><i class="fa-solid fa-table"></i> Trade History</h2>
@@ -529,17 +121,17 @@
             </tr>
           </thead>
           <tbody id="historyBody">
-            <tr><td colspan="9" class="empty">No trades recorded yet.</td></tr>
+            <tr><td colspan="9" class="empty"><i class="fa-regular fa-folder-open"></i> No trades recorded yet. Start journaling!</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- MODAL -->
+    <!-- ===== MODAL ===== -->
     <div id="tradeModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Trade Details</h2>
+          <h2><i class="fa-solid fa-chart-simple"></i> Trade Details</h2>
           <button class="closeModal">&times;</button>
         </div>
         <div id="tradeDetails"></div>
@@ -549,24 +141,42 @@
   </main>
 </div>
 
-<!-- SCROLL TO TOP -->
+<!-- ===== SCROLL TO TOP ===== -->
 <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
-<!-- SCRIPTS -->
+<!-- ===== SCRIPTS ===== -->
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/history.js"></script>
 
-<!-- Scroll to top logic -->
+<!-- Scroll to top + Modal close logic -->
 <script>
   (function() {
+    // ── Scroll to top ──
     const btn = document.getElementById('scrollTopBtn');
-    if (!btn) return;
-    window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 250);
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    if (btn) {
+      window.addEventListener('scroll', function() {
+        btn.classList.toggle('visible', window.scrollY > 250);
+      });
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // ── Modal close ──
+    const modal = document.getElementById('tradeModal');
+    const closeBtn = document.querySelector('.closeModal');
+    if (modal && closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      });
+      window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+          modal.style.display = 'none';
+        }
+      });
+    }
   })();
 </script>
 

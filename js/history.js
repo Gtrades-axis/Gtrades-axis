@@ -1,180 +1,275 @@
 import { auth, db } from "./firebase.js";
 import {
   collection,
-  getDocs,
   query,
+  onSnapshot,
   orderBy,
   doc,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-let currentUser = null;
 let trades = [];
+let currentUser = null;
+let filteredTrades = [];
 
-onAuthStateChanged(auth, async (user) => {
+// ─── DOM REFS ──────────────────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+const body = $("historyBody");
+const totalTrades = $("historyTotalTrades");
+const winsEl = $("historyWins");
+const lossesEl = $("historyLosses");
+const winRateEl = $("historyWinRate");
+const searchInput = $("tradeSearch");
+const filterPair = $("filterPair");
+const filterSession = $("filterSession");
+const filterResult = $("filterResult");
+const exportBtn = $("exportCSV");
+const modal = $("tradeModal");
+const detailsContainer = $("tradeDetails");
+
+// ─── AUTH ──────────────────────────────────────────────────────
+onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "login.html";
     return;
   }
   currentUser = user;
-  await loadHistory();
+  loadTradesRealtime();
 });
 
-async function loadHistory() {
-  try {
-    const tradesRef = collection(db, "users", currentUser.uid, "trades");
-    const q = query(tradesRef, orderBy("tradeDate", "desc"));
-    const snapshot = await getDocs(q);
+// ─── LOAD FROM FIRESTORE ──────────────────────────────────────
+function loadTradesRealtime() {
+  const tradesRef = collection(db, "users", currentUser.uid, "trades");
+  const q = query(tradesRef, orderBy("tradeDate", "desc"));
+  onSnapshot(q, (snapshot) => {
     trades = [];
-    snapshot.forEach((doc) => {
-      trades.push({ id: doc.id, ...doc.data() });
-    });
-    renderTable();
-    updateStats();
-  } catch (error) {
-    console.error("History load error:", error);
-    alert("Error loading history: " + error.message);
-  }
-}
-
-function updateStats() {
-  const total = trades.length;
-  const wins = trades.filter((t) => t.result === "Win").length;
-  const losses = trades.filter((t) => t.result === "Loss").length;
-  const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
-  document.getElementById("historyTotalTrades").textContent = total;
-  document.getElementById("historyWins").textContent = wins;
-  document.getElementById("historyLosses").textContent = losses;
-  document.getElementById("historyWinRate").textContent = winRate + "%";
-}
-
-function renderTable() {
-  const tbody = document.getElementById("historyBody");
-  if (!tbody) return;
-  if (trades.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No trades recorded yet.</td></tr>`;
-    return;
-  }
-  let html = "";
-  trades.forEach((t) => {
-    const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
-    const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
-    html += `
-      <tr>
-        <td>${t.tradeDate || "-"}</td>
-        <td>${t.pair || "-"}</td>
-        <td>${t.direction || "-"}</td>
-        <td>${t.session || "-"}</td>
-        <td>${t.entryModel || "-"}</td>
-        <td class="result-${resultClass}">${t.result || "-"}</td>
-        <td>${parseFloat(t.actualRR || 0).toFixed(2)}</td>
-        <td class="${profitClass}">$${parseFloat(t.profit || 0).toFixed(2)}</td>
-        <td>
-          <button onclick="viewTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-eye"></i></button>
-          <button onclick="editTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteTrade('${t.id}')" class="btn-small danger"><i class="fa-solid fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
+    snapshot.forEach((doc) => trades.push({ id: doc.id, ...doc.data() }));
+    console.log(`📊 History: ${trades.length} trades loaded`);
+    populateFilters();
+    applyFilters();
+  }, (error) => {
+    console.error("Firestore error:", error);
+    alert("Error loading trades: " + error.message);
   });
-  tbody.innerHTML = html;
 }
 
-window.viewTrade = function (id) {
-  const trade = trades.find((t) => t.id === id);
-  if (!trade) return;
-  const details = Object.entries(trade)
-    .filter(([key]) => key !== "id" && key !== "userId")
-    .map(([key, val]) => `<tr><td><strong>${key}</strong></td><td>${val || "-"}</td></tr>`)
-    .join("");
-  document.getElementById("tradeDetails").innerHTML = `<table class="detail-table"><tbody>${details}</tbody></table>`;
-  document.getElementById("tradeModal").style.display = "flex";
-};
+// ─── POPULATE FILTER DROPDOWNS ──────────────────────────────
+function populateFilters() {
+  const pairs = [...new Set(trades.map(t => t.pair).filter(Boolean))];
+  filterPair.innerHTML = `<option value="">All Pairs</option>` + pairs.map(p => `<option value="${p}">${p}</option>`).join("");
+}
 
-window.editTrade = function (id) {
-  localStorage.setItem("editTradeId", id);
-  window.location.href = "journal.html";
-};
+// ─── APPLY FILTERS ────────────────────────────────────────────
+function applyFilters() {
+  const search = searchInput.value.toLowerCase().trim();
+  const pair = filterPair.value;
+  const session = filterSession.value;
+  const result = filterResult.value;
 
-window.deleteTrade = async function (id) {
-  if (!confirm("Delete this trade?")) return;
-  await deleteDoc(doc(db, "users", currentUser.uid, "trades", id));
-  trades = trades.filter((t) => t.id !== id);
-  renderTable();
-  updateStats();
-};
-
-document.querySelector(".closeModal")?.addEventListener("click", () => {
-  document.getElementById("tradeModal").style.display = "none";
-});
-window.addEventListener("click", (e) => {
-  if (e.target === document.getElementById("tradeModal")) {
-    document.getElementById("tradeModal").style.display = "none";
-  }
-});
-
-document.getElementById("tradeSearch")?.addEventListener("input", filter);
-document.getElementById("filterPair")?.addEventListener("change", filter);
-document.getElementById("filterSession")?.addEventListener("change", filter);
-document.getElementById("filterResult")?.addEventListener("change", filter);
-
-function filter() {
-  const search = document.getElementById("tradeSearch").value.toLowerCase();
-  const pair = document.getElementById("filterPair").value;
-  const session = document.getElementById("filterSession").value;
-  const result = document.getElementById("filterResult").value;
-  const filtered = trades.filter((t) => {
-    const matchSearch = t.pair?.toLowerCase().includes(search) || false;
-    const matchPair = pair ? t.pair === pair : true;
-    const matchSession = session ? t.session === session : true;
-    const matchResult = result ? t.result === result : true;
+  filteredTrades = trades.filter(t => {
+    const matchSearch = !search || (t.pair && t.pair.toLowerCase().includes(search));
+    const matchPair = !pair || t.pair === pair;
+    const matchSession = !session || t.session === session;
+    const matchResult = !result || t.result === result;
     return matchSearch && matchPair && matchSession && matchResult;
   });
-  const tbody = document.getElementById("historyBody");
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No matching trades.</td></tr>`;
+
+  renderTable();
+  updateStats();
+}
+
+// ─── RENDER TABLE ─────────────────────────────────────────────
+function renderTable() {
+  if (filteredTrades.length === 0) {
+    body.innerHTML = `<tr><td colspan="9" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
     return;
   }
-  let html = "";
-  filtered.forEach((t) => {
-    const profitClass = parseFloat(t.profit) >= 0 ? "positive" : "negative";
-    const resultClass = (t.result || "").toLowerCase().replace(" ", "-");
-    html += `
+
+  body.innerHTML = filteredTrades.map((t, index) => {
+    const resultClass = t.result === "Win" ? "result-win" : t.result === "Loss" ? "result-loss" : "result-break-even";
+    const profit = parseFloat(t.profit) || 0;
+    const profitClass = profit > 0 ? "positive" : profit < 0 ? "negative" : "";
+    const rr = parseFloat(t.actualRR || t.rr || 0);
+    const date = t.tradeDate ? new Date(t.tradeDate).toLocaleDateString() : "N/A";
+    const direction = t.direction || "—";
+    const session = t.session || "—";
+    const model = t.entryModel || "—";
+
+    return `
       <tr>
-        <td>${t.tradeDate || "-"}</td>
-        <td>${t.pair || "-"}</td>
-        <td>${t.direction || "-"}</td>
-        <td>${t.session || "-"}</td>
-        <td>${t.entryModel || "-"}</td>
-        <td class="result-${resultClass}">${t.result || "-"}</td>
-        <td>${parseFloat(t.actualRR || 0).toFixed(2)}</td>
-        <td class="${profitClass}">$${parseFloat(t.profit || 0).toFixed(2)}</td>
+        <td>${date}</td>
+        <td><strong>${t.pair || "—"}</strong></td>
+        <td>${direction}</td>
+        <td>${session}</td>
+        <td>${model}</td>
+        <td class="${resultClass}">${t.result || "—"}</td>
+        <td>${rr.toFixed(1)}</td>
+        <td class="${profitClass}">${profit > 0 ? "+" : ""}$${profit.toFixed(2)}</td>
         <td>
-          <button onclick="viewTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-eye"></i></button>
-          <button onclick="editTrade('${t.id}')" class="btn-small"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteTrade('${t.id}')" class="btn-small danger"><i class="fa-solid fa-trash"></i></button>
+          <button class="btn-small" onclick="viewTrade('${t.id}')" title="View Details">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+          <button class="btn-small danger" onclick="deleteTrade('${t.id}')" title="Delete">
+            <i class="fa-solid fa-trash"></i>
+          </button>
         </td>
       </tr>
     `;
-  });
-  tbody.innerHTML = html;
+  }).join("");
 }
 
-document.getElementById("exportCSV")?.addEventListener("click", () => {
-  if (!trades.length) return alert("No trades to export.");
-  const headers = ["Date", "Pair", "Direction", "Session", "Model", "Result", "RR", "P/L"];
-  const rows = trades.map((t) => [
-    t.tradeDate || "", t.pair || "", t.direction || "", t.session || "",
-    t.entryModel || "", t.result || "", parseFloat(t.actualRR || 0).toFixed(2),
-    parseFloat(t.profit || 0).toFixed(2),
+// ─── UPDATE STATS ─────────────────────────────────────────────
+function updateStats() {
+  const total = filteredTrades.length;
+  const wins = filteredTrades.filter(t => t.result === "Win").length;
+  const losses = filteredTrades.filter(t => t.result === "Loss").length;
+  const winRate = total > 0 ? (wins / total * 100) : 0;
+
+  totalTrades.textContent = total;
+  winsEl.textContent = wins;
+  lossesEl.textContent = losses;
+  winRateEl.textContent = winRate.toFixed(1) + "%";
+}
+
+// ─── VIEW TRADE (MODAL WITH CHART LINKS) ─────────────────────
+window.viewTrade = function(id) {
+  const trade = trades.find(t => t.id === id);
+  if (!trade) return;
+
+  const fields = [
+    { label: "Date", value: trade.tradeDate ? new Date(trade.tradeDate).toLocaleDateString() : "N/A" },
+    { label: "Time", value: trade.tradeTime || "N/A" },
+    { label: "Pair", value: trade.pair || "—" },
+    { label: "Direction", value: trade.direction || "—" },
+    { label: "Session", value: trade.session || "—" },
+    { label: "Broker", value: trade.broker || "—" },
+    { label: "Account", value: trade.account || "—" },
+    { label: "Lot Size", value: trade.lotSize || "—" },
+    { label: "Entry Price", value: trade.entry || "—" },
+    { label: "Stop Loss", value: trade.stopLoss || "—" },
+    { label: "Take Profit", value: trade.takeProfit || "—" },
+    { label: "Risk %", value: trade.risk ? trade.risk + "%" : "—" },
+    { label: "Risk:Reward", value: trade.actualRR || trade.rr || "—" },
+    { label: "Profit / Loss", value: trade.profit ? `$${parseFloat(trade.profit).toFixed(2)}` : "—" },
+    { label: "Commission", value: trade.commission ? `$${parseFloat(trade.commission).toFixed(2)}` : "—" },
+    { label: "Result", value: trade.result || "—" },
+    { label: "HTF Swing Bias", value: trade.htfSwing || "—" },
+    { label: "HTF Internal Bias", value: trade.htfInternal || "—" },
+    { label: "MTF Swing Bias", value: trade.mtfSwing || "—" },
+    { label: "MTF Internal Bias", value: trade.mtfInternal || "—" },
+    { label: "LTF Structure", value: trade.ltfStructure || "—" },
+    { label: "Liquidity Taken", value: trade.liquidity || "—" },
+    { label: "Point of Interest", value: trade.poi || "—" },
+    { label: "Entry Model", value: trade.entryModel || "—" },
+    { label: "Entry Confirmation", value: trade.entryConfirmation || "—" },
+    { label: "Trade Valid?", value: trade.tradeValid || "—" },
+    { label: "Confidence", value: trade.confidence || "—" },
+    { label: "Emotion", value: trade.emotion || "—" },
+    { label: "Discipline", value: trade.discipline || "—" },
+    { label: "Patience", value: trade.patience || "—" },
+    { label: "Trade Summary", value: trade.tradeSummary || "—" },
+    { label: "Strengths", value: trade.strengths || "—" },
+    { label: "Mistakes", value: trade.mistakes || "—" },
+    { label: "Lesson Learned", value: trade.lessonLearned || "—" },
+    { label: "Improvement Plan", value: trade.improvementPlan || "—" },
+    { label: "Notes", value: trade.notes || "—" },
+  ];
+
+  // ── Chart links (clickable) ──
+  const chartLinks = [];
+  const chartFields = [
+    { key: "beforeChart", label: "📷 Before Entry" },
+    { key: "duringChart", label: "📷 During Trade" },
+    { key: "afterChart", label: "📷 After Trade" }
+  ];
+  chartFields.forEach(({ key, label }) => {
+    const url = trade[key];
+    if (url && url.trim() !== "") {
+      chartLinks.push(`<a href="${url}" target="_blank" class="chart-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${label}</a>`);
+    } else {
+      chartLinks.push(`<span class="no-chart">${label}: No chart saved</span>`);
+    }
+  });
+
+  const chartHTML = `<div style="margin: 8px 0 4px 0; display: flex; flex-direction: column; gap: 6px;">${chartLinks.join("")}</div>`;
+
+  // ── Build detail rows ──
+  let rows = fields.map(f => `
+    <tr>
+      <td>${f.label}</td>
+      <td>${f.value}</td>
+    </tr>
+  `).join("");
+
+  // ── Render modal ──
+  detailsContainer.innerHTML = `
+    <table class="detail-table">
+      <tbody>
+        ${rows}
+        <tr>
+          <td>Chart References</td>
+          <td>${chartHTML}</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+  modal.style.display = "flex";
+  modal.classList.add("active");
+};
+
+// ─── DELETE TRADE ─────────────────────────────────────────────
+window.deleteTrade = async function(id) {
+  if (!confirm("Are you sure you want to delete this trade?")) return;
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid, "trades", id));
+    console.log(`🗑️ Trade ${id} deleted`);
+  } catch (err) {
+    console.error("Delete error:", err);
+    alert("Failed to delete trade.");
+  }
+};
+
+// ─── EXPORT CSV ──────────────────────────────────────────────
+exportBtn.addEventListener("click", function() {
+  if (filteredTrades.length === 0) {
+    alert("No trades to export.");
+    return;
+  }
+  const headers = ["Date", "Pair", "Direction", "Session", "Entry", "Stop Loss", "Take Profit", "RR", "Result", "Profit"];
+  const rows = filteredTrades.map(t => [
+    t.tradeDate || "",
+    t.pair || "",
+    t.direction || "",
+    t.session || "",
+    t.entry || "",
+    t.stopLoss || "",
+    t.takeProfit || "",
+    t.actualRR || t.rr || "",
+    t.result || "",
+    t.profit || "",
   ]);
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "trades.csv";
+  a.download = `trades_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+});
+
+// ─── EVENT LISTENERS ──────────────────────────────────────────
+searchInput.addEventListener("input", applyFilters);
+filterPair.addEventListener("change", applyFilters);
+filterSession.addEventListener("change", applyFilters);
+filterResult.addEventListener("change", applyFilters);
+
+// ─── CLOSE MODAL ON ESC ──────────────────────────────────────
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && modal.classList.contains("active")) {
+    modal.classList.remove("active");
+    modal.style.display = "none";
+  }
 });
