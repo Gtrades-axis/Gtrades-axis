@@ -470,7 +470,10 @@ input[type="time"]:focus {
 </style>
 
 </head>
-
+<!-- Scroll to Top Button -->
+<button id="scrollTopBtn" title="Go to top">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
 <body>
 
 <div class="dashboard-container">
@@ -499,6 +502,24 @@ SIDEBAR
 
 <button id="logoutBtn" class="logout-btn">
     <i class="fa-solid fa-right-from-bracket"></i> Logout
+    <script>
+  (function() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    // Show/hide button on scroll
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 300) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    });
+    // Scroll to top on click
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
 </button>
 
 </aside>
