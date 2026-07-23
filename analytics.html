@@ -13,246 +13,196 @@
 
   <style>
     /* ============================================================
-       RESET & BASE – TIGHT SPACING
+       ULTRA COMPACT – MINIMAL SPACING
     ============================================================ */
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family:'Poppins',sans-serif;
       background:#0a0e17;
       color:#e2e8f0;
-      padding:10px;
+      padding:4px 6px;
       min-height:100vh;
     }
-    .analytics-container {
-      max-width:1400px;
-      margin:0 auto;
-    }
+    .analytics-container { max-width:1400px; margin:0 auto; }
 
-    /* ============================================================
-       HEADER – TIGHT
-    ============================================================ */
+    /* ── HEADER ── */
     .page-header {
       display:flex;
       justify-content:space-between;
       align-items:center;
-      padding:6px 0 6px;
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      margin-bottom:8px;
+      padding:4px 0 4px;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      margin-bottom:4px;
     }
     .page-header h1 {
-      font-size:1.4rem;
+      font-size:1.1rem;
       font-weight:700;
       background:linear-gradient(135deg,#0f8cff,#00c853);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       display:flex;
       align-items:center;
-      gap:6px;
+      gap:4px;
     }
-    .page-header h1 i {
-      -webkit-text-fill-color:#0f8cff;
-    }
+    .page-header h1 i { -webkit-text-fill-color:#0f8cff; }
     .page-header p {
       color:#94a3b8;
-      font-size:0.75rem;
+      font-size:0.6rem;
       margin-top:0;
     }
-    .header-actions {
-      display:flex;
-      gap:6px;
-    }
+    .header-actions { display:flex; gap:4px; }
     .btn {
-      padding:5px 12px;
-      border-radius:8px;
+      padding:3px 8px;
+      border-radius:6px;
       border:none;
       background:rgba(15,140,255,0.12);
       color:#0f8cff;
       text-decoration:none;
       font-weight:500;
-      font-size:0.7rem;
+      font-size:0.6rem;
       transition:all 0.2s ease;
       display:inline-flex;
       align-items:center;
-      gap:4px;
+      gap:3px;
     }
-    .btn:hover {
-      background:rgba(15,140,255,0.25);
-      transform:translateY(-2px);
-    }
+    .btn:hover { background:rgba(15,140,255,0.25); transform:translateY(-1px); }
 
-    /* ============================================================
-       STATS CARDS – TIGHT
-    ============================================================ */
+    /* ── STATS CARDS ── */
     .stats-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
-      gap:6px;
-      margin-bottom:8px;
+      grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
+      gap:4px;
+      margin-bottom:4px;
     }
     .stat-card {
       background:rgba(255,255,255,0.04);
-      backdrop-filter:blur(8px);
-      border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px;
-      padding:10px 8px;
-      transition:all 0.2s ease;
+      border:1px solid rgba(255,255,255,0.05);
+      border-radius:6px;
+      padding:4px 4px;
       text-align:center;
+      transition:0.2s;
     }
-    .stat-card:hover {
-      background:rgba(255,255,255,0.07);
-      transform:translateY(-2px);
-      border-color:rgba(15,140,255,0.25);
-    }
+    .stat-card:hover { background:rgba(255,255,255,0.07); transform:translateY(-1px); border-color:rgba(15,140,255,0.2); }
     .stat-card h3 {
-      font-size:0.55rem;
+      font-size:0.4rem;
       font-weight:500;
       color:#94a3b8;
       text-transform:uppercase;
-      letter-spacing:0.3px;
-      margin-bottom:2px;
+      letter-spacing:0.2px;
+      margin-bottom:1px;
     }
     .stat-card h1 {
-      font-size:1.2rem;
+      font-size:0.85rem;
       font-weight:700;
       color:#f1f5f9;
-      line-height:1.2;
+      line-height:1.1;
     }
     .stat-card .positive { color:#00c853; }
     .stat-card .negative { color:#ff4d4f; }
     .stat-card .neutral { color:#ffb300; }
+    .stat-card .stat-sub {
+      font-size:0.5rem;
+      color:#64748b;
+      margin-top:0;
+    }
 
-    /* ============================================================
-       CHARTS – TIGHT
-    ============================================================ */
+    /* ── CHARTS ── */
     .chart-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:6px;
-      margin-bottom:8px;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:4px;
+      margin-bottom:4px;
     }
     .chart-card {
       background:rgba(255,255,255,0.04);
-      backdrop-filter:blur(8px);
-      border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px;
-      padding:10px 12px 12px;
-      transition:all 0.2s ease;
-    }
-    .chart-card:hover {
-      border-color:rgba(15,140,255,0.15);
+      border:1px solid rgba(255,255,255,0.05);
+      border-radius:8px;
+      padding:6px 8px 8px;
     }
     .chart-card h2 {
-      font-size:0.75rem;
+      font-size:0.6rem;
       font-weight:600;
       color:#e2e8f0;
-      margin-bottom:6px;
+      margin-bottom:4px;
       display:flex;
       align-items:center;
-      gap:6px;
+      gap:4px;
     }
     .chart-card h2 i { color:#0f8cff; }
-    .chart-wrapper {
-      position:relative;
-      height:160px;
-    }
+    .chart-wrapper { height:120px; }
 
-    /* ============================================================
-       INSIGHTS – TIGHT
-    ============================================================ */
+    /* ── INSIGHTS ── */
     .insights-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-      gap:5px;
+      grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
+      gap:3px;
       margin-top:2px;
     }
     .insight-item {
       background:rgba(255,255,255,0.04);
-      border-radius:6px;
-      padding:6px 10px;
       border:1px solid rgba(255,255,255,0.04);
+      border-radius:4px;
+      padding:3px 4px;
       text-align:center;
     }
     .insight-item h4 {
-      font-size:0.5rem;
+      font-size:0.4rem;
       font-weight:500;
       color:#94a3b8;
       text-transform:uppercase;
-      letter-spacing:0.3px;
-      margin-bottom:1px;
+      letter-spacing:0.2px;
+      margin-bottom:0;
     }
     .insight-item p {
-      font-size:0.9rem;
+      font-size:0.7rem;
       font-weight:600;
       color:#f1f5f9;
+      line-height:1.1;
     }
     .loading-card {
       text-align:center;
-      padding:16px 8px;
+      padding:10px 4px;
       color:#94a3b8;
       grid-column:1/-1;
     }
-    .loading-card i {
-      font-size:1.4rem;
-      color:#0f8cff;
-      display:block;
-      margin-bottom:4px;
-    }
+    .loading-card i { font-size:1rem; display:block; margin-bottom:2px; }
 
-    /* ============================================================
-       SCROLL TO TOP – TIGHT
-    ============================================================ */
+    /* ── SCROLL TOP ── */
     #scrollTopBtn {
-      position:fixed;
-      bottom:24px;
-      right:24px;
-      z-index:999;
-      width:42px;
-      height:42px;
-      border:none;
-      border-radius:50%;
+      position:fixed; bottom:16px; right:16px; z-index:999;
+      width:34px; height:34px; border:none; border-radius:50%;
       background:linear-gradient(135deg,#0f8cff,#00c853);
-      color:#fff;
-      font-size:1.2rem;
-      cursor:pointer;
-      box-shadow:0 4px 16px rgba(15,140,255,0.35);
+      color:#fff; font-size:0.9rem; cursor:pointer;
+      box-shadow:0 2px 12px rgba(15,140,255,0.3);
       transition:all 0.3s ease;
-      opacity:0;
-      visibility:hidden;
-      transform:translateY(16px);
+      opacity:0; visibility:hidden; transform:translateY(12px);
     }
-    #scrollTopBtn.visible {
-      opacity:1;
-      visibility:visible;
-      transform:translateY(0);
-    }
-    #scrollTopBtn:hover {
-      transform:translateY(-3px) scale(1.05);
-      box-shadow:0 8px 24px rgba(15,140,255,0.5);
-    }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+    #scrollTopBtn:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 4px 16px rgba(15,140,255,0.4); }
 
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
+    /* ── RESPONSIVE ── */
     @media (max-width:768px) {
-      body { padding:6px; }
-      .page-header { flex-direction:column; align-items:flex-start; gap:6px; padding:4px 0; }
-      .chart-grid { grid-template-columns:1fr; gap:6px; }
-      .stats-grid { grid-template-columns:repeat(2,1fr); gap:5px; }
-      .stat-card h1 { font-size:1rem; }
-      .stat-card { padding:6px 4px; }
-      .insights-grid { grid-template-columns:1fr 1fr; gap:4px; }
+      body { padding:4px; }
+      .page-header { flex-direction:column; align-items:flex-start; gap:4px; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); gap:3px; }
+      .stat-card h1 { font-size:0.75rem; }
+      .chart-grid { grid-template-columns:1fr; gap:4px; }
+      .chart-wrapper { height:100px; }
+      .insights-grid { grid-template-columns:1fr 1fr; gap:2px; }
     }
     @media (max-width:480px) {
-      body { padding:4px; }
-      .stats-grid { grid-template-columns:1fr 1fr; gap:4px; }
-      .stat-card { padding:4px 4px; border-radius:6px; }
-      .stat-card h1 { font-size:0.9rem; }
-      .stat-card h3 { font-size:0.45rem; }
-      .chart-card { padding:6px 8px 8px; }
-      .chart-wrapper { height:130px; }
-      .insights-grid { grid-template-columns:1fr 1fr; gap:3px; }
-      .insight-item { padding:4px 6px; }
-      .insight-item p { font-size:0.75rem; }
+      body { padding:3px; }
+      .stats-grid { grid-template-columns:1fr 1fr; gap:2px; }
+      .stat-card { padding:2px 2px; border-radius:4px; }
+      .stat-card h1 { font-size:0.65rem; }
+      .stat-card h3 { font-size:0.35rem; }
+      .chart-card { padding:4px 4px 6px; }
+      .chart-wrapper { height:80px; }
+      .insights-grid { grid-template-columns:1fr 1fr; gap:2px; }
+      .insight-item { padding:2px 3px; }
+      .insight-item p { font-size:0.6rem; }
+      .header-actions .btn { padding:2px 6px; font-size:0.5rem; }
+      .page-header h1 { font-size:0.9rem; }
     }
   </style>
 </head>
@@ -264,11 +214,11 @@
   <header class="page-header">
     <div>
       <h1><i class="fa-solid fa-chart-pie"></i> Trading Analytics</h1>
-      <p>Track your performance • Identify strengths • Improve consistency</p>
+      <p>Track performance • Identify strengths</p>
     </div>
     <div class="header-actions">
-      <a href="#" onclick="history.back(); return false;" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a>
-      <a href="journal.html" class="btn"><i class="fa-solid fa-plus"></i> New Trade</a>
+      <a href="#" onclick="history.back(); return false;" class="btn"><i class="fa-solid fa-arrow-left"></i></a>
+      <a href="journal.html" class="btn"><i class="fa-solid fa-plus"></i> New</a>
       <a href="history.html" class="btn"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
     </div>
   </header>
@@ -286,11 +236,11 @@
   </section>
 
   <!-- PERFORMANCE CARDS -->
-  <section class="stats-grid" style="margin-bottom:6px;">
-    <div class="stat-card"><h3>🏆 Best Pair</h3><h1 id="bestPair">-</h1><p style="font-size:0.65rem;color:#94a3b8;margin-top:0;" id="bestPairProfit">$0</p></div>
-    <div class="stat-card"><h3>📉 Worst Pair</h3><h1 id="worstPair">-</h1><p style="font-size:0.65rem;color:#94a3b8;margin-top:0;" id="worstPairProfit">$0</p></div>
-    <div class="stat-card"><h3>⏰ Best Session</h3><h1 id="bestSession">-</h1><p style="font-size:0.65rem;color:#94a3b8;margin-top:0;" id="bestSessionWinrate">0%</p></div>
-    <div class="stat-card"><h3>🎯 Best Entry Model</h3><h1 id="bestModel">-</h1><p style="font-size:0.65rem;color:#94a3b8;margin-top:0;" id="bestModelWinrate">0%</p></div>
+  <section class="stats-grid" style="margin-bottom:4px;">
+    <div class="stat-card"><h3>🏆 Best Pair</h3><h1 id="bestPair">-</h1><div class="stat-sub" id="bestPairProfit">$0</div></div>
+    <div class="stat-card"><h3>📉 Worst Pair</h3><h1 id="worstPair">-</h1><div class="stat-sub" id="worstPairProfit">$0</div></div>
+    <div class="stat-card"><h3>⏰ Best Session</h3><h1 id="bestSession">-</h1><div class="stat-sub" id="bestSessionWinrate">0%</div></div>
+    <div class="stat-card"><h3>🎯 Best Model</h3><h1 id="bestModel">-</h1><div class="stat-sub" id="bestModelWinrate">0%</div></div>
   </section>
 
   <!-- CHARTS -->
@@ -307,7 +257,7 @@
   <section class="chart-card" style="margin-top:2px;">
     <h2><i class="fa-solid fa-lightbulb"></i> Key Insights</h2>
     <div class="insights-grid" id="analyticsInsights">
-      <div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i> Loading insights...</div>
+      <div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
     </div>
   </section>
 
@@ -320,13 +270,12 @@
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/analytics.js"></script>
 
-<!-- Scroll to top logic -->
 <script>
   (function() {
     const btn = document.getElementById('scrollTopBtn');
     if (!btn) return;
     window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 250);
+      btn.classList.toggle('visible', window.scrollY > 200);
     });
     btn.addEventListener('click', function() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
