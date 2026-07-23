@@ -15,19 +15,25 @@ let currentUser = null;
 let trades = [];
 let editingId = null;
 
-// ─── DOM ELEMENTS ──────────────────────────────────────────────
-const form = document.getElementById("tradeForm");
-const saveBtn = document.getElementById("saveTrade");
-const totalTrades = document.getElementById("totalTrades");
-const winRate = document.getElementById("winRate");
-const avgRR = document.getElementById("averageRR");
-const netProfit = document.getElementById("netProfit");
-const wins = document.getElementById("wins");
-const losses = document.getElementById("losses");
-const consistency = document.getElementById("consistency");
-const streak = document.getElementById("streak");
-const equityCanvas = document.getElementById("equityChart");
-const monthlyCanvas = document.getElementById("monthlyChart");
+// ─── SAFE DOM REFERENCES ──────────────────────────────────────
+function getEl(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`⚠️ Element #${id} not found`);
+  return el;
+}
+
+const form = getEl("tradeForm");
+const saveBtn = getEl("saveTrade");
+const totalTrades = getEl("totalTrades");
+const winRate = getEl("winRate");
+const avgRR = getEl("averageRR");
+const netProfit = getEl("netProfit");
+const wins = getEl("wins");
+const losses = getEl("losses");
+const consistency = getEl("consistency");
+const streak = getEl("streak");
+const equityCanvas = getEl("equityChart");
+const monthlyCanvas = getEl("monthlyChart");
 
 // ─── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -36,11 +42,10 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   currentUser = user;
-  console.log("✅ User authenticated:", user.uid);
   await loadTrades();
 });
 
-// ─── LOAD TRADES FROM FIRESTORE (subcollection) ──────────────
+// ─── LOAD TRADES ──────────────────────────────────────────────
 async function loadTrades() {
   if (!currentUser) return;
   try {
@@ -51,7 +56,6 @@ async function loadTrades() {
     snapshot.forEach((doc) => {
       trades.push({ id: doc.id, ...doc.data() });
     });
-    console.log(`📊 Loaded ${trades.length} trades`);
     updateStats();
     updateCharts();
   } catch (error) {
@@ -67,31 +71,30 @@ async function saveTrade(data) {
 
   try {
     if (editingId) {
-      // Update existing trade
       const docRef = doc(db, "users", currentUser.uid, "trades", editingId);
       await updateDoc(docRef, data);
       const index = trades.findIndex((t) => t.id === editingId);
       if (index !== -1) trades[index] = { ...trades[index], ...data };
       editingId = null;
-      saveBtn.textContent = "Save Trade";
-      alert("✅ Trade updated successfully!");
+      if (saveBtn) saveBtn.textContent = "Save Trade";
+      alert("✅ Trade updated!");
     } else {
-      // Add new trade
       const ref = await addDoc(tradesRef, data);
       trades.unshift({ id: ref.id, ...data });
-      alert("✅ Trade saved successfully!");
+      alert("✅ Trade saved!");
     }
     updateStats();
     updateCharts();
-    form.reset();
-    document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
+    if (form) form.reset();
+    const dateInput = getEl("tradeDate");
+    if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
   } catch (error) {
     console.error("Save error:", error);
     alert("❌ Error saving trade: " + error.message);
   }
 }
 
-// ─── DELETE TRADE ─────────────────────────────────────────────
+// ─── DELETE ────────────────────────────────────────────────────
 async function deleteTrade(id) {
   if (!confirm("Delete this trade?")) return;
   try {
@@ -105,17 +108,18 @@ async function deleteTrade(id) {
   }
 }
 
-// ─── EDIT TRADE (populate form) ──────────────────────────────
+// ─── EDIT ──────────────────────────────────────────────────────
 function editTrade(id) {
   const trade = trades.find((t) => t.id === id);
   if (!trade) return;
   editingId = id;
   Object.keys(trade).forEach((key) => {
-    const el = document.getElementById(key);
+    const el = getEl(key);
     if (el) el.value = trade[key] ?? "";
   });
-  document.getElementById("tradeDate").value = trade.tradeDate || "";
-  saveBtn.textContent = "Update Trade";
+  const dateEl = getEl("tradeDate");
+  if (dateEl) dateEl.value = trade.tradeDate || "";
+  if (saveBtn) saveBtn.textContent = "Update Trade";
   window.scrollTo(0, 0);
 }
 
@@ -131,15 +135,18 @@ function updateStats() {
   const avgRRVal = total ? totalRR / total : 0;
   const consistencyVal = total ? ((winsCount + beCount) / total) * 100 : 0;
   const streakVal = calculateStreak();
-  totalTrades.textContent = total;
-  winRate.textContent = winRateVal.toFixed(1) + "%";
-  avgRR.textContent = avgRRVal.toFixed(2);
-  netProfit.textContent = "$" + profit.toFixed(2);
-  netProfit.className = profit >= 0 ? "value-positive" : "value-negative";
-  wins.textContent = winsCount;
-  losses.textContent = lossesCount;
-  consistency.textContent = consistencyVal.toFixed(1) + "%";
-  streak.textContent = streakVal;
+
+  if (totalTrades) totalTrades.textContent = total;
+  if (winRate) winRate.textContent = winRateVal.toFixed(1) + "%";
+  if (avgRR) avgRR.textContent = avgRRVal.toFixed(2);
+  if (netProfit) {
+    netProfit.textContent = "$" + profit.toFixed(2);
+    netProfit.className = profit >= 0 ? "value-positive" : "value-negative";
+  }
+  if (wins) wins.textContent = winsCount;
+  if (losses) losses.textContent = lossesCount;
+  if (consistency) consistency.textContent = consistencyVal.toFixed(1) + "%";
+  if (streak) streak.textContent = streakVal;
 }
 
 function calculateStreak() {
@@ -231,62 +238,68 @@ function updateCharts() {
 }
 
 // ─── FORM SUBMIT ──────────────────────────────────────────────
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const data = {
-    tradeDate: document.getElementById("tradeDate").value,
-    tradeTime: document.getElementById("tradeTime").value,
-    pair: document.getElementById("pair").value,
-    direction: document.getElementById("direction").value,
-    session: document.getElementById("session").value,
-    broker: document.getElementById("broker").value,
-    account: document.getElementById("account").value,
-    lotSize: parseFloat(document.getElementById("lotSize").value) || 0,
-    htfSwing: document.getElementById("htfSwing").value,
-    htfInternal: document.getElementById("htfInternal").value,
-    mtfSwing: document.getElementById("mtfSwing").value,
-    mtfInternal: document.getElementById("mtfInternal").value,
-    ltfStructure: document.getElementById("ltfStructure").value,
-    liquidity: document.getElementById("liquidity").value,
-    poi: document.getElementById("poi").value,
-    entryModel: document.getElementById("entryModel").value,
-    entryConfirmation: document.getElementById("entryConfirmation").value,
-    tradeValid: document.getElementById("tradeValid").value,
-    entryPrice: parseFloat(document.getElementById("entryPrice").value) || 0,
-    stopLoss: parseFloat(document.getElementById("stopLoss").value) || 0,
-    takeProfit: parseFloat(document.getElementById("takeProfit").value) || 0,
-    risk: parseFloat(document.getElementById("risk").value) || 0,
-    expectedRR: parseFloat(document.getElementById("expectedRR").value) || 0,
-    actualRR: parseFloat(document.getElementById("actualRR").value) || 0,
-    commission: parseFloat(document.getElementById("commission").value) || 0,
-    profit: parseFloat(document.getElementById("profit").value) || 0,
-    result: document.getElementById("result").value,
-    breakEven: document.getElementById("breakEven").value,
-    partials: document.getElementById("partials").value,
-    trailing: document.getElementById("trailing").value,
-    executionQuality: document.getElementById("executionQuality").value,
-    followedPlan: document.getElementById("followedPlan").value,
-    confidence: document.getElementById("confidence").value,
-    emotion: document.getElementById("emotion").value,
-    discipline: document.getElementById("discipline").value,
-    patience: document.getElementById("patience").value,
-    tradeSummary: document.getElementById("tradeSummary").value,
-    strengths: document.getElementById("strengths").value,
-    mistakes: document.getElementById("mistakes").value,
-    lessonLearned: document.getElementById("lessonLearned").value,
-    improvementPlan: document.getElementById("improvementPlan").value,
-    beforeChart: document.getElementById("beforeChart").value,
-    duringChart: document.getElementById("duringChart").value,
-    afterChart: document.getElementById("afterChart").value,
-    notes: document.getElementById("notes").value,
-  };
-  await saveTrade(data);
-});
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = {
+      tradeDate: getEl("tradeDate")?.value || "",
+      tradeTime: getEl("tradeTime")?.value || "",
+      pair: getEl("pair")?.value || "",
+      direction: getEl("direction")?.value || "",
+      session: getEl("session")?.value || "",
+      broker: getEl("broker")?.value || "",
+      account: getEl("account")?.value || "",
+      lotSize: parseFloat(getEl("lotSize")?.value) || 0,
+      htfSwing: getEl("htfSwing")?.value || "",
+      htfInternal: getEl("htfInternal")?.value || "",
+      mtfSwing: getEl("mtfSwing")?.value || "",
+      mtfInternal: getEl("mtfInternal")?.value || "",
+      ltfStructure: getEl("ltfStructure")?.value || "",
+      liquidity: getEl("liquidity")?.value || "",
+      poi: getEl("poi")?.value || "",
+      entryModel: getEl("entryModel")?.value || "",
+      entryConfirmation: getEl("entryConfirmation")?.value || "",
+      tradeValid: getEl("tradeValid")?.value || "",
+      entryPrice: parseFloat(getEl("entryPrice")?.value) || 0,
+      stopLoss: parseFloat(getEl("stopLoss")?.value) || 0,
+      takeProfit: parseFloat(getEl("takeProfit")?.value) || 0,
+      risk: parseFloat(getEl("risk")?.value) || 0,
+      expectedRR: parseFloat(getEl("expectedRR")?.value) || 0,
+      actualRR: parseFloat(getEl("actualRR")?.value) || 0,
+      commission: parseFloat(getEl("commission")?.value) || 0,
+      profit: parseFloat(getEl("profit")?.value) || 0,
+      result: getEl("result")?.value || "",
+      breakEven: getEl("breakEven")?.value || "",
+      partials: getEl("partials")?.value || "",
+      trailing: getEl("trailing")?.value || "",
+      executionQuality: getEl("executionQuality")?.value || "",
+      followedPlan: getEl("followedPlan")?.value || "",
+      confidence: getEl("confidence")?.value || "",
+      emotion: getEl("emotion")?.value || "",
+      discipline: getEl("discipline")?.value || "",
+      patience: getEl("patience")?.value || "",
+      tradeSummary: getEl("tradeSummary")?.value || "",
+      strengths: getEl("strengths")?.value || "",
+      mistakes: getEl("mistakes")?.value || "",
+      lessonLearned: getEl("lessonLearned")?.value || "",
+      improvementPlan: getEl("improvementPlan")?.value || "",
+      beforeChart: getEl("beforeChart")?.value || "",
+      duringChart: getEl("duringChart")?.value || "",
+      afterChart: getEl("afterChart")?.value || "",
+      notes: getEl("notes")?.value || "",
+    };
+    await saveTrade(data);
+  });
+}
 
 // ─── CANCEL EDIT ──────────────────────────────────────────────
-document.getElementById("cancelEdit")?.addEventListener("click", () => {
-  editingId = null;
-  saveBtn.textContent = "Save Trade";
-  form.reset();
-  document.getElementById("tradeDate").value = new Date().toISOString().split("T")[0];
-});
+const cancelBtn = getEl("cancelEdit");
+if (cancelBtn) {
+  cancelBtn.addEventListener("click", () => {
+    editingId = null;
+    if (saveBtn) saveBtn.textContent = "Save Trade";
+    if (form) form.reset();
+    const dateInput = getEl("tradeDate");
+    if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+  });
+}
