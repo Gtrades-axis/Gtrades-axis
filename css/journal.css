@@ -3344,3 +3344,55 @@ GTRADES AXIS™
 Trade With Structure.
 Execute With Precision.
 ====================================================== */
+/* EMERGENCY LAYOUT FIX */
+
+.dashboard-container{
+    display:flex;
+    width:100%;
+    overflow:hidden;
+}
+
+
+.sidebar{
+    flex:0 0 260px;
+    width:260px;
+    height:100vh;
+}
+
+
+.main-content{
+    flex:1;
+    width:auto;
+    min-width:0;
+    overflow:hidden;
+}
+
+
+.sidebar-nav a,
+.nav-item{
+    display:flex !important;
+    width:100%;
+    align-items:center;
+    gap:12px;
+}
+
+
+.sidebar-nav{
+    display:flex;
+    flex-direction:column;
+}
+
+
+.nav-item{
+    white-space:nowrap;
+}
+
+
+.stats-grid{
+    width:100%;
+}
+
+
+.chart-grid{
+    width:100%;
+}
