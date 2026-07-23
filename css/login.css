@@ -11,74 +11,107 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Clean dark gradient – no messy orbs */
-    background: linear-gradient(145deg, #070d18 0%, #0b1a2e 45%, #0f1f30 100%);
+    background: radial-gradient(ellipse at 30% 40%, #0b1a2e, #050b14);
     padding: 1.5rem;
     position: relative;
 }
 
-/* Subtle glow behind the card */
+/* Subtle glow behind card */
 body::before {
     content: '';
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(15, 140, 255, 0.06), transparent 70%);
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(15, 140, 255, 0.07), transparent 70%);
     border-radius: 50%;
     pointer-events: none;
     z-index: 0;
 }
 
-/* ─────────── CONTAINER & CARD ─────────── */
+/* ─────────── CONTAINER ─────────── */
 .login-container {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 460px;
+    max-width: 440px;
 }
 
+/* ─────────── GLASS CARD ─────────── */
 .login-card {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 40px;
-    padding: 3rem 2.4rem 2.6rem;
+    border-radius: 44px;
+    padding: 2.8rem 2.4rem 2.6rem;
     box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.7),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 40px 100px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.4s ease;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .login-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    transform: translateY(-4px);
+    box-shadow: 0 50px 120px rgba(0, 0, 0, 0.7);
 }
 
-/* ─────────── LOGO – RESPONSIVE ─────────── */
+/* ─────────── LOGO ─────────── */
+.logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.4rem;
+    position: relative;
+}
+
+/* Subtle glow ring behind logo */
+.logo-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(15, 140, 255, 0.08), transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
 .login-logo {
-    width: clamp(120px, 35vw, 180px);   /* scales from phone to desktop */
+    position: relative;
+    z-index: 1;
+    width: clamp(120px, 32vw, 170px);
     height: auto;
     max-width: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 8px 24px rgba(15, 140, 255, 0.2));
+    filter: drop-shadow(0 10px 30px rgba(15, 140, 255, 0.2));
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: block;
-    margin: 0 auto 1.6rem;
     border-radius: 16px;
 }
 
 .login-logo:hover {
-    transform: scale(1.03);
+    transform: scale(1.04);
 }
 
 /* ─────────── TYPOGRAPHY ─────────── */
 .login-card h1 {
-    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-size: clamp(1.5rem, 4.5vw, 2.1rem);
     font-weight: 700;
     color: #fff;
     letter-spacing: -0.5px;
@@ -92,11 +125,11 @@ body::before {
     background-clip: text;
 }
 
-.login-card p {
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 0.9rem;
+.login-card .subtitle {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.85rem;
     font-weight: 400;
-    margin-bottom: 2rem;
+    margin-bottom: 1.8rem;
     letter-spacing: 0.2px;
 }
 
@@ -111,14 +144,14 @@ body::before {
     text-align: left;
 }
 .msg.error {
-    background: rgba(255, 77, 79, 0.1);
-    border: 1px solid rgba(255, 77, 79, 0.15);
+    background: rgba(255, 77, 79, 0.08);
+    border: 1px solid rgba(255, 77, 79, 0.12);
     color: #ff6b6b;
     display: block;
 }
 .msg.success {
-    background: rgba(0, 200, 83, 0.1);
-    border: 1px solid rgba(0, 200, 83, 0.15);
+    background: rgba(0, 200, 83, 0.08);
+    border: 1px solid rgba(0, 200, 83, 0.12);
     color: #69db7c;
     display: block;
 }
@@ -127,7 +160,7 @@ body::before {
 form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.9rem;
 }
 
 .input-group {
@@ -147,7 +180,7 @@ form {
 }
 
 .input-group i {
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.12);
     font-size: 1rem;
     width: 22px;
     text-align: center;
@@ -161,7 +194,7 @@ form {
 
 .input-group input {
     width: 100%;
-    padding: 0.9rem 0.8rem;
+    padding: 0.85rem 0.8rem;
     background: transparent;
     border: none;
     outline: none;
@@ -172,7 +205,7 @@ form {
 }
 
 .input-group input::placeholder {
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.12);
     font-weight: 300;
 }
 
@@ -182,13 +215,28 @@ form {
     border-radius: 16px;
 }
 
+/* Password toggle */
+.toggle-pw {
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.12);
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+    background: transparent;
+    border: none;
+    padding: 0 0 0 0.4rem;
+    flex-shrink: 0;
+}
+.toggle-pw:hover {
+    color: rgba(255, 255, 255, 0.35);
+}
+
 /* ─────────── BUTTON ─────────── */
 .login-btn {
-    margin-top: 0.4rem;
+    margin-top: 0.2rem;
     padding: 0.9rem 1.8rem;
     border: none;
     border-radius: 16px;
-    background: linear-gradient(135deg, #0f8cff, #0066dd);
+    background: linear-gradient(135deg, #0f8cff, #0055cc);
     color: #fff;
     font-family: 'Poppins', sans-serif;
     font-size: 1rem;
@@ -199,9 +247,10 @@ form {
     justify-content: center;
     gap: 10px;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 4px 20px rgba(15, 140, 255, 0.2);
+    box-shadow: 0 4px 24px rgba(15, 140, 255, 0.2);
     position: relative;
     overflow: hidden;
+    letter-spacing: 0.3px;
 }
 
 .login-btn::before {
@@ -216,7 +265,7 @@ form {
 
 .login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(15, 140, 255, 0.3);
+    box-shadow: 0 8px 36px rgba(15, 140, 255, 0.3);
 }
 .login-btn:hover::before {
     opacity: 1;
@@ -234,7 +283,7 @@ form {
     font-size: 1.1rem;
 }
 
-/* ─────────── DIVIDER (optional) ─────────── */
+/* ─────────── DIVIDER ─────────── */
 .divider {
     display: flex;
     align-items: center;
@@ -244,10 +293,10 @@ form {
 .divider-line {
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
 }
 .divider-text {
-    color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.06);
     font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -291,7 +340,7 @@ form {
 .back-home {
     display: inline-block;
     margin-top: 1.2rem;
-    color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.08);
     text-decoration: none;
     font-size: 0.8rem;
     font-weight: 400;
@@ -299,7 +348,7 @@ form {
 }
 
 .back-home:hover {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.25);
     transform: translateX(-3px);
 }
 
@@ -315,15 +364,18 @@ form {
         border-radius: 32px;
     }
     .login-logo {
-        width: clamp(100px, 40vw, 140px);
-        margin-bottom: 1.2rem;
+        width: clamp(100px, 38vw, 140px);
+    }
+    .logo-wrapper::after {
+        width: 130px;
+        height: 130px;
     }
     .login-card h1 {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
     }
     .input-group input {
         font-size: 0.85rem;
-        padding: 0.8rem 0.6rem;
+        padding: 0.75rem 0.6rem;
     }
     .login-btn {
         font-size: 0.9rem;
@@ -340,14 +392,16 @@ form {
         border-radius: 28px;
     }
     .login-logo {
-        width: clamp(80px, 35vw, 110px);
-        margin-bottom: 1rem;
+        width: clamp(80px, 32vw, 110px);
+    }
+    .logo-wrapper::after {
+        width: 100px;
+        height: 100px;
     }
     .login-card h1 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
-    .login-card p {
-        font-size: 0.8rem;
-        margin-bottom: 1.4rem;
+    .login-card .subtitle {
+        font-size: 0.75rem;
     }
 }
