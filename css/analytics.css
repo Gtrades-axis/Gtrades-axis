@@ -1,1449 +1,549 @@
-/* ==========================================================
-   GTRADES-AXIS™ ANALYTICS
-   DARK DASHBOARD
-   PART 1
-========================================================== */
-
-:root{
-
---bg:#0b1220;
---bg2:#111827;
---card:#182234;
---card2:#1d2a3d;
-
---primary:#3b82f6;
---primary2:#60a5fa;
-
---green:#22c55e;
---red:#ef4444;
---yellow:#f59e0b;
---purple:#8b5cf6;
-
---text:#f8fafc;
---muted:#94a3b8;
-
---border:rgba(255,255,255,.08);
-
---radius:18px;
-
---shadow:
-0 20px 45px rgba(0,0,0,.45);
-
-}
-
-*{
-
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:"Poppins",sans-serif;
-
-}
-
-body{
-
-background:
-
-linear-gradient(
-180deg,
-#08111f 0%,
-#0d1728 40%,
-#111c2f 100%);
-
-color:var(--text);
-
-min-height:100vh;
-
-}
-
-/* ==========================================================
-CONTAINER
-========================================================== */
-
-.dashboard{
-
-max-width:1650px;
-
-margin:auto;
-
-padding:35px;
-
-}
-
-/* ==========================================================
-HEADER
-========================================================== */
-
-.topbar{
-
-position:sticky;
-
-top:18px;
-
-z-index:999;
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-gap:30px;
-
-margin-bottom:35px;
-
-padding:20px 28px;
-
-border-radius:22px;
-
-background:
-
-rgba(24,34,52,.88);
-
-backdrop-filter:blur(18px);
-
-border:1px solid rgba(255,255,255,.06);
-
-box-shadow:var(--shadow);
-
-}
-
-.logo-side{
-
-display:flex;
-
-align-items:center;
-
-gap:18px;
-
-}
-
-.logo-box{
-
-width:65px;
-
-height:65px;
-
-border-radius:18px;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:26px;
-
-background:
-
-linear-gradient(
-135deg,
-#2563eb,
-#60a5fa);
-
-color:#fff;
-
-box-shadow:
-
-0 0 35px rgba(59,130,246,.45);
-
-}
-
-.logo-side h1{
-
-font-size:2rem;
-
-font-weight:700;
-
-color:#fff;
-
-margin-bottom:3px;
-
-}
-
-.logo-side p{
-
-color:var(--muted);
-
-}
-
-/* ==========================================================
-BUTTONS
-========================================================== */
-
-.top-actions{
-
-display:flex;
-
-gap:14px;
-
-}
-
-.top-btn{
-
-padding:13px 24px;
-
-border-radius:12px;
-
-text-decoration:none;
-
-background:#23324a;
-
-border:1px solid rgba(255,255,255,.06);
-
-color:#fff;
-
-font-weight:600;
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
-transition:.3s;
-
-}
-
-.top-btn:hover{
-
-background:#2d4365;
-
-transform:translateY(-3px);
-
-}
-
-.top-btn.primary{
-
-background:
-
-linear-gradient(
-135deg,
-#2563eb,
-#60a5fa);
-
-border:none;
-
-}
-
-/* ==========================================================
-PERFORMANCE BAR
-========================================================== */
-
-.performance-banner{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-padding:28px 35px;
-
-margin-bottom:35px;
-
-border-radius:22px;
-
-background:
-
-linear-gradient(
-135deg,
-#1d4ed8,
-#2563eb,
-#3b82f6);
-
-box-shadow:
-
-0 15px 45px rgba(37,99,235,.35);
-
-}
-
-.performance-banner h2{
-
-font-size:1.5rem;
-
-margin-bottom:8px;
-
-}
-
-.performance-banner p{
-
-opacity:.9;
-
-}
-
-.live-sync{
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-padding:12px 22px;
-
-background:rgba(255,255,255,.15);
-
-border-radius:50px;
-
-font-weight:600;
-
-backdrop-filter:blur(10px);
-
-}
-
-.live-sync i{
-
-font-size:12px;
-
-color:#4ade80;
-
-animation:pulse 1.5s infinite;
-
-}
-
-@keyframes pulse{
-
-0%{opacity:.3;}
-
-50%{opacity:1;}
-
-100%{opacity:.3;}
-
-}
-
-/* ==========================================================
-CARDS
-========================================================== */
-
-.cards-grid{
-
-display:grid;
-
-grid-template-columns:
-
-repeat(auto-fit,minmax(260px,1fr));
-
-gap:24px;
-
-margin-bottom:35px;
-
-}
-
-.metric-card{
-
-background:var(--card);
-
-border-radius:20px;
-
-padding:28px;
-
-border:1px solid var(--border);
-
-box-shadow:var(--shadow);
-
-transition:.3s;
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.metric-card::before{
-
-content:"";
-
-position:absolute;
-
-top:0;
-left:0;
-
-width:100%;
-height:4px;
-
-background:
-
-linear-gradient(
-90deg,
-#2563eb,
-#60a5fa);
-
-}
-
-.metric-card:hover{
-
-transform:translateY(-8px);
-
-background:#202f46;
-
-}
-
-.metric-icon{
-
-width:58px;
-
-height:58px;
-
-border-radius:16px;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:22px;
-
-margin-bottom:18px;
-
-color:#fff;
-
-}
-
-.metric-icon.blue{
-
-background:#2563eb;
-
-}
-
-.metric-icon.green{
-
-background:#16a34a;
-
-}
-
-.metric-icon.red{
-
-background:#dc2626;
-
-}
-
-.metric-icon.orange{
-
-background:#ea580c;
-
-}
-
-.metric-icon.yellow{
-
-background:#ca8a04;
-
-}
-
-.metric-icon.purple{
-
-background:#7c3aed;
-
-}
-
-.metric-card p{
-
-color:var(--muted);
-
-margin-bottom:10px;
-
-font-size:.92rem;
-
-}
-
-.metric-card h2{
-
-font-size:2rem;
-
-font-weight:700;
-
-color:#fff;
-
-}
-/* ==========================================================
-   GTRADES-AXIS™ ANALYTICS
-   PART 2
-   PERFORMANCE + CHARTS
-========================================================== */
-
-/* ==========================================================
-PERFORMANCE GRID
-========================================================== */
-
-.performance-grid{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:24px;
-
-margin-bottom:35px;
-
-}
-
-.performance-card{
-
-background:var(--card);
-
-border:1px solid var(--border);
-
-border-radius:20px;
-
-padding:24px;
-
-box-shadow:var(--shadow);
-
-transition:.35s;
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.performance-card::before{
-
-content:"";
-
-position:absolute;
-
-left:0;
-
-top:0;
-
-width:100%;
-
-height:4px;
-
-background:linear-gradient(
-90deg,
-#2563eb,
-#60a5fa);
-
-}
-
-.performance-card:hover{
-
-transform:translateY(-8px);
-
-background:#202f46;
-
-}
-
-.performance-left{
-
-display:flex;
-
-align-items:center;
-
-gap:18px;
-
-}
-
-.performance-icon{
-
-width:62px;
-
-height:62px;
-
-border-radius:18px;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:24px;
-
-color:#fff;
-
-flex-shrink:0;
-
-}
-
-.performance-icon.blue{
-
-background:#2563eb;
-
-}
-
-.performance-icon.red{
-
-background:#dc2626;
-
-}
-
-.performance-icon.green{
-
-background:#16a34a;
-
-}
-
-.performance-icon.yellow{
-
-background:#ca8a04;
-
-}
-
-.performance-left span{
-
-display:block;
-
-font-size:.82rem;
-
-color:var(--muted);
-
-margin-bottom:6px;
-
-}
-
-.performance-left h2{
-
-font-size:1.5rem;
-
-color:#fff;
-
-margin-bottom:6px;
-
-}
-
-.performance-left h4{
-
-font-size:.92rem;
-
-font-weight:500;
-
-color:var(--muted);
-
-}
-
-.performance-left strong{
-
-color:#60a5fa;
-
-}
-
-/* ==========================================================
-SECTION TITLE
-========================================================== */
-
-.section-title{
-
-margin:45px 0 25px;
-
-}
-
-.section-title h2{
-
-font-size:1.6rem;
-
-font-weight:700;
-
-color:#fff;
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-}
-
-.section-title h2 i{
-
-color:#3b82f6;
-
-}
-
-.section-title p{
-
-margin-top:8px;
-
-font-size:.92rem;
-
-color:var(--muted);
-
-}
-
-/* ==========================================================
-CHART LAYOUT
-========================================================== */
-
-.charts-section{
-
-display:grid;
-
-grid-template-columns:repeat(2,1fr);
-
-gap:25px;
-
-align-items:start;
-
-margin-bottom:45px;
-
-}
-
-/* ==========================================================
-LARGE EQUITY CARD
-========================================================== */
-
-.chart-large{
-
-grid-column:1 / -1;
-
-min-height:520px;
-
-}
-/* ==========================================================
-SMALL CHART GRID
-========================================================== */
-
-/* ===============================
-CHART GRID
-=============================== */
-
-.small-chart-grid{
-
-display:grid;
-
-grid-template-columns:repeat(2,1fr);
-
-gap:25px;
-
-grid-column:1 / -1;
-
-}
-
-.chart-card{
-
-width:100%;
-
-}
-
-/* ==========================================================
-CHART CARD
-========================================================== */
-
-.chart-card{
-
-background:var(--card);
-
-border-radius:22px;
-
-border:1px solid var(--border);
-
-box-shadow:var(--shadow);
-
-padding:28px;
-
-transition:.35s;
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.chart-card::before{
-
-content:"";
-
-position:absolute;
-
-left:0;
-
-top:0;
-
-width:100%;
-
-height:4px;
-
-background:linear-gradient(
-90deg,
-#2563eb,
-#60a5fa);
-
-}
-
-.chart-card:hover{
-
-background:#202f46;
-
-transform:translateY(-8px);
-
-}
-
-.chart-head{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-margin-bottom:22px;
-
-}
-
-.chart-info{
-
-display:flex;
-
-align-items:center;
-
-gap:16px;
-
-}
-
-.chart-icon{
-
-width:56px;
-
-height:56px;
-
-border-radius:16px;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:22px;
-
-color:#fff;
-
-flex-shrink:0;
-
-}
-
-.chart-icon.blue{
-
-background:#2563eb;
-
-}
-
-.chart-icon.green{
-
-background:#16a34a;
-
-}
-
-.chart-icon.purple{
-
-background:#7c3aed;
-
-}
-
-.chart-icon.yellow{
-
-background:#ca8a04;
-
-}
-
-.chart-info h2{
-
-font-size:1.2rem;
-
-font-weight:700;
-
-color:#fff;
-
-margin-bottom:4px;
-
-}
-
-.chart-info p{
-
-font-size:.88rem;
-
-color:var(--muted);
-
-}
-
-/* ==========================================================
-CHART BODY
-========================================================== */
-
-.chart-body{
-
-height:420px;
-
-position:relative;
-
-}
-
-.chart-body.small{
-
-height:300px;
-
-}
-
-.chart-body.ai-box{
-
-height:auto;
-
-min-height:300px;
-
-display:flex;
-
-align-items:flex-start;
-
-}
-
-.chart-body canvas{
-
-width:100%!important;
-
-height:100%!important;
-
-}
-
-/* ==========================================================
-CHART DARK BACKGROUND
-========================================================== */
-
-.chart-body{
-
-background:#111b2b;
-
-border-radius:16px;
-
-padding:15px;
-
-}
-
-/* ==========================================================
-RESPONSIVE
-========================================================== */
-
-@media(max-width:1400px){
-
-.performance-grid{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-}
-
-@media(max-width:1000px){
-
-.small-chart-grid{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-}
-
-@media(max-width:700px){
-
-.small-chart-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.performance-grid{
-
-grid-template-columns:1fr;
-
-}
-
-.chart-large{
-
-min-height:420px;
-
-}
-
-.chart-body{
-
-height:320px;
-
-}
-
-.chart-body.small{
-
-height:260px;
-
-}
-
-}
-/* ==========================================================
-   GTRADES-AXIS™ ANALYTICS
-   PART 3
-   AI SECTION • FOOTER • SCROLL BUTTON • FINAL POLISH
-========================================================== */
-
-/* ==========================================================
-AI SECTION
-========================================================== */
-
-.ai-section{
-
-margin-top:35px;
-
-margin-bottom:45px;
-
-}
-
-.ai-card{
-
-background:var(--card);
-
-border:1px solid var(--border);
-
-border-radius:22px;
-
-padding:30px;
-
-box-shadow:var(--shadow);
-
-position:relative;
-
-overflow:hidden;
-
-}
-
-.ai-card::before{
-
-content:"";
-
-position:absolute;
-
-top:0;
-
-left:0;
-
-width:100%;
-
-height:4px;
-
-background:linear-gradient(
-90deg,
-#2563eb,
-#60a5fa);
-
-}
-
-/* ==========================================================
-INSIGHTS
-========================================================== */
-
-#analyticsInsights{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(320px,1fr));
-
-gap:20px;
-
-margin-top:10px;
-
-}
-
-.insight-card{
-
-background:#111b2b;
-
-border:1px solid rgba(255,255,255,.06);
-
-border-left:5px solid #3b82f6;
-
-border-radius:16px;
-
-padding:22px;
-
-transition:.3s;
-
-}
-
-.insight-card:hover{
-
-transform:translateY(-5px);
-
-background:#162338;
-
-}
-
-.insight-card h3{
-
-font-size:1rem;
-
-margin-bottom:12px;
-
-font-weight:700;
-
-color:#fff;
-
-}
-
-.insight-card p{
-
-font-size:.9rem;
-
-line-height:1.7;
-
-color:#b7c3d6;
-
-}
-
-.insight-card.success{
-
-border-left-color:#22c55e;
-
-}
-
-.insight-card.warning{
-
-border-left-color:#f59e0b;
-
-}
-
-.insight-card.danger{
-
-border-left-color:#ef4444;
-
-}
-
-/* ==========================================================
-LOADING
-========================================================== */
-
-.loading-card{
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-gap:15px;
-
-padding:70px 30px;
-
-color:#94a3b8;
-
-font-size:1rem;
-
-}
-
-.loading-card i{
-
-font-size:26px;
-
-color:#3b82f6;
-
-}
-
-/* ==========================================================
-FOOTER
-========================================================== */
-
-.analytics-footer{
-
-margin-top:50px;
-
-padding:25px 30px;
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-flex-wrap:wrap;
-
-gap:20px;
-
-background:var(--card);
-
-border-radius:22px;
-
-border:1px solid var(--border);
-
-box-shadow:var(--shadow);
-
-}
-
-.analytics-footer h3{
-
-font-size:1.2rem;
-
-font-weight:700;
-
-color:#fff;
-
-margin-bottom:6px;
-
-}
-
-.analytics-footer p{
-
-color:#94a3b8;
-
-font-size:.9rem;
-
-}
-
-.footer-status{
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
-padding:12px 20px;
-
-background:#111b2b;
-
-border-radius:40px;
-
-color:#4ade80;
-
-font-weight:600;
-
-border:1px solid rgba(255,255,255,.05);
-
-}
-
-/* ==========================================================
-SCROLL BUTTON
-========================================================== */
-
-.scroll-top{
-
-position:fixed;
-
-right:35px;
-
-bottom:35px;
-
-width:58px;
-
-height:58px;
-
-border:none;
-
-border-radius:50%;
-
-background:linear-gradient(
-135deg,
-#2563eb,
-#60a5fa);
-
-color:#fff;
-
-font-size:20px;
-
-cursor:pointer;
-
-box-shadow:
-0 10px 30px rgba(37,99,235,.45);
-
-opacity:0;
-
-visibility:hidden;
-
-transform:translateY(25px);
-
-transition:.35s;
-
-z-index:9999;
-
-}
-
-.scroll-top.show{
-
-opacity:1;
-
-visibility:visible;
-
-transform:translateY(0);
-
-}
-
-.scroll-top:hover{
-
-transform:translateY(-6px);
-
-}
-
-/* ==========================================================
-SCROLLBAR
-========================================================== */
-
-::-webkit-scrollbar{
-
-width:10px;
-
-}
-
-::-webkit-scrollbar-track{
-
-background:#0b1220;
-
-}
-
-::-webkit-scrollbar-thumb{
-
-background:#2f4d77;
-
-border-radius:20px;
-
-}
-
-::-webkit-scrollbar-thumb:hover{
-
-background:#3b82f6;
-
-}
-
-/* ==========================================================
-RESPONSIVE
-========================================================== */
-
-@media(max-width:1200px){
-
-.dashboard{
-
-padding:25px;
-
-}
-
-}
-
-@media(max-width:992px){
-
-.topbar{
-
-position:relative;
-
-top:0;
-
-flex-direction:column;
-
-align-items:flex-start;
-
-}
-
-.top-actions{
-
-width:100%;
-
-justify-content:flex-start;
-
-flex-wrap:wrap;
-
-}
-
-.performance-banner{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-gap:18px;
-
-}
-
-.analytics-footer{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.dashboard{
-
-padding:18px;
-
-}
-
-.cards-grid{
-
-grid-template-columns:1fr;
-
-}
-
-.logo-side h1{
-
-font-size:1.5rem;
-
-}
-
-.metric-card h2{
-
-font-size:1.6rem;
-
-}
-
-.top-btn{
-
-flex:1;
-
-justify-content:center;
-
-}
-
-#analyticsInsights{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-@media(max-width:480px){
-
-.logo-box{
-
-width:55px;
-
-height:55px;
-
-font-size:22px;
-
-}
-
-.performance-banner{
-
-padding:22px;
-
-}
-
-.chart-card,
-
-.metric-card,
-
-.performance-card,
-
-.ai-card{
-
-padding:20px;
-
-}
-
-.chart-body{
-
-height:260px;
-
-}
-
-.chart-body.small{
-
-height:220px;
-
-}
-
+/* ============================================================
+   GTRADES AXIS™ ANALYTICS – DARK THEME
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #080d1a;
+    color: #e8edf5;
+    min-height: 100vh;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0b1120;
+}
+::-webkit-scrollbar-thumb {
+    background: #2a4b8c;
+    border-radius: 20px;
+}
+
+/* ─── Dashboard ─── */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background: #0b1120;
+}
+
+/* ─── Sidebar (reuse from journal) ─── */
+.sidebar {
+    width: 270px;
+    min-width: 270px;
+    background: #0f1628;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 40px;
+}
+.sidebar .logo img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #1a2744;
+    padding: 6px;
+}
+.sidebar .logo h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+.sidebar .logo h2 span {
+    color: #3b82f6;
+    font-weight: 300;
+}
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #8ea2c0;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.sidebar nav a i {
+    width: 22px;
+    font-size: 18px;
+    text-align: center;
+}
+.sidebar nav a:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: #fff;
+}
+.sidebar nav a.active {
+    background: linear-gradient(135deg, #1a3a6a, #2a4b8c);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+.logout-btn {
+    margin-top: auto;
+    background: rgba(255, 70, 70, 0.08);
+    border: 1px solid rgba(255, 70, 70, 0.15);
+    color: #ff6b6b;
+    padding: 12px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+}
+.logout-btn:hover {
+    background: rgba(255, 70, 70, 0.15);
+    border-color: #ff6b6b;
+}
+
+/* ─── Main Content ─── */
+.main-content {
+    flex: 1;
+    padding: 35px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ─── Page Header ─── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+.page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff, #b0c8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.page-header p {
+    font-size: 15px;
+    color: #8ea2c0;
+    margin-top: 4px;
+}
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+.header-actions .btn {
+    background: #1a2a4a;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #b0c8ff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+.header-actions .btn:hover {
+    background: #2a4b8c;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+/* ─── AI COACH ─── */
+.ai-coach-container {
+    background: #121b2f;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 24px 28px;
+    margin-bottom: 30px;
+}
+.ai-coach-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.coach-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1a3a6a, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+}
+.ai-coach-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+}
+.coach-subtitle {
+    font-size: 13px;
+    color: #8ea2c0;
+    margin-top: 2px;
+}
+.coach-status {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.08);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(74, 222, 128, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.coach-status i {
+    font-size: 8px;
+}
+.coach-loading {
+    text-align: center;
+    color: #8ea2c0;
+    padding: 30px 0;
+}
+.coach-loading i {
+    margin-right: 10px;
+}
+.coach-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+.coach-insights {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+.coach-insight-item {
+    background: #0b1324;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border-left: 3px solid #3b82f6;
+}
+.coach-insight-item .insight-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8ea2c0;
+    font-weight: 600;
+}
+.coach-insight-item .insight-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 4px;
+}
+.coach-insight-item .insight-detail {
+    font-size: 12px;
+    color: #b0c8ff;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+.coach-recommendations {
+    background: #0b1324;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.coach-recommendations h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.coach-recommendations h4 i {
+    color: #facc15;
+}
+.coach-recommendations ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.coach-recommendations li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 14px;
+    color: #b0c8ff;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    line-height: 1.5;
+}
+.coach-recommendations li:last-child {
+    border-bottom: none;
+}
+.coach-recommendations li i {
+    color: #facc15;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* ─── Stats Grid ─── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 35px;
+}
+.stat-card {
+    background: #121b2f;
+    border-radius: 16px;
+    padding: 24px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.stat-card .stat-icon {
+    font-size: 22px;
+    color: #3b82f6;
+    margin-bottom: 12px;
+}
+.stat-card h3 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #8ea2c0;
+    margin-bottom: 8px;
+}
+.stat-card h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+}
+.value-positive {
+    color: #4ade80 !important;
+}
+.value-negative {
+    color: #f87171 !important;
+}
+.value-neutral {
+    color: #facc15 !important;
+}
+
+/* ─── Charts ─── */
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 35px;
+}
+.chart-card {
+    background: #121b2f;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.chart-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #e8edf5;
+}
+.chart-card h2 i {
+    color: #3b82f6;
+    margin-right: 10px;
+}
+.chart-wrapper {
+    height: 220px;
+    position: relative;
+}
+
+/* ─── Insights Panel ─── */
+.insights-panel {
+    background: #121b2f;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: 10px;
+}
+.insights-panel h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: #fff;
+}
+.insights-panel h3 i {
+    color: #facc15;
+    margin-right: 10px;
+}
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+}
+.insight-item {
+    background: #0b1324;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: center;
+}
+.insight-item h4 {
+    font-size: 12px;
+    color: #8ea2c0;
+    font-weight: 500;
+}
+.insight-item p {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 6px;
+}
+
+/* ─── Scroll to Top ─── */
+#scrollTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #1a3a6a;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    z-index: 999;
+}
+#scrollTopBtn.visible {
+    opacity: 1;
+    visibility: visible;
+}
+#scrollTopBtn:hover {
+    background: #3b82f6;
+    transform: scale(1.05);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 1024px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+    .coach-content {
+        grid-template-columns: 1fr;
+    }
+    .main-content {
+        padding: 25px 20px;
+    }
+}
+@media (max-width: 900px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        z-index: 1000;
+        transition: 0.3s;
+        height: 100%;
+        border-right: none;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.6);
+    }
+    .sidebar.open {
+        left: 0;
+    }
+    .main-content {
+        padding-top: 80px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+@media (max-width: 700px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .stat-card {
+        padding: 18px;
+    }
+    .stat-card h1 {
+        font-size: 24px;
+    }
+    .coach-insights {
+        grid-template-columns: 1fr 1fr;
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .header-actions {
+        width: 100%;
+    }
+    .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+@media (max-width: 500px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .coach-insights {
+        grid-template-columns: 1fr;
+    }
+    .ai-coach-container {
+        padding: 18px 16px;
+    }
+    .ai-coach-header {
+        gap: 12px;
+    }
+    .coach-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    .ai-coach-header h2 {
+        font-size: 18px;
+    }
 }

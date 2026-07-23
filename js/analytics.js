@@ -12,10 +12,10 @@ let charts = {};
 let currentUser = null;
 let analyticsLoaded = false;
 
-// ─── SAFE DOM REFERENCES ──────────────────────────────────────
+// ─── SAFE DOM HELPERS ──────────────────────────────────────────
 function getEl(id) {
   const el = document.getElementById(id);
-  if (!el) console.warn(`⚠️ Element #${id} not found in HTML.`);
+  if (!el) console.warn(`⚠️ Element #${id} missing.`);
   return el;
 }
 
@@ -29,7 +29,7 @@ onAuthStateChanged(auth, (user) => {
   loadTradesRealtime();
 });
 
-// ─── LOAD FROM FIRESTORE (subcollection) ─────────────────────
+// ─── LOAD FROM FIRESTORE ──────────────────────────────────────
 function loadTradesRealtime() {
   const tradesRef = collection(db, "users", currentUser.uid, "trades");
   const q = query(tradesRef, orderBy("tradeDate", "desc"));
@@ -52,10 +52,11 @@ function refreshAnalytics() {
   }
   updateOverview();
   buildCharts();
-  buildInsights();
+  buildInsights();        // quick insights panel
+  buildAICoach();        // ← AI Coach using the same trades
 }
 
-// ─── UPDATE OVERVIEW (safe) ───────────────────────────────────
+// ─── UPDATE OVERVIEW STATS ──────────────────────────────────
 function updateOverview() {
   const total = trades.length;
   const wins = trades.filter(t => t.result === "Win");
@@ -73,7 +74,6 @@ function updateOverview() {
   const avgWin = wins.length ? grossProfit / wins.length : 0;
   const avgLoss = losses.length ? grossLoss / losses.length : 0;
 
-  // ── Update cards (safe) ──
   setText("totalTrades", total);
   setText("winRate", winRate.toFixed(1) + "%");
   setText("averageRR", avgRR.toFixed(2));
@@ -83,7 +83,7 @@ function updateOverview() {
   setText("averageWin", "$" + avgWin.toFixed(2));
   setText("averageLoss", "$" + avgLoss.toFixed(2));
 
-  // ── Best pair ──
+  // Best pair
   const pairStats = {};
   trades.forEach(t => {
     const p = t.pair || "Unknown";
@@ -96,7 +96,6 @@ function updateOverview() {
   setText("bestPair", bestPair);
   setText("bestPairProfit", bestVal === -Infinity ? "$0" : "$" + bestVal.toFixed(2));
 
-  // ── Worst pair ──
   let worstPair = "-", worstVal = Infinity;
   Object.entries(pairStats).forEach(([k, v]) => {
     if (v < worstVal) { worstVal = v; worstPair = k; }
@@ -104,7 +103,7 @@ function updateOverview() {
   setText("worstPair", worstPair);
   setText("worstPairProfit", worstVal === Infinity ? "$0" : "$" + worstVal.toFixed(2));
 
-  // ── Best session ──
+  // Best session
   const sessionStats = {};
   trades.forEach(t => {
     const s = t.session || "Unknown";
@@ -117,7 +116,7 @@ function updateOverview() {
   setText("bestSession", bestSession);
   setText("bestSessionWinrate", bestSessionVal === -Infinity ? "0%" : bestSessionVal.toFixed(0) + "%");
 
-  // ── Best model ──
+  // Best model
   const modelStats = {};
   trades.forEach(t => {
     const m = t.entryModel || "Unknown";
@@ -136,7 +135,7 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
-// ─── CHART INIT ────────────────────────────────────────────────
+// ─── CHARTS ──────────────────────────────────────────────────
 function initializeCharts() {
   const equityCanvas = getEl("equityChart");
   const monthlyCanvas = getEl("monthlyChart");
@@ -190,7 +189,6 @@ function pieOptions() {
   };
 }
 
-// ─── BUILD CHARTS ──────────────────────────────────────────────
 function buildCharts() {
   if (!charts.equity) return;
   let running = 0;
@@ -231,12 +229,12 @@ function buildCharts() {
   charts.session.update();
 }
 
-// ─── INSIGHTS ──────────────────────────────────────────────────
+// ─── QUICK INSIGHTS PANEL ──────────────────────────────────
 function buildInsights() {
-  const panel = getEl("analyticsInsights");
-  if (!panel) return;
+  const grid = document.getElementById("analyticsInsightsGrid");
+  if (!grid) return;
   if (trades.length === 0) {
-    panel.innerHTML = `<div class="loading-card">No trading history found.</div>`;
+    grid.innerHTML = `<div class="insight-item">No trading history</div>`;
     return;
   }
   const total = trades.length;
@@ -245,12 +243,131 @@ function buildInsights() {
   const be = trades.filter(t => t.result === "Break Even").length;
   const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
   const bestPair = getEl("bestPair")?.textContent || "-";
-  panel.innerHTML = `
+  grid.innerHTML = `
     <div class="insight-item"><h4>📊 Total</h4><p>${total}</p></div>
-    <div class="insight-item"><h4>✅ Win Rate</h4><p style="color:#00c853;">${winRate}%</p></div>
-    <div class="insight-item"><h4>🏆 Wins</h4><p style="color:#00c853;">${wins}</p></div>
-    <div class="insight-item"><h4>❌ Losses</h4><p style="color:#ff4d4f;">${losses}</p></div>
-    <div class="insight-item"><h4>⚖️ BE</h4><p style="color:#ffb300;">${be}</p></div>
+    <div class="insight-item"><h4>✅ Win Rate</h4><p style="color:#4ade80;">${winRate}%</p></div>
+    <div class="insight-item"><h4>🏆 Wins</h4><p style="color:#4ade80;">${wins}</p></div>
+    <div class="insight-item"><h4>❌ Losses</h4><p style="color:#f87171;">${losses}</p></div>
+    <div class="insight-item"><h4>⚖️ BE</h4><p style="color:#facc15;">${be}</p></div>
     <div class="insight-item"><h4>🏅 Best Pair</h4><p>${bestPair}</p></div>
+  `;
+}
+
+// ─── AI COACH ──────────────────────────────────────────────────
+function buildAICoach() {
+  const container = document.getElementById("aiCoachContent");
+  if (!container) return;
+
+  if (trades.length === 0) {
+    container.innerHTML = `
+      <div class="coach-loading" style="color: #facc15;">
+        <i class="fa-regular fa-face-smile"></i> 
+        No trades yet! Start journaling to get AI insights.
+      </div>
+    `;
+    return;
+  }
+
+  // ── Calculate coach stats ──
+  const total = trades.length;
+  const wins = trades.filter(t => t.result === "Win").length;
+  const losses = trades.filter(t => t.result === "Loss").length;
+  const breakevens = trades.filter(t => t.result === "Break Even").length;
+  const winRate = total > 0 ? (wins / total * 100) : 0;
+
+  let netProfit = 0;
+  trades.forEach(t => {
+    const p = parseFloat(t.profit) || 0;
+    netProfit += p;
+  });
+
+  let rrSum = 0, rrCount = 0;
+  trades.forEach(t => {
+    const rr = parseFloat(t.actualRR || t.rr);
+    if (!isNaN(rr) && rr > 0) {
+      rrSum += rr;
+      rrCount++;
+    }
+  });
+  const avgRR = rrCount > 0 ? rrSum / rrCount : 0;
+  const consistency = winRate;
+
+  let streak = 0;
+  if (trades.length > 0) {
+    const lastResult = trades[trades.length - 1].result?.toLowerCase();
+    if (lastResult === "win") {
+      for (let i = trades.length - 1; i >= 0; i--) {
+        if (trades[i].result?.toLowerCase() === "win") streak++;
+        else break;
+      }
+    } else if (lastResult === "loss") {
+      for (let i = trades.length - 1; i >= 0; i--) {
+        if (trades[i].result?.toLowerCase() === "loss") streak--;
+        else break;
+      }
+    }
+  }
+
+  // Psychology scores from discipline/patience/confidence
+  const psychFields = ["discipline", "patience", "confidence"];
+  let psychScores = [];
+  trades.forEach(t => {
+    psychFields.forEach(f => {
+      const val = t[f];
+      if (val) {
+        const map = {
+          "excellent": 4, "good": 3, "average": 2, "poor": 1,
+          "very high": 4, "high": 3, "medium": 2, "low": 1
+        };
+        const score = map[val.toLowerCase()] || 0;
+        if (score > 0) psychScores.push(score);
+      }
+    });
+  });
+  const avgPsych = psychScores.length > 0 ? psychScores.reduce((a,b) => a+b, 0) / psychScores.length : 0;
+
+  // ── Insights items ──
+  const insightItems = [
+    { label: "Total Trades", value: total, detail: `${wins}W / ${losses}L / ${breakevens}BE` },
+    { label: "Win Rate", value: winRate.toFixed(1) + "%", detail: winRate >= 50 ? "📈 Above average" : "📉 Focus on setups" },
+    { label: "Net Profit", value: `$${netProfit.toFixed(2)}`, detail: netProfit >= 0 ? "✅ Profitable" : "❌ Review risk" },
+    { label: "Avg RR", value: avgRR.toFixed(1), detail: avgRR >= 2.0 ? "👍 Great" : "⚠️ Aim for 2:1+" },
+    { label: "Consistency", value: consistency.toFixed(1) + "%", detail: consistency >= 50 ? "✅ Stable" : "⚠️ Needs work" },
+    { label: "Streak", value: streak > 0 ? `🔥 +${streak}` : streak < 0 ? `❄️ ${streak}` : "➖ 0", detail: streak !== 0 ? "Keep going!" : "Stay focused" }
+  ];
+  if (psychScores.length > 0) {
+    const psychLevel = avgPsych >= 3.5 ? "Excellent" : avgPsych >= 2.5 ? "Good" : "Needs work";
+    insightItems.push({ label: "Psychology", value: psychLevel, detail: `Based on ${psychScores.length} ratings` });
+  }
+
+  // ── Recommendations ──
+  const recs = [];
+  if (winRate < 50) recs.push("Improve win rate by sticking to high‑probability setups.");
+  if (avgRR < 2.0) recs.push("Aim for a minimum 2:1 risk‑reward ratio.");
+  if (netProfit < 0) recs.push("Review losing trades for common mistakes.");
+  if (trades.length > 10 && consistency < 50) recs.push("Your performance is inconsistent – journal emotions.");
+  if (streak < -2) recs.push("You're on a losing streak – take a break.");
+  if (avgPsych && avgPsych < 2.5) recs.push("Work on trading psychology – use a checklist.");
+  if (recs.length === 0) recs.push("Keep doing what you’re doing! Your stats look solid.");
+
+  // ── Render ──
+  container.innerHTML = `
+    <div class="coach-content">
+      <div class="coach-insights">
+        ${insightItems.map(item => `
+          <div class="coach-insight-item">
+            <div class="insight-label">${item.label}</div>
+            <div class="insight-value">${item.value}</div>
+            <div class="insight-detail">${item.detail}</div>
+          </div>
+        `).join("")}
+      </div>
+      <div class="coach-recommendations">
+        <h4><i class="fa-regular fa-comment-dots"></i> Recommendations</h4>
+        <ul>
+          ${recs.map(r => `<li><i class="fa-solid fa-lightbulb"></i> ${r}</li>`).join("")}
+        </ul>
+      </div>
+    </div>
   `;
 }
