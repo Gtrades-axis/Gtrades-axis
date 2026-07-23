@@ -79,14 +79,14 @@ function applyFilters() {
   updateStats();
 }
 
-// ─── RENDER TABLE WITH CHART ICONS ──────────────────────────
+// ─── RENDER TABLE WITH CHART ICONS + EDIT BUTTON ────────────
 function renderTable() {
   if (filteredTrades.length === 0) {
     body.innerHTML = `<tr><td colspan="10" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
     return;
   }
 
-  body.innerHTML = filteredTrades.map((t, index) => {
+  body.innerHTML = filteredTrades.map((t) => {
     const resultClass = t.result === "Win" ? "result-win" : t.result === "Loss" ? "result-loss" : "result-break-even";
     const profit = parseFloat(t.profit) || 0;
     const profitClass = profit > 0 ? "positive" : profit < 0 ? "negative" : "";
@@ -96,7 +96,7 @@ function renderTable() {
     const session = t.session || "—";
     const model = t.entryModel || "—";
 
-    // ── Build chart icons ──
+    // ── Chart icons ──
     const hasBefore = t.beforeChart && t.beforeChart.trim() !== "";
     const hasDuring = t.duringChart && t.duringChart.trim() !== "";
     const hasAfter = t.afterChart && t.afterChart.trim() !== "";
@@ -126,6 +126,21 @@ function renderTable() {
       </div>
     `;
 
+    // ── Action buttons: View, Edit, Delete ──
+    const actions = `
+      <div class="action-group">
+        <button class="btn-small" onclick="viewTrade('${t.id}')" title="View Details">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+        <button class="btn-small edit" onclick="editTrade('${t.id}')" title="Edit Trade">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="btn-small danger" onclick="deleteTrade('${t.id}')" title="Delete Trade">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    `;
+
     return `
       <tr>
         <td>${date}</td>
@@ -137,14 +152,7 @@ function renderTable() {
         <td class="${resultClass}">${t.result || "—"}</td>
         <td>${rr.toFixed(1)}</td>
         <td class="${profitClass}">${profit > 0 ? "+" : ""}$${profit.toFixed(2)}</td>
-        <td>
-          <button class="btn-small" onclick="viewTrade('${t.id}')" title="View Details">
-            <i class="fa-solid fa-eye"></i>
-          </button>
-          <button class="btn-small danger" onclick="deleteTrade('${t.id}')" title="Delete">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </td>
+        <td>${actions}</td>
       </tr>
     `;
   }).join("");
@@ -207,7 +215,7 @@ window.viewTrade = function(id) {
     { label: "Notes", value: trade.notes || "—" },
   ];
 
-  // ── Chart links (clickable) ──
+  // ── Chart links (clickable in modal) ──
   const chartLinks = [];
   const chartFields = [
     { key: "beforeChart", label: "📷 Before Entry" },
@@ -225,7 +233,6 @@ window.viewTrade = function(id) {
 
   const chartHTML = `<div style="margin: 6px 0 2px 0; display: flex; flex-direction: column; gap: 4px;">${chartLinks.join("")}</div>`;
 
-  // ── Build detail rows ──
   let rows = fields.map(f => `
     <tr>
       <td>${f.label}</td>
@@ -247,6 +254,12 @@ window.viewTrade = function(id) {
 
   modal.style.display = "flex";
   modal.classList.add("active");
+};
+
+// ─── EDIT TRADE ──────────────────────────────────────────────
+window.editTrade = function(id) {
+  // Navigate to journal page with edit parameter
+  window.location.href = `journal.html?edit=${id}`;
 };
 
 // ─── DELETE TRADE ─────────────────────────────────────────────

@@ -317,7 +317,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 900px;
+  min-width: 950px;
 }
 .history-table th {
   text-align: left;
@@ -389,7 +389,12 @@ body {
 .positive { color: #4ade80; font-weight: 600; }
 .negative { color: #f87171; font-weight: 600; }
 
-/* ─── BUTTONS ─── */
+/* ─── ACTION BUTTONS ─── */
+.action-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
 .btn-small {
   padding: 4px 8px;
   background: rgba(255, 255, 255, 0.05);
@@ -399,7 +404,6 @@ body {
   cursor: pointer;
   transition: 0.2s;
   font-size: 13px;
-  margin: 0 1px;
 }
 .btn-small:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -408,6 +412,10 @@ body {
 .btn-small.danger:hover {
   background: rgba(248, 113, 113, 0.15);
   color: #f87171;
+}
+.btn-small.edit:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
 }
 .btn-small i { pointer-events: none; }
 
@@ -424,7 +432,7 @@ body {
   display: block;
 }
 
-/* ─── MODAL (unchanged) ─── */
+/* ─── MODAL ─── */
 .modal {
   display: none;
   position: fixed;
