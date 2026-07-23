@@ -669,11 +669,13 @@ CHART LAYOUT
 
 .charts-section{
 
-display:flex;
+display:grid;
 
-flex-direction:column;
+grid-template-columns:repeat(2,1fr);
 
-gap:28px;
+gap:25px;
+
+align-items:start;
 
 margin-bottom:45px;
 
@@ -685,13 +687,18 @@ LARGE EQUITY CARD
 
 .chart-large{
 
+grid-column:1 / -1;
+
 min-height:520px;
 
 }
-
 /* ==========================================================
 SMALL CHART GRID
 ========================================================== */
+
+/* ===============================
+CHART GRID
+=============================== */
 
 .small-chart-grid{
 
@@ -699,7 +706,15 @@ display:grid;
 
 grid-template-columns:repeat(2,1fr);
 
-gap:28px;
+gap:25px;
+
+grid-column:1 / -1;
+
+}
+
+.chart-card{
+
+width:100%;
 
 }
 
@@ -911,6 +926,16 @@ grid-template-columns:repeat(2,1fr);
 }
 
 @media(max-width:1000px){
+
+.small-chart-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media(max-width:700px){
 
 .small-chart-grid{
 
