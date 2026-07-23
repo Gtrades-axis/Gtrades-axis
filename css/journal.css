@@ -3101,7 +3101,241 @@ border-radius:10px;
 margin:20px 0;
 
 }
+/* ======================================================
+FINAL SIDEBAR FIX
+====================================================== */
 
+
+.sidebar{
+
+width:280px;
+min-width:280px;
+padding:30px 20px;
+
+}
+
+
+.sidebar-nav{
+
+gap:6px;
+
+}
+
+
+
+.nav-item{
+
+width:100%;
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+padding:12px;
+
+white-space:nowrap;
+
+}
+
+
+
+.nav-item i{
+
+font-size:16px;
+
+}
+
+
+
+/* Fix menu text spacing */
+
+.nav-item span{
+
+display:inline-block;
+
+font-size:14px;
+
+}
+
+
+
+/* ======================================================
+LOGO FIX
+====================================================== */
+
+
+.brand{
+
+justify-content:flex-start;
+
+}
+
+
+
+.brand img{
+
+width:55px;
+
+height:55px;
+
+object-fit:contain;
+
+}
+
+
+
+.brand-text{
+
+line-height:1.1;
+
+}
+
+
+
+.brand-text h2{
+
+font-size:24px;
+
+}
+
+
+
+.brand-text span{
+
+display:block;
+
+font-size:20px;
+
+color:#1677ff;
+
+font-weight:700;
+
+}
+
+
+
+/* ======================================================
+CONTENT WIDTH FIX
+====================================================== */
+
+
+.main-content{
+
+width:calc(100% - 280px);
+
+max-width:none;
+
+padding:35px;
+
+}
+
+
+
+.dashboard-container{
+
+width:100%;
+
+}
+
+
+
+/* ======================================================
+HEADER FIX
+====================================================== */
+
+
+.page-header h1{
+
+font-size:32px;
+
+white-space:nowrap;
+
+}
+
+
+
+.page-header p{
+
+font-size:16px;
+
+}
+
+
+
+/* ======================================================
+CARDS FIX
+====================================================== */
+
+
+.stats-grid{
+
+grid-template-columns:repeat(4,1fr);
+
+}
+
+
+
+.stat-card{
+
+min-height:150px;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+text-align:center;
+
+}
+
+
+
+/* ======================================================
+TABLET
+====================================================== */
+
+
+@media(max-width:1200px){
+
+.stats-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+
+
+/* ======================================================
+MOBILE
+====================================================== */
+
+
+@media(max-width:900px){
+
+.main-content{
+
+width:100%;
+
+}
+
+
+.sidebar{
+
+width:260px;
+
+min-width:260px;
+
+}
+
+
+}
 
 
 /* ======================================================
