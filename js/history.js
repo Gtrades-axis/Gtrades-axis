@@ -79,10 +79,10 @@ function applyFilters() {
   updateStats();
 }
 
-// ─── RENDER TABLE WITH CHART ICONS + EDIT BUTTON ────────────
+// ─── RENDER TABLE WITH SEPARATE CHART COLUMNS ──────────────
 function renderTable() {
   if (filteredTrades.length === 0) {
-    body.innerHTML = `<tr><td colspan="10" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="12" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
     return;
   }
 
@@ -96,37 +96,19 @@ function renderTable() {
     const session = t.session || "—";
     const model = t.entryModel || "—";
 
-    // ── Chart icons ──
-    const hasBefore = t.beforeChart && t.beforeChart.trim() !== "";
-    const hasDuring = t.duringChart && t.duringChart.trim() !== "";
-    const hasAfter = t.afterChart && t.afterChart.trim() !== "";
-    const chartIcons = `
-      <div class="chart-icons">
-        <a href="${hasBefore ? t.beforeChart : '#'}" 
-           target="${hasBefore ? '_blank' : ''}" 
-           class="chart-icon-link ${!hasBefore ? 'missing' : ''}"
-           title="${hasBefore ? 'Before Entry' : 'No chart saved'}"
-           ${!hasBefore ? 'onclick="return false;"' : ''}>
-          <i class="fa-regular fa-image"></i>
-        </a>
-        <a href="${hasDuring ? t.duringChart : '#'}" 
-           target="${hasDuring ? '_blank' : ''}" 
-           class="chart-icon-link ${!hasDuring ? 'missing' : ''}"
-           title="${hasDuring ? 'During Trade' : 'No chart saved'}"
-           ${!hasDuring ? 'onclick="return false;"' : ''}>
-          <i class="fa-regular fa-clock"></i>
-        </a>
-        <a href="${hasAfter ? t.afterChart : '#'}" 
-           target="${hasAfter ? '_blank' : ''}" 
-           class="chart-icon-link ${!hasAfter ? 'missing' : ''}"
-           title="${hasAfter ? 'After Trade' : 'No chart saved'}"
-           ${!hasAfter ? 'onclick="return false;"' : ''}>
-          <i class="fa-regular fa-check-circle"></i>
-        </a>
-      </div>
-    `;
+    // ── Individual chart link helpers ──
+    const renderChartLink = (url, label) => {
+      if (url && url.trim() !== "") {
+        return `<a href="${url}" target="_blank" class="chart-link-btn" title="View ${label} chart"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${label}</a>`;
+      }
+      return `<span class="chart-link-btn missing"><i class="fa-regular fa-circle"></i> —</span>`;
+    };
 
-    // ── Action buttons: View, Edit, Delete ──
+    const beforeLink = renderChartLink(t.beforeChart, "Before");
+    const duringLink = renderChartLink(t.duringChart, "During");
+    const afterLink = renderChartLink(t.afterChart, "After");
+
+    // ── Action buttons ──
     const actions = `
       <div class="action-group">
         <button class="btn-small" onclick="viewTrade('${t.id}')" title="View Details">
@@ -148,7 +130,9 @@ function renderTable() {
         <td>${direction}</td>
         <td>${session}</td>
         <td>${model}</td>
-        <td>${chartIcons}</td>
+        <td>${beforeLink}</td>
+        <td>${duringLink}</td>
+        <td>${afterLink}</td>
         <td class="${resultClass}">${t.result || "—"}</td>
         <td>${rr.toFixed(1)}</td>
         <td class="${profitClass}">${profit > 0 ? "+" : ""}$${profit.toFixed(2)}</td>
@@ -171,7 +155,7 @@ function updateStats() {
   winRateEl.textContent = winRate.toFixed(1) + "%";
 }
 
-// ─── VIEW TRADE (MODAL WITH CHART LINKS) ─────────────────────
+// ─── VIEW TRADE (MODAL) ──────────────────────────────────────
 window.viewTrade = function(id) {
   const trade = trades.find(t => t.id === id);
   if (!trade) return;
@@ -215,7 +199,7 @@ window.viewTrade = function(id) {
     { label: "Notes", value: trade.notes || "—" },
   ];
 
-  // ── Chart links (clickable in modal) ──
+  // ── Chart links in modal ──
   const chartLinks = [];
   const chartFields = [
     { key: "beforeChart", label: "📷 Before Entry" },
@@ -280,7 +264,7 @@ exportBtn.addEventListener("click", function() {
     alert("No trades to export.");
     return;
   }
-  const headers = ["Date", "Pair", "Direction", "Session", "Entry", "Stop Loss", "Take Profit", "RR", "Result", "Profit"];
+  const headers = ["Date", "Pair", "Direction", "Session", "Entry", "Stop Loss", "Take Profit", "RR", "Result", "Profit", "Before Chart", "During Chart", "After Chart"];
   const rows = filteredTrades.map(t => [
     t.tradeDate || "",
     t.pair || "",
@@ -292,6 +276,9 @@ exportBtn.addEventListener("click", function() {
     t.actualRR || t.rr || "",
     t.result || "",
     t.profit || "",
+    t.beforeChart || "",
+    t.duringChart || "",
+    t.afterChart || "",
   ]);
   const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
