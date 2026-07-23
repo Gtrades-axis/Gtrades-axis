@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; flex-direction:column; }
+    .cert-container { max-width:800px; width:100%; background:linear-gradient(145deg, #141a26, #0a0e17); border:2px solid rgba(255,215,0,0.3); border-radius:20px; padding:40px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.6); position:relative; }
+    .cert-container .logo { font-size:2rem; font-weight:800; background:linear-gradient(135deg,#0f8cff,#00c853); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:4px; }
+    .cert-container .subtitle { color:#94a3b8; font-size:0.9rem; margin-bottom:20px; }
+    .cert-container .cert-title { font-size:2rem; font-weight:700; color:#ffb300; margin:16px 0; }
+    .cert-container .name { font-size:2.2rem; font-weight:700; color:#f1f5f9; margin:8px 0; }
+    .cert-container .desc { color:#94a3b8; font-size:1rem; margin:8px 0; }
+    .cert-container .module-name { font-size:1.4rem; font-weight:600; color:#f1f5f9; margin:12px 0; }
+    .cert-container .date { color:#64748b; font-size:0.85rem; margin-top:12px; }
+    .cert-container .footer { margin-top:20px; border-top:1px solid rgba(255,255,255,0.08); padding-top:16px; font-size:0.8rem; color:#64748b; display:flex; justify-content:space-between; align-items:center; }
+    .actions { margin-top:20px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+    .btn { padding:8px 20px; border-radius:8px; border:none; font-weight:500; cursor:pointer; transition:0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+    .btn-primary { background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; }
+    .btn-primary:hover { opacity:0.9; transform:translateY(-2px); }
+    .btn-secondary { background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.08); }
+    .btn-secondary:hover { background:rgba(255,255,255,0.1); }
+    .btn-gold { background:linear-gradient(135deg,#ffb300,#f57c00); color:#fff; }
+    .btn-gold:hover { opacity:0.9; transform:translateY(-2px); }
+    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+    @media (max-width:600px){ .cert-container{padding:20px;} .cert-container .cert-title{font-size:1.5rem;} .cert-container .name{font-size:1.6rem;} .cert-container .module-name{font-size:1.1rem;} }
+  </style>
+</head>
+<body>
+<div id="certContainer" class="cert-container">
+  <div class="logo">GTRADES‑AXIS™</div>
+  <div class="subtitle">Premium Academy</div>
+  <div class="cert-title">🏆 Certificate of Completion</div>
+  <div class="desc">This certifies that</div>
+  <div class="name" id="userName">Loading...</div>
+  <div class="desc">has successfully completed</div>
+  <div class="module-name" id="moduleTitle">—</div>
+  <div class="date" id="issueDate"></div>
+  <div class="footer">
+    <span>Issued by GTRADES-AXIS™ Academy</span>
+    <span id="certId">#GTRADES-001</span>
+  </div>
+</div>
+<div class="actions">
+  <button class="btn btn-primary" id="downloadPngBtn"><i class="fa-solid fa-image"></i> Download PNG</button>
+  <button class="btn btn-gold" id="downloadPdfBtn"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+  <a href="premium-academy.html" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back</a>
+</div>
+
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module" src="js/certificate.js"></script>
+<script>
+  (function() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+      btn.classList.toggle('visible', window.scrollY > 200);
+    });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
+</body>
+</html>

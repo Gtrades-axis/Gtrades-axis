@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Ultra compact & dark ── */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:10px; }
+    .container { max-width:900px; margin:0 auto; }
+    .header { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+    .header h1 { font-size:1.1rem; font-weight:600; }
+    .header .btn { padding:4px 12px; border-radius:6px; background:rgba(15,140,255,0.12); color:#0f8cff; text-decoration:none; font-size:0.7rem; border:none; cursor:pointer; }
+    .video-wrapper { position:relative; padding-bottom:56.25%; height:0; margin-bottom:12px; background:rgba(0,0,0,0.3); border-radius:8px; overflow:hidden; }
+    .video-wrapper iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    .pdf-download { margin:8px 0; }
+    .pdf-download a { color:#0f8cff; text-decoration:none; font-size:0.85rem; }
+    .notes-box { background:rgba(255,255,255,0.03); padding:12px; border-radius:6px; margin:12px 0; white-space:pre-wrap; font-size:0.85rem; color:#cbd5e1; border:1px solid rgba(255,255,255,0.05); }
+    .actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .btn-primary { background:linear-gradient(135deg,#0f8cff,#0077e6); color:#fff; border:none; padding:6px 18px; border-radius:6px; font-weight:500; cursor:pointer; transition:0.2s; }
+    .btn-primary:hover { opacity:0.9; transform:translateY(-2px); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-secondary { background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.08); padding:6px 18px; border-radius:6px; cursor:pointer; }
+    .btn-secondary:hover { background:rgba(255,255,255,0.1); }
+    .nav-buttons { display:flex; justify-content:space-between; margin-top:16px; gap:8px; }
+    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+    @media (max-width:480px){ .header{flex-direction:column;align-items:flex-start;} }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="lessonTitle">Loading...</h1>
+    <a href="premium-academy.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back to Academy</a>
+  </div>
+  <div id="lessonContent">
+    <div style="text-align:center;padding:40px;color:#94a3b8;">Loading lesson...</div>
+  </div>
+</div>
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script type="module" src="js/lesson.js"></script>
+<script>
+  (function() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+      btn.classList.toggle('visible', window.scrollY > 200);
+    });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
+</body>
+</html>

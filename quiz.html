@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:10px; }
+    .container { max-width:750px; margin:0 auto; }
+    .header { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+    .header h1 { font-size:1.1rem; font-weight:600; }
+    .btn { padding:4px 12px; border-radius:6px; background:rgba(15,140,255,0.12); color:#0f8cff; text-decoration:none; font-size:0.7rem; border:none; cursor:pointer; }
+    .question-block { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px 14px; margin-bottom:10px; }
+    .question-text { font-weight:500; margin-bottom:6px; font-size:0.9rem; }
+    .options { display:flex; flex-direction:column; gap:3px; }
+    .options label { display:flex; align-items:center; gap:8px; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.02); cursor:pointer; transition:0.2s; font-size:0.85rem; }
+    .options label:hover { background:rgba(255,255,255,0.06); }
+    .btn-primary { background:linear-gradient(135deg,#0f8cff,#0077e6); color:#fff; border:none; padding:6px 18px; border-radius:6px; font-weight:500; cursor:pointer; transition:0.2s; margin-top:4px; }
+    .btn-primary:hover { opacity:0.9; transform:translateY(-2px); }
+    .result-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:16px; margin-top:12px; text-align:center; }
+    .result-box .score { font-size:2rem; font-weight:700; }
+    .result-box .pass { color:#00c853; }
+    .result-box .fail { color:#ff4d4f; }
+    .result-box .details { margin:8px 0; color:#94a3b8; }
+    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="quizTitle">Quiz</h1>
+    <a href="premium-academy.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a>
+  </div>
+  <div id="quizContainer">
+    <div style="text-align:center;padding:40px;color:#94a3b8;">Loading quiz...</div>
+  </div>
+</div>
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script type="module" src="js/quiz.js"></script>
+<script>
+  (function() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+      btn.classList.toggle('visible', window.scrollY > 200);
+    });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
+</body>
+</html>
