@@ -1,6 +1,5 @@
 /* ============================================================
    HISTORY.CSS – GTRADES AXIS™ PREMIUM DARK THEME
-   TIGHT SPACING – gaps reduced by ~50%
    ============================================================ */
 
 * {
@@ -26,7 +25,7 @@ body {
   background: #0b1120;
 }
 
-/* ─── SIDEBAR – TIGHTER ─── */
+/* ─── SIDEBAR ─── */
 .sidebar {
   width: 240px;
   min-width: 240px;
@@ -117,7 +116,7 @@ body {
   border-color: #ff6b6b;
 }
 
-/* ─── MAIN CONTENT – TIGHTER ─── */
+/* ─── MAIN CONTENT ─── */
 .main-content {
   flex: 1;
   padding: 20px 24px 28px;
@@ -126,7 +125,7 @@ body {
   width: 100%;
 }
 
-/* ─── HEADER – TIGHTER ─── */
+/* ─── HEADER ─── */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -195,7 +194,7 @@ body {
   box-shadow: 0 6px 18px rgba(59, 130, 246, 0.3);
 }
 
-/* ─── STATS – TIGHTER ─── */
+/* ─── STATS ─── */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -234,7 +233,7 @@ body {
   color: #fff;
 }
 
-/* ─── CONTROLS – TIGHTER ─── */
+/* ─── CONTROLS ─── */
 .history-controls {
   display: flex;
   gap: 10px;
@@ -272,7 +271,7 @@ body {
   background: #141a26;
 }
 
-/* ─── TABLE – TIGHTER ─── */
+/* ─── TABLE ─── */
 .history-card {
   background: #121b2f;
   border-radius: 14px;
@@ -316,12 +315,12 @@ body {
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
-  min-width: 1050px;
+  font-size: 12px;
+  min-width: 1100px;
 }
 .history-table th {
   text-align: left;
-  padding: 10px 10px;
+  padding: 10px 8px;
   color: #8ea2c0;
   font-weight: 600;
   font-size: 10px;
@@ -332,7 +331,7 @@ body {
   white-space: nowrap;
 }
 .history-table td {
-  padding: 10px 10px;
+  padding: 10px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   vertical-align: middle;
   color: #e8edf5;
@@ -342,28 +341,29 @@ body {
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* ─── CHART LINK COLUMNS ─── */
-.chart-link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+/* ─── CHART URL LINKS ─── */
+.chart-url {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: #3b82f6;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 12px;
-  padding: 3px 10px;
+  font-size: 11px;
+  padding: 2px 8px;
   background: rgba(59, 130, 246, 0.06);
-  border-radius: 5px;
+  border-radius: 4px;
   border: 1px solid rgba(59, 130, 246, 0.08);
   transition: 0.2s;
-  white-space: nowrap;
+  font-family: 'Poppins', sans-serif;
 }
-.chart-link-btn:hover {
+.chart-url:hover {
   background: rgba(59, 130, 246, 0.15);
   border-color: #3b82f6;
-  transform: scale(1.03);
+  color: #60a5fa;
 }
-.chart-link-btn.missing {
+.chart-url.missing {
   color: #475569;
   background: transparent;
   border-color: transparent;
@@ -371,8 +371,9 @@ body {
   pointer-events: none;
   opacity: 0.4;
 }
-.chart-link-btn i {
-  font-size: 11px;
+.chart-url i {
+  margin-right: 4px;
+  font-size: 10px;
 }
 
 /* ─── RESULT BADGES ─── */
@@ -688,12 +689,12 @@ body {
     font-size: 10px;
   }
   .history-table {
-    font-size: 11px;
-    min-width: 800px;
+    font-size: 10px;
+    min-width: 850px;
   }
   .history-table th,
   .history-table td {
-    padding: 6px 6px;
+    padding: 5px 4px;
   }
   .main-content {
     padding: 10px 8px 14px;
@@ -705,8 +706,9 @@ body {
     font-size: 11px;
     padding: 6px 12px;
   }
-  .chart-link-btn {
-    font-size: 10px;
-    padding: 2px 6px;
+  .chart-url {
+    font-size: 9px;
+    padding: 1px 4px;
+    max-width: 60px;
   }
 }

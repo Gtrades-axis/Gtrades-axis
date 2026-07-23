@@ -79,7 +79,7 @@ function applyFilters() {
   updateStats();
 }
 
-// ─── RENDER TABLE WITH SEPARATE CHART COLUMNS ──────────────
+// ─── RENDER TABLE WITH URL LINKS ────────────────────────────
 function renderTable() {
   if (filteredTrades.length === 0) {
     body.innerHTML = `<tr><td colspan="12" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
@@ -96,19 +96,19 @@ function renderTable() {
     const session = t.session || "—";
     const model = t.entryModel || "—";
 
-    // ── Individual chart link helpers ──
-    const renderChartLink = (url, label) => {
+    // ── Render chart URL links ──
+    const renderUrl = (url, label) => {
       if (url && url.trim() !== "") {
-        return `<a href="${url}" target="_blank" class="chart-link-btn" title="View ${label} chart"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${label}</a>`;
+        return `<a href="${url}" target="_blank" class="chart-url" title="${url}"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${label}</a>`;
       }
-      return `<span class="chart-link-btn missing"><i class="fa-regular fa-circle"></i> —</span>`;
+      return `<span class="chart-url missing"><i class="fa-regular fa-circle"></i> —</span>`;
     };
 
-    const beforeLink = renderChartLink(t.beforeChart, "Before");
-    const duringLink = renderChartLink(t.duringChart, "During");
-    const afterLink = renderChartLink(t.afterChart, "After");
+    const beforeLink = renderUrl(t.beforeChart, "View");
+    const duringLink = renderUrl(t.duringChart, "View");
+    const afterLink = renderUrl(t.afterChart, "View");
 
-    // ── Action buttons ──
+    // ── Actions ──
     const actions = `
       <div class="action-group">
         <button class="btn-small" onclick="viewTrade('${t.id}')" title="View Details">
@@ -199,8 +199,8 @@ window.viewTrade = function(id) {
     { label: "Notes", value: trade.notes || "—" },
   ];
 
-  // ── Chart links in modal ──
-  const chartLinks = [];
+  // ── Chart URLs in modal ──
+  const chartUrls = [];
   const chartFields = [
     { key: "beforeChart", label: "📷 Before Entry" },
     { key: "duringChart", label: "📷 During Trade" },
@@ -209,13 +209,13 @@ window.viewTrade = function(id) {
   chartFields.forEach(({ key, label }) => {
     const url = trade[key];
     if (url && url.trim() !== "") {
-      chartLinks.push(`<a href="${url}" target="_blank" class="chart-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${label}</a>`);
+      chartUrls.push(`<a href="${url}" target="_blank" class="chart-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${label}</a>`);
     } else {
-      chartLinks.push(`<span class="no-chart">${label}: No chart saved</span>`);
+      chartUrls.push(`<span class="no-chart">${label}: No chart saved</span>`);
     }
   });
 
-  const chartHTML = `<div style="margin: 6px 0 2px 0; display: flex; flex-direction: column; gap: 4px;">${chartLinks.join("")}</div>`;
+  const chartHTML = `<div style="margin: 6px 0 2px 0; display: flex; flex-direction: column; gap: 4px;">${chartUrls.join("")}</div>`;
 
   let rows = fields.map(f => `
     <tr>
@@ -242,7 +242,6 @@ window.viewTrade = function(id) {
 
 // ─── EDIT TRADE ──────────────────────────────────────────────
 window.editTrade = function(id) {
-  // Navigate to journal page with edit parameter
   window.location.href = `journal.html?edit=${id}`;
 };
 
