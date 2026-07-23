@@ -79,10 +79,10 @@ function applyFilters() {
   updateStats();
 }
 
-// ─── RENDER TABLE ─────────────────────────────────────────────
+// ─── RENDER TABLE WITH CHART ICONS ──────────────────────────
 function renderTable() {
   if (filteredTrades.length === 0) {
-    body.innerHTML = `<tr><td colspan="9" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="empty"><i class="fa-regular fa-folder-open"></i> No trades match your filters.</td></tr>`;
     return;
   }
 
@@ -96,6 +96,36 @@ function renderTable() {
     const session = t.session || "—";
     const model = t.entryModel || "—";
 
+    // ── Build chart icons ──
+    const hasBefore = t.beforeChart && t.beforeChart.trim() !== "";
+    const hasDuring = t.duringChart && t.duringChart.trim() !== "";
+    const hasAfter = t.afterChart && t.afterChart.trim() !== "";
+    const chartIcons = `
+      <div class="chart-icons">
+        <a href="${hasBefore ? t.beforeChart : '#'}" 
+           target="${hasBefore ? '_blank' : ''}" 
+           class="chart-icon-link ${!hasBefore ? 'missing' : ''}"
+           title="${hasBefore ? 'Before Entry' : 'No chart saved'}"
+           ${!hasBefore ? 'onclick="return false;"' : ''}>
+          <i class="fa-regular fa-image"></i>
+        </a>
+        <a href="${hasDuring ? t.duringChart : '#'}" 
+           target="${hasDuring ? '_blank' : ''}" 
+           class="chart-icon-link ${!hasDuring ? 'missing' : ''}"
+           title="${hasDuring ? 'During Trade' : 'No chart saved'}"
+           ${!hasDuring ? 'onclick="return false;"' : ''}>
+          <i class="fa-regular fa-clock"></i>
+        </a>
+        <a href="${hasAfter ? t.afterChart : '#'}" 
+           target="${hasAfter ? '_blank' : ''}" 
+           class="chart-icon-link ${!hasAfter ? 'missing' : ''}"
+           title="${hasAfter ? 'After Trade' : 'No chart saved'}"
+           ${!hasAfter ? 'onclick="return false;"' : ''}>
+          <i class="fa-regular fa-check-circle"></i>
+        </a>
+      </div>
+    `;
+
     return `
       <tr>
         <td>${date}</td>
@@ -103,6 +133,7 @@ function renderTable() {
         <td>${direction}</td>
         <td>${session}</td>
         <td>${model}</td>
+        <td>${chartIcons}</td>
         <td class="${resultClass}">${t.result || "—"}</td>
         <td>${rr.toFixed(1)}</td>
         <td class="${profitClass}">${profit > 0 ? "+" : ""}$${profit.toFixed(2)}</td>
@@ -192,7 +223,7 @@ window.viewTrade = function(id) {
     }
   });
 
-  const chartHTML = `<div style="margin: 8px 0 4px 0; display: flex; flex-direction: column; gap: 6px;">${chartLinks.join("")}</div>`;
+  const chartHTML = `<div style="margin: 6px 0 2px 0; display: flex; flex-direction: column; gap: 4px;">${chartLinks.join("")}</div>`;
 
   // ── Build detail rows ──
   let rows = fields.map(f => `
@@ -202,7 +233,6 @@ window.viewTrade = function(id) {
     </tr>
   `).join("");
 
-  // ── Render modal ──
   detailsContainer.innerHTML = `
     <table class="detail-table">
       <tbody>

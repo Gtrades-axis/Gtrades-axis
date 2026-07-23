@@ -9,20 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  
-  <!-- ✅ DEDICATED HISTORY CSS (separate from general style.css) -->
   <link rel="stylesheet" href="css/history.css">
-
-  <style>
-    /* minimal inline – only for modal toggle/backup, rest in history.css */
-  </style>
 </head>
 
 <body>
 
 <div class="dashboard-container">
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
       <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" draggable="false">
@@ -41,10 +35,10 @@
     </button>
   </aside>
 
-  <!-- ===== MAIN CONTENT ===== -->
+  <!-- MAIN CONTENT -->
   <main class="main-content">
 
-    <!-- ===== HEADER ===== -->
+    <!-- HEADER -->
     <div class="page-header">
       <div>
         <h1><i class="fa-solid fa-clock-rotate-left"></i> Trading History</h1>
@@ -56,7 +50,7 @@
       </div>
     </div>
 
-    <!-- ===== STATS ===== -->
+    <!-- STATS -->
     <section class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon"><i class="fa-solid fa-list"></i></div>
@@ -80,7 +74,7 @@
       </div>
     </section>
 
-    <!-- ===== CONTROLS ===== -->
+    <!-- CONTROLS -->
     <section class="history-controls">
       <input type="text" id="tradeSearch" placeholder="🔍 Search by pair...">
       <select id="filterPair"><option value="">All Pairs</option></select>
@@ -99,7 +93,7 @@
       </select>
     </section>
 
-    <!-- ===== TABLE ===== -->
+    <!-- TABLE -->
     <section class="history-card">
       <div class="table-header">
         <h2><i class="fa-solid fa-table"></i> Trade History</h2>
@@ -114,6 +108,7 @@
               <th>Direction</th>
               <th>Session</th>
               <th>Model</th>
+              <th>Charts</th>
               <th>Result</th>
               <th>RR</th>
               <th>P/L</th>
@@ -121,13 +116,13 @@
             </tr>
           </thead>
           <tbody id="historyBody">
-            <tr><td colspan="9" class="empty"><i class="fa-regular fa-folder-open"></i> No trades recorded yet. Start journaling!</td></tr>
+            <tr><td colspan="10" class="empty"><i class="fa-regular fa-folder-open"></i> No trades recorded yet. Start journaling!</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- ===== MODAL ===== -->
+    <!-- MODAL -->
     <div id="tradeModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -141,17 +136,15 @@
   </main>
 </div>
 
-<!-- ===== SCROLL TO TOP ===== -->
+<!-- SCROLL TO TOP -->
 <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
-<!-- ===== SCRIPTS ===== -->
+<!-- SCRIPTS -->
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/history.js"></script>
 
-<!-- Scroll to top + Modal close logic -->
 <script>
   (function() {
-    // ── Scroll to top ──
     const btn = document.getElementById('scrollTopBtn');
     if (btn) {
       window.addEventListener('scroll', function() {
@@ -161,8 +154,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
-
-    // ── Modal close ──
     const modal = document.getElementById('tradeModal');
     const closeBtn = document.querySelector('.closeModal');
     if (modal && closeBtn) {
