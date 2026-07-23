@@ -951,7 +951,26 @@ NEW TRADE FORM
 
 <!-- Your journal logic -->
 <script type="module" src="js/journal.js"></script>
-
+<!-- SCROLL TO TOP BUTTON -->
+<button id="scrollTopBtn" title="Go to top">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
+<script>
+  // Scroll to top button
+  const scrollBtn = document.getElementById('scrollTopBtn');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        scrollBtn.classList.add('visible');
+      } else {
+        scrollBtn.classList.remove('visible');
+      }
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+</script>
 </body>
 </html>
 <script type="module" src="js/auth.js"></script>
