@@ -126,11 +126,11 @@ body::before {
 }
 
 .login-card .subtitle {
-    color: #080708;
-    font-size: 0.85rem;
-    font-weight: 400;
+    color: #141214;
+    font-size: 1.rem;
+    font-weight: 500;
     margin-bottom: 1.8rem;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.3px;
 }
 
 /* ─────────── MESSAGES ─────────── */
@@ -194,7 +194,7 @@ form {
 
 .input-group input {
     width: 100%;
-    padding: 0.85rem 0.8rem;
+    padding: 1.3rem 0.8rem;
     background: transparent;
     border: none;
     outline: none;
@@ -205,29 +205,29 @@ form {
 }
 
 .input-group input::placeholder {
-    color: rgba(255, 255, 255, 0.12);
-    font-weight: 300;
+    color: rgb(231 228 228 / 70%);
+    font-weight: 500;
 }
 
 .input-group input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px rgba(15, 25, 40, 0.95) inset !important;
-    -webkit-text-fill-color: #fff !important;
-    border-radius: 16px;
+    -webkit-box-shadow: 0 0 0 1000px #1e375c inset !important;
+    -webkit-text-fill-color: #f5f5f5 !important;
+    border-radius: 0.5px;
 }
 
 /* Password toggle */
 .toggle-pw {
     cursor: pointer;
-    color: #080708;
+    color: #fff;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
-    background: #090606;
+    transition: color 0.3s cubic-bezier(0.25, 0.1, 0.26, 0.84);
+    background: rgb(33 35 38 / 20%);
     border: none;
     padding: 0 0 0 0.4rem;
     flex-shrink: 0;
 }
 .toggle-pw:hover {
-    color: #080708;
+    color: #eee;
 }
 
 /* ─────────── BUTTON ─────────── */
@@ -296,11 +296,11 @@ form {
     background: linear-gradient(90deg, #ff6b6b, #080708, transparent);
 }
 .divider-text {
-    color: rgba(255, 255, 255, 0.06);
-    font-size: 0.6rem;
+    color: #ff6b6b;
+    font-size: .7rem;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 300;
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 /* ─────────── LINKS ─────────── */
