@@ -34,28 +34,11 @@
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1 id="quizTitle">Quiz</h1>
-    <a href="premium-academy.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a>
-  </div>
-  <div id="quizContainer">
-    <div style="text-align:center;padding:40px;color:#94a3b8;">Loading quiz...</div>
-  </div>
+  <div class="header"><h1 id="quizTitle">Quiz</h1><a href="premium-academy.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
+  <div id="quizContainer"><div style="text-align:center;padding:40px;color:#94a3b8;">Loading quiz...</div></div>
 </div>
 <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
-
 <script type="module" src="js/quiz.js"></script>
-<script>
-  (function() {
-    const btn = document.getElementById('scrollTopBtn');
-    if (!btn) return;
-    window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 200);
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-</script>
+<script> (function(){const b=document.getElementById('scrollTopBtn');if(!b)return;window.addEventListener('scroll',function(){b.classList.toggle('visible',window.scrollY>200);});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});})(); </script>
 </body>
 </html>

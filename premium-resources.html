@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Resources | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:6px; }
+    .dashboard-container { display:flex; min-height:100vh; }
+    .sidebar { width:200px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.06); padding:14px 10px; flex-shrink:0; }
+    .sidebar .logo { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+    .sidebar .logo img { width:32px; }
+    .sidebar .logo h2 { font-size:1rem; color:#f1f5f9; }
+    .sidebar .logo h2 span { background:linear-gradient(135deg,#0f8cff,#00c853); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .sidebar nav a { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; color:#94a3b8; text-decoration:none; font-size:0.8rem; font-weight:500; transition:0.2s; }
+    .sidebar nav a:hover { background:rgba(255,255,255,0.05); color:#e2e8f0; }
+    .sidebar nav a.active { background:rgba(15,140,255,0.12); color:#0f8cff; border-left:3px solid #0f8cff; }
+    .main-content { flex:1; padding:12px 16px 24px; }
+    .page-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:8px; flex-wrap:wrap; gap:6px; }
+    .page-header h1 { font-size:1.2rem; font-weight:700; background:linear-gradient(135deg,#f1f5f9,#94a3b8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .page-header p { color:#94a3b8; font-size:0.75rem; }
+    .header-actions .btn { padding:4px 10px; border-radius:6px; border:none; background:rgba(255,255,255,0.05); color:#94a3b8; text-decoration:none; font-weight:500; font-size:0.7rem; transition:0.2s; display:inline-flex; align-items:center; gap:4px; }
+    .header-actions .btn:hover { background:rgba(255,255,255,0.1); color:#f1f5f9; }
+    .resource-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin-top:8px; }
+    .resource-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; transition:0.2s; text-align:center; }
+    .resource-card:hover { border-color:rgba(15,140,255,0.25); background:rgba(255,255,255,0.06); transform:translateY(-2px); }
+    .resource-card .icon { font-size:2.2rem; color:#0f8cff; margin-bottom:6px; }
+    .resource-card .title { font-size:0.9rem; font-weight:600; color:#f1f5f9; margin-bottom:4px; }
+    .resource-card .desc { font-size:0.7rem; color:#94a3b8; margin-bottom:8px; }
+    .resource-card .btn-download { padding:4px 14px; background:rgba(15,140,255,0.12); color:#0f8cff; border:none; border-radius:6px; font-size:0.7rem; cursor:pointer; transition:0.2s; text-decoration:none; display:inline-block; }
+    .resource-card .btn-download:hover { background:rgba(15,140,255,0.25); }
+    .category-tag { display:inline-block; font-size:0.55rem; padding:1px 8px; border-radius:4px; background:rgba(255,255,255,0.05); color:#94a3b8; margin-bottom:4px; }
+    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+    @media (max-width:768px){ .sidebar{display:none;} .main-content{padding:8px;} .resource-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));} }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="logo"><img src="images/logo.png" alt="Logo"><h2>GTRADES <span>AXIS™</span></h2></div>
+    <nav>
+      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
+      <a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
+      <a class="active" href="premium-resources.html"><i class="fa-solid fa-folder-open"></i> Premium Resources</a>
+      <a href="videos.html"><i class="fa-solid fa-video"></i> Videos</a>
+      <a href="journal.html"><i class="fa-solid fa-book"></i> Journal</a>
+      <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+      <a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+      <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+    </nav>
+    <button id="logoutBtn" style="background:none;border:none;color:#ff4d4f;cursor:pointer;margin-top:20px;text-align:left;font-size:0.8rem;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </aside>
+  <main class="main-content">
+    <div class="page-header">
+      <div><h1><i class="fa-solid fa-folder-open"></i> Premium Resources</h1><p>Download tools, templates, and guides to enhance your trading.</p></div>
+      <div class="header-actions"><span id="userRole" style="font-size:0.7rem;color:#94a3b8;margin-right:6px;"></span><a href="dashboard.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
+    </div>
+    <div id="resourcesContainer" class="resource-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">Loading resources...</div>
+    </div>
+  </main>
+</div>
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/premium-resources.js"></script>
+<script> (function(){const b=document.getElementById('scrollTopBtn');if(!b)return;window.addEventListener('scroll',function(){b.classList.toggle('visible',window.scrollY>250);});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});})(); </script>
+</body>
+</html>

@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* ── Ultra compact & dark ── */
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:10px; }
     .container { max-width:900px; margin:0 auto; }
@@ -36,28 +35,11 @@
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1 id="lessonTitle">Loading...</h1>
-    <a href="premium-academy.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back to Academy</a>
-  </div>
-  <div id="lessonContent">
-    <div style="text-align:center;padding:40px;color:#94a3b8;">Loading lesson...</div>
-  </div>
+  <div class="header"><h1 id="lessonTitle">Loading...</h1><a href="premium-academy.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
+  <div id="lessonContent"><div style="text-align:center;padding:40px;color:#94a3b8;">Loading lesson...</div></div>
 </div>
 <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
-
 <script type="module" src="js/lesson.js"></script>
-<script>
-  (function() {
-    const btn = document.getElementById('scrollTopBtn');
-    if (!btn) return;
-    window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 200);
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-</script>
+<script> (function(){const b=document.getElementById('scrollTopBtn');if(!b)return;window.addEventListener('scroll',function(){b.classList.toggle('visible',window.scrollY>200);});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});})(); </script>
 </body>
 </html>

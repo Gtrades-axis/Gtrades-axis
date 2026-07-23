@@ -44,33 +44,17 @@
   <div class="desc">has successfully completed</div>
   <div class="module-name" id="moduleTitle">—</div>
   <div class="date" id="issueDate"></div>
-  <div class="footer">
-    <span>Issued by GTRADES-AXIS™ Academy</span>
-    <span id="certId">#GTRADES-001</span>
-  </div>
+  <div class="footer"><span>Issued by GTRADES-AXIS™ Academy</span><span id="certId">#GTRADES-001</span></div>
 </div>
 <div class="actions">
   <button class="btn btn-primary" id="downloadPngBtn"><i class="fa-solid fa-image"></i> Download PNG</button>
   <button class="btn btn-gold" id="downloadPdfBtn"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
   <a href="premium-academy.html" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back</a>
 </div>
-
 <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
-
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script type="module" src="js/certificate.js"></script>
-<script>
-  (function() {
-    const btn = document.getElementById('scrollTopBtn');
-    if (!btn) return;
-    window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 200);
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-</script>
+<script> (function(){const b=document.getElementById('scrollTopBtn');if(!b)return;window.addEventListener('scroll',function(){b.classList.toggle('visible',window.scrollY>200);});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});})(); </script>
 </body>
 </html>

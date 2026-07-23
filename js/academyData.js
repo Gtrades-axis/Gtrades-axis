@@ -1,4 +1,3 @@
-// js/academyData.js
 export const ALL_MODULES = [
   {
     id: "mod_1",
@@ -12,14 +11,11 @@ export const ALL_MODULES = [
       { id: "lsn_1_5", title: "Recommended Tools", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
     ],
     hasQuiz: true,
-    quiz: {
-      passingScore: 70,
-      questions: [
-        { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
-        { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 },
-        { question: "What is the primary rule of trading?", options: ["Protect your capital", "Make maximum profit", "Trade every day", "Use high leverage"], correct: 0 }
-      ]
-    }
+    quiz: { passingScore: 70, questions: [
+      { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
+      { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 },
+      { question: "What is the primary rule of trading?", options: ["Protect your capital", "Make maximum profit", "Trade every day", "Use high leverage"], correct: 0 }
+    ]}
   },
   {
     id: "mod_2",
@@ -37,16 +33,12 @@ export const ALL_MODULES = [
       { id: "lsn_2_9", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
     ],
     hasQuiz: true,
-    quiz: {
-      passingScore: 70,
-      questions: [
-        { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
-        { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 },
-        { question: "What is the HTF bias used for?", options: ["Determining overall trend direction", "Entry timing", "Risk management", "Setting stop loss"], correct: 0 }
-      ]
-    }
+    quiz: { passingScore: 70, questions: [
+      { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
+      { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 },
+      { question: "What is the HTF bias used for?", options: ["Determining overall trend direction", "Entry timing", "Risk management", "Setting stop loss"], correct: 0 }
+    ]}
   },
-  // Add modules 3–7 similarly (I'll include a few questions each for brevity – you can expand later)
   {
     id: "mod_3",
     title: "Module 3 — Liquidity",
@@ -62,13 +54,11 @@ export const ALL_MODULES = [
       { id: "lsn_3_8", title: "Practical Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
     ],
     hasQuiz: true,
-    quiz: {
-      passingScore: 70,
-      questions: [
-        { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
-        { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 }
-      ]
-    }
+    quiz: { passingScore: 70, questions: [
+      { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
+      { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 },
+      { question: "Engineered liquidity is:", options: ["Created by institutions to trap traders", "Natural market movement", "Always bullish", "Always bearish"], correct: 0 }
+    ]}
   },
   {
     id: "mod_4",
@@ -84,16 +74,66 @@ export const ALL_MODULES = [
       { id: "lsn_4_7", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
     ],
     hasQuiz: true,
-    quiz: {
-      passingScore: 70,
-      questions: [
-        { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
-        { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 }
-      ]
-    }
+    quiz: { passingScore: 70, questions: [
+      { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
+      { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 },
+      { question: "Demand zones are typically found:", options: ["Near support levels", "Near resistance levels", "In the middle of a range", "Above price"], correct: 0 }
+    ]}
   },
-  // Add mod_5, mod_6, mod_7 similarly
+  {
+    id: "mod_5",
+    title: "Module 5 — Trade Entries",
+    description: "LC-1, LC-2A, LTF RE, MTF RE, confirmation checklist, trade management, exit strategy.",
+    lessons: [
+      { id: "lsn_5_1", title: "Entry Philosophy", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_2", title: "LC-1", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_3", title: "LC-2A", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_4", title: "Lower Timeframe Re-entry (LTF RE)", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_5", title: "Multi-Timeframe Re-entry (MTF RE)", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_6", title: "Confirmation Checklist", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_7", title: "Trade Management", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_8", title: "Exit Strategy", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    hasQuiz: true,
+    quiz: { passingScore: 70, questions: [
+      { question: "What does LC-1 stand for?", options: ["Liquidity Capture 1", "Low Confidence 1", "Long Call 1", "Limit Close 1"], correct: 0 },
+      { question: "What is the main purpose of a confirmation checklist?", options: ["Avoid impulsive entries", "Increase position size", "Trade more frequently", "Use higher leverage"], correct: 0 }
+    ]}
+  },
+  {
+    id: "mod_6",
+    title: "Module 6 — Risk Management",
+    description: "Position sizing, risk per trade, daily/weekly limits, R:R, prop firm rules, drawdown.",
+    lessons: [
+      { id: "lsn_6_1", title: "Position Sizing", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_2", title: "Risk Per Trade", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_3", title: "Daily & Weekly Limits", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_4", title: "Risk-to-Reward", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_5", title: "Prop Firm Rules", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_6", title: "Managing Drawdown", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    hasQuiz: true,
+    quiz: { passingScore: 70, questions: [
+      { question: "What is a recommended risk per trade for beginners?", options: ["1-2%", "5-10%", "20%", "50%"], correct: 0 },
+      { question: "What is drawdown?", options: ["Peak-to-trough decline in equity", "Maximum profit", "Average win", "Total trades"], correct: 0 }
+    ]}
+  },
+  {
+    id: "mod_7",
+    title: "Module 7 — Trading Psychology",
+    description: "Discipline, patience, emotional control, routine, consistency, common mistakes.",
+    lessons: [
+      { id: "lsn_7_1", title: "Discipline", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_2", title: "Patience", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_3", title: "Emotional Control", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_4", title: "Trading Routine", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_5", title: "Building Consistency", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_6", title: "Common Trading Mistakes", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    hasQuiz: true,
+    quiz: { passingScore: 70, questions: [
+      { question: "What is the most common mistake traders make?", options: ["Overtrading", "Using stop losses", "Following a plan", "Keeping a journal"], correct: 0 },
+      { question: "How can you improve trading consistency?", options: ["Stick to your trading plan", "Trade every signal", "Increase risk", "Ignore the market"], correct: 0 }
+    ]}
+  }
 ];
-
-// For brevity, I'm omitting mod_5, mod_6, mod_7 here – you can copy the pattern.
-// But in your final file, include all 7 modules with quiz questions.
