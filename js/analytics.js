@@ -12,24 +12,14 @@ let charts = {};
 let currentUser = null;
 let analyticsLoaded = false;
 
-// DOM elements
-const totalTradesEl = document.getElementById("totalTrades");
-const winRateEl = document.getElementById("winRate");
-const avgRREl = document.getElementById("averageRR");
-const netProfitEl = document.getElementById("netProfit");
-const profitFactorEl = document.getElementById("profitFactor");
-const expectancyEl = document.getElementById("expectancy");
-const avgWinEl = document.getElementById("averageWin");
-const avgLossEl = document.getElementById("averageLoss");
-const bestPairEl = document.getElementById("bestPair");
-const bestSessionEl = document.getElementById("bestSession");
-const bestModelEl = document.getElementById("bestModel");
-const equityCanvas = document.getElementById("equityChart");
-const monthlyCanvas = document.getElementById("monthlyChart");
-const pairCanvas = document.getElementById("pairChart");
-const sessionCanvas = document.getElementById("sessionChart");
-const insightsPanel = document.getElementById("analyticsInsights");
+// ─── SAFE DOM REFERENCES ──────────────────────────────────────
+function getEl(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`⚠️ Element #${id} not found in HTML.`);
+  return el;
+}
 
+// ─── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "login.html";
@@ -39,12 +29,14 @@ onAuthStateChanged(auth, (user) => {
   loadTradesRealtime();
 });
 
+// ─── LOAD FROM FIRESTORE (subcollection) ─────────────────────
 function loadTradesRealtime() {
   const tradesRef = collection(db, "users", currentUser.uid, "trades");
   const q = query(tradesRef, orderBy("tradeDate", "desc"));
   onSnapshot(q, (snapshot) => {
     trades = [];
     snapshot.forEach((doc) => trades.push({ id: doc.id, ...doc.data() }));
+    console.log(`📊 Analytics: ${trades.length} trades loaded`);
     refreshAnalytics();
   }, (error) => {
     console.error("Firestore error:", error);
@@ -52,6 +44,7 @@ function loadTradesRealtime() {
   });
 }
 
+// ─── MASTER REFRESH ────────────────────────────────────────────
 function refreshAnalytics() {
   if (!analyticsLoaded) {
     initializeCharts();
@@ -62,6 +55,7 @@ function refreshAnalytics() {
   buildInsights();
 }
 
+// ─── UPDATE OVERVIEW (safe) ───────────────────────────────────
 function updateOverview() {
   const total = trades.length;
   const wins = trades.filter(t => t.result === "Win");
@@ -79,6 +73,7 @@ function updateOverview() {
   const avgWin = wins.length ? grossProfit / wins.length : 0;
   const avgLoss = losses.length ? grossLoss / losses.length : 0;
 
+  // ── Update cards (safe) ──
   setText("totalTrades", total);
   setText("winRate", winRate.toFixed(1) + "%");
   setText("averageRR", avgRR.toFixed(2));
@@ -88,7 +83,7 @@ function updateOverview() {
   setText("averageWin", "$" + avgWin.toFixed(2));
   setText("averageLoss", "$" + avgLoss.toFixed(2));
 
-  // Best pair
+  // ── Best pair ──
   const pairStats = {};
   trades.forEach(t => {
     const p = t.pair || "Unknown";
@@ -99,8 +94,17 @@ function updateOverview() {
     if (v > bestVal) { bestVal = v; bestPair = k; }
   });
   setText("bestPair", bestPair);
+  setText("bestPairProfit", bestVal === -Infinity ? "$0" : "$" + bestVal.toFixed(2));
 
-  // Best session
+  // ── Worst pair ──
+  let worstPair = "-", worstVal = Infinity;
+  Object.entries(pairStats).forEach(([k, v]) => {
+    if (v < worstVal) { worstVal = v; worstPair = k; }
+  });
+  setText("worstPair", worstPair);
+  setText("worstPairProfit", worstVal === Infinity ? "$0" : "$" + worstVal.toFixed(2));
+
+  // ── Best session ──
   const sessionStats = {};
   trades.forEach(t => {
     const s = t.session || "Unknown";
@@ -111,8 +115,9 @@ function updateOverview() {
     if (v > bestSessionVal) { bestSessionVal = v; bestSession = k; }
   });
   setText("bestSession", bestSession);
+  setText("bestSessionWinrate", bestSessionVal === -Infinity ? "0%" : bestSessionVal.toFixed(0) + "%");
 
-  // Best model
+  // ── Best model ──
   const modelStats = {};
   trades.forEach(t => {
     const m = t.entryModel || "Unknown";
@@ -123,15 +128,24 @@ function updateOverview() {
     if (v > bestModelCount) { bestModelCount = v; bestModel = k; }
   });
   setText("bestModel", bestModel);
+  setText("bestModelWinrate", bestModelCount === 0 ? "0%" : ((bestModelCount / total) * 100).toFixed(0) + "%");
 }
 
 function setText(id, value) {
-  const el = document.getElementById(id);
+  const el = getEl(id);
   if (el) el.textContent = value;
 }
 
+// ─── CHART INIT ────────────────────────────────────────────────
 function initializeCharts() {
-  if (!equityCanvas || !monthlyCanvas || !pairCanvas || !sessionCanvas) return;
+  const equityCanvas = getEl("equityChart");
+  const monthlyCanvas = getEl("monthlyChart");
+  const pairCanvas = getEl("pairChart");
+  const sessionCanvas = getEl("sessionChart");
+  if (!equityCanvas || !monthlyCanvas || !pairCanvas || !sessionCanvas) {
+    console.warn("⚠️ Some chart canvases missing");
+    return;
+  }
 
   charts.equity = new Chart(equityCanvas, {
     type: "line",
@@ -153,6 +167,7 @@ function initializeCharts() {
     data: { labels: [], datasets: [{ data: [], backgroundColor: ["#0f8cff", "#00c853", "#ffb300", "#ff4d4f", "#9c27b0"] }] },
     options: pieOptions()
   });
+  console.log("✅ Charts initialised");
 }
 
 function chartOptions() {
@@ -175,9 +190,9 @@ function pieOptions() {
   };
 }
 
+// ─── BUILD CHARTS ──────────────────────────────────────────────
 function buildCharts() {
   if (!charts.equity) return;
-
   let running = 0;
   const eq = trades.map((t) => { running += Number(t.profit || 0); return running; });
   charts.equity.data.labels = trades.map((_, i) => i + 1);
@@ -216,10 +231,12 @@ function buildCharts() {
   charts.session.update();
 }
 
+// ─── INSIGHTS ──────────────────────────────────────────────────
 function buildInsights() {
-  if (!insightsPanel) return;
+  const panel = getEl("analyticsInsights");
+  if (!panel) return;
   if (trades.length === 0) {
-    insightsPanel.innerHTML = `<div class="loading-card">No trading history found.</div>`;
+    panel.innerHTML = `<div class="loading-card">No trading history found.</div>`;
     return;
   }
   const total = trades.length;
@@ -227,8 +244,8 @@ function buildInsights() {
   const losses = trades.filter(t => t.result === "Loss").length;
   const be = trades.filter(t => t.result === "Break Even").length;
   const winRate = total ? ((wins / total) * 100).toFixed(1) : 0;
-  const bestPair = document.getElementById("bestPair")?.textContent || "-";
-  insightsPanel.innerHTML = `
+  const bestPair = getEl("bestPair")?.textContent || "-";
+  panel.innerHTML = `
     <div class="insight-item"><h4>📊 Total</h4><p>${total}</p></div>
     <div class="insight-item"><h4>✅ Win Rate</h4><p style="color:#00c853;">${winRate}%</p></div>
     <div class="insight-item"><h4>🏆 Wins</h4><p style="color:#00c853;">${wins}</p></div>
