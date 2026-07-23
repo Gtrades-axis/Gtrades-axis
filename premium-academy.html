@@ -1,28 +1,71 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
-<meta charset="UTF-8">
-
-<title>Coming Soon</title>
-
-<link rel="stylesheet" href="css/dashboard.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academy | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Ultra compact & dark ── */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:6px; }
+    .container { max-width:1200px; margin:0 auto; }
+    .academy-header { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+    .academy-header h1 { font-size:1.4rem; font-weight:700; background:linear-gradient(135deg,#0f8cff,#00c853); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .academy-header .btn { padding:4px 12px; border-radius:6px; background:rgba(15,140,255,0.12); color:#0f8cff; text-decoration:none; font-size:0.7rem; }
+    .module-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:8px; margin-bottom:12px; }
+    .module-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; transition:0.2s; }
+    .module-card:hover { border-color:rgba(15,140,255,0.25); background:rgba(255,255,255,0.06); }
+    .module-card h3 { font-size:0.95rem; font-weight:600; color:#f1f5f9; margin-bottom:4px; }
+    .module-card .desc { font-size:0.7rem; color:#94a3b8; margin-bottom:8px; }
+    .progress-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; margin-bottom:8px; overflow:hidden; }
+    .progress-bar .fill { height:100%; background:linear-gradient(90deg,#0f8cff,#00c853); width:0%; transition:width 0.3s; }
+    .lesson-list { display:flex; flex-direction:column; gap:4px; }
+    .lesson-item { display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:4px; transition:0.2s; }
+    .lesson-item:hover { background:rgba(255,255,255,0.04); }
+    .lesson-item .icon { width:16px; color:#94a3b8; }
+    .lesson-item .icon.completed { color:#00c853; }
+    .lesson-item .title { font-size:0.75rem; flex:1; color:#e2e8f0; }
+    .lesson-item .badge { font-size:0.55rem; padding:1px 6px; border-radius:4px; background:rgba(15,140,255,0.15); color:#0f8cff; }
+    .quiz-btn { margin-top:6px; padding:4px 12px; background:rgba(255,179,0,0.12); color:#ffb300; border:none; border-radius:6px; font-size:0.65rem; font-weight:500; cursor:pointer; transition:0.2s; }
+    .quiz-btn:hover { background:rgba(255,179,0,0.25); }
+    .cert-badge { color:#00c853; font-size:0.7rem; margin-top:4px; display:inline-flex; align-items:center; gap:4px; }
+    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+    @media (max-width:768px){ .module-grid{grid-template-columns:1fr;} .academy-header{flex-direction:column;align-items:flex-start;} }
+  </style>
 </head>
-
 <body>
-
-<div style="padding:80px;text-align:center;font-family:Poppins,sans-serif;">
-
-<h1>🚧 Coming Soon</h1>
-
-<p>This Premium section is currently under development.</p>
-
-<p><a href="dashboard.html">← Return to Dashboard</a></p>
-
+<div class="container">
+  <div class="academy-header">
+    <h1><i class="fa-solid fa-graduation-cap"></i> GTRADES‑AXIS Academy</h1>
+    <div>
+      <span id="userRole" style="font-size:0.7rem;color:#94a3b8;margin-right:8px;"></span>
+      <a href="dashboard.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+    </div>
+  </div>
+  <div id="academyContainer" class="module-grid">
+    <!-- Modules will be injected here -->
+  </div>
 </div>
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
+<script type="module" src="js/academy.js"></script>
+<script>
+  (function() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+      btn.classList.toggle('visible', window.scrollY > 250);
+    });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
 </body>
-
 </html>
