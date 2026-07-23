@@ -1,260 +1,516 @@
-/* ==========================================================
-GTRADES-AXIS™ JOURNAL
-PART 1
-CORE LAYOUT
-========================================================== */
+/* ======================================================
+GTRADES AXIS™ JOURNAL
+====================================================== */
 
-:root{
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
-    --bg:#0b1120;
-    --card:#121b2c;
-    --card2:#182338;
+body{
 
-    --border:rgba(255,255,255,.06);
+font-family:'Poppins',sans-serif;
 
-    --primary:#1d8fff;
-    --primary-hover:#0c78ef;
+background:#0b1120;
 
-    --text:#ffffff;
-    --muted:#9fb3c8;
-
-    --radius:16px;
+color:#ffffff;
 
 }
 
-/* ========================================================== */
+.dashboard-container{
+
+display:flex;
+
+min-height:100vh;
+
+}
+
+/* ======================================================
+MAIN CONTENT
+====================================================== */
 
 .main-content{
 
-    flex:1;
+flex:1;
 
-    padding:30px;
+padding:30px;
 
-    background:var(--bg);
+max-width:1700px;
 
-    min-height:100vh;
-
-    overflow-y:auto;
+margin:auto;
 
 }
 
-/* ==========================================================
+/* ======================================================
 PAGE HEADER
-========================================================== */
+====================================================== */
 
 .page-header{
 
-    display:flex;
+display:flex;
 
-    justify-content:space-between;
+justify-content:space-between;
 
-    align-items:center;
+align-items:center;
 
-    margin-bottom:28px;
+margin-bottom:30px;
 
 }
 
 .page-header h1{
 
-    font-size:32px;
+font-size:34px;
 
-    font-weight:700;
-
-    color:var(--text);
+font-weight:700;
 
 }
 
 .page-header p{
 
-    color:var(--muted);
+color:#8fa5c6;
 
-    margin-top:6px;
-
-    font-size:15px;
+margin-top:6px;
 
 }
 
-/* ==========================================================
-BUTTONS
-========================================================== */
-
 .btn{
 
-    display:inline-flex;
+display:inline-flex;
 
-    align-items:center;
+align-items:center;
 
-    justify-content:center;
+gap:10px;
 
-    gap:10px;
+padding:12px 22px;
 
-    padding:12px 22px;
+background:#1677ff;
 
-    background:var(--primary);
+color:#fff;
 
-    color:white;
+text-decoration:none;
 
-    border:none;
+border-radius:10px;
 
-    border-radius:10px;
+font-weight:600;
 
-    font-weight:600;
+border:none;
 
-    cursor:pointer;
+cursor:pointer;
 
-    text-decoration:none;
-
-    transition:.25s;
+transition:.25s;
 
 }
 
 .btn:hover{
 
-    background:var(--primary-hover);
+background:#005be3;
 
 }
-/* Scroll to top button */
-#scrollTopBtn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 999;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0f8cff, #00c853);
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(15, 140, 255, 0.4);
-  transition: all 0.3s ease;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px);
-}
-#scrollTopBtn.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-#scrollTopBtn:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 8px 30px rgba(15, 140, 255, 0.6);
-}
-#scrollTopBtn:active {
-  transform: scale(0.95);
-}
 
-/* ==========================================================
-DASHBOARD STATS
-========================================================== */
+/* ======================================================
+STATS
+====================================================== */
 
 .stats-grid{
 
-    display:grid;
+display:grid;
 
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 
-    gap:18px;
+gap:18px;
 
-    margin-bottom:28px;
+margin-bottom:30px;
 
 }
 
 .stat-card{
 
-    background:var(--card);
+background:#121826;
 
-    border:1px solid var(--border);
+padding:22px;
 
-    border-radius:var(--radius);
+border-radius:15px;
 
-    padding:22px;
+border:1px solid rgba(255,255,255,.08);
 
-    transition:.25s;
+transition:.25s;
 
 }
 
 .stat-card:hover{
 
-    transform:translateY(-3px);
+transform:translateY(-3px);
 
 }
 
 .stat-card h3{
 
-    color:var(--muted);
+font-size:14px;
 
-    font-size:14px;
+font-weight:500;
 
-    font-weight:500;
+color:#8ea2bf;
 
-    margin-bottom:10px;
+margin-bottom:12px;
 
 }
 
 .stat-card h1{
 
-    color:white;
+font-size:34px;
 
-    font-size:34px;
+font-weight:700;
 
-    font-weight:700;
+color:#ffffff;
 
 }
 
-/* ==========================================================
+/* ======================================================
 CHARTS
-========================================================== */
+====================================================== */
 
 .chart-grid{
 
-    display:grid;
+display:grid;
 
-    grid-template-columns:2fr 1fr;
+grid-template-columns:2fr 1fr;
 
-    gap:20px;
+gap:20px;
 
-    margin-bottom:30px;
+margin-bottom:30px;
 
 }
 
 .chart-card{
 
-    background:var(--card);
+background:#121826;
 
-    border:1px solid var(--border);
+padding:25px;
 
-    border-radius:var(--radius);
+border-radius:15px;
 
-    padding:22px;
+border:1px solid rgba(255,255,255,.08);
 
 }
 
 .chart-card h2{
 
-    font-size:18px;
+margin-bottom:20px;
 
-    margin-bottom:18px;
+font-size:20px;
 
-    color:white;
+font-weight:600;
+
+}
+/* ======================================================
+JOURNAL FORM
+====================================================== */
+
+.form-section{
+
+background:#121826;
+
+padding:25px;
+
+border-radius:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+margin-bottom:25px;
 
 }
 
-.chart-card canvas{
 
-    width:100% !important;
+.form-section h2{
 
-    height:320px !important;
+font-size:20px;
+
+margin-bottom:20px;
+
+font-weight:600;
 
 }
 
-/* ==========================================================
+
+
+/* ======================================================
+FORM GRID
+====================================================== */
+
+.form-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:15px;
+
+}
+
+
+.form-group{
+
+display:flex;
+
+flex-direction:column;
+
+gap:7px;
+
+}
+
+
+.form-group label{
+
+font-size:13px;
+
+font-weight:500;
+
+color:#8fa5c6;
+
+}
+
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+
+background:#0b1120;
+
+border:1px solid rgba(255,255,255,.1);
+
+color:white;
+
+padding:12px 14px;
+
+border-radius:8px;
+
+outline:none;
+
+font-size:14px;
+
+transition:.2s;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+
+border-color:#1677ff;
+
+}
+
+
+/* ======================================================
+TIMEFRAME STRUCTURE
+HTF / MTF / LTF
+====================================================== */
+
+
+.timeframe-box{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:15px;
+
+margin-top:15px;
+
+}
+
+
+.tf-card{
+
+background:#0b1120;
+
+padding:15px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.tf-card h3{
+
+font-size:14px;
+
+color:#8fa5c6;
+
+margin-bottom:12px;
+
+}
+
+
+.tf-card select{
+
+width:100%;
+
+background:#121826;
+
+border:1px solid rgba(255,255,255,.1);
+
+color:#fff;
+
+padding:10px;
+
+border-radius:8px;
+
+}
+
+
+/* ======================================================
+MARKET STRUCTURE
+====================================================== */
+
+
+.structure-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:15px;
+
+}
+
+
+.structure-card{
+
+background:#0b1120;
+
+padding:15px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.structure-card h4{
+
+font-size:13px;
+
+color:#8fa5c6;
+
+margin-bottom:10px;
+
+}
+
+
+
+/* ======================================================
+TRADE DETAILS
+====================================================== */
+
+
+.trade-details{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:15px;
+
+}
+
+
+.trade-details input{
+
+width:100%;
+
+}
+
+
+/* ======================================================
+COMPACT FORM MODE
+====================================================== */
+
+
+.compact{
+
+padding:18px;
+
+}
+
+
+.compact .form-group{
+
+gap:5px;
+
+}
+
+
+.compact input,
+.compact select{
+
+padding:10px;
+
+}
+
+
+
+/* ======================================================
+RISK MANAGEMENT
+====================================================== */
+
+
+.risk-grid{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:15px;
+
+}
+
+
+.risk-card{
+
+background:#0b1120;
+
+padding:15px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.risk-card span{
+
+font-size:12px;
+
+color:#8fa5c6;
+
+display:block;
+
+margin-bottom:8px;
+
+}
+
+
+.risk-card strong{
+
+font-size:22px;
+
+}
+
+
+
+/* ======================================================
 RESPONSIVE
-========================================================== */
+====================================================== */
 
-@media(max-width:1000px){
+
+@media(max-width:1100px){
 
 .chart-grid{
 
@@ -262,15 +518,28 @@ grid-template-columns:1fr;
 
 }
 
+
+.timeframe-box,
+.structure-grid,
+.trade-details,
+.risk-grid{
+
+grid-template-columns:1fr 1fr;
+
 }
 
-@media(max-width:768px){
+}
+
+
+
+@media(max-width:700px){
 
 .main-content{
 
-padding:18px;
+padding:15px;
 
 }
+
 
 .page-header{
 
@@ -282,642 +551,1613 @@ gap:15px;
 
 }
 
-}
-/* ==========================================================
-JOURNAL FORM
-PART 2
-========================================================== */
 
-.journal-card{
+.timeframe-box,
+.structure-grid,
+.trade-details,
+.risk-grid{
 
-    background:var(--card);
-
-    border:1px solid var(--border);
-
-    border-radius:var(--radius);
-
-    padding:28px;
-
-    margin-bottom:28px;
+grid-template-columns:1fr;
 
 }
 
-.journal-card h2{
+}
+/* ======================================================
+TRADE HISTORY SECTION
+====================================================== */
 
-    font-size:24px;
 
-    margin-bottom:25px;
+.history-section{
 
-    color:white;
+background:#121826;
 
-    display:flex;
+padding:25px;
 
-    align-items:center;
+border-radius:15px;
 
-    gap:10px;
+border:1px solid rgba(255,255,255,.08);
+
+margin-top:25px;
 
 }
 
-/* ==========================================================
-SECTION TITLES
-========================================================== */
 
-.journal-card h3{
 
-    margin-top:28px;
+.history-header{
 
-    margin-bottom:18px;
+display:flex;
 
-    color:#49a5ff;
+justify-content:space-between;
 
-    font-size:18px;
+align-items:center;
 
-    font-weight:600;
-
-    border-left:4px solid var(--primary);
-
-    padding-left:12px;
+margin-bottom:20px;
 
 }
 
-.section-title{
 
-    color:#49a5ff;
 
-    font-size:16px;
+.history-header h2{
 
-    font-weight:600;
+font-size:20px;
 
-    margin-bottom:15px;
+font-weight:600;
 
 }
 
-/* ==========================================================
-SECTION BOXES
-========================================================== */
 
-.journal-section{
 
-    background:var(--card2);
+/* ======================================================
+FILTER BAR
+====================================================== */
 
-    border:1px solid rgba(255,255,255,.04);
 
-    border-radius:14px;
+.filter-bar{
 
-    padding:20px;
+display:flex;
 
-    margin-bottom:20px;
+gap:12px;
 
-}
+flex-wrap:wrap;
 
-/* ==========================================================
-GRID
-========================================================== */
-
-.journal-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-
-    gap:16px;
+margin-bottom:20px;
 
 }
 
-/* ==========================================================
-FORM GROUP
-========================================================== */
 
-.form-group{
 
-    display:flex;
+.filter-bar input,
+.filter-bar select{
 
-    flex-direction:column;
+background:#0b1120;
 
-}
+border:1px solid rgba(255,255,255,.1);
 
-.form-group label{
+color:white;
 
-    color:var(--muted);
+padding:11px 14px;
 
-    font-size:13px;
+border-radius:8px;
 
-    margin-bottom:6px;
+outline:none;
 
-    font-weight:500;
+min-width:180px;
 
 }
 
-/* ==========================================================
-INPUTS
-========================================================== */
 
-.form-group input,
 
-.form-group select,
+.filter-bar input:focus,
+.filter-bar select:focus{
 
-.form-group textarea{
-
-    width:100%;
-
-    background:#0d1627;
-
-    color:white;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    border-radius:10px;
-
-    padding:12px 14px;
-
-    font-size:14px;
-
-    transition:.25s;
+border-color:#1677ff;
 
 }
 
-.form-group input:focus,
 
-.form-group select:focus,
 
-.form-group textarea:focus{
+/* ======================================================
+TABLE CONTAINER
+====================================================== */
 
-    outline:none;
 
-    border-color:var(--primary);
+.table-container{
 
-    box-shadow:0 0 0 3px rgba(29,143,255,.18);
+width:100%;
 
-}
-
-/* ==========================================================
-TEXTAREA
-========================================================== */
-
-.form-group textarea{
-
-    resize:vertical;
-
-    min-height:90px;
+overflow-x:auto;
 
 }
 
-/* ==========================================================
-SELECT
-========================================================== */
 
-.form-group select{
 
-    cursor:pointer;
+.trade-table{
 
-}
+width:100%;
 
-/* ==========================================================
-INPUT PLACEHOLDER
-========================================================== */
-
-.form-group input::placeholder,
-
-.form-group textarea::placeholder{
-
-    color:#6d7f96;
-
-}
-/* ==========================================================
-CONFLUENCE CHIPS
-PART 3
-========================================================== */
-
-.chips-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-
-    gap:14px;
+border-collapse:collapse;
 
 }
 
-.chips-grid label{
 
-    display:flex;
 
-    align-items:center;
+.trade-table thead{
 
-    gap:10px;
-
-    padding:12px 16px;
-
-    background:#0d1627;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    border-radius:10px;
-
-    cursor:pointer;
-
-    color:#d8e4f2;
-
-    transition:.25s;
-
-    font-size:14px;
-
-    font-weight:500;
+background:#0b1120;
 
 }
 
-.chips-grid label:hover{
 
-    border-color:#1d8fff;
 
-    background:#13213a;
+.trade-table th{
 
-}
+padding:14px;
 
-.chips-grid input[type="checkbox"]{
+text-align:left;
 
-    width:18px;
+font-size:13px;
 
-    height:18px;
+color:#8fa5c6;
 
-    accent-color:#1d8fff;
+font-weight:600;
 
 }
 
-/* ==========================================================
-SAVE BUTTON
-========================================================== */
 
-.save-container{
 
-    display:flex;
+.trade-table td{
 
-    justify-content:flex-end;
+padding:14px;
 
-    margin-top:30px;
+border-bottom:1px solid rgba(255,255,255,.06);
 
-}
+font-size:14px;
 
-.save-container .btn{
-
-    min-width:220px;
-
-    font-size:16px;
+color:#ffffff;
 
 }
 
-/* ==========================================================
-FILE UPLOAD
-========================================================== */
 
-input[type="file"]{
 
-    padding:10px;
+.trade-table tbody tr{
 
-    background:#0d1627;
-
-    color:#d8e4f2;
-
-    border-radius:10px;
-
-    border:1px solid rgba(255,255,255,.08);
+transition:.2s;
 
 }
 
-/* ==========================================================
-SMALL CARDS
-========================================================== */
 
-.review-card{
 
-    background:var(--card);
+.trade-table tbody tr:hover{
 
-    border:1px solid var(--border);
-
-    border-radius:14px;
-
-    padding:20px;
+background:rgba(22,119,255,.08);
 
 }
 
-.review-card h3{
 
-    color:var(--muted);
 
-    font-size:14px;
+/* ======================================================
+TRADE RESULT BADGES
+====================================================== */
 
-    margin-bottom:10px;
+
+.result-badge{
+
+display:inline-flex;
+
+align-items:center;
+
+padding:5px 12px;
+
+border-radius:20px;
+
+font-size:12px;
+
+font-weight:600;
 
 }
 
-.review-card h2{
 
-    color:#fff;
 
-    font-size:26px;
+.result-win{
+
+background:rgba(0,255,150,.12);
+
+color:#00ff96;
 
 }
 
-/* ==========================================================
-TABLETS
-========================================================== */
+
+
+.result-loss{
+
+background:rgba(255,60,60,.12);
+
+color:#ff5757;
+
+}
+
+
+
+.result-breakeven{
+
+background:rgba(255,200,0,.12);
+
+color:#ffc800;
+
+}
+
+
+
+/* ======================================================
+PROFIT LOSS DISPLAY
+====================================================== */
+
+
+.profit-positive{
+
+color:#00ff96;
+
+font-weight:700;
+
+}
+
+
+
+.profit-negative{
+
+color:#ff5757;
+
+font-weight:700;
+
+}
+
+
+
+.profit-neutral{
+
+color:#ffc800;
+
+font-weight:700;
+
+}
+
+
+
+/* ======================================================
+TRADE CARD VIEW
+(Mobile Alternative)
+====================================================== */
+
+
+.trade-card{
+
+background:#0b1120;
+
+border-radius:12px;
+
+padding:18px;
+
+margin-bottom:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.trade-card-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:15px;
+
+}
+
+
+
+.trade-card h3{
+
+font-size:18px;
+
+}
+
+
+
+.trade-info{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:10px;
+
+}
+
+
+
+.trade-info span{
+
+font-size:12px;
+
+color:#8fa5c6;
+
+}
+
+
+
+.trade-info strong{
+
+display:block;
+
+margin-top:4px;
+
+}
+
+
+
+/* ======================================================
+EMPTY HISTORY STATE
+====================================================== */
+
+
+.empty-history{
+
+padding:40px;
+
+text-align:center;
+
+color:#8fa5c6;
+
+}
+
+
+
+.empty-history i{
+
+font-size:45px;
+
+margin-bottom:15px;
+
+opacity:.5;
+
+}
+
+
+
+/* ======================================================
+PAGINATION
+====================================================== */
+
+
+.pagination{
+
+display:flex;
+
+justify-content:center;
+
+gap:10px;
+
+margin-top:25px;
+
+}
+
+
+
+.pagination button{
+
+background:#0b1120;
+
+border:1px solid rgba(255,255,255,.1);
+
+color:white;
+
+padding:9px 14px;
+
+border-radius:8px;
+
+cursor:pointer;
+
+transition:.2s;
+
+}
+
+
+
+.pagination button:hover,
+.pagination button.active{
+
+background:#1677ff;
+
+border-color:#1677ff;
+
+}
+
+
+
+/* ======================================================
+DELETE / ACTION BUTTONS
+====================================================== */
+
+
+.action-btn{
+
+width:34px;
+
+height:34px;
+
+border-radius:8px;
+
+border:none;
+
+cursor:pointer;
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+transition:.2s;
+
+}
+
+
+
+.edit-btn{
+
+background:rgba(22,119,255,.15);
+
+color:#1677ff;
+
+}
+
+
+
+.delete-btn{
+
+background:rgba(255,70,70,.15);
+
+color:#ff5757;
+
+}
+
+
+
+.action-btn:hover{
+
+transform:scale(1.08);
+
+}
+
+
+
+/* ======================================================
+MOBILE TABLE FIX
+====================================================== */
+
+
+@media(max-width:700px){
+
+
+.trade-table{
+
+min-width:900px;
+
+}
+
+
+.history-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:15px;
+
+}
+
+
+.filter-bar{
+
+width:100%;
+
+}
+
+
+.filter-bar input,
+.filter-bar select{
+
+width:100%;
+
+}
+
+
+}
+/* ======================================================
+ANALYTICS DASHBOARD
+====================================================== */
+
+
+.analytics-section{
+
+background:#121826;
+
+padding:25px;
+
+border-radius:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+margin-top:25px;
+
+}
+
+
+
+.analytics-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:25px;
+
+}
+
+
+.analytics-header h2{
+
+font-size:22px;
+
+font-weight:700;
+
+}
+
+
+/* ======================================================
+ANALYTICS STAT CARDS
+====================================================== */
+
+
+.analytics-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:18px;
+
+margin-bottom:30px;
+
+}
+
+
+
+.analytics-card{
+
+background:#0b1120;
+
+padding:20px;
+
+border-radius:14px;
+
+border:1px solid rgba(255,255,255,.08);
+
+transition:.25s;
+
+}
+
+
+
+.analytics-card:hover{
+
+transform:translateY(-4px);
+
+}
+
+
+
+.analytics-card h4{
+
+font-size:13px;
+
+font-weight:500;
+
+color:#8fa5c6;
+
+margin-bottom:12px;
+
+}
+
+
+
+.analytics-card h1{
+
+font-size:30px;
+
+font-weight:700;
+
+}
+
+
+
+/* ======================================================
+PROFIT COLORS
+====================================================== */
+
+
+.stat-profit{
+
+color:#00ff96;
+
+}
+
+
+
+.stat-loss{
+
+color:#ff5757;
+
+}
+
+
+
+.stat-neutral{
+
+color:#ffc800;
+
+}
+
+
+
+/* ======================================================
+ANALYTICS CHART AREA
+====================================================== */
+
+
+.analytics-charts{
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:20px;
+
+margin-bottom:25px;
+
+}
+
+
+
+.analytics-chart-card{
+
+background:#0b1120;
+
+padding:22px;
+
+border-radius:14px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.analytics-chart-card h3{
+
+font-size:17px;
+
+margin-bottom:18px;
+
+font-weight:600;
+
+}
+
+
+
+/* ======================================================
+EQUITY CURVE
+====================================================== */
+
+
+.equity-chart{
+
+height:350px;
+
+width:100%;
+
+position:relative;
+
+}
+
+
+
+/* ======================================================
+WIN RATE / PERFORMANCE CIRCLE
+====================================================== */
+
+
+.performance-circle{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+height:260px;
+
+}
+
+
+
+.circle{
+
+width:180px;
+
+height:180px;
+
+border-radius:50%;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+background:#121826;
+
+border:12px solid #1677ff;
+
+}
+
+
+
+.circle-content{
+
+text-align:center;
+
+}
+
+
+
+.circle-content h1{
+
+font-size:38px;
+
+}
+
+
+
+.circle-content span{
+
+font-size:13px;
+
+color:#8fa5c6;
+
+}
+
+
+
+/* ======================================================
+PERFORMANCE BREAKDOWN
+====================================================== */
+
+
+.performance-list{
+
+display:flex;
+
+flex-direction:column;
+
+gap:15px;
+
+}
+
+
+
+.performance-row{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:12px;
+
+background:#121826;
+
+border-radius:10px;
+
+}
+
+
+
+.performance-row span{
+
+color:#8fa5c6;
+
+font-size:13px;
+
+}
+
+
+
+.performance-row strong{
+
+font-size:15px;
+
+}
+
+
+
+/* ======================================================
+TRADING PSYCHOLOGY
+====================================================== */
+
+
+.psychology-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:18px;
+
+margin-top:25px;
+
+}
+
+
+
+.psychology-card{
+
+background:#0b1120;
+
+padding:20px;
+
+border-radius:14px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.psychology-card h3{
+
+font-size:16px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.psychology-card p{
+
+color:#8fa5c6;
+
+font-size:14px;
+
+line-height:1.6;
+
+}
+
+
+
+/* ======================================================
+MONTHLY PERFORMANCE
+====================================================== */
+
+
+.month-performance{
+
+display:grid;
+
+grid-template-columns:repeat(12,1fr);
+
+gap:8px;
+
+}
+
+
+
+.month-box{
+
+height:70px;
+
+background:#121826;
+
+border-radius:8px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:12px;
+
+font-weight:600;
+
+border:1px solid rgba(255,255,255,.06);
+
+}
+
+
+
+/* ======================================================
+ANALYTICS RESPONSIVE
+====================================================== */
+
+
+@media(max-width:1100px){
+
+
+.analytics-charts{
+
+grid-template-columns:1fr;
+
+}
+
+
+.psychology-grid{
+
+grid-template-columns:1fr 1fr;
+
+}
+
+
+.month-performance{
+
+grid-template-columns:repeat(6,1fr);
+
+}
+
+
+}
+
+
+
+@media(max-width:700px){
+
+
+.analytics-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:15px;
+
+}
+
+
+
+.psychology-grid{
+
+grid-template-columns:1fr;
+
+}
+
+
+
+.month-performance{
+
+grid-template-columns:repeat(3,1fr);
+
+}
+
+
+
+.analytics-card h1{
+
+font-size:25px;
+
+}
+
+
+}
+/* ======================================================
+SIDEBAR
+====================================================== */
+
+
+.sidebar{
+
+width:260px;
+
+background:#080d18;
+
+border-right:1px solid rgba(255,255,255,.08);
+
+padding:25px 18px;
+
+display:flex;
+
+flex-direction:column;
+
+position:sticky;
+
+top:0;
+
+height:100vh;
+
+}
+
+
+
+/* ======================================================
+LOGO / BRAND
+====================================================== */
+
+
+.brand{
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+margin-bottom:35px;
+
+}
+
+
+
+.brand-logo{
+
+width:45px;
+
+height:45px;
+
+border-radius:12px;
+
+background:#1677ff;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:22px;
+
+font-weight:800;
+
+color:white;
+
+}
+
+
+
+.brand-text h2{
+
+font-size:18px;
+
+font-weight:700;
+
+letter-spacing:.5px;
+
+}
+
+
+
+.brand-text span{
+
+font-size:11px;
+
+color:#8fa5c6;
+
+}
+
+
+
+/* ======================================================
+NAVIGATION
+====================================================== */
+
+
+.sidebar-nav{
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+}
+
+
+
+.nav-item{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+padding:13px 15px;
+
+border-radius:10px;
+
+color:#8fa5c6;
+
+text-decoration:none;
+
+font-size:14px;
+
+font-weight:500;
+
+transition:.25s;
+
+}
+
+
+
+.nav-item i{
+
+font-size:18px;
+
+width:22px;
+
+text-align:center;
+
+}
+
+
+
+.nav-item:hover{
+
+background:rgba(22,119,255,.12);
+
+color:white;
+
+}
+
+
+
+.nav-item.active{
+
+background:#1677ff;
+
+color:white;
+
+}
+
+
+
+/* ======================================================
+SIDEBAR DIVIDER
+====================================================== */
+
+
+.sidebar-divider{
+
+height:1px;
+
+background:rgba(255,255,255,.08);
+
+margin:25px 0;
+
+}
+
+
+
+/* ======================================================
+USER PROFILE CARD
+====================================================== */
+
+
+.user-profile{
+
+margin-top:auto;
+
+background:#121826;
+
+padding:15px;
+
+border-radius:14px;
+
+border:1px solid rgba(255,255,255,.08);
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+}
+
+
+
+.user-avatar{
+
+width:42px;
+
+height:42px;
+
+border-radius:50%;
+
+background:#1677ff;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-weight:700;
+
+}
+
+
+
+.user-details h4{
+
+font-size:14px;
+
+}
+
+
+
+.user-details span{
+
+font-size:12px;
+
+color:#8fa5c6;
+
+}
+
+
+
+/* ======================================================
+TOP MOBILE NAVIGATION
+====================================================== */
+
+
+.mobile-menu{
+
+display:none;
+
+}
+
+
+
+/* ======================================================
+MAIN LAYOUT ADJUSTMENT
+====================================================== */
+
+
+.dashboard-container{
+
+display:flex;
+
+}
+
+
+
+/* ======================================================
+SIDEBAR RESPONSIVE
+====================================================== */
+
 
 @media(max-width:900px){
 
-    .chips-grid{
 
-        grid-template-columns:1fr 1fr;
+.sidebar{
 
-    }
+position:fixed;
 
-}
+left:-280px;
 
-@media(max-width:600px){
+top:0;
 
-    .chips-grid{
+z-index:1000;
 
-        grid-template-columns:1fr;
-
-    }
-
-    .save-container{
-
-        justify-content:center;
-
-    }
-
-    .save-container .btn{
-
-        width:100%;
-
-    }
-
-}
-/* ==========================================================
-PART 4
-FINAL POLISH
-========================================================== */
-
-/* Smooth scrolling */
-
-html{
-
-    scroll-behavior:smooth;
+transition:.3s;
 
 }
 
-/* ==========================================================
-SECTION SPACING
-========================================================== */
 
-.journal-card{
 
-    display:flex;
+.sidebar.open{
 
-    flex-direction:column;
-
-    gap:22px;
+left:0;
 
 }
 
-.journal-section{
 
-    transition:.25s;
 
-}
+.mobile-menu{
 
-.journal-section:hover{
+display:flex;
 
-    border-color:rgba(29,143,255,.25);
+position:fixed;
 
-    box-shadow:0 6px 20px rgba(0,0,0,.20);
+top:20px;
 
-}
+left:20px;
 
-/* ==========================================================
-HEADINGS
-========================================================== */
+z-index:1100;
 
-h2,h3,h4{
+width:45px;
 
-    letter-spacing:.3px;
+height:45px;
 
-}
+border-radius:10px;
 
-.section-title{
+background:#1677ff;
 
-    display:flex;
+align-items:center;
 
-    align-items:center;
+justify-content:center;
 
-    gap:8px;
-
-    margin-bottom:18px;
+cursor:pointer;
 
 }
 
-/* ==========================================================
-INPUT HOVER
-========================================================== */
 
-.form-group input:hover,
 
-.form-group select:hover,
+.main-content{
 
-.form-group textarea:hover{
-
-    border-color:#2b95ff;
+padding-top:80px;
 
 }
 
-/* ==========================================================
-CUSTOM SCROLLBAR
-========================================================== */
+
+
+}
+
+
+
+/* ======================================================
+GTRADES AXIS BRAND ELEMENTS
+====================================================== */
+
+
+.gtrades-title{
+
+font-weight:800;
+
+letter-spacing:1px;
+
+}
+
+
+
+.gtrades-blue{
+
+color:#1677ff;
+
+}
+
+
+
+.tagline{
+
+font-size:13px;
+
+color:#8fa5c6;
+
+letter-spacing:.5px;
+
+}
+
+
+
+/* ======================================================
+GLOW EFFECTS
+====================================================== */
+
+
+.brand-logo,
+.btn,
+.nav-item.active{
+
+box-shadow:0 0 25px rgba(22,119,255,.25);
+
+}
+
+
+
+/* ======================================================
+SCROLLBAR
+====================================================== */
+
 
 ::-webkit-scrollbar{
 
-    width:10px;
+width:8px;
 
 }
+
+
 
 ::-webkit-scrollbar-track{
 
-    background:#09101d;
+background:#080d18;
 
 }
+
+
 
 ::-webkit-scrollbar-thumb{
 
-    background:#2b95ff;
+background:#1677ff;
 
-    border-radius:20px;
+border-radius:10px;
+
+}
+/* ======================================================
+GTRADES AXIS™ PHOTON TRADE VISUALS
+====================================================== */
+
+
+/* ======================================================
+TRADE SETUP TAGS
+====================================================== */
+
+
+.setup-tags{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:10px;
+
+margin-top:15px;
 
 }
 
-::-webkit-scrollbar-thumb:hover{
 
-    background:#4ca8ff;
 
-}
+.setup-tag{
 
-/* ==========================================================
-CHART CARD
-========================================================== */
+padding:7px 14px;
 
-.chart-card{
+border-radius:20px;
 
-    transition:.25s;
+font-size:12px;
 
-}
+font-weight:600;
 
-.chart-card:hover{
+background:#121826;
 
-    transform:translateY(-3px);
+border:1px solid rgba(255,255,255,.1);
+
+color:#8fa5c6;
 
 }
 
-/* ==========================================================
-STAT CARD
-========================================================== */
 
-.stat-card{
 
-    position:relative;
+.setup-tag.active{
 
-    overflow:hidden;
+background:rgba(22,119,255,.15);
 
-}
+color:#1677ff;
 
-.stat-card::before{
-
-    content:"";
-
-    position:absolute;
-
-    left:0;
-
-    top:0;
-
-    width:4px;
-
-    height:100%;
-
-    background:#1d8fff;
+border-color:#1677ff;
 
 }
 
-/* ==========================================================
-ANIMATION
-========================================================== */
 
-@keyframes fadeUp{
 
-    from{
+.setup-tag.success{
 
-        opacity:0;
+background:rgba(0,255,150,.12);
 
-        transform:translateY(15px);
+color:#00ff96;
 
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
+border-color:#00ff96;
 
 }
 
-.page-header,
 
-.stats-grid,
 
-.chart-grid,
+.setup-tag.warning{
 
-.journal-card{
+background:rgba(255,200,0,.12);
 
-    animation:fadeUp .45s ease;
+color:#ffc800;
 
-}
-
-/* ==========================================================
-SAVE BUTTON
-========================================================== */
-
-.btn-primary{
-
-    box-shadow:0 10px 25px rgba(29,143,255,.25);
+border-color:#ffc800;
 
 }
 
-.btn-primary:hover{
 
-    transform:translateY(-2px);
 
-}
+/* ======================================================
+SUPPLY & DEMAND ZONE CARDS
+====================================================== */
 
-/* ==========================================================
-FORM GRID IMPROVEMENTS
-========================================================== */
 
-.journal-grid{
-
-    align-items:start;
-
-}
-
-.form-group{
-
-    min-width:0;
-
-}
-
-/* ==========================================================
-RESPONSIVE
-========================================================== */
-
-@media(max-width:1200px){
-
-    .stats-grid{
-
-        grid-template-columns:repeat(2,1fr);
-
-    }
-
-}
-
-@media(max-width:768px){
-
-    .stats-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .journal-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .page-header{
-
-        text-align:center;
-
-    }
-
-    .page-header .btn{
-
-        width:100%;
-
-    }
-
-}
-#aiInsights{
+.zone-grid{
 
 display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:18px;
+
+}
+
+
+
+.zone-card{
+
+background:#0b1120;
+
+padding:20px;
+
+border-radius:14px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.zone-card h3{
+
+font-size:17px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.zone-card p{
+
+font-size:13px;
+
+color:#8fa5c6;
+
+line-height:1.6;
+
+}
+
+
+
+.supply-zone{
+
+border-left:4px solid #ff5757;
+
+}
+
+
+
+.demand-zone{
+
+border-left:4px solid #00ff96;
+
+}
+
+
+
+/* ======================================================
+ENTRY / EXIT DISPLAY
+====================================================== */
+
+
+.trade-levels{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
 
 gap:15px;
 
@@ -925,69 +2165,948 @@ margin-top:20px;
 
 }
 
-.insight{
+
+
+.level-card{
+
+background:#121826;
 
 padding:18px;
 
 border-radius:12px;
 
-background:#111827;
-
-border-left:4px solid #3b82f6;
-
-color:#fff;
+border:1px solid rgba(255,255,255,.08);
 
 }
 
-.insight.success{
 
-border-left-color:#22c55e;
+
+.level-card span{
+
+display:block;
+
+font-size:12px;
+
+color:#8fa5c6;
+
+margin-bottom:8px;
+
+}
+
+
+
+.level-card strong{
+
+font-size:22px;
 
 }
 
-.insight.good{
 
-border-left-color:#3b82f6;
 
-}
+.entry-level strong{
 
-.insight.warning{
-
-border-left-color:#ef4444;
+color:#1677ff;
 
 }
-/* Scroll to top button */
-#scrollTopBtn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 99;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0f8cff, #00c853);
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(15, 140, 255, 0.4);
-  transition: all 0.3s ease;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px);
+
+
+
+.stop-level strong{
+
+color:#ff5757;
+
 }
-#scrollTopBtn.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+
+
+
+.target-level strong{
+
+color:#00ff96;
+
 }
-#scrollTopBtn:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 8px 30px rgba(15, 140, 255, 0.6);
+
+
+
+/* ======================================================
+RISK REWARD DISPLAY
+====================================================== */
+
+
+.rr-display{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+width:120px;
+
+height:120px;
+
+border-radius:50%;
+
+background:#121826;
+
+border:8px solid #1677ff;
+
+margin:auto;
+
 }
-#scrollTopBtn:active {
-  transform: scale(0.95);
+
+
+
+.rr-display h1{
+
+font-size:35px;
+
 }
-/* ==========================================================
-END OF FILE
-========================================================== */
+
+
+
+/* ======================================================
+TRADING CALENDAR
+====================================================== */
+
+
+.calendar-card{
+
+background:#121826;
+
+padding:20px;
+
+border-radius:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.calendar-grid{
+
+display:grid;
+
+grid-template-columns:repeat(7,1fr);
+
+gap:8px;
+
+margin-top:15px;
+
+}
+
+
+
+.calendar-day{
+
+height:45px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+background:#0b1120;
+
+border-radius:8px;
+
+font-size:13px;
+
+color:#8fa5c6;
+
+}
+
+
+
+.calendar-day.trade-day{
+
+background:#1677ff;
+
+color:white;
+
+}
+
+
+
+.calendar-day.win-day{
+
+background:rgba(0,255,150,.15);
+
+color:#00ff96;
+
+}
+
+
+
+.calendar-day.loss-day{
+
+background:rgba(255,87,87,.15);
+
+color:#ff5757;
+
+}
+
+
+
+/* ======================================================
+SESSION TRACKER
+====================================================== */
+
+
+.session-grid{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:15px;
+
+}
+
+
+
+.session-card{
+
+background:#0b1120;
+
+padding:15px;
+
+border-radius:12px;
+
+text-align:center;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.session-card h4{
+
+font-size:13px;
+
+color:#8fa5c6;
+
+}
+
+
+
+.session-card span{
+
+display:block;
+
+font-size:22px;
+
+font-weight:700;
+
+margin-top:8px;
+
+}
+
+
+
+.london{
+
+border-top:3px solid #1677ff;
+
+}
+
+
+
+.newyork{
+
+border-top:3px solid #00ff96;
+
+}
+
+
+
+.asia{
+
+border-top:3px solid #ffc800;
+
+}
+
+
+
+.frankfurt{
+
+border-top:3px solid #ff5757;
+
+}
+
+
+
+/* ======================================================
+TRADE CONFIDENCE METER
+====================================================== */
+
+
+.confidence-box{
+
+margin-top:20px;
+
+}
+
+
+
+.confidence-bar{
+
+height:12px;
+
+background:#0b1120;
+
+border-radius:20px;
+
+overflow:hidden;
+
+}
+
+
+
+.confidence-fill{
+
+height:100%;
+
+background:#1677ff;
+
+border-radius:20px;
+
+}
+
+
+
+/* ======================================================
+RESPONSIVE
+====================================================== */
+
+
+@media(max-width:1000px){
+
+
+.zone-grid{
+
+grid-template-columns:1fr;
+
+}
+
+
+.trade-levels{
+
+grid-template-columns:1fr;
+
+}
+
+
+.session-grid{
+
+grid-template-columns:1fr 1fr;
+
+}
+
+
+}
+
+
+
+@media(max-width:600px){
+
+
+.session-grid{
+
+grid-template-columns:1fr;
+
+}
+
+
+.calendar-grid{
+
+gap:5px;
+
+}
+
+
+.calendar-day{
+
+height:35px;
+
+font-size:11px;
+
+}
+
+}
+/* ======================================================
+GTRADES AXIS™ FINAL UI POLISH
+====================================================== */
+
+
+/* ======================================================
+MODALS
+====================================================== */
+
+
+.modal{
+
+display:none;
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.75);
+
+z-index:2000;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+
+
+.modal.active{
+
+display:flex;
+
+}
+
+
+
+.modal-content{
+
+background:#121826;
+
+width:min(600px,90%);
+
+padding:30px;
+
+border-radius:18px;
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:0 20px 60px rgba(0,0,0,.5);
+
+}
+
+
+
+.modal-content h2{
+
+margin-bottom:20px;
+
+}
+
+
+
+.modal-close{
+
+float:right;
+
+font-size:24px;
+
+cursor:pointer;
+
+color:#8fa5c6;
+
+}
+
+
+
+.modal-close:hover{
+
+color:white;
+
+}
+
+
+
+/* ======================================================
+ALERT SYSTEM
+====================================================== */
+
+
+.alert{
+
+padding:15px 18px;
+
+border-radius:12px;
+
+margin-bottom:20px;
+
+font-size:14px;
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+}
+
+
+
+.alert-success{
+
+background:rgba(0,255,150,.12);
+
+border:1px solid rgba(0,255,150,.3);
+
+color:#00ff96;
+
+}
+
+
+
+.alert-danger{
+
+background:rgba(255,87,87,.12);
+
+border:1px solid rgba(255,87,87,.3);
+
+color:#ff5757;
+
+}
+
+
+
+.alert-warning{
+
+background:rgba(255,200,0,.12);
+
+border:1px solid rgba(255,200,0,.3);
+
+color:#ffc800;
+
+}
+
+
+
+.alert-info{
+
+background:rgba(22,119,255,.12);
+
+border:1px solid rgba(22,119,255,.3);
+
+color:#1677ff;
+
+}
+
+
+
+/* ======================================================
+BUTTON VARIATIONS
+====================================================== */
+
+
+.btn-danger{
+
+background:#ff5757;
+
+}
+
+
+
+.btn-danger:hover{
+
+background:#e63d3d;
+
+}
+
+
+
+.btn-success{
+
+background:#00a86b;
+
+}
+
+
+
+.btn-success:hover{
+
+background:#008957;
+
+}
+
+
+
+.btn-outline{
+
+background:transparent;
+
+border:1px solid #1677ff;
+
+color:#1677ff;
+
+}
+
+
+
+.btn-outline:hover{
+
+background:#1677ff;
+
+color:white;
+
+}
+
+
+
+/* ======================================================
+TOOLTIP
+====================================================== */
+
+
+.tooltip{
+
+position:relative;
+
+cursor:pointer;
+
+}
+
+
+
+.tooltip::after{
+
+content:attr(data-tooltip);
+
+position:absolute;
+
+bottom:130%;
+
+left:50%;
+
+transform:translateX(-50%);
+
+background:#050912;
+
+color:white;
+
+padding:8px 12px;
+
+border-radius:8px;
+
+font-size:12px;
+
+opacity:0;
+
+pointer-events:none;
+
+transition:.25s;
+
+white-space:nowrap;
+
+}
+
+
+
+.tooltip:hover::after{
+
+opacity:1;
+
+}
+
+
+
+/* ======================================================
+LOADING STATES
+====================================================== */
+
+
+.loader{
+
+width:40px;
+
+height:40px;
+
+border-radius:50%;
+
+border:4px solid rgba(255,255,255,.1);
+
+border-top-color:#1677ff;
+
+animation:spin 1s linear infinite;
+
+margin:auto;
+
+}
+
+
+
+@keyframes spin{
+
+to{
+
+transform:rotate(360deg);
+
+}
+
+}
+
+
+
+/* ======================================================
+FADE ANIMATIONS
+====================================================== */
+
+
+.fade-in{
+
+animation:fadeIn .4s ease;
+
+}
+
+
+
+@keyframes fadeIn{
+
+from{
+
+opacity:0;
+
+transform:translateY(10px);
+
+}
+
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+
+
+/* ======================================================
+CARD ANIMATION
+====================================================== */
+
+
+.animate-card{
+
+animation:cardShow .5s ease;
+
+}
+
+
+
+@keyframes cardShow{
+
+from{
+
+opacity:0;
+
+transform:scale(.97);
+
+}
+
+
+to{
+
+opacity:1;
+
+transform:scale(1);
+
+}
+
+}
+
+
+
+/* ======================================================
+FOOTER
+====================================================== */
+
+
+.footer{
+
+margin-top:40px;
+
+padding:20px;
+
+text-align:center;
+
+color:#8fa5c6;
+
+font-size:13px;
+
+border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.footer strong{
+
+color:#1677ff;
+
+}
+
+
+
+/* ======================================================
+QUICK ACTION PANEL
+====================================================== */
+
+
+.quick-actions{
+
+display:flex;
+
+gap:12px;
+
+flex-wrap:wrap;
+
+margin-bottom:25px;
+
+}
+
+
+
+.quick-action{
+
+background:#121826;
+
+padding:14px 18px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.08);
+
+color:white;
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+
+
+.quick-action:hover{
+
+background:#1677ff;
+
+transform:translateY(-3px);
+
+}
+
+
+
+/* ======================================================
+GLOBAL MOBILE FINAL FIX
+====================================================== */
+
+
+@media(max-width:700px){
+
+
+body{
+
+overflow-x:hidden;
+
+}
+
+
+.main-content{
+
+width:100%;
+
+}
+
+
+.stat-card h1{
+
+font-size:26px;
+
+}
+
+
+
+.chart-card,
+.analytics-section,
+.form-section,
+.history-section{
+
+padding:18px;
+
+}
+
+
+
+.btn{
+
+width:100%;
+
+justify-content:center;
+
+}
+
+
+
+.quick-actions{
+
+flex-direction:column;
+
+}
+
+
+.quick-action{
+
+width:100%;
+
+text-align:center;
+
+}
+
+
+}
+
+
+
+/* ======================================================
+GTRADES AXIS™ BRAND FOOTER EFFECT
+====================================================== */
+
+
+.brand-glow{
+
+text-shadow:
+
+0 0 10px rgba(22,119,255,.6),
+
+0 0 25px rgba(22,119,255,.3);
+
+}
+
+
+
+.blue-line{
+
+height:3px;
+
+width:100%;
+
+background:#1677ff;
+
+border-radius:10px;
+
+margin:20px 0;
+
+}
+
+
+
+/* ======================================================
+END OF JOURNAL CSS
+GTRADES AXIS™
+Trade With Structure.
+Execute With Precision.
+====================================================== */
