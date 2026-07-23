@@ -8,74 +8,131 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <!-- External CSS (separated) -->
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
+    <!-- Animated background orbs -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
     <div class="grid-overlay"></div>
 
-    <div class="login-container">
-        <div class="login-card">
+    <div class="page-wrapper">
 
-            <!-- Logo -->
-            <div class="logo-wrapper">
-                <img
-                    src="images/imageslogo.png.png"
-                    alt="GTRADES-AXIS Logo"
-                    class="login-logo"
-                    draggable="false"
-                />
-            </div>
+        <!-- ===== LEFT PANEL: Branding ===== -->
+        <div class="brand-panel">
 
-            <h1>Welcome <span class="gradient-text">Back</span></h1>
-            <p class="subtitle">Login to access your Academy Resources</p>
-
-            <!-- Error / message area -->
-            <div id="errorMsg" class="msg error" style="display:none;"></div>
-
-            <form id="loginForm">
-                <div class="input-group">
-                    <i class="fa-regular fa-envelope"></i>
-                    <!-- Pre‑filled email as shown in your image -->
-                    <input type="email" id="email" value="ggrades34b@gmail.com" required autocomplete="email" />
+            <!-- Logo & Tagline -->
+            <div class="brand-header">
+                <div class="logo-text">
+                    <span class="logo-main">GTRADES</span>
+                    <span class="logo-accent">AXIS</span>
                 </div>
-
-                <div class="input-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
-                    <button type="button" class="toggle-pw" id="togglePassword" aria-label="Toggle password visibility">
-                        <i class="fa-regular fa-eye"></i>
-                    </button>
+                <div class="tagline">
+                    <span>TRADE WITH STRUCTURE</span>
+                    <span>EXECUTE WITH PRECISION</span>
                 </div>
-
-                <!-- Button text matches your image: "Logging in…" with a spinner -->
-                <button type="submit" class="login-btn" id="loginBtn">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                    <span>Logging in…</span>
-                </button>
-            </form>
-
-            <div class="divider">
-                <span class="divider-line"></span>
-                <span class="divider-text">secure access</span>
-                <span class="divider-line"></span>
             </div>
 
-            <div class="login-links">
-                Don't have an account? <a href="register.html">Create one</a>
+            <!-- Pillars (Market, Liquidity, etc.) -->
+            <div class="pillars-grid">
+                <div class="pillar">MARKET</div>
+                <div class="pillar">LIQUIDITY</div>
+                <div class="pillar">PRECISION</div>
+                <div class="pillar">STRUCTURE</div>
+                <div class="pillar">INTELLIGENCE</div>
+                <div class="pillar">EXECUTION</div>
             </div>
 
-            <a class="back-home" href="index.html">
-                <i class="fa-solid fa-arrow-left"></i> Back to Home
-            </a>
+            <!-- Core Principles (Discipline, Risk, etc.) -->
+            <div class="principles-section">
+                <h3>Core Principles</h3>
+                <div class="principles-grid">
+                    <div class="principle"><span>DISCIPLINE</span></div>
+                    <div class="principle"><span>RISK MANAGEMENT</span></div>
+                    <div class="principle"><span>CONSISTENCY</span></div>
+                    <div class="principle"><span>PATIENCE</span></div>
+                    <div class="principle over"><span>PROCESS</span> OVER EMOTIONS</div>
+                    <div class="principle over"><span>CONSISTENCY</span> OVER REWARDS</div>
+                    <div class="principle over"><span>PATIENCE</span> OVER INTENSITY</div>
+                    <div class="principle over"><span>DISCIPLINE</span> OVER IMPULSE</div>
+                    <div class="principle over"><span>STRUCTURE</span> OVER OUTCOME</div>
+                </div>
+            </div>
+
+            <!-- Contacts -->
+            <div class="contacts-section">
+                <div class="contact-item">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TIKTOK</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>+254712416214</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fa-solid fa-link"></i>
+                    <a href="#">https://tiktok.com/@gtrades_axis</a>
+                </div>
+            </div>
+
         </div>
+
+        <!-- ===== RIGHT PANEL: Login ===== -->
+        <div class="login-panel">
+
+            <div class="login-card">
+
+                <div class="login-brand-mobile">
+                    <span class="logo-main">GTRADES</span>
+                    <span class="logo-accent">AXIS</span>
+                </div>
+
+                <h1>Welcome <span class="gradient-text">Back</span></h1>
+                <p class="subtitle">Login to access your Academy Resources</p>
+
+                <div id="errorMsg" class="msg error" style="display:none;"></div>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" id="email" value="ggrades34b@gmail.com" required />
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" placeholder="Password" required />
+                        <button type="button" class="toggle-pw" id="togglePassword">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span>Logging in…</span>
+                    </button>
+                </form>
+
+                <div class="divider">
+                    <span class="divider-line"></span>
+                    <span class="divider-text">secure access</span>
+                    <span class="divider-line"></span>
+                </div>
+
+                <div class="login-links">
+                    Don't have an account? <a href="register.html">Create one</a>
+                </div>
+
+                <a class="back-home" href="index.html">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- Your authentication module -->
     <script type="module" src="js/auth.js"></script>
-
-    <!-- Password toggle (lightweight inline) -->
     <script>
         (function() {
             const toggleBtn = document.getElementById('togglePassword');
