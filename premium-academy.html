@@ -1,104 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Academy | GTRADES-AXIS™</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:6px; }
-    .dashboard-container { display:flex; min-height:100vh; }
-    .sidebar { width:200px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.06); padding:14px 10px; flex-shrink:0; }
-    .sidebar .logo { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
-    .sidebar .logo img { width:32px; }
-    .sidebar .logo h2 { font-size:1rem; color:#f1f5f9; }
-    .sidebar .logo h2 span { background:linear-gradient(135deg,#0f8cff,#00c853); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .sidebar nav a { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; color:#94a3b8; text-decoration:none; font-size:0.8rem; font-weight:500; transition:0.2s; }
-    .sidebar nav a:hover { background:rgba(255,255,255,0.05); color:#e2e8f0; }
-    .sidebar nav a.active { background:rgba(15,140,255,0.12); color:#0f8cff; border-left:3px solid #0f8cff; }
-    .main-content { flex:1; padding:12px 16px 24px; }
-    .page-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:8px; flex-wrap:wrap; gap:6px; }
-    .page-header h1 { font-size:1.2rem; font-weight:700; background:linear-gradient(135deg,#f1f5f9,#94a3b8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .page-header p { color:#94a3b8; font-size:0.75rem; }
-    .header-actions .btn { padding:4px 10px; border-radius:6px; border:none; background:rgba(255,255,255,0.05); color:#94a3b8; text-decoration:none; font-weight:500; font-size:0.7rem; transition:0.2s; display:inline-flex; align-items:center; gap:4px; }
-    .header-actions .btn:hover { background:rgba(255,255,255,0.1); color:#f1f5f9; }
-    .welcome-section { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 16px; }
-    .welcome-section .greeting { font-size:1.1rem; font-weight:600; }
-    .welcome-section .greeting span { color:#0f8cff; }
-    .continue-learning { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-    .continue-learning .info .module-name { font-size:0.9rem; font-weight:500; }
-    .continue-learning .info .lesson-name { font-size:0.8rem; color:#94a3b8; }
-    .continue-learning .btn-continue { padding:6px 18px; background:linear-gradient(135deg,#0f8cff,#00c853); border:none; border-radius:8px; color:#fff; font-weight:500; cursor:pointer; text-decoration:none; font-size:0.8rem; transition:0.2s; }
-    .continue-learning .btn-continue:hover { opacity:0.9; transform:translateY(-2px); }
-    .overall-progress { margin-bottom:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:8px 16px; }
-    .overall-progress .label { display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8; }
-    .overall-progress .bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; margin-top:4px; overflow:hidden; }
-    .overall-progress .bar .fill { height:100%; background:linear-gradient(90deg,#0f8cff,#00c853); width:0%; transition:width 0.4s; }
-    .module-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; margin-bottom:12px; }
-    .module-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; transition:0.2s; }
-    .module-card:hover { border-color:rgba(15,140,255,0.25); background:rgba(255,255,255,0.06); }
-    .module-card .header { display:flex; justify-content:space-between; align-items:center; }
-    .module-card .header .title { font-size:0.9rem; font-weight:600; color:#f1f5f9; }
-    .module-card .header .status { font-size:0.6rem; padding:2px 8px; border-radius:4px; }
-    .module-card .header .status.completed { background:rgba(0,200,83,0.15); color:#00c853; }
-    .module-card .header .status.locked { background:rgba(255,255,255,0.05); color:#64748b; }
-    .module-card .header .status.active { background:rgba(15,140,255,0.15); color:#0f8cff; }
-    .module-card .desc { font-size:0.7rem; color:#94a3b8; margin:4px 0 8px; }
-    .module-card .progress-mini { display:flex; justify-content:space-between; font-size:0.6rem; color:#94a3b8; margin-top:4px; }
-    .module-card .progress-mini .bar { height:2px; background:rgba(255,255,255,0.06); border-radius:2px; flex:1; margin:0 8px; }
-    .module-card .progress-mini .bar .fill { height:100%; background:linear-gradient(90deg,#0f8cff,#00c853); width:0%; }
-    .module-card .btn-module { display:inline-block; margin-top:8px; padding:4px 12px; background:rgba(15,140,255,0.12); color:#0f8cff; border:none; border-radius:6px; font-size:0.65rem; font-weight:500; cursor:pointer; text-decoration:none; transition:0.2s; }
-    .module-card .btn-module:hover { background:rgba(15,140,255,0.25); }
-    .module-card .btn-module.locked { background:rgba(255,255,255,0.03); color:#64748b; cursor:not-allowed; pointer-events:none; }
-    .achievements { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; margin-bottom:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
-    .achievements .badge { display:flex; align-items:center; gap:6px; font-size:0.75rem; color:#94a3b8; }
-    .achievements .badge i { color:#ffb300; }
-    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
-    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
-    @media (max-width:768px){ .sidebar{display:none;} .main-content{padding:8px;} .module-grid{grid-template-columns:1fr;} .page-header{flex-direction:column;align-items:flex-start;} .welcome-section{flex-direction:column;align-items:flex-start;gap:6px;} .continue-learning{flex-direction:column;align-items:stretch;} .continue-learning .btn-continue{text-align:center;} }
-  </style>
-</head>
-<body>
-<div class="dashboard-container">
-  <aside class="sidebar">
-    <div class="logo"><img src="images/logo.png" alt="Logo"><h2>GTRADES <span>AXIS™</span></h2></div>
-    <nav>
-      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
-      <a class="active" href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
-      <a href="resources.html"><i class="fa-solid fa-folder-open"></i> Resources</a>
-      <a href="videos.html"><i class="fa-solid fa-video"></i> Videos</a>
-      <a href="journal.html"><i class="fa-solid fa-book"></i> Journal</a>
-      <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
-      <a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
-      <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-    </nav>
-    <button id="logoutBtn" style="background:none;border:none;color:#ff4d4f;cursor:pointer;margin-top:20px;text-align:left;font-size:0.8rem;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-  </aside>
-  <main class="main-content">
-    <div class="page-header">
-      <div><h1><i class="fa-solid fa-graduation-cap"></i> Premium Academy</h1><p>Master Smart Money Concepts with our structured modules.</p></div>
-      <div class="header-actions"><span id="userRole" style="font-size:0.7rem;color:#94a3b8;margin-right:6px;"></span><a href="dashboard.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
-    </div>
-    <div class="welcome-section"><div class="greeting">Welcome back, <span id="userName">Trader</span> 👋</div><div style="font-size:0.7rem;color:#94a3b8;"><i class="fa-regular fa-calendar"></i> <span id="todayDate"></span></div></div>
-    <div class="continue-learning" id="continueLearning">
-      <div class="info"><div class="module-name" id="continueModule">Start your first module</div><div class="lesson-name" id="continueLesson">Begin Module 1</div></div>
-      <a href="#" class="btn-continue" id="continueBtn">Continue ▶</a>
-    </div>
-    <div class="overall-progress"><div class="label"><span>Overall Progress</span><span id="progressPercent">0%</span></div><div class="bar"><div class="fill" id="progressFill" style="width:0%;"></div></div></div>
-    <div id="academyContainer" class="module-grid"></div>
-    <div class="achievements" id="achievementsContainer"><span class="badge"><i class="fa-regular fa-star"></i> Complete modules to earn achievements</span></div>
-  </main>
-</div>
-<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/academy.js"></script>
-<script>
-  (function(){const b=document.getElementById('scrollTopBtn');if(!b)return;window.addEventListener('scroll',function(){b.classList.toggle('visible',window.scrollY>250);});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});})();
-</script>
-</body>
-</html>
+<!-- ======================================================
+GTRADES-AXIS™ PREMIUM ACADEMY
+PART 1 - DASHBOARD
+====================================================== -->
+
+<main class="academy-main">
+
+    <!-- Hero -->
+
+    <section class="academy-hero">
+
+        <div class="academy-left">
+
+            <span class="academy-tag">
+                GTRADES-AXIS™ PREMIUM
+            </span>
+
+            <h1>Trading Academy</h1>
+
+            <p>
+                Master Smart Money concepts through a structured learning
+                path designed to help you become a consistently profitable trader.
+            </p>
+
+        </div>
+
+        <div class="academy-progress-card">
+
+            <h3>Overall Progress</h3>
+
+            <div class="progress-circle">
+
+                <span id="overallProgress">0%</span>
+
+            </div>
+
+            <p>Modules Completed</p>
+
+            <h2 id="completedModules">0 / 7</h2>
+
+        </div>
+
+    </section>
+
+
+    <!-- Continue Learning -->
+
+    <section class="continue-learning">
+
+        <div class="section-title">
+
+            <h2>Continue Learning</h2>
+
+        </div>
+
+        <div class="continue-card">
+
+            <div>
+
+                <small>Current Module</small>
+
+                <h3>Module 1</h3>
+
+                <h2>Introduction</h2>
+
+                <p>
+                    Begin your journey by learning how the academy works,
+                    the required tools and expectations.
+                </p>
+
+            </div>
+
+            <button class="continue-btn">
+
+                Continue Learning
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- Modules -->
+
+    <section class="modules-section">
+
+        <div class="section-title">
+
+            <h2>Academy Modules</h2>
+
+        </div>
+
+        <div id="modulesGrid" class="modules-grid"></div>
+
+    </section>
+
+</main>
