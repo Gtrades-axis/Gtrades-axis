@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -7,75 +6,178 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width,initial-scale=1">
+content="width=device-width, initial-scale=1.0">
 
 <title>Module | GTRADES-AXIS™</title>
 
-<link rel="stylesheet" href="academy.css">
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="premium-academy.css">
+
+<link rel="stylesheet"
+href="module.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 </head>
 
 <body>
 
-<div class="module-page">
+<div class="module-container">
 
-    <div class="module-header">
+    <!-- =========================
+         HEADER
+    ========================== -->
 
-        <span class="academy-tag">
+    <header class="module-header">
 
-            GTRADES-AXIS™ PREMIUM
+        <button
+        class="back-btn"
+        onclick="history.back()">
 
-        </span>
+            <i class="fas fa-arrow-left"></i>
 
-        <h1 id="moduleTitle">
+            Back
 
-            Loading...
+        </button>
 
-        </h1>
+        <div>
 
-        <p id="moduleDescription">
+            <h1 id="moduleTitle">
 
-        </p>
+                Loading...
 
-    </div>
+            </h1>
 
-    <div class="module-progress">
+            <p id="moduleDescription">
 
-        <h3>Module Progress</h3>
+                Loading...
 
-        <div class="progress-bar">
+            </p>
 
-            <div
-            class="progress-fill"
-            id="moduleProgress">
+        </div>
+
+    </header>
+
+    <!-- =========================
+         MODULE INFO
+    ========================== -->
+
+    <section class="module-info">
+
+        <div class="module-progress-card">
+
+            <h3>
+
+                Module Progress
+
+            </h3>
+
+            <div class="module-progress">
+
+                <div
+                id="moduleProgressBar"
+                class="module-progress-fill">
+
+                </div>
+
+            </div>
+
+            <p id="moduleProgressText">
+
+                0%
+
+            </p>
+
+        </div>
+
+        <div class="module-summary">
+
+            <div class="summary-box">
+
+                <h2 id="totalLessons">
+
+                    0
+
+                </h2>
+
+                <p>
+
+                    Lessons
+
+                </p>
+
+            </div>
+
+            <div class="summary-box">
+
+                <h2>
+
+                    Beginner
+
+                </h2>
+
+                <p>
+
+                    Level
+
+                </p>
+
+            </div>
+
+            <div class="summary-box">
+
+                <h2 id="moduleDuration">
+
+                    0 min
+
+                </h2>
+
+                <p>
+
+                    Duration
+
+                </p>
 
             </div>
 
         </div>
 
-    </div>
+    </section>
 
-    <div class="lesson-list">
+    <!-- =========================
+         LESSONS
+    ========================== -->
 
-        <h2>
+    <section>
 
-            Lessons
+        <div class="section-title">
 
-        </h2>
+            <h2>
 
-        <div id="lessonContainer">
+                Lessons
+
+            </h2>
 
         </div>
 
-    </div>
+        <div
+        id="lessonList"
+        class="lesson-list">
 
-    <button
-    id="startModule"
-    class="continue-btn">
+        </div>
 
-        Start Learning
-
-    </button>
+    </section>
 
 </div>
 

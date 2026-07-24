@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -9,79 +8,244 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Lesson | GTRADES-AXIS™</title>
+<title>Lesson | GTRADES-AXIS™ Premium Academy</title>
 
-<link rel="stylesheet" href="academy.css">
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="premium-academy.css">
+
+<link rel="stylesheet"
+href="lesson.css">
 
 </head>
 
 <body>
 
-<div class="lesson-container">
+<div class="lesson-layout">
 
-<div class="lesson-sidebar">
+    <!-- =========================================
+    SIDEBAR
+    ========================================== -->
 
-<h2 id="moduleTitle">
+    <aside class="lesson-sidebar">
 
-Loading...
+        <div class="sidebar-header">
 
-</h2>
+            <button
 
-<div id="lessonList">
+            class="back-btn"
 
-</div>
+            onclick="history.back()">
 
-</div>
+                <i class="fas fa-arrow-left"></i>
 
-<div class="lesson-content">
+                Back
 
-<h1 id="lessonTitle">
+            </button>
 
-Select a Lesson
+            <h2>
 
-</h1>
+                Lesson List
 
-<div class="video-placeholder">
+            </h2>
 
-VIDEO PLAYER
+            <p id="moduleName">
 
-</div>
+                Loading...
 
-<div class="lesson-notes">
+            </p>
 
-<h2>Lesson Notes</h2>
+        </div>
 
-<p>
+        <div
 
-Lesson content will appear here.
+        id="lessonSidebar"
 
-</p>
+        class="lesson-sidebar-list">
 
-</div>
+        </div>
 
-<div class="lesson-actions">
+    </aside>
 
-<button id="prevLesson">
+    <!-- =========================================
+    MAIN CONTENT
+    ========================================== -->
 
-Previous
+    <main class="lesson-content">
 
-</button>
+        <!-- Lesson Header -->
 
-<button id="completeLesson">
+        <section class="lesson-header">
 
-Mark Complete
+            <span
 
-</button>
+            id="lessonNumber"
 
-<button id="nextLesson">
+            class="lesson-tag">
 
-Next
+                Lesson
 
-</button>
+            </span>
 
-</div>
+            <h1
 
-</div>
+            id="lessonTitle">
+
+                Loading...
+
+            </h1>
+
+            <p
+
+            id="lessonDescription">
+
+                Loading lesson...
+
+            </p>
+
+        </section>
+
+        <!-- ==============================
+        VIDEO PLAYER
+        =============================== -->
+
+        <section class="video-card">
+
+            <div class="video-wrapper">
+
+                <iframe
+
+                id="lessonVideo"
+
+                src=""
+
+                title="Lesson Video"
+
+                allowfullscreen>
+
+                </iframe>
+
+            </div>
+
+        </section>
+
+        <!-- ==============================
+        LESSON NOTES
+        =============================== -->
+
+        <section class="notes-card">
+
+            <div class="card-title">
+
+                <h2>
+
+                    Lesson Notes
+
+                </h2>
+
+            </div>
+
+            <div
+
+            id="lessonNotes"
+
+            class="lesson-notes">
+
+                Lesson notes will appear here.
+
+            </div>
+
+        </section>
+
+        <!-- ==============================
+        DOWNLOADS
+        =============================== -->
+
+        <section class="downloads-card">
+
+            <div class="card-title">
+
+                <h2>
+
+                    Resources
+
+                </h2>
+
+            </div>
+
+            <div class="downloads">
+
+                <button
+
+                id="downloadPDF"
+
+                class="download-btn">
+
+                    <i class="fas fa-file-pdf"></i>
+
+                    Download PDF
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- ==============================
+        NAVIGATION
+        =============================== -->
+
+        <section class="lesson-navigation">
+
+            <button
+
+            id="previousLesson"
+
+            class="nav-btn">
+
+                <i class="fas fa-arrow-left"></i>
+
+                Previous
+
+            </button>
+
+            <button
+
+            id="completeLesson"
+
+            class="complete-btn">
+
+                ✓ Complete Lesson
+
+            </button>
+
+            <button
+
+            id="nextLesson"
+
+            class="nav-btn">
+
+                Next
+
+                <i class="fas fa-arrow-right"></i>
+
+            </button>
+
+        </section>
+
+    </main>
 
 </div>
 
