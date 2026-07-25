@@ -1,262 +1,274 @@
-// ======================================================
-// GTRADES-AXIS™
-// MODULE PAGE
-// PART 1
-// ======================================================
+/* ======================================================
+   GTRADES-AXIS™
+   MODULE PAGE
+====================================================== */
 
-// =============================================
-// GET MODULE ID
-// =============================================
+document.addEventListener("DOMContentLoaded", () => {
 
-const params = new URLSearchParams(window.location.search);
+    // =============================================
+    // GET MODULE ID
+    // =============================================
 
-const moduleId = parseInt(params.get("module")) || 1;
+    const params = new URLSearchParams(window.location.search);
 
-// =============================================
-// HTML ELEMENTS
-// =============================================
+    const moduleId = parseInt(params.get("id")) || 1;
 
-const moduleTitle = document.getElementById("moduleTitle");
+    // =============================================
+    // HTML ELEMENTS
+    // =============================================
 
-const moduleDescription = document.getElementById("moduleDescription");
+    const moduleTitle = document.getElementById("moduleTitle");
 
-const totalLessons = document.getElementById("totalLessons");
+    const moduleDescription = document.getElementById("moduleDescription");
 
-const moduleDuration = document.getElementById("moduleDuration");
+    const totalLessons = document.getElementById("totalLessons");
 
-const lessonList = document.getElementById("lessonList");
+    const moduleDuration = document.getElementById("moduleDuration");
 
-const progressBar = document.getElementById("moduleProgressBar");
+    const lessonList = document.getElementById("lessonList");
 
-const progressText = document.getElementById("moduleProgressText");
+    const progressBar = document.getElementById("moduleProgressBar");
 
-// =============================================
-// MODULE DATA
-// =============================================
+    const progressText = document.getElementById("moduleProgressText");
 
-const currentModule =
-academyData.find(
-module => module.id === moduleId
-);
+    const backBtn = document.getElementById("backBtn");
 
+    // =============================================
+    // GET MODULE
+    // =============================================
 
-// =============================================
-// CURRENT MODULE
-// =============================================
+    const currentModule = academyData.find(
+        module => module.id === moduleId
+    );
 
-const currentModule = academyModules[moduleId];
-// ======================================================
-// LOAD MODULE INFORMATION
-// ======================================================
+    // =============================================
+    // LOAD MODULE
+    // =============================================
 
-function loadModule(){
+    function loadModule(){
 
-    if(!currentModule){
+        if(!currentModule){
 
-        moduleTitle.textContent="Module Not Found";
+            moduleTitle.textContent="Module Not Found";
 
-        moduleDescription.textContent="The requested module does not exist.";
+            moduleDescription.textContent="The requested module does not exist.";
 
-        return;
+            return;
+
+        }
+
+        moduleTitle.textContent=currentModule.title;
+
+        moduleDescription.textContent=currentModule.description;
+
+        totalLessons.textContent=currentModule.lessons.length;
+
+        moduleDuration.textContent=currentModule.duration + " min";
+
+        renderLessons();
+
+        updateProgress();
 
     }
 
-    moduleTitle.textContent=currentModule.title;
+    // =============================================
+    // RENDER LESSONS
+    // =============================================
 
-    moduleDescription.textContent=currentModule.description;
+    function renderLessons(){
 
-    totalLessons.textContent=currentModule.lessons.length;
+        lessonList.innerHTML="";
 
-    moduleDuration.textContent=currentModule.duration;
+        const completedLessons=
 
-    renderLessons();
+        JSON.parse(
 
-    updateProgress();
+            localStorage.getItem(
 
-}
+                `module_${moduleId}_progress`
 
-// ======================================================
-// RENDER LESSONS
-// ======================================================
+            )
 
-function renderLessons(){
+        ) || [];
 
-    lessonList.innerHTML="";
+        currentModule.lessons.forEach((lesson,index)=>{
 
-    // Progress saved for this module
-    const completedLessons=
+            let completed=
 
-    JSON.parse(
+            completedLessons.includes(lesson.id);
 
-    localStorage.getItem(
+            let locked=false;
 
-    `module_${moduleId}_progress`
+            if(index>0){
 
-    )
+                locked=
 
-    ) || [];
+                !completedLessons.includes(
 
-    currentModule.lessons.forEach((lesson,index)=>{
+                    currentModule.lessons[index-1].id
 
-        const completed=
+                );
 
-        completedLessons.includes(lesson.id);
+            }
 
-        // Lesson unlock logic
-        let locked=false;
+            let cardClass="";
 
-        if(index>0){
+            let buttonText="Start Lesson";
 
-            locked=
+            if(completed){
 
-            !completedLessons.includes(
+                cardClass="completed";
 
-            currentModule.lessons[index-1].id
+                buttonText="Review Lesson";
 
-            );
+            }
 
-        }
+            if(locked){
 
-        let cardClass="";
+                cardClass="locked";
 
-        let buttonText="Start Lesson";
+                buttonText="Locked";
 
-        if(completed){
+            }
 
-            cardClass="completed";
+            lessonList.innerHTML+=`
 
-            buttonText="Review Lesson";
+            <div class="lesson-card ${cardClass}">
 
-        }
+                <div class="lesson-left">
 
-        if(locked){
+                    <div class="lesson-number">
 
-            cardClass="locked";
+                        ${lesson.id}
 
-            buttonText="Locked";
+                    </div>
 
-        }
+                    <div class="lesson-info">
 
-        lessonList.innerHTML+=`
+                        <h3>
 
-        <div class="lesson-card ${cardClass}">
+                            ${lesson.title}
 
-            <div class="lesson-left">
+                        </h3>
 
-                <div class="lesson-number">
+                        <p>
 
-                    ${lesson.id}
+                            Click to begin this lesson.
 
-                </div>
+                        </p>
 
-                <div class="lesson-info">
+                        <div class="lesson-meta">
 
-                    <h3>
+                            <span class="lesson-badge">
 
-                        ${lesson.title}
+                                ⏱ ${lesson.duration} min
 
-                    </h3>
+                            </span>
 
-                    <p>
-
-                        ${lesson.description}
-
-                    </p>
-
-                    <div class="lesson-meta">
-
-                        <span class="lesson-badge">
-
-                            ⏱ ${lesson.duration}
-
-                        </span>
+                        </div>
 
                     </div>
 
                 </div>
 
+                <div class="lesson-right">
+
+                    <button
+
+                        class="lesson-btn"
+
+                        ${locked ? "disabled" : ""}
+
+                        onclick="openLesson(${lesson.id})"
+
+                    >
+
+                        ${buttonText}
+
+                    </button>
+
+                </div>
+
             </div>
 
-            <div class="lesson-right">
+            `;
 
-                <button
+        });
 
-                class="lesson-btn"
+    }
 
-                ${locked ? "disabled" : ""}
+    // =============================================
+    // UPDATE PROGRESS
+    // =============================================
 
-                onclick="openLesson(${lesson.id})">
+    function updateProgress(){
 
-                ${buttonText}
+        const completedLessons=
 
-                </button>
+        JSON.parse(
 
-            </div>
+            localStorage.getItem(
 
-        </div>
+                `module_${moduleId}_progress`
 
-        `;
+            )
 
-    });
+        ) || [];
 
-}
+        const total=currentModule.lessons.length;
 
-// ======================================================
-// UPDATE PROGRESS
-// ======================================================
+        const completed=completedLessons.length;
 
-function updateProgress(){
+        const percent=
 
-    const completedLessons=
+        total===0
 
-    JSON.parse(
+        ? 0
 
-    localStorage.getItem(
+        : Math.round(
 
-    `module_${moduleId}_progress`
+            (completed/total)*100
 
-    )
+        );
 
-    ) || [];
+        progressBar.style.width=percent+"%";
 
-    const total=currentModule.lessons.length;
+        progressText.textContent=
 
-    const completed=completedLessons.length;
+        `${completed}/${total} Lessons Completed`;
 
-    const percent=
+    }
 
-    total===0 ? 0 :
+    // =============================================
+    // OPEN LESSON
+    // =============================================
 
-    Math.round(
+    window.openLesson=function(lessonId){
 
-    (completed/total)*100
+        window.location.href=
 
-    );
+        `lesson.html?module=${moduleId}&lesson=${lessonId}`;
 
-    progressBar.style.width=
+    }
 
-    percent+"%";
+    // =============================================
+    // BACK BUTTON
+    // =============================================
 
-    progressText.textContent=
+    if(backBtn){
 
-    percent+"% Completed";
+        backBtn.addEventListener("click",()=>{
 
-}
+            window.location.href="premium-academy.html";
 
-// ======================================================
-// OPEN LESSON
-// ======================================================
+        });
 
-function openLesson(lessonId){
+    }
 
-    window.location.href=
+    // =============================================
+    // INITIALIZE
+    // =============================================
 
-    `lesson.html?module=${moduleId}&lesson=${lessonId}`;
+    loadModule();
 
-}
-
-// ======================================================
-// INITIALIZE
-// ======================================================
-
-loadModule();
+});

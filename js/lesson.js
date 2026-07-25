@@ -41,86 +41,125 @@ const nextLesson = document.getElementById("nextLesson");
 const completeLesson = document.getElementById("completeLesson");
 
 // =============================================
-// LOAD MODULE
+// LOAD CURRENT MODULE
 // =============================================
 
-const currentModule =
-academyData.find(
-module => module.id === moduleId
+const currentModule = academyData.find(
+    module => module.id === moduleId
 );
+
+// =============================================
+// MODULE VALIDATION
+// =============================================
+
+if(!currentModule){
+
+    alert("Module not found.");
+
+    window.location.href="premium-academy.html";
+
+    throw new Error("Module not found");
+
+}
+
+// =============================================
+// LOAD CURRENT LESSON
+// =============================================
+
+const currentLesson = currentModule.lessons.find(
+    lesson => lesson.id === lessonId
+);
+
+// =============================================
+// LESSON VALIDATION
+// =============================================
+
+if(!currentLesson){
+
+    alert("Lesson not found.");
+
+    window.location.href=`module.html?id=${moduleId}`;
+
+    throw new Error("Lesson not found");
+
+}
 
 // =============================================
 // COMPLETED LESSONS
 // =============================================
 
-let completedLessons =
+let completedLessons = JSON.parse(
 
-JSON.parse(
+    localStorage.getItem(
 
-localStorage.getItem(
+        `module_${moduleId}_progress`
 
-`module_${moduleId}_progress`
-
-)
+    )
 
 ) || [];
 
 // =============================================
-// LESSON DATA
+// LOAD LESSON
 // =============================================
 
 function loadLesson(){
 
-moduleName.textContent =
-currentModule.title;
+    moduleName.textContent=currentModule.title;
 
-lessonNumber.textContent =
-"Lesson " + lessonId;
+    lessonNumber.textContent=`Lesson ${lessonId}`;
 
-lessonTitle.textContent =
-currentLesson.title;
+    lessonTitle.textContent=currentLesson.title;
 
-lessonDescription.textContent =
-currentLesson.description;
+    lessonDescription.textContent=
 
-// Temporary video
+    "Complete this lesson before proceeding to the next lesson.";
 
-lessonVideo.src =
-"https://www.youtube.com/embed/dQw4w9WgXcQ";
+    // -----------------------------
+    // VIDEO
+    // -----------------------------
 
-// Temporary notes
+    if(currentLesson.video && currentLesson.video !== ""){
 
-lessonNotes.innerHTML = `
+        lessonVideo.src=currentLesson.video;
 
-<h3>
-Lesson Overview
-</h3>
+    }else{
 
-<p>
+        lessonVideo.src="";
 
-This lesson forms part of the
-GTRADES-AXIS™ Premium Academy.
+    }
 
-Replace these notes with your
-actual lesson content.
+    // -----------------------------
+    // NOTES
+    // -----------------------------
 
-</p>
+    if(currentLesson.notes && currentLesson.notes !== ""){
 
-<br>
+        lessonNotes.innerHTML=currentLesson.notes;
 
-<ul>
+    }else{
 
-<li>Study the lesson carefully.</li>
+        lessonNotes.innerHTML=`
 
-<li>Take personal notes.</li>
+            <h3>Lesson Notes</h3>
 
-<li>Watch the video more than once.</li>
+            <p>
 
-<li>Complete the lesson before continuing.</li>
+            Lesson notes have not been uploaded yet.
 
-</ul>
+            </p>
 
-`;
+            <br>
+
+            <p>
+
+            Your instructor will upload the lesson notes
+            through the Admin Portal.
+
+            </p>
+
+        `;
+
+    }
 
 }
 // ======================================================
@@ -131,39 +170,71 @@ function buildSidebar(){
 
     lessonSidebar.innerHTML="";
 
-    currentModule.lessons.forEach((lesson)=>{
+    currentModule.lessons.forEach((lesson,index)=>{
 
-        const completed=
-        completedLessons.includes(lesson.id);
+        const completed=completedLessons.includes(lesson.id);
 
-        const active=
-        lesson.id===lessonId;
+        const active=lesson.id===lessonId;
 
-        let cardClass="lesson-sidebar-item";
+        const unlocked=
+
+            index===0 ||
+
+            completedLessons.includes(
+
+                currentModule.lessons[index-1].id
+
+            );
+
+        let className="lesson-sidebar-item";
 
         if(active){
 
-            cardClass+=" active";
+            className+=" active";
 
         }
 
         if(completed){
 
-            cardClass+=" completed";
+            className+=" completed";
+
+        }
+
+        if(!unlocked){
+
+            className+=" locked";
 
         }
 
         lessonSidebar.innerHTML+=`
 
-        <div class="${cardClass}"
+        <div
 
-        onclick="goLesson(${lesson.id})">
+        class="${className}"
 
-            <h4>
+        ${unlocked ? `onclick="goLesson(${lesson.id})"` : ""}
 
-                Lesson ${lesson.id}
+        >
 
-            </h4>
+            <div class="lesson-sidebar-top">
+
+                <h4>
+
+                    Lesson ${lesson.id}
+
+                </h4>
+
+                ${completed ?
+
+                `<i class="fas fa-circle-check"></i>`
+
+                :
+
+                ""
+
+                }
+
+            </div>
 
             <p>
 
@@ -185,7 +256,7 @@ function buildSidebar(){
 
 function goLesson(id){
 
-    location.href=
+    window.location.href=
 
     `lesson.html?module=${moduleId}&lesson=${id}`;
 
@@ -203,7 +274,7 @@ previousLesson.onclick=()=>{
 
     }
 
-    location.href=
+    window.location.href=
 
     `lesson.html?module=${moduleId}&lesson=${lessonId-1}`;
 
@@ -217,7 +288,7 @@ nextLesson.onclick=()=>{
 
     if(
 
-    lessonId===currentModule.lessons.length
+        lessonId===currentModule.lessons.length
 
     ){
 
@@ -225,140 +296,29 @@ nextLesson.onclick=()=>{
 
     }
 
-    location.href=
+    const next=lessonId+1;
 
-    `lesson.html?module=${moduleId}&lesson=${lessonId+1}`;
+    const unlocked=
 
-};
+        completedLessons.includes(lessonId);
 
-// ======================================================
-// COMPLETE LESSON
-// ======================================================
+    if(!unlocked){
 
-completeLesson.onclick=()=>{
+        alert(
 
-    if(
-
-    !completedLessons.includes(lessonId)
-
-    ){
-
-        completedLessons.push(lessonId);
-
-    }
-
-    localStorage.setItem(
-
-    `module_${moduleId}_progress`,
-
-    JSON.stringify(completedLessons)
-
-    );
-
-    // Unlock next module when all lessons are complete
-
-    if(
-
-    completedLessons.length===
-
-    currentModule.lessons.length
-
-    ){
-
-        const academy=
-
-        JSON.parse(
-
-        localStorage.getItem("gtradesAcademy")
-
-        ) || {};
-
-        academy.completedModules=
-
-        Math.max(
-
-        academy.completedModules||0,
-
-        moduleId
+        "Complete this lesson before continuing."
 
         );
 
-        academy.currentModule=
-
-        Math.min(
-
-        moduleId+1,
-
-        academyData.length
-
-        );
-
-        localStorage.setItem(
-
-        "gtradesAcademy",
-
-        JSON.stringify(academy)
-
-        );
+        return;
 
     }
 
-    alert("Lesson completed successfully!");
+    window.location.href=
 
-    buildSidebar();
+    `lesson.html?module=${moduleId}&lesson=${next}`;
 
 };
-
-// ======================================================
-// DOWNLOAD PDF
-// ======================================================
-
-downloadPDF.onclick=()=>{
-
-    if(currentLesson.pdf){
-
-        window.open(currentLesson.pdf);
-
-    }else{
-
-        alert("PDF coming soon.");
-
-    }
-
-};
-
-// ======================================================
-// INITIALIZE
-// ======================================================
-
-loadLesson();
-
-buildSidebar();
-// ======================================================
-// LOAD VIDEO & NOTES
-// ======================================================
-
-function loadLessonContent(){
-
-    // Load YouTube video if available
-    if(currentLesson.video && currentLesson.video !== ""){
-
-        lessonVideo.src = currentLesson.video;
-
-    }else{
-
-        lessonVideo.src = "";
-
-    }
-
-    // Load lesson notes
-    if(currentLesson.notes && currentLesson.notes !== ""){
-
-        lessonNotes.innerHTML = currentLesson.notes;
-
-    }
-
-}
 
 // ======================================================
 // UPDATE NAVIGATION
@@ -366,56 +326,20 @@ function loadLessonContent(){
 
 function updateNavigation(){
 
-    previousLesson.disabled = lessonId === 1;
+    previousLesson.disabled=
 
-    nextLesson.disabled =
+    lessonId===1;
 
-        lessonId === currentModule.lessons.length;
+    nextLesson.disabled=
 
-}
-
-// ======================================================
-// SHOW NOTIFICATION
-// ======================================================
-
-function showNotification(message){
-
-    const notification = document.createElement("div");
-
-    notification.className = "academy-toast";
-
-    notification.innerHTML = `
-        <i class="fas fa-circle-check"></i>
-        <span>${message}</span>
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(()=>{
-
-        notification.classList.add("show");
-
-    },100);
-
-    setTimeout(()=>{
-
-        notification.classList.remove("show");
-
-        setTimeout(()=>{
-
-            notification.remove();
-
-        },300);
-
-    },2500);
+    lessonId===currentModule.lessons.length;
 
 }
-
 // ======================================================
-// OVERRIDE COMPLETE BUTTON
+// COMPLETE LESSON
 // ======================================================
 
-completeLesson.onclick = ()=>{
+completeLesson.onclick=()=>{
 
     if(!completedLessons.includes(lessonId)){
 
@@ -431,30 +355,45 @@ completeLesson.onclick = ()=>{
 
     );
 
-    // Module completed
-    if(completedLessons.length === currentModule.lessons.length){
+    // -----------------------------
+    // MODULE COMPLETED
+    // -----------------------------
 
-        const academy = JSON.parse(
+    if(
 
-            localStorage.getItem("gtradesAcademy")
+        completedLessons.length===
+
+        currentModule.lessons.length
+
+    ){
+
+        const academy=
+
+        JSON.parse(
+
+            localStorage.getItem(
+
+                "gtradesAcademy"
+
+            )
 
         ) || {};
 
-        academy.completedModules =
+        academy.completedModules=
 
             Math.max(
 
-                academy.completedModules || 0,
+                academy.completedModules||0,
 
                 moduleId
 
             );
 
-        academy.currentModule =
+        academy.currentModule=
 
             Math.min(
 
-                moduleId + 1,
+                moduleId+1,
 
                 academyData.length
 
@@ -468,22 +407,134 @@ completeLesson.onclick = ()=>{
 
         );
 
-        showNotification("Module completed successfully!");
+        showToast(
 
-    }else{
+            "🎉 Module Completed Successfully!"
 
-        showNotification("Lesson completed!");
+        );
+
+    }
+
+    else{
+
+        showToast(
+
+            "✅ Lesson Completed!"
+
+        );
 
     }
 
     buildSidebar();
 
+    updateNavigation();
+
 };
+
+// ======================================================
+// DOWNLOAD PDF
+// ======================================================
+
+downloadPDF.onclick=()=>{
+
+    if(
+
+        currentLesson.pdf &&
+
+        currentLesson.pdf!=="" 
+
+    ){
+
+        window.open(
+
+            currentLesson.pdf,
+
+            "_blank"
+
+        );
+
+    }
+
+    else{
+
+        showToast(
+
+            "PDF not uploaded yet."
+
+        );
+
+    }
+
+};
+
+// ======================================================
+// TOAST NOTIFICATION
+// ======================================================
+
+function showToast(message){
+
+    const toast=document.createElement("div");
+
+    toast.className="academy-toast";
+
+    toast.innerHTML=`
+
+        <i class="fas fa-circle-check"></i>
+
+        <span>${message}</span>
+
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(()=>{
+
+        toast.classList.add("show");
+
+    },100);
+
+    setTimeout(()=>{
+
+        toast.classList.remove("show");
+
+    },2500);
+
+    setTimeout(()=>{
+
+        toast.remove();
+
+    },3000);
+
+}
+
+// ======================================================
+// SAVE LAST LESSON
+// ======================================================
+
+localStorage.setItem(
+
+    "lastLesson",
+
+    JSON.stringify({
+
+        module:moduleId,
+
+        lesson:lessonId
+
+    })
+
+);
 
 // ======================================================
 // INITIALIZE
 // ======================================================
 
-loadLessonContent();
+loadLesson();
+
+buildSidebar();
 
 updateNavigation();
+
+// ======================================================
+// END OF FILE
+// ======================================================
