@@ -1,262 +1,127 @@
-// ======================================================
-// GTRADES-AXIS™ PREMIUM ACADEMY
-// academy.js
-// ======================================================
+/* ==========================================================
+   GTRADES-AXIS™ PREMIUM ACADEMY
+========================================================== */
 
-// ======================================================
-// LOAD / CREATE PROGRESS
-// ======================================================
+document.addEventListener("DOMContentLoaded", () => {
 
-let progress = JSON.parse(localStorage.getItem("academyProgress"));
+    loadModules();
 
-if (!progress) {
+    updateStatistics();
 
-    progress = {
+});
 
-        completedModules: [1],
+/* ==========================================================
+   LOAD MODULES
+========================================================== */
 
-        currentModule: 2,
+function loadModules(){
 
-        completedLessons: 5
+    const grid=document.getElementById("modulesGrid");
 
-    };
+    if(!grid) return;
 
-}
+    grid.innerHTML="";
 
-// ======================================================
-// SAVE
-// ======================================================
+    academyData.forEach(module=>{
 
-function saveProgress() {
+        const completed=module.lessons.filter(l=>l.completed).length;
 
-    localStorage.setItem(
-        "academyProgress",
-        JSON.stringify(progress)
-    );
+        const totalLessons=module.lessons.length;
 
-}
+        const progress=Math.round((completed/totalLessons)*100);
 
-// ======================================================
-// UPDATE DASHBOARD
-// ======================================================
+        const card=document.createElement("div");
 
-function updateDashboard() {
+        card.className=`module-card ${module.locked?"locked":""}`;
 
-    const completed = progress.completedModules.length;
+        card.innerHTML=`
 
-    const total = academyData.length;
+            <div class="module-top">
 
-    const percent = Math.round((completed / total) * 100);
+                <h3>${module.title}</h3>
 
-    // Progress %
-
-    const progressText = document.getElementById("overallProgress");
-
-    if (progressText) {
-
-        progressText.textContent = percent + "%";
-
-    }
-
-    // Completed Modules
-
-    const completedModules = document.getElementById("completedModules");
-
-    if (completedModules) {
-
-        completedModules.textContent = `${completed} / ${total}`;
-
-    }
-
-    // Progress Circle
-
-    const circle = document.querySelector(".progress-circle");
-
-    if (circle) {
-
-        circle.style.background = `
-        radial-gradient(circle,#131c2d 60%,transparent 61%),
-        conic-gradient(
-            #1d9bf0 ${percent * 3.6}deg,
-            #263447 0deg
-        )`;
-
-    }
-
-}
-
-// ======================================================
-// LOAD MODULES
-// ======================================================
-
-function loadModules() {
-
-    const container = document.getElementById("modulesGrid");
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    academyData.forEach(module => {
-
-        const completed =
-            progress.completedModules.includes(module.id);
-
-        const current =
-            progress.currentModule === module.id;
-
-        const locked =
-            !completed && !current;
-
-        const card = document.createElement("div");
-
-        card.className = `module-card ${locked ? "locked" : "unlocked"}`;
-
-        card.dataset.module = module.id;
-
-        card.innerHTML = `
-
-            <div class="module-number">
-
-                Module ${module.id}
+                <span>${module.difficulty}</span>
 
             </div>
 
-            <h3>${module.title}</h3>
+            <p>${module.description}</p>
 
-            <p>
+            <div class="module-info">
 
-                ${module.description}
+                <span>
+                    <i class="fas fa-book"></i>
+                    ${totalLessons} Lessons
+                </span>
 
-            </p>
+                <span>
+                    <i class="fas fa-clock"></i>
+                    ${module.duration} min
+                </span>
 
-            <small>
+            </div>
 
-                ${module.lessons.length} Lessons
+            <div class="progress-bar">
 
-            </small>
+                <div
+                class="progress-fill"
+                style="width:${progress}%"></div>
 
-            <br><br>
+            </div>
 
-            <span class="module-status ${locked ? "" : "available"}">
+            <button
+            class="module-btn"
+            ${module.locked?"disabled":""}
+            onclick="openModule(${module.id})">
 
-                ${
-                    completed
-                    ? "Completed"
-                    : current
-                    ? "Continue"
-                    : "Locked"
-                }
+                ${module.locked?"Locked":"Open Module"}
 
-            </span>
+            </button>
 
         `;
 
-        if (!locked) {
-
-            card.addEventListener("click", () => {
-
-                openModule(module.id);
-
-            });
-
-        }
-
-        container.appendChild(card);
+        grid.appendChild(card);
 
     });
 
 }
 
-// ======================================================
-// OPEN MODULE
-// ======================================================
+/* ==========================================================
+   OPEN MODULE
+========================================================== */
 
-// ======================================================
-// OPEN MODULE
-// ======================================================
+function openModule(id){
 
-function openModule(id) {
-
-    // Save current module
-    localStorage.setItem("currentModule", id);
-
-    // Open the lesson page
-    location.href='module.html?module=${module.id}'
+    window.location.href=`module.html?id=${id}`;
 
 }
 
-// ======================================================
-// CONTINUE LEARNING
-// ======================================================
+/* ==========================================================
+   UPDATE DASHBOARD
+========================================================== */
 
-// ======================================================
-// CONTINUE LEARNING
-// ======================================================
+function updateStatistics(){
 
-document.addEventListener("DOMContentLoaded", () => {
+    const totalModules=academyData.length;
 
-    const continueBtn = document.querySelector(".continue-btn");
+    const totalLessons=academyData.reduce(
+        (sum,m)=>sum+m.lessons.length,0
+    );
 
-    if (continueBtn) {
+    const completedLessons=academyData.reduce(
+        (sum,m)=>sum+m.lessons.filter(l=>l.completed).length,0
+    );
 
-        continueBtn.addEventListener("click", () => {
+    const overallProgress=
+        Math.round((completedLessons/totalLessons)*100)||0;
 
-            openModule(progress.currentModule);
+    const progress=document.getElementById("overallProgress");
 
-        });
+    if(progress)
+        progress.innerText=overallProgress+"%";
 
-    }
+    const lessons=document.getElementById("completedLessons");
 
-});
-// ======================================================
-// COMPLETE MODULE
-// ======================================================
-
-function completeModule(moduleId) {
-
-    if (!progress.completedModules.includes(moduleId)) {
-
-        progress.completedModules.push(moduleId);
-
-    }
-
-    if (moduleId < academyData.length) {
-
-        progress.currentModule = moduleId + 1;
-
-    }
-
-    saveProgress();
-
-    updateDashboard();
-
-    loadModules();
+    if(lessons)
+        lessons.innerText=completedLessons;
 
 }
-
-// ======================================================
-// RESET ACADEMY
-// ======================================================
-
-function resetAcademy() {
-
-    localStorage.removeItem("academyProgress");
-
-    location.reload();
-
-}
-
-// ======================================================
-// INIT
-// ======================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    updateDashboard();
-
-    loadModules();
-
-    saveProgress();
-
-});
