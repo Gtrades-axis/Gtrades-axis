@@ -25,22 +25,22 @@ description:"Master HTF Bias, MTF Bias and understand market structure.",
 lessons:8,
 status:"locked"
 },
-
 {
 id:3,
+title:"Supply & Demand",
+description:"Learn institutional supply and demand trading.",
+lessons:7,
+status:"locked"
+},
+
+{
+id:4,
 title:"Liquidity",
 description:"Understand institutional liquidity and liquidity sweeps.",
 lessons:8,
 status:"locked"
 },
 
-{
-id:4,
-title:"Supply & Demand",
-description:"Learn institutional supply and demand trading.",
-lessons:7,
-status:"locked"
-},
 
 {
 id:5,
