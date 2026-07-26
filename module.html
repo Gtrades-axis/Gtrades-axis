@@ -8,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>Module | GTRADES-AXIS™</title>
+<title>Module | GTRADES-AXIS™ Premium Academy</title>
 
 <link rel="preconnect"
 href="https://fonts.googleapis.com">
@@ -21,29 +21,29 @@ crossorigin>
 rel="stylesheet">
 
 <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet"
 href="premium-academy.css">
 
 <link rel="stylesheet"
 href="module.css">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
 </head>
 
 <body>
 
-<div class="module-container">
+<div class="module-page">
 
-    <!-- =========================
+    <!-- =========================================
          HEADER
-    ========================== -->
+    ========================================== -->
 
     <header class="module-header">
 
         <button
-        class="back-btn"
-        onclick="history.back()">
+        id="backButton"
+        class="back-btn">
 
             <i class="fas fa-arrow-left"></i>
 
@@ -51,17 +51,27 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
         </button>
 
-        <div>
+        <div class="module-header-content">
 
-            <h1 id="moduleTitle">
+            <span
+            id="moduleBadge"
+            class="module-badge">
 
-                Loading...
+                Beginner
+
+            </span>
+
+            <h1
+            id="moduleTitle">
+
+                Loading Module...
 
             </h1>
 
-            <p id="moduleDescription">
+            <p
+            id="moduleDescription">
 
-                Loading...
+                Loading module description...
 
             </p>
 
@@ -69,120 +79,299 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
     </header>
 
-    <!-- =========================
-         MODULE INFO
-    ========================== -->
+    <!-- =========================================
+         HERO
+    ========================================== -->
 
-    <section class="module-info">
+    <section class="module-hero">
 
-        <div class="module-progress-card">
+        <div class="module-image">
 
-            <h3>
+            <img
 
-                Module Progress
+            id="moduleThumbnail"
 
-            </h3>
+            src=""
 
-            <div class="module-progress">
+            alt="Module Thumbnail">
 
-                <div
-                id="moduleProgressBar"
-                class="module-progress-fill">
+        </div>
+
+        <div class="module-overview">
+
+            <div class="overview-card">
+
+                <h3>
+
+                    Module Progress
+
+                </h3>
+
+                <div class="progress-wrapper">
+
+                    <div class="progress-bar">
+
+                        <div
+
+                        id="moduleProgressBar"
+
+                        class="progress-fill">
+
+                        </div>
+
+                    </div>
+
+                    <span
+
+                    id="moduleProgressText">
+
+                        0% Completed
+
+                    </span>
 
                 </div>
 
             </div>
 
-            <p id="moduleProgressText">
+            <div class="overview-grid">
 
-                0%
+                <div class="overview-item">
 
-            </p>
+                    <i class="fas fa-book-open"></i>
 
-        </div>
+                    <div>
 
-        <div class="module-summary">
+                        <span>
 
-            <div class="summary-box">
+                            Lessons
 
-                <h2 id="totalLessons">
+                        </span>
 
-                    0
+                        <strong
 
-                </h2>
+                        id="totalLessons">
 
-                <p>
+                            0
 
-                    Lessons
+                        </strong>
 
-                </p>
+                    </div>
 
-            </div>
+                </div>
 
-            <div class="summary-box">
+                <div class="overview-item">
 
-                <h2>
+                    <i class="fas fa-layer-group"></i>
 
-                    Beginner
+                    <div>
 
-                </h2>
+                        <span>
 
-                <p>
+                            Level
 
-                    Level
+                        </span>
 
-                </p>
+                        <strong
 
-            </div>
+                        id="moduleDifficulty">
 
-            <div class="summary-box">
+                            Beginner
 
-                <h2 id="moduleDuration">
+                        </strong>
 
-                    0 min
+                    </div>
 
-                </h2>
+                </div>
 
-                <p>
+                <div class="overview-item">
 
-                    Duration
+                    <i class="fas fa-clock"></i>
 
-                </p>
+                    <div>
+
+                        <span>
+
+                            Duration
+
+                        </span>
+
+                        <strong
+
+                        id="moduleDuration">
+
+                            0 min
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-item">
+
+                    <i class="fas fa-circle-check"></i>
+
+                    <div>
+
+                        <span>
+
+                            Completed
+
+                        </span>
+
+                        <strong
+
+                        id="completedLessons">
+
+                            0/0
+
+                        </strong>
+
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
     </section>
-
-    <!-- =========================
+       <!-- =========================================
          LESSONS
-    ========================== -->
+    ========================================== -->
 
-    <section>
+    <section class="module-lessons">
 
-        <div class="section-title">
+        <div class="section-header">
 
-            <h2>
+            <div>
 
-                Lessons
+                <h2>
 
-            </h2>
+                    Lessons
+
+                </h2>
+
+                <p>
+
+                    Complete each lesson in order to unlock the next one.
+
+                </p>
+
+            </div>
+
+            <button
+
+            class="continue-btn"
+
+            onclick="continueLearning()">
+
+                <i class="fas fa-play"></i>
+
+                Continue Learning
+
+            </button>
 
         </div>
 
         <div
+
         id="lessonList"
+
         class="lesson-list">
+
+            <!-- Lessons loaded by module.js -->
+
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         MODULE FOOTER
+    ========================================== -->
+
+    <section class="module-footer">
+
+        <div class="footer-card">
+
+            <i class="fas fa-graduation-cap"></i>
+
+            <div>
+
+                <h3>
+
+                    Complete This Module
+
+                </h3>
+
+                <p>
+
+                    Finish every lesson to unlock the next module.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="footer-card">
+
+            <i class="fas fa-bookmark"></i>
+
+            <div>
+
+                <h3>
+
+                    Continue Anytime
+
+                </h3>
+
+                <p>
+
+                    Your progress is automatically saved.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="footer-card">
+
+            <i class="fas fa-award"></i>
+
+            <div>
+
+                <h3>
+
+                    Earn Your Certificate
+
+                </h3>
+
+                <p>
+
+                    Complete all Academy modules to become a certified GTRADES-AXIS™ trader.
+
+                </p>
+
+            </div>
 
         </div>
 
     </section>
 
 </div>
+ <!-- =========================================
+     SCRIPTS
+========================================== -->
 
+<!-- Academy Database -->
 <script src="academyData.js"></script>
 
+<!-- Academy Engine -->
+<script src="academy.js"></script>
+
+<!-- Module Logic -->
 <script src="module.js"></script>
 
 </body>
