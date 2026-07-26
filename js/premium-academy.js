@@ -1,3 +1,7 @@
+// ============================================================
+// GTRADES-AXIS™ PREMIUM ACADEMY
+// ============================================================
+
 import { auth, db } from "./firebase.js";
 import {
   collection,
@@ -5,17 +9,15 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  arrayUnion,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-// ─── FALLBACK MODULES (in case Firestore is empty) ───────────
+// ─── FALLBACK MODULES (correct order) ──────────────────────
 const FALLBACK_MODULES = [
   {
     id: "mod_1",
-    title: "Module 1 — Introduction",
-    description: "Welcome to GTRADES-AXIS™, academy overview, rules, environment setup, recommended tools.",
+    title: "Introduction",
+    description: "Welcome, academy overview, rules, environment setup, recommended tools.",
     order: 1,
     hasQuiz: true,
     lessons: [
@@ -36,7 +38,7 @@ const FALLBACK_MODULES = [
   },
   {
     id: "mod_2",
-    title: "Module 2 — Market Structure",
+    title: "Market Structure",
     description: "HTF bias, MTF analysis, BOS, CHOCH, internal/external structure, examples.",
     order: 2,
     hasQuiz: true,
@@ -59,8 +61,124 @@ const FALLBACK_MODULES = [
         { question: "What is the HTF bias used for?", options: ["Determining overall trend direction", "Entry timing", "Risk management", "Setting stop loss"], correct: 0 }
       ]
     }
+  },
+  {
+    id: "mod_3",
+    title: "Liquidity",
+    description: "Equal highs/lows, sweeps, inducement, engineered liquidity, mapping.",
+    order: 3,
+    hasQuiz: true,
+    lessons: [
+      { id: "lsn_3_1", title: "Introduction to Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_2", title: "Equal Highs", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_3", title: "Equal Lows", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_4", title: "Liquidity Sweeps", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_5", title: "Inducement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_6", title: "Engineered Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_7", title: "Liquidity Mapping", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_3_8", title: "Practical Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    quiz: {
+      passingScore: 70,
+      questions: [
+        { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
+        { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 },
+        { question: "Engineered liquidity is:", options: ["Created by institutions to trap traders", "Natural market movement", "Always bullish", "Always bearish"], correct: 0 }
+      ]
+    }
+  },
+  {
+    id: "mod_4",
+    title: "Supply & Demand",
+    description: "Institutional zones, fresh vs tested, refinement, premium/discount, combining with structure.",
+    order: 4,
+    hasQuiz: true,
+    lessons: [
+      { id: "lsn_4_1", title: "Institutional Supply", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_4_2", title: "Institutional Demand", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_4_3", title: "Fresh vs Tested Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_4_4", title: "Zone Refinement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_4_5", title: "Premium & Discount", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_4_6", title: "Combining Structure with S&D", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_4_7", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    quiz: {
+      passingScore: 70,
+      questions: [
+        { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
+        { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 },
+        { question: "Demand zones are typically found:", options: ["Near support levels", "Near resistance levels", "In the middle of a range", "Above price"], correct: 0 }
+      ]
+    }
+  },
+  {
+    id: "mod_5",
+    title: "Trade Entries",
+    description: "LC-1, LC-2A, LTF RE, MTF RE, confirmation checklist, trade management, exit strategy.",
+    order: 5,
+    hasQuiz: true,
+    lessons: [
+      { id: "lsn_5_1", title: "Entry Philosophy", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_2", title: "LC-1", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_3", title: "LC-2A", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_4", title: "Lower Timeframe Re-entry (LTF RE)", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_5", title: "Multi-Timeframe Re-entry (MTF RE)", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_6", title: "Confirmation Checklist", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_7", title: "Trade Management", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_5_8", title: "Exit Strategy", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    quiz: {
+      passingScore: 70,
+      questions: [
+        { question: "What does LC-1 stand for?", options: ["Liquidity Capture 1", "Low Confidence 1", "Long Call 1", "Limit Close 1"], correct: 0 },
+        { question: "What is the main purpose of a confirmation checklist?", options: ["Avoid impulsive entries", "Increase position size", "Trade more frequently", "Use higher leverage"], correct: 0 }
+      ]
+    }
+  },
+  {
+    id: "mod_6",
+    title: "Risk Management",
+    description: "Position sizing, risk per trade, daily/weekly limits, R:R, prop firm rules, drawdown.",
+    order: 6,
+    hasQuiz: true,
+    lessons: [
+      { id: "lsn_6_1", title: "Position Sizing", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_2", title: "Risk Per Trade", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_3", title: "Daily & Weekly Limits", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_4", title: "Risk-to-Reward", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_5", title: "Prop Firm Rules", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_6_6", title: "Managing Drawdown", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    quiz: {
+      passingScore: 70,
+      questions: [
+        { question: "What is a recommended risk per trade for beginners?", options: ["1-2%", "5-10%", "20%", "50%"], correct: 0 },
+        { question: "What is drawdown?", options: ["Peak-to-trough decline in equity", "Maximum profit", "Average win", "Total trades"], correct: 0 }
+      ]
+    }
+  },
+  {
+    id: "mod_7",
+    title: "Trading Psychology",
+    description: "Discipline, patience, emotional control, routine, consistency, common mistakes.",
+    order: 7,
+    hasQuiz: true,
+    lessons: [
+      { id: "lsn_7_1", title: "Discipline", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_2", title: "Patience", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_3", title: "Emotional Control", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_4", title: "Trading Routine", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_5", title: "Building Consistency", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+      { id: "lsn_7_6", title: "Common Trading Mistakes", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+    ],
+    quiz: {
+      passingScore: 70,
+      questions: [
+        { question: "What is the most common mistake traders make?", options: ["Overtrading", "Using stop losses", "Following a plan", "Keeping a journal"], correct: 0 },
+        { question: "How can you improve trading consistency?", options: ["Stick to your trading plan", "Trade every signal", "Increase risk", "Ignore the market"], correct: 0 }
+      ]
+    }
   }
-  // Add more fallback modules if needed – for now two are enough to test.
 ];
 
 let currentUser = null;
@@ -68,16 +186,15 @@ let progress = null;
 let modules = [];
 
 // ─── DOM refs ─────────────────────────────────────────────────
-const container = document.getElementById("moduleGrid");
-const userNameEl = document.getElementById("userName");
-const userRoleEl = document.getElementById("userRole");
-const continueModuleEl = document.getElementById("continueModule");
-const continueLessonEl = document.getElementById("continueLesson");
-const continueBtn = document.getElementById("continueBtn");
+const modulesGrid = document.getElementById("modulesGrid");
 const progressPercent = document.getElementById("progressPercent");
-const progressFill = document.getElementById("progressFill");
-const achievementsSection = document.getElementById("achievementsSection");
-const todayDate = document.getElementById("todayDate");
+const progressText = document.getElementById("progressText");
+const continueBtn = document.getElementById("continueBtn");
+const lessonCompleted = document.getElementById("lessonCompleted");
+const quizPassed = document.getElementById("quizPassed");
+const certificateCount = document.getElementById("certificateCount");
+const learningHours = document.getElementById("learningHours");
+const activityLog = document.getElementById("activityLog");
 
 // ─── Auth guard ───────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -94,31 +211,22 @@ onAuthStateChanged(auth, async (user) => {
     console.log("👤 User role:", role);
 
     if (role !== "premium" && role !== "admin") {
-      container.innerHTML = `
+      modulesGrid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
           <i class="fa-solid fa-lock" style="font-size:3rem;color:#ffb300;display:block;margin-bottom:16px;"></i>
           <h2>Premium Access Required</h2>
           <p style="color:#94a3b8;margin-bottom:16px;">Upgrade to Premium to access the Academy.</p>
-          <a href="dashboard.html" class="btn btn-primary" style="display:inline-block;">Go to Dashboard</a>
+          <a href="dashboard.html" style="display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#1d9bf0,#4db6ff);color:#fff;border-radius:8px;text-decoration:none;">Go to Dashboard</a>
         </div>
       `;
       return;
     }
-    userRoleEl.textContent = role.toUpperCase();
-    userNameEl.textContent = userDoc.exists() ? userDoc.data().name || "Trader" : "Trader";
-    todayDate.textContent = new Date().toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-
     await loadProgress();
     await loadModules();
     renderDashboard();
   } catch (e) {
     console.error("Auth setup error:", e);
-    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:#ff4d4f;">Error loading Academy. Please refresh.</div>`;
+    modulesGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:#ff4d4f;">Error loading Academy. Please refresh.</div>`;
   }
 });
 
@@ -149,11 +257,9 @@ async function loadModules() {
       });
       console.log(`📦 Loaded ${modules.length} modules from Firestore.`);
     }
-    // Sort by order
     modules.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (e) {
     console.error("Error loading modules:", e);
-    // Fallback to sample data
     modules = FALLBACK_MODULES;
     console.log("🔄 Using fallback modules due to error.");
   }
@@ -162,11 +268,11 @@ async function loadModules() {
 // ─── Render Dashboard ──────────────────────────────────────────
 function renderDashboard() {
   if (!modules.length) {
-    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">No modules available yet. Check back soon!</div>`;
+    modulesGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">No modules available yet. Check back soon!</div>`;
     return;
   }
 
-  // 1. Calculate overall progress
+  // 1. Overall progress
   let totalLessons = 0;
   let completedLessons = 0;
   let firstIncomplete = null;
@@ -188,33 +294,53 @@ function renderDashboard() {
 
   const pct = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
   progressPercent.textContent = pct + "%";
-  progressFill.style.width = pct + "%";
+  progressText.textContent = `${completedLessons} of ${totalLessons} Lessons Completed`;
 
-  // 2. Continue Learning
+  // 2. Continue Learning button
   if (firstIncomplete) {
     const mod = modules.find((m) => m.id === firstIncomplete.moduleId);
     const lesson = mod.lessons.find((l) => l.id === firstIncomplete.lessonId);
-    continueModuleEl.textContent = mod.title;
-    continueLessonEl.textContent = lesson ? lesson.title : "Start Module";
-    continueBtn.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
-    continueBtn.textContent = "Continue ▶";
+    continueBtn.textContent = `Continue ${mod.title} – ${lesson ? lesson.title : ''}`;
+    continueBtn.onclick = () => {
+      window.location.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
+    };
   } else {
-    continueModuleEl.textContent = "🎉 All modules complete!";
-    continueLessonEl.textContent = "You've finished the Academy. Great job!";
-    continueBtn.textContent = "View Certificate";
-    continueBtn.href = "certificate.html?final=true";
+    continueBtn.textContent = "🎉 All modules complete! View Certificate";
+    continueBtn.onclick = () => {
+      window.location.href = "certificate.html?final=true";
+    };
   }
 
-  // 3. Achievements
-  const achievements = [];
-  if (modules.some((m) => progress.modules[m.id]?.quizPassed)) achievements.push("🏆 Quiz Master");
-  if (modules.every((m) => (progress.modules[m.id]?.completedLessons?.length || 0) === (m.lessons ? m.lessons.length : 0)))
-    achievements.push("🎓 Academy Graduate");
-  achievementsSection.innerHTML = achievements.length
-    ? achievements.map((a) => `<span class="badge"><i class="fa-solid fa-trophy"></i> ${a}</span>`).join("")
-    : `<span class="badge"><i class="fa-regular fa-star"></i> Complete modules to earn achievements</span>`;
+  // 3. Stats
+  let lessonsDone = 0;
+  let quizzesPassed = 0;
+  let certificates = 0;
 
-  // 4. Render module cards
+  modules.forEach(mod => {
+    const modProgress = progress.modules[mod.id] || {};
+    const completed = modProgress.completedLessons || [];
+    const total = mod.lessons ? mod.lessons.length : 0;
+    lessonsDone += completed.length;
+    if (modProgress.quizPassed) quizzesPassed++;
+    if (completed.length === total && (mod.hasQuiz ? modProgress.quizPassed : true)) {
+      certificates++;
+    }
+  });
+
+  lessonCompleted.textContent = lessonsDone;
+  quizPassed.textContent = quizzesPassed;
+  certificateCount.textContent = certificates;
+  learningHours.textContent = "0h"; // placeholder
+
+  // 4. Activity log
+  const activities = [];
+  if (lessonsDone > 0) activities.push(`📘 Completed ${lessonsDone} lessons`);
+  if (quizzesPassed > 0) activities.push(`✅ Passed ${quizzesPassed} quizzes`);
+  if (certificates > 0) activities.push(`🏆 Earned ${certificates} certificates`);
+  if (activities.length === 0) activities.push("No activity yet. Start learning!");
+  activityLog.innerHTML = activities.map(a => `<div class="activity-item">${a}</div>`).join('');
+
+  // 5. Render module cards
   let html = "";
   modules.forEach((mod, idx) => {
     const modProgress = progress.modules[mod.id] || {};
@@ -222,7 +348,7 @@ function renderDashboard() {
     const total = mod.lessons ? mod.lessons.length : 0;
     const pctMod = total ? Math.round((completed.length / total) * 100) : 0;
 
-    // Unlock logic: module 0 always unlocked; subsequent unlock after previous complete
+    // Unlock logic
     let unlocked = false;
     if (idx === 0) {
       unlocked = true;
@@ -236,27 +362,28 @@ function renderDashboard() {
     }
 
     const isCompleted = unlocked && completed.length === total && (mod.hasQuiz ? modProgress.quizPassed : true);
-    const status = isCompleted ? "completed" : unlocked ? "active" : "locked";
-    const statusLabel = isCompleted ? "✓ Completed" : unlocked ? "In Progress" : "🔒 Locked";
+    const statusLabel = isCompleted ? "✅ Completed" : unlocked ? "▶ In Progress" : "🔒 Locked";
+    const statusClass = isCompleted ? "completed" : unlocked ? "active" : "locked";
 
     html += `
       <div class="module-card">
-        <div class="header">
-          <span class="title">${mod.title}</span>
-          <span class="status ${status}">${statusLabel}</span>
+        <div class="module-header">
+          <h3>${mod.title}</h3>
+          <span class="status ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="desc">${mod.description || ''}</div>
-        <div class="progress-mini">
+        <p>${mod.description || ''}</p>
+        <div class="module-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${pctMod}%;"></div>
+          </div>
           <span>${completed.length}/${total} lessons</span>
-          <div class="mini-bar"><div class="fill" style="width:${pctMod}%;"></div></div>
-          <span>${pctMod}%</span>
         </div>
-        <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="btn-module ${!unlocked ? 'locked' : ''}">
+        <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">
           ${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}
         </a>
-        ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Quiz</a>` : ''}
+        ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Take Quiz</a>` : ''}
       </div>
     `;
   });
-  container.innerHTML = html;
+  modulesGrid.innerHTML = html;
 }
