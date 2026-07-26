@@ -40,23 +40,17 @@ Academy.defaultProgress={
 
 Academy.init=function(){
 
+  Academy.init=function(){
+
     const saved=
 
-    localStorage.getItem(
-
-        this.storageKey
-
-    );
+    localStorage.getItem(this.storageKey);
 
     if(saved){
 
-        this.progress=
+        this.progress=JSON.parse(saved);
 
-        JSON.parse(saved);
-
-    }
-
-    else{
+    }else{
 
         this.progress=
 
@@ -70,11 +64,26 @@ Academy.init=function(){
 
         );
 
-        this.save();
-
     }
 
+    this.progress.completedLessons ||= {};
+
+    this.progress.bookmarks ||= [];
+
+    this.progress.certificates ||= [];
+
+    this.progress.studyTime ||= 0;
+
+    this.progress.completedModules ||= 0;
+
+    this.progress.currentModule ||= 1;
+
+    this.progress.currentLesson ||= 1;
+
+    this.save();
+
 };
+
 
 /* ======================================================
    SAVE
@@ -497,6 +506,16 @@ Academy.search=function(keyword){
 
 Academy.statistics=function(){
 
+    const progress=this.progress||{};
+
+    progress.completedLessons ||= {};
+
+    progress.bookmarks ||= [];
+
+    progress.certificates ||= [];
+
+    progress.studyTime ||= 0;
+
     let totalLessons=0;
 
     let completedLessons=0;
@@ -507,11 +526,7 @@ Academy.statistics=function(){
 
         completedLessons+=
 
-        (
-
-            this.progress.completedLessons[module.id]||[]
-
-        ).length;
+        (progress.completedLessons[module.id]||[]).length;
 
     });
 
@@ -519,9 +534,7 @@ Academy.statistics=function(){
 
         modules:this.modules.length,
 
-        completedModules:
-
-        this.progress.completedModules,
+        completedModules:progress.completedModules||0,
 
         totalLessons:totalLessons,
 
@@ -529,15 +542,11 @@ Academy.statistics=function(){
 
         progress:this.overallProgress(),
 
-        studyTime:this.progress.studyTime,
+        studyTime:progress.studyTime,
 
-        bookmarks:
+        bookmarks:progress.bookmarks.length,
 
-        this.progress.bookmarks.length,
-
-        certificates:
-
-        this.progress.certificates.length
+        certificates:progress.certificates.length
 
     };
 
