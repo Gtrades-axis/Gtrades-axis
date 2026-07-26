@@ -1,152 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz | GTRADES-AXIS™</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-
-  <link rel="stylesheet" href="css/academy.css" />
-  <link rel="stylesheet" href="css/style.css" />
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="premium-academy.css">
   <style>
-    .quiz-container {
-      max-width: 750px;
-      margin: 0 auto;
-    }
-    .question-block {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      margin-bottom: 14px;
-    }
-    .question-text {
-      font-weight: 600;
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .options label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.03);
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.9rem;
-    }
-    .options label:hover {
-      background: rgba(255,255,255,0.06);
-    }
-    .options input[type="radio"] {
-      accent-color: var(--blue);
-      width: 16px;
-      height: 16px;
-    }
-    .result-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      text-align: center;
-      margin-top: 16px;
-    }
-    .result-box .score {
-      font-size: 3rem;
-      font-weight: 700;
-    }
-    .result-box .pass { color: var(--green); }
+    .quiz-container { max-width: 750px; margin: 0 auto; padding: 20px; }
+    .question-block { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 16px; }
+    .question-text { font-weight: 600; margin-bottom: 10px; }
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .options label { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    .options label:hover { background: rgba(255,255,255,0.08); }
+    .options input[type="radio"] { accent-color: #1d9bf0; width: 18px; height: 18px; }
+    .result-box { text-align: center; padding: 30px; background: rgba(255,255,255,0.05); border-radius: 12px; }
+    .result-box .score { font-size: 3rem; font-weight: 700; }
+    .result-box .pass { color: #00c853; }
     .result-box .fail { color: #ff4d4f; }
-    .result-box .details {
-      color: var(--text2);
-      margin: 8px 0 16px;
-    }
-    .btn-secondary {
-      background: rgba(255,255,255,0.05);
-      color: var(--text2);
-      border: 1px solid var(--border);
-      padding: 8px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: 0.2s;
-    }
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.1);
-    }
+    .btn-secondary { background: rgba(255,255,255,0.05); color: #aab7c8; border: 1px solid rgba(255,255,255,0.08); padding: 8px 20px; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
-
-<div class="academy-app">
-
-  <aside class="academy-sidebar">
-    <div class="logo">
-      <img src="images/logo.png" alt="GTRADES-AXIS" />
-      <h2>GTRADES <span>AXIS™</span></h2>
-    </div>
+<div class="academy-container">
+  <aside class="sidebar">
+    <div class="logo"><h2>GTRADES <span>AXIS™</span></h2><p>Premium Academy</p></div>
     <nav>
-      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
-      <a href="academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
-      <a href="resources.html"><i class="fa-solid fa-folder-open"></i> Resources</a>
-      <a href="journal.html"><i class="fa-solid fa-book"></i> Journal</a>
-      <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
-      <a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+      <ul>
+        <li><i class="fas fa-house"></i> Dashboard</li>
+        <li class="active"><i class="fas fa-book-open"></i> Modules</li>
+        <li><i class="fas fa-folder-open"></i> Resources</li>
+        <li><i class="fas fa-brain"></i> AI Review</li>
+        <li><i class="fas fa-award"></i> Certificates</li>
+        <li><i class="fas fa-user"></i> Profile</li>
+      </ul>
     </nav>
-    <button id="logoutBtn" class="logout-btn">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
   </aside>
-
-  <main class="academy-main">
-    <div class="quiz-container">
-
-      <header class="academy-header">
-        <div>
-          <h1 id="quizTitle">Loading Quiz...</h1>
-          <p id="quizModule">Loading module...</p>
-        </div>
-        <div class="header-actions">
-          <a href="academy.html" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Back</a>
-        </div>
-      </header>
-
-      <div id="quizContainer">
-        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading quiz…</div>
-      </div>
-
+  <div class="content">
+    <header class="topbar">
+      <div><h1 id="quizTitle">Loading Quiz...</h1><p id="quizModule">Loading module...</p></div>
+      <div class="user-box"><img src="images/avatar.png" alt=""><div><h4>Student</h4><p>Premium Member</p></div></div>
+    </header>
+    <div class="quiz-container" id="quizContainer">
+      <div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> Loading quiz…</div>
     </div>
-  </main>
+  </div>
 </div>
-
-<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
-
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/quiz.js"></script>
-
-<script>
-  (function() {
-    const btn = document.getElementById('scrollTopBtn');
-    if (!btn) return;
-    window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 250);
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-</script>
-
 </body>
 </html>

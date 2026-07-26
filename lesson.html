@@ -1,145 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lesson | GTRADES-AXIS™</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-
-  <link rel="stylesheet" href="css/academy.css" />
-  <link rel="stylesheet" href="css/style.css" />
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="premium-academy.css">
   <style>
-    /* ─── Lesson Player Specific Styles ─── */
-    .lesson-player {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .lesson-player .video-wrapper {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: rgba(0,0,0,0.3);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .lesson-player .video-wrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    .lesson-player .pdf-download {
-      margin: 10px 0;
-    }
-    .lesson-player .pdf-download a {
-      color: var(--blue);
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    .lesson-player .pdf-download a:hover {
-      text-decoration: underline;
-    }
-    .lesson-player .notes-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin: 12px 0;
-      white-space: pre-wrap;
-      font-size: 0.9rem;
-      color: var(--text2);
-      line-height: 1.6;
-    }
-    .lesson-player .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    .lesson-player .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-      gap: 12px;
-    }
-    .lesson-player .nav-buttons .btn {
-      padding: 8px 20px;
-    }
+    /* ─── Lesson Player overrides ─── */
+    .lesson-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: rgba(0,0,0,0.3); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    .pdf-download { margin: 10px 0; }
+    .pdf-download a { color: #1d9bf0; text-decoration: none; font-weight: 500; }
+    .notes-box { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 16px 0; white-space: pre-wrap; line-height: 1.6; }
+    .lesson-actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+    .lesson-actions .btn { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, #1d9bf0, #4db6ff); color: #fff; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: rgba(255,255,255,0.05); color: #aab7c8; border: 1px solid rgba(255,255,255,0.08); }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: 24px; gap: 12px; }
+    .back-link { color: #1d9bf0; text-decoration: none; }
   </style>
 </head>
 <body>
-
-<div class="academy-app">
-
-  <!-- SIDEBAR -->
-  <aside class="academy-sidebar">
-    <div class="logo">
-      <img src="images/logo.png" alt="GTRADES-AXIS" />
-      <h2>GTRADES <span>AXIS™</span></h2>
-    </div>
+<div class="academy-container">
+  <aside class="sidebar">
+    <div class="logo"><h2>GTRADES <span>AXIS™</span></h2><p>Premium Academy</p></div>
     <nav>
-      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
-      <a href="academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
-      <a href="resources.html"><i class="fa-solid fa-folder-open"></i> Resources</a>
-      <a href="journal.html"><i class="fa-solid fa-book"></i> Journal</a>
-      <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
-      <a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+      <ul>
+        <li><i class="fas fa-house"></i> Dashboard</li>
+        <li class="active"><i class="fas fa-book-open"></i> Modules</li>
+        <li><i class="fas fa-folder-open"></i> Resources</li>
+        <li><i class="fas fa-brain"></i> AI Review</li>
+        <li><i class="fas fa-award"></i> Certificates</li>
+        <li><i class="fas fa-user"></i> Profile</li>
+      </ul>
     </nav>
-    <button id="logoutBtn" class="logout-btn">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
   </aside>
-
-  <!-- MAIN -->
-  <main class="academy-main">
-    <div class="lesson-player">
-
-      <!-- Header -->
-      <header class="academy-header">
-        <div>
-          <h1 id="lessonTitle">Loading...</h1>
-          <p id="moduleTitle">Loading module...</p>
-        </div>
-        <div class="header-actions">
-          <a href="academy.html" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Back to Academy</a>
-        </div>
-      </header>
-
-      <!-- Lesson Content -->
-      <div id="lessonContent">
-        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading lesson…</div>
-      </div>
-
+  <div class="content">
+    <header class="topbar">
+      <div><h1 id="lessonTitle">Loading...</h1><p id="moduleTitle">Loading module...</p></div>
+      <div class="user-box"><img src="images/avatar.png" alt=""><div><h4>Student</h4><p>Premium Member</p></div></div>
+    </header>
+    <div class="lesson-container" id="lessonContent">
+      <div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> Loading lesson…</div>
     </div>
-  </main>
+  </div>
 </div>
-
-<!-- Scroll to top -->
-<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
-
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/lesson.js"></script>
-
-<script>
-  (function() {
-    const btn = document.getElementById('scrollTopBtn');
-    if (!btn) return;
-    window.addEventListener('scroll', function() {
-      btn.classList.toggle('visible', window.scrollY > 250);
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-</script>
-
 </body>
 </html>

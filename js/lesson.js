@@ -1,24 +1,12 @@
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  setDoc,
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const moduleId = urlParams.get("module");
 const lessonId = urlParams.get("lesson");
-
 if (!moduleId || !lessonId) {
-  document.getElementById("lessonContent").innerHTML = `
-    <div style="padding:40px;color:#ff4d4f;text-align:center;">
-      <i class="fa-solid fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
-      Invalid lesson. Please go back to the Academy.
-    </div>
-  `;
+  document.getElementById("lessonContent").innerHTML = `<div style="padding:40px;color:#ff4d4f;text-align:center;">Invalid lesson.</div>`;
   throw new Error("Missing module or lesson id");
 }
 
@@ -27,56 +15,55 @@ let moduleData = null;
 let lessonData = null;
 let lessonIndex = -1;
 let progress = null;
-
 const titleEl = document.getElementById("lessonTitle");
 const moduleTitleEl = document.getElementById("moduleTitle");
 const container = document.getElementById("lessonContent");
 
-// ─── Auth ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
+  if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
   await loadProgress();
   await loadLesson();
 });
 
-// ─── Load progress ─────────────────────────────────────────────
 async function loadProgress() {
   try {
     const docRef = doc(db, "user_progress", currentUser.uid);
     const docSnap = await getDoc(docRef);
     progress = docSnap.exists() ? docSnap.data() : { modules: {} };
-  } catch (e) {
-    console.error("Progress load error:", e);
-    progress = { modules: {} };
-  }
+  } catch (e) { console.error("Progress error:", e); progress = { modules: {} }; }
 }
 
-// ─── Load lesson ───────────────────────────────────────────────
 async function loadLesson() {
   try {
+    // Try Firestore first
     const docRef = doc(db, "academy_modules", moduleId);
     const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      container.innerHTML = `<div style="padding:40px;color:#ff4d4f;">Module not found.</div>`;
+    if (docSnap.exists()) {
+      moduleData = docSnap.data();
+    } else {
+      // Fallback: check if we have it in memory (from premium-academy.js)
+      // We'll use a global variable if available, otherwise fallback to import
+      // For now, we'll try to get it from the fallback modules defined in premium-academy.js
+      // Since we can't share state easily, we'll hardcode a fallback mechanism here.
+      // Simpler: if not in Firestore, use hardcoded fallback (same as in premium-academy.js)
+      const FALLBACK_MODULES = [
+        // ... (you can copy the same fallback modules here, but we'll use a simpler approach)
+      ];
+      // I'll put the full fallback array in a separate file later
+      // For now, we'll just show an error
+      container.innerHTML = `<div style="padding:40px;color:#ff4d4f;">Module not found in Firestore. Please add content.</div>`;
       return;
     }
-    moduleData = docSnap.data();
-    moduleTitleEl.textContent = moduleData.title || "Module";
-
-    // Find the lesson
     const lessons = moduleData.lessons || [];
-    lessonIndex = lessons.findIndex((l) => l.id === lessonId);
+    lessonIndex = lessons.findIndex(l => l.id === lessonId);
     if (lessonIndex === -1) {
       container.innerHTML = `<div style="padding:40px;color:#ff4d4f;">Lesson not found.</div>`;
       return;
     }
     lessonData = lessons[lessonIndex];
     titleEl.textContent = lessonData.title || "Lesson";
-
+    moduleTitleEl.textContent = moduleData.title || "Module";
     renderLesson();
   } catch (e) {
     console.error("Load lesson error:", e);
@@ -84,10 +71,8 @@ async function loadLesson() {
   }
 }
 
-// ─── Render lesson ─────────────────────────────────────────────
 function renderLesson() {
   let html = "";
-
   // Video
   if (lessonData.type === "video" && lessonData.videoUrl) {
     let embedUrl = lessonData.videoUrl;
@@ -100,48 +85,36 @@ function renderLesson() {
     }
     html += `<div class="video-wrapper"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`;
   }
-
-  // PDF Download
   if (lessonData.pdfUrl) {
-    html += `
-      <div class="pdf-download">
-        <i class="fa-solid fa-file-pdf"></i>
-        <a href="${lessonData.pdfUrl}" target="_blank">Download PDF</a>
-      </div>
-    `;
+    html += `<div class="pdf-download"><i class="fas fa-file-pdf"></i> <a href="${lessonData.pdfUrl}" target="_blank">Download PDF</a></div>`;
   }
-
-  // Notes
   if (lessonData.notes) {
     html += `<div class="notes-box">${lessonData.notes}</div>`;
   }
 
-  // Check if completed
   const modProgress = progress.modules[moduleId] || {};
   const completedLessons = modProgress.completedLessons || [];
   const isCompleted = completedLessons.includes(lessonId);
 
-  // Previous/Next
   const lessons = moduleData.lessons || [];
   const prevLesson = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const nextLesson = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
-  const isLastLesson = lessonIndex === lessons.length - 1;
+  const isLast = lessonIndex === lessons.length - 1;
   const quizLink = moduleData.hasQuiz ? `quiz.html?module=${moduleId}` : null;
 
   html += `
-    <div class="actions">
+    <div class="lesson-actions">
       <button class="btn btn-primary" id="markCompleteBtn" ${isCompleted ? 'disabled' : ''}>
         <i class="fa-${isCompleted ? 'solid fa-check-circle' : 'solid fa-check'}"></i>
         ${isCompleted ? 'Completed' : 'Mark Complete'}
       </button>
-      <a href="academy.html" class="btn btn-outline">Back to Academy</a>
+      <a href="premium-academy.html" class="btn btn-outline">Back to Academy</a>
     </div>
     <div class="nav-buttons">
-      ${prevLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${prevLesson.id}" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Previous</a>` : '<span></span>'}
-      ${nextLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${nextLesson.id}" class="btn btn-outline">Next <i class="fa-solid fa-arrow-right"></i></a>` : (isLastLesson && quizLink ? `<a href="${quizLink}" class="btn btn-primary">Take Quiz <i class="fa-solid fa-arrow-right"></i></a>` : '')}
+      ${prevLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${prevLesson.id}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Previous</a>` : '<span></span>'}
+      ${nextLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${nextLesson.id}" class="btn btn-outline">Next <i class="fas fa-arrow-right"></i></a>` : (isLast && quizLink ? `<a href="${quizLink}" class="btn btn-primary">Take Quiz <i class="fas fa-arrow-right"></i></a>` : '')}
     </div>
   `;
-
   container.innerHTML = html;
 
   const markBtn = document.getElementById("markCompleteBtn");
@@ -150,7 +123,6 @@ function renderLesson() {
   }
 }
 
-// ─── Mark lesson complete ──────────────────────────────────────
 async function markLessonComplete() {
   if (!currentUser) return;
   try {
@@ -165,9 +137,9 @@ async function markLessonComplete() {
     await setDoc(progressRef, data, { merge: true });
     progress = data;
     alert("✅ Lesson marked complete!");
-    renderLesson();
+    renderLesson(); // refresh
   } catch (e) {
-    console.error(e);
+    console.error("Mark complete error:", e);
     alert("❌ Error marking complete.");
   }
 }
