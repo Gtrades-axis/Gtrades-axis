@@ -1,212 +1,169 @@
-// ======================================================
-// GTRADES-AXIS™ PREMIUM ACADEMY
-// DASHBOARD ENGINE
-// PART 1
-// ======================================================
-
-"use strict";
-
 /* ======================================================
-   PAGE ELEMENTS
+   GTRADES-AXIS™ PREMIUM ACADEMY
+   DASHBOARD
 ====================================================== */
 
-const modulesGrid=document.getElementById("modulesGrid");
+const modulesContainer=document.getElementById("academyModules");
 
 const overallProgress=document.getElementById("overallProgress");
 
-const completedLessons=document.getElementById("completedLessons");
-
 const completedModules=document.getElementById("completedModules");
 
-const totalStudyTime=document.getElementById("totalStudyTime");
+const completedLessons=document.getElementById("completedLessons");
 
-const currentLevel=document.getElementById("currentLevel");
+const studyTime=document.getElementById("studyTime");
+
+const continueLearning=document.getElementById("continueLearning");
 
 /* ======================================================
    INITIALIZE
 ====================================================== */
 
-document.addEventListener(
+document.addEventListener("DOMContentLoaded",()=>{
 
-    "DOMContentLoaded",
+    Academy.init();
 
-    ()=>{
+    loadStatistics();
 
-        Academy.init();
+    renderModules();
 
-        loadDashboard();
+    initializeContinueLearning();
 
-        loadModules();
-
-    }
-
-);
+});
 
 /* ======================================================
    LOAD DASHBOARD
 ====================================================== */
 
-function loadDashboard(){
+function loadStatistics(){
 
-    const stats=
+    const stats=Academy.statistics();
 
-    Academy.statistics();
-
-    if(overallProgress)
+    if(overallProgress){
 
         overallProgress.textContent=
 
         stats.progress+"%";
 
-    if(completedLessons)
+    }
 
-        completedLessons.textContent=
-
-        stats.completedLessons+
-
-        "/"+
-
-        stats.lessons;
-
-    if(completedModules)
+    if(completedModules){
 
         completedModules.textContent=
 
-        stats.completedModules+
+        stats.completedModules;
 
-        "/"+
+    }
 
-        stats.modules;
+    if(completedLessons){
 
-    if(totalStudyTime)
+        completedLessons.textContent=
 
-        totalStudyTime.textContent=
+        stats.completedLessons;
 
-        stats.studyTime+
+    }
 
-        " min";
+    if(studyTime){
 
-    if(currentLevel)
+        studyTime.textContent=
 
-        currentLevel.textContent=
+        stats.studyTime+" min";
 
-        calculateLevel(
-
-            stats.progress
-
-        );
+    }
 
 }
 
 /* ======================================================
-   USER LEVEL
+   CONTINUE LEARNING
 ====================================================== */
 
-function calculateLevel(progress){
+function initializeContinueLearning(){
 
-    if(progress<20)
-
-        return "Beginner";
-
-    if(progress<40)
-
-        return "Developing";
-
-    if(progress<60)
-
-        return "Intermediate";
-
-    if(progress<80)
-
-        return "Advanced";
-
-    if(progress<100)
-
-        return "Professional";
-
-    return "Certified";
-
-}
-
-/* ======================================================
-   LOAD MODULES
-====================================================== */
-
-function loadModules(){
-
-    if(!modulesGrid)
+    if(!continueLearning){
 
         return;
 
-    modulesGrid.innerHTML="";
+    }
 
-    academyData.forEach(module=>{
+    continueLearning.onclick=function(){
 
-        createModuleCard(module);
+        const lesson=
+
+        Academy.getContinueLesson();
+
+        location.href=
+
+        `lesson.html?module=${lesson.module}&lesson=${lesson.lesson}`;
+
+    };
+
+}
+
+/* ======================================================
+   MODULE CARDS
+====================================================== */
+
+function renderModules(){
+
+    if(!modulesContainer){
+
+        return;
+
+    }
+
+    modulesContainer.innerHTML="";
+
+    Academy.getModules().forEach(module=>{
+
+        modulesContainer.appendChild(
+
+            createModuleCard(module)
+
+        );
 
     });
 
 }
 
 /* ======================================================
-   MODULE CARD
+   CREATE CARD
 ====================================================== */
 
 function createModuleCard(module){
 
-    const progress=
-
-    Academy.getModuleProgress(
-
-        module.id
-
-    );
-
     const locked=
 
-    Academy.moduleLocked(
+    Academy.moduleLocked(module.id);
 
-        module.id
+    const progress=
 
-    );
+    Academy.moduleProgress(module.id);
 
     const card=
 
     document.createElement("div");
 
-    card.className=
+    card.className="academy-card";
 
-    "module-card";
-
-    if(locked)
+    if(locked){
 
         card.classList.add("locked");
 
+    }
+
     card.innerHTML=`
 
-        <div class="module-image">
+        <div class="academy-image">
 
             <img
 
             src="${module.thumbnail}"
 
-            alt="${module.title}"
-
             onerror="this.src='images/module-placeholder.png'">
 
         </div>
 
-        <div class="module-content">
-
-            <div class="module-top">
-
-                <span class="difficulty">
-
-                    ${module.difficulty}
-
-                </span>
-
-            </div>
+        <div class="academy-content">
 
             <h3>
 
@@ -220,31 +177,27 @@ function createModuleCard(module){
 
             </p>
 
-            <div class="module-meta">
+            <div class="academy-meta">
 
                 <span>
 
-                    <i class="fas fa-book"></i>
+                    ${module.duration} mins
+
+                </span>
+
+                <span>
 
                     ${module.lessons.length} Lessons
 
                 </span>
 
-                <span>
-
-                    <i class="fas fa-clock"></i>
-
-                    ${module.duration} min
-
-                </span>
-
             </div>
 
-            <div class="progress">
+            <div class="academy-progress">
 
                 <div
 
-                class="progress-fill"
+                class="academy-progress-fill"
 
                 style="width:${progress}%">
 
@@ -252,54 +205,86 @@ function createModuleCard(module){
 
             </div>
 
-            <div class="progress-text">
+            <div class="academy-footer">
 
-                ${progress}% Completed
+                <span>
+
+                    ${progress}% Complete
+
+                </span>
+
+                <button
+
+                class="academy-btn"
+
+                ${locked?"disabled":""}>
+
+                    ${locked?"Locked":"Open"}
+
+                </button>
 
             </div>
-
-            <button
-
-            class="module-button"
-
-            onclick="openModule(${module.id})"
-
-            ${locked?"disabled":""}>
-
-                ${locked?"Locked":"Continue"}
-
-            </button>
 
         </div>
 
     `;
 
-    modulesGrid.appendChild(card);
+    if(!locked){
 
-}
-/* ======================================================
-   OPEN MODULE
-====================================================== */
+        card.onclick=function(){
 
-function openModule(moduleId){
+            location.href=
 
-    if(Academy.moduleLocked(moduleId)){
+            `module.html?module=${module.id}`;
 
-        showToast(
-
-            "Complete the previous module to unlock this one."
-
-        );
-
-        return;
+        };
 
     }
 
-    Academy.setCurrentModule(moduleId);
+    return card;
 
-    window.location.href=
+}
+/* ======================================================
+   SEARCH MODULES
+====================================================== */
 
-    `module.html?id=${moduleId}`;
+const searchInput=document.getElementById("academySearch");
+
+if(searchInput){
+
+    searchInput.addEventListener("input",function(){
+
+        const keyword=this.value.toLowerCase().trim();
+
+        modulesContainer.innerHTML="";
+
+        Academy.getModules()
+
+        .filter(module=>{
+
+            return(
+
+                module.title.toLowerCase().includes(keyword)
+
+                ||
+
+                module.description.toLowerCase().includes(keyword)
+
+            );
+
+        })
+
+        .forEach(module=>{
+
+            modulesContainer.appendChild(
+
+                createModuleCard(module)
+
+            );
+
+        });
+
+    });
 
 }
 
@@ -309,290 +294,51 @@ function openModule(moduleId){
 
 function refreshDashboard(){
 
-    loadDashboard();
+    loadStatistics();
 
-    loadModules();
-
-}
-
-/* ======================================================
-   CONTINUE LEARNING
-====================================================== */
-
-function continueLearning(){
-
-    const lesson=
-
-    Academy.currentLesson();
-
-    window.location.href=
-
-    `lesson.html?module=${lesson.module}&lesson=${lesson.lesson}`;
+    renderModules();
 
 }
 
 /* ======================================================
-   START ACADEMY
+   MODULE COMPLETION CHECK
 ====================================================== */
 
-function startAcademy(){
+function checkCompletion(){
 
-    Academy.setCurrentModule(1);
-
-    Academy.setCurrentLesson(1,1);
-
-    window.location.href=
-
-    "module.html?id=1";
-
-}
-
-/* ======================================================
-   PROGRESS RING
-====================================================== */
-
-function updateProgressRing(){
-
-    const ring=
-
-    document.getElementById(
-
-        "progressRing"
-
-    );
-
-    if(!ring) return;
-
-    ring.style.setProperty(
-
-        "--progress",
-
-        Academy.percent()
-
-    );
-
-}
-
-/* ======================================================
-   CERTIFICATE STATUS
-====================================================== */
-
-function updateCertificateStatus(){
-
-    const badge=
-
-    document.getElementById(
-
-        "certificateStatus"
-
-    );
-
-    if(!badge) return;
+    const stats=Academy.statistics();
 
     if(
 
-        Academy.percent()===100
+        stats.completedModules===
+
+        Academy.getModules().length
 
     ){
 
-        badge.innerHTML=`
+        showBanner(
 
-            <i class="fas fa-award"></i>
+            "🎉 Congratulations! You have completed the GTRADES-AXIS™ Premium Academy."
 
-            Certificate Unlocked
-
-        `;
-
-    }
-
-    else{
-
-        badge.innerHTML=`
-
-            <i class="fas fa-lock"></i>
-
-            Complete Academy
-
-        `;
+        );
 
     }
 
 }
 
 /* ======================================================
-   QUICK STATISTICS
+   BANNER
 ====================================================== */
 
-function populateStatistics(){
+function showBanner(message){
 
-    const stats=
+    const banner=document.createElement("div");
 
-    Academy.statistics();
+    banner.className="academy-banner";
 
-    const moduleStat=
+    banner.innerHTML=`
 
-    document.getElementById(
-
-        "statsModules"
-
-    );
-
-    const lessonStat=
-
-    document.getElementById(
-
-        "statsLessons"
-
-    );
-
-    const timeStat=
-
-    document.getElementById(
-
-        "statsTime"
-
-    );
-
-    if(moduleStat)
-
-        moduleStat.textContent=
-
-        stats.completedModules;
-
-    if(lessonStat)
-
-        lessonStat.textContent=
-
-        stats.completedLessons;
-
-    if(timeStat)
-
-        timeStat.textContent=
-
-        stats.studyTime+" min";
-
-}
-
-/* ======================================================
-   SEARCH MODULES
-====================================================== */
-
-function searchModules(keyword){
-
-    keyword=
-
-    keyword.toLowerCase();
-
-    const cards=
-
-    document.querySelectorAll(
-
-        ".module-card"
-
-    );
-
-    cards.forEach(card=>{
-
-        const text=
-
-        card.innerText.toLowerCase();
-
-        if(
-
-            text.includes(keyword)
-
-        ){
-
-            card.style.display="block";
-
-        }
-
-        else{
-
-            card.style.display="none";
-
-        }
-
-    });
-
-}
-
-/* ======================================================
-   FILTER MODULES
-====================================================== */
-
-function filterModules(level){
-
-    const cards=
-
-    document.querySelectorAll(
-
-        ".module-card"
-
-    );
-
-    cards.forEach(card=>{
-
-        const difficulty=
-
-        card.querySelector(
-
-            ".difficulty"
-
-        ).textContent;
-
-        if(
-
-            level==="All" ||
-
-            difficulty===level
-
-        ){
-
-            card.style.display="block";
-
-        }
-
-        else{
-
-            card.style.display="none";
-
-        }
-
-    });
-
-}
-/* ======================================================
-   TOAST NOTIFICATION
-====================================================== */
-
-function showToast(message,type="success"){
-
-    const oldToast=document.querySelector(".academy-toast");
-
-    if(oldToast){
-
-        oldToast.remove();
-
-    }
-
-    const toast=document.createElement("div");
-
-    toast.className=`academy-toast ${type}`;
-
-    toast.innerHTML=`
-
-        <div class="toast-icon">
-
-            <i class="fas ${type==="success"
-
-            ? "fa-circle-check"
-
-            : "fa-circle-info"}"></i>
-
-        </div>
-
-        <div class="toast-content">
+        <div class="academy-banner-content">
 
             <span>${message}</span>
 
@@ -600,155 +346,151 @@ function showToast(message,type="success"){
 
     `;
 
-    document.body.appendChild(toast);
+    document.body.appendChild(banner);
 
     setTimeout(()=>{
 
-        toast.classList.add("show");
+        banner.classList.add("show");
 
     },100);
 
     setTimeout(()=>{
 
-        toast.classList.remove("show");
+        banner.classList.remove("show");
 
-    },2800);
+        setTimeout(()=>{
 
-    setTimeout(()=>{
+            banner.remove();
 
-        toast.remove();
+        },400);
 
-    },3200);
-
-}
-
-/* ======================================================
-   UPDATE MODULE PROGRESS
-====================================================== */
-
-function updateModuleProgress(){
-
-    document
-
-    .querySelectorAll(".module-card")
-
-    .forEach((card,index)=>{
-
-        const module=
-
-        academyData[index];
-
-        const progress=
-
-        Academy.getModuleProgress(
-
-            module.id
-
-        );
-
-        const fill=
-
-        card.querySelector(
-
-            ".progress-fill"
-
-        );
-
-        const text=
-
-        card.querySelector(
-
-            ".progress-text"
-
-        );
-
-        if(fill)
-
-            fill.style.width=
-
-            progress+"%";
-
-        if(text)
-
-            text.textContent=
-
-            progress+"% Completed";
-
-    });
+    },4000);
 
 }
 
 /* ======================================================
-   UPDATE LOCK STATUS
+   RESET BUTTON
 ====================================================== */
 
-function updateLockedModules(){
+const resetProgress=document.getElementById("resetProgress");
 
-    document
+if(resetProgress){
 
-    .querySelectorAll(".module-card")
-
-    .forEach((card,index)=>{
-
-        const module=
-
-        academyData[index];
-
-        const button=
-
-        card.querySelector(
-
-            ".module-button"
-
-        );
+    resetProgress.onclick=function(){
 
         if(
 
-            Academy.moduleLocked(
+            !confirm(
 
-                module.id
+                "Reset all Academy progress?"
 
             )
 
         ){
 
-            card.classList.add("locked");
-
-            if(button){
-
-                button.disabled=true;
-
-                button.innerHTML=`
-
-                    <i class="fas fa-lock"></i>
-
-                    Locked
-
-                `;
-
-            }
+            return;
 
         }
 
-        else{
+        Academy.reset();
 
-            card.classList.remove("locked");
+        refreshDashboard();
 
-            if(button){
+        showBanner(
 
-                button.disabled=false;
+            "Progress has been reset."
 
-                button.innerHTML=`
+        );
 
-                    <i class="fas fa-play"></i>
+    };
 
-                    Continue
+}
 
-                `;
+/* ======================================================
+   CERTIFICATES
+====================================================== */
 
-            }
+const certificateCount=document.getElementById("certificateCount");
 
-        }
+if(certificateCount){
+
+    certificateCount.textContent=
+
+    Academy.getCertificates().length;
+
+}
+
+/* ======================================================
+   BOOKMARKS
+====================================================== */
+
+const bookmarkCount=document.getElementById("bookmarkCount");
+
+if(bookmarkCount){
+
+    bookmarkCount.textContent=
+
+    Academy.getBookmarks().length;
+
+}
+
+/* ======================================================
+   STUDY TIMER
+====================================================== */
+
+let sessionStart=Date.now();
+
+window.addEventListener("beforeunload",()=>{
+
+    const minutes=Math.floor(
+
+        (Date.now()-sessionStart)/60000
+
+    );
+
+    if(minutes>0){
+
+        Academy.addStudyTime(minutes);
+
+    }
+
+});
+
+/* ======================================================
+   CARD ANIMATION
+====================================================== */
+
+function animateCards(){
+
+    const cards=
+
+    document.querySelectorAll(
+
+        ".academy-card"
+
+    );
+
+    cards.forEach((card,index)=>{
+
+        card.style.opacity="0";
+
+        card.style.transform=
+
+        "translateY(25px)";
+
+        setTimeout(()=>{
+
+            card.style.transition=
+
+            ".4s ease";
+
+            card.style.opacity="1";
+
+            card.style.transform=
+
+            "translateY(0px)";
+
+        },index*70);
 
     });
 
@@ -760,414 +502,24 @@ function updateLockedModules(){
 
 function updateDashboard(){
 
-    loadDashboard();
+    loadStatistics();
 
-    updateProgressRing();
+    renderModules();
 
-    updateModuleProgress();
+    animateCards();
 
-    updateLockedModules();
-
-    updateCertificateStatus();
-
-    populateStatistics();
+    checkCompletion();
 
 }
 
 /* ======================================================
-   RESET PROGRESS
+   START
 ====================================================== */
 
-function resetAcademy(){
-
-    if(
-
-        !confirm(
-
-        "Reset all Academy progress?"
-
-        )
-
-    ){
-
-        return;
-
-    }
-
-    Academy.clearAll();
-
-    updateDashboard();
-
-    showToast(
-
-        "Academy progress has been reset."
-
-    );
-
-}
-
-/* ======================================================
-   EXPORT PROGRESS
-====================================================== */
-
-function exportAcademyProgress(){
-
-    const data=
-
-    Academy.exportProgress();
-
-    const blob=new Blob(
-
-        [data],
-
-        {
-
-            type:
-
-            "application/json"
-
-        }
-
-    );
-
-    const url=
-
-    URL.createObjectURL(blob);
-
-    const link=
-
-    document.createElement("a");
-
-    link.href=url;
-
-    link.download=
-
-    "gtrades-academy-progress.json";
-
-    link.click();
-
-    URL.revokeObjectURL(url);
-
-}
-
-/* ======================================================
-   REFRESH WHEN PAGE BECOMES ACTIVE
-====================================================== */
-
-window.addEventListener(
-
-    "focus",
-
-    ()=>{
-
-        updateDashboard();
-
-    }
-
-);
-/* ======================================================
-   RESUME LEARNING
-====================================================== */
-
-function resumeLearning(){
-
-    const lesson=Academy.currentLesson();
-
-    if(!lesson){
-
-        window.location.href="module.html?id=1";
-
-        return;
-
-    }
-
-    window.location.href=
-
-    `lesson.html?module=${lesson.module}&lesson=${lesson.lesson}`;
-
-}
-
-/* ======================================================
-   OPEN CERTIFICATES
-====================================================== */
-
-function openCertificates(){
-
-    window.location.href="certificates.html";
-
-}
-
-/* ======================================================
-   OPEN PROFILE
-====================================================== */
-
-function openProfile(){
-
-    window.location.href="profile.html";
-
-}
-
-/* ======================================================
-   OPEN AI REVIEW
-====================================================== */
-
-function openAIReview(){
-
-    window.location.href="ai-review.html";
-
-}
-
-/* ======================================================
-   OPEN RESOURCES
-====================================================== */
-
-function openResources(){
-
-    window.location.href="resources.html";
-
-}
-
-/* ======================================================
-   OPEN MODULES
-====================================================== */
-
-function openModules(){
-
-    const section=
-
-    document.getElementById(
-
-        "modulesSection"
-
-    );
-
-    if(section){
-
-        section.scrollIntoView({
-
-            behavior:"smooth",
-
-            block:"start"
-
-        });
-
-    }
-
-}
-
-/* ======================================================
-   GLOBAL SEARCH
-====================================================== */
-
-const academySearch=
-
-document.getElementById(
-
-    "academySearch"
-
-);
-
-if(academySearch){
-
-    academySearch.addEventListener(
-
-        "input",
-
-        function(){
-
-            searchModules(
-
-                this.value
-
-            );
-
-        }
-
-    );
-
-}
-
-/* ======================================================
-   FILTER BUTTONS
-====================================================== */
-
-document
-
-.querySelectorAll(
-
-    "[data-filter]"
-
-)
-
-.forEach(button=>{
-
-    button.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            filterModules(
-
-                button.dataset.filter
-
-            );
-
-        }
-
-    );
-
-});
-
-/* ======================================================
-   QUICK ACTION BUTTONS
-====================================================== */
-
-const continueBtn=
-
-document.getElementById(
-
-    "continueLearning"
-
-);
-
-if(continueBtn){
-
-    continueBtn.onclick=
-
-    resumeLearning;
-
-}
-
-const startBtn=
-
-document.getElementById(
-
-    "startAcademy"
-
-);
-
-if(startBtn){
-
-    startBtn.onclick=
-
-    startAcademy;
-
-}
-
-const resetBtn=
-
-document.getElementById(
-
-    "resetAcademy"
-
-);
-
-if(resetBtn){
-
-    resetBtn.onclick=
-
-    resetAcademy;
-
-}
-
-const exportBtn=
-
-document.getElementById(
-
-    "exportProgress"
-
-);
-
-if(exportBtn){
-
-    exportBtn.onclick=
-
-    exportAcademyProgress;
-
-}
-
-/* ======================================================
-   PAGE INITIALIZATION
-====================================================== */
-
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    ()=>{
-
-        Academy.init();
-
-        loadDashboard();
-
-        loadModules();
-
-        updateDashboard();
-
-    }
-
-);
-
-/* ======================================================
-   AUTO REFRESH
-====================================================== */
-
-window.addEventListener(
-
-    "focus",
-
-    ()=>{
-
-        updateDashboard();
-
-    }
-
-);
-
-window.addEventListener(
-
-    "storage",
-
-    ()=>{
-
-        updateDashboard();
-
-    }
-
-);
-
-/* ======================================================
-   EXPOSE FUNCTIONS
-====================================================== */
-
-window.openModule=openModule;
-
-window.resumeLearning=resumeLearning;
-
-window.startAcademy=startAcademy;
-
-window.resetAcademy=resetAcademy;
-
-window.exportAcademyProgress=exportAcademyProgress;
-
-window.openCertificates=openCertificates;
-
-window.openProfile=openProfile;
-
-window.openAIReview=openAIReview;
-
-window.openResources=openResources;
-
-window.openModules=openModules;
-
-/* ======================================================
-   GTRADES-AXIS™
-   PREMIUM ACADEMY READY
-====================================================== */
+updateDashboard();
 
 console.log(
 
-    "GTRADES-AXIS™ Premium Academy Ready"
+    "✅ Premium Academy Dashboard Loaded"
 
 );

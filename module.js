@@ -1,182 +1,52 @@
-// ======================================================
-// GTRADES-AXIS™ PREMIUM ACADEMY
-// MODULE PAGE
-// PART 1
-// ======================================================
-
-"use strict";
-
 /* ======================================================
-   URL PARAMETERS
+   GTRADES-AXIS™
+   MODULE PAGE
 ====================================================== */
 
-const params=new URLSearchParams(
+const params = new URLSearchParams(window.location.search);
 
-    window.location.search
+const moduleId = parseInt(params.get("module")) || 1;
 
-);
+Academy.init();
 
-const moduleId=
-
-parseInt(
-
-    params.get("id")
-
-)||1;
+const module = Academy.getModule(moduleId);
 
 /* ======================================================
    HTML ELEMENTS
 ====================================================== */
 
-const moduleTitle=
+const moduleTitle = document.getElementById("moduleTitle");
+const moduleDescription = document.getElementById("moduleDescription");
 
-document.getElementById(
+const totalLessons = document.getElementById("totalLessons");
+const moduleDuration = document.getElementById("moduleDuration");
 
-    "moduleTitle"
+const lessonList = document.getElementById("lessonList");
 
-);
-
-const moduleDescription=
-
-document.getElementById(
-
-    "moduleDescription"
-
-);
-
-const totalLessons=
-
-document.getElementById(
-
-    "totalLessons"
-
-);
-
-const moduleDuration=
-
-document.getElementById(
-
-    "moduleDuration"
-
-);
-
-const moduleDifficulty=
-
-document.getElementById(
-
-    "moduleDifficulty"
-
-);
-
-const progressBar=
-
-document.getElementById(
-
-    "moduleProgressBar"
-
-);
-
-const progressText=
-
-document.getElementById(
-
-    "moduleProgressText"
-
-);
-
-const lessonList=
-
-document.getElementById(
-
-    "lessonList"
-
-);
-
-const backButton=
-
-document.getElementById(
-
-    "backButton"
-
-);
+const progressBar = document.getElementById("moduleProgressBar");
+const progressText = document.getElementById("moduleProgressText");
 
 /* ======================================================
    LOAD MODULE
 ====================================================== */
 
-const currentModule=
-
-Academy.getModule(
-
-    moduleId
-
-);
-
-/* ======================================================
-   VALIDATE MODULE
-====================================================== */
-
-if(!currentModule){
-
-    alert(
-
-        "Module not found."
-
-    );
-
-    window.location.href=
-
-    "premium-academy.html";
-
-    throw new Error(
-
-        "Invalid Module"
-
-    );
-
-}
-
-/* ======================================================
-   SET CURRENT MODULE
-====================================================== */
-
-Academy.setCurrentModule(
-
-    moduleId
-
-);
-
-/* ======================================================
-   LOAD MODULE INFORMATION
-====================================================== */
-
 function loadModule(){
 
-    moduleTitle.textContent=
+    if(!module){
 
-    currentModule.title;
+        moduleTitle.textContent="Module Not Found";
 
-    moduleDescription.textContent=
-
-    currentModule.description;
-
-    totalLessons.textContent=
-
-    currentModule.lessons.length;
-
-    moduleDuration.textContent=
-
-    currentModule.duration+
-
-    " min";
-
-    if(moduleDifficulty){
-
-        moduleDifficulty.textContent=
-
-        currentModule.difficulty;
+        return;
 
     }
+
+    moduleTitle.textContent=module.title;
+
+    moduleDescription.textContent=module.description;
+
+    totalLessons.textContent=module.lessons.length;
+
+    moduleDuration.textContent=module.duration+" min";
 
     updateProgress();
 
@@ -185,67 +55,34 @@ function loadModule(){
 }
 
 /* ======================================================
-   UPDATE PROGRESS
+   PROGRESS
 ====================================================== */
 
 function updateProgress(){
 
     const progress=
 
-    Academy.getModuleProgress(
+    Academy.moduleProgress(moduleId);
 
-        moduleId
+    progressBar.style.width=
 
-    );
+    progress+"%";
 
-    if(progressBar){
+    progressText.textContent=
 
-        progressBar.style.width=
-
-        progress+"%";
-
-    }
-
-    if(progressText){
-
-        progressText.textContent=
-
-        progress+
-
-        "% Completed";
-
-    }
+    progress+"% Completed";
 
 }
 
 /* ======================================================
-   LESSON COUNT
-====================================================== */
-
-function completedLessons(){
-
-    return currentModule.lessons.filter(
-
-        lesson=>Academy.lessonCompleted(
-
-            moduleId,
-
-            lesson.id
-
-        )
-
-    ).length;
-
-}
-/* ======================================================
-   RENDER LESSONS
+   LESSONS
 ====================================================== */
 
 function renderLessons(){
 
     lessonList.innerHTML="";
 
-    currentModule.lessons.forEach((lesson,index)=>{
+    module.lessons.forEach(lesson=>{
 
         const completed=
 
@@ -295,7 +132,7 @@ function renderLessons(){
 
                 </div>
 
-                <div class="lesson-details">
+                <div class="lesson-info">
 
                     <h3>
 
@@ -305,70 +142,49 @@ function renderLessons(){
 
                     <p>
 
-                        ${lesson.description}
+                        Duration:
+
+                        ${lesson.duration} mins
 
                     </p>
-
-                    <div class="lesson-meta">
-
-                        <span>
-
-                            <i class="fas fa-clock"></i>
-
-                            ${lesson.duration} min
-
-                        </span>
-
-                    </div>
 
                 </div>
 
             </div>
 
-            <div class="lesson-right">
+            <button
 
-                ${
-                    completed
-                    ?
+            class="lesson-btn"
 
-                    `<span class="lesson-status completed">
+            ${locked?"disabled":""}>
 
-                        <i class="fas fa-circle-check"></i>
+                ${completed?"Review":"Start"}
 
-                        Completed
-
-                    </span>`
-
-                    :
-
-                    locked
-
-                    ?
-
-                    `<span class="lesson-status locked">
-
-                        <i class="fas fa-lock"></i>
-
-                        Locked
-
-                    </span>`
-
-                    :
-
-                    `<button
-
-                        class="lesson-button"
-
-                        onclick="openLesson(${lesson.id})">
-
-                        Start Lesson
-
-                    </button>`
-                }
-
-            </div>
+            </button>
 
         `;
+
+        if(!locked){
+
+            card.querySelector("button")
+
+            .onclick=()=>{
+
+                Academy.setContinueLesson(
+
+                    moduleId,
+
+                    lesson.id
+
+                );
+
+                location.href=
+
+                `lesson.html?module=${moduleId}&lesson=${lesson.id}`;
+
+            };
+
+        }
 
         lessonList.appendChild(card);
 
@@ -377,470 +193,8 @@ function renderLessons(){
 }
 
 /* ======================================================
-   OPEN LESSON
+   AUTO REFRESH
 ====================================================== */
-
-function openLesson(lessonId){
-
-    if(
-
-        Academy.lessonLocked(
-
-            moduleId,
-
-            lessonId
-
-        )
-
-    ){
-
-        showToast(
-
-            "Complete the previous lesson first.",
-
-            "error"
-
-        );
-
-        return;
-
-    }
-
-    Academy.setCurrentLesson(
-
-        moduleId,
-
-        lessonId
-
-    );
-
-    window.location.href=
-
-    `lesson.html?module=${moduleId}&lesson=${lessonId}`;
-
-}
-
-/* ======================================================
-   NEXT AVAILABLE LESSON
-====================================================== */
-
-function nextLesson(){
-
-    for(
-
-        const lesson of currentModule.lessons
-
-    ){
-
-        if(
-
-            !Academy.lessonCompleted(
-
-                moduleId,
-
-                lesson.id
-
-            )
-
-        ){
-
-            openLesson(
-
-                lesson.id
-
-            );
-
-            return;
-
-        }
-
-    }
-
-}
-
-/* ======================================================
-   MODULE STATUS
-====================================================== */
-
-function moduleCompleted(){
-
-    return Academy.moduleCompleted(
-
-        moduleId
-
-    );
-
-}
-/* ======================================================
-   TOAST NOTIFICATION
-====================================================== */
-
-function showToast(message,type="success"){
-
-    const oldToast=document.querySelector(".academy-toast");
-
-    if(oldToast){
-
-        oldToast.remove();
-
-    }
-
-    const toast=document.createElement("div");
-
-    toast.className=`academy-toast ${type}`;
-
-    toast.innerHTML=`
-
-        <div class="toast-icon">
-
-            <i class="fas ${type==="success"
-
-            ? "fa-circle-check"
-
-            : "fa-circle-exclamation"}"></i>
-
-        </div>
-
-        <div class="toast-message">
-
-            ${message}
-
-        </div>
-
-    `;
-
-    document.body.appendChild(toast);
-
-    setTimeout(()=>{
-
-        toast.classList.add("show");
-
-    },100);
-
-    setTimeout(()=>{
-
-        toast.classList.remove("show");
-
-    },2500);
-
-    setTimeout(()=>{
-
-        toast.remove();
-
-    },3000);
-
-}
-
-/* ======================================================
-   CONTINUE LEARNING
-====================================================== */
-
-function continueLearning(){
-
-    const next=currentModule.lessons.find(
-
-        lesson=>
-
-        !Academy.lessonCompleted(
-
-            moduleId,
-
-            lesson.id
-
-        )
-
-    );
-
-    if(next){
-
-        openLesson(next.id);
-
-        return;
-
-    }
-
-    showToast(
-
-        "Module already completed."
-
-    );
-
-}
-
-/* ======================================================
-   MODULE SUMMARY
-====================================================== */
-
-function updateSummary(){
-
-    const completed=
-
-    completedLessons();
-
-    const total=
-
-    currentModule.lessons.length;
-
-    const completedElement=
-
-    document.getElementById(
-
-        "completedLessons"
-
-    );
-
-    if(completedElement){
-
-        completedElement.textContent=
-
-        completed+"/"+total;
-
-    }
-
-}
-
-/* ======================================================
-   MODULE BADGE
-====================================================== */
-
-function updateBadge(){
-
-    const badge=
-
-    document.getElementById(
-
-        "moduleBadge"
-
-    );
-
-    if(!badge) return;
-
-    if(moduleCompleted()){
-
-        badge.innerHTML=`
-
-            <i class="fas fa-award"></i>
-
-            Completed
-
-        `;
-
-    }
-
-    else{
-
-        badge.innerHTML=`
-
-            <i class="fas fa-book-open"></i>
-
-            ${currentModule.difficulty}
-
-        `;
-
-    }
-
-}
-
-/* ======================================================
-   MODULE IMAGE
-====================================================== */
-
-function loadThumbnail(){
-
-    const image=
-
-    document.getElementById(
-
-        "moduleThumbnail"
-
-    );
-
-    if(!image) return;
-
-    image.src=
-
-    currentModule.thumbnail;
-
-    image.onerror=function(){
-
-        this.src=
-
-        "images/module-placeholder.png";
-
-    };
-
-}
-
-/* ======================================================
-   STUDY TIMER
-====================================================== */
-
-let studyStart=
-
-Date.now();
-
-window.addEventListener(
-
-    "beforeunload",
-
-    ()=>{
-
-        const minutes=
-
-        Math.round(
-
-            (Date.now()-studyStart)
-
-            /60000
-
-        );
-
-        if(minutes>0){
-
-            Academy.addStudyTime(
-
-                minutes
-
-            );
-
-        }
-
-    }
-
-);
-
-/* ======================================================
-   REFRESH MODULE
-====================================================== */
-
-function refreshModule(){
-
-    updateProgress();
-
-    updateSummary();
-
-    updateBadge();
-
-    renderLessons();
-
-}
-/* ======================================================
-   BACK BUTTON
-====================================================== */
-
-if(backButton){
-
-    backButton.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            window.location.href=
-
-            "premium-academy.html";
-
-        }
-
-    );
-
-}
-
-/* ======================================================
-   MODULE COMPLETION MESSAGE
-====================================================== */
-
-function checkModuleCompletion(){
-
-    if(
-
-        Academy.moduleCompleted(moduleId)
-
-    ){
-
-        showToast(
-
-            "🎉 Module Completed Successfully!"
-
-        );
-
-    }
-
-}
-
-/* ======================================================
-   KEYBOARD SHORTCUTS
-====================================================== */
-
-document.addEventListener(
-
-    "keydown",
-
-    function(e){
-
-        // ESC → Back
-
-        if(e.key==="Escape"){
-
-            window.location.href=
-
-            "premium-academy.html";
-
-        }
-
-        // ENTER → Continue Learning
-
-        if(e.key==="Enter"){
-
-            continueLearning();
-
-        }
-
-    }
-
-);
-
-/* ======================================================
-   PAGE INITIALIZATION
-====================================================== */
-
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    ()=>{
-
-        Academy.init();
-
-        loadModule();
-
-        updateSummary();
-
-        updateBadge();
-
-        loadThumbnail();
-
-        checkModuleCompletion();
-
-    }
-
-);
-
-/* ======================================================
-   REFRESH WHEN TAB BECOMES ACTIVE
-====================================================== */
-
-window.addEventListener(
-
-    "focus",
-
-    ()=>{
-
-        refreshModule();
-
-    }
-
-);
 
 window.addEventListener(
 
@@ -848,34 +202,22 @@ window.addEventListener(
 
     ()=>{
 
-        refreshModule();
+        updateProgress();
+
+        renderLessons();
 
     }
 
 );
 
 /* ======================================================
-   GLOBAL FUNCTIONS
+   INIT
 ====================================================== */
 
-window.openLesson=openLesson;
-
-window.continueLearning=continueLearning;
-
-window.refreshModule=refreshModule;
-
-/* ======================================================
-   MODULE READY
-====================================================== */
+loadModule();
 
 console.log(
 
-    "GTRADES-AXIS™ Module Loaded",
-
-    currentModule.title
+    "✅ Module Loaded"
 
 );
-
-/* ======================================================
-   END OF FILE
-====================================================== */

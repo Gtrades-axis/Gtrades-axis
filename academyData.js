@@ -1,14 +1,13 @@
-// ======================================================
-// GTRADES-AXIS™ PREMIUM ACADEMY
-// ACADEMY DATABASE
-// PART 1
-// ======================================================
+/* ======================================================
+   GTRADES-AXIS™ PREMIUM ACADEMY
+   COMPLETE DATABASE
+====================================================== */
 
 const academyData = [
 
-/* =====================================================
+/* ======================================================
    MODULE 1
-===================================================== */
+====================================================== */
 
 {
 
@@ -16,20 +15,16 @@ const academyData = [
 
     title:"Introduction",
 
+    subtitle:"Welcome to GTRADES-AXIS™",
+
     description:
-    "Welcome to GTRADES-AXIS™. This module introduces the Academy, explains the learning roadmap and prepares you for the complete trading journey.",
+    "This module introduces the Academy, explains the learning roadmap and prepares you for your complete trading journey.",
 
     difficulty:"Beginner",
 
     duration:20,
 
-    locked:false,
-
     thumbnail:"images/modules/introduction.jpg",
-
-    color:"#1d9bf0",
-
-    icon:"fa-house",
 
     certificate:false,
 
@@ -41,20 +36,59 @@ const academyData = [
 
             title:"Welcome to GTRADES-AXIS™",
 
-            description:
-            "Meet your Academy and understand what you will learn.",
-
             duration:5,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Welcome</h2>
+
+<p>
+
+Welcome to the GTRADES-AXIS™ Premium Academy.
+
+</p>
+
+<p>
+
+This academy is designed to teach you a complete institutional trading framework from beginner level to professional execution.
+
+</p>
+
+<h3>Inside this Academy you will learn</h3>
+
+<ul>
+
+<li>Market Structure</li>
+
+<li>Liquidity</li>
+
+<li>Supply & Demand</li>
+
+<li>Trade Entries</li>
+
+<li>Risk Management</li>
+
+<li>Trading Psychology</li>
+
+</ul>
+
+<p>
+
+Complete every lesson in order.
+
+Each completed lesson unlocks the next lesson.
+
+Complete every module to unlock the following module.
+
+</p>
+
+`
 
         },
 
@@ -64,20 +98,45 @@ const academyData = [
 
             title:"How The Academy Works",
 
-            description:
-            "Learn how modules, lessons, quizzes and certificates work.",
-
             duration:5,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Academy Structure</h2>
+
+<p>
+
+The Academy follows a professional roadmap.
+
+</p>
+
+<ol>
+
+<li>Watch Lesson</li>
+
+<li>Read Notes</li>
+
+<li>Download PDF</li>
+
+<li>Complete Lesson</li>
+
+<li>Proceed to Next Lesson</li>
+
+</ol>
+
+<p>
+
+Your progress is automatically saved.
+
+</p>
+
+`
 
         },
 
@@ -87,20 +146,43 @@ const academyData = [
 
             title:"Your Trading Roadmap",
 
-            description:
-            "Understand your journey from beginner to consistently profitable trader.",
-
             duration:5,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Your Journey</h2>
+
+<p>
+
+Beginner → Intermediate → Advanced Trader
+
+</p>
+
+<ul>
+
+<li>Foundation</li>
+
+<li>Market Structure</li>
+
+<li>Liquidity</li>
+
+<li>Supply & Demand</li>
+
+<li>Execution</li>
+
+<li>Risk</li>
+
+<li>Psychology</li>
+
+</ul>
+
+`
 
         },
 
@@ -110,30 +192,56 @@ const academyData = [
 
             title:"Before You Begin",
 
-            description:
-            "Set expectations and prepare your trading environment.",
-
             duration:5,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Preparation</h2>
+
+<p>
+
+Before moving forward make sure you have:
+
+</p>
+
+<ul>
+
+<li>TradingView Account</li>
+
+<li>Broker Account</li>
+
+<li>Journal</li>
+
+<li>Risk Plan</li>
+
+<li>Discipline</li>
+
+</ul>
+
+<p>
+
+Congratulations.
+
+You are now ready to begin your trading journey.
+
+</p>
+
+`
 
         }
 
     ]
 
 },
-
-/* =====================================================
+/* ======================================================
    MODULE 2
-===================================================== */
+====================================================== */
 
 {
 
@@ -141,20 +249,16 @@ const academyData = [
 
     title:"Market Structure",
 
+    subtitle:"The Foundation of Every Trade",
+
     description:
-    "Learn how price moves through trends, reversals and continuation using the GTRADES-AXIS™ framework.",
+    "Learn how to read price correctly by identifying trends, swing points, structure shifts and market bias before looking for entries.",
 
     difficulty:"Intermediate",
 
     duration:60,
 
-    locked:true,
-
     thumbnail:"images/modules/market-structure.jpg",
-
-    color:"#2563eb",
-
-    icon:"fa-chart-line",
 
     certificate:false,
 
@@ -166,20 +270,49 @@ const academyData = [
 
             title:"Market Structure Fundamentals",
 
-            description:
-            "Learn Higher Highs, Higher Lows, Lower Highs and Lower Lows.",
-
             duration:15,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Market Structure</h2>
+
+<p>
+
+Market Structure is the language of price.
+
+Before entering any trade, you must first understand what price is doing.
+
+</p>
+
+<h3>Three Market Conditions</h3>
+
+<ul>
+
+<li>Uptrend</li>
+
+<li>Downtrend</li>
+
+<li>Range</li>
+
+</ul>
+
+<h3>Golden Rule</h3>
+
+<p>
+
+Never trade against the higher timeframe trend.
+
+Always establish directional bias first.
+
+</p>
+
+`
 
         },
 
@@ -187,10 +320,7 @@ const academyData = [
 
             id:2,
 
-            title:"Break Of Structure",
-
-            description:
-            "Understand BOS and why it confirms continuation.",
+            title:"Higher Highs & Higher Lows",
 
             duration:15,
 
@@ -198,11 +328,41 @@ const academyData = [
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Bullish Structure</h2>
+
+<p>
+
+A bullish market creates:
+
+</p>
+
+<ul>
+
+<li>Higher Highs (HH)</li>
+
+<li>Higher Lows (HL)</li>
+
+</ul>
+
+<p>
+
+As long as Higher Lows continue holding, buyers remain in control.
+
+</p>
+
+<h3>Bias</h3>
+
+<p>
+
+Only look for buying opportunities while bullish structure remains intact.
+
+</p>
+
+`
 
         },
 
@@ -210,10 +370,7 @@ const academyData = [
 
             id:3,
 
-            title:"Change Of Character",
-
-            description:
-            "Learn how CHoCH signals possible reversals.",
+            title:"Lower Highs & Lower Lows",
 
             duration:15,
 
@@ -221,11 +378,41 @@ const academyData = [
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Bearish Structure</h2>
+
+<p>
+
+A bearish market creates:
+
+</p>
+
+<ul>
+
+<li>Lower Highs (LH)</li>
+
+<li>Lower Lows (LL)</li>
+
+</ul>
+
+<p>
+
+As long as Lower Highs continue holding, sellers remain in control.
+
+</p>
+
+<h3>Bias</h3>
+
+<p>
+
+Only look for selling opportunities while bearish structure remains intact.
+
+</p>
+
+`
 
         },
 
@@ -233,10 +420,7 @@ const academyData = [
 
             id:4,
 
-            title:"Practical Market Structure",
-
-            description:
-            "Apply Market Structure on live chart examples.",
+            title:"Structure Shift & Confirmation",
 
             duration:15,
 
@@ -244,166 +428,67 @@ const academyData = [
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Structure Shift</h2>
+
+<p>
+
+A trend changes only after price breaks the previous swing structure and confirms the new direction.
+
+</p>
+
+<h3>Checklist</h3>
+
+<ul>
+
+<li>Identify swing highs and lows.</li>
+
+<li>Wait for a confirmed break.</li>
+
+<li>Allow the market to retrace.</li>
+
+<li>Look for your entry model.</li>
+
+</ul>
+
+<p>
+
+Do not predict structure changes.
+
+Wait for confirmation before changing your market bias.
+
+</p>
+
+`
 
         }
 
     ]
 
 },
-/* =====================================================
+/* ======================================================
    MODULE 3
-===================================================== */
+====================================================== */
 
 {
 
     id:3,
 
-    title:"Liquidity",
-
-    description:
-    "Understand how liquidity drives market movement and how institutions engineer price to collect orders before the real move.",
-
-    difficulty:"Intermediate",
-
-    duration:60,
-
-    locked:true,
-
-    thumbnail:"images/modules/liquidity.jpg",
-
-    color:"#0ea5e9",
-
-    icon:"fa-water",
-
-    certificate:false,
-
-    lessons:[
-
-        {
-
-            id:1,
-
-            title:"Introduction To Liquidity",
-
-            description:
-            "Understand what liquidity is and why markets seek it.",
-
-            duration:15,
-
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
-
-        },
-
-        {
-
-            id:2,
-
-            title:"Internal vs External Liquidity",
-
-            description:
-            "Learn the difference between internal and external liquidity.",
-
-            duration:15,
-
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
-
-        },
-
-        {
-
-            id:3,
-
-            title:"Liquidity Sweeps",
-
-            description:
-            "Master buy-side and sell-side liquidity sweeps.",
-
-            duration:15,
-
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
-
-        },
-
-        {
-
-            id:4,
-
-            title:"Engineered Liquidity",
-
-            description:
-            "Understand why institutions engineer liquidity before expansion.",
-
-            duration:15,
-
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
-
-        }
-
-    ]
-
-},
-
-/* =====================================================
-   MODULE 4
-===================================================== */
-
-{
-
-    id:4,
-
     title:"Supply & Demand",
 
+    subtitle:"Institutional Zones",
+
     description:
-    "Master institutional Supply and Demand using the complete GTRADES-AXIS™ methodology.",
+    "Learn how to identify, validate and trade institutional Supply & Demand zones using the GTRADES-AXIS™ framework.",
 
     difficulty:"Intermediate",
 
     duration:75,
 
-    locked:true,
-
     thumbnail:"images/modules/supply-demand.jpg",
-
-    color:"#3b82f6",
-
-    icon:"fa-layer-group",
 
     certificate:false,
 
@@ -413,10 +498,7 @@ const academyData = [
 
             id:1,
 
-            title:"Supply & Demand Fundamentals",
-
-            description:
-            "Learn why Supply and Demand zones exist.",
+            title:"Understanding Supply & Demand",
 
             duration:15,
 
@@ -424,11 +506,43 @@ const academyData = [
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Supply & Demand</h2>
+
+<p>
+
+Supply and Demand zones represent areas where institutions previously entered the market with significant buying or selling pressure.
+
+</p>
+
+<h3>Demand Zone</h3>
+
+<ul>
+
+<li>Institutional Buying</li>
+
+<li>Price expected to rise</li>
+
+<li>Look for Buy setups</li>
+
+</ul>
+
+<h3>Supply Zone</h3>
+
+<ul>
+
+<li>Institutional Selling</li>
+
+<li>Price expected to fall</li>
+
+<li>Look for Sell setups</li>
+
+</ul>
+
+`
 
         },
 
@@ -436,22 +550,40 @@ const academyData = [
 
             id:2,
 
-            title:"Demand Zones",
+            title:"Fresh vs Tested Zones",
 
-            description:
-            "Identify high probability institutional Demand Zones.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Fresh Zones</h2>
+
+<p>
+
+A Fresh zone has never been revisited after price left it.
+
+Fresh zones normally carry the highest probability.
+
+</p>
+
+<h2>Tested Zones</h2>
+
+<p>
+
+Each revisit consumes pending institutional orders.
+
+The more times a zone is tested,
+the weaker it becomes.
+
+</p>
+
+`
 
         },
 
@@ -459,22 +591,43 @@ const academyData = [
 
             id:3,
 
-            title:"Supply Zones",
+            title:"Validating High Probability Zones",
 
-            description:
-            "Identify high probability institutional Supply Zones.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Zone Validation</h2>
+
+<ul>
+
+<li>Strong departure</li>
+
+<li>Clear imbalance</li>
+
+<li>Fresh zone</li>
+
+<li>Located with higher timeframe bias</li>
+
+<li>Confluence with Market Structure</li>
+
+</ul>
+
+<p>
+
+Never trade every zone.
+
+Trade only quality institutional zones.
+
+</p>
+
+`
 
         },
 
@@ -482,75 +635,290 @@ const academyData = [
 
             id:4,
 
-            title:"Fresh vs Tested Zones",
-
-            description:
-            "Understand the strength of fresh and mitigated zones.",
-
-            duration:15,
-
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
-
-        },
-
-        {
-
-            id:5,
-
             title:"Refining Supply & Demand",
 
-            description:
-            "Refine institutional zones for precision entries.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Zone Refinement</h2>
+
+<p>
+
+Move from Higher Timeframe to Lower Timeframe.
+
+</p>
+
+<ul>
+
+<li>4H identifies the major zone.</li>
+
+<li>1H refines the zone.</li>
+
+<li>5M provides the execution.</li>
+
+</ul>
+
+<p>
+
+Your entries should always originate from refined institutional zones.
+
+</p>
+
+`
 
         }
 
     ]
 
 },
-/* =====================================================
-   MODULE 5
-===================================================== */
+/* ======================================================
+   MODULE 4
+====================================================== */
 
+{
+
+    id:4,
+
+    title:"Liquidity",
+
+    subtitle:"Understanding Institutional Liquidity",
+
+    description:
+    "Learn how institutions use liquidity to move the market, where liquidity rests and how to use liquidity concepts to improve trade timing.",
+
+    difficulty:"Intermediate",
+
+    duration:80,
+
+    thumbnail:"images/modules/liquidity.jpg",
+
+    certificate:false,
+
+    lessons:[
+
+        {
+
+            id:1,
+
+            title:"What Is Liquidity?",
+
+            duration:20,
+
+            video:"",
+
+            pdf:"",
+
+            completed:false,
+
+            notes:`
+
+<h2>Liquidity</h2>
+
+<p>
+
+Liquidity is the pool of pending orders resting above highs,
+below lows and around obvious market levels.
+
+Institutions require liquidity to execute large positions.
+
+</p>
+
+<h3>Common Liquidity Areas</h3>
+
+<ul>
+
+<li>Equal Highs</li>
+
+<li>Equal Lows</li>
+
+<li>Previous Day High</li>
+
+<li>Previous Day Low</li>
+
+<li>Session Highs & Lows</li>
+
+<li>Trendline Liquidity</li>
+
+</ul>
+
+`
+
+        },
+
+        {
+
+            id:2,
+
+            title:"Liquidity Sweeps",
+
+            duration:20,
+
+            video:"",
+
+            pdf:"",
+
+            completed:false,
+
+            notes:`
+
+<h2>Liquidity Sweep</h2>
+
+<p>
+
+A liquidity sweep occurs when price briefly trades beyond a
+high or low to trigger stop losses before reversing.
+
+</p>
+
+<h3>Purpose</h3>
+
+<ul>
+
+<li>Collect stop losses</li>
+
+<li>Create liquidity</li>
+
+<li>Fill institutional orders</li>
+
+</ul>
+
+<p>
+
+A sweep alone is NOT an entry.
+
+Wait for confirmation.
+
+</p>
+
+`
+
+        },
+
+        {
+
+            id:3,
+
+            title:"Engineered Liquidity",
+
+            duration:20,
+
+            video:"",
+
+            pdf:"",
+
+            completed:false,
+
+            notes:`
+
+<h2>Engineered Liquidity</h2>
+
+<p>
+
+Institutions often encourage retail traders to place orders
+in predictable locations.
+
+Those clusters become future liquidity targets.
+
+</p>
+
+<h3>Examples</h3>
+
+<ul>
+
+<li>Double Tops</li>
+
+<li>Double Bottoms</li>
+
+<li>Equal Highs</li>
+
+<li>Equal Lows</li>
+
+<li>Retail Breakouts</li>
+
+</ul>
+
+`
+
+        },
+
+        {
+
+            id:4,
+
+            title:"Liquidity + Supply & Demand",
+
+            duration:20,
+
+            video:"",
+
+            pdf:"",
+
+            completed:false,
+
+            notes:`
+
+<h2>Combining Concepts</h2>
+
+<p>
+
+The highest probability trades occur when liquidity,
+market structure and Supply & Demand align.
+
+</p>
+
+<h3>Execution Process</h3>
+
+<ol>
+
+<li>Determine Higher Timeframe Bias</li>
+
+<li>Locate Supply or Demand</li>
+
+<li>Wait for Liquidity Sweep</li>
+
+<li>Wait for Entry Confirmation</li>
+
+<li>Execute with Proper Risk</li>
+
+</ol>
+
+<p>
+
+Liquidity should improve timing,
+not replace your overall trading plan.
+
+</p>
+
+`
+
+        }
+
+    ]
+
+},
 {
 
     id:5,
 
     title:"Trade Entries",
 
+    subtitle:"Precision Execution",
+
     description:
-    "Master the complete GTRADES-AXIS™ execution model from confirmation to entry and trade execution.",
+    "Learn the complete GTRADES-AXIS™ execution model from Higher Timeframe analysis to Lower Timeframe entry confirmation.",
 
     difficulty:"Advanced",
 
     duration:90,
 
-    locked:true,
-
     thumbnail:"images/modules/trade-entries.jpg",
-
-    color:"#2563eb",
-
-    icon:"fa-bullseye",
 
     certificate:false,
 
@@ -560,22 +928,39 @@ const academyData = [
 
             id:1,
 
-            title:"Introduction To Trade Entries",
+            title:"HTF Bias",
 
-            description:
-            "Understand the complete GTRADES-AXIS™ entry workflow.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Higher Timeframe Bias</h2>
+
+<p>
+
+Every trade begins with Higher Timeframe analysis.
+
+Identify market structure before considering any entry.
+
+</p>
+
+<ul>
+
+<li>Determine Trend</li>
+
+<li>Locate Supply & Demand</li>
+
+<li>Mark Liquidity</li>
+
+</ul>
+
+`
 
         },
 
@@ -583,22 +968,39 @@ const academyData = [
 
             id:2,
 
-            title:"Entry Confirmation",
+            title:"LC-1 Entry Model",
 
-            description:
-            "Identify confirmations before entering a trade.",
-
-            duration:15,
+            duration:25,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>LC-1 Entry</h2>
+
+<p>
+
+The LC-1 model focuses on continuation entries after confirmation inside institutional zones.
+
+</p>
+
+<ul>
+
+<li>HTF Bias</li>
+
+<li>Demand/Supply Zone</li>
+
+<li>Confirmation</li>
+
+<li>Execute</li>
+
+</ul>
+
+`
 
         },
 
@@ -606,22 +1008,29 @@ const academyData = [
 
             id:3,
 
-            title:"LC-1 Entry Model",
+            title:"LC-2A Entry Model",
 
-            description:
-            "Execute trades using the LC-1 model.",
-
-            duration:20,
+            duration:25,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>LC-2A Entry</h2>
+
+<p>
+
+LC-2A provides aggressive execution after liquidity interaction.
+
+Always combine with market structure.
+
+</p>
+
+`
 
         },
 
@@ -629,10 +1038,7 @@ const academyData = [
 
             id:4,
 
-            title:"LC-2A Entry Model",
-
-            description:
-            "Master the LC-2A institutional entry.",
+            title:"Trade Checklist",
 
             duration:20,
 
@@ -640,65 +1046,51 @@ const academyData = [
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Execution Checklist</h2>
 
-        },
+<ul>
 
-        {
+<li>HTF Bias</li>
 
-            id:5,
+<li>Supply/Demand</li>
 
-            title:"Trade Execution",
+<li>Liquidity</li>
 
-            description:
-            "Execute trades with confidence and precision.",
+<li>Confirmation</li>
 
-            duration:20,
+<li>Risk</li>
 
-            video:"",
+<li>Execute</li>
 
-            pdf:"",
+</ul>
 
-            notes:"",
-
-            quiz:null,
-
-            completed:false
+`
 
         }
 
     ]
 
 },
-
-/* =====================================================
-   MODULE 6
-===================================================== */
-
 {
 
     id:6,
 
     title:"Risk Management",
 
+    subtitle:"Protect Your Capital",
+
     description:
-    "Protect your capital through disciplined risk management and professional position sizing.",
+    "Learn professional capital preservation, position sizing and long-term consistency.",
 
     difficulty:"Advanced",
 
     duration:60,
 
-    locked:true,
-
-    thumbnail:"images/modules/risk-management.jpg",
-
-    color:"#1d4ed8",
-
-    icon:"fa-shield-halved",
+    thumbnail:"images/modules/risk.jpg",
 
     certificate:false,
 
@@ -708,22 +1100,39 @@ const academyData = [
 
             id:1,
 
-            title:"Risk Management Fundamentals",
+            title:"Risk Fundamentals",
 
-            description:
-            "Understand why risk management is the foundation of consistency.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Golden Rule</h2>
+
+<p>
+
+Protect your capital first.
+
+Profit is a result of disciplined execution.
+
+</p>
+
+<ul>
+
+<li>1-2% Risk</li>
+
+<li>Fixed Rules</li>
+
+<li>No Revenge Trading</li>
+
+</ul>
+
+`
 
         },
 
@@ -733,20 +1142,27 @@ const academyData = [
 
             title:"Position Sizing",
 
-            description:
-            "Calculate the correct lot size for every trade.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Position Sizing</h2>
+
+<p>
+
+Calculate your lot size before entering every trade.
+
+Never adjust your stop loss to increase position size.
+
+</p>
+
+`
 
         },
 
@@ -754,76 +1170,55 @@ const academyData = [
 
             id:3,
 
-            title:"Risk To Reward",
+            title:"Trade Management",
 
-            description:
-            "Learn how to maintain positive expectancy.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Managing Trades</h2>
 
-        },
+<ul>
 
-        {
+<li>Partial Profits</li>
 
-            id:4,
+<li>Break Even</li>
 
-            title:"Capital Preservation",
+<li>Trailing Stops</li>
 
-            description:
-            "Protect trading capital during losing streaks.",
+<li>Journal Every Trade</li>
 
-            duration:15,
+</ul>
 
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
+`
 
         }
 
     ]
 
 },
-
-/* =====================================================
-   MODULE 7
-===================================================== */
-
 {
 
     id:7,
 
     title:"Trading Psychology",
 
+    subtitle:"Master Your Mind",
+
     description:
-    "Develop the mindset, discipline and consistency required to perform like a professional trader.",
+    "Build discipline, consistency and emotional control to execute your trading plan with confidence.",
 
     difficulty:"Advanced",
 
-    duration:75,
+    duration:60,
 
-    locked:true,
-
-    thumbnail:"images/modules/trading-psychology.jpg",
-
-    color:"#0f172a",
-
-    icon:"fa-brain",
+    thumbnail:"images/modules/psychology.jpg",
 
     certificate:true,
 
@@ -833,22 +1228,29 @@ const academyData = [
 
             id:1,
 
-            title:"Trader Mindset",
+            title:"Discipline",
 
-            description:
-            "Build the mentality required for consistent trading.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Discipline</h2>
+
+<p>
+
+The best traders follow rules rather than emotions.
+
+Your edge comes from consistency.
+
+</p>
+
+`
 
         },
 
@@ -858,20 +1260,29 @@ const academyData = [
 
             title:"Emotional Control",
 
-            description:
-            "Control fear, greed and overtrading.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Control Your Emotions</h2>
+
+<ul>
+
+<li>No FOMO</li>
+
+<li>No Revenge Trading</li>
+
+<li>No Overtrading</li>
+
+</ul>
+
+`
 
         },
 
@@ -879,265 +1290,40 @@ const academyData = [
 
             id:3,
 
-            title:"Building Consistency",
+            title:"Professional Trader Mindset",
 
-            description:
-            "Create repeatable trading habits.",
-
-            duration:15,
+            duration:20,
 
             video:"",
 
             pdf:"",
 
-            notes:"",
+            completed:false,
 
-            quiz:null,
+            notes:`
 
-            completed:false
+<h2>Professional Mindset</h2>
 
-        },
+<p>
 
-        {
+A professional trader thinks in probabilities, not certainty.
 
-            id:4,
+Trust your system.
 
-            title:"Professional Trading Routine",
+Follow your process.
 
-            description:
-            "Develop a daily routine used by professional traders.",
+Accept losses.
 
-            duration:15,
+Stay consistent.
 
-            video:"",
+</p>
 
-            pdf:"",
-
-            notes:"",
-
-            quiz:null,
-
-            completed:false
-
-        },
-
-        {
-
-            id:5,
-
-            title:"Final Assessment",
-
-            description:
-            "Complete the final assessment to qualify for certification.",
-
-            duration:15,
-
-            video:"",
-
-            pdf:"",
-
-            notes:"",
-
-            quiz:{
-
-                questions:[]
-
-            },
-
-            completed:false
+`
 
         }
 
     ]
 
 }
-/* =====================================================
-   END OF MODULES
-===================================================== */
 
 ];
-
-/* =====================================================
-   GTRADES-AXIS™ ACADEMY SETTINGS
-===================================================== */
-
-const academySettings = {
-
-    academyName:"GTRADES-AXIS™ Premium Academy",
-
-    version:"2.0.0",
-
-    author:"GTRADES-AXIS™",
-
-    certificateName:
-    "GTRADES-AXIS™ Certified Trader",
-
-    allowLessonReview:true,
-
-    requireSequentialLessons:true,
-
-    requireModuleCompletion:true,
-
-    autoUnlockNextModule:true,
-
-    autoSaveProgress:true,
-
-    enableCertificates:true,
-
-    enableResources:true,
-
-    enableVideos:true,
-
-    enableLessonNotes:true,
-
-    enableQuizzes:true,
-
-    enableAIReview:true
-
-};
-
-/* =====================================================
-   DEFAULT USER PROGRESS
-===================================================== */
-
-const academyDefaultProgress={
-
-    currentModule:1,
-
-    completedModules:[],
-
-    completedLessons:[],
-
-    completedQuizzes:[],
-
-    certificates:[],
-
-    overallProgress:0,
-
-    totalStudyMinutes:0,
-
-    lastModule:1,
-
-    lastLesson:1,
-
-    joinedDate:null
-
-};
-
-/* =====================================================
-   STORAGE KEYS
-===================================================== */
-
-const academyStorage={
-
-    progress:"gtradesAcademyProgress",
-
-    resources:"gtradesAcademyResources",
-
-    certificates:"gtradesCertificates",
-
-    settings:"gtradesAcademySettings",
-
-    bookmarks:"gtradesBookmarks",
-
-    notes:"gtradesLessonNotes"
-
-};
-
-/* =====================================================
-   FILE TYPES
-===================================================== */
-
-const academyFileTypes={
-
-    pdf:["pdf"],
-
-    image:["jpg","jpeg","png","webp"],
-
-    video:["mp4","mov","avi","webm"],
-
-    youtube:["youtube","youtu.be"]
-
-};
-
-/* =====================================================
-   BADGES
-===================================================== */
-
-const academyBadges=[
-
-{
-
-id:1,
-
-name:"First Lesson",
-
-icon:"fa-play",
-
-description:"Completed your first lesson."
-
-},
-
-{
-
-id:2,
-
-name:"Focused Trader",
-
-icon:"fa-book-open",
-
-description:"Completed your first module."
-
-},
-
-{
-
-id:3,
-
-name:"Disciplined",
-
-icon:"fa-chart-line",
-
-description:"Completed three modules."
-
-},
-
-{
-
-id:4,
-
-name:"Professional Trader",
-
-icon:"fa-award",
-
-description:"Completed the Academy."
-
-}
-
-];
-
-/* =====================================================
-   CERTIFICATES
-===================================================== */
-
-const academyCertificates=[
-
-{
-
-id:1,
-
-title:"GTRADES-AXIS™ Certified Trader",
-
-module:7,
-
-image:"images/certificates/certificate.png",
-
-enabled:true
-
-}
-
-];
-
-/* =====================================================
-   END OF DATABASE
-===================================================== */
