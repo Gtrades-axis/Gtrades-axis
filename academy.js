@@ -7,18 +7,22 @@
 "use strict";
 
 /* ======================================================
-   STORAGE
+   DEFAULT STORAGE
+====================================================== */
+
+const ACADEMY_STORAGE_KEY="gtradesAcademy";
+
+/* ======================================================
+   ACADEMY ENGINE
 ====================================================== */
 
 const Academy={
 
     data:academyData,
 
-    settings:academySettings,
+    progress:null,
 
-    storageKey:academyStorage.progress,
-
-    progress:null
+    initialized:false
 
 };
 
@@ -28,59 +32,65 @@ const Academy={
 
 Academy.init=function(){
 
-    this.loadProgress();
+    if(this.initialized){
 
-    this.validateProgress();
+        return;
 
-    this.saveProgress();
-
-};
-
-/* ======================================================
-   LOAD PROGRESS
-====================================================== */
-
-Academy.loadProgress=function(){
+    }
 
     const saved=
 
-    localStorage.getItem(
+    JSON.parse(
 
-        this.storageKey
+        localStorage.getItem(
+
+            ACADEMY_STORAGE_KEY
+
+        )
 
     );
 
     if(saved){
 
-        this.progress=JSON.parse(saved);
+        this.progress=saved;
 
     }
 
     else{
 
-        this.progress=structuredClone(
+        this.progress={
 
-            academyDefaultProgress
+            completedModules:0,
 
-        );
+            currentModule:1,
 
-        this.progress.joinedDate=
+            completedLessons:{},
 
-        new Date().toISOString();
+            bookmarks:[],
+
+            studyTime:0,
+
+            notes:{}
+
+        };
 
     }
+
+    this.initialized=true;
+
+    this.save();
 
 };
 
 /* ======================================================
-   SAVE PROGRESS
+   SAVE
 ====================================================== */
 
-Academy.saveProgress=function(){
+Academy.save=function(){
 
     localStorage.setItem(
 
-        this.storageKey,
+        ACADEMY_STORAGE_KEY,
 
         JSON.stringify(
 
@@ -93,58 +103,32 @@ Academy.saveProgress=function(){
 };
 
 /* ======================================================
-   RESET PROGRESS
+   RESET
 ====================================================== */
 
-Academy.resetProgress=function(){
+Academy.reset=function(){
 
-    this.progress=
+    localStorage.removeItem(
 
-    structuredClone(
-
-        academyDefaultProgress
+        ACADEMY_STORAGE_KEY
 
     );
 
-    this.progress.joinedDate=
+    this.initialized=false;
 
-    new Date().toISOString();
-
-    this.saveProgress();
+    this.init();
 
 };
 
 /* ======================================================
-   VALIDATE
+   MODULES
 ====================================================== */
 
-Academy.validateProgress=function(){
+Academy.getModules=function(){
 
-    if(!this.progress.completedLessons)
-
-        this.progress.completedLessons=[];
-
-    if(!this.progress.completedModules)
-
-        this.progress.completedModules=[];
-
-    if(!this.progress.completedQuizzes)
-
-        this.progress.completedQuizzes=[];
-
-    if(!this.progress.certificates)
-
-        this.progress.certificates=[];
-
-    if(!this.progress.totalStudyMinutes)
-
-        this.progress.totalStudyMinutes=0;
+    return this.data;
 
 };
-
-/* ======================================================
-   GET MODULE
-====================================================== */
 
 Academy.getModule=function(id){
 
@@ -157,7 +141,7 @@ Academy.getModule=function(id){
 };
 
 /* ======================================================
-   GET LESSON
+   LESSONS
 ====================================================== */
 
 Academy.getLesson=function(
@@ -170,9 +154,17 @@ Academy.getLesson=function(
 
     const module=
 
-    this.getModule(moduleId);
+    this.getModule(
 
-    if(!module) return null;
+        moduleId
+
+    );
+
+    if(!module){
+
+        return null;
+
+    }
 
     return module.lessons.find(
 
@@ -181,401 +173,26 @@ Academy.getLesson=function(
     );
 
 };
-
-/* ======================================================
-   GET TOTAL MODULES
-====================================================== */
-
-Academy.totalModules=function(){
-
-    return this.data.length;
-
-};
-
-/* ======================================================
-   GET TOTAL LESSONS
-====================================================== */
-
-Academy.totalLessons=function(){
-
-    let total=0;
-
-    this.data.forEach(module=>{
-
-        total+=module.lessons.length;
-
-    });
-
-    return total;
-
-};
-
-/* ======================================================
-   INITIALIZE ENGINE
-====================================================== */
-
-Academy.init();
-/* ======================================================
-   COMPLETE LESSON
-====================================================== */
-
-Academy.completeLesson=function(
-
-    moduleId,
-
-    lessonId
-
-){
-
-    const key=`${moduleId}-${lessonId}`;
-
-    if(
-
-        !this.progress.completedLessons.includes(key)
-
-    ){
-
-        this.progress.completedLessons.push(key);
-
-    }
-
-    const lesson=this.getLesson(
-
-        moduleId,
-
-        lessonId
-
-    );
-
-    if(lesson){
-
-        lesson.completed=true;
-
-        this.progress.totalStudyMinutes+=
-
-        Number(lesson.duration)||0;
-
-    }
-
-    this.updateOverallProgress();
-
-    this.checkModuleCompletion(moduleId);
-
-    this.saveProgress();
-
-};
-
-/* ======================================================
-   LESSON COMPLETED
-====================================================== */
-
-Academy.lessonCompleted=function(
-
-    moduleId,
-
-    lessonId
-
-){
-
-    return this.progress.completedLessons.includes(
-
-        `${moduleId}-${lessonId}`
-
-    );
-
-};
-
-/* ======================================================
-   COMPLETE MODULE
-====================================================== */
-
-Academy.completeModule=function(
-
-    moduleId
-
-){
-
-    if(
-
-        !this.progress.completedModules.includes(moduleId)
-
-    ){
-
-        this.progress.completedModules.push(
-
-            moduleId
-
-        );
-
-    }
-
-    if(
-
-        this.settings.autoUnlockNextModule
-
-    ){
-
-        this.unlockNextModule(moduleId);
-
-    }
-
-    this.saveProgress();
-
-};
-
-/* ======================================================
-   MODULE COMPLETED
-====================================================== */
-
-Academy.moduleCompleted=function(
-
-    moduleId
-
-){
-
-    return this.progress.completedModules.includes(
-
-        moduleId
-
-    );
-
-};
-
-/* ======================================================
-   CHECK MODULE
-====================================================== */
-
-Academy.checkModuleCompletion=function(
-
-    moduleId
-
-){
-
-    const module=this.getModule(moduleId);
-
-    if(!module) return;
-
-    const completed=
-
-    module.lessons.every(lesson=>{
-
-        return this.lessonCompleted(
-
-            moduleId,
-
-            lesson.id
-
-        );
-
-    });
-
-    if(completed){
-
-        this.completeModule(moduleId);
-
-    }
-
-};
-
-/* ======================================================
-   UNLOCK NEXT MODULE
-====================================================== */
-
-Academy.unlockNextModule=function(
-
-    moduleId
-
-){
-
-    const next=this.getModule(
-
-        moduleId+1
-
-    );
-
-    if(next){
-
-        next.locked=false;
-
-    }
-
-};
-
-/* ======================================================
-   MODULE LOCKED
-====================================================== */
-
-Academy.moduleLocked=function(
-
-    moduleId
-
-){
-
-    const module=this.getModule(
-
-        moduleId
-
-    );
-
-    if(!module) return true;
-
-    return module.locked;
-
-};
-
-/* ======================================================
-   LESSON LOCKED
-====================================================== */
-
-Academy.lessonLocked=function(
-
-    moduleId,
-
-    lessonId
-
-){
-
-    if(lessonId===1)
-
-        return false;
-
-    return !this.lessonCompleted(
-
-        moduleId,
-
-        lessonId-1
-
-    );
-
-};
-/* ======================================================
-   OVERALL PROGRESS
-====================================================== */
-
-Academy.updateOverallProgress=function(){
-
-    const totalLessons=this.totalLessons();
-
-    const completedLessons=
-
-    this.progress.completedLessons.length;
-
-    this.progress.overallProgress=
-
-    totalLessons===0
-
-    ?0
-
-    :Math.round(
-
-        (completedLessons/totalLessons)*100
-
-    );
-
-};
-
-/* ======================================================
-   MODULE PROGRESS
-====================================================== */
-
-Academy.getModuleProgress=function(
-
-    moduleId
-
-){
-
-    const module=this.getModule(moduleId);
-
-    if(!module) return 0;
-
-    const completed=
-
-    module.lessons.filter(lesson=>{
-
-        return this.lessonCompleted(
-
-            moduleId,
-
-            lesson.id
-
-        );
-
-    }).length;
-
-    return Math.round(
-
-        (completed/module.lessons.length)*100
-
-    );
-
-};
-
-/* ======================================================
-   TOTAL COMPLETED LESSONS
-====================================================== */
-
-Academy.completedLessons=function(){
-
-    return this.progress.completedLessons.length;
-
-};
-
-/* ======================================================
-   TOTAL COMPLETED MODULES
-====================================================== */
-
-Academy.completedModules=function(){
-
-    return this.progress.completedModules.length;
-
-};
-
 /* ======================================================
    CURRENT MODULE
 ====================================================== */
 
-Academy.currentModule=function(){
+Academy.getCurrentModule=function(){
 
     return this.progress.currentModule;
 
 };
 
-/* ======================================================
-   SET CURRENT MODULE
-====================================================== */
+Academy.setCurrentModule=function(moduleId){
 
-Academy.setCurrentModule=function(
+    this.progress.currentModule=moduleId;
 
-    moduleId
-
-){
-
-    this.progress.currentModule=
-
-    moduleId;
-
-    this.saveProgress();
+    this.save();
 
 };
 
 /* ======================================================
    CURRENT LESSON
-====================================================== */
-
-Academy.currentLesson=function(){
-
-    return{
-
-        module:this.progress.lastModule,
-
-        lesson:this.progress.lastLesson
-
-    };
-
-};
-
-/* ======================================================
-   SET CURRENT LESSON
 ====================================================== */
 
 Academy.setCurrentLesson=function(
@@ -586,131 +203,356 @@ Academy.setCurrentLesson=function(
 
 ){
 
-    this.progress.lastModule=
+    this.progress.currentLesson={
 
-    moduleId;
+        module:moduleId,
 
-    this.progress.lastLesson=
+        lesson:lessonId
 
-    lessonId;
+    };
 
-    this.saveProgress();
-
-};
-
-/* ======================================================
-   STUDY TIME
-====================================================== */
-
-Academy.getStudyTime=function(){
-
-    return this.progress.totalStudyMinutes;
+    this.save();
 
 };
 
-/* ======================================================
-   ADD STUDY TIME
-====================================================== */
+Academy.getCurrentLesson=function(){
 
-Academy.addStudyTime=function(
+    return this.progress.currentLesson||
 
-    minutes
+    {
 
-){
+        module:1,
 
-    this.progress.totalStudyMinutes+=minutes;
-
-    this.saveProgress();
-
-};
-
-/* ======================================================
-   PERCENT COMPLETE
-====================================================== */
-
-Academy.percent=function(){
-
-    return this.progress.overallProgress;
-
-};
-
-/* ======================================================
-   DASHBOARD STATISTICS
-====================================================== */
-
-Academy.statistics=function(){
-
-    return{
-
-        modules:this.totalModules(),
-
-        lessons:this.totalLessons(),
-
-        completedModules:
-
-        this.completedModules(),
-
-        completedLessons:
-
-        this.completedLessons(),
-
-        studyTime:
-
-        this.getStudyTime(),
-
-        progress:
-
-        this.percent()
+        lesson:1
 
     };
 
 };
+
 /* ======================================================
-   CERTIFICATES
+   LESSON PROGRESS
 ====================================================== */
 
-Academy.awardCertificate=function(moduleId){
+Academy.completeLesson=function(
 
-    const certificate=academyCertificates.find(
+    moduleId,
 
-        cert=>cert.module===moduleId
+    lessonId
+
+){
+
+    if(
+
+        !this.progress.completedLessons[moduleId]
+
+    ){
+
+        this.progress.completedLessons[moduleId]=[];
+
+    }
+
+    if(
+
+        !this.progress.completedLessons[moduleId]
+
+        .includes(lessonId)
+
+    ){
+
+        this.progress.completedLessons[moduleId]
+
+        .push(lessonId);
+
+    }
+
+    this.save();
+
+    this.checkModuleCompletion(
+
+        moduleId
 
     );
 
-    if(!certificate) return;
+};
 
-    const exists=this.progress.certificates.find(
+Academy.lessonCompleted=function(
 
-        cert=>cert.id===certificate.id
+    moduleId,
 
-    );
+    lessonId
 
-    if(exists) return;
+){
 
-    this.progress.certificates.push({
+    if(
 
-        id:certificate.id,
+        !this.progress.completedLessons[moduleId]
 
-        title:certificate.title,
+    ){
 
-        date:new Date().toISOString()
+        return false;
 
-    });
+    }
 
-    this.saveProgress();
+    return this.progress.completedLessons[moduleId]
+
+    .includes(lessonId);
 
 };
 
 /* ======================================================
-   GET CERTIFICATES
+   MODULE COMPLETION
 ====================================================== */
 
-Academy.getCertificates=function(){
+Academy.moduleCompleted=function(
 
-    return this.progress.certificates;
+    moduleId
+
+){
+
+    const module=
+
+    this.getModule(moduleId);
+
+    if(!module){
+
+        return false;
+
+    }
+
+    const completed=
+
+    this.progress.completedLessons[moduleId]||[];
+
+    return completed.length===
+
+    module.lessons.length;
 
 };
 
+Academy.checkModuleCompletion=function(
+
+    moduleId
+
+){
+
+    if(
+
+        !this.moduleCompleted(moduleId)
+
+    ){
+
+        return;
+
+    }
+
+    if(
+
+        moduleId>
+
+        this.progress.completedModules
+
+    ){
+
+        this.progress.completedModules=
+
+        moduleId;
+
+    }
+
+    if(
+
+        this.progress.currentModule<=moduleId
+
+    ){
+
+        this.progress.currentModule=
+
+        Math.min(
+
+            moduleId+1,
+
+            this.data.length
+
+        );
+
+    }
+
+    this.save();
+
+};
+/* ======================================================
+   MODULE PROGRESS
+====================================================== */
+
+Academy.getModuleProgress=function(moduleId){
+
+    const module=this.getModule(moduleId);
+
+    if(!module){
+
+        return 0;
+
+    }
+
+    const completed=
+
+    this.progress.completedLessons[moduleId]||[];
+
+    return Math.round(
+
+        (completed.length/module.lessons.length)*100
+
+    );
+
+};
+
+Academy.getCompletedLessonCount=function(moduleId){
+
+    return (
+
+        this.progress.completedLessons[moduleId]||[]
+
+    ).length;
+
+};
+
+/* ======================================================
+   MODULE LOCK STATUS
+====================================================== */
+
+Academy.moduleUnlocked=function(moduleId){
+
+    if(moduleId===1){
+
+        return true;
+
+    }
+
+    return this.progress.completedModules>=moduleId-1;
+
+};
+
+/* ======================================================
+   LESSON LOCK STATUS
+====================================================== */
+
+Academy.lessonUnlocked=function(
+
+    moduleId,
+
+    lessonId
+
+){
+
+    if(lessonId===1){
+
+        return true;
+
+    }
+
+    return this.lessonCompleted(
+
+        moduleId,
+
+        lessonId-1
+
+    );
+
+};
+
+/* ======================================================
+   NEXT LESSON
+====================================================== */
+
+Academy.getNextLesson=function(
+
+    moduleId,
+
+    lessonId
+
+){
+
+    const module=
+
+    this.getModule(moduleId);
+
+    if(!module){
+
+        return null;
+
+    }
+
+    if(lessonId<module.lessons.length){
+
+        return{
+
+            module:moduleId,
+
+            lesson:lessonId+1
+
+        };
+
+    }
+
+    if(moduleId<this.data.length){
+
+        return{
+
+            module:moduleId+1,
+
+            lesson:1
+
+        };
+
+    }
+
+    return null;
+
+};
+
+/* ======================================================
+   PREVIOUS LESSON
+====================================================== */
+
+Academy.getPreviousLesson=function(
+
+    moduleId,
+
+    lessonId
+
+){
+
+    if(lessonId>1){
+
+        return{
+
+            module:moduleId,
+
+            lesson:lessonId-1
+
+        };
+
+    }
+
+    if(moduleId>1){
+
+        const previous=
+
+        this.getModule(moduleId-1);
+
+        return{
+
+            module:moduleId-1,
+
+            lesson:previous.lessons.length
+
+        };
+
+    }
+
+    return null;
+
+};
 /* ======================================================
    BOOKMARKS
 ====================================================== */
@@ -723,48 +565,82 @@ Academy.bookmarkLesson=function(
 
 ){
 
-    let bookmarks=JSON.parse(
+    if(!this.progress.bookmarks){
 
-        localStorage.getItem(
+        this.progress.bookmarks=[];
 
-            academyStorage.bookmarks
+    }
+
+    const exists=
+
+    this.progress.bookmarks.find(
+
+        item=>
+
+        item.module===moduleId &&
+
+        item.lesson===lessonId
+
+    );
+
+    if(!exists){
+
+        this.progress.bookmarks.push({
+
+            module:moduleId,
+
+            lesson:lessonId
+
+        });
+
+        this.save();
+
+    }
+
+};
+
+Academy.removeBookmark=function(
+
+    moduleId,
+
+    lessonId
+
+){
+
+    if(!this.progress.bookmarks){
+
+        return;
+
+    }
+
+    this.progress.bookmarks=
+
+    this.progress.bookmarks.filter(
+
+        item=>
+
+        !(
+
+            item.module===moduleId &&
+
+            item.lesson===lessonId
 
         )
 
-    ) || [];
-
-    const key=`${moduleId}-${lessonId}`;
-
-    if(!bookmarks.includes(key))
-
-        bookmarks.push(key);
-
-    localStorage.setItem(
-
-        academyStorage.bookmarks,
-
-        JSON.stringify(bookmarks)
-
     );
+
+    this.save();
 
 };
 
 Academy.getBookmarks=function(){
 
-    return JSON.parse(
-
-        localStorage.getItem(
-
-            academyStorage.bookmarks
-
-        )
-
-    ) || [];
+    return this.progress.bookmarks||[];
 
 };
 
 /* ======================================================
-   LESSON NOTES
+   PERSONAL NOTES
 ====================================================== */
 
 Academy.savePersonalNotes=function(
@@ -777,29 +653,19 @@ Academy.savePersonalNotes=function(
 
 ){
 
-    const key=`${moduleId}-${lessonId}`;
+    if(!this.progress.notes){
 
-    const saved=
+        this.progress.notes={};
 
-    JSON.parse(
+    }
 
-        localStorage.getItem(
+    const key=
 
-            academyStorage.notes
+    `${moduleId}_${lessonId}`;
 
-        )
+    this.progress.notes[key]=notes;
 
-    ) || {};
-
-    saved[key]=notes;
-
-    localStorage.setItem(
-
-        academyStorage.notes,
-
-        JSON.stringify(saved)
-
-    );
+    this.save();
 
 };
 
@@ -811,55 +677,150 @@ Academy.getPersonalNotes=function(
 
 ){
 
-    const key=`${moduleId}-${lessonId}`;
+    if(!this.progress.notes){
 
-    const saved=
+        return "";
 
-    JSON.parse(
+    }
 
-        localStorage.getItem(
+    const key=
 
-            academyStorage.notes
+    `${moduleId}_${lessonId}`;
 
-        )
-
-    ) || {};
-
-    return saved[key] || "";
+    return this.progress.notes[key]||"";
 
 };
 
 /* ======================================================
-   CLEAR ALL PROGRESS
+   STUDY TIME
 ====================================================== */
 
-Academy.clearAll=function(){
+Academy.addStudyTime=function(
 
-    localStorage.removeItem(
+    minutes
 
-        academyStorage.progress
+){
+
+    if(!minutes || minutes<1){
+
+        return;
+
+    }
+
+    this.progress.studyTime+=minutes;
+
+    this.save();
+
+};
+
+Academy.getStudyTime=function(){
+
+    return this.progress.studyTime||0;
+
+};
+
+/* ======================================================
+   STATISTICS
+====================================================== */
+
+Academy.getStatistics=function(){
+
+    let completedLessons=0;
+
+    Object.values(
+
+        this.progress.completedLessons
+
+    ).forEach(list=>{
+
+        completedLessons+=list.length;
+
+    });
+
+    return{
+
+        modulesCompleted:
+
+        this.progress.completedModules,
+
+        lessonsCompleted:
+
+        completedLessons,
+
+        studyTime:
+
+        this.progress.studyTime,
+
+        bookmarks:
+
+        this.getBookmarks().length
+
+    };
+
+};
+/* ======================================================
+   OVERALL PROGRESS
+====================================================== */
+
+Academy.getOverallProgress=function(){
+
+    let totalLessons=0;
+
+    let completedLessons=0;
+
+    this.data.forEach(module=>{
+
+        totalLessons+=module.lessons.length;
+
+        completedLessons+=
+
+        this.getCompletedLessonCount(module.id);
+
+    });
+
+    if(totalLessons===0){
+
+        return 0;
+
+    }
+
+    return Math.round(
+
+        (completedLessons/totalLessons)*100
 
     );
 
-    localStorage.removeItem(
+};
 
-        academyStorage.bookmarks
+/* ======================================================
+   SEARCH MODULES
+====================================================== */
 
-    );
+Academy.searchModules=function(keyword){
 
-    localStorage.removeItem(
+    keyword=keyword.toLowerCase();
 
-        academyStorage.notes
+    return this.data.filter(module=>{
 
-    );
+        return(
 
-    localStorage.removeItem(
+            module.title
 
-        academyStorage.certificates
+            .toLowerCase()
 
-    );
+            .includes(keyword)
 
-    this.resetProgress();
+            ||
+
+            module.description
+
+            .toLowerCase()
+
+            .includes(keyword)
+
+        );
+
+    });
 
 };
 
@@ -893,15 +854,15 @@ Academy.importProgress=function(json){
 
         JSON.parse(json);
 
-        this.validateProgress();
-
-        this.saveProgress();
+        this.save();
 
         return true;
 
     }
 
-    catch{
+    catch(error){
+
+        console.error(error);
 
         return false;
 
@@ -910,26 +871,50 @@ Academy.importProgress=function(json){
 };
 
 /* ======================================================
-   VERSION
+   CLEAR PROGRESS
 ====================================================== */
 
-Academy.version=function(){
+Academy.clearProgress=function(){
 
-    return academySettings.version;
+    if(
+
+        !confirm(
+
+        "Reset all Academy progress?"
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+    localStorage.removeItem(
+
+        ACADEMY_STORAGE_KEY
+
+    );
+
+    this.initialized=false;
+
+    this.init();
+
+    location.reload();
 
 };
 
 /* ======================================================
-   ENGINE READY
+   READY
 ====================================================== */
 
 window.Academy=Academy;
 
+Academy.init();
+
 console.log(
 
-    "GTRADES-AXIS™ Academy Engine Loaded",
-
-    Academy.version()
+    "✅ GTRADES-AXIS™ Academy Engine Loaded"
 
 );
 
