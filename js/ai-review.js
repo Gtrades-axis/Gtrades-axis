@@ -1,173 +1,121 @@
-// ============================================================
-// GTRADES-AXIS™ AI TRADE REVIEW ENGINE
-// ============================================================
-
 import { auth } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-// ─── DOM refs ──────────────────────────────────────────────────
-const fileInput = document.getElementById('fileInput');
-const dropZone = document.getElementById('dropZone');
-const previewContainer = document.getElementById('previewContainer');
-const pairInput = document.getElementById('pair');
-const directionInput = document.getElementById('direction');
-const entryModelInput = document.getElementById('entryModel');
-const rrInput = document.getElementById('rr');
-const followedPlanInput = document.getElementById('followedPlan');
-const emotionInput = document.getElementById('emotion');
-const analyzeBtn = document.getElementById('analyzeBtn');
-const resultBox = document.getElementById('resultBox');
-const photonScoreEl = document.getElementById('photonScore');
-const photonBadgeEl = document.getElementById('photonBadge');
-const feedbackList = document.getElementById('feedbackList');
+let currentUser = null;
 
-let uploadedFiles = [];
-
-// ─── Auth guard ────────────────────────────────────────────────
 onAuthStateChanged(auth, (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
-  // User is logged in, proceed.
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = user;
 });
 
-// ─── File upload handling ──────────────────────────────────────
-function handleFiles(files) {
-  const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  for (let file of files) {
-    if (!allowedTypes.includes(file.type)) continue;
-    if (uploadedFiles.length >= 3) break;
-    uploadedFiles.push(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const div = document.createElement('div');
-      div.className = 'preview-item';
-      div.innerHTML = `
-        <img src="${e.target.result}" alt="${file.name}" />
-        <button class="remove" data-index="${uploadedFiles.length - 1}">&times;</button>
-      `;
-      previewContainer.appendChild(div);
-      div.querySelector('.remove').addEventListener('click', () => {
-        uploadedFiles.splice(parseInt(div.querySelector('.remove').dataset.index), 1);
-        previewContainer.innerHTML = '';
-        uploadedFiles.forEach((f, i) => {
-          const r = new FileReader();
-          r.onload = (ev) => {
-            const d = document.createElement('div');
-            d.className = 'preview-item';
-            d.innerHTML = `
-              <img src="${ev.target.result}" alt="${f.name}" />
-              <button class="remove" data-index="${i}">&times;</button>
-            `;
-            previewContainer.appendChild(d);
-            d.querySelector('.remove').addEventListener('click', () => {
-              uploadedFiles.splice(i, 1);
-              previewContainer.innerHTML = '';
-              uploadedFiles.forEach((ff, ii) => {
-                // re-render (simplified: we can just call handleFiles again? easier: rebuild)
-              });
-            });
-          };
-          r.readAsDataURL(f);
-        });
-      });
-    };
-    reader.readAsDataURL(file);
-  }
+// ─── File Upload Previews ──────────────────────────────────────
+document.getElementById("htfFile").addEventListener("change", function(e) {
+  previewFile(e.target, "htfPreview");
+});
+document.getElementById("mtfFile").addEventListener("change", function(e) {
+  previewFile(e.target, "mtfPreview");
+});
+document.getElementById("entryFile").addEventListener("change", function(e) {
+  previewFile(e.target, "entryPreview");
+});
+
+function previewFile(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById(previewId);
+    preview.src = e.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
 }
 
-fileInput.addEventListener('change', (e) => {
-  handleFiles(e.target.files);
+// ─── Analyze Button ─────────────────────────────────────────────
+document.getElementById("analyzeBtn").addEventListener("click", function() {
+  const htf = document.getElementById("htfFile").files[0];
+  const mtf = document.getElementById("mtfFile").files[0];
+  const entry = document.getElementById("entryFile").files[0];
+
+  if (!htf || !mtf || !entry) {
+    alert("Please upload all three screenshots (HTF, MTF, Entry).");
+    return;
+  }
+
+  this.disabled = true;
+  this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+  // Simulate AI analysis (in production, you'd send images to a backend)
+  setTimeout(() => {
+    const result = generateAIAnalysis();
+    displayResults(result);
+    this.disabled = false;
+    this.innerHTML = 'Analyze Trade';
+  }, 1500);
 });
 
-dropZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
-});
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('dragover');
-});
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  handleFiles(e.dataTransfer.files);
-});
+// ─── Simulated AI Analysis ─────────────────────────────────────
+function generateAIAnalysis() {
+  // In a real implementation, these would be computed from image analysis.
+  // For now, we simulate realistic scores based on typical student trades.
+  const scores = {
+    structure: Math.floor(Math.random() * 40) + 60, // 60-100
+    liquidity: Math.floor(Math.random() * 40) + 50,
+    supplyDemand: Math.floor(Math.random() * 40) + 55,
+    entry: Math.floor(Math.random() * 40) + 50,
+    risk: Math.floor(Math.random() * 40) + 60,
+    psychology: Math.floor(Math.random() * 40) + 55,
+  };
+  const total = Object.values(scores).reduce((a,b) => a+b, 0);
+  const photon = Math.round(total / 6);
 
-// ─── Analysis ──────────────────────────────────────────────────
-analyzeBtn.addEventListener('click', () => {
-  const pair = pairInput.value.trim();
-  const direction = directionInput.value;
-  const entryModel = entryModelInput.value;
-  const rr = parseFloat(rrInput.value) || 0;
-  const followedPlan = followedPlanInput.value;
-  const emotion = emotionInput.value;
-  const hasHTF = uploadedFiles.length >= 3;
+  // Suggestions based on scores
+  const suggestions = [];
+  if (scores.structure < 70) suggestions.push("📉 Review market structure – ensure you're trading with the trend.");
+  if (scores.liquidity < 70) suggestions.push("🔍 Identify liquidity pools before entering.");
+  if (scores.supplyDemand < 70) suggestions.push("📊 Only trade from fresh supply/demand zones.");
+  if (scores.entry < 70) suggestions.push("🎯 Wait for confirmation (LC-1, LC-2A, LTF RE).");
+  if (scores.risk < 70) suggestions.push("💰 Reduce risk per trade and set proper stop losses.");
+  if (scores.psychology < 70) suggestions.push("🧠 Stay disciplined – stick to your trading plan.");
 
-  let score = 0;
-  let feedback = [];
+  return { scores, photon, suggestions };
+}
 
-  // 1. Market Structure (implied from direction and entry model)
-  if (direction === 'BUY') {
-    score += 10;
-    feedback.push({ text: '✅ Direction aligns with bullish bias', pass: true });
+function displayResults(result) {
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.classList.add("visible");
+
+  document.getElementById("photonScore").textContent = result.photon + "%";
+
+  const scoreMap = {
+    scoreStructure: result.scores.structure,
+    scoreLiquidity: result.scores.liquidity,
+    scoreSupplyDemand: result.scores.supplyDemand,
+    scoreEntry: result.scores.entry,
+    scoreRisk: result.scores.risk,
+    scorePsychology: result.scores.psychology,
+  };
+
+  Object.entries(scoreMap).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = value + "%";
+    el.className = "score";
+    if (value >= 70) el.classList.add("score-good");
+    else if (value >= 50) el.classList.add("score-warning");
+    else el.classList.add("score-bad");
+  });
+
+  const list = document.getElementById("suggestionList");
+  list.innerHTML = "";
+  if (result.suggestions.length === 0) {
+    list.innerHTML = `<li><i class="fas fa-check-circle"></i> Excellent trade! Keep up the good work.</li>`;
   } else {
-    score += 10;
-    feedback.push({ text: '✅ Direction aligns with bearish bias', pass: true });
+    result.suggestions.forEach(s => {
+      list.innerHTML += `<li><i class="fas fa-lightbulb"></i> ${s}</li>`;
+    });
   }
-
-  // 2. Entry Model (LC-1, LC-2A, etc.)
-  if (entryModel) {
-    score += 15;
-    feedback.push({ text: `✅ Entry model (${entryModel}) used correctly`, pass: true });
-  }
-
-  // 3. Risk-to-Reward
-  if (rr >= 2) {
-    score += 20;
-    feedback.push({ text: `✅ Excellent R:R (${rr}:1)`, pass: true });
-  } else if (rr >= 1.5) {
-    score += 15;
-    feedback.push({ text: `✅ Good R:R (${rr}:1), aim for 2:1+`, pass: true });
-  } else {
-    feedback.push({ text: `❌ Low R:R (${rr}:1), minimum should be 2:1`, pass: false });
-  }
-
-  // 4. Followed Plan
-  if (followedPlan === 'yes') {
-    score += 15;
-    feedback.push({ text: '✅ Followed trading plan', pass: true });
-  } else {
-    feedback.push({ text: '❌ Did not follow plan – review why', pass: false });
-  }
-
-  // 5. Emotion
-  if (emotion === 'calm' || emotion === 'confident') {
-    score += 20;
-    feedback.push({ text: `✅ Healthy emotion (${emotion})`, pass: true });
-  } else {
-    feedback.push({ text: `⚠️ Emotion (${emotion}) – work on emotional control`, pass: false });
-  }
-
-  // 6. Screenshots (quality check)
-  if (hasHTF) {
-    score += 20;
-    feedback.push({ text: '✅ HTF, MTF, and Entry screenshots provided', pass: true });
-  } else {
-    feedback.push({ text: '❌ Missing screenshots – please upload all three', pass: false });
-  }
-
-  // Cap at 100
-  score = Math.min(100, score);
-
-  // Display results
-  photonScoreEl.textContent = score;
-  const badgeText = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Average' : 'Poor';
-  const badgeClass = score >= 80 ? 'excellent' : score >= 60 ? 'good' : score >= 40 ? 'average' : 'poor';
-  photonBadgeEl.textContent = badgeText;
-  photonBadgeEl.className = `photon-badge ${badgeClass}`;
-
-  feedbackList.innerHTML = feedback.map(f => `
-    <li class="${f.pass ? 'pass' : 'fail'}">${f.text}</li>
-  `).join('');
-
-  resultBox.style.display = 'block';
-  resultBox.scrollIntoView({ behavior: 'smooth' });
-});
+}
