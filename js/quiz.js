@@ -1,11 +1,12 @@
 import { auth, db } from "./firebase.js";
+import { ALL_MODULES } from "./academyData.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const moduleId = urlParams.get("module");
 if (!moduleId) {
-  document.getElementById("quizContainer").innerHTML = `<div style="padding:40px;color:#ff4d4f;">No module specified.</div>`;
+  document.getElementById("quizContainer").innerHTML = `<div style="padding:40px;color:#ff4d4f;text-align:center;">No module specified.</div>`;
   throw new Error("Missing module id");
 }
 
@@ -16,6 +17,10 @@ let progress = null;
 const titleEl = document.getElementById("quizTitle");
 const moduleTitleEl = document.getElementById("quizModule");
 const container = document.getElementById("quizContainer");
+
+function findModuleInFallback() {
+  return ALL_MODULES.find(m => m.id === moduleId);
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
@@ -29,22 +34,35 @@ async function loadProgress() {
     const docRef = doc(db, "user_progress", currentUser.uid);
     const docSnap = await getDoc(docRef);
     progress = docSnap.exists() ? docSnap.data() : { modules: {} };
-  } catch (e) { console.error("Progress error:", e); progress = { modules: {} }; }
+  } catch (e) {
+    console.error("Progress error:", e);
+    progress = { modules: {} };
+  }
 }
 
 async function loadQuiz() {
   try {
+    // 1. Try Firestore
     const docRef = doc(db, "academy_modules", moduleId);
     const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      container.innerHTML = `<div style="padding:40px;color:#ff4d4f;">Module not found.</div>`;
-      return;
+    if (docSnap.exists()) {
+      moduleData = docSnap.data();
+    } else {
+      // 2. Fallback
+      const fallback = findModuleInFallback();
+      if (fallback) {
+        moduleData = fallback;
+        console.log("📚 Using fallback module data for quiz:", moduleId);
+      } else {
+        container.innerHTML = `<div style="padding:40px;color:#ff4d4f;text-align:center;">Module not found.</div>`;
+        return;
+      }
     }
-    moduleData = docSnap.data();
+
     moduleTitleEl.textContent = moduleData.title || "Module";
     titleEl.textContent = `Quiz: ${moduleData.title || "Module"}`;
     if (!moduleData.hasQuiz || !moduleData.quiz || !moduleData.quiz.questions) {
-      container.innerHTML = `<div style="padding:40px;color:#aab7c8;">No quiz for this module.</div>`;
+      container.innerHTML = `<div style="padding:40px;color:#aab7c8;text-align:center;">No quiz for this module.</div>`;
       return;
     }
     questions = moduleData.quiz.questions;

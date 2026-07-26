@@ -1,6 +1,7 @@
 import { auth, db } from "./firebase.js";
+import { ALL_MODULES } from "./academyData.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import { doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const moduleId = urlParams.get("module");
@@ -19,6 +20,12 @@ const titleEl = document.getElementById("lessonTitle");
 const moduleTitleEl = document.getElementById("moduleTitle");
 const container = document.getElementById("lessonContent");
 
+// ─── Helper: find module in fallback data ─────────────────────
+function findModuleInFallback() {
+  return ALL_MODULES.find(m => m.id === moduleId);
+}
+
+// ─── Auth ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
@@ -26,39 +33,42 @@ onAuthStateChanged(auth, async (user) => {
   await loadLesson();
 });
 
+// ─── Load progress ─────────────────────────────────────────────
 async function loadProgress() {
   try {
     const docRef = doc(db, "user_progress", currentUser.uid);
     const docSnap = await getDoc(docRef);
     progress = docSnap.exists() ? docSnap.data() : { modules: {} };
-  } catch (e) { console.error("Progress error:", e); progress = { modules: {} }; }
+  } catch (e) {
+    console.error("Progress error:", e);
+    progress = { modules: {} };
+  }
 }
 
+// ─── Load lesson (Firestore first, then fallback) ─────────────
 async function loadLesson() {
   try {
-    // Try Firestore first
+    // 1. Try Firestore
     const docRef = doc(db, "academy_modules", moduleId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       moduleData = docSnap.data();
     } else {
-      // Fallback: check if we have it in memory (from premium-academy.js)
-      // We'll use a global variable if available, otherwise fallback to import
-      // For now, we'll try to get it from the fallback modules defined in premium-academy.js
-      // Since we can't share state easily, we'll hardcode a fallback mechanism here.
-      // Simpler: if not in Firestore, use hardcoded fallback (same as in premium-academy.js)
-      const FALLBACK_MODULES = [
-        // ... (you can copy the same fallback modules here, but we'll use a simpler approach)
-      ];
-      // I'll put the full fallback array in a separate file later
-      // For now, we'll just show an error
-      container.innerHTML = `<div style="padding:40px;color:#ff4d4f;">Module not found in Firestore. Please add content.</div>`;
-      return;
+      // 2. Fallback to shared data
+      const fallback = findModuleInFallback();
+      if (fallback) {
+        moduleData = fallback;
+        console.log("📚 Using fallback module data for", moduleId);
+      } else {
+        container.innerHTML = `<div style="padding:40px;color:#ff4d4f;text-align:center;">Module not found.</div>`;
+        return;
+      }
     }
+
     const lessons = moduleData.lessons || [];
     lessonIndex = lessons.findIndex(l => l.id === lessonId);
     if (lessonIndex === -1) {
-      container.innerHTML = `<div style="padding:40px;color:#ff4d4f;">Lesson not found.</div>`;
+      container.innerHTML = `<div style="padding:40px;color:#ff4d4f;text-align:center;">Lesson not found.</div>`;
       return;
     }
     lessonData = lessons[lessonIndex];
