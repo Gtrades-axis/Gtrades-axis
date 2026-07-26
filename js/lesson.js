@@ -1,318 +1,150 @@
-/* ======================================================
-   GTRADES-AXIS™ PREMIUM ACADEMY
-   LESSON PLAYER
-====================================================== */
+// js/lesson.js
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import { doc, getDoc, updateDoc, arrayUnion, setDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const params = new URLSearchParams(window.location.search);
+const urlParams = new URLSearchParams(window.location.search);
+const moduleId = urlParams.get('module');
+const lessonId = urlParams.get('lesson');
 
-const moduleId = parseInt(params.get("module")) || 1;
-
-const lessonId = parseInt(params.get("lesson")) || 1;
-
-Academy.init();
-
-/* ======================================================
-   DATA
-====================================================== */
-
-const currentModule = Academy.getModule(moduleId);
-
-const currentLesson = Academy.getLesson(moduleId, lessonId);
-
-/* ======================================================
-   HTML
-====================================================== */
-
-const moduleName=document.getElementById("moduleName");
-
-const lessonSidebar=document.getElementById("lessonSidebar");
-
-const lessonNumber=document.getElementById("lessonNumber");
-
-const lessonTitle=document.getElementById("lessonTitle");
-
-const lessonDescription=document.getElementById("lessonDescription");
-
-const lessonVideo=document.getElementById("lessonVideo");
-
-const lessonNotes=document.getElementById("lessonNotes");
-
-const downloadPDF=document.getElementById("downloadPDF");
-
-const previousLesson=document.getElementById("previousLesson");
-
-const nextLesson=document.getElementById("nextLesson");
-
-const completeLesson=document.getElementById("completeLesson");
-
-/* ======================================================
-   LOAD LESSON
-====================================================== */
-
-function loadLesson(){
-
-    if(!currentModule || !currentLesson){
-
-        alert("Lesson not found.");
-
-        return;
-
-    }
-
-    Academy.setContinueLesson(
-
-        moduleId,
-
-        lessonId
-
-    );
-
-    moduleName.textContent=currentModule.title;
-
-    lessonNumber.textContent="Lesson "+lessonId;
-
-    lessonTitle.textContent=currentLesson.title;
-
-    lessonDescription.textContent=
-
-        currentModule.description;
-
-    lessonNotes.innerHTML=
-
-        currentLesson.notes ||
-
-        "<p>No lesson notes available.</p>";
-
-    if(currentLesson.video){
-
-        lessonVideo.src=currentLesson.video;
-
-    }else{
-
-        lessonVideo.removeAttribute("src");
-
-    }
-
-    if(currentLesson.pdf){
-
-        downloadPDF.style.display="inline-flex";
-
-    }else{
-
-        downloadPDF.style.display="none";
-
-    }
-
+if (!moduleId || !lessonId) {
+  document.getElementById('lessonContent').innerHTML = '<div style="padding:40px;color:#ff4d4f;">Missing module or lesson ID.</div>';
+  throw new Error('Missing module or lesson id');
 }
 
-/* ======================================================
-   SIDEBAR
-====================================================== */
+let currentUser = null;
+let moduleData = null;
+let lessonData = null;
+let lessonIndex = -1;
+let progress = null;
 
-function buildSidebar(){
+const container = document.getElementById('lessonContent');
+const titleEl = document.getElementById('lessonTitle');
 
-    lessonSidebar.innerHTML="";
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
+  currentUser = user;
+  await loadLesson();
+});
 
-    currentModule.lessons.forEach(lesson=>{
+async function loadLesson() {
+  try {
+    // 1. Load module from Firestore
+    const moduleRef = doc(db, "academy_modules", moduleId);
+    const moduleSnap = await getDoc(moduleRef);
+    if (!moduleSnap.exists()) {
+      container.innerHTML = '<div style="padding:40px;color:#ff4d4f;">Module not found.</div>';
+      return;
+    }
+    moduleData = moduleSnap.data();
+    // 2. Find lesson
+    const lessons = moduleData.lessons || [];
+    lessonIndex = lessons.findIndex(l => l.id === lessonId);
+    if (lessonIndex === -1) {
+      container.innerHTML = '<div style="padding:40px;color:#ff4d4f;">Lesson not found.</div>';
+      return;
+    }
+    lessonData = lessons[lessonIndex];
+    titleEl.textContent = lessonData.title;
 
-        const item=document.createElement("div");
+    // 3. Load user progress
+    const progressRef = doc(db, "user_progress", currentUser.uid);
+    const progressSnap = await getDoc(progressRef);
+    progress = progressSnap.exists() ? progressSnap.data() : { modules: {} };
+    if (!progress.modules) progress.modules = {};
+    if (!progress.modules[moduleId]) {
+      progress.modules[moduleId] = { completedLessons: [] };
+    }
 
-        item.className="lesson-sidebar-item";
+    // 4. Render lesson content
+    renderLesson();
 
-        if(lesson.id===lessonId){
-
-            item.classList.add("active");
-
-        }
-
-        if(
-
-            Academy.lessonCompleted(
-
-                moduleId,
-
-                lesson.id
-
-            )
-
-        ){
-
-            item.classList.add("completed");
-
-        }
-
-        item.innerHTML=`
-
-            <h4>Lesson ${lesson.id}</h4>
-
-            <p>${lesson.title}</p>
-
-        `;
-
-        if(
-
-            !Academy.lessonLocked(
-
-                moduleId,
-
-                lesson.id
-
-            )
-
-        ){
-
-            item.onclick=()=>{
-
-                location.href=
-
-                "lesson.html?module="+
-
-                moduleId+
-
-                "&lesson="+
-
-                lesson.id;
-
-            };
-
-        }
-
-        lessonSidebar.appendChild(item);
-
-    });
-
+  } catch (e) {
+    console.error("Lesson load error:", e);
+    container.innerHTML = '<div style="padding:40px;color:#ff4d4f;">Error loading lesson.</div>';
+  }
 }
 
-/* ======================================================
-   PREVIOUS
-====================================================== */
+function renderLesson() {
+  const completed = progress.modules[moduleId].completedLessons || [];
+  const isCompleted = completed.includes(lessonId);
 
-previousLesson.onclick=function(){
+  let html = '';
 
-    if(lessonId===1){
-
-        return;
-
+  // Video
+  if (lessonData.type === 'video' && lessonData.videoUrl) {
+    let embedUrl = lessonData.videoUrl;
+    if (embedUrl.includes('watch?v=')) {
+      const vid = embedUrl.split('v=')[1]?.split('&')[0];
+      embedUrl = `https://www.youtube.com/embed/${vid}`;
+    } else if (embedUrl.includes('youtu.be/')) {
+      const vid = embedUrl.split('youtu.be/')[1]?.split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${vid}`;
     }
+    html += `<div class="video-wrapper"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`;
+  }
 
-    location.href=
+  // PDF download
+  if (lessonData.pdfUrl) {
+    html += `<div class="pdf-download"><i class="fa-solid fa-file-pdf"></i> <a href="${lessonData.pdfUrl}" target="_blank">Download PDF</a></div>`;
+  }
 
-    "lesson.html?module="+
+  // Notes
+  if (lessonData.notes) {
+    html += `<div class="notes-box">${lessonData.notes}</div>`;
+  }
 
-    moduleId+
+  // Mark complete button
+  html += `
+    <div class="actions">
+      <button class="btn-primary" id="markCompleteBtn" ${isCompleted ? 'disabled' : ''}>
+        <i class="fa-${isCompleted ? 'solid fa-check-circle' : 'solid fa-check'}"></i> 
+        ${isCompleted ? 'Completed' : 'Mark Complete'}
+      </button>
+      <button class="btn-secondary" onclick="window.location.href='academy.html'">Back to Academy</button>
+    </div>
+  `;
 
-    "&lesson="+
+  // Previous / Next / Quiz navigation
+  const lessons = moduleData.lessons || [];
+  const prevLesson = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
+  const nextLesson = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
+  const isLastLesson = lessonIndex === lessons.length - 1;
+  const quizLink = moduleData.hasQuiz ? `quiz.html?module=${moduleId}` : null;
 
-    (lessonId-1);
+  html += `
+    <div class="nav-buttons">
+      ${prevLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${prevLesson.id}" class="btn-secondary"><i class="fa-solid fa-arrow-left"></i> Previous</a>` : '<span></span>'}
+      ${nextLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${nextLesson.id}" class="btn-secondary">Next <i class="fa-solid fa-arrow-right"></i></a>` : (isLastLesson && quizLink ? `<a href="${quizLink}" class="btn-primary">Take Quiz <i class="fa-solid fa-arrow-right"></i></a>` : '')}
+    </div>
+  `;
 
-};
+  container.innerHTML = html;
 
-/* ======================================================
-   NEXT
-====================================================== */
+  const markBtn = document.getElementById('markCompleteBtn');
+  if (markBtn && !isCompleted) {
+    markBtn.addEventListener('click', markComplete);
+  }
+}
 
-nextLesson.onclick=function(){
-
-    if(
-
-        lessonId===
-
-        currentModule.lessons.length
-
-    ){
-
-        location.href=
-
-        "module.html?module="+
-
-        Math.min(
-
-            moduleId+1,
-
-            Academy.getModules().length
-
-        );
-
-        return;
-
+async function markComplete() {
+  if (!currentUser) return;
+  try {
+    const progressRef = doc(db, "user_progress", currentUser.uid);
+    const progressSnap = await getDoc(progressRef);
+    let data = progressSnap.exists() ? progressSnap.data() : { modules: {} };
+    if (!data.modules) data.modules = {};
+    if (!data.modules[moduleId]) data.modules[moduleId] = { completedLessons: [] };
+    if (!data.modules[moduleId].completedLessons.includes(lessonId)) {
+      data.modules[moduleId].completedLessons.push(lessonId);
+      await setDoc(progressRef, data, { merge: true });
+      // Update local progress
+      progress = data;
+      alert('✅ Lesson marked complete!');
+      renderLesson(); // refresh to disable button and update UI
     }
-
-    location.href=
-
-    "lesson.html?module="+
-
-    moduleId+
-
-    "&lesson="+
-
-    (lessonId+1);
-
-};
-
-/* ======================================================
-   COMPLETE
-====================================================== */
-
-completeLesson.onclick=function(){
-
-    Academy.completeLesson(
-
-        moduleId,
-
-        lessonId
-
-    );
-
-    alert(
-
-        "Lesson Completed Successfully!"
-
-    );
-
-    buildSidebar();
-
-};
-
-/* ======================================================
-   PDF
-====================================================== */
-
-downloadPDF.onclick=function(){
-
-    if(currentLesson.pdf){
-
-        window.open(
-
-            currentLesson.pdf,
-
-            "_blank"
-
-        );
-
-    }
-
-};
-
-/* ======================================================
-   BUTTONS
-====================================================== */
-
-previousLesson.disabled=
-
-lessonId===1;
-
-nextLesson.disabled=false;
-
-/* ======================================================
-   START
-====================================================== */
-
-loadLesson();
-
-buildSidebar();
-
-console.log(
-
-"✅ Lesson Loaded"
-
-);
+  } catch (e) {
+    console.error(e);
+    alert('❌ Error marking complete.');
+  }
+}
