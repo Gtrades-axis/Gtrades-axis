@@ -4,147 +4,277 @@
 // PART 1
 // ======================================================
 
-// =============================================
-// GET URL PARAMETERS
-// =============================================
+"use strict";
 
-const params = new URLSearchParams(window.location.search);
+/* ======================================================
+   URL PARAMETERS
+====================================================== */
 
-const moduleId = parseInt(params.get("module")) || 1;
+const params=new URLSearchParams(
 
-const lessonId = parseInt(params.get("lesson")) || 1;
+    window.location.search
 
-// =============================================
-// HTML ELEMENTS
-// =============================================
-
-const moduleName = document.getElementById("moduleName");
-
-const lessonSidebar = document.getElementById("lessonSidebar");
-
-const lessonNumber = document.getElementById("lessonNumber");
-
-const lessonTitle = document.getElementById("lessonTitle");
-
-const lessonDescription = document.getElementById("lessonDescription");
-
-const lessonVideo = document.getElementById("lessonVideo");
-
-const lessonNotes = document.getElementById("lessonNotes");
-
-const downloadPDF = document.getElementById("downloadPDF");
-
-const previousLesson = document.getElementById("previousLesson");
-
-const nextLesson = document.getElementById("nextLesson");
-
-const completeLesson = document.getElementById("completeLesson");
-
-// =============================================
-// LOAD CURRENT MODULE
-// =============================================
-
-const currentModule = academyData.find(
-    module => module.id === moduleId
 );
 
-// =============================================
-// MODULE VALIDATION
-// =============================================
+const moduleId=
+
+parseInt(
+
+    params.get("module")
+
+)||1;
+
+const lessonId=
+
+parseInt(
+
+    params.get("lesson")
+
+)||1;
+
+/* ======================================================
+   HTML ELEMENTS
+====================================================== */
+
+const moduleName=
+
+document.getElementById(
+
+    "moduleName"
+
+);
+
+const lessonSidebar=
+
+document.getElementById(
+
+    "lessonSidebar"
+
+);
+
+const lessonNumber=
+
+document.getElementById(
+
+    "lessonNumber"
+
+);
+
+const lessonTitle=
+
+document.getElementById(
+
+    "lessonTitle"
+
+);
+
+const lessonDescription=
+
+document.getElementById(
+
+    "lessonDescription"
+
+);
+
+const lessonVideo=
+
+document.getElementById(
+
+    "lessonVideo"
+
+);
+
+const lessonNotes=
+
+document.getElementById(
+
+    "lessonNotes"
+
+);
+
+const downloadPDF=
+
+document.getElementById(
+
+    "downloadPDF"
+
+);
+
+const previousLesson=
+
+document.getElementById(
+
+    "previousLesson"
+
+);
+
+const nextLesson=
+
+document.getElementById(
+
+    "nextLesson"
+
+);
+
+const completeLesson=
+
+document.getElementById(
+
+    "completeLesson"
+
+);
+
+/* ======================================================
+   LOAD DATA
+====================================================== */
+
+const currentModule=
+
+Academy.getModule(
+
+    moduleId
+
+);
 
 if(!currentModule){
 
-    alert("Module not found.");
+    window.location.href=
 
-    window.location.href="premium-academy.html";
+    "premium-academy.html";
 
-    throw new Error("Module not found");
+    throw new Error(
+
+        "Module not found."
+
+    );
 
 }
 
-// =============================================
-// LOAD CURRENT LESSON
-// =============================================
+const currentLesson=
 
-const currentLesson = currentModule.lessons.find(
-    lesson => lesson.id === lessonId
+Academy.getLesson(
+
+    moduleId,
+
+    lessonId
+
 );
-
-// =============================================
-// LESSON VALIDATION
-// =============================================
 
 if(!currentLesson){
 
-    alert("Lesson not found.");
+    window.location.href=
 
-    window.location.href=`module.html?id=${moduleId}`;
+    `module.html?id=${moduleId}`;
 
-    throw new Error("Lesson not found");
+    throw new Error(
+
+        "Lesson not found."
+
+    );
 
 }
 
-// =============================================
-// COMPLETED LESSONS
-// =============================================
+/* ======================================================
+   SAVE CURRENT LESSON
+====================================================== */
 
-let completedLessons = JSON.parse(
+Academy.setCurrentLesson(
 
-    localStorage.getItem(
+    moduleId,
 
-        `module_${moduleId}_progress`
+    lessonId
 
-    )
+);
 
-) || [];
-
-// =============================================
-// LOAD LESSON
-// =============================================
+/* ======================================================
+   LOAD LESSON
+====================================================== */
 
 function loadLesson(){
 
-    moduleName.textContent=currentModule.title;
+    moduleName.textContent=
 
-    lessonNumber.textContent=`Lesson ${lessonId}`;
+    currentModule.title;
 
-    lessonTitle.textContent=currentLesson.title;
+    lessonNumber.textContent=
+
+    "Lesson "+lessonId;
+
+    lessonTitle.textContent=
+
+    currentLesson.title;
 
     lessonDescription.textContent=
 
-    "Complete this lesson before proceeding to the next lesson.";
+    currentLesson.description;
 
-    // -----------------------------
-    // VIDEO
-    // -----------------------------
+    loadVideo();
 
-    if(currentLesson.video && currentLesson.video !== ""){
+    loadNotes();
 
-        lessonVideo.src=currentLesson.video;
+}
 
-    }else{
+/* ======================================================
+   LOAD VIDEO
+====================================================== */
+
+function loadVideo(){
+
+    if(
+
+        currentLesson.video &&
+
+        currentLesson.video!=="" 
+
+    ){
+
+        lessonVideo.src=
+
+        currentLesson.video;
+
+    }
+
+    else{
 
         lessonVideo.src="";
 
     }
 
-    // -----------------------------
-    // NOTES
-    // -----------------------------
+}
 
-    if(currentLesson.notes && currentLesson.notes !== ""){
+/* ======================================================
+   LOAD NOTES
+====================================================== */
 
-        lessonNotes.innerHTML=currentLesson.notes;
+function loadNotes(){
 
-    }else{
+    if(
+
+        currentLesson.notes &&
+
+        currentLesson.notes!=="" 
+
+    ){
+
+        lessonNotes.innerHTML=
+
+        currentLesson.notes;
+
+    }
+
+    else{
 
         lessonNotes.innerHTML=`
 
-            <h3>Lesson Notes</h3>
+            <h3>
+
+                Lesson Notes
+
+            </h3>
 
             <p>
 
-            Lesson notes have not been uploaded yet.
+                Lesson notes have not yet been uploaded.
 
             </p>
 
@@ -152,8 +282,8 @@ function loadLesson(){
 
             <p>
 
-            Your instructor will upload the lesson notes
-            through the Admin Portal.
+                They will appear here automatically after
+                being uploaded from the Admin Portal.
 
             </p>
 
@@ -162,9 +292,9 @@ function loadLesson(){
     }
 
 }
-// ======================================================
-// BUILD LESSON SIDEBAR
-// ======================================================
+/* ======================================================
+   BUILD LESSON SIDEBAR
+====================================================== */
 
 function buildSidebar(){
 
@@ -172,65 +302,75 @@ function buildSidebar(){
 
     currentModule.lessons.forEach((lesson,index)=>{
 
-        const completed=completedLessons.includes(lesson.id);
+        const completed=
 
-        const active=lesson.id===lessonId;
+        Academy.lessonCompleted(
 
-        const unlocked=
+            moduleId,
 
-            index===0 ||
+            lesson.id
 
-            completedLessons.includes(
+        );
 
-                currentModule.lessons[index-1].id
+        const locked=
 
-            );
+        Academy.lessonLocked(
 
-        let className="lesson-sidebar-item";
+            moduleId,
 
-        if(active){
+            lesson.id
 
-            className+=" active";
+        );
 
-        }
+        const active=
 
-        if(completed){
+        lesson.id===lessonId;
 
-            className+=" completed";
+        const item=
 
-        }
+        document.createElement("div");
 
-        if(!unlocked){
+        item.className="lesson-sidebar-item";
 
-            className+=" locked";
+        if(active)
 
-        }
+            item.classList.add("active");
 
-        lessonSidebar.innerHTML+=`
+        if(completed)
 
-        <div
+            item.classList.add("completed");
 
-        class="${className}"
+        if(locked)
 
-        ${unlocked ? `onclick="goLesson(${lesson.id})"` : ""}
+            item.classList.add("locked");
 
-        >
+        item.innerHTML=`
 
-            <div class="lesson-sidebar-top">
+            <div class="lesson-sidebar-header">
 
-                <h4>
+                <span>
 
                     Lesson ${lesson.id}
 
-                </h4>
+                </span>
 
-                ${completed ?
+                ${completed
 
-                `<i class="fas fa-circle-check"></i>`
+                    ?
 
-                :
+                    `<i class="fas fa-circle-check"></i>`
 
-                ""
+                    :
+
+                    locked
+
+                    ?
+
+                    `<i class="fas fa-lock"></i>`
+
+                    :
+
+                    `<i class="fas fa-play"></i>`
 
                 }
 
@@ -242,17 +382,31 @@ function buildSidebar(){
 
             </p>
 
-        </div>
-
         `;
+
+        if(!locked){
+
+            item.onclick=()=>{
+
+                goLesson(
+
+                    lesson.id
+
+                );
+
+            };
+
+        }
+
+        lessonSidebar.appendChild(item);
 
     });
 
 }
 
-// ======================================================
-// GO TO LESSON
-// ======================================================
+/* ======================================================
+   OPEN LESSON
+====================================================== */
 
 function goLesson(id){
 
@@ -262,51 +416,47 @@ function goLesson(id){
 
 }
 
-// ======================================================
-// PREVIOUS LESSON
-// ======================================================
+/* ======================================================
+   PREVIOUS LESSON
+====================================================== */
 
-previousLesson.onclick=()=>{
+previousLesson.onclick=function(){
 
-    if(lessonId===1){
+    if(lessonId<=1)
 
         return;
 
-    }
+    goLesson(
 
-    window.location.href=
+        lessonId-1
 
-    `lesson.html?module=${moduleId}&lesson=${lessonId-1}`;
+    );
 
 };
 
-// ======================================================
-// NEXT LESSON
-// ======================================================
+/* ======================================================
+   NEXT LESSON
+====================================================== */
 
-nextLesson.onclick=()=>{
+nextLesson.onclick=function(){
 
     if(
 
-        lessonId===currentModule.lessons.length
+        !Academy.lessonCompleted(
+
+            moduleId,
+
+            lessonId
+
+        )
 
     ){
 
-        return;
+        showToast(
 
-    }
+            "Complete this lesson before continuing.",
 
-    const next=lessonId+1;
-
-    const unlocked=
-
-        completedLessons.includes(lessonId);
-
-    if(!unlocked){
-
-        alert(
-
-        "Complete this lesson before continuing."
+            "error"
 
         );
 
@@ -314,15 +464,25 @@ nextLesson.onclick=()=>{
 
     }
 
-    window.location.href=
+    if(
 
-    `lesson.html?module=${moduleId}&lesson=${next}`;
+        lessonId>=currentModule.lessons.length
+
+    )
+
+        return;
+
+    goLesson(
+
+        lessonId+1
+
+    );
 
 };
 
-// ======================================================
-// UPDATE NAVIGATION
-// ======================================================
+/* ======================================================
+   UPDATE NAVIGATION
+====================================================== */
 
 function updateNavigation(){
 
@@ -332,116 +492,127 @@ function updateNavigation(){
 
     nextLesson.disabled=
 
-    lessonId===currentModule.lessons.length;
+    lessonId===
+
+    currentModule.lessons.length;
 
 }
-// ======================================================
-// COMPLETE LESSON
-// ======================================================
 
-completeLesson.onclick=()=>{
+/* ======================================================
+   UPDATE BUTTON
+====================================================== */
 
-    if(!completedLessons.includes(lessonId)){
-
-        completedLessons.push(lessonId);
-
-    }
-
-    localStorage.setItem(
-
-        `module_${moduleId}_progress`,
-
-        JSON.stringify(completedLessons)
-
-    );
-
-    // -----------------------------
-    // MODULE COMPLETED
-    // -----------------------------
+function updateCompleteButton(){
 
     if(
 
-        completedLessons.length===
+        Academy.lessonCompleted(
 
-        currentModule.lessons.length
+            moduleId,
+
+            lessonId
+
+        )
 
     ){
 
-        const academy=
+        completeLesson.innerHTML=`
 
-        JSON.parse(
+            <i class="fas fa-circle-check"></i>
 
-            localStorage.getItem(
+            Lesson Completed
 
-                "gtradesAcademy"
+        `;
 
-            )
-
-        ) || {};
-
-        academy.completedModules=
-
-            Math.max(
-
-                academy.completedModules||0,
-
-                moduleId
-
-            );
-
-        academy.currentModule=
-
-            Math.min(
-
-                moduleId+1,
-
-                academyData.length
-
-            );
-
-        localStorage.setItem(
-
-            "gtradesAcademy",
-
-            JSON.stringify(academy)
-
-        );
-
-        showToast(
-
-            "🎉 Module Completed Successfully!"
-
-        );
+        completeLesson.disabled=true;
 
     }
 
-    else{
+}
+/* ======================================================
+   COMPLETE LESSON
+====================================================== */
 
-        showToast(
+completeLesson.onclick=function(){
 
-            "✅ Lesson Completed!"
+    if(
 
-        );
+        Academy.lessonCompleted(
+
+            moduleId,
+
+            lessonId
+
+        )
+
+    ){
+
+        return;
 
     }
+
+    Academy.completeLesson(
+
+        moduleId,
+
+        lessonId
+
+    );
+
+    updateCompleteButton();
 
     buildSidebar();
 
     updateNavigation();
 
+    showToast(
+
+        "Lesson completed successfully."
+
+    );
+
+    // Last lesson in module
+    if(
+
+        lessonId===
+
+        currentModule.lessons.length
+
+    ){
+
+        if(
+
+            Academy.moduleCompleted(
+
+                moduleId
+
+            )
+
+        ){
+
+            showToast(
+
+                "🎉 Module Completed!"
+
+            );
+
+        }
+
+    }
+
 };
 
-// ======================================================
-// DOWNLOAD PDF
-// ======================================================
+/* ======================================================
+   DOWNLOAD PDF
+====================================================== */
 
-downloadPDF.onclick=()=>{
+downloadPDF.onclick=function(){
 
     if(
 
         currentLesson.pdf &&
 
-        currentLesson.pdf!=="" 
+        currentLesson.pdf!==""
 
     ){
 
@@ -459,7 +630,9 @@ downloadPDF.onclick=()=>{
 
         showToast(
 
-            "PDF not uploaded yet."
+            "PDF has not been uploaded yet.",
+
+            "error"
 
         );
 
@@ -467,21 +640,212 @@ downloadPDF.onclick=()=>{
 
 };
 
-// ======================================================
-// TOAST NOTIFICATION
-// ======================================================
+/* ======================================================
+   LESSON TIMER
+====================================================== */
 
-function showToast(message){
+let lessonStart=
+
+Date.now();
+
+window.addEventListener(
+
+    "beforeunload",
+
+    ()=>{
+
+        const minutes=
+
+        Math.max(
+
+            1,
+
+            Math.round(
+
+                (Date.now()-lessonStart)
+
+                /60000
+
+            )
+
+        );
+
+        Academy.addStudyTime(
+
+            minutes
+
+        );
+
+    }
+
+);
+
+/* ======================================================
+   PERSONAL NOTES
+====================================================== */
+
+const personalNotes=
+
+document.getElementById(
+
+    "personalNotes"
+
+);
+
+if(personalNotes){
+
+    personalNotes.value=
+
+    Academy.getPersonalNotes(
+
+        moduleId,
+
+        lessonId
+
+    );
+
+    personalNotes.addEventListener(
+
+        "keyup",
+
+        ()=>{
+
+            Academy.savePersonalNotes(
+
+                moduleId,
+
+                lessonId,
+
+                personalNotes.value
+
+            );
+
+        }
+
+    );
+
+}
+
+/* ======================================================
+   BOOKMARK
+====================================================== */
+
+const bookmarkBtn=
+
+document.getElementById(
+
+    "bookmarkLesson"
+
+);
+
+if(bookmarkBtn){
+
+    bookmarkBtn.onclick=function(){
+
+        Academy.bookmarkLesson(
+
+            moduleId,
+
+            lessonId
+
+        );
+
+        showToast(
+
+            "Lesson bookmarked."
+
+        );
+
+    };
+
+}
+
+/* ======================================================
+   LESSON STATUS
+====================================================== */
+
+function updateLessonStatus(){
+
+    const status=
+
+    document.getElementById(
+
+        "lessonStatus"
+
+    );
+
+    if(!status) return;
+
+    if(
+
+        Academy.lessonCompleted(
+
+            moduleId,
+
+            lessonId
+
+        )
+
+    ){
+
+        status.innerHTML=`
+
+            <i class="fas fa-circle-check"></i>
+
+            Completed
+
+        `;
+
+    }
+
+    else{
+
+        status.innerHTML=`
+
+            <i class="fas fa-book-open"></i>
+
+            In Progress
+
+        `;
+
+    }
+
+}
+/* ======================================================
+   TOAST NOTIFICATION
+====================================================== */
+
+function showToast(message,type="success"){
+
+    const oldToast=document.querySelector(".academy-toast");
+
+    if(oldToast){
+
+        oldToast.remove();
+
+    }
 
     const toast=document.createElement("div");
 
-    toast.className="academy-toast";
+    toast.className=`academy-toast ${type}`;
 
     toast.innerHTML=`
 
-        <i class="fas fa-circle-check"></i>
+        <div class="toast-icon">
 
-        <span>${message}</span>
+            <i class="fas ${
+                type==="success"
+                ?"fa-circle-check"
+                :"fa-circle-exclamation"
+            }"></i>
+
+        </div>
+
+        <div class="toast-message">
+
+            ${message}
+
+        </div>
 
     `;
 
@@ -507,34 +871,142 @@ function showToast(message){
 
 }
 
-// ======================================================
-// SAVE LAST LESSON
-// ======================================================
+/* ======================================================
+   KEYBOARD SHORTCUTS
+====================================================== */
 
-localStorage.setItem(
+document.addEventListener(
 
-    "lastLesson",
+    "keydown",
 
-    JSON.stringify({
+    function(e){
 
-        module:moduleId,
+        // Left Arrow
 
-        lesson:lessonId
+        if(e.key==="ArrowLeft"){
 
-    })
+            previousLesson.click();
+
+        }
+
+        // Right Arrow
+
+        if(e.key==="ArrowRight"){
+
+            nextLesson.click();
+
+        }
+
+        // Escape
+
+        if(e.key==="Escape"){
+
+            window.location.href=
+
+            `module.html?id=${moduleId}`;
+
+        }
+
+    }
 
 );
 
-// ======================================================
-// INITIALIZE
-// ======================================================
+/* ======================================================
+   REFRESH PAGE
+====================================================== */
 
-loadLesson();
+function refreshLesson(){
 
-buildSidebar();
+    loadLesson();
 
-updateNavigation();
+    buildSidebar();
 
-// ======================================================
-// END OF FILE
-// ======================================================
+    updateNavigation();
+
+    updateCompleteButton();
+
+    updateLessonStatus();
+
+}
+
+/* ======================================================
+   AUTO REFRESH
+====================================================== */
+
+window.addEventListener(
+
+    "focus",
+
+    ()=>{
+
+        refreshLesson();
+
+    }
+
+);
+
+window.addEventListener(
+
+    "storage",
+
+    ()=>{
+
+        refreshLesson();
+
+    }
+
+);
+
+/* ======================================================
+   INITIALIZE PAGE
+====================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    ()=>{
+
+        Academy.init();
+
+        loadLesson();
+
+        buildSidebar();
+
+        updateNavigation();
+
+        updateCompleteButton();
+
+        updateLessonStatus();
+
+    }
+
+);
+
+/* ======================================================
+   GLOBAL FUNCTIONS
+====================================================== */
+
+window.goLesson=goLesson;
+
+window.refreshLesson=refreshLesson;
+
+/* ======================================================
+   LESSON PLAYER READY
+====================================================== */
+
+console.log(
+
+    "GTRADES-AXIS™ Lesson Player Loaded",
+
+    currentModule.title,
+
+    "- Lesson",
+
+    lessonId
+
+);
+
+/* ======================================================
+   END OF FILE
+====================================================== */
