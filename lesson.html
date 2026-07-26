@@ -1,260 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson | GTRADES-AXIS™</title>
 
-<meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/academy.css" />
+  <link rel="stylesheet" href="css/style.css" />
 
-<title>Lesson | GTRADES-AXIS™ Premium Academy</title>
-
-<link rel="preconnect"
-href="https://fonts.googleapis.com">
-
-<link rel="preconnect"
-href="https://fonts.gstatic.com"
-crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-<link rel="stylesheet"
-href="premium-academy.css">
-
-<link rel="stylesheet"
-href="lesson.css">
-
+  <style>
+    /* ─── Lesson Player Specific Styles ─── */
+    .lesson-player {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .lesson-player .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .lesson-player .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .lesson-player .pdf-download {
+      margin: 10px 0;
+    }
+    .lesson-player .pdf-download a {
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .lesson-player .pdf-download a:hover {
+      text-decoration: underline;
+    }
+    .lesson-player .notes-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 12px 0;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+    .lesson-player .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .lesson-player .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 12px;
+    }
+    .lesson-player .nav-buttons .btn {
+      padding: 8px 20px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="lesson-layout">
+<div class="academy-app">
 
-    <!-- =========================================
-    SIDEBAR
-    ========================================== -->
+  <!-- SIDEBAR -->
+  <aside class="academy-sidebar">
+    <div class="logo">
+      <img src="images/logo.png" alt="GTRADES-AXIS" />
+      <h2>GTRADES <span>AXIS™</span></h2>
+    </div>
+    <nav>
+      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
+      <a href="academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
+      <a href="resources.html"><i class="fa-solid fa-folder-open"></i> Resources</a>
+      <a href="journal.html"><i class="fa-solid fa-book"></i> Journal</a>
+      <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+      <a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+    </nav>
+    <button id="logoutBtn" class="logout-btn">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </aside>
 
-    <aside class="lesson-sidebar">
+  <!-- MAIN -->
+  <main class="academy-main">
+    <div class="lesson-player">
 
-        <div class="sidebar-header">
-
-            <button
-
-            class="back-btn"
-
-            onclick="history.back()">
-
-                <i class="fas fa-arrow-left"></i>
-
-                Back
-
-            </button>
-
-            <h2>
-
-                Lesson List
-
-            </h2>
-
-            <p id="moduleName">
-
-                Loading...
-
-            </p>
-
+      <!-- Header -->
+      <header class="academy-header">
+        <div>
+          <h1 id="lessonTitle">Loading...</h1>
+          <p id="moduleTitle">Loading module...</p>
         </div>
-
-        <div
-
-        id="lessonSidebar"
-
-        class="lesson-sidebar-list">
-
+        <div class="header-actions">
+          <a href="academy.html" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Back to Academy</a>
         </div>
-
-    </aside>
-
-    <!-- =========================================
-    MAIN CONTENT
-    ========================================== -->
-
-    <main class="lesson-content">
-
-        <!-- Lesson Header -->
-
-        <section class="lesson-header">
-
-            <span
-
-            id="lessonNumber"
-
-            class="lesson-tag">
-
-                Lesson
-
-            </span>
-
-            <h1
-
-            id="lessonTitle">
-
-                Loading...
-
-            </h1>
-
-            <p
-
-            id="lessonDescription">
-
-                Loading lesson...
-
-            </p>
-
-        </section>
-
-        <!-- ==============================
-        VIDEO PLAYER
-        =============================== -->
-
-        <section class="video-card">
-
-            <div class="video-wrapper">
-
-                <iframe
-
-                id="lessonVideo"
-
-                src=""
-
-                title="Lesson Video"
-
-                allowfullscreen>
-
-                </iframe>
-
-            </div>
-
-        </section>
-
-        <!-- ==============================
-        LESSON NOTES
-        =============================== -->
-
-        <section class="notes-card">
-
-            <div class="card-title">
-
-                <h2>
-
-                    Lesson Notes
-
-                </h2>
-
-            </div>
-
-            <div
-
-            id="lessonNotes"
-
-            class="lesson-notes">
-
-                Lesson notes will appear here.
-
-            </div>
-
-        </section>
-
-        <!-- ==============================
-        DOWNLOADS
-        =============================== -->
-
-        <section class="downloads-card">
-
-            <div class="card-title">
-
-                <h2>
-
-                    Resources
-
-                </h2>
-
-            </div>
-
-            <div class="downloads">
-
-                <button
-
-                id="downloadPDF"
-
-                class="download-btn">
-
-                    <i class="fas fa-file-pdf"></i>
-
-                    Download PDF
-
-                </button>
-
-            </div>
-
-        </section>
-
-        <!-- ==============================
-        NAVIGATION
-        =============================== -->
-
-        <section class="lesson-navigation">
-
-            <button
-
-            id="previousLesson"
-
-            class="nav-btn">
-
-                <i class="fas fa-arrow-left"></i>
-
-                Previous
-
-            </button>
-
-            <button
-
-            id="completeLesson"
-
-            class="complete-btn">
-
-                ✓ Complete Lesson
-
-            </button>
-
-            <button
-
-            id="nextLesson"
-
-            class="nav-btn">
-
-                Next
-
-                <i class="fas fa-arrow-right"></i>
-
-            </button>
-
-        </section>
-
-    </main>
-
+      </header>
+
+      <!-- Lesson Content -->
+      <div id="lessonContent">
+        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading lesson…</div>
+      </div>
+
+    </div>
+  </main>
 </div>
 
-<script src="js/academyData.js"></script>
+<!-- Scroll to top -->
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
-<script src="js/academy.js"></script>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/lesson.js"></script>
 
-<script src="js/lesson.js"></script>
+<script>
+  (function() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+      btn.classList.toggle('visible', window.scrollY > 250);
+    });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
 
 </body>
-
 </html>
