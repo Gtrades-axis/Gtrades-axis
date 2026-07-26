@@ -604,7 +604,105 @@ Academy.getPersonalNotes=function(
     return this.progress.notes[key]||"";
 
 };
+/* ======================================================
+   ACADEMY STATISTICS
+====================================================== */
 
+Academy.statistics=function(){
+
+    let totalLessons=0;
+
+    let completedLessons=0;
+
+    let totalModules=this.data.length;
+
+    this.data.forEach(module=>{
+
+        totalLessons+=module.lessons.length;
+
+        completedLessons+=this.getCompletedLessonCount(module.id);
+
+    });
+
+    return{
+
+        modules:totalModules,
+
+        completedModules:this.progress.completedModules,
+
+        totalLessons:totalLessons,
+
+        completedLessons:completedLessons,
+
+        overallProgress:this.getOverallProgress(),
+
+        studyTime:this.getStudyTime(),
+
+        certificates:this.progress.certificates.length,
+
+        quizzes:Object.keys(this.progress.quizzes).length
+
+    };
+
+};
+
+/* ======================================================
+   RECENT ACTIVITY
+====================================================== */
+
+Academy.getRecentActivity=function(){
+
+    const activity=[];
+
+    this.data.forEach(module=>{
+
+        const completed=
+
+        this.progress.completedLessons[module.id]||[];
+
+        completed.forEach(id=>{
+
+            const lesson=module.lessons.find(
+
+                l=>l.id===id
+
+            );
+
+            if(lesson){
+
+                activity.push({
+
+                    module:module.title,
+
+                    lesson:lesson.title
+
+                });
+
+            }
+
+        });
+
+    });
+
+    return activity.reverse();
+
+};
+
+/* ======================================================
+   RESET PROGRESS
+====================================================== */
+
+Academy.resetProgress=function(){
+
+    this.progress=structuredClone(
+
+        DEFAULT_PROGRESS
+
+    );
+
+    this.save();
+
+};
 /* ======================================================
    INITIALIZE ENGINE
 ====================================================== */
