@@ -12,15 +12,13 @@
 
   <!-- Academy Design System -->
   <link rel="stylesheet" href="css/academy.css" />
-
-  <!-- Your existing global styles (if any) -->
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <div class="academy-app">
 
-  <!-- ====== SIDEBAR ====== -->
+  <!-- SIDEBAR -->
   <aside class="academy-sidebar">
     <div class="logo">
       <img src="images/logo.png" alt="GTRADES-AXIS" />
@@ -39,10 +37,9 @@
     </button>
   </aside>
 
-  <!-- ====== MAIN CONTENT ====== -->
+  <!-- MAIN CONTENT -->
   <main class="academy-main">
 
-    <!-- Header -->
     <header class="academy-header">
       <div>
         <h1><i class="fa-solid fa-graduation-cap"></i> Premium Academy</h1>
@@ -54,13 +51,11 @@
       </div>
     </header>
 
-    <!-- Welcome -->
     <section class="welcome-section">
       <div class="greeting">Welcome back, <span id="userName">Trader</span> 👋</div>
       <div class="date"><i class="fa-regular fa-calendar"></i> <span id="todayDate"></span></div>
     </section>
 
-    <!-- Continue Learning -->
     <section class="continue-learning" id="continueSection">
       <div class="info">
         <div class="module-name" id="continueModule">Loading…</div>
@@ -69,18 +64,15 @@
       <a href="#" class="btn btn-primary" id="continueBtn">Continue ▶</a>
     </section>
 
-    <!-- Overall Progress -->
     <section class="overall-progress">
       <div class="label"><span>Overall Progress</span><span id="progressPercent">0%</span></div>
       <div class="bar"><div class="fill" id="progressFill" style="width:0%;"></div></div>
     </section>
 
-    <!-- Module Grid -->
     <section id="moduleGrid" class="module-grid">
       <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading modules…</div>
     </section>
 
-    <!-- Achievements -->
     <section class="achievements" id="achievementsSection">
       <span class="badge"><i class="fa-regular fa-star"></i> Complete modules to earn achievements</span>
     </section>
@@ -91,6 +83,7 @@
 <!-- Scroll to top -->
 <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
+<!-- ✅ SINGLE instance of each module script -->
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/academy.js"></script>
 
@@ -106,7 +99,6 @@
     });
   })();
 </script>
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/academy.js"></script>
+
 </body>
 </html>
