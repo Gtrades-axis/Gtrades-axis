@@ -123,35 +123,41 @@ Logout
 <!-- ===========================================
 MAIN
 =========================================== -->
-
 <main class="main-content">
+
+<!-- ===========================================
+PAGE HEADER
+=========================================== -->
 
 <div class="page-header">
 
-<div>
+    <div>
 
-<h1>
+        <h1>
 
-Trade History
+            Professional Trade History
 
-</h1>
+        </h1>
 
-<p>
+        <p>
 
-Review every trade ever taken.
+            Review, manage and improve every trade you've ever executed.
 
-</p>
+        </p>
 
-</div>
+    </div>
 
-<a href="journal.html"
-class="btn">
+    <div class="page-actions">
 
-<i class="fa-solid fa-plus"></i>
+        <a href="journal.html" class="btn btn-primary">
 
-New Trade
+            <i class="fa-solid fa-plus"></i>
 
-</a>
+            Add New Trade
+
+        </a>
+
+    </div>
 
 </div>
 
@@ -161,101 +167,89 @@ SUMMARY
 
 <section class="history-summary">
 
-<div class="summary-card">
+    <div class="summary-card">
 
-<h2 id="historyTotalTrades">
+        <i class="fa-solid fa-chart-column"></i>
 
-0
+        <div>
 
-</h2>
+            <h2 id="historyTotalTrades">0</h2>
 
-<p>
+            <p>Total Trades</p>
 
-Total Trades
+        </div>
 
-</p>
+    </div>
 
-</div>
+    <div class="summary-card">
 
-<div class="summary-card">
+        <i class="fa-solid fa-hourglass-half"></i>
 
-<h2 id="historyPending">
+        <div>
 
-0
+            <h2 id="historyPending">0</h2>
 
-</h2>
+            <p>Pending Trades</p>
 
-<p>
+        </div>
 
-Pending
+    </div>
 
-</p>
+    <div class="summary-card">
 
-</div>
+        <i class="fa-solid fa-circle-check"></i>
 
-<div class="summary-card">
+        <div>
 
-<h2 id="historyClosed">
+            <h2 id="historyClosed">0</h2>
 
-0
+            <p>Closed Trades</p>
 
-</h2>
+        </div>
 
-<p>
+    </div>
 
-Closed
+    <div class="summary-card">
 
-</p>
+        <i class="fa-solid fa-trophy"></i>
 
-</div>
+        <div>
 
-<div class="summary-card">
+            <h2 id="historyWins">0</h2>
 
-<h2 id="historyWins">
+            <p>Winning Trades</p>
 
-0
+        </div>
 
-</h2>
+    </div>
 
-<p>
+    <div class="summary-card">
 
-Wins
+        <i class="fa-solid fa-xmark"></i>
 
-</p>
+        <div>
 
-</div>
+            <h2 id="historyLosses">0</h2>
 
-<div class="summary-card">
+            <p>Losing Trades</p>
 
-<h2 id="historyLosses">
+        </div>
 
-0
+    </div>
 
-</h2>
+    <div class="summary-card">
 
-<p>
+        <i class="fa-solid fa-sack-dollar"></i>
 
-Losses
+        <div>
 
-</p>
+            <h2 id="historyProfit">$0.00</h2>
 
-</div>
+            <p>Net Profit</p>
 
-<div class="summary-card">
+        </div>
 
-<h2 id="historyProfit">
-
-$0
-
-</h2>
-
-<p>
-
-Net Profit
-
-</p>
-
-</div>
+    </div>
 
 </section>
 
@@ -265,91 +259,54 @@ FILTERS
 
 <section class="filter-card">
 
-<div class="filter-grid">
+    <div class="filter-grid">
 
-<input
+        <input
+            type="text"
+            id="searchTrade"
+            placeholder="Search Pair...">
 
-type="text"
+        <select id="statusFilter">
 
-id="searchTrade"
+            <option value="All">All Status</option>
 
-placeholder="Search Pair...">
+            <option value="Pending">Pending</option>
 
-<select id="statusFilter">
+            <option value="Closed">Closed</option>
 
-<option value="All">
+        </select>
 
-All Status
+        <select id="resultFilter">
 
-</option>
+            <option value="All">All Results</option>
 
-<option value="Pending">
+            <option value="Win">Win</option>
 
-Pending
+            <option value="Loss">Loss</option>
 
-</option>
+            <option value="Break Even">Break Even</option>
 
-<option value="Closed">
+        </select>
 
-Closed
+        <select id="pairFilter">
 
-</option>
+            <option>All Pairs</option>
 
-</select>
+        </select>
 
-<select id="resultFilter">
+        <input
+            type="date"
+            id="dateFilter">
 
-<option value="All">
+        <button
+            class="btn"
+            id="clearFilters">
 
-All Results
+            Clear Filters
 
-</option>
+        </button>
 
-<option value="Win">
-
-Win
-
-</option>
-
-<option value="Loss">
-
-Loss
-
-</option>
-
-<option value="Break Even">
-
-Break Even
-
-</option>
-
-</select>
-
-<select id="pairFilter">
-
-<option>
-
-All Pairs
-
-</option>
-
-</select>
-
-<input
-
-type="date"
-
-id="dateFilter">
-
-<button
-class="btn"
-id="clearFilters">
-
-Clear Filters
-
-</button>
-
-</div>
+    </div>
 
 </section>
 
@@ -359,158 +316,159 @@ STATUS TABS
 
 <section class="status-tabs">
 
-<button
+    <button
+        class="tab active"
+        data-status="All">
 
-class="tab active"
+        All Trades
 
-data-status="All">
+    </button>
 
-All
+    <button
+        class="tab"
+        data-status="Pending">
 
-</button>
+        Pending
 
-<button
+    </button>
 
-class="tab"
+    <button
+        class="tab"
+        data-status="Closed">
 
-data-status="Pending">
+        Closed
 
-🟡 Pending
+    </button>
 
-</button>
+    <button
+        class="tab"
+        data-status="Win">
 
-<button
+        Wins
 
-class="tab"
+    </button>
 
-data-status="Closed">
+    <button
+        class="tab"
+        data-status="Loss">
 
-🟢 Closed
+        Losses
 
-</button>
+    </button>
 
-<button
+    <button
+        class="tab"
+        data-status="Break Even">
 
-class="tab"
+        Break Even
 
-data-status="Win">
-
-🏆 Wins
-
-</button>
-
-<button
-
-class="tab"
-
-data-status="Loss">
-
-❌ Losses
-
-</button>
-
-<button
-
-class="tab"
-
-data-status="Break Even">
-
-⚪ Break Even
-
-</button>
+    </button>
 
 </section>
+<!-- ===========================================
 <!-- ===========================================
 TRADE TABLE
 =========================================== -->
 
 <section class="history-card">
 
-<div class="history-header">
+    <div class="history-header">
 
-<h2>
+        <div>
 
-<i class="fa-solid fa-table-list"></i>
+            <h2>
 
-Trade Database
+                <i class="fa-solid fa-table-list"></i>
 
-</h2>
+                Trade Database
 
-<div class="history-actions">
+            </h2>
 
-<button class="btn" id="exportCSV">
+            <p>
 
-<i class="fa-solid fa-file-csv"></i>
+                View, update and manage every trade.
 
-Export CSV
+            </p>
 
-</button>
+        </div>
 
-<button class="btn" id="exportPDF">
+        <div class="history-actions">
 
-<i class="fa-solid fa-file-pdf"></i>
+            <button class="btn" id="exportCSV">
 
-Export PDF
+                <i class="fa-solid fa-file-csv"></i>
 
-</button>
+                Export CSV
 
-</div>
+            </button>
 
-</div>
+            <button class="btn" id="exportPDF">
 
-<div class="table-wrapper">
+                <i class="fa-solid fa-file-pdf"></i>
 
-<table class="trade-table">
+                Export PDF
 
-<thead>
+            </button>
 
-<tr>
+        </div>
 
-<th>Date</th>
+    </div>
 
-<th>Pair</th>
+    <div class="table-wrapper">
 
-<th>Direction</th>
+        <table class="trade-table">
 
-<th>Entry Model</th>
+            <thead>
 
-<th>Session</th>
+                <tr>
 
-<th>Status</th>
+                    <th>Date</th>
 
-<th>Result</th>
+                    <th>Pair</th>
 
-<th>Profit</th>
+                    <th>Direction</th>
 
-<th>RR</th>
+                    <th>Entry Model</th>
 
-<th>Actions</th>
+                    <th>Session</th>
 
-</tr>
+                    <th>Status</th>
 
-</thead>
+                    <th>Result</th>
 
-<tbody id="tradeTableBody">
+                    <th>Profit</th>
 
-<tr>
+                    <th>RR</th>
 
-<td colspan="10">
+                    <th>Charts</th>
 
-<div class="loading-card">
+                    <th>Actions</th>
 
-No trades found.
+                </tr>
 
-</div>
+            </thead>
 
-</td>
+            <tbody id="tradeTableBody">
 
-</tr>
+                <tr>
 
-</tbody>
+                    <td colspan="11">
 
-</table>
+                        <div class="loading-card">
 
-</div>
+                            No trades found.
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </section>
 
@@ -520,55 +478,53 @@ TRADE DETAILS MODAL
 
 <div id="tradeModal" class="modal">
 
-<div class="modal-content">
+    <div class="modal-content large">
 
-<div class="modal-header">
+        <div class="modal-header">
 
-<h2>
+            <h2>
 
-Trade Details
+                Trade Details
 
-</h2>
+            </h2>
 
-<button id="closeModal">
+            <button id="closeModal">
 
-<i class="fa-solid fa-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
 
-</button>
+            </button>
 
-</div>
+        </div>
 
-<div id="modalBody">
+        <div id="modalBody">
 
-<!-- JS inserts trade -->
+        </div>
 
-</div>
+        <div class="modal-footer">
 
-<div class="modal-footer">
+            <button
+                id="editTradeBtn"
+                class="btn">
 
-<button
-id="editTradeBtn"
-class="btn">
+                <i class="fa-solid fa-pen"></i>
 
-<i class="fa-solid fa-pen"></i>
+                Edit
 
-Edit Trade
+            </button>
 
-</button>
+            <button
+                id="deleteTradeBtn"
+                class="btn btn-danger">
 
-<button
-id="deleteTradeBtn"
-class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i>
 
-<i class="fa-solid fa-trash"></i>
+                Delete
 
-Delete Trade
+            </button>
 
-</button>
+        </div>
 
-</div>
-
-</div>
+    </div>
 
 </div>
 
@@ -578,138 +534,171 @@ PENDING TRADE MODAL
 
 <div id="pendingModal" class="modal">
 
-<div class="modal-content">
+    <div class="modal-content large">
 
-<div class="modal-header">
+        <div class="modal-header">
 
-<h2>
+            <h2>
 
-Close Pending Trade
+                Complete Pending Trade
 
-</h2>
+            </h2>
 
-<button id="closePending">
+            <button id="closePending">
 
-<i class="fa-solid fa-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
 
-</button>
+            </button>
 
-</div>
+        </div>
 
-<form id="pendingForm">
+        <form id="pendingForm">
 
-<div class="journal-grid">
+            <div class="journal-grid">
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Result</label>
+                    <label>Trade Result</label>
 
-<select id="pendingResult">
+                    <select id="pendingResult">
 
-<option>Win</option>
+                        <option>Win</option>
 
-<option>Loss</option>
+                        <option>Loss</option>
 
-<option>Break Even</option>
+                        <option>Break Even</option>
 
-</select>
+                    </select>
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Profit</label>
+                    <label>Profit</label>
 
-<input
-type="number"
-step="0.01"
-id="pendingProfit">
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="pendingProfit">
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Commission</label>
+                    <label>Commission</label>
 
-<input
-type="number"
-step="0.01"
-id="pendingCommission">
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="pendingCommission">
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Actual RR</label>
+                    <label>Actual RR</label>
 
-<input
-type="number"
-step="0.10"
-id="pendingRR">
+                    <input
+                        type="number"
+                        step="0.10"
+                        id="pendingRR">
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Management</label>
+                    <label>Trade Management</label>
 
-<select id="pendingManagement">
+                    <select id="pendingManagement">
 
-<option>Excellent</option>
+                        <option>Excellent</option>
 
-<option>Good</option>
+                        <option>Good</option>
 
-<option>Average</option>
+                        <option>Average</option>
 
-<option>Poor</option>
+                        <option>Poor</option>
 
-</select>
+                    </select>
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Psychology</label>
+                    <label>Psychology</label>
 
-<textarea id="pendingPsychology"></textarea>
+                    <textarea id="pendingPsychology"></textarea>
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Lesson Learned</label>
+                    <label>Lesson Learned</label>
 
-<textarea id="pendingLesson"></textarea>
+                    <textarea id="pendingLesson"></textarea>
 
-</div>
+                </div>
 
-<div class="form-group">
+                <div class="form-group">
 
-<label>Improvement</label>
+                    <label>Improvement</label>
 
-<textarea id="pendingImprovement"></textarea>
+                    <textarea id="pendingImprovement"></textarea>
 
-</div>
+                </div>
 
-</div>
+                <div class="form-group">
 
-<div class="save-container">
+                    <label>Before Entry Chart</label>
 
-<button
-type="submit"
-class="btn">
+                    <input
+                        type="url"
+                        id="beforeLink"
+                        placeholder="Paste image URL">
 
-<i class="fa-solid fa-check"></i>
+                </div>
 
-Close Trade
+                <div class="form-group">
 
-</button>
+                    <label>During Trade Chart</label>
 
-</div>
+                    <input
+                        type="url"
+                        id="duringLink"
+                        placeholder="Paste image URL">
 
-</form>
+                </div>
 
-</div>
+                <div class="form-group">
+
+                    <label>After Exit Chart</label>
+
+                    <input
+                        type="url"
+                        id="afterLink"
+                        placeholder="Paste image URL">
+
+                </div>
+
+            </div>
+
+            <div class="save-container">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    Save Trade
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
 

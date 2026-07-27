@@ -1,6 +1,7 @@
 /* ==========================================================
 GTRADES AXIS™
 TRADE HISTORY
+VERSION 2.0
 PART 1
 ========================================================== */
 
@@ -12,9 +13,13 @@ let filteredTrades = [];
 
 let selectedTrade = null;
 
-loadTrades();
+/* ==========================================================
+START
+========================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
+
+    loadTrades();
 
     initializeHistory();
 
@@ -25,77 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTrades();
 
 });
-
-/* ==========================================================
-INITIALIZE
-========================================================== */
-
-function initializeHistory(){
-
-    const search=document.getElementById("searchTrade");
-
-    const status=document.getElementById("statusFilter");
-
-    const result=document.getElementById("resultFilter");
-
-    const pair=document.getElementById("pairFilter");
-
-    const date=document.getElementById("dateFilter");
-
-    const clear=document.getElementById("clearFilters");
-
-    if(search)
-        search.addEventListener("keyup",renderTrades);
-
-    if(status)
-        status.addEventListener("change",renderTrades);
-
-    if(result)
-        result.addEventListener("change",renderTrades);
-
-    if(pair)
-        pair.addEventListener("change",renderTrades);
-
-    if(date)
-        date.addEventListener("change",renderTrades);
-
-    if(clear){
-
-        clear.addEventListener("click",()=>{
-
-            search.value="";
-
-            status.value="All";
-
-            result.value="All";
-
-            pair.selectedIndex=0;
-
-            date.value="";
-
-            renderTrades();
-
-        });
-
-    }
-
-    document.querySelectorAll(".tab").forEach(tab=>{
-
-        tab.addEventListener("click",()=>{
-
-            document.querySelectorAll(".tab")
-
-            .forEach(t=>t.classList.remove("active"));
-
-            tab.classList.add("active");
-
-            renderTrades();
-
-        });
-
-    });
-
-}
 
 /* ==========================================================
 LOCAL STORAGE
@@ -122,6 +56,94 @@ function saveTrades(){
 }
 
 /* ==========================================================
+INITIALIZE
+========================================================== */
+
+function initializeHistory(){
+
+    document.getElementById("searchTrade")?.addEventListener(
+
+        "keyup",
+
+        renderTrades
+
+    );
+
+    document.getElementById("statusFilter")?.addEventListener(
+
+        "change",
+
+        renderTrades
+
+    );
+
+    document.getElementById("resultFilter")?.addEventListener(
+
+        "change",
+
+        renderTrades
+
+    );
+
+    document.getElementById("pairFilter")?.addEventListener(
+
+        "change",
+
+        renderTrades
+
+    );
+
+    document.getElementById("dateFilter")?.addEventListener(
+
+        "change",
+
+        renderTrades
+
+    );
+
+    document.getElementById("clearFilters")?.addEventListener(
+
+        "click",
+
+        ()=>{
+
+            document.getElementById("searchTrade").value="";
+
+            document.getElementById("statusFilter").value="All";
+
+            document.getElementById("resultFilter").value="All";
+
+            document.getElementById("pairFilter").selectedIndex=0;
+
+            document.getElementById("dateFilter").value="";
+
+            renderTrades();
+
+        }
+
+    );
+
+    document.querySelectorAll(".tab").forEach(tab=>{
+
+        tab.addEventListener("click",()=>{
+
+            document.querySelectorAll(".tab").forEach(btn=>{
+
+                btn.classList.remove("active");
+
+            });
+
+            tab.classList.add("active");
+
+            renderTrades();
+
+        });
+
+    });
+
+}
+
+/* ==========================================================
 STATISTICS
 ========================================================== */
 
@@ -129,41 +151,41 @@ function loadStatistics(){
 
     const closed=trades.filter(
 
-        t=>t.status==="Closed"
+        trade=>trade.status==="Closed"
 
     );
 
     const pending=trades.filter(
 
-        t=>t.status==="Pending"
+        trade=>trade.status==="Pending"
 
     );
 
     const wins=closed.filter(
 
-        t=>t.result.outcome==="Win"
+        trade=>trade.result?.outcome==="Win"
 
     );
 
     const losses=closed.filter(
 
-        t=>t.result.outcome==="Loss"
+        trade=>trade.result?.outcome==="Loss"
 
     );
 
-    const profit=closed.reduce(
+    let netProfit=0;
 
-        (sum,t)=>{
+    closed.forEach(trade=>{
 
-            return sum+
+        netProfit+=
 
-            Number(t.result.profit||0)-
+            Number(trade.result?.profit||0)
 
-            Number(t.result.commission||0);
+            -
 
-        },0
+            Number(trade.result?.commission||0);
 
-    );
+    });
 
     setText(
 
@@ -209,7 +231,7 @@ function loadStatistics(){
 
         "historyProfit",
 
-        "$"+profit.toFixed(2)
+        "$"+netProfit.toFixed(2)
 
     );
 
@@ -229,13 +251,15 @@ function populatePairFilter(){
 
     if(!pair) return;
 
+    pair.innerHTML="<option>All Pairs</option>";
+
     const pairs=[
 
         ...new Set(
 
             trades.map(
 
-                t=>t.info.pair
+                trade=>trade.info.pair
 
             )
 
@@ -243,15 +267,13 @@ function populatePairFilter(){
 
     ];
 
-    pairs.forEach(p=>{
+    pairs.forEach(symbol=>{
 
-        const option=
+        const option=document.createElement("option");
 
-        document.createElement("option");
+        option.value=symbol;
 
-        option.value=p;
-
-        option.textContent=p;
+        option.textContent=symbol;
 
         pair.appendChild(option);
 
@@ -259,13 +281,19 @@ function populatePairFilter(){
 
 }
 
+/* ==========================================================
+HELPER
+========================================================== */
+
 function setText(id,value){
 
-    const el=document.getElementById(id);
+    const element=document.getElementById(id);
 
-    if(el)
+    if(element){
 
-        el.textContent=value;
+        element.textContent=value;
+
+    }
 
 }
 /* ==========================================================
@@ -274,21 +302,21 @@ RENDER TRADES
 
 function renderTrades(){
 
-    const tbody = document.getElementById("tradeTableBody");
+    const tbody=document.getElementById("tradeTableBody");
 
     if(!tbody) return;
 
-    let data = [...trades];
+    let data=[...trades];
 
-    /* -------------------------
-       SEARCH
-    ------------------------- */
+    /* =====================================
+    SEARCH
+    ===================================== */
 
-    const search = document.getElementById("searchTrade").value.toLowerCase();
+    const search=document.getElementById("searchTrade").value.toLowerCase();
 
     if(search){
 
-        data = data.filter(trade =>
+        data=data.filter(trade=>
 
             trade.info.pair.toLowerCase().includes(search)
 
@@ -296,121 +324,139 @@ function renderTrades(){
 
     }
 
-    /* -------------------------
-       STATUS FILTER
-    ------------------------- */
+    /* =====================================
+    STATUS
+    ===================================== */
 
-    const status = document.getElementById("statusFilter").value;
+    const status=document.getElementById("statusFilter").value;
 
-    if(status !== "All"){
+    if(status!=="All"){
 
-        data = data.filter(
+        data=data.filter(
 
-            trade => trade.status === status
-
-        );
-
-    }
-
-    /* -------------------------
-       RESULT FILTER
-    ------------------------- */
-
-    const result = document.getElementById("resultFilter").value;
-
-    if(result !== "All"){
-
-        data = data.filter(trade =>
-
-            trade.result?.outcome === result
+            trade=>trade.status===status
 
         );
 
     }
 
-    /* -------------------------
-       PAIR FILTER
-    ------------------------- */
+    /* =====================================
+    RESULT
+    ===================================== */
 
-    const pair = document.getElementById("pairFilter").value;
+    const result=document.getElementById("resultFilter").value;
 
-    if(pair !== "All Pairs"){
+    if(result!=="All"){
 
-        data = data.filter(
+        data=data.filter(
 
-            trade => trade.info.pair === pair
+            trade=>trade.result?.outcome===result
 
         );
 
     }
 
-    /* -------------------------
-       DATE FILTER
-    ------------------------- */
+    /* =====================================
+    PAIR
+    ===================================== */
 
-    const date = document.getElementById("dateFilter").value;
+    const pair=document.getElementById("pairFilter").value;
+
+    if(pair!=="All Pairs"){
+
+        data=data.filter(
+
+            trade=>trade.info.pair===pair
+
+        );
+
+    }
+
+    /* =====================================
+    DATE
+    ===================================== */
+
+    const date=document.getElementById("dateFilter").value;
 
     if(date){
 
-        data = data.filter(
+        data=data.filter(
 
-            trade => trade.info.date === date
+            trade=>trade.info.date===date
 
         );
 
     }
 
-    /* -------------------------
-       TAB FILTER
-    ------------------------- */
+    /* =====================================
+    TAB FILTER
+    ===================================== */
 
-    const activeTab = document.querySelector(".tab.active");
+    const active=document.querySelector(".tab.active");
 
-    if(activeTab){
+    if(active){
 
-        const filter = activeTab.dataset.status;
-
-        switch(filter){
+        switch(active.dataset.status){
 
             case "Pending":
 
-                data = data.filter(t=>t.status==="Pending");
+                data=data.filter(
 
-                break;
+                    trade=>trade.status==="Pending"
+
+                );
+
+            break;
 
             case "Closed":
 
-                data = data.filter(t=>t.status==="Closed");
+                data=data.filter(
 
-                break;
+                    trade=>trade.status==="Closed"
+
+                );
+
+            break;
 
             case "Win":
 
-                data = data.filter(t=>t.result?.outcome==="Win");
+                data=data.filter(
 
-                break;
+                    trade=>trade.result?.outcome==="Win"
+
+                );
+
+            break;
 
             case "Loss":
 
-                data = data.filter(t=>t.result?.outcome==="Loss");
+                data=data.filter(
 
-                break;
+                    trade=>trade.result?.outcome==="Loss"
+
+                );
+
+            break;
 
             case "Break Even":
 
-                data = data.filter(t=>t.result?.outcome==="Break Even");
+                data=data.filter(
 
-                break;
+                    trade=>trade.result?.outcome==="Break Even"
+
+                );
+
+            break;
 
         }
 
     }
 
-    filteredTrades = data;
+    filteredTrades=data;
 
-    /* -------------------------
-       EMPTY
-    ------------------------- */
+    /* =====================================
+    EMPTY
+    ===================================== */
 
     if(data.length===0){
 
@@ -418,7 +464,7 @@ function renderTrades(){
 
         <tr>
 
-            <td colspan="10">
+            <td colspan="11">
 
                 <div class="loading-card">
 
@@ -436,23 +482,35 @@ function renderTrades(){
 
     }
 
-    /* -------------------------
-       TABLE
-    ------------------------- */
-
     tbody.innerHTML="";
+
+    /* =====================================
+    TABLE
+    ===================================== */
 
     data.forEach(trade=>{
 
-        tbody.innerHTML += `
+        tbody.innerHTML+=`
 
         <tr>
 
             <td>${trade.info.date}</td>
 
-            <td>${trade.info.pair}</td>
+            <td>
 
-            <td>${trade.info.direction}</td>
+                <strong>${trade.info.pair}</strong>
+
+            </td>
+
+            <td>
+
+                <span class="${trade.info.direction.toLowerCase()}">
+
+                    ${trade.info.direction}
+
+                </span>
+
+            </td>
 
             <td>${trade.ltf.model}</td>
 
@@ -468,11 +526,7 @@ function renderTrades(){
 
             </td>
 
-            <td>
-
-                ${trade.result?.outcome || "-"}
-
-            </td>
+            <td>${trade.result?.outcome||"-"}</td>
 
             <td>
 
@@ -488,13 +542,67 @@ function renderTrades(){
 
             <td>
 
+                <div class="shot-links">
+
+                    ${trade.screenshots?.before
+                        ? `<a href="${trade.screenshots.before}" target="_blank" title="Before">B</a>`
+                        : `<span>-</span>`}
+
+                    ${trade.screenshots?.during
+                        ? `<a href="${trade.screenshots.during}" target="_blank" title="During">D</a>`
+                        : `<span>-</span>`}
+
+                    ${trade.screenshots?.after
+                        ? `<a href="${trade.screenshots.after}" target="_blank" title="After">A</a>`
+                        : `<span>-</span>`}
+
+                </div>
+
+            </td>
+
+            <td>
+
                 <button
 
-                class="btn"
+                    class="btn btn-small"
 
-                onclick="openTrade(${trade.id})">
+                    onclick="openTrade(${trade.id})">
 
-                View
+                    <i class="fa-solid fa-eye"></i>
+
+                </button>
+
+                ${trade.status==="Pending"
+
+                    ?
+
+                    `
+
+                    <button
+
+                        class="btn btn-small btn-success"
+
+                        onclick="openTrade(${trade.id})">
+
+                        <i class="fa-solid fa-pen"></i>
+
+                    </button>
+
+                    `
+
+                    :
+
+                    ""
+
+                }
+
+                <button
+
+                    class="btn btn-small btn-danger"
+
+                    onclick="deleteTrade(${trade.id})">
+
+                    <i class="fa-solid fa-trash"></i>
 
                 </button>
 
@@ -507,7 +615,6 @@ function renderTrades(){
     });
 
 }
-
 /* ==========================================================
 OPEN TRADE
 ========================================================== */
@@ -533,6 +640,7 @@ function openTrade(id){
     }
 
 }
+
 /* ==========================================================
 OPEN CLOSED TRADE
 ========================================================== */
@@ -567,6 +675,22 @@ function openClosedTrade(trade){
 
         <div class="detail-row">
 
+            <strong>Entry Model</strong>
+
+            <span>${trade.ltf.model}</span>
+
+        </div>
+
+        <div class="detail-row">
+
+            <strong>Session</strong>
+
+            <span>${trade.info.session}</span>
+
+        </div>
+
+        <div class="detail-row">
+
             <strong>Status</strong>
 
             <span>${trade.status}</span>
@@ -585,7 +709,7 @@ function openClosedTrade(trade){
 
             <strong>Profit</strong>
 
-            <span>$${Number(trade.result.profit).toFixed(2)}</span>
+            <span>$${Number(trade.result.profit||0).toFixed(2)}</span>
 
         </div>
 
@@ -593,7 +717,7 @@ function openClosedTrade(trade){
 
             <strong>Commission</strong>
 
-            <span>$${Number(trade.result.commission).toFixed(2)}</span>
+            <span>$${Number(trade.result.commission||0).toFixed(2)}</span>
 
         </div>
 
@@ -601,7 +725,7 @@ function openClosedTrade(trade){
 
             <strong>Actual RR</strong>
 
-            <span>${trade.result.actualRR}</span>
+            <span>${Number(trade.result.actualRR||0).toFixed(2)}</span>
 
         </div>
 
@@ -623,7 +747,7 @@ function openClosedTrade(trade){
 
         <div class="detail-row">
 
-            <strong>Lesson</strong>
+            <strong>Lesson Learned</strong>
 
             <span>${trade.review?.lesson||"-"}</span>
 
@@ -634,6 +758,58 @@ function openClosedTrade(trade){
             <strong>Improvement</strong>
 
             <span>${trade.review?.improvement||"-"}</span>
+
+        </div>
+
+        <hr>
+
+        <h3>Trade Charts</h3>
+
+        <div class="detail-row">
+
+            <strong>Before Entry</strong>
+
+            <span>
+
+            ${trade.screenshots?.before
+
+            ? `<a href="${trade.screenshots.before}" target="_blank" class="btn">View</a>`
+
+            : "No Chart"}
+
+            </span>
+
+        </div>
+
+        <div class="detail-row">
+
+            <strong>During Trade</strong>
+
+            <span>
+
+            ${trade.screenshots?.during
+
+            ? `<a href="${trade.screenshots.during}" target="_blank" class="btn">View</a>`
+
+            : "No Chart"}
+
+            </span>
+
+        </div>
+
+        <div class="detail-row">
+
+            <strong>After Exit</strong>
+
+            <span>
+
+            ${trade.screenshots?.after
+
+            ? `<a href="${trade.screenshots.after}" target="_blank" class="btn">View</a>`
+
+            : "No Chart"}
+
+            </span>
 
         </div>
 
@@ -665,6 +841,39 @@ function openPendingTrade(trade){
 
     modal.style.display="flex";
 
+    document.getElementById("pendingResult").value=
+        trade.result?.outcome || "Win";
+
+    document.getElementById("pendingProfit").value=
+        trade.result?.profit || 0;
+
+    document.getElementById("pendingCommission").value=
+        trade.result?.commission || 0;
+
+    document.getElementById("pendingRR").value=
+        trade.result?.actualRR || 0;
+
+    document.getElementById("pendingManagement").value=
+        trade.management || "Good";
+
+    document.getElementById("pendingPsychology").value=
+        trade.psychology || "";
+
+    document.getElementById("pendingLesson").value=
+        trade.review?.lesson || "";
+
+    document.getElementById("pendingImprovement").value=
+        trade.review?.improvement || "";
+
+    document.getElementById("beforeLink").value=
+        trade.screenshots?.before || "";
+
+    document.getElementById("duringLink").value=
+        trade.screenshots?.during || "";
+
+    document.getElementById("afterLink").value=
+        trade.screenshots?.after || "";
+
     document.getElementById("pendingForm").onsubmit=function(e){
 
         e.preventDefault();
@@ -675,33 +884,46 @@ function openPendingTrade(trade){
 
         trade.result={
 
-            outcome:document.getElementById("pendingResult").value,
+            outcome:
+                document.getElementById("pendingResult").value,
 
-            profit:Number(document.getElementById("pendingProfit").value)||0,
+            profit:
+                Number(document.getElementById("pendingProfit").value)||0,
 
-            commission:Number(document.getElementById("pendingCommission").value)||0,
+            commission:
+                Number(document.getElementById("pendingCommission").value)||0,
 
-            actualRR:Number(document.getElementById("pendingRR").value)||0
+            actualRR:
+                Number(document.getElementById("pendingRR").value)||0
 
         };
 
         trade.management=
-
-        document.getElementById("pendingManagement").value;
+            document.getElementById("pendingManagement").value;
 
         trade.psychology=
-
-        document.getElementById("pendingPsychology").value;
+            document.getElementById("pendingPsychology").value;
 
         trade.review={
 
             lesson:
-
-            document.getElementById("pendingLesson").value,
+                document.getElementById("pendingLesson").value,
 
             improvement:
+                document.getElementById("pendingImprovement").value
 
-            document.getElementById("pendingImprovement").value
+        };
+
+        trade.screenshots={
+
+            before:
+                document.getElementById("beforeLink").value,
+
+            during:
+                document.getElementById("duringLink").value,
+
+            after:
+                document.getElementById("afterLink").value
 
         };
 
@@ -713,19 +935,18 @@ function openPendingTrade(trade){
 
         modal.style.display="none";
 
-        alert("Trade Closed Successfully.");
+        alert("Trade Updated Successfully.");
 
     };
 
 }
-
 /* ==========================================================
 DELETE TRADE
 ========================================================== */
 
 function deleteTrade(id){
 
-    if(!confirm("Delete this trade?")) return;
+    if(!confirm("Delete this trade permanently?")) return;
 
     trades=trades.filter(
 
@@ -737,6 +958,8 @@ function deleteTrade(id){
 
     loadStatistics();
 
+    populatePairFilter();
+
     renderTrades();
 
     document.getElementById("tradeModal").style.display="none";
@@ -744,61 +967,143 @@ function deleteTrade(id){
 }
 
 /* ==========================================================
-MODAL CLOSE
+MODAL CONTROLS
 ========================================================== */
 
 document.getElementById("closeModal")?.addEventListener(
 
-"click",
+    "click",
 
-()=>{
+    ()=>{
 
-document.getElementById("tradeModal").style.display="none";
+        document.getElementById("tradeModal").style.display="none";
 
-}
+    }
 
 );
 
 document.getElementById("closePending")?.addEventListener(
 
-"click",
+    "click",
 
-()=>{
+    ()=>{
 
-document.getElementById("pendingModal").style.display="none";
+        document.getElementById("pendingModal").style.display="none";
 
-}
+    }
 
 );
 
 /* ==========================================================
-EXPORT PLACEHOLDERS
+CLICK OUTSIDE MODAL
+========================================================== */
+
+window.addEventListener("click",function(e){
+
+    const tradeModal=document.getElementById("tradeModal");
+
+    const pendingModal=document.getElementById("pendingModal");
+
+    if(e.target===tradeModal){
+
+        tradeModal.style.display="none";
+
+    }
+
+    if(e.target===pendingModal){
+
+        pendingModal.style.display="none";
+
+    }
+
+});
+
+/* ==========================================================
+EXPORT CSV
 ========================================================== */
 
 document.getElementById("exportCSV")?.addEventListener(
 
-"click",
+    "click",
 
-()=>{
+    ()=>{
 
-alert("CSV Export Coming Next.");
+        if(trades.length===0){
 
-}
+            alert("No trades available.");
 
-);
+            return;
 
-document.getElementById("exportPDF")?.addEventListener(
+        }
 
-"click",
+        let csv="Date,Pair,Direction,Model,Session,Status,Result,Profit,Commission,RR\n";
 
-()=>{
+        trades.forEach(trade=>{
 
-alert("PDF Export Coming Next.");
+            csv+=`${trade.info.date},${trade.info.pair},${trade.info.direction},${trade.ltf.model},${trade.info.session},${trade.status},${trade.result?.outcome||""},${trade.result?.profit||0},${trade.result?.commission||0},${trade.result?.actualRR||0}\n`;
 
-}
+        });
+
+        const blob=new Blob(
+
+            [csv],
+
+            {
+
+                type:"text/csv"
+
+            }
+
+        );
+
+        const url=URL.createObjectURL(blob);
+
+        const a=document.createElement("a");
+
+        a.href=url;
+
+        a.download="TradeHistory.csv";
+
+        a.click();
+
+        URL.revokeObjectURL(url);
+
+    }
 
 );
 
 /* ==========================================================
-END HISTORY.JS
+EXPORT PDF
+========================================================== */
+
+document.getElementById("exportPDF")?.addEventListener(
+
+    "click",
+
+    ()=>{
+
+        window.print();
+
+    }
+
+);
+
+/* ==========================================================
+REFRESH
+========================================================== */
+
+function refreshHistory(){
+
+    loadTrades();
+
+    loadStatistics();
+
+    populatePairFilter();
+
+    renderTrades();
+
+}
+
+/* ==========================================================
+END
 ========================================================== */
