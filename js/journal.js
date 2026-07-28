@@ -38,7 +38,7 @@ function saveStorage() {
 }
 
 /* ==========================================================
-   CREATE TRADE (FLAT + NESTED extras)
+   CREATE TRADE (corrected IDs)
    ========================================================= */
 function saveTrade(e) {
     e.preventDefault();
@@ -54,56 +54,56 @@ function saveTrade(e) {
         broker: value("broker"),
         account: value("account"),
         lotSize: parseFloat(value("lotSize")) || 0,
-        entry: parseFloat(value("entryPrice")) || 0,
+
+        // Execution & risk – corrected IDs
+        entry: parseFloat(value("entry")) || 0,
         stopLoss: parseFloat(value("stopLoss")) || 0,
         takeProfit: parseFloat(value("takeProfit")) || 0,
-        risk: parseFloat(value("riskPercent")) || 0,
-        rr: parseFloat(value("expectedRR")) || 0,
+        risk: parseFloat(value("risk")) || 0,
+        rr: parseFloat(value("rr")) || 0,
         profit: parseFloat(value("profit")) || 0,
         commission: parseFloat(value("commission")) || 0,
         result: value("result") || "Pending",
+
+        // Psychology
         confidence: value("confidence"),
         emotion: value("emotion"),
         discipline: value("discipline"),
         patience: value("patience"),
+
+        // Review
         tradeSummary: value("tradeSummary"),
         strengths: value("strengths"),
         mistakes: value("mistakes"),
         lessonLearned: value("lessonLearned"),
         improvementPlan: value("improvementPlan"),
+
+        // Charts
         beforeChart: value("beforeChart"),
         duringChart: value("duringChart"),
         afterChart: value("afterChart"),
         notes: value("notes"),
+
+        // Detailed analysis (nested)
         htf: {
-            swingBias: value("htfSwingBias"),
-            swingStructure: value("htfSwingStructure"),
-            swingBos: value("htfSwingBos"),
-            swingPoi: value("htfSwingPoi"),
-            internalBias: value("htfInternalBias"),
-            internalStructure: value("htfInternalStructure"),
-            internalPoi: value("htfInternalPoi")
+            swingBias: value("htfSwing"),
+            internalBias: value("htfInternal")
         },
         mtf: {
-            swingBias: value("mtfSwingBias"),
-            swingStructure: value("mtfSwingStructure"),
-            swingBos: value("mtfSwingBos"),
-            swingPoi: value("mtfSwingPoi"),
-            internalBias: value("mtfInternalBias"),
-            internalStructure: value("mtfInternalStructure"),
-            internalPoi: value("mtfInternalPoi")
+            swingBias: value("mtfSwing"),
+            internalBias: value("mtfInternal")
         },
         ltf: {
-            bias: value("ltfBias"),
-            shift: value("ltfShift"),
-            liquidity: value("ltfLiquidity"),
-            poi: value("ltfPoi"),
+            structure: value("ltfStructure"),
+            liquidity: value("liquidity"),
+            poi: value("poi"),
             model: value("entryModel"),
             confirmation: value("entryConfirmation"),
-            quality: value("executionQuality"),
             valid: value("tradeValid")
         },
         confluences: getConfluences(),
+
+        // Status
         status: "Pending",
         created: new Date().toISOString(),
         closed: null,
@@ -307,7 +307,7 @@ IMPROVEMENT : ${trade.reviewNote?.improvement || "-"}
 }
 
 /* ==========================================================
-   CHARTS – with guaranteed cleanup
+   CHARTS – with cleanup
    ========================================================= */
 function initializeCharts() {
     if (typeof Chart === "undefined") return;
@@ -326,7 +326,6 @@ function destroyAllCharts() {
         monthlyChartInstance = null;
     }
 
-    // Forcefully destroy any chart attached to our canvases
     const canvases = ['equityChart', 'monthlyChart'];
     canvases.forEach(id => {
         const canvas = document.getElementById(id);
@@ -351,7 +350,6 @@ function buildEquityChart() {
     const canvas = document.getElementById("equityChart");
     if (!canvas) return;
 
-    // Extra safety: destroy any lingering chart on this canvas
     const existing = Chart.getChart ? Chart.getChart(canvas) : null;
     if (existing) existing.destroy();
     if (equityChartInstance) {
