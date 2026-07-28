@@ -1,155 +1,283 @@
-import { db } from "./firebase.js";
+// ============================================================
+// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT (FULL)
+// ============================================================
+
+import { db, auth } from "../firebase.js";
 
 import {
-doc,
-updateDoc,
-deleteDoc
+    collection,
+    doc,
+    getDoc,
+    updateDoc,
+    deleteDoc,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import { loadMembers } from "./members.js";
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-/* ==========================
-   APPROVE MEMBER
-========================== */
 
-export async function approveMember(uid){
+// ================= DOM =================
 
-try{
+const table = document.getElementById("membersTable");
+const search = document.getElementById("memberSearch");
 
-await updateDoc(doc(db,"users",uid),{
+const modal = document.getElementById("memberModal");
+const closeModal = document.getElementById("closeModal");
 
-active:true
+const modalName = document.getElementById("modalName");
+const modalEmail = document.getElementById("modalEmail");
+const modalRole = document.getElementById("modalRole");
+const modalPayment = document.getElementById("modalPayment");
+const modalStatus = document.getElementById("modalStatus");
+const modalJoined = document.getElementById("modalJoined");
+const memberAvatar = document.getElementById("memberAvatar");
 
+
+const approveBtn = document.getElementById("approveBtn");
+const premiumBtn = document.getElementById("premiumBtn");
+const adminBtn = document.getElementById("adminBtn");
+const memberBtn = document.getElementById("memberBtn");
+const demoteBtn = document.getElementById("demoteBtn");
+const suspendBtn = document.getElementById("suspendBtn");
+const deleteBtn = document.getElementById("deleteBtn");
+
+
+let selectedUser = null;
+let unsubscribe = null;
+
+
+
+// ================= ADMIN CHECK =================
+
+onAuthStateChanged(auth, async(user) => {
+    if (!user) {
+        window.location.href = "../login.html";
+        return;
+    }
+
+    try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+
+        if (!snap.exists() || snap.data().role !== "admin") {
+            table.innerHTML = `<tr><td colspan="7">⛔ Access Denied – You are not an admin.</td></tr>`;
+            return;
+        }
+
+        loadMembers();
+    } catch (error) {
+        console.error("Admin check error:", error);
+        table.innerHTML = `<tr><td colspan="7">⚠️ Error loading data. Check console.</td></tr>`;
+    }
 });
 
-alert("Member approved successfully.");
 
-loadMembers();
 
-}catch(error){
+// ================= LOAD MEMBERS =================
 
-alert(error.message);
+function loadMembers() {
+    if (unsubscribe) unsubscribe();
 
+    unsubscribe = onSnapshot(
+        collection(db, "users"),
+        (snapshot) => {
+            if (snapshot.empty) {
+                table.innerHTML = `<tr><td colspan="7">📭 No members found.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+
+            snapshot.forEach((item) => {
+                const user = item.data();
+
+                const role = user.role || "member";
+                const membership = user.membership || "free";
+                const status = user.active === true ? "active" : (user.status || "pending");
+
+                const initials = (user.name || "U").charAt(0).toUpperCase();
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="member-avatar-small">${initials}</div>
+                                <div>
+                                    <strong>${user.name || "Unknown"}</strong>
+                                    <br>
+                                    <small>${user.email || ""}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge">${role}</span></td>
+                        <td><span class="badge">${membership}</span></td>
+                        <td><span class="badge">${status}</span></td>
+                        <td>${user.payment || "Unpaid"}</td>
+                        <td>${formatDate(user.createdAt)}</td>
+                        <td>
+                            <button class="manage-btn" data-id="${item.id}">Manage</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            table.innerHTML = html;
+            attachButtons();
+        },
+        (error) => {
+            console.error("Firestore error:", error);
+            table.innerHTML = `<tr><td colspan="7">🔥 Error loading members: ${error.message}</td></tr>`;
+        }
+    );
 }
 
+
+
+// ================= DATE =================
+
+function formatDate(date) {
+    if (!date) return "--";
+    try {
+        if (date.toDate) return date.toDate().toLocaleDateString();
+        return new Date(date).toLocaleDateString();
+    } catch {
+        return "--";
+    }
 }
 
-/* ==========================
-   MAKE PREMIUM
-========================== */
 
-export async function makePremium(uid){
 
-try{
+// ================= OPEN MEMBER =================
 
-await updateDoc(doc(db,"users",uid),{
+function attachButtons() {
+    document.querySelectorAll(".manage-btn").forEach(btn => {
+        btn.onclick = () => openMember(btn.dataset.id);
+    });
+}
 
-premium:true
 
+async function openMember(id) {
+    const snap = await getDoc(doc(db, "users", id));
+    selectedUser = {
+        id,
+        ...snap.data()
+    };
+
+    modalName.textContent = selectedUser.name || "";
+    modalEmail.textContent = selectedUser.email || "";
+    modalRole.textContent = selectedUser.role || "member";
+    modalPayment.textContent = selectedUser.payment || "Unpaid";
+    modalStatus.textContent = selectedUser.membership || "free";
+    modalJoined.textContent = formatDate(selectedUser.createdAt);
+    memberAvatar.textContent = (selectedUser.name || "U").charAt(0).toUpperCase();
+
+    modal.style.display = "flex";
+}
+
+
+
+// ================= ACTIONS =================
+
+approveBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    await updateDoc(doc(db, "users", selectedUser.id), {
+        active: true,
+        status: "active",
+        membership: selectedUser.membership || "free",
+        role: selectedUser.role || "member"
+    });
+    alert("✅ Member approved");
+    modal.style.display = "none";
+    loadMembers();
 });
 
-alert("Member upgraded to Premium.");
-
-loadMembers();
-
-}catch(error){
-
-alert(error.message);
-
-}
-
-}
-
-/* ==========================
-   REMOVE PREMIUM
-========================== */
-
-export async function removePremium(uid){
-
-try{
-
-await updateDoc(doc(db,"users",uid),{
-
-premium:false
-
+premiumBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    await updateDoc(doc(db, "users", selectedUser.id), {
+        membership: "premium",
+        active: true,
+        status: "active"
+        // Role stays as it is – member or admin
+    });
+    alert("⭐ Premium activated");
+    modal.style.display = "none";
+    loadMembers();
 });
 
-alert("Premium removed.");
-
-loadMembers();
-
-}catch(error){
-
-alert(error.message);
-
-}
-
-}
-
-/* ==========================
-   SUSPEND MEMBER
-========================== */
-
-export async function suspendMember(uid){
-
-const confirmSuspend=confirm(
-"Are you sure you want to suspend this member?"
-);
-
-if(!confirmSuspend){
-
-return;
-
-}
-
-try{
-
-await updateDoc(doc(db,"users",uid),{
-
-active:false
-
+adminBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    await updateDoc(doc(db, "users", selectedUser.id), {
+        role: "admin"
+    });
+    alert("👑 User is now Admin");
+    modal.style.display = "none";
+    loadMembers();
 });
 
-alert("Member suspended.");
+memberBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    await updateDoc(doc(db, "users", selectedUser.id), {
+        role: "member"
+    });
+    alert("👤 Admin removed. User is now a member.");
+    modal.style.display = "none";
+    loadMembers();
+});
 
-loadMembers();
+// 🆕 DEMOTE TO PREMIUM MEMBER
+demoteBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    await updateDoc(doc(db, "users", selectedUser.id), {
+        role: "member",          // remove admin
+        membership: "premium",   // give premium
+        active: true,
+        status: "active"
+    });
+    alert("⬇️ User demoted to Premium Member (role: member, membership: premium)");
+    modal.style.display = "none";
+    loadMembers();
+});
 
-}catch(error){
+suspendBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    await updateDoc(doc(db, "users", selectedUser.id), {
+        active: false,
+        status: "suspended"
+    });
+    alert("⛔ Member suspended");
+    modal.style.display = "none";
+    loadMembers();
+});
 
-alert(error.message);
+deleteBtn?.addEventListener("click", async () => {
+    if (!selectedUser) return;
+    if (!confirm("🗑️ Delete member permanently?")) return;
+    await deleteDoc(doc(db, "users", selectedUser.id));
+    alert("Deleted");
+    modal.style.display = "none";
+    loadMembers();
+});
 
-}
 
-}
 
-/* ==========================
-   DELETE MEMBER
-========================== */
+// ================= SEARCH =================
 
-export async function deleteMember(uid){
+search?.addEventListener("input", () => {
+    const value = search.value.toLowerCase();
+    document.querySelectorAll("#membersTable tr").forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(value) ? "" : "none";
+    });
+});
 
-const confirmDelete=confirm(
-"This will permanently remove the member record. Continue?"
-);
 
-if(!confirmDelete){
 
-return;
+// ================= CLOSE =================
 
-}
+closeModal?.addEventListener("click", () => {
+    modal.style.display = "none";
+});
 
-try{
-
-await deleteDoc(doc(db,"users",uid));
-
-alert("Member deleted.");
-
-loadMembers();
-
-}catch(error){
-
-alert(error.message);
-
-}
-
-}
+window.onclick = (e) => {
+    if (e.target === modal) modal.style.display = "none";
+};
