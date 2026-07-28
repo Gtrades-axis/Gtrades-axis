@@ -139,13 +139,14 @@ async function loadMemberStats() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        snapshot.forEach (doc => {
+        snapshot.forEach(doc => {
             const data = doc.data();
             total++;
-            if (data.membership === "premium") premium++;
+            if (data.role === "premium") premium++;
             if (data.role === "admin") admins++;
             // Pending: active === false OR status === "pending" OR role === "pending"
-            if (data.active === false || data.status === "pending")
+            if (data.active === false || data.status === "pending" || data.role === "pending") {
+                pending++;
             }
             // Joined today
             if (data.createdAt) {
@@ -155,7 +156,7 @@ async function loadMemberStats() {
                 else created = new Date(data.createdAt);
                 if (created >= today) joinedToday++;
             }
-        };
+        });
 
         animateCounter(totalMembers, total);
         animateCounter(premiumMembers, premium);

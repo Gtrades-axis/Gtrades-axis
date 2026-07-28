@@ -22,8 +22,6 @@ ELEMENTS
 const logoutBtn = document.getElementById("logoutBtn");
 
 const userName = document.getElementById("userName");
-const memberBadge =
-document.getElementById("memberBadge");
 
 const resourceCount = document.getElementById("resourceCount");
 
@@ -41,52 +39,32 @@ AUTH
 
 onAuthStateChanged(auth, async (user) => {
 
-    if (snap.exists()) {
+    if (!user) {
 
-    const data = snap.data();
+        window.location.href = "login.html";
 
-
-    userName.textContent =
-        data.firstName || data.name || "Trader";
-
-
-    // MEMBERSHIP STATUS
-
-    if(data.premium === true){
-
-
-        memberBadge.innerHTML =
-        `
-        ⭐ Premium Member
-        `;
-
-
-    }else{
-
-
-        memberBadge.innerHTML =
-        `
-        🔒 Free Member
-        `;
-
+        return;
 
     }
 
+    try {
 
+        const userRef = doc(db, "users", user.uid);
 
-} else {
+        const snap = await getDoc(userRef);
 
+        if (snap.exists()) {
 
-    userName.textContent = "Trader";
+            const data = snap.data();
 
+            userName.textContent =
+                data.firstName || data.name || "Trader";
 
-    memberBadge.innerHTML =
-    `
-    🔒 Free Member
-    `;
+        } else {
 
+            userName.textContent = "Trader";
 
-}
+        }
 
     } catch (e) {
 

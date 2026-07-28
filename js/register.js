@@ -38,13 +38,10 @@ if (form) {
             await setDoc(doc(db, "users", user.uid), {
                 name: name,
                 email: email,
-                role: "member",
-               membership: "free",
-                   active:true,
-status:"registered",
-payment:"unpaid",
-premium:false,
-plan:"Free",
+                role: "pending",
+                active: false,
+                status: "pending",
+                payment: "unpaid",
                 createdAt: serverTimestamp(),
                 uid: user.uid
             });
