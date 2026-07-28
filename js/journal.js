@@ -487,3 +487,89 @@ window.addEventListener('storage', function(e) {
 });
 
 console.log('✅ journal.js loaded');
+// ─── FORCE EDIT MODE (works even if the normal flow fails) ───
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('edit');
+    if (!editId) return;
+
+    // Wait for the DOM to be ready
+    function populate() {
+        const trades = JSON.parse(localStorage.getItem('trades') || '[]');
+        const trade = trades.find(t => t.id === editId);
+        if (!trade) {
+            console.warn('❌ Trade not found for ID:', editId);
+            return;
+        }
+
+        console.log('✅ Force‑loading trade:', trade);
+
+        // ── Set all text/select fields ──
+        const fields = [
+            'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
+            'htfSwing', 'htfInternal', 'mtfSwing', 'mtfInternal',
+            'ltfStructure', 'liquidity', 'poi', 'entryModel', 'entryConfirmation', 'tradeValid',
+            'entry', 'stopLoss', 'takeProfit', 'risk', 'rr', 'profit', 'commission', 'result',
+            'confidence', 'emotion', 'discipline', 'patience',
+            'tradeSummary', 'strengths', 'mistakes', 'lessonLearned', 'improvementPlan',
+            'beforeChart', 'duringChart', 'afterChart', 'notes'
+        ];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && trade[id] !== undefined && trade[id] !== null) {
+                el.value = trade[id];
+            }
+        });
+
+        // ── Set confluences ──
+        if (trade.confluences) {
+            const map = {
+                htfSwing: 'confHTFSwing', htfInternal: 'confHTFInternal',
+                mtfSwing: 'confMTFSwing', mtfInternal: 'confMTFInternal',
+                htfDemand: 'confHTFDemand', htfSupply: 'confHTFSupply',
+                mtfDemand: 'confMTFDemand', mtfSupply: 'confMTFSupply',
+                premium: 'confPremium', discount: 'confDiscount',
+                sweep: 'confSweep', choch: 'confChoch',
+                bos: 'confBos', mitigation: 'confMitigation',
+                refined: 'confRefined', extreme: 'confExtreme'
+            };
+            Object.keys(trade.confluences).forEach(key => {
+                const cb = document.getElementById(map[key]);
+                if (cb) cb.checked = trade.confluences[key];
+            });
+        }
+
+        // ── Change button text ──
+        const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
+            submitBtn.classList.add('btn-update');
+        }
+
+        // ── Add hidden flag for update mode ──
+        const form = document.getElementById('tradeForm');
+        let flag = document.getElementById('updateMode');
+        if (!flag) {
+            flag = document.createElement('input');
+            flag.type = 'hidden';
+            flag.id = 'updateMode';
+            flag.value = 'true';
+            form.appendChild(flag);
+        } else {
+            flag.value = 'true';
+        }
+
+        // ── Change page title ──
+        const header = document.querySelector('.page-header h1');
+        if (header) header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+
+        alert('✅ Trade loaded for editing!');
+    }
+
+    // Run when DOM is ready
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        populate();
+    } else {
+        document.addEventListener('DOMContentLoaded', populate);
+    }
+})();
