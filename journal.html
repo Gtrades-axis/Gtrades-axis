@@ -532,7 +532,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT – Firebase Auth + Premium Check + Journal Logic
+    SINGLE SCRIPT – all logic (auth, premium, journal)
     ============================================================ -->
     <script type="module">
         // ─── Firebase Imports ──────────────────────────────────────
@@ -560,7 +560,7 @@
         const loadingSpinner = document.getElementById('loadingSpinner');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        // ─── LOGOUT (works anywhere) ──────────────────────────────
+        // ─── LOGOUT ──────────────────────────────────────────────────
         async function handleLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 try {
@@ -578,10 +578,13 @@
         }
 
         // ─── AUTH + PREMIUM CHECK ──────────────────────────────────
+        // Only ONE listener – no external scripts interfere.
         onAuthStateChanged(auth, async (user) => {
+            // Hide spinner
             loadingSpinner.style.display = 'none';
 
             if (!user) {
+                // Not logged in → redirect to login
                 window.location.href = 'login.html';
                 return;
             }
@@ -589,9 +592,9 @@
             try {
                 console.log('🔍 Checking premium for user:', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
-
-                // ✅ FIX: Check BOTH premium (boolean) AND membership (string)
                 const data = userDoc.data();
+
+                // Check BOTH fields
                 const isPremium = userDoc.exists() && (
                     data.premium === true ||
                     data.membership === 'premium'
@@ -601,9 +604,10 @@
                     console.log('✅ Premium user – showing journal');
                     mainApp.style.display = 'flex';
                     premiumOverlay.classList.remove('active');
+                    // Initialize the journal functionality
                     initJournal();
                 } else {
-                    console.log('❌ Non-premium user – showing overlay');
+                    console.log('❌ Non‑premium user – showing overlay');
                     mainApp.style.display = 'none';
                     premiumOverlay.classList.add('active');
                 }
@@ -619,32 +623,15 @@
 
         // ─── JOURNAL LOGIC ──────────────────────────────────────────
         function initJournal() {
-            // This is the full journal logic from your previous working version
-            // (I've included it here for completeness – it's the exact same as before)
-            // For brevity, I'll include a placeholder but the final code will have it.
-            // In the answer, I'll paste the entire journal logic.
+            // This is the complete journal logic (trades, charts, form, etc.)
+            // ─── FULL CODE FROM YOUR PREVIOUS WORKING JOURNAL ────
+            // (I'm embedding it all here to keep it self‑contained)
 
             const STORAGE_KEY = "trades";
             let trades = [];
             let equityChartInstance = null;
             let monthlyChartInstance = null;
             let editingTrade = null;
-
-            function loadTrades() {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                trades = saved ? JSON.parse(saved) : [];
-            }
-            function saveTrades() {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-            }
-            // ... (all the existing journal functions)
-            // I'll include the full code in the final answer.
-            // Since the answer is long, I'll put the complete journal logic here.
-
-            // ─── The entire journal logic from your original file ───
-            // (I'm copying it from your provided journal.html to avoid missing anything)
-            // I'll paste it inside this function.
-            // For readability, I'll compress it a bit.
 
             // ─── LOAD & SAVE ────────────────────────────────────────────
             function loadTrades() {
@@ -1096,11 +1083,8 @@
             });
 
             console.log('✅ Journal loaded successfully.');
-        } // end initJournal
+        } // end initJournal()
     </script>
-
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/journal.js"></script>
 
 </body>
 </html>
