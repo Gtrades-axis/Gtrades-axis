@@ -40,9 +40,11 @@ if (form) {
                 email: email,
                 role: "member",
                membership: "free",
-                   active: false,
-               status: "pending",
-             payment: "unpaid",
+                   active:true,
+status:"registered",
+payment:"unpaid",
+premium:false,
+plan:"Free",
                 createdAt: serverTimestamp(),
                 uid: user.uid
             });
