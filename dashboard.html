@@ -7,524 +7,226 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dashboard | GTRADES-AXIS™</title>
+<title>Dashboard | GTRADES AXIS™</title>
 
 <link rel="stylesheet" href="css/dashboard.css">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
 <link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
 
 </head>
-<script type="module" src="js/journal.js"></script>
+
 <body>
 
 <div class="dashboard">
 
-<!-- ===========================
-SIDEBAR
-=========================== -->
+<!-- Sidebar -->
 
 <aside class="sidebar">
 
-<div class="brand">
+<div class="logo">
 
-<img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" draggable="false">
-
-<h2>
-
-GTRADES
-
-<span>AXIS™</span>
-
-</h2>
+<h2>GTRADES AXIS™</h2>
 
 </div>
 
-<ul class="menu">
+<nav>
 
-<li class="active">
-
-<a href="dashboard.html">
+<a href="dashboard.html" class="active">
 
 <i class="fa-solid fa-house"></i>
 
-<span>Dashboard</span>
+Dashboard
 
 </a>
-
-</li>
-
-<li>
-
-<a href="resources.html">
-
-<i class="fa-solid fa-folder-open"></i>
-
-<span>Premium Resources</span>
-
-</a>
-
-</li>
-
-<li>
 
 <a href="premium-academy.html">
 
 <i class="fa-solid fa-graduation-cap"></i>
 
-<span>Premium Academy</span>
+Academy
 
 </a>
-
-</li>
-
-<li>
-
-<a href="videos.html">
-
-<i class="fa-solid fa-circle-play"></i>
-
-<span>Videos</span>
-
-</a>
-
-</li>
-
-<li>
 
 <a href="journal.html">
 
-<i class="fa-solid fa-chart-line"></i>
+<i class="fa-solid fa-book"></i>
 
-<span>Trading Journal</span>
-
-</a>
-
-</li>
-
-<li>
-
-<a href="profile.html">
-
-<i class="fa-solid fa-user"></i>
-
-<span>My Profile</span>
+Journal
 
 </a>
 
-</li>
+<a href="resources.html">
 
-<li>
+<i class="fa-solid fa-folder-open"></i>
 
-<a href="support.html">
-
-<i class="fa-solid fa-headset"></i>
-
-<span>Support</span>
+Resources
 
 </a>
 
-</li>
+<a href="videos.html">
 
-</ul>
+<i class="fa-solid fa-video"></i>
 
-<button id="logoutBtn">
+Videos
+
+</a>
+
+<a href="payment.html">
+
+<i class="fa-solid fa-crown"></i>
+
+Upgrade
+
+</a>
+
+<a href="#" id="logoutBtn">
 
 <i class="fa-solid fa-right-from-bracket"></i>
 
 Logout
 
-</button>
+</a>
+
+</nav>
 
 </aside>
 
-<!-- ===========================
-MAIN CONTENT
-=========================== -->
+<!-- Main -->
 
-<main class="main-content">
+<main class="content">
 
-<!-- TOP BAR -->
-
-<header class="topbar">
-
-<div>
+<div class="topbar">
 
 <h1>
 
-Welcome,
-
-<span id="userName">
-
-Trader
-
-</span>
-
-👋
+Dashboard
 
 </h1>
 
-<p>
+<div id="memberBadge">
 
-Trade with Structure. Execute with Precision.
-
-</p>
-
-</div>
-
-<div class="member-badge">
-
-⭐ Premium Member
-
-</div>
-
-</header>
-
-<!-- QUICK STATS -->
-
-<section class="stats-grid">
-
-<div class="stat-card">
-
-<div class="stat-icon">
-
-<i class="fa-solid fa-folder-open"></i>
-
-</div>
-
-<div>
-
-<h2 id="resourceCount">0</h2>
-
-<p>Resources</p>
+Loading...
 
 </div>
 
 </div>
 
-<div class="stat-card">
+<div class="cards">
 
-<div class="stat-icon">
-
-<i class="fa-solid fa-graduation-cap"></i>
-
-</div>
-
-<div>
-
-<h2 id="lessonCount">0</h2>
-
-<p>Lessons</p>
-
-</div>
-
-</div>
-
-<div class="stat-card">
-
-<div class="stat-icon">
-
-<i class="fa-solid fa-circle-play"></i>
-
-</div>
-
-<div>
-
-<h2 id="videoCount">0</h2>
-
-<p>Videos</p>
-
-</div>
-
-</div>
-
-<div class="stat-card">
-
-<div class="stat-icon">
-
-<i class="fa-solid fa-chart-line"></i>
-
-</div>
-
-<div>
-
-<h2>Ready</h2>
-
-<p>Trading Journal</p>
-
-</div>
-
-</div>
-
-</section>
-<!-- ===========================
-QUICK ACCESS
-=========================== -->
-
-<section class="quick-links">
-
-<div class="quick-card">
-
-<div class="quick-icon">
-
-<i class="fa-solid fa-folder-open"></i>
-
-</div>
+<div class="card">
 
 <h3>
 
-Premium Resources
+Welcome
 
 </h3>
 
-<p>
+<h2 id="userName">
 
-Download PDFs, Indicators, Journals & Templates.
+Loading...
 
-</p>
+</h2>
 
-<a href="resources.html">
-
-Open →
-
-</a>
+<p id="userEmail"></p>
 
 </div>
 
-<div class="quick-card">
-
-<div class="quick-icon">
-
-<i class="fa-solid fa-graduation-cap"></i>
-
-</div>
+<div class="card">
 
 <h3>
 
-Premium Academy
+Membership
 
 </h3>
 
-<p>
+<h2 id="userRole">
 
-Watch all premium lessons and tutorials.
+Loading...
+
+</h2>
+
+<p id="memberSince">
+
+-- --
 
 </p>
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Academy Progress
+
+</h3>
+
+<h2 id="academyProgress">
+
+0%
+
+</h2>
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Study Time
+
+</h3>
+
+<h2 id="studyTime">
+
+0 hrs
+
+</h2>
+
+</div>
+
+</div>
+
+<div class="quick-links">
 
 <a href="premium-academy.html">
 
-Open →
-
-</a>
-
-</div>
-
-<div class="quick-card">
-
-<div class="quick-icon">
-
-<i class="fa-solid fa-circle-play"></i>
-
-</div>
-
-<h3>
-
-Trading Videos
-
-</h3>
-
-<p>
-
-Recorded market breakdowns and live sessions.
-
-</p>
-
-<a href="videos.html">
-
-Open →
-
-</a>
-
-</div>
-
-<div class="quick-card">
-
-<div class="quick-icon">
-
-<i class="fa-solid fa-chart-line"></i>
-
-</div>
-
-<h3>
-
-Trading Journal
-
-</h3>
-
-<p>
-
-Track your progress and improve consistency.
-
-</p>
-
-<a href="journal.html">
-
-Open →
-
-</a>
-
-</div>
-
-</section>
-
-<!-- ===========================
-LATEST SECTION
-=========================== -->
-
-<section class="latest-grid">
-
-<div class="latest-card">
-
-<div class="card-header">
-
-<h2>
-
-<i class="fa-solid fa-folder-open"></i>
-
-Latest Resources
-
-</h2>
-
-<a href="resources.html">
-
-View All
-
-</a>
-
-</div>
-
-<div id="latestResources">
-
-<div class="loading-card">
-
-<i class="fa-solid fa-spinner fa-spin"></i>
-
-Loading Resources...
-
-</div>
-
-</div>
-
-</div>
-
-<div class="latest-card">
-
-<div class="card-header">
-
-<h2>
-
-<i class="fa-solid fa-bullhorn"></i>
-
-Announcements
-
-</h2>
-
-</div>
-
-<div id="announcements">
-
-<div class="announcement">
-
-<h4>
-
-Welcome to GTRADES-AXIS™
-
-</h4>
-
-<p>
-
-Your premium membership is active.
-
-</p>
-
-</div>
-
-<div class="announcement">
-
-<h4>
-
-Resources Updated
-
-</h4>
-
-<p>
-
-New trading resources are uploaded regularly.
-
-</p>
-
-</div>
-
-<div class="announcement">
-
-<h4>
+<i class="fa-solid fa-graduation-cap"></i>
 
 Academy
 
-</h4>
+</a>
 
-<p>
+<a href="journal.html">
 
-New premium lessons coming soon.
+<i class="fa-solid fa-book"></i>
 
-</p>
+Journal
 
-</div>
+</a>
 
-</div>
+<a href="resources.html">
 
-</div>
+<i class="fa-solid fa-folder-open"></i>
 
-</section>
-<!-- ===========================
-FOOTER
-=========================== -->
+Resources
 
-<footer class="dashboard-footer">
+</a>
 
-<div class="footer-left">
+<a href="videos.html">
 
-© 2026 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.
+<i class="fa-solid fa-video"></i>
 
-</div>
+Videos
 
-<div class="footer-right">
-
-<span>
-
-Version 1.0
-
-</span>
+</a>
 
 </div>
-
-</footer>
 
 </main>
 
 </div>
-
-<!-- ===========================
-SCRIPTS
-=========================== -->
-
-<script type="module" src="js/authGuard.js"></script>
 
 <script type="module" src="js/dashboard.js"></script>
 
