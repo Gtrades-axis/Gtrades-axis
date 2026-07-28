@@ -1,12 +1,12 @@
 /* ==========================================================
-   GTRADES AXIS™ – TRADING JOURNAL (SAVES TO "trades")
+   GTRADES AXIS™ – TRADING JOURNAL (FULL EDIT SUPPORT)
    ========================================================= */
 
 const STORAGE_KEY = "trades";
 let trades = [];
 let equityChartInstance = null;
 let monthlyChartInstance = null;
-let editingTrade = null;   // for edit mode
+let editingTrade = null;
 
 // ─── LOAD & SAVE ────────────────────────────────────────────
 function loadTrades() {
@@ -38,6 +38,8 @@ function setText(id, text) {
     if (el) el.textContent = text;
 }
 
+function $(id) { return document.getElementById(id); }
+
 // ─── REFRESH UI ──────────────────────────────────────────────
 function refreshUI() {
     loadDashboard();
@@ -45,15 +47,10 @@ function refreshUI() {
     initializeCharts();
 }
 
-// ─── SAVE TRADE (handles both new + update) ──────────────────
-function saveTrade(e) {
-    e.preventDefault();
-    const form = e.target;
-    const isUpdate = document.getElementById('updateMode')?.value === 'true';
-
-    // Build the trade object (same fields as before)
-    const trade = {
-        id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+// ─── BUILD TRADE OBJECT ──────────────────────────────────────
+function buildTradeFromForm(isUpdate) {
+    return {
+        id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 8),
         date: val('tradeDate'),
         time: val('tradeTime'),
         pair: val('pair'),
@@ -129,22 +126,31 @@ function saveTrade(e) {
         notes: val('notes'),
 
         // Status
-        status: 'Pending',
+        status: isUpdate && editingTrade ? editingTrade.status : 'Pending',
         created: isUpdate && editingTrade ? editingTrade.created : new Date().toISOString(),
-        closed: null
+        closed: isUpdate && editingTrade ? editingTrade.closed : null
     };
+}
 
-    loadTrades(); // refresh in case other tabs changed
+// ─── SAVE TRADE (new + update) ──────────────────────────────
+function saveTrade(e) {
+    e.preventDefault();
+    const form = e.target;
+    const isUpdate = $( 'updateMode' )?.value === 'true';
+
+    loadTrades(); // refresh
+
+    const trade = buildTradeFromForm(isUpdate);
 
     if (isUpdate && editingTrade) {
-        // ── UPDATE EXISTING TRADE ──
+        // ── UPDATE ──
         const index = trades.findIndex(t => t.id === editingTrade.id);
         if (index !== -1) {
-            trades[index] = trade; // replace
+            trades[index] = trade;
         }
         saveTrades();
         alert('✅ Trade updated!');
-        window.location.href = 'history.html'; // go back to history
+        window.location.href = 'history.html';
     } else {
         // ── NEW TRADE ──
         trades.unshift(trade);
@@ -152,8 +158,6 @@ function saveTrade(e) {
         form.reset();
         refreshUI();
         alert('✅ Trade saved as Pending.');
-        // Optional: redirect to history
-        // window.location.href = 'history.html';
     }
 }
 
@@ -225,13 +229,13 @@ function loadRecentTrades() {
                 <div><strong>${t.pair || '?'}</strong><br>${t.direction || ''}</div>
                 <div>${t.entryModel || '-'}</div>
                 <div><span class="status ${t.status.toLowerCase()}">${t.status}</span></div>
-                <div><button onclick="editTrade('${t.id}')" class="btn">Edit</button></div>
+                <div><button onclick="editTrade('${t.id}')" class="btn">Close</button></div>
             </div>
         `;
     });
 }
 
-// ─── EDIT / CLOSE TRADE ───────────────────────────────────────
+// ─── CLOSE TRADE (from recent trades) ──────────────────────
 function editTrade(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
@@ -341,7 +345,7 @@ function buildMonthlyChart() {
     });
 }
 
-// ─── EDIT MODE (populate form from URL param) ─────────────────
+// ─── EDIT MODE – populate form from URL param ──────────────
 const urlParams = new URLSearchParams(window.location.search);
 const editId = urlParams.get('edit');
 
@@ -356,17 +360,26 @@ if (editId) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
                 submitBtn.classList.add('btn-update');
             }
+            // Add hidden flag for update mode
             const form = document.getElementById('tradeForm');
-            const updateFlag = document.createElement('input');
-            updateFlag.type = 'hidden';
-            updateFlag.id = 'updateMode';
-            updateFlag.value = 'true';
-            form.appendChild(updateFlag);
+            let flag = document.getElementById('updateMode');
+            if (!flag) {
+                flag = document.createElement('input');
+                flag.type = 'hidden';
+                flag.id = 'updateMode';
+                flag.value = 'true';
+                form.appendChild(flag);
+            } else {
+                flag.value = 'true';
+            }
+            // Change page title
+            document.querySelector('.page-header h1').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
         });
     }
 }
 
 function populateForm(trade) {
+    // Text/select fields
     const fields = [
         'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
         'htfSwing', 'htfInternal', 'mtfSwing', 'mtfInternal',
@@ -378,11 +391,12 @@ function populateForm(trade) {
     ];
     fields.forEach(id => {
         const el = document.getElementById(id);
-        if (el && trade[id] !== undefined) {
+        if (el && trade[id] !== undefined && trade[id] !== null) {
             el.value = trade[id];
         }
     });
-    // Confluences – correct mapping to checkbox IDs
+
+    // Confluences – correct mapping
     if (trade.confluences) {
         const mapping = {
             htfSwing: 'confHTFSwing',
@@ -417,10 +431,20 @@ loadTrades();
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('tradeForm');
     if (form) {
+        // Remove any existing listener to avoid duplicates
+        form.removeEventListener('submit', saveTrade);
         form.addEventListener('submit', saveTrade);
         console.log('✅ Journal form ready');
     } else {
         console.error('❌ Form #tradeForm not found');
     }
     refreshUI();
+});
+
+// Listen for storage changes (other tabs)
+window.addEventListener('storage', function(e) {
+    if (e.key === STORAGE_KEY) {
+        loadTrades();
+        refreshUI();
+    }
 });
