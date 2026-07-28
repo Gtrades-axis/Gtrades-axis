@@ -2,8 +2,7 @@
    GTRADES AXIS™ – PROFESSIONAL JOURNAL (FLAT STORAGE)
    ========================================================= */
 
-const STORAGE_KEY = "trades";   // matches History page
-
+const STORAGE_KEY = "trades";
 let trades = [];
 let equityChartInstance = null;
 let monthlyChartInstance = null;
@@ -308,7 +307,7 @@ IMPROVEMENT : ${trade.reviewNote?.improvement || "-"}
 }
 
 /* ==========================================================
-   CHARTS – with cleanup
+   CHARTS – with proper cleanup
    ========================================================= */
 function initializeCharts() {
     if (typeof Chart === "undefined") return;
@@ -320,7 +319,12 @@ function buildEquityChart() {
     const canvas = document.getElementById("equityChart");
     if (!canvas) return;
 
-    // Destroy existing chart instance
+    // Destroy any existing chart attached to this canvas
+    const existing = Chart.getChart(canvas);
+    if (existing) {
+        existing.destroy();
+    }
+
     if (equityChartInstance) {
         equityChartInstance.destroy();
         equityChartInstance = null;
@@ -348,7 +352,11 @@ function buildMonthlyChart() {
     const canvas = document.getElementById("monthlyChart");
     if (!canvas) return;
 
-    // Destroy existing chart instance
+    const existing = Chart.getChart(canvas);
+    if (existing) {
+        existing.destroy();
+    }
+
     if (monthlyChartInstance) {
         monthlyChartInstance.destroy();
         monthlyChartInstance = null;
