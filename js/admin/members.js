@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT
+// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT FINAL
 // ============================================================
 
 import { db, auth } from "../firebase.js";
@@ -18,7 +18,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 
-// DOM
+// ================= DOM =================
+
 const table = document.getElementById("membersTable");
 const search = document.getElementById("memberSearch");
 
@@ -37,6 +38,7 @@ const memberAvatar = document.getElementById("memberAvatar");
 const approveBtn = document.getElementById("approveBtn");
 const premiumBtn = document.getElementById("premiumBtn");
 const adminBtn = document.getElementById("adminBtn");
+const memberBtn = document.getElementById("memberBtn");
 const suspendBtn = document.getElementById("suspendBtn");
 const deleteBtn = document.getElementById("deleteBtn");
 
@@ -46,247 +48,258 @@ let unsubscribe = null;
 
 
 
-// ============================================================
-// ADMIN AUTH CHECK
-// ============================================================
+// ================= ADMIN CHECK =================
+
 
 onAuthStateChanged(auth, async(user)=>{
 
-    if(!user){
 
-        window.location.href="../login.html";
-        return;
+if(!user){
 
-    }
+window.location.href="../login.html";
+return;
 
-
-    const adminDoc = await getDoc(
-        doc(db,"users",user.uid)
-    );
+}
 
 
-    if(
-        !adminDoc.exists() ||
-        adminDoc.data().role !== "admin"
-    ){
-
-        table.innerHTML =
-        `
-        <tr>
-        <td colspan="6">
-        Access denied
-        </td>
-        </tr>
-        `;
-
-        return;
-
-    }
+const snap =
+await getDoc(
+doc(db,"users",user.uid)
+);
 
 
-    loadMembers();
+
+if(!snap.exists() || snap.data().role !== "admin"){
+
+table.innerHTML =
+`
+<tr>
+<td colspan="6">
+Access Denied
+</td>
+</tr>
+`;
+
+return;
+
+}
+
+
+loadMembers();
+
 
 });
 
 
 
 
-// ============================================================
-// LOAD MEMBERS
-// ============================================================
+
+// ================= LOAD MEMBERS =================
+
 
 function loadMembers(){
 
 
-    if(unsubscribe){
-        unsubscribe();
-    }
+if(unsubscribe)
+unsubscribe();
 
 
 
-    unsubscribe = onSnapshot(
-        collection(db,"users"),
-        (snapshot)=>{
+unsubscribe =
+onSnapshot(
+collection(db,"users"),
+(snapshot)=>{
 
 
-            let html="";
+let html="";
 
 
-            snapshot.forEach((docSnap)=>{
+snapshot.forEach((item)=>{
 
 
-                const user = docSnap.data();
+const user=item.data();
 
 
 
-                const initials =
-                user.name ?
-                user.name.charAt(0).toUpperCase()
-                :
-                "U";
+const role =
+user.role || "member";
 
 
-                const status =
-                user.active === true
-                ?
-                "active"
-                :
-                (user.status || "pending");
+const membership =
+user.membership || "free";
 
 
+const status =
+user.active === true
+?
+"active"
+:
+(user.status || "pending");
 
-                const membership =
-                user.membership || "free";
 
 
+const initials =
+(user.name || "U")
+.charAt(0)
+.toUpperCase();
 
-                html += `
 
-                <tr>
 
-                <td>
 
-                <div class="user-cell">
+html +=
 
-                <div class="member-avatar-small">
-                ${initials}
-                </div>
+`
 
+<tr>
 
-                <div>
 
-                <strong>
-                ${user.name || "Unknown"}
-                </strong>
+<td>
 
-                <br>
+<div class="user-cell">
 
-                <small>
-                ${user.email || ""}
-                </small>
+<div class="member-avatar-small">
+${initials}
+</div>
 
 
-                </div>
+<div>
 
-                </div>
+<strong>
+${user.name || "Unknown"}
+</strong>
 
-                </td>
+<br>
 
+<small>
+${user.email || ""}
+</small>
 
 
-                <td>
+</div>
 
-                <span class="badge">
-                ${user.role || "member"}
-                </span>
+</div>
 
+</td>
 
-                </td>
 
 
+<td>
 
-                <td>
+<span class="badge">
+${role}
+</span>
 
-                <span class="badge">
-                ${membership}
-                </span>
+</td>
 
-                </td>
 
 
 
-                <td>
+<td>
 
-                <span class="badge">
-                ${status}
-                </span>
+<span class="badge">
+${membership}
+</span>
 
-                </td>
+</td>
 
 
 
-                <td>
-                ${user.payment || "Unpaid"}
-                </td>
 
+<td>
 
-                <td>
-                ${formatDate(user.createdAt)}
-                </td>
+<span class="badge">
+${status}
+</span>
 
+</td>
 
-                <td>
 
-                <button 
-                class="manage-btn"
-                data-id="${docSnap.id}">
-                Manage
-                </button>
 
 
-                </td>
+<td>
 
+${user.payment || "Unpaid"}
 
-                </tr>
+</td>
 
-                `;
 
 
-            });
+<td>
 
+${formatDate(user.createdAt)}
 
+</td>
 
-            table.innerHTML = html;
 
 
-            attachButtons();
+<td>
 
+<button
+class="manage-btn"
+data-id="${item.id}">
+Manage
+</button>
 
-        }
+</td>
 
-    );
 
+</tr>
+
+
+`;
+
+
+
+});
+
+
+
+table.innerHTML=html;
+
+
+attachButtons();
+
+
+});
 
 }
 
 
 
+// ================= DATE =================
 
-// ============================================================
-// DATE FORMAT
-// ============================================================
 
 function formatDate(date){
 
-    if(!date)
-    return "--";
+if(!date)
+return "--";
 
 
-    try{
+try{
 
-        if(date.toDate)
-        return date.toDate().toLocaleDateString();
-
-
-        return new Date(date)
-        .toLocaleDateString();
+if(date.toDate)
+return date.toDate()
+.toLocaleDateString();
 
 
-    }
-    catch{
+return new Date(date)
+.toLocaleDateString();
 
-        return "--";
 
-    }
+}
+catch{
+
+return "--";
+
+}
 
 }
 
 
 
 
-// ============================================================
-// BUTTON EVENTS
-// ============================================================
+// ================= OPEN MEMBER =================
+
 
 function attachButtons(){
 
@@ -310,10 +323,6 @@ openMember(btn.dataset.id);
 
 
 
-// ============================================================
-// OPEN MEMBER
-// ============================================================
-
 
 async function openMember(id){
 
@@ -322,15 +331,6 @@ const snap =
 await getDoc(
 doc(db,"users",id)
 );
-
-
-
-if(!snap.exists()){
-
-alert("Member not found");
-return;
-
-}
 
 
 
@@ -343,30 +343,23 @@ id,
 
 
 modalName.textContent =
-selectedUser.name || "Unknown";
+selectedUser.name || "";
 
 
 modalEmail.textContent =
-selectedUser.email || "--";
+selectedUser.email || "";
 
 
 modalRole.textContent =
 selectedUser.role || "member";
 
 
-
 modalPayment.textContent =
 selectedUser.payment || "Unpaid";
 
 
-
 modalStatus.textContent =
-selectedUser.active
-?
-"Active"
-:
-(selectedUser.status || "Pending");
-
+selectedUser.membership || "free";
 
 
 modalJoined.textContent =
@@ -389,10 +382,8 @@ modal.style.display="flex";
 
 
 
+// ================= APPROVE =================
 
-// ============================================================
-// APPROVE MEMBER
-// ============================================================
 
 approveBtn?.addEventListener(
 "click",
@@ -413,7 +404,10 @@ active:true,
 status:"active",
 
 membership:
-selectedUser.membership || "free"
+selectedUser.membership || "free",
+
+role:
+selectedUser.role || "member"
 
 }
 
@@ -421,10 +415,7 @@ selectedUser.membership || "free"
 
 
 
-alert(
-"Member Approved"
-);
-
+alert("Member approved");
 
 
 modal.style.display="none";
@@ -438,9 +429,10 @@ loadMembers();
 
 
 
-// ============================================================
-// MAKE PREMIUM
-// ============================================================
+
+
+// ================= MAKE PREMIUM =================
+
 
 premiumBtn?.addEventListener(
 "click",
@@ -468,10 +460,7 @@ status:"active"
 
 
 
-alert(
-"Member upgraded to Premium"
-);
-
+alert("Premium activated");
 
 
 modal.style.display="none";
@@ -486,9 +475,9 @@ loadMembers();
 
 
 
-// ============================================================
-// MAKE ADMIN
-// ============================================================
+
+// ================= MAKE ADMIN =================
+
 
 adminBtn?.addEventListener(
 "click",
@@ -512,10 +501,7 @@ role:"admin"
 
 
 
-alert(
-"Administrator access granted"
-);
-
+alert("User is now Admin");
 
 
 modal.style.display="none";
@@ -530,9 +516,50 @@ loadMembers();
 
 
 
-// ============================================================
-// SUSPEND
-// ============================================================
+
+// ================= REMOVE ADMIN =================
+
+
+memberBtn?.addEventListener(
+"click",
+async()=>{
+
+
+if(!selectedUser)
+return;
+
+
+
+await updateDoc(
+doc(db,"users",selectedUser.id),
+{
+
+role:"member"
+
+}
+
+);
+
+
+
+alert("Admin removed");
+
+
+modal.style.display="none";
+
+
+loadMembers();
+
+
+});
+
+
+
+
+
+
+// ================= SUSPEND =================
+
 
 suspendBtn?.addEventListener(
 "click",
@@ -558,10 +585,7 @@ status:"suspended"
 
 
 
-alert(
-"Member suspended"
-);
-
+alert("Member suspended");
 
 
 modal.style.display="none";
@@ -575,9 +599,10 @@ loadMembers();
 
 
 
-// ============================================================
-// DELETE
-// ============================================================
+
+
+// ================= DELETE =================
+
 
 deleteBtn?.addEventListener(
 "click",
@@ -589,7 +614,7 @@ return;
 
 
 
-if(!confirm("Delete member permanently?"))
+if(!confirm("Delete member?"))
 return;
 
 
@@ -600,10 +625,7 @@ doc(db,"users",selectedUser.id)
 
 
 
-alert(
-"Member deleted"
-);
-
+alert("Deleted");
 
 
 modal.style.display="none";
@@ -618,9 +640,45 @@ loadMembers();
 
 
 
-// ============================================================
-// CLOSE MODAL
-// ============================================================
+
+// ================= SEARCH =================
+
+
+search?.addEventListener(
+"input",
+()=>{
+
+
+const value =
+search.value.toLowerCase();
+
+
+
+document.querySelectorAll("#membersTable tr")
+.forEach(row=>{
+
+
+row.style.display =
+row.textContent
+.toLowerCase()
+.includes(value)
+?
+""
+:
+"none";
+
+
+});
+
+
+});
+
+
+
+
+
+// ================= CLOSE =================
+
 
 closeModal?.addEventListener(
 "click",
@@ -632,48 +690,9 @@ modal.style.display="none";
 );
 
 
-
 window.onclick=(e)=>{
 
 if(e.target===modal)
 modal.style.display="none";
 
 };
-
-
-
-
-// ============================================================
-// SEARCH
-// ============================================================
-
-search?.addEventListener(
-"input",
-()=>{
-
-
-const term =
-search.value.toLowerCase();
-
-
-
-document.querySelectorAll(
-"#membersTable tr"
-)
-.forEach(row=>{
-
-
-row.style.display =
-row.textContent
-.toLowerCase()
-.includes(term)
-?
-""
-:
-"none";
-
-
-});
-
-
-});
