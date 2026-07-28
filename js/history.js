@@ -243,28 +243,18 @@ PAIR FILTER
 
 function populatePairFilter(){
 
-    const pair=document.getElementById(
-
-        "pairFilter"
-
-    );
+    const pair=document.getElementById("pairFilter");
 
     if(!pair) return;
 
     pair.innerHTML="<option>All Pairs</option>";
 
     const pairs=[
-
         ...new Set(
-
-            trades.map(
-
-                trade=>trade.info.pair
-
-            )
-
+            trades
+            .filter(trade=>trade && trade.info && trade.info.pair)
+            .map(trade=>trade.info.pair)
         )
-
     ];
 
     pairs.forEach(symbol=>{
