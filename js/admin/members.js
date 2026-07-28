@@ -177,7 +177,8 @@ approveBtn?.addEventListener("click", async () => {
         await updateDoc(userRef, {
             active: true,
             status: "active",
-            role: "member"   // ✅ CRITICAL – changes role from "pending" to "member"
+            role: "member",
+membership: "free"  // ✅ CRITICAL – changes role from "pending" to "member"
         });
         alert("✅ Member Approved Successfully!");
         modal.style.display = "none";
@@ -193,7 +194,9 @@ approveBtn?.addEventListener("click", async () => {
 premiumBtn?.addEventListener("click", async () => {
     if (!selectedUser) { alert("No member selected."); return; }
     try {
-        await updateDoc(doc(db, "users", selectedUser.id), { role: "premium" });
+        await updateDoc(doc(db, "users", selectedUser.id), {
+    membership: "premium"
+});
         alert("Member is now Premium.");
         modal.style.display = "none";
         loadMembersRealtime();
@@ -203,7 +206,9 @@ premiumBtn?.addEventListener("click", async () => {
 adminBtn?.addEventListener("click", async () => {
     if (!selectedUser) { alert("No member selected."); return; }
     try {
-        await updateDoc(doc(db, "users", selectedUser.id), { role: "admin" });
+        await updateDoc(doc(db, "users", selectedUser.id), {
+    role: "admin"
+});
         alert("Member promoted to Administrator.");
         modal.style.display = "none";
         loadMembersRealtime();
