@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>AI Trading Review | GTRADES-AXIS™</title>
+
+<link rel="stylesheet"
+href="../css/journal.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<main class="main-content">
+
+<!-- ======================================
+HEADER
+====================================== -->
+
+<div class="topbar">
+
+<div>
+
+<h1>
+
+<i class="fa-solid fa-robot"></i>
+
+AI Trading Review
+
+</h1>
+
+<p>
+
+Receive professional feedback from your trading journal.
+
+</p>
+
+</div>
+
+<div>
+
+<a href="../journal.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Dashboard
+
+</a>
+
+</div>
+
+</div>
+
+<!-- ======================================
+PERFORMANCE SCORE
+====================================== -->
+
+<section class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-award"></i>
+
+<div>
+
+<h2 id="overallScore">0%</h2>
+
+<p>Overall Score</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-brain"></i>
+
+<div>
+
+<h2 id="psychologyScore">0%</h2>
+
+<p>Psychology</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-list-check"></i>
+
+<div>
+
+<h2 id="disciplineScore">0%</h2>
+
+<p>Discipline</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-chart-line"></i>
+
+<div>
+
+<h2 id="executionScore">0%</h2>
+
+<p>Execution</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================
+BEST PERFORMANCE
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+Best Performance
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="review-card">
+
+<h3>
+
+Best Pair
+
+</h3>
+
+<h1 id="bestPair">
+
+-
+
+</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>
+
+Best Setup
+
+</h3>
+
+<h1 id="bestSetup">
+
+-
+
+</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>
+
+Best Session
+
+</h3>
+
+<h1 id="bestSession">
+
+-
+
+</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>
+
+Highest RR
+
+</h3>
+
+<h1 id="highestRR">
+
+0
+
+</h1>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================
+WORST PERFORMANCE
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+Needs Improvement
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="review-card">
+
+<h3>
+
+Worst Pair
+
+</h3>
+
+<h1 id="worstPair">
+
+-
+
+</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>
+
+Worst Session
+
+</h3>
+
+<h1 id="worstSession">
+
+-
+
+</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>
+
+Biggest Mistake
+
+</h3>
+
+<h1 id="biggestMistake">
+
+-
+
+</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>
+
+Lowest RR
+
+</h3>
+
+<h1 id="lowestRR">
+
+0
+
+</h1>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================
+AI COACH
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+AI Coach Recommendations
+
+</h2>
+
+<div id="coachAdvice">
+
+<ul id="coachList">
+
+<li>
+
+Waiting for trading data...
+
+</li>
+
+</ul>
+
+</div>
+
+</section>
+<!-- ======================================
+WEEKLY REVIEW
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+Weekly Performance
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-calendar-week"></i>
+
+<div>
+
+<h2 id="weeklyTrades">0</h2>
+
+<p>Trades</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-dollar-sign"></i>
+
+<div>
+
+<h2 id="weeklyProfit">$0</h2>
+
+<p>Profit</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-percent"></i>
+
+<div>
+
+<h2 id="weeklyWinRate">0%</h2>
+
+<p>Win Rate</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-scale-balanced"></i>
+
+<div>
+
+<h2 id="weeklyRR">0</h2>
+
+<p>Average RR</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================
+MONTHLY REVIEW
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+Monthly Review
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="review-card">
+
+<h3>Best Month</h3>
+
+<h1 id="bestMonth">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Worst Month</h3>
+
+<h1 id="worstMonth">-</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Monthly Profit</h3>
+
+<h1 id="monthlyProfit">$0</h1>
+
+</div>
+
+<div class="review-card">
+
+<h3>Monthly Win Rate</h3>
+
+<h1 id="monthlyWinRate">0%</h1>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================
+RULE COMPLIANCE
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+Rule Compliance
+
+</h2>
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-check"></i>
+
+<div>
+
+<h2 id="htfCompliance">0%</h2>
+
+<p>HTF Bias</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-check-double"></i>
+
+<div>
+
+<h2 id="mtfCompliance">0%</h2>
+
+<p>MTF Structure</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-bullseye"></i>
+
+<div>
+
+<h2 id="ltfCompliance">0%</h2>
+
+<p>LTF Entry</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-shield-halved"></i>
+
+<div>
+
+<h2 id="riskCompliance">0%</h2>
+
+<p>Risk Management</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================
+PROGRESS TRACKER
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+Trader Progress
+
+</h2>
+
+<div class="progress-box">
+
+<label>Discipline</label>
+
+<progress id="disciplineProgress"
+value="0"
+max="100"></progress>
+
+<label>Psychology</label>
+
+<progress id="psychologyProgress"
+value="0"
+max="100"></progress>
+
+<label>Execution</label>
+
+<progress id="executionProgress"
+value="0"
+max="100"></progress>
+
+<label>Consistency</label>
+
+<progress id="consistencyProgress"
+value="0"
+max="100"></progress>
+
+</div>
+
+</section>
+
+<!-- ======================================
+FINAL AI SUMMARY
+====================================== -->
+
+<section class="latest-card">
+
+<h2>
+
+AI Final Review
+
+</h2>
+
+<div class="journal-summary">
+
+<ul id="finalReview">
+
+<li>Waiting for sufficient trading history...</li>
+
+</ul>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script type="module" src="../js/journal.js"></script>
+
+</body>
+
+</html>

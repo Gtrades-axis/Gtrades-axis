@@ -1,0 +1,549 @@
+/* ============================================================
+   GTRADES AXIS™ ANALYTICS – DARK THEME
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #080d1a;
+    color: #e8edf5;
+    min-height: 100vh;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0b1120;
+}
+::-webkit-scrollbar-thumb {
+    background: #2a4b8c;
+    border-radius: 20px;
+}
+
+/* ─── Dashboard ─── */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background: #0b1120;
+}
+
+/* ─── Sidebar (reuse from journal) ─── */
+.sidebar {
+    width: 270px;
+    min-width: 270px;
+    background: #0f1628;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 40px;
+}
+.sidebar .logo img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #1a2744;
+    padding: 6px;
+}
+.sidebar .logo h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+.sidebar .logo h2 span {
+    color: #3b82f6;
+    font-weight: 300;
+}
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #8ea2c0;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.sidebar nav a i {
+    width: 22px;
+    font-size: 18px;
+    text-align: center;
+}
+.sidebar nav a:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: #fff;
+}
+.sidebar nav a.active {
+    background: linear-gradient(135deg, #1a3a6a, #2a4b8c);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+.logout-btn {
+    margin-top: auto;
+    background: rgba(255, 70, 70, 0.08);
+    border: 1px solid rgba(255, 70, 70, 0.15);
+    color: #ff6b6b;
+    padding: 12px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+}
+.logout-btn:hover {
+    background: rgba(255, 70, 70, 0.15);
+    border-color: #ff6b6b;
+}
+
+/* ─── Main Content ─── */
+.main-content {
+    flex: 1;
+    padding: 35px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ─── Page Header ─── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+.page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff, #b0c8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.page-header p {
+    font-size: 15px;
+    color: #8ea2c0;
+    margin-top: 4px;
+}
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+.header-actions .btn {
+    background: #1a2a4a;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #b0c8ff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+.header-actions .btn:hover {
+    background: #2a4b8c;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+/* ─── AI COACH ─── */
+.ai-coach-container {
+    background: #121b2f;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 24px 28px;
+    margin-bottom: 30px;
+}
+.ai-coach-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.coach-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1a3a6a, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+}
+.ai-coach-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+}
+.coach-subtitle {
+    font-size: 13px;
+    color: #8ea2c0;
+    margin-top: 2px;
+}
+.coach-status {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.08);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(74, 222, 128, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.coach-status i {
+    font-size: 8px;
+}
+.coach-loading {
+    text-align: center;
+    color: #8ea2c0;
+    padding: 30px 0;
+}
+.coach-loading i {
+    margin-right: 10px;
+}
+.coach-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+.coach-insights {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+.coach-insight-item {
+    background: #0b1324;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border-left: 3px solid #3b82f6;
+}
+.coach-insight-item .insight-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8ea2c0;
+    font-weight: 600;
+}
+.coach-insight-item .insight-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 4px;
+}
+.coach-insight-item .insight-detail {
+    font-size: 12px;
+    color: #b0c8ff;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+.coach-recommendations {
+    background: #0b1324;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.coach-recommendations h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.coach-recommendations h4 i {
+    color: #facc15;
+}
+.coach-recommendations ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.coach-recommendations li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 14px;
+    color: #b0c8ff;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    line-height: 1.5;
+}
+.coach-recommendations li:last-child {
+    border-bottom: none;
+}
+.coach-recommendations li i {
+    color: #facc15;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* ─── Stats Grid ─── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 35px;
+}
+.stat-card {
+    background: #121b2f;
+    border-radius: 16px;
+    padding: 24px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.stat-card .stat-icon {
+    font-size: 22px;
+    color: #3b82f6;
+    margin-bottom: 12px;
+}
+.stat-card h3 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #8ea2c0;
+    margin-bottom: 8px;
+}
+.stat-card h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+}
+.value-positive {
+    color: #4ade80 !important;
+}
+.value-negative {
+    color: #f87171 !important;
+}
+.value-neutral {
+    color: #facc15 !important;
+}
+
+/* ─── Charts ─── */
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 35px;
+}
+.chart-card {
+    background: #121b2f;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.chart-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #e8edf5;
+}
+.chart-card h2 i {
+    color: #3b82f6;
+    margin-right: 10px;
+}
+.chart-wrapper {
+    height: 220px;
+    position: relative;
+}
+
+/* ─── Insights Panel ─── */
+.insights-panel {
+    background: #121b2f;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: 10px;
+}
+.insights-panel h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: #fff;
+}
+.insights-panel h3 i {
+    color: #facc15;
+    margin-right: 10px;
+}
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+}
+.insight-item {
+    background: #0b1324;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: center;
+}
+.insight-item h4 {
+    font-size: 12px;
+    color: #8ea2c0;
+    font-weight: 500;
+}
+.insight-item p {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 6px;
+}
+
+/* ─── Scroll to Top ─── */
+#scrollTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #1a3a6a;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    z-index: 999;
+}
+#scrollTopBtn.visible {
+    opacity: 1;
+    visibility: visible;
+}
+#scrollTopBtn:hover {
+    background: #3b82f6;
+    transform: scale(1.05);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 1024px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+    .coach-content {
+        grid-template-columns: 1fr;
+    }
+    .main-content {
+        padding: 25px 20px;
+    }
+}
+@media (max-width: 900px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        z-index: 1000;
+        transition: 0.3s;
+        height: 100%;
+        border-right: none;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.6);
+    }
+    .sidebar.open {
+        left: 0;
+    }
+    .main-content {
+        padding-top: 80px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+@media (max-width: 700px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .stat-card {
+        padding: 18px;
+    }
+    .stat-card h1 {
+        font-size: 24px;
+    }
+    .coach-insights {
+        grid-template-columns: 1fr 1fr;
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .header-actions {
+        width: 100%;
+    }
+    .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+@media (max-width: 500px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .coach-insights {
+        grid-template-columns: 1fr;
+    }
+    .ai-coach-container {
+        padding: 18px 16px;
+    }
+    .ai-coach-header {
+        gap: 12px;
+    }
+    .coach-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    .ai-coach-header h2 {
+        font-size: 18px;
+    }
+}

@@ -1,0 +1,394 @@
+/* =====================================================
+GTRADES AXIS™ ADMIN PAYMENTS
+===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+
+body{
+
+    background:#070b12;
+    color:white;
+
+}
+
+
+.dashboard{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+
+/* SIDEBAR */
+
+.sidebar{
+
+    width:260px;
+    background:#0c111b;
+    border-right:1px solid rgba(255,255,255,.08);
+    padding:25px;
+
+}
+
+
+.logo h2{
+
+    color:#1d9bf0;
+    margin-bottom:40px;
+    font-size:22px;
+
+}
+
+
+.sidebar nav a{
+
+    display:flex;
+    gap:15px;
+    align-items:center;
+
+    text-decoration:none;
+    color:#aaa;
+
+    padding:15px;
+    margin-bottom:10px;
+
+    border-radius:10px;
+
+    transition:.3s;
+
+}
+
+
+.sidebar nav a:hover,
+.sidebar nav .active{
+
+    background:#1d9bf0;
+    color:white;
+
+}
+
+
+
+/* MAIN */
+
+.main{
+
+    flex:1;
+    padding:30px;
+
+}
+
+
+
+/* TOPBAR */
+
+.topbar{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+
+}
+
+
+.topbar h1{
+
+    font-size:30px;
+
+}
+
+
+.topbar p{
+
+    color:#888;
+
+}
+
+
+
+/* STATS */
+
+.stats{
+
+    display:flex;
+    gap:20px;
+
+}
+
+
+.stat{
+
+    background:#121927;
+    padding:20px 30px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+}
+
+
+.stat span{
+
+    display:block;
+    font-size:30px;
+    color:#1d9bf0;
+
+}
+
+
+.stat small{
+
+    color:#aaa;
+
+}
+
+
+
+/* TOOLBAR */
+
+
+.toolbar{
+
+    display:flex;
+    gap:15px;
+    margin-bottom:25px;
+
+}
+
+
+.toolbar input,
+.toolbar select{
+
+    background:#121927;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:white;
+
+    padding:12px;
+
+    border-radius:10px;
+
+}
+
+
+.toolbar input{
+
+    width:300px;
+
+}
+
+
+
+/* TABLE */
+
+
+.table-container{
+
+    background:#121927;
+
+    border-radius:15px;
+
+    overflow:auto;
+
+}
+
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+
+thead{
+
+    background:#171f30;
+
+}
+
+
+th,
+td{
+
+    padding:16px;
+    text-align:left;
+
+}
+
+
+tbody tr{
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+}
+
+
+td{
+
+    color:#ccc;
+
+}
+
+
+
+.status{
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+}
+
+
+.pending{
+
+    background:#9a6b00;
+
+}
+
+
+.approved{
+
+    background:#087f23;
+
+}
+
+
+.rejected{
+
+    background:#a00000;
+
+}
+
+
+
+/* BUTTONS */
+
+
+.action-btn{
+
+    border:none;
+
+    padding:8px 15px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    background:#1d9bf0;
+
+    color:white;
+
+}
+
+
+
+/* MODAL */
+
+
+.modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.7);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+
+.modal-content{
+
+    width:450px;
+
+    background:#121927;
+
+    padding:30px;
+
+    border-radius:15px;
+
+}
+
+
+.close{
+
+    float:right;
+
+    cursor:pointer;
+
+    font-size:25px;
+
+}
+
+
+
+.details p{
+
+    margin:15px 0;
+
+    color:#ccc;
+
+}
+
+
+
+.buttons{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:25px;
+
+}
+
+
+.buttons button{
+
+    flex:1;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    color:white;
+
+}
+
+
+#approveBtn{
+
+    background:#008f39;
+
+}
+
+
+#rejectBtn{
+
+    background:#b00020;
+
+}

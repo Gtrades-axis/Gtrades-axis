@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>GTRADES-AXIS™ Premium Academy</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/premiumGuard.css">
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="premium-academy.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="academy-container">
+
+<!-- ==========================
+SIDEBAR – ALL LINKS NOW CLICKABLE
+=========================== -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+<p>
+
+Premium Academy
+
+</p>
+
+</div>
+
+<nav>
+
+<ul>
+
+<li><a href="dashboard.html"><i class="fas fa-house"></i> Dashboard</a></li>
+<li class="active"><a href="premium-academy.html"><i class="fas fa-book-open"></i> Modules</a></li>
+<li><a href="resources.html"><i class="fas fa-folder-open"></i> Resources</a></li>
+<li><a href="ai-review.html"><i class="fas fa-brain"></i> AI Review</a></li>
+<li><a href="certificate.html"><i class="fas fa-award"></i> Certificates</a></li>
+<li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+
+</ul>
+
+</nav>
+
+</aside>
+
+<!-- ==========================
+CONTENT
+=========================== -->
+
+<div class="content">
+
+<!-- HEADER – with working Dashboard link -->
+
+<header class="topbar">
+
+<div>
+
+<h1>
+
+Premium Academy
+
+</h1>
+
+<p>
+  <a href="dashboard.html" style="color:#1d9bf0;text-decoration:none;font-weight:500;font-size:0.9rem;">
+    <i class="fas fa-arrow-left"></i> Dashboard
+  </a>
+</p>
+
+<p>
+
+Trade with Structure.
+
+Execute with Precision.
+
+</p>
+
+</div>
+
+<div class="user-box">
+
+<img
+src="images/avatar.png"
+alt="">
+
+<div>
+
+<h4>
+
+Student
+
+</h4>
+
+<p>
+
+Premium Member
+
+</p>
+
+</div>
+
+</div>
+
+</header>
+
+<!-- HERO -->
+
+<section class="hero">
+
+<div class="hero-left">
+
+<span>
+
+WELCOME BACK
+
+</span>
+
+<h2>
+
+Continue Your Learning Journey
+
+</h2>
+
+<p>
+
+Complete every module to unlock your
+
+GTRADES-AXIS™
+
+Certificate.
+
+</p>
+
+<button id="continueBtn">
+
+Continue Learning
+
+</button>
+
+</div>
+
+<div class="hero-right">
+
+<div class="progress-ring">
+
+<div class="circle">
+
+<span id="progressPercent">
+
+0%
+
+</span>
+
+</div>
+
+</div>
+
+<h3>
+
+Overall Progress
+
+</h3>
+
+<p id="progressText">
+
+0 of 7 Modules Completed
+
+</p>
+
+</div>
+
+</section>
+
+<!-- MODULES -->
+
+<section>
+
+<div class="section-title">
+
+<h2>
+
+Academy Modules
+
+</h2>
+
+</div>
+
+<div
+id="modulesGrid"
+class="modules-grid">
+
+</div>
+
+</section>
+
+<!-- STATS -->
+
+<section class="stats">
+
+<div class="stat-card">
+
+<h2 id="lessonCompleted">
+
+0
+
+</h2>
+
+<p>
+
+Lessons Completed
+
+</p>
+
+</div>
+
+<div class="stat-card">
+
+<h2 id="quizPassed">
+
+0
+
+</h2>
+
+<p>
+
+Quizzes Passed
+
+</p>
+
+</div>
+
+<div class="stat-card">
+
+<h2 id="certificateCount">
+
+0
+
+</h2>
+
+<p>
+
+Certificates
+
+</p>
+
+</div>
+
+<div class="stat-card">
+
+<h2 id="learningHours">
+
+0h
+
+</h2>
+
+<p>
+
+Learning Time
+
+</p>
+
+</div>
+
+</section>
+
+<!-- ACTIVITY -->
+
+<section>
+
+<div class="section-title">
+
+<h2>
+
+Recent Activity
+
+</h2>
+
+</div>
+
+<div
+class="activity-card"
+id="activityLog">
+
+No activity yet.
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+<!-- ==========================
+SCRIPTS – LOAD AS MODULES
+=========================== -->
+
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/premium-academy.js"></script>
+
+</body>
+
+</html>
