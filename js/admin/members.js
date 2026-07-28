@@ -519,6 +519,9 @@ loadMembers();
 
 // ================= REMOVE ADMIN =================
 
+<button id="memberBtn">
+Remove Admin / Make Member
+</button>
 
 memberBtn?.addEventListener(
 "click",
