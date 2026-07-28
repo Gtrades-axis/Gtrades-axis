@@ -2,270 +2,392 @@
    GTRADES-AXIS™ PREMIUM GUARD
 ====================================================== */
 
-window.PremiumGuard = async function(options = {}) {
 
-    const feature = options.feature || "Premium Feature";
+import { auth, db } from "./firebase.js";
 
-    // Firebase Authentication check
-    firebase.auth().onAuthStateChanged(async(user)=>{
 
-        // ==================================================
-        // USER NOT LOGGED IN
-        // ==================================================
+import {
 
-        if(!user){
+onAuthStateChanged
 
-            showOverlay(
+}
+from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-                "🔐 Login Required",
 
-                "Please login to continue.",
+import {
 
-                [
-                    {
-                        text:"Login",
-                        url:"login.html",
-                        primary:true
-                    }
-                ]
+doc,
+getDoc
 
-            );
+}
+from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-            return;
 
-        }
 
-        // ==================================================
-        // GET USER DOCUMENT
-        // ==================================================
 
-        const doc = await firebase.firestore()
+window.PremiumGuard = function(options={}){
 
-        .collection("users")
 
-        .doc(user.uid)
+const feature =
+options.feature || "Premium Feature";
 
-        .get();
 
-        if(!doc.exists){
 
-            showOverlay(
+onAuthStateChanged(auth, async(user)=>{
 
-                "Account Not Found",
 
-                "Please contact support."
+// ================================
+// NOT LOGGED IN
+// ================================
 
-            );
 
-            return;
+if(!user){
 
-        }
 
-        const data = doc.data();
+showOverlay(
 
-        // ==================================================
-        // ACCOUNT APPROVAL
-        // ==================================================
+"🔐 Login Required",
 
-        if(data.active!==true){
+"Please login to continue.",
 
-            showOverlay(
+[
 
-                "⏳ Awaiting Approval",
+{
 
-                "Your account is waiting for administrator approval.",
+text:"Login",
 
-                [
+url:"login.html",
 
-                    {
+primary:true
 
-                        text:"Dashboard",
+}
 
-                        url:"dashboard.html",
+]
 
-                        primary:true
+);
 
-                    }
 
-                ]
+return;
 
-            );
 
-            return;
+}
 
-        }
 
-        // ==================================================
-        // PREMIUM MEMBERSHIP
-        // ==================================================
 
-        if(data.membership!=="premium"){
+// ================================
+// GET USER DATA
+// ================================
 
-            showPremium(
 
-                feature
+try{
 
-            );
 
-            return;
+const userSnap =
+await getDoc(
 
-        }
+doc(
+db,
+"users",
+user.uid
 
-        // ==================================================
-        // ACCESS GRANTED
-        // ==================================================
+)
 
-        document.body.classList.add(
+);
 
-            "premium-authorized"
 
-        );
 
-    });
+if(!userSnap.exists()){
+
+
+showOverlay(
+
+"Account Not Found",
+
+"Please contact support."
+
+);
+
+
+return;
+
+
+}
+
+
+
+const data =
+userSnap.data();
+
+
+
+
+// ================================
+// ACCOUNT STATUS
+// ================================
+
+
+if(data.active !== true){
+
+
+showOverlay(
+
+"⏳ Awaiting Approval",
+
+"Your account is waiting for administrator approval.",
+
+[
+
+{
+
+text:"Dashboard",
+
+url:"dashboard.html",
+
+primary:true
+
+}
+
+]
+
+);
+
+
+return;
+
+
+}
+
+
+
+
+// ================================
+// PREMIUM CHECK
+// ================================
+
+
+if(data.premium !== true){
+
+
+showPremium(feature);
+
+
+return;
+
+
+}
+
+
+
+// ================================
+// ACCESS GRANTED
+// ================================
+
+
+document.body.classList.add(
+
+"premium-authorized"
+
+);
+
+
+
+console.log(
+"Premium access granted"
+);
+
+
+
+}
+
+catch(error){
+
+console.error(error);
+
+}
+
+
+});
+
 
 };
 
-/* ======================================================
-   PREMIUM WINDOW
-====================================================== */
+
+
+
+
+// ======================================================
+// PREMIUM REQUIRED WINDOW
+// ======================================================
+
 
 function showPremium(feature){
 
-    showOverlay(
 
-        "⭐ Premium Required",
+showOverlay(
 
-        `${feature} is available exclusively to GTRADES-AXIS™ Premium Members.`,
+"⭐ Premium Required",
 
-        [
+`${feature} is available exclusively to GTRADES-AXIS™ Premium Members.`,
 
-            {
+[
 
-                text:"Upgrade Membership",
+{
 
-                url:"membership.html",
+text:"Upgrade Membership",
 
-                primary:true
+url:"membership.html",
 
-            },
+primary:true
 
-            {
+},
 
-                text:"Back Dashboard",
+{
 
-                url:"dashboard.html"
+text:"Back Dashboard",
 
-            }
-
-        ]
-
-    );
+url:"dashboard.html"
 
 }
-/* ======================================================
-   REUSABLE OVERLAY
-====================================================== */
+
+]
+
+);
+
+
+}
+
+
+
+
+
+// ======================================================
+// OVERLAY
+// ======================================================
+
 
 function showOverlay(title,message,buttons=[]){
 
-    // Prevent duplicate overlays
-    if(document.getElementById("premiumGuardOverlay")){
 
-        return;
 
-    }
+if(document.getElementById("premiumGuardOverlay")){
 
-    // Blur page
-    document.body.classList.add("premium-locked");
+return;
 
-    const overlay=document.createElement("div");
+}
 
-    overlay.id="premiumGuardOverlay";
 
-    overlay.className="premium-guard-overlay";
 
-    let buttonsHTML="";
+document.body.classList.add(
+"premium-locked"
+);
 
-    buttons.forEach(button=>{
 
-        buttonsHTML+=`
 
-            <a
+const overlay=document.createElement("div");
 
-            href="${button.url}"
 
-            class="premium-btn
+overlay.id="premiumGuardOverlay";
 
-            ${button.primary?"primary":"secondary"}">
 
-                ${button.text}
+overlay.className="premium-guard-overlay";
 
-            </a>
 
-        `;
 
-    });
+let buttonsHTML="";
 
-    overlay.innerHTML=`
 
-    <div class="premium-card">
 
-        <div class="premium-icon">
+buttons.forEach(button=>{
 
-            🔒
 
-        </div>
+buttonsHTML+=`
 
-        <h1>
+<a href="${button.url}"
 
-            ${title}
+class="premium-btn ${button.primary?"primary":"secondary"}">
 
-        </h1>
+${button.text}
 
-        <p>
+</a>
 
-            ${message}
+`;
 
-        </p>
+});
 
-        <div class="premium-features">
 
-            <h3>
 
-                Premium Membership Includes
+overlay.innerHTML=`
 
-            </h3>
+<div class="premium-card">
 
-            <ul>
+<div class="premium-icon">
 
-                <li>📒 Professional Trading Journal</li>
+🔒
 
-                <li>🎓 Premium Trading Academy</li>
+</div>
 
-                <li>🤖 AI Trade Review</li>
 
-                <li>📊 Advanced Analytics</li>
+<h1>
 
-                <li>📚 Premium Resources</li>
+${title}
 
-                <li>🏆 Certificates</li>
+</h1>
 
-                <li>🚀 Future Premium Updates</li>
 
-            </ul>
+<p>
 
-        </div>
+${message}
 
-        <div class="premium-buttons">
+</p>
 
-            ${buttonsHTML}
 
-        </div>
+<div class="premium-features">
 
-    </div>
+<h3>
 
-    `;
+Premium Membership Includes
 
-    document.body.appendChild(overlay);
+</h3>
+
+
+<ul>
+
+<li>📒 Professional Trading Journal</li>
+
+<li>🎓 Premium Trading Academy</li>
+
+<li>🤖 AI Trade Review</li>
+
+<li>📊 Advanced Analytics</li>
+
+<li>📚 Premium Resources</li>
+
+<li>🏆 Certificates</li>
+
+<li>🚀 Future Premium Updates</li>
+
+</ul>
+
+
+</div>
+
+
+<div class="premium-buttons">
+
+${buttonsHTML}
+
+</div>
+
+
+</div>
+
+`;
+
+
+
+document.body.appendChild(overlay);
+
 
 }
