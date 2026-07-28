@@ -5,7 +5,7 @@ VERSION 2.0
 PART 1
 ========================================================== */
 
-const STORAGE_KEY = "gtradesJournal";
+const STORAGE_KEY = "gtradesAxisJournal";
 
 let trades = [];
 
