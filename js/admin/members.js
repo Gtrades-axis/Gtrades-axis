@@ -1,8 +1,9 @@
 // ============================================================
-// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT (FIXED)
+// GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT
 // ============================================================
 
 import { db, auth } from "../firebase.js";
+
 import {
     collection,
     doc,
@@ -11,13 +12,19 @@ import {
     deleteDoc,
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-// ─── DOM ELEMENTS ──────────────────────────────────────────────
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+
+// DOM
 const table = document.getElementById("membersTable");
 const search = document.getElementById("memberSearch");
+
 const modal = document.getElementById("memberModal");
 const closeModal = document.getElementById("closeModal");
+
 const modalName = document.getElementById("modalName");
 const modalEmail = document.getElementById("modalEmail");
 const modalRole = document.getElementById("modalRole");
@@ -25,214 +32,648 @@ const modalPayment = document.getElementById("modalPayment");
 const modalStatus = document.getElementById("modalStatus");
 const modalJoined = document.getElementById("modalJoined");
 const memberAvatar = document.getElementById("memberAvatar");
+
+
 const approveBtn = document.getElementById("approveBtn");
 const premiumBtn = document.getElementById("premiumBtn");
 const adminBtn = document.getElementById("adminBtn");
 const suspendBtn = document.getElementById("suspendBtn");
 const deleteBtn = document.getElementById("deleteBtn");
 
+
 let selectedUser = null;
 let unsubscribe = null;
 
-// ─── AUTH GUARD ─────────────────────────────────────────────────
-onAuthStateChanged(auth, async (user) => {
-    console.log("🔥 members.js: onAuthStateChanged triggered. User:", user?.uid);
 
-    if (!user) {
-        window.location.href = "login.html";
+
+// ============================================================
+// ADMIN AUTH CHECK
+// ============================================================
+
+onAuthStateChanged(auth, async(user)=>{
+
+    if(!user){
+
+        window.location.href="../login.html";
         return;
+
     }
 
-    try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists() || userDoc.data().role !== "admin") {
-            table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">Access Denied. Admin only.</td></tr>`;
-            return;
-        }
-        console.log("✅ Admin verified. Loading members...");
-        loadMembersRealtime();
-    } catch (error) {
-        console.error("Auth error:", error);
-        table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">Error: ${error.message}</td></tr>`;
-    }
-});
 
-// ─── LOAD MEMBERS ──────────────────────────────────────────────
-function loadMembersRealtime() {
-    if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-    }
-
-    table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">Loading members...</td></tr>`;
-
-    unsubscribe = onSnapshot(collection(db, "users"),
-        (snapshot) => {
-            console.log(`📦 Received ${snapshot.size} users.`);
-            let html = "";
-            if (snapshot.empty) {
-                table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">No members found.</td></tr>`;
-                return;
-            }
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                const initials = user.name ? user.name.charAt(0).toUpperCase() : "U";
-                const statusClass = user.active === true ? "active" : (user.status || "pending");
-                html += `
-                    <tr>
-                        <td>
-                            <div class="user-cell">
-                                <div class="member-avatar-small">${initials}</div>
-                                <div><strong>${user.name || "Unknown"}</strong><br><small>${user.email || ""}</small></div>
-                            </div>
-                        </td>
-                        <td><span class="badge ${user.role || "member"}">${user.role || "member"}</span></td>
-                        <td><span class="badge ${statusClass}">${statusClass}</span></td>
-                        <td>${user.payment || "Unpaid"}</td>
-                        <td>${formatDate(user.createdAt)}</td>
-                        <td><button class="manage-btn" data-id="${doc.id}">Manage</button></td>
-                    </tr>
-                `;
-            });
-            table.innerHTML = html;
-            attachButtons();
-        },
-        (error) => {
-            console.error("❌ Snapshot error:", error);
-            table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">Error loading members: ${error.message}</td></tr>`;
-        }
+    const adminDoc = await getDoc(
+        doc(db,"users",user.uid)
     );
-}
 
-// ─── HELPERS ────────────────────────────────────────────────────
-function formatDate(date) {
-    if (!date) return "--";
-    try {
-        if (date.toDate) return date.toDate().toLocaleDateString();
-        if (date.seconds) return new Date(date.seconds * 1000).toLocaleDateString();
-        return new Date(date).toLocaleDateString();
-    } catch { return "--"; }
-}
 
-function attachButtons() {
-    document.querySelectorAll(".manage-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            console.log("🔘 Manage button clicked for ID:", btn.dataset.id);
-            openMember(btn.dataset.id);
-        });
-    });
-}
+    if(
+        !adminDoc.exists() ||
+        adminDoc.data().role !== "admin"
+    ){
 
-// ─── SEARCH ────────────────────────────────────────────────────
-search?.addEventListener("input", () => {
-    const term = search.value.toLowerCase();
-    document.querySelectorAll("#membersTable tr").forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(term) ? "" : "none";
-    });
-});
+        table.innerHTML =
+        `
+        <tr>
+        <td colspan="6">
+        Access denied
+        </td>
+        </tr>
+        `;
 
-// ─── OPEN MODAL ────────────────────────────────────────────────
-async function openMember(id) {
-    console.log("📂 Opening member:", id);
-    try {
-        const snap = await getDoc(doc(db, "users", id));
-        if (!snap.exists()) {
-            alert("Member not found.");
-            return;
-        }
-        selectedUser = { id, ...snap.data() };
-        console.log("👤 Selected user:", selectedUser);
-
-        modalName.textContent = selectedUser.name || "Unknown";
-        modalEmail.textContent = selectedUser.email || "--";
-        modalRole.textContent = selectedUser.role || "Free";
-        modalPayment.textContent = selectedUser.payment || "Unpaid";
-        modalStatus.textContent = selectedUser.active ? "Active" : (selectedUser.status || "Pending");
-        modalJoined.textContent = formatDate(selectedUser.createdAt);
-        memberAvatar.textContent = (selectedUser.name || "U").charAt(0).toUpperCase();
-
-        modal.style.display = "flex";
-        console.log("✅ Modal opened.");
-    } catch (error) {
-        console.error("❌ Error opening member:", error);
-        alert("Error opening member: " + error.message);
-    }
-}
-
-// ─── MODAL CLOSE ───────────────────────────────────────────────
-closeModal?.addEventListener("click", () => { modal.style.display = "none"; });
-window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
-window.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.style.display = "none"; });
-
-// ─── APPROVE BUTTON ────────────────────────────────────────────
-approveBtn?.addEventListener("click", async () => {
-    if (!selectedUser) {
-        alert("No member selected.");
         return;
+
     }
 
-    try {
-        const userRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userRef, {
-            active: true,
-            status: "active",
-            role: "member",
-membership: "free"  // ✅ CRITICAL – changes role from "pending" to "member"
-        });
-        alert("✅ Member Approved Successfully!");
-        modal.style.display = "none";
-        selectedUser = null;
-        loadMembersRealtime();
-    } catch (error) {
-        console.error("Approval error:", error);
-        alert("❌ Failed to approve: " + error.message);
+
+    loadMembers();
+
+});
+
+
+
+
+// ============================================================
+// LOAD MEMBERS
+// ============================================================
+
+function loadMembers(){
+
+
+    if(unsubscribe){
+        unsubscribe();
     }
+
+
+
+    unsubscribe = onSnapshot(
+        collection(db,"users"),
+        (snapshot)=>{
+
+
+            let html="";
+
+
+            snapshot.forEach((docSnap)=>{
+
+
+                const user = docSnap.data();
+
+
+
+                const initials =
+                user.name ?
+                user.name.charAt(0).toUpperCase()
+                :
+                "U";
+
+
+                const status =
+                user.active === true
+                ?
+                "active"
+                :
+                (user.status || "pending");
+
+
+
+                const membership =
+                user.membership || "free";
+
+
+
+                html += `
+
+                <tr>
+
+                <td>
+
+                <div class="user-cell">
+
+                <div class="member-avatar-small">
+                ${initials}
+                </div>
+
+
+                <div>
+
+                <strong>
+                ${user.name || "Unknown"}
+                </strong>
+
+                <br>
+
+                <small>
+                ${user.email || ""}
+                </small>
+
+
+                </div>
+
+                </div>
+
+                </td>
+
+
+
+                <td>
+
+                <span class="badge">
+                ${user.role || "member"}
+                </span>
+
+
+                </td>
+
+
+
+                <td>
+
+                <span class="badge">
+                ${membership}
+                </span>
+
+                </td>
+
+
+
+                <td>
+
+                <span class="badge">
+                ${status}
+                </span>
+
+                </td>
+
+
+
+                <td>
+                ${user.payment || "Unpaid"}
+                </td>
+
+
+                <td>
+                ${formatDate(user.createdAt)}
+                </td>
+
+
+                <td>
+
+                <button 
+                class="manage-btn"
+                data-id="${docSnap.id}">
+                Manage
+                </button>
+
+
+                </td>
+
+
+                </tr>
+
+                `;
+
+
+            });
+
+
+
+            table.innerHTML = html;
+
+
+            attachButtons();
+
+
+        }
+
+    );
+
+
+}
+
+
+
+
+// ============================================================
+// DATE FORMAT
+// ============================================================
+
+function formatDate(date){
+
+    if(!date)
+    return "--";
+
+
+    try{
+
+        if(date.toDate)
+        return date.toDate().toLocaleDateString();
+
+
+        return new Date(date)
+        .toLocaleDateString();
+
+
+    }
+    catch{
+
+        return "--";
+
+    }
+
+}
+
+
+
+
+// ============================================================
+// BUTTON EVENTS
+// ============================================================
+
+function attachButtons(){
+
+
+document.querySelectorAll(".manage-btn")
+.forEach(btn=>{
+
+
+btn.onclick=()=>{
+
+openMember(btn.dataset.id);
+
+};
+
+
 });
 
-// ─── OTHER BUTTONS ─────────────────────────────────────────────
-premiumBtn?.addEventListener("click", async () => {
-    if (!selectedUser) { alert("No member selected."); return; }
-    try {
-        await updateDoc(doc(db, "users", selectedUser.id), {
-    membership: "premium"
-});
-        alert("Member is now Premium.");
-        modal.style.display = "none";
-        loadMembersRealtime();
-    } catch (e) { alert("Error: " + e.message); }
+
+}
+
+
+
+
+// ============================================================
+// OPEN MEMBER
+// ============================================================
+
+
+async function openMember(id){
+
+
+const snap =
+await getDoc(
+doc(db,"users",id)
+);
+
+
+
+if(!snap.exists()){
+
+alert("Member not found");
+return;
+
+}
+
+
+
+selectedUser =
+{
+id,
+...snap.data()
+};
+
+
+
+modalName.textContent =
+selectedUser.name || "Unknown";
+
+
+modalEmail.textContent =
+selectedUser.email || "--";
+
+
+modalRole.textContent =
+selectedUser.role || "member";
+
+
+
+modalPayment.textContent =
+selectedUser.payment || "Unpaid";
+
+
+
+modalStatus.textContent =
+selectedUser.active
+?
+"Active"
+:
+(selectedUser.status || "Pending");
+
+
+
+modalJoined.textContent =
+formatDate(selectedUser.createdAt);
+
+
+
+memberAvatar.textContent =
+(selectedUser.name || "U")
+.charAt(0)
+.toUpperCase();
+
+
+
+modal.style.display="flex";
+
+
+}
+
+
+
+
+
+// ============================================================
+// APPROVE MEMBER
+// ============================================================
+
+approveBtn?.addEventListener(
+"click",
+async()=>{
+
+
+if(!selectedUser)
+return;
+
+
+
+await updateDoc(
+doc(db,"users",selectedUser.id),
+{
+
+active:true,
+
+status:"active",
+
+membership:
+selectedUser.membership || "free"
+
+}
+
+);
+
+
+
+alert(
+"Member Approved"
+);
+
+
+
+modal.style.display="none";
+
+
+loadMembers();
+
+
 });
 
-adminBtn?.addEventListener("click", async () => {
-    if (!selectedUser) { alert("No member selected."); return; }
-    try {
-        await updateDoc(doc(db, "users", selectedUser.id), {
-    role: "admin"
-});
-        alert("Member promoted to Administrator.");
-        modal.style.display = "none";
-        loadMembersRealtime();
-    } catch (e) { alert("Error: " + e.message); }
+
+
+
+// ============================================================
+// MAKE PREMIUM
+// ============================================================
+
+premiumBtn?.addEventListener(
+"click",
+async()=>{
+
+
+if(!selectedUser)
+return;
+
+
+
+await updateDoc(
+doc(db,"users",selectedUser.id),
+{
+
+membership:"premium",
+
+active:true,
+
+status:"active"
+
+}
+
+);
+
+
+
+alert(
+"Member upgraded to Premium"
+);
+
+
+
+modal.style.display="none";
+
+
+loadMembers();
+
+
 });
 
-suspendBtn?.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    if (!confirm("Suspend this member?")) return;
-    try {
-        await updateDoc(doc(db, "users", selectedUser.id), { active: false, status: "suspended" });
-        alert("Member Suspended.");
-        modal.style.display = "none";
-        loadMembersRealtime();
-    } catch (e) { alert("Error: " + e.message); }
+
+
+
+
+// ============================================================
+// MAKE ADMIN
+// ============================================================
+
+adminBtn?.addEventListener(
+"click",
+async()=>{
+
+
+if(!selectedUser)
+return;
+
+
+
+await updateDoc(
+doc(db,"users",selectedUser.id),
+{
+
+role:"admin"
+
+}
+
+);
+
+
+
+alert(
+"Administrator access granted"
+);
+
+
+
+modal.style.display="none";
+
+
+loadMembers();
+
+
 });
 
-deleteBtn?.addEventListener("click", async () => {
-    if (!selectedUser) return;
-    if (!confirm("Delete this member permanently?")) return;
-    try {
-        await deleteDoc(doc(db, "users", selectedUser.id));
-        alert("Member deleted.");
-        modal.style.display = "none";
-        loadMembersRealtime();
-    } catch (e) { alert("Error: " + e.message); }
+
+
+
+
+// ============================================================
+// SUSPEND
+// ============================================================
+
+suspendBtn?.addEventListener(
+"click",
+async()=>{
+
+
+if(!selectedUser)
+return;
+
+
+
+await updateDoc(
+doc(db,"users",selectedUser.id),
+{
+
+active:false,
+
+status:"suspended"
+
+}
+
+);
+
+
+
+alert(
+"Member suspended"
+);
+
+
+
+modal.style.display="none";
+
+
+loadMembers();
+
+
+});
+
+
+
+
+// ============================================================
+// DELETE
+// ============================================================
+
+deleteBtn?.addEventListener(
+"click",
+async()=>{
+
+
+if(!selectedUser)
+return;
+
+
+
+if(!confirm("Delete member permanently?"))
+return;
+
+
+
+await deleteDoc(
+doc(db,"users",selectedUser.id)
+);
+
+
+
+alert(
+"Member deleted"
+);
+
+
+
+modal.style.display="none";
+
+
+loadMembers();
+
+
+});
+
+
+
+
+
+// ============================================================
+// CLOSE MODAL
+// ============================================================
+
+closeModal?.addEventListener(
+"click",
+()=>{
+
+modal.style.display="none";
+
+}
+);
+
+
+
+window.onclick=(e)=>{
+
+if(e.target===modal)
+modal.style.display="none";
+
+};
+
+
+
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+search?.addEventListener(
+"input",
+()=>{
+
+
+const term =
+search.value.toLowerCase();
+
+
+
+document.querySelectorAll(
+"#membersTable tr"
+)
+.forEach(row=>{
+
+
+row.style.display =
+row.textContent
+.toLowerCase()
+.includes(term)
+?
+""
+:
+"none";
+
+
+});
+
+
 });
