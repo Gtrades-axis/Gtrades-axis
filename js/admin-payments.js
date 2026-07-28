@@ -1,339 +1,153 @@
 import { db } from "./firebase.js";
 
 import {
+
 collection,
+
 getDocs,
+
 doc,
+
 updateDoc,
-setDoc,
+
 serverTimestamp
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-const paymentsTable =
-document.getElementById("paymentsTable");
+const table=document.getElementById("paymentsTable");
 
-const pendingCount =
-document.getElementById("pendingCount");
+const pending=document.getElementById("pendingCount");
 
-const approvedCount =
-document.getElementById("approvedCount");
+const approved=document.getElementById("approvedCount");
 
-const rejectedCount =
-document.getElementById("rejectedCount");
-
-const revenue =
-document.getElementById("revenue");
-
-
-let payments = [];
-
-
-
-// ===============================
-// LOAD PAYMENTS
-// ===============================
+const revenue=document.getElementById("revenue");
 
 async function loadPayments(){
 
+const snapshot=await getDocs(collection(db,"payments"));
 
-try{
+let html="";
 
+let pendingCount=0;
 
-const snapshot =
-await getDocs(
-collection(db,"payments")
-);
+let approvedCount=0;
 
+let totalRevenue=0;
 
-payments=[];
+snapshot.forEach(payment=>{
 
+const p=payment.data();
 
-snapshot.forEach(item=>{
+if(p.status==="pending") pendingCount++;
 
-payments.push({
+if(p.status==="approved"){
 
-id:item.id,
-...item.data()
+approvedCount++;
 
-});
-
-});
-
-
-displayPayments();
-
+totalRevenue+=Number(p.amount);
 
 }
-catch(error){
 
-console.error(error);
+html+=`
 
-paymentsTable.innerHTML=
-
-`
 <tr>
-<td colspan="7">
-Error loading payments
-</td>
-</tr>
-`;
 
-}
+<td>${p.name}</td>
 
-}
+<td>${p.plan}</td>
 
+<td>${p.paymentMethod}</td>
 
+<td>$${p.amount}</td>
 
-// ===============================
-// DISPLAY PAYMENTS
-// ===============================
+<td>${p.transactionId}</td>
 
-function displayPayments(){
-
-
-paymentsTable.innerHTML="";
-
-
-let pending=0;
-let approved=0;
-let rejected=0;
-let total=0;
-
-
-
-payments.forEach(payment=>{
-
-
-if(payment.status==="pending")
-pending++;
-
-
-if(payment.status==="approved"){
-
-approved++;
-
-total += Number(payment.amount || 0);
-
-}
-
-
-if(payment.status==="rejected")
-rejected++;
-
-
-
-let row=document.createElement("tr");
-
-
-row.innerHTML=`
-
-<td>
-${payment.name || "-"}
-</td>
-
-
-<td>
-${payment.plan || "-"}
-</td>
-
-
-<td>
-$${payment.amount || 0}
-</td>
-
-
-<td>
-${payment.paymentMethod || "-"}
-</td>
-
-
-<td>
-${payment.transactionId || "-"}
-</td>
-
+<td>${p.status}</td>
 
 <td>
 
-<span class="status ${payment.status}">
+<button
 
-${payment.status}
+class="approve"
 
-</span>
-
-</td>
-
-
-<td>
-
-
-<button class="approve">
+onclick="approvePayment('${payment.id}','${p.uid}')">
 
 Approve
 
 </button>
 
+<button
 
-<button class="reject">
+class="reject"
+
+onclick="rejectPayment('${payment.id}')">
 
 Reject
 
 </button>
 
-
 </td>
+
+</tr>
 
 `;
 
-
-
-// APPROVE BUTTON
-
-row.querySelector(".approve")
-.onclick=()=>{
-
-updatePayment(
-payment.id,
-"approved",
-payment.uid
-);
-
-};
-
-
-
-// REJECT BUTTON
-
-row.querySelector(".reject")
-.onclick=()=>{
-
-updatePayment(
-payment.id,
-"rejected",
-payment.uid
-);
-
-};
-
-
-
-paymentsTable.appendChild(row);
-
-
 });
 
+table.innerHTML=html;
 
+pending.textContent=pendingCount;
 
-pendingCount.innerText=pending;
+approved.textContent=approvedCount;
 
-approvedCount.innerText=approved;
-
-rejectedCount.innerText=rejected;
-
-revenue.innerText="$"+total;
-
-
+revenue.textContent="$"+totalRevenue;
 
 }
 
+window.approvePayment=async function(paymentId,userId){
 
-
-// ===============================
-// UPDATE PAYMENT
-// ===============================
-
-async function updatePayment(
-paymentId,
-status,
-uid
-){
-
-
-try{
-
-
-await updateDoc(
-
-doc(db,"payments",paymentId),
-
-{
-
-status:status
-
-}
-
-);
-
-
-
-// Upgrade user after approval
-
-if(status==="approved"){
-
-
-await setDoc(
-
-doc(db,"users",uid),
-
-{
-
-premium:true,
-
-plan:"Premium",
-
-membership:"premium",
-
-active:true,
+await updateDoc(doc(db,"payments",paymentId),{
 
 status:"approved",
 
-payment:"paid",
-
 approvedAt:serverTimestamp()
 
-},
+});
 
-{
-merge:true
-}
+await updateDoc(doc(db,"users",userId),{
 
-);
+role:"premium",
 
+membership:"premium",
 
-}
+payment:"paid",
 
+active:true,
 
+status:"active",
 
-alert(
-"Payment "+status
-);
+premiumSince:serverTimestamp()
 
-await loadPayments();
+});
 
-}
+alert("Premium activated.");
 
-catch(error){
-
-console.error(error);
-if(status==="approved" && payment.status==="approved"){
-
-alert("Already approved");
-
-return;
-
-}
-alert(
-"Failed updating payment"
-);
+loadPayments();
 
 }
 
+window.rejectPayment=async function(paymentId){
+
+await updateDoc(doc(db,"payments",paymentId),{
+
+status:"rejected"
+
+});
+
+alert("Payment rejected.");
+
+loadPayments();
 
 }
-
-
-
 
 loadPayments();
