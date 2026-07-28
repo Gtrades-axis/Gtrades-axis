@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<script type="module" src="js/auth.js"></script>
     <!-- Firebase SDKs -->
     <script type="importmap">
         {
@@ -532,35 +532,35 @@
     </div>
 
     <!-- ============================================================
-    FIREBASE + JOURNAL LOGIC (all in one module)
+    JAVASCRIPT – Firebase Auth + Premium Check + Journal Logic
     ============================================================ -->
     <script type="module">
-        // ─── FIREBASE IMPORTS ──────────────────────────────────────
+        // ─── Firebase Imports ──────────────────────────────────────
         import { initializeApp } from 'firebase/app';
         import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
         import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
         // 🔧 REPLACE WITH YOUR FIREBASE CONFIG
         const firebaseConfig = {
-            apiKey: "AIzaSyCJ9x3Jq5Wf7Y8Z9A0B1C2D3E4F5G6H7I8J9K0L",  // <-- REPLACE
-            authDomain: "your-project.firebaseapp.com",            // <-- REPLACE
-            projectId: "your-project-id",                          // <-- REPLACE
-            storageBucket: "your-project.appspot.com",             // <-- REPLACE
-            messagingSenderId: "123456789012",                     // <-- REPLACE
-            appId: "1:123456789012:web:abcdef123456"               // <-- REPLACE
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ─── DOM REFS ──────────────────────────────────────────────
+        // ─── DOM refs ──────────────────────────────────────────────
         const mainApp = document.getElementById('mainApp');
         const premiumOverlay = document.getElementById('premiumOverlay');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        // ─── LOGOUT (works anywhere, even on overlay) ──────────────
+        // ─── LOGOUT (works anywhere) ──────────────────────────────
         async function handleLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 try {
@@ -573,25 +573,15 @@
             }
         }
 
-        // Attach logout listener (works even if button is in hidden mainApp)
         if (logoutBtn) {
             logoutBtn.addEventListener('click', handleLogout);
         }
 
-        // Also attach to any logout button in the overlay (if needed)
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('#logoutBtn')) {
-                handleLogout();
-            }
-        });
-
         // ─── AUTH + PREMIUM CHECK ──────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
-            // Hide loading spinner
             loadingSpinner.style.display = 'none';
 
             if (!user) {
-                // Not logged in → redirect to login
                 window.location.href = 'login.html';
                 return;
             }
@@ -600,50 +590,54 @@
                 console.log('🔍 Checking premium for user:', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
 
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    console.log('📄 User data:', data);
-
-                    if (data.premium === true) {
-                        // ✅ Premium user – show journal
-                        console.log('✅ Premium user – showing journal');
-                        mainApp.style.display = 'flex';
-                        premiumOverlay.classList.remove('active');
-                        initJournal(); // start the journal logic
-                    } else {
-                        // ❌ Not premium – show overlay
-                        console.log('❌ Non-premium user – showing overlay');
-                        mainApp.style.display = 'none';
-                        premiumOverlay.classList.add('active');
-                    }
+                if (userDoc.exists() && userDoc.data().premium === true) {
+                    console.log('✅ Premium user – showing journal');
+                    mainApp.style.display = 'flex';
+                    premiumOverlay.classList.remove('active');
+                    initJournal();
                 } else {
-                    // User document doesn't exist → treat as non-premium
-                    console.warn('⚠️ User document not found – showing overlay');
+                    console.log('❌ Non-premium user – showing overlay');
                     mainApp.style.display = 'none';
                     premiumOverlay.classList.add('active');
                 }
             } catch (error) {
                 console.error('❌ Error checking premium:', error);
-                // On error, show overlay (safe fallback)
                 mainApp.style.display = 'none';
                 premiumOverlay.classList.add('active');
-                // Show error in the overlay
                 document.querySelector('.premium-box p').innerHTML =
                     '⚠️ Error verifying membership. Please try again later.<br><br>' +
                     '<small style="color:#f87171;">' + error.message + '</small>';
             }
         });
 
-        // ─── JAVASCRIPT FOR THE JOURNAL (full logic) ──────────────
+        // ─── JOURNAL LOGIC ──────────────────────────────────────────
         function initJournal() {
-            // This is the entire journal script from your previous working version.
-            // I'm including it here so everything is self‑contained.
+            // This is the full journal logic from your previous working version
+            // (I've included it here for completeness – it's the exact same as before)
+            // For brevity, I'll include a placeholder but the final code will have it.
+            // In the answer, I'll paste the entire journal logic.
 
             const STORAGE_KEY = "trades";
             let trades = [];
             let equityChartInstance = null;
             let monthlyChartInstance = null;
             let editingTrade = null;
+
+            function loadTrades() {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                trades = saved ? JSON.parse(saved) : [];
+            }
+            function saveTrades() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+            }
+            // ... (all the existing journal functions)
+            // I'll include the full code in the final answer.
+            // Since the answer is long, I'll put the complete journal logic here.
+
+            // ─── The entire journal logic from your original file ───
+            // (I'm copying it from your provided journal.html to avoid missing anything)
+            // I'll paste it inside this function.
+            // For readability, I'll compress it a bit.
 
             // ─── LOAD & SAVE ────────────────────────────────────────────
             function loadTrades() {
@@ -881,7 +875,6 @@
                 });
             }
 
-            // ─── CLOSE TRADE ──────────────────────────────────────────────
             window.closeTrade = function(id) {
                 const trade = trades.find(t => t.id === id);
                 if (!trade) return;
@@ -1096,8 +1089,8 @@
             });
 
             console.log('✅ Journal loaded successfully.');
-        } // end initJournal()
+        } // end initJournal
     </script>
-
+<script type="module" src="js/auth.js"></script>
 </body>
 </html>
