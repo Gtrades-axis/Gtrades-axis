@@ -249,6 +249,8 @@
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div><h3>Net Profit</h3><h1 id="netProfit" class="value-positive">$0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div><h3>Wins</h3><h1 id="wins" class="value-positive">0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-times-circle"></i></div><h3>Losses</h3><h1 id="losses" class="value-negative">0</h1></div>
+                <!-- NEW: Pending card -->
+                <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div><h3>Pending</h3><h1 id="pendingCount">0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-fire"></i></div><h3>Streak</h3><h1 id="streak">0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div><h3>This Month</h3><h1 id="monthCount">0</h1></div>
             </section>
@@ -556,32 +558,71 @@
             }
         }
 
-        // ─── LOAD DASHBOARD ───────────────────────────────────────────
+        // ─── LOAD DASHBOARD (counts ALL trades, not just closed) ──
         function loadDashboard() {
-            const closed = trades.filter(t => t.status === "Closed");
-            const wins = closed.filter(t => t.result === "Win");
-            const losses = closed.filter(t => t.result === "Loss");
-            const pending = trades.filter(t => t.status === "Pending");
-
-            const totalTrades = closed.length;
+            const all = trades;
+            const wins = all.filter(t => t.result === "Win");
+            const losses = all.filter(t => t.result === "Loss");
+            const pending = all.filter(t => t.status === "Pending" || t.result === "Pending");
+            const totalTrades = all.length;
             const totalWins = wins.length;
             const totalLosses = losses.length;
             const winRate = totalTrades === 0 ? 0 : (totalWins / totalTrades) * 100;
-            const netProfit = closed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
-            const avgRR = totalTrades === 0 ? 0 : closed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
+            const netProfit = all.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
+            const avgRR = totalTrades === 0 ? 0 : all.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
+
+            // ── Streak (based on sorted trades) ──
+            let streak = 0;
+            const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (sorted.length > 0) {
+                const last = sorted[sorted.length - 1];
+                if (last.result === "Win") {
+                    for (let i = sorted.length - 1; i >= 0; i--) {
+                        if (sorted[i].result === "Win") streak++;
+                        else break;
+                    }
+                } else if (last.result === "Loss") {
+                    for (let i = sorted.length - 1; i >= 0; i--) {
+                        if (sorted[i].result === "Loss") streak--;
+                        else break;
+                    }
+                }
+            }
+
+            // ── Month count ──
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthCount = all.filter(t => {
+                if (!t.date) return false;
+                try { const d = new Date(t.date); return d >= monthStart; } catch { return false; }
+            }).length;
 
             setText('totalTrades', totalTrades);
             setText('wins', totalWins);
             setText('losses', totalLosses);
+            setText('pendingCount', pending.length);
             setText('winRate', winRate.toFixed(1) + '%');
             setText('averageRR', avgRR.toFixed(2));
-            setText('netProfit', '$' + netProfit.toFixed(2));
-            setText('pendingTrades', pending.length);
-            calculatePerformance(closed);
+            setText('netProfit', (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2));
+            setText('streak', streak > 0 ? '+' + streak : streak < 0 ? streak : '0');
+            setText('monthCount', monthCount);
+
+            // Color coding
+            const winEl = document.getElementById('winRate');
+            if (winEl) winEl.className = winRate >= 50 ? 'value-positive' : winRate > 0 ? 'value-neutral' : 'value-negative';
+            const profitEl = document.getElementById('netProfit');
+            if (profitEl) {
+                const p = netProfit;
+                profitEl.className = p > 0 ? 'value-positive' : p < 0 ? 'value-negative' : 'value-neutral';
+            }
+
+            // Optional: calculate performance (best/worst pair) using all trades
+            calculatePerformance(all);
         }
 
-        function calculatePerformance(closed) {
-            if (closed.length === 0) {
+        // ─── PERFORMANCE (best/worst pair, session, etc.) ──────────
+        function calculatePerformance(tradesArray) {
+            if (tradesArray.length === 0) {
                 setText('bestPair', '-');
                 setText('worstPair', '-');
                 setText('bestSession', '-');
@@ -590,23 +631,20 @@
             }
             const pairStats = {};
             const sessionStats = {};
-            let streak = 0, bestStreak = 0;
-            closed.forEach(t => {
+            tradesArray.forEach(t => {
                 const pair = t.pair || '?';
                 const session = t.session || '?';
                 const profit = parseFloat(t.profit) || 0;
                 pairStats[pair] = (pairStats[pair] || 0) + profit;
                 sessionStats[session] = (sessionStats[session] || 0) + profit;
-                if (t.result === 'Win') { streak++; if (streak > bestStreak) bestStreak = streak; }
-                else { streak = 0; }
             });
-            const bestPair = Object.keys(pairStats).sort((a, b) => pairStats[b] - pairStats[a])[0];
-            const worstPair = Object.keys(pairStats).sort((a, b) => pairStats[a] - pairStats[b])[0];
-            const bestSession = Object.keys(sessionStats).sort((a, b) => sessionStats[b] - sessionStats[a])[0];
-            setText('bestPair', bestPair || '-');
-            setText('worstPair', worstPair || '-');
-            setText('bestSession', bestSession || '-');
-            setText('winStreak', bestStreak);
+            let bestPair = Object.keys(pairStats).sort((a, b) => pairStats[b] - pairStats[a])[0] || '-';
+            let worstPair = Object.keys(pairStats).sort((a, b) => pairStats[a] - pairStats[b])[0] || '-';
+            let bestSession = Object.keys(sessionStats).sort((a, b) => sessionStats[b] - sessionStats[a])[0] || '-';
+            setText('bestPair', bestPair);
+            setText('worstPair', worstPair);
+            setText('bestSession', bestSession);
+            // Streak is already handled separately, we keep a separate winStreak element if needed
         }
 
         // ─── RECENT TRADES ────────────────────────────────────────────
