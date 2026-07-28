@@ -23,7 +23,7 @@
 
     <style>
         /* ============================================================
-           DARK THEME – same as your journal
+           DARK THEME – all your existing styles
            ============================================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
@@ -540,14 +540,16 @@
         import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
         import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
-        // 🔧 REPLACE WITH YOUR FIREBASE CONFIG
+        // 🔧 YOUR FIREBASE CONFIG – copied from your provided code
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+            authDomain: "gtrades-axis.firebaseapp.com",
+            databaseURL: "https://gtrades-axis-default-rtdb.firebaseio.com",
+            projectId: "gtrades-axis",
+            storageBucket: "gtrades-axis.firebasestorage.app",
+            messagingSenderId: "111456545888",
+            appId: "1:111456545888:web:f0526c142d7ea5e22fe705",
+            measurementId: "G-FGJ8N1DDPD"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -578,13 +580,10 @@
         }
 
         // ─── AUTH + PREMIUM CHECK ──────────────────────────────────
-        // Only ONE listener – no external scripts interfere.
         onAuthStateChanged(auth, async (user) => {
-            // Hide spinner
             loadingSpinner.style.display = 'none';
 
             if (!user) {
-                // Not logged in → redirect to login
                 window.location.href = 'login.html';
                 return;
             }
@@ -594,7 +593,7 @@
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const data = userDoc.data();
 
-                // Check BOTH fields
+                // Checks both old and new premium fields
                 const isPremium = userDoc.exists() && (
                     data.premium === true ||
                     data.membership === 'premium'
@@ -604,7 +603,6 @@
                     console.log('✅ Premium user – showing journal');
                     mainApp.style.display = 'flex';
                     premiumOverlay.classList.remove('active');
-                    // Initialize the journal functionality
                     initJournal();
                 } else {
                     console.log('❌ Non‑premium user – showing overlay');
@@ -623,9 +621,9 @@
 
         // ─── JOURNAL LOGIC ──────────────────────────────────────────
         function initJournal() {
-            // This is the complete journal logic (trades, charts, form, etc.)
-            // ─── FULL CODE FROM YOUR PREVIOUS WORKING JOURNAL ────
-            // (I'm embedding it all here to keep it self‑contained)
+            // All the journal code (trades, charts, stats, form)
+            // We include the full implementation below.
+            // This is the same as the previous working version.
 
             const STORAGE_KEY = "trades";
             let trades = [];
@@ -633,7 +631,7 @@
             let monthlyChartInstance = null;
             let editingTrade = null;
 
-            // ─── LOAD & SAVE ────────────────────────────────────────────
+            // ─── Load & Save ────────────────────────────────────────────
             function loadTrades() {
                 const saved = localStorage.getItem(STORAGE_KEY);
                 trades = saved ? JSON.parse(saved) : [];
@@ -643,7 +641,7 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
             }
 
-            // ─── HELPERS ──────────────────────────────────────────────────
+            // ─── Helpers ──────────────────────────────────────────────────
             function val(id) {
                 const el = document.getElementById(id);
                 return el ? el.value : '';
@@ -665,14 +663,14 @@
 
             function $(id) { return document.getElementById(id); }
 
-            // ─── REFRESH UI ──────────────────────────────────────────────
+            // ─── Refresh UI ──────────────────────────────────────────────
             function refreshUI() {
                 loadDashboard();
                 loadRecentTrades();
                 initializeCharts();
             }
 
-            // ─── BUILD TRADE OBJECT ──────────────────────────────────────
+            // ─── Build Trade Object ──────────────────────────────────────
             function buildTradeFromForm(isUpdate) {
                 return {
                     id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 8),
@@ -739,7 +737,7 @@
                 };
             }
 
-            // ─── SAVE TRADE ──────────────────────────────────────────────
+            // ─── Save Trade ──────────────────────────────────────────────
             function saveTrade(e) {
                 e.preventDefault();
                 const form = e.target;
@@ -765,7 +763,7 @@
                 }
             }
 
-            // ─── LOAD DASHBOARD ───────────────────────────────────────────
+            // ─── Load Dashboard ───────────────────────────────────────────
             function loadDashboard() {
                 const all = trades;
                 const wins = all.filter(t => t.result === "Win");
@@ -848,7 +846,7 @@
                 setText('bestSession', bestSession);
             }
 
-            // ─── RECENT TRADES ────────────────────────────────────────────
+            // ─── Recent Trades ────────────────────────────────────────────
             function loadRecentTrades() {
                 const container = document.getElementById('recentTrades');
                 if (!container) return;
@@ -913,7 +911,7 @@
                 `);
             }
 
-            // ─── CHARTS ────────────────────────────────────────────────────
+            // ─── Charts ────────────────────────────────────────────────────
             function initializeCharts() {
                 if (typeof Chart === 'undefined') return;
                 destroyAllCharts();
@@ -978,7 +976,7 @@
                 });
             }
 
-            // ─── POPULATE FORM (edit mode) ──────────────────────────────
+            // ─── Populate Form (edit mode) ──────────────────────────────
             function populateForm(trade) {
                 const fields = [
                     'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
@@ -1014,7 +1012,7 @@
                 }
             }
 
-            // ─── EDIT MODE DETECTION ────────────────────────────────────
+            // ─── Edit Mode Detection ────────────────────────────────────
             const urlParams = new URLSearchParams(window.location.search);
             const editId = urlParams.get('edit');
 
@@ -1051,7 +1049,7 @@
                 }
             }
 
-            // ─── INIT ──────────────────────────────────────────────────────
+            // ─── Init ──────────────────────────────────────────────────────
             loadTrades();
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('tradeForm');
@@ -1065,7 +1063,7 @@
                 refreshUI();
             });
 
-            // ─── SCROLL TO TOP ──────────────────────────────────────────
+            // ─── Scroll to Top ──────────────────────────────────────────
             const scrollBtn = document.getElementById('scrollTopBtn');
             if (scrollBtn) {
                 window.addEventListener('scroll', () => {
@@ -1074,7 +1072,7 @@
                 scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
             }
 
-            // ─── STORAGE SYNC ──────────────────────────────────────────
+            // ─── Storage Sync ──────────────────────────────────────────
             window.addEventListener('storage', function(e) {
                 if (e.key === STORAGE_KEY) {
                     loadTrades();
