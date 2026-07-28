@@ -590,7 +590,14 @@
                 console.log('🔍 Checking premium for user:', user.uid);
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
 
-                if (userDoc.exists() && userDoc.data().premium === true) {
+                // ✅ FIX: Check BOTH premium (boolean) AND membership (string)
+                const data = userDoc.data();
+                const isPremium = userDoc.exists() && (
+                    data.premium === true ||
+                    data.membership === 'premium'
+                );
+
+                if (isPremium) {
                     console.log('✅ Premium user – showing journal');
                     mainApp.style.display = 'flex';
                     premiumOverlay.classList.remove('active');
