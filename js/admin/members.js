@@ -167,40 +167,81 @@ window.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.style.
 
 // ─── APPROVE BUTTON ────────────────────────────────────────────
 approveBtn?.addEventListener("click", async () => {
+
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
+
+    console.log("APPROVING USER:", selectedUser);
+
+    try {
+
+        const userRef = doc(db, "users", selectedUser.id);
+
+        console.log("UPDATING DOCUMENT:", selectedUser.id);
+
+        await updateDoc(userRef, {
+
+            active: true,
+            status: "active",
+            membership: "free",
+            approved: true
+
+        });
+
+
+        console.log("UPDATE SUCCESSFUL");
+
+        alert("✅ Member Approved Successfully!");
+
+        modal.style.display = "none";
+
+        selectedUser = null;
+
+
+    } catch(error){
+
+        console.error("APPROVAL FAILED:", error);
+
+        alert("❌ Failed: " + error.message);
+
+    }
+
+});
+});
+
+// ─── OTHER BUTTONS ─────────────────────────────────────────────
+premiumBtn?.addEventListener("click", async () => {
+
     if (!selectedUser) {
         alert("No member selected.");
         return;
     }
 
     try {
-        const userRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userRef, {
-            active: true,
-            status: "active",
-            role: "member",
-membership: "free"  // ✅ CRITICAL – changes role from "pending" to "member"
-        });
-        alert("✅ Member Approved Successfully!");
+
+        await updateDoc(
+            doc(db, "users", selectedUser.id),
+            {
+                membership: "premium",
+                active: true,
+                status: "active"
+            }
+        );
+
+        alert("Member upgraded to Premium.");
+
         modal.style.display = "none";
         selectedUser = null;
-        loadMembersRealtime();
-    } catch (error) {
-        console.error("Approval error:", error);
-        alert("❌ Failed to approve: " + error.message);
-    }
-});
 
-// ─── OTHER BUTTONS ─────────────────────────────────────────────
-premiumBtn?.addEventListener("click", async () => {
-    if (!selectedUser) { alert("No member selected."); return; }
-    try {
-        await updateDoc(doc(db, "users", selectedUser.id), {
-    membership: "premium"
-});
-        alert("Member is now Premium.");
-        modal.style.display = "none";
-        loadMembersRealtime();
-    } catch (e) { alert("Error: " + e.message); }
+    } catch(e) {
+
+        console.error(e);
+        alert("Error: " + e.message);
+
+    }
+
 });
 
 adminBtn?.addEventListener("click", async () => {
