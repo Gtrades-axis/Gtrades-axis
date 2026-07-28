@@ -29,7 +29,6 @@
             --red: #ff4766;
             --radius: 12px;
         }
-        /* ===== SCROLL TOP ===== */
         #scrollTopBtn {
             position: fixed; bottom: 30px; right: 30px; z-index: 999;
             width: 48px; height: 48px; border-radius: 50%; border: none;
@@ -38,11 +37,7 @@
             opacity: 0; visibility: hidden; transition: 0.3s;
         }
         #scrollTopBtn.visible { opacity: 1; visibility: visible; }
-
-        /* ===== DASHBOARD LAYOUT ===== */
         .dashboard-container { display: flex; min-height: 100vh; }
-
-        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
             background: var(--bg-secondary);
@@ -79,11 +74,7 @@
             transition: 0.25s; font-family: 'Poppins', sans-serif;
         }
         .logout-btn:hover { background: rgba(255,71,102,0.18); }
-
-        /* ===== MAIN CONTENT ===== */
         .main-content { flex: 1; padding: 32px 40px 60px; max-width: calc(100% - 260px); }
-
-        /* ===== PAGE HEADER ===== */
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 16px; margin-bottom: 32px;
@@ -100,8 +91,6 @@
             border: 1px solid var(--border-color);
         }
         .header-actions .btn:hover { background: #222a3e; border-color: var(--accent-blue); }
-
-        /* ===== STATS GRID ===== */
         .stats-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 14px; margin-bottom: 32px;
@@ -118,8 +107,6 @@
         .value-positive { color: var(--green); }
         .value-negative { color: var(--red); }
         .value-neutral { color: #f5a623; }
-
-        /* ===== CHARTS ===== */
         .chart-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
             margin-bottom: 32px;
@@ -131,8 +118,6 @@
         .chart-card h2 { font-size: 16px; margin-bottom: 16px; font-weight: 600; }
         .chart-card h2 i { color: #00d4ff; margin-right: 8px; }
         .chart-wrapper { height: 220px; position: relative; }
-
-        /* ===== JOURNAL FORM ===== */
         .journal-card {
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: var(--radius); padding: 24px;
@@ -146,7 +131,6 @@
         .card-header p { color: var(--text-secondary); font-size: 14px; }
         .card-badge { background: rgba(0,212,255,0.1); padding: 4px 12px; border-radius: 20px; font-size: 12px; color: #00d4ff; }
         .card-badge i { font-size: 8px; margin-right: 6px; }
-
         .journal-section {
             margin-bottom: 28px; border-bottom: 1px solid var(--border-color);
             padding-bottom: 24px;
@@ -156,7 +140,6 @@
         .section-title h3 { font-size: 16px; font-weight: 600; }
         .section-title i { color: #00d4ff; font-size: 18px; }
         .section-description { color: var(--text-secondary); font-size: 13px; margin-bottom: 16px; }
-
         .journal-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 16px;
@@ -173,7 +156,25 @@
             border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
         }
         .form-group textarea { resize: vertical; min-height: 80px; }
-
+        .confluence-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .confluence-item {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg-primary); padding: 8px 12px;
+            border-radius: 6px; border: 1px solid var(--border-color);
+            transition: 0.25s;
+        }
+        .confluence-item:hover { border-color: var(--accent-blue); }
+        .confluence-item input[type="checkbox"] {
+            width: 16px; height: 16px; accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+        .confluence-item label {
+            font-size: 12px; color: var(--text-secondary); cursor: pointer;
+            text-transform: none; letter-spacing: 0;
+        }
         .save-actions {
             display: flex; gap: 16px; justify-content: flex-end;
             margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);
@@ -188,8 +189,6 @@
         .btn-secondary:hover { background: var(--border-color); color: #fff; }
         .btn-primary { background: var(--accent-blue); color: #fff; }
         .btn-primary:hover { background: #3a66e0; }
-
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .sidebar { width: 220px; }
             .main-content { max-width: calc(100% - 220px); padding: 24px; }
@@ -206,6 +205,7 @@
             .chart-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
             .journal-grid { grid-template-columns: 1fr; }
+            .confluence-grid { grid-template-columns: 1fr 1fr; }
             .save-actions { flex-direction: column; align-items: stretch; }
             .save-actions button { justify-content: center; }
         }
@@ -213,12 +213,12 @@
             .page-header { flex-direction: column; align-items: stretch; }
             .header-actions { justify-content: stretch; }
             .header-actions .btn { flex: 1; justify-content: center; }
+            .confluence-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== SCROLL TO TOP ===== -->
     <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
     <div class="dashboard-container">
@@ -292,7 +292,7 @@
 
                 <form id="tradeForm">
 
-                    <!-- Trade Details -->
+                    <!-- ===== TRADE DETAILS ===== -->
                     <div class="journal-section">
                         <div class="section-title"><i class="fa-solid fa-briefcase"></i><h3>Trade Details</h3></div>
                         <div class="journal-grid">
@@ -307,7 +307,65 @@
                         </div>
                     </div>
 
-                    <!-- Execution & Risk -->
+                    <!-- ===== HTF ANALYSIS ===== -->
+                    <div class="journal-section">
+                        <div class="section-title"><i class="fa-solid fa-layer-group"></i><h3>Higher Timeframe Analysis (4H - Daily)</h3></div>
+                        <p class="section-description">Define the higher timeframe market bias before looking for lower timeframe entries.</p>
+                        <div class="journal-grid">
+                            <div class="form-group"><label for="htfSwing">HTF Swing Bias</label><select id="htfSwing"><option>Bullish</option><option>Bearish</option></select></div>
+                            <div class="form-group"><label for="htfInternal">HTF Internal Bias</label><select id="htfInternal"><option>Bullish</option><option>Bearish</option></select></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== MTF ANALYSIS ===== -->
+                    <div class="journal-section">
+                        <div class="section-title"><i class="fa-solid fa-chart-column"></i><h3>Medium Timeframe Analysis (15M - 1H)</h3></div>
+                        <p class="section-description">Confirm alignment between higher timeframe bias and the execution timeframe.</p>
+                        <div class="journal-grid">
+                            <div class="form-group"><label for="mtfSwing">MTF Swing Bias</label><select id="mtfSwing"><option>Bullish</option><option>Bearish</option></select></div>
+                            <div class="form-group"><label for="mtfInternal">MTF Internal Bias</label><select id="mtfInternal"><option>Bullish</option><option>Bearish</option></select></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== LTF EXECUTION ===== -->
+                    <div class="journal-section">
+                        <div class="section-title"><i class="fa-solid fa-crosshairs"></i><h3>Lower Timeframe Execution (1M - 5M)</h3></div>
+                        <p class="section-description">Record every execution confirmation that formed the trade setup.</p>
+                        <div class="journal-grid">
+                            <div class="form-group"><label for="ltfStructure">LTF Structure</label><select id="ltfStructure"><option>Bullish BOS</option><option>Bearish BOS</option><option>Bullish CHOCH</option><option>Bearish CHOCH</option></select></div>
+                            <div class="form-group"><label for="liquidity">Liquidity Taken</label><select id="liquidity"><option>Buy Side Liquidity</option><option>Sell Side Liquidity</option><option>Equal Highs</option><option>Equal Lows</option><option>None</option></select></div>
+                            <div class="form-group"><label for="poi">Point of Interest</label><select id="poi"><option>Demand</option><option>Supply</option><option>Refined POI</option><option>Extreme POI</option></select></div>
+                            <div class="form-group"><label for="entryModel">Photon Entry Model</label><select id="entryModel"><option>LC-2A</option><option>LC-1</option><option>LTF RE</option><option>MTF RE</option></select></div>
+                            <div class="form-group"><label for="entryConfirmation">Entry Confirmation</label><select id="entryConfirmation"><option>CHOCH</option><option>BOS</option><option>Liquidity Sweep</option><option>POI Mitigation</option></select></div>
+                            <div class="form-group"><label for="tradeValid">Trade Valid?</label><select id="tradeValid"><option>Yes</option><option>No</option></select></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== CONFLUENCES ===== -->
+                    <div class="journal-section">
+                        <div class="section-title"><i class="fa-solid fa-circle-check"></i><h3>Confluences</h3></div>
+                        <p class="section-description">Check all confluences that aligned for this trade.</p>
+                        <div class="confluence-grid">
+                            <div class="confluence-item"><input type="checkbox" id="confHTFSwing"><label for="confHTFSwing">HTF Swing</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confHTFInternal"><label for="confHTFInternal">HTF Internal</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confMTFSwing"><label for="confMTFSwing">MTF Swing</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confMTFInternal"><label for="confMTFInternal">MTF Internal</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confHTFDemand"><label for="confHTFDemand">HTF Demand</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confHTFSupply"><label for="confHTFSupply">HTF Supply</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confMTFDemand"><label for="confMTFDemand">MTF Demand</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confMTFSupply"><label for="confMTFSupply">MTF Supply</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confPremium"><label for="confPremium">Premium</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confDiscount"><label for="confDiscount">Discount</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confSweep"><label for="confSweep">Liquidity Sweep</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confChoch"><label for="confChoch">CHOCH</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confBos"><label for="confBos">BOS</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confMitigation"><label for="confMitigation">POI Mitigation</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confRefined"><label for="confRefined">Refined POI</label></div>
+                            <div class="confluence-item"><input type="checkbox" id="confExtreme"><label for="confExtreme">Extreme POI</label></div>
+                        </div>
+                    </div>
+
+                    <!-- ===== EXECUTION & RISK ===== -->
                     <div class="journal-section">
                         <div class="section-title"><i class="fa-solid fa-bullseye"></i><h3>Execution & Risk</h3></div>
                         <div class="journal-grid">
@@ -322,7 +380,7 @@
                         </div>
                     </div>
 
-                    <!-- Psychology -->
+                    <!-- ===== PSYCHOLOGY ===== -->
                     <div class="journal-section">
                         <div class="section-title"><i class="fa-solid fa-brain"></i><h3>Psychology</h3></div>
                         <div class="journal-grid">
@@ -333,7 +391,7 @@
                         </div>
                     </div>
 
-                    <!-- Review & Notes -->
+                    <!-- ===== REVIEW & NOTES ===== -->
                     <div class="journal-section">
                         <div class="section-title"><i class="fa-solid fa-book-open"></i><h3>Review & Notes</h3></div>
                         <div class="journal-grid">
@@ -346,7 +404,7 @@
                         </div>
                     </div>
 
-                    <!-- Chart References (optional) -->
+                    <!-- ===== CHART REFERENCES ===== -->
                     <div class="journal-section">
                         <div class="section-title"><i class="fa-solid fa-images"></i><h3>Chart References</h3></div>
                         <div class="journal-grid">
@@ -356,18 +414,7 @@
                         </div>
                     </div>
 
-                    <!-- Advanced fields (HTF, MTF, LTF – hidden in this simplified version, but we keep IDs for compatibility) -->
-                    <input type="hidden" id="htfSwing" value="Bullish">
-                    <input type="hidden" id="htfInternal" value="Bullish">
-                    <input type="hidden" id="mtfSwing" value="Bullish">
-                    <input type="hidden" id="mtfInternal" value="Bullish">
-                    <input type="hidden" id="ltfStructure" value="Bullish BOS">
-                    <input type="hidden" id="liquidity" value="None">
-                    <input type="hidden" id="poi" value="Demand">
-                    <input type="hidden" id="entryModel" value="LC-2A">
-                    <input type="hidden" id="entryConfirmation" value="CHOCH">
-                    <input type="hidden" id="tradeValid" value="Yes">
-
+                    <!-- ===== SAVE ACTIONS ===== -->
                     <div class="save-actions">
                         <button type="reset" class="btn-secondary"><i class="fa-solid fa-rotate-left"></i> Reset</button>
                         <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Trade</button>
@@ -381,7 +428,7 @@
 
     <script>
         // ============================================================
-        // JOURNAL JAVASCRIPT – localStorage key "trades"
+        // JOURNAL JAVASCRIPT – ALL FIELDS INCLUDING HTF/MTF/LTF + CONFLUENCES
         // ============================================================
 
         const STORAGE_KEY = "trades";
@@ -399,17 +446,11 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
         }
 
-        // ─── HELPER ──────────────────────────────────────────────────
+        // ─── HELPERS ──────────────────────────────────────────────────
         function $(id) { return document.getElementById(id); }
-
-        function val(id) {
-            const el = $(id);
-            return el ? el.value : '';
-        }
-
-        function num(id) {
-            return parseFloat(val(id)) || 0;
-        }
+        function val(id) { const el = $(id); return el ? el.value : ''; }
+        function num(id) { return parseFloat(val(id)) || 0; }
+        function isChecked(id) { const el = $(id); return el ? el.checked : false; }
 
         // ─── SAVE TRADE ─────────────────────────────────────────────
         function saveTrade(e) {
@@ -418,6 +459,8 @@
 
             const trade = {
                 id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+
+                // ---- Trade Details ----
                 date: val('tradeDate'),
                 time: val('tradeTime'),
                 pair: val('pair'),
@@ -426,6 +469,44 @@
                 broker: val('broker'),
                 account: val('account'),
                 lotSize: num('lotSize'),
+
+                // ---- HTF ----
+                htfSwing: val('htfSwing'),
+                htfInternal: val('htfInternal'),
+
+                // ---- MTF ----
+                mtfSwing: val('mtfSwing'),
+                mtfInternal: val('mtfInternal'),
+
+                // ---- LTF ----
+                ltfStructure: val('ltfStructure'),
+                liquidity: val('liquidity'),
+                poi: val('poi'),
+                entryModel: val('entryModel'),
+                entryConfirmation: val('entryConfirmation'),
+                tradeValid: val('tradeValid'),
+
+                // ---- Confluences ----
+                confluences: {
+                    htfSwing: isChecked('confHTFSwing'),
+                    htfInternal: isChecked('confHTFInternal'),
+                    mtfSwing: isChecked('confMTFSwing'),
+                    mtfInternal: isChecked('confMTFInternal'),
+                    htfDemand: isChecked('confHTFDemand'),
+                    htfSupply: isChecked('confHTFSupply'),
+                    mtfDemand: isChecked('confMTFDemand'),
+                    mtfSupply: isChecked('confMTFSupply'),
+                    premium: isChecked('confPremium'),
+                    discount: isChecked('confDiscount'),
+                    sweep: isChecked('confSweep'),
+                    choch: isChecked('confChoch'),
+                    bos: isChecked('confBos'),
+                    mitigation: isChecked('confMitigation'),
+                    refined: isChecked('confRefined'),
+                    extreme: isChecked('confExtreme')
+                },
+
+                // ---- Execution & Risk ----
                 entry: num('entry'),
                 stopLoss: num('stopLoss'),
                 takeProfit: num('takeProfit'),
@@ -434,31 +515,27 @@
                 profit: num('profit'),
                 commission: num('commission'),
                 result: val('result') || 'Pending',
+
+                // ---- Psychology ----
                 confidence: val('confidence'),
                 emotion: val('emotion'),
                 discipline: val('discipline'),
                 patience: val('patience'),
+
+                // ---- Review ----
                 tradeSummary: val('tradeSummary'),
                 strengths: val('strengths'),
                 mistakes: val('mistakes'),
                 lessonLearned: val('lessonLearned'),
                 improvementPlan: val('improvementPlan'),
+
+                // ---- Chart References ----
                 beforeChart: val('beforeChart'),
                 duringChart: val('duringChart'),
                 afterChart: val('afterChart'),
                 notes: val('notes'),
-                // Hidden advanced fields (for compatibility)
-                htfSwing: val('htfSwing'),
-                htfInternal: val('htfInternal'),
-                mtfSwing: val('mtfSwing'),
-                mtfInternal: val('mtfInternal'),
-                ltfStructure: val('ltfStructure'),
-                liquidity: val('liquidity'),
-                poi: val('poi'),
-                entryModel: val('entryModel'),
-                entryConfirmation: val('entryConfirmation'),
-                tradeValid: val('tradeValid'),
-                // status
+
+                // ---- Status ----
                 status: 'Pending',
                 created: new Date().toISOString(),
                 closed: null
@@ -483,13 +560,11 @@
             const total = trades.length;
             const wins = trades.filter(t => t.result === 'Win').length;
             const losses = trades.filter(t => t.result === 'Loss').length;
-            const be = trades.filter(t => t.result === 'Breakeven').length;
             const winRate = total ? (wins / total) * 100 : 0;
             const netProfit = trades.reduce((s, t) => s + (parseFloat(t.profit) || 0), 0);
             const rrTotal = trades.reduce((s, t) => s + (parseFloat(t.rr) || 0), 0);
             const avgRR = total ? rrTotal / total : 0;
 
-            // Streak (last result)
             let streak = 0;
             if (trades.length > 0) {
                 const last = trades[0].result;
@@ -506,15 +581,11 @@
                 }
             }
 
-            // Month count
             const now = new Date();
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
             const monthCount = trades.filter(t => {
                 if (!t.date) return false;
-                try {
-                    const d = new Date(t.date);
-                    return d >= monthStart;
-                } catch { return false; }
+                try { const d = new Date(t.date); return d >= monthStart; } catch { return false; }
             }).length;
 
             setText('totalTrades', total);
@@ -526,11 +597,8 @@
             setText('streak', streak > 0 ? '+' + streak : streak < 0 ? streak : '0');
             setText('monthCount', monthCount);
 
-            // Color coding
             const winEl = $('winRate');
-            if (winEl) {
-                winEl.className = winRate >= 50 ? 'value-positive' : winRate > 0 ? 'value-neutral' : 'value-negative';
-            }
+            if (winEl) winEl.className = winRate >= 50 ? 'value-positive' : winRate > 0 ? 'value-neutral' : 'value-negative';
             const profitEl = $('netProfit');
             if (profitEl) {
                 const p = netProfit;
@@ -538,10 +606,7 @@
             }
         }
 
-        function setText(id, txt) {
-            const el = $(id);
-            if (el) el.textContent = txt;
-        }
+        function setText(id, txt) { const el = $(id); if (el) el.textContent = txt; }
 
         // ─── CHARTS ──────────────────────────────────────────────────
         function initCharts() {
@@ -575,17 +640,12 @@
 
         function updateCharts() {
             if (!equityChartInstance || !monthlyChartInstance) return;
-            // Equity
             let running = 0;
-            const eqData = trades.map(t => {
-                running += parseFloat(t.profit) || 0;
-                return running;
-            });
+            const eqData = trades.map(t => { running += parseFloat(t.profit) || 0; return running; });
             equityChartInstance.data.labels = trades.map((_, i) => i + 1);
             equityChartInstance.data.datasets[0].data = eqData;
             equityChartInstance.update();
 
-            // Monthly
             const monthly = {};
             trades.forEach(t => {
                 if (!t.date) return;
@@ -598,12 +658,10 @@
             monthlyChartInstance.update();
         }
 
-        // ─── SCROLL TO TOP ──────────────────────────────────────────
+        // ─── SCROLL TOP ─────────────────────────────────────────────
         const scrollBtn = $('scrollTopBtn');
         if (scrollBtn) {
-            window.addEventListener('scroll', () => {
-                scrollBtn.classList.toggle('visible', window.scrollY > 300);
-            });
+            window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 300));
             scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         }
 
@@ -616,12 +674,11 @@
             const form = $('tradeForm');
             if (form) {
                 form.addEventListener('submit', saveTrade);
-                console.log('✅ Journal ready');
+                console.log('✅ Journal ready with all sections (HTF/MTF/LTF + confluences)');
             } else {
                 console.error('❌ Form #tradeForm not found');
             }
 
-            // Logout button
             const logoutBtn = $('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', function() {
@@ -630,12 +687,8 @@
             }
         });
 
-        // Listen for storage changes (other tabs)
         window.addEventListener('storage', function(e) {
-            if (e.key === STORAGE_KEY) {
-                loadTrades();
-                refreshUI();
-            }
+            if (e.key === STORAGE_KEY) { loadTrades(); refreshUI(); }
         });
     </script>
 
