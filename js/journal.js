@@ -5,6 +5,8 @@
 const STORAGE_KEY = "trades";   // matches History page
 
 let trades = [];
+let equityChartInstance = null;
+let monthlyChartInstance = null;
 
 loadTrades();
 
@@ -41,13 +43,9 @@ function saveStorage() {
    ========================================================= */
 function saveTrade(e) {
     e.preventDefault();
-
-    // 👇 This is the fix: get the form from the event
     const form = e.target;
 
-    // ---- 1. Flatten all form fields into a single object ----
     const trade = {
-        // Core fields (used by History page)
         id: Date.now() + '_' + Math.random().toString(36).slice(2, 6),
         date: value("tradeDate"),
         time: value("tradeTime"),
@@ -57,8 +55,6 @@ function saveTrade(e) {
         broker: value("broker"),
         account: value("account"),
         lotSize: parseFloat(value("lotSize")) || 0,
-
-        // Execution & risk
         entry: parseFloat(value("entryPrice")) || 0,
         stopLoss: parseFloat(value("stopLoss")) || 0,
         takeProfit: parseFloat(value("takeProfit")) || 0,
@@ -66,30 +62,20 @@ function saveTrade(e) {
         rr: parseFloat(value("expectedRR")) || 0,
         profit: parseFloat(value("profit")) || 0,
         commission: parseFloat(value("commission")) || 0,
-        result: value("result") || "Pending",   // Win / Loss / Breakeven / Pending
-
-        // Psychology
+        result: value("result") || "Pending",
         confidence: value("confidence"),
         emotion: value("emotion"),
         discipline: value("discipline"),
         patience: value("patience"),
-
-        // Review
         tradeSummary: value("tradeSummary"),
         strengths: value("strengths"),
         mistakes: value("mistakes"),
         lessonLearned: value("lessonLearned"),
         improvementPlan: value("improvementPlan"),
-
-        // Chart links
         beforeChart: value("beforeChart"),
         duringChart: value("duringChart"),
         afterChart: value("afterChart"),
-
-        // Additional notes
         notes: value("notes"),
-
-        // ---- 2. Keep all your detailed analysis as nested objects ----
         htf: {
             swingBias: value("htfSwingBias"),
             swingStructure: value("htfSwingStructure"),
@@ -119,13 +105,9 @@ function saveTrade(e) {
             valid: value("tradeValid")
         },
         confluences: getConfluences(),
-
-        // Status and timestamps
         status: "Pending",
         created: new Date().toISOString(),
         closed: null,
-
-        // Will be filled on closing
         resultDetails: null,
         management: null,
         psychologyNote: null,
@@ -134,7 +116,7 @@ function saveTrade(e) {
 
     trades.unshift(trade);
     saveStorage();
-    form.reset();   // ✅ form is now defined
+    form.reset();
     loadDashboard();
     loadRecentTrades();
     initializeCharts();
@@ -176,7 +158,7 @@ function checked(id) {
 }
 
 /* ==========================================================
-   LOAD DASHBOARD (reads flat fields)
+   LOAD DASHBOARD
    ========================================================= */
 function loadDashboard() {
     const closed = trades.filter(t => t.status === "Closed");
@@ -188,13 +170,8 @@ function loadDashboard() {
     const totalWins = wins.length;
     const totalLosses = losses.length;
     const winRate = totalTrades === 0 ? 0 : (totalWins / totalTrades) * 100;
-
-    const netProfit = closed.reduce((sum, t) => {
-        return sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0);
-    }, 0);
-
-    const avgRR = totalTrades === 0 ? 0 :
-        closed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
+    const netProfit = closed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
+    const avgRR = totalTrades === 0 ? 0 : closed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
 
     setText("totalTrades", totalTrades);
     setText("wins", totalWins);
@@ -208,7 +185,7 @@ function loadDashboard() {
 }
 
 /* ==========================================================
-   PERFORMANCE (flat fields)
+   PERFORMANCE
    ========================================================= */
 function calculatePerformance(closed) {
     if (closed.length === 0) {
@@ -250,7 +227,7 @@ function calculatePerformance(closed) {
 }
 
 /* ==========================================================
-   RECENT TRADES (flat)
+   RECENT TRADES
    ========================================================= */
 function loadRecentTrades() {
     const container = document.getElementById("recentTrades");
@@ -275,7 +252,7 @@ function loadRecentTrades() {
 }
 
 /* ==========================================================
-   EDIT / CLOSE TRADE (flat fields)
+   EDIT / CLOSE TRADE
    ========================================================= */
 function editTrade(id) {
     const trade = trades.find(t => t.id === id);
@@ -297,7 +274,6 @@ function editTrade(id) {
     const lesson = prompt("Lesson Learned");
     const improvement = prompt("Improvement");
 
-    // Update flat fields
     trade.status = "Closed";
     trade.closed = new Date().toISOString();
     trade.result = outcome;
@@ -332,7 +308,7 @@ IMPROVEMENT : ${trade.reviewNote?.improvement || "-"}
 }
 
 /* ==========================================================
-   CHARTS (uses flat fields)
+   CHARTS – with cleanup
    ========================================================= */
 function initializeCharts() {
     if (typeof Chart === "undefined") return;
@@ -344,6 +320,12 @@ function buildEquityChart() {
     const canvas = document.getElementById("equityChart");
     if (!canvas) return;
 
+    // Destroy existing chart instance
+    if (equityChartInstance) {
+        equityChartInstance.destroy();
+        equityChartInstance = null;
+    }
+
     const closed = trades.filter(t => t.status === "Closed");
     let balance = 0;
     const data = [];
@@ -352,7 +334,7 @@ function buildEquityChart() {
         data.push(balance);
     });
 
-    new Chart(canvas, {
+    equityChartInstance = new Chart(canvas, {
         type: "line",
         data: {
             labels: data.map((_, i) => i + 1),
@@ -366,13 +348,19 @@ function buildMonthlyChart() {
     const canvas = document.getElementById("monthlyChart");
     if (!canvas) return;
 
+    // Destroy existing chart instance
+    if (monthlyChartInstance) {
+        monthlyChartInstance.destroy();
+        monthlyChartInstance = null;
+    }
+
     const monthly = {};
     trades.filter(t => t.status === "Closed").forEach(t => {
         const month = new Date(t.closed).toLocaleString("default", { month: "short" });
         monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0);
     });
 
-    new Chart(canvas, {
+    monthlyChartInstance = new Chart(canvas, {
         type: "bar",
         data: {
             labels: Object.keys(monthly),
