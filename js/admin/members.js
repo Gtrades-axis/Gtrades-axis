@@ -41,7 +41,7 @@ const adminBtn = document.getElementById("adminBtn");
 const memberBtn = document.getElementById("memberBtn");
 const suspendBtn = document.getElementById("suspendBtn");
 const deleteBtn = document.getElementById("deleteBtn");
-
+const removePremiumBtn = document.getElementById("removePremiumBtn");
 
 let selectedUser = null;
 let unsubscribe = null;
@@ -472,7 +472,34 @@ loadMembers();
 });
 
 
+// ================= REMOVE PREMIUM =================
 
+removePremiumBtn?.addEventListener(
+"click",
+async()=>{
+
+    if(!selectedUser)
+        return;
+
+    if(!confirm(`Remove Premium from ${selectedUser.name}?`))
+        return;
+
+    await updateDoc(
+        doc(db,"users",selectedUser.id),
+        {
+
+            membership:"free"
+
+        }
+    );
+
+    alert("Premium removed.");
+
+    modal.style.display="none";
+
+    loadMembers();
+
+});
 
 
 
