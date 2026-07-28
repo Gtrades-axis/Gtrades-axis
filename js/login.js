@@ -52,13 +52,10 @@ if (form) {
                 window.location.href = "admin.html";
                 return;
             }
-            if (user.premium === true) {
-
-    window.location.href = "dashboard.html";
-
-    return;
-
-}
+            if (user.role === "premium") {
+                window.location.href = "dashboard.html";
+                return;
+            }
             // Default for members and auto-upgraded users
             window.location.href = "dashboard.html";
 
