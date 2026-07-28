@@ -229,14 +229,14 @@ function loadRecentTrades() {
                 <div><strong>${t.pair || '?'}</strong><br>${t.direction || ''}</div>
                 <div>${t.entryModel || '-'}</div>
                 <div><span class="status ${t.status.toLowerCase()}">${t.status}</span></div>
-                <div><button onclick="editTrade('${t.id}')" class="btn">Close</button></div>
+                <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
             </div>
         `;
     });
 }
 
 // ─── CLOSE TRADE (from recent trades) ──────────────────────
-function editTrade(id) {
+function closeTrade(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
     if (trade.status === 'Closed') {
@@ -349,17 +349,25 @@ function buildMonthlyChart() {
 const urlParams = new URLSearchParams(window.location.search);
 const editId = urlParams.get('edit');
 
+console.log('🔍 Edit ID from URL:', editId); // DEBUG
+
 if (editId) {
     loadTrades();
     editingTrade = trades.find(t => t.id === editId);
+    console.log('📦 Found trade:', editingTrade); // DEBUG
+
     if (editingTrade) {
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Populating form with trade:', editingTrade);
             populateForm(editingTrade);
+
+            // Change submit button
             const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
                 submitBtn.classList.add('btn-update');
             }
+
             // Add hidden flag for update mode
             const form = document.getElementById('tradeForm');
             let flag = document.getElementById('updateMode');
@@ -372,13 +380,21 @@ if (editId) {
             } else {
                 flag.value = 'true';
             }
+
             // Change page title
-            document.querySelector('.page-header h1').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+            const header = document.querySelector('.page-header h1');
+            if (header) {
+                header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+            }
         });
+    } else {
+        console.warn('⚠️ Trade not found for ID:', editId);
     }
 }
 
 function populateForm(trade) {
+    console.log('📝 Populating form with:', trade);
+
     // Text/select fields
     const fields = [
         'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
@@ -389,10 +405,18 @@ function populateForm(trade) {
         'tradeSummary', 'strengths', 'mistakes', 'lessonLearned', 'improvementPlan',
         'beforeChart', 'duringChart', 'afterChart', 'notes'
     ];
+
     fields.forEach(id => {
         const el = document.getElementById(id);
-        if (el && trade[id] !== undefined && trade[id] !== null) {
-            el.value = trade[id];
+        if (el) {
+            if (trade[id] !== undefined && trade[id] !== null) {
+                el.value = trade[id];
+                console.log(`  ✅ Set ${id} = ${trade[id]}`);
+            } else {
+                console.log(`  ⚠️ ${id} not found in trade data`);
+            }
+        } else {
+            console.warn(`  ❌ Element #${id} not found in DOM`);
         }
     });
 
@@ -420,9 +444,14 @@ function populateForm(trade) {
             const checkboxId = mapping[key];
             if (checkboxId) {
                 const checkbox = document.getElementById(checkboxId);
-                if (checkbox) checkbox.checked = trade.confluences[key];
+                if (checkbox) {
+                    checkbox.checked = trade.confluences[key];
+                    console.log(`  ✅ Set ${checkboxId} = ${trade.confluences[key]}`);
+                }
             }
         });
+    } else {
+        console.warn('⚠️ No confluences data found');
     }
 }
 
@@ -431,13 +460,21 @@ loadTrades();
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('tradeForm');
     if (form) {
-        // Remove any existing listener to avoid duplicates
         form.removeEventListener('submit', saveTrade);
         form.addEventListener('submit', saveTrade);
         console.log('✅ Journal form ready');
     } else {
         console.error('❌ Form #tradeForm not found');
     }
+
+    // If not in edit mode, show normal title
+    if (!editId) {
+        const header = document.querySelector('.page-header h1');
+        if (header) {
+            header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
+        }
+    }
+
     refreshUI();
 });
 
@@ -448,3 +485,5 @@ window.addEventListener('storage', function(e) {
         refreshUI();
     }
 });
+
+console.log('✅ journal.js loaded');
