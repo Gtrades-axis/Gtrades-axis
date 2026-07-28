@@ -213,15 +213,35 @@ approveBtn?.addEventListener("click", async () => {
 
 // ─── OTHER BUTTONS ─────────────────────────────────────────────
 premiumBtn?.addEventListener("click", async () => {
-    if (!selectedUser) { alert("No member selected."); return; }
+
+    if (!selectedUser) {
+        alert("No member selected.");
+        return;
+    }
+
     try {
-        await updateDoc(doc(db, "users", selectedUser.id), {
-    membership: "premium"
-});
-        alert("Member is now Premium.");
+
+        await updateDoc(
+            doc(db, "users", selectedUser.id),
+            {
+                membership: "premium",
+                active: true,
+                status: "active"
+            }
+        );
+
+        alert("Member upgraded to Premium.");
+
         modal.style.display = "none";
-        loadMembersRealtime();
-    } catch (e) { alert("Error: " + e.message); }
+        selectedUser = null;
+
+    } catch(e) {
+
+        console.error(e);
+        alert("Error: " + e.message);
+
+    }
+
 });
 
 adminBtn?.addEventListener("click", async () => {
