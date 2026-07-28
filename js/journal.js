@@ -307,24 +307,53 @@ IMPROVEMENT : ${trade.reviewNote?.improvement || "-"}
 }
 
 /* ==========================================================
-   CHARTS – with proper cleanup
+   CHARTS – with guaranteed cleanup
    ========================================================= */
 function initializeCharts() {
     if (typeof Chart === "undefined") return;
+    destroyAllCharts();
     buildEquityChart();
     buildMonthlyChart();
+}
+
+function destroyAllCharts() {
+    if (equityChartInstance) {
+        equityChartInstance.destroy();
+        equityChartInstance = null;
+    }
+    if (monthlyChartInstance) {
+        monthlyChartInstance.destroy();
+        monthlyChartInstance = null;
+    }
+
+    // Forcefully destroy any chart attached to our canvases
+    const canvases = ['equityChart', 'monthlyChart'];
+    canvases.forEach(id => {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
+        if (Chart.instances) {
+            for (const key in Chart.instances) {
+                const instance = Chart.instances[key];
+                if (instance && instance.canvas === canvas) {
+                    instance.destroy();
+                    break;
+                }
+            }
+        }
+        if (typeof Chart.getChart === 'function') {
+            const existing = Chart.getChart(canvas);
+            if (existing) existing.destroy();
+        }
+    });
 }
 
 function buildEquityChart() {
     const canvas = document.getElementById("equityChart");
     if (!canvas) return;
 
-    // Destroy any existing chart attached to this canvas
-    const existing = Chart.getChart(canvas);
-    if (existing) {
-        existing.destroy();
-    }
-
+    // Extra safety: destroy any lingering chart on this canvas
+    const existing = Chart.getChart ? Chart.getChart(canvas) : null;
+    if (existing) existing.destroy();
     if (equityChartInstance) {
         equityChartInstance.destroy();
         equityChartInstance = null;
@@ -352,11 +381,8 @@ function buildMonthlyChart() {
     const canvas = document.getElementById("monthlyChart");
     if (!canvas) return;
 
-    const existing = Chart.getChart(canvas);
-    if (existing) {
-        existing.destroy();
-    }
-
+    const existing = Chart.getChart ? Chart.getChart(canvas) : null;
+    if (existing) existing.destroy();
     if (monthlyChartInstance) {
         monthlyChartInstance.destroy();
         monthlyChartInstance = null;
