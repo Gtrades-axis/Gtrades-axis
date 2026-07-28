@@ -2,7 +2,7 @@
    GTRADES AXIS™ – PROFESSIONAL JOURNAL (FLAT STORAGE)
    ========================================================= */
 
-const STORAGE_KEY = "trades";   // <- same key as History page
+const STORAGE_KEY = "trades";   // matches History page
 
 let trades = [];
 
@@ -41,6 +41,9 @@ function saveStorage() {
    ========================================================= */
 function saveTrade(e) {
     e.preventDefault();
+
+    // 👇 This is the fix: get the form from the event
+    const form = e.target;
 
     // ---- 1. Flatten all form fields into a single object ----
     const trade = {
@@ -86,7 +89,7 @@ function saveTrade(e) {
         // Additional notes
         notes: value("notes"),
 
-        // ---- 2. Keep all your detailed analysis as nested objects (for journal use) ----
+        // ---- 2. Keep all your detailed analysis as nested objects ----
         htf: {
             swingBias: value("htfSwingBias"),
             swingStructure: value("htfSwingStructure"),
@@ -123,7 +126,7 @@ function saveTrade(e) {
         closed: null,
 
         // Will be filled on closing
-        resultDetails: null,   // { outcome, profit, commission, actualRR }
+        resultDetails: null,
         management: null,
         psychologyNote: null,
         reviewNote: null
@@ -131,7 +134,7 @@ function saveTrade(e) {
 
     trades.unshift(trade);
     saveStorage();
-    document.getElementById("tradeForm").reset();
+    form.reset();   // ✅ form is now defined
     loadDashboard();
     loadRecentTrades();
     initializeCharts();
@@ -304,8 +307,6 @@ function editTrade(id) {
     trade.management = management;
     trade.psychologyNote = psych;
     trade.reviewNote = { lesson, improvement };
-
-    // Also keep a resultDetails object for backward compatibility
     trade.resultDetails = { outcome, profit, commission, actualRR: rr };
 
     saveStorage();
