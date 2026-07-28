@@ -167,27 +167,48 @@ window.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.style.
 
 // ─── APPROVE BUTTON ────────────────────────────────────────────
 approveBtn?.addEventListener("click", async () => {
+
     if (!selectedUser) {
         alert("No member selected.");
         return;
     }
 
+    console.log("APPROVING USER:", selectedUser);
+
     try {
+
         const userRef = doc(db, "users", selectedUser.id);
+
+        console.log("UPDATING DOCUMENT:", selectedUser.id);
+
         await updateDoc(userRef, {
+
             active: true,
             status: "active",
-            role: "member",
-membership: "free"  // ✅ CRITICAL – changes role from "pending" to "member"
+            membership: "free",
+            approved: true
+
         });
+
+
+        console.log("UPDATE SUCCESSFUL");
+
         alert("✅ Member Approved Successfully!");
+
         modal.style.display = "none";
+
         selectedUser = null;
-        loadMembersRealtime();
-    } catch (error) {
-        console.error("Approval error:", error);
-        alert("❌ Failed to approve: " + error.message);
+
+
+    } catch(error){
+
+        console.error("APPROVAL FAILED:", error);
+
+        alert("❌ Failed: " + error.message);
+
     }
+
+});
 });
 
 // ─── OTHER BUTTONS ─────────────────────────────────────────────
