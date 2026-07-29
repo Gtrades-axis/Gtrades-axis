@@ -1,91 +1,581 @@
-<!-- ==========================================================
-GTRADES-AXIS™ PROFILE V2
-PART 6A (HTML)
-========================================================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GTRADES-AXIS™ | My Profile</title>
 
-<section class="profile-section">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-<div class="profile-card">
+    <style>
+        /* ==========================================================
+           GTRADES-AXIS™ PROFILE V2 — COMPLETE STYLES
+           ========================================================== */
 
-    <div class="profile-header">
+        /* ----- Reset & Base ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <div class="profile-avatar">
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-            <i class="fa-solid fa-user"></i>
+        /* ----- Profile Section ----- */
+        .profile-section {
+            width: 100%;
+            max-width: 560px;
+        }
 
-        </div>
+        .profile-card {
+            background: #1a1a2e;
+            border-radius: 28px;
+            padding: 40px 36px;
+            border: 1px solid #2a2a4a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s;
+        }
 
-        <div class="profile-info">
+        .profile-card:hover {
+            box-shadow: 0 24px 70px rgba(74, 108, 247, 0.15);
+        }
 
-            <h2 id="profileName">
+        /* ----- Header ----- */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #2a2a4a;
+            margin-bottom: 24px;
+        }
 
-                Trader
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7);
+            color: #fff;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(74, 108, 247, 0.3);
+        }
 
-            </h2>
+        .profile-info {
+            flex: 1;
+        }
 
-            <p id="profileEmail">
+        .profile-info h2 {
+            color: #f0f0f0;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
 
-                email@example.com
+        .profile-info p {
+            color: #8892b0;
+            font-size: 14px;
+            margin: 0 0 8px;
+        }
 
-            </p>
+        .member-badge {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
 
-            <div id="profileBadge" class="member-badge free">
+        .member-badge.free {
+            background: #2a2a4a;
+            color: #a8b2d1;
+        }
 
-                🆓 Free Member
+        .member-badge.premium {
+            background: #f7b731;
+            color: #1a1a2e;
+        }
 
+        .member-badge.admin {
+            background: #4a6cf7;
+            color: #fff;
+        }
+
+        /* ----- Profile Grid ----- */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 24px;
+            margin-bottom: 28px;
+        }
+
+        .info-card h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #667;
+            margin: 0 0 4px;
+            font-weight: 600;
+        }
+
+        .info-card p {
+            font-weight: 600;
+            color: #f0f0f0;
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .info-card p.paid {
+            color: #4ade80;
+        }
+
+        .info-card p.unpaid {
+            color: #f5a0a0;
+        }
+
+        /* ----- Actions ----- */
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .profile-actions .upgrade-btn {
+            flex: 1;
+            padding: 12px 0;
+            background: #f7b731;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .profile-actions .upgrade-btn:hover {
+            background: #ffc84a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(247, 183, 49, 0.3);
+        }
+
+        .profile-actions .upgrade-btn.hidden {
+            display: none;
+        }
+
+        /* ----- Logout Link ----- */
+        .logout-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #667;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .logout-link:hover {
+            color: #f0f0f0;
+        }
+
+        /* ----- Loading State ----- */
+        .loading {
+            text-align: center;
+            color: #8892b0;
+            padding: 20px;
+        }
+
+        /* ----- Toast Notification ----- */
+        .gtrades-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a1a2e;
+            color: #f0f0f0;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a2a4a;
+            z-index: 99999;
+            opacity: 0;
+            transition: all 0.4s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .gtrades-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ----- Responsive ----- */
+        @media (max-width: 600px) {
+            .profile-card {
+                padding: 24px 20px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .info-card p {
+                font-size: 16px;
+            }
+
+            .gtrades-toast {
+                white-space: normal;
+                max-width: 90%;
+                text-align: center;
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="profile-section">
+        <div class="profile-card">
+
+            <!-- Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="profile-info">
+                    <h2 id="profileName">Trader</h2>
+                    <p id="profileEmail">email@example.com</p>
+                    <div id="profileBadge" class="member-badge free">
+                        🆓 Free Member
+                    </div>
+                </div>
             </div>
 
-        </div>
+            <!-- Stats Grid -->
+            <div class="profile-grid">
+                <div class="info-card">
+                    <h4>Role</h4>
+                    <p id="profileRole">-</p>
+                </div>
+                <div class="info-card">
+                    <h4>Membership</h4>
+                    <p id="profileMembership">-</p>
+                </div>
+                <div class="info-card">
+                    <h4>Payment Status</h4>
+                    <p id="profilePayment">-</p>
+                </div>
+                <div class="info-card">
+                    <h4>Joined</h4>
+                    <p id="profileJoined">-</p>
+                </div>
+            </div>
 
+            <!-- Actions -->
+            <div class="profile-actions">
+                <button id="upgradeBtn" class="upgrade-btn">
+                    ⬆ Upgrade Membership
+                </button>
+            </div>
+
+            <!-- Logout -->
+            <a href="#" id="logoutLink" class="logout-link">
+                <i class="fa-solid fa-sign-out-alt"></i> Sign Out
+            </a>
+
+        </div>
     </div>
 
-    <div class="profile-grid">
+    <!-- Toast Container -->
+    <div id="gtradesToast" class="gtrades-toast"></div>
 
-        <div class="info-card">
+    <!-- ==========================================================
+    FIREBASE PROFILE SCRIPT (MODULE)
+    ========================================================== -->
+    <script type="module">
+        // ==========================================================
+        // IMPORTS — adjust path if firebase.js is elsewhere
+        // ==========================================================
 
-            <h4>Role</h4>
+        import { auth, db } from "../firebase.js";
 
-            <p id="profileRole">-</p>
+        import {
+            doc,
+            getDoc,
+            onSnapshot,
+            updateDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-        </div>
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-        <div class="info-card">
+        // ==========================================================
+        // DOM ELEMENTS
+        // ==========================================================
 
-            <h4>Membership</h4>
+        const profileName = document.getElementById("profileName");
+        const profileEmail = document.getElementById("profileEmail");
+        const profileBadge = document.getElementById("profileBadge");
+        const profileRole = document.getElementById("profileRole");
+        const profileMembership = document.getElementById("profileMembership");
+        const profilePayment = document.getElementById("profilePayment");
+        const profileJoined = document.getElementById("profileJoined");
+        const upgradeBtn = document.getElementById("upgradeBtn");
+        const logoutLink = document.getElementById("logoutLink");
 
-            <p id="profileMembership">-</p>
+        // ==========================================================
+        // TOAST NOTIFICATION
+        // ==========================================================
 
-        </div>
+        function notify(message) {
+            const toast = document.getElementById("gtradesToast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3500);
+        }
 
-        <div class="info-card">
+        // ==========================================================
+        // DATE FORMATTER
+        // ==========================================================
 
-            <h4>Payment Status</h4>
+        function formatDate(timestamp) {
+            if (!timestamp) return "N/A";
+            try {
+                if (timestamp.seconds) {
+                    return new Date(timestamp.seconds * 1000).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
+                    });
+                }
+                return new Date(timestamp).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                });
+            } catch {
+                return "N/A";
+            }
+        }
 
-            <p id="profilePayment">-</p>
+        // ==========================================================
+        // UPDATE UI
+        // ==========================================================
 
-        </div>
+        function updateProfileUI(data) {
+            // Name
+            if (profileName) {
+                profileName.textContent = data.name || "Trader";
+            }
 
-        <div class="info-card">
+            // Email
+            if (profileEmail) {
+                profileEmail.textContent = data.email || "email@example.com";
+            }
 
-            <h4>Joined</h4>
+            // Role
+            if (profileRole) {
+                profileRole.textContent = data.role || "member";
+            }
 
-            <p id="profileJoined">-</p>
+            // Membership
+            if (profileMembership) {
+                profileMembership.textContent = data.membership || "free";
+            }
 
-        </div>
+            // Payment Status
+            if (profilePayment) {
+                const isActive = data.active === true;
+                profilePayment.textContent = isActive ? "✅ Active" : "⏳ Pending";
+                profilePayment.className = isActive ? "paid" : "unpaid";
+            }
 
-    </div>
+            // Joined Date
+            if (profileJoined) {
+                profileJoined.textContent = formatDate(data.createdAt);
+            }
 
-    <div class="profile-actions">
+            // Badge
+            if (profileBadge) {
+                const membership = data.membership || "free";
+                const role = data.role || "member";
 
-        <a id="upgradeBtn" href="membership.html" class="upgrade-btn">
+                // Remove old classes
+                profileBadge.classList.remove("free", "premium", "admin");
 
-            Upgrade Membership
+                if (role === "admin") {
+                    profileBadge.classList.add("admin");
+                    profileBadge.textContent = "🛠️ Admin";
+                } else if (membership === "premium") {
+                    profileBadge.classList.add("premium");
+                    profileBadge.textContent = "⭐ Premium Member";
+                } else {
+                    profileBadge.classList.add("free");
+                    profileBadge.textContent = "🆓 Free Member";
+                }
+            }
 
-        </a>
+            // Upgrade button — hide if already premium or admin
+            if (upgradeBtn) {
+                const membership = data.membership || "free";
+                const role = data.role || "member";
+                if (membership === "premium" || role === "admin") {
+                    upgradeBtn.classList.add("hidden");
+                } else {
+                    upgradeBtn.classList.remove("hidden");
+                }
+            }
+        }
 
-    </div>
+        // ==========================================================
+        // LOAD PROFILE
+        // ==========================================================
 
-</div>
-<!-- At the bottom of your HTML, before </body> -->
-<script type="module" src="js/profile.js"></script>
-</section>
+        async function loadProfile(uid) {
+            try {
+                const userRef = doc(db, "users", uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    console.error("User document not found");
+                    return;
+                }
+
+                const data = userSnap.data();
+                updateProfileUI(data);
+
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                notify("❌ Failed to load profile");
+            }
+        }
+
+        // ==========================================================
+        // REAL-TIME LISTENER
+        // ==========================================================
+
+        function listenForProfileUpdates(uid) {
+            const userRef = doc(db, "users", uid);
+
+            onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    updateProfileUI(data);
+                }
+            }, (error) => {
+                console.error("Profile listener error:", error);
+            });
+        }
+
+        // ==========================================================
+        // UPGRADE MEMBERSHIP
+        // ==========================================================
+
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
+
+                const user = auth.currentUser;
+                if (!user) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                if (!confirm("Upgrade to Premium for $9.99/month?")) {
+                    return;
+                }
+
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    await updateDoc(userRef, {
+                        membership: "premium",
+                        active: true,
+                        upgradedAt: serverTimestamp()
+                    });
+
+                    notify("✅ You've been upgraded to Premium!");
+                    upgradeBtn.classList.add("hidden");
+
+                } catch (error) {
+                    console.error("Upgrade error:", error);
+                    notify("❌ Upgrade failed. Please try again.");
+                }
+            });
+        }
+
+        // ==========================================================
+        // LOGOUT
+        // ==========================================================
+
+        if (logoutLink) {
+            logoutLink.addEventListener("click", async (e) => {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                    window.location.href = "login.html";
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    notify("❌ Logout failed");
+                }
+            });
+        }
+
+        // ==========================================================
+        // AUTH STATE
+        // ==========================================================
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Not logged in — redirect to login
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Load profile and listen for updates
+            loadProfile(user.uid);
+            listenForProfileUpdates(user.uid);
+        });
+
+        // ==========================================================
+        // INIT LOG
+        // ==========================================================
+
+        console.log("✅ GTRADES-AXIS™ Profile V2 loaded");
+    </script>
+
+</body>
+</html>
