@@ -157,3 +157,336 @@ justify-content:center;
 }
 
 }
+/* Trader Profile Modal */
+.trader-profile .profile-header {
+    text-align: center;
+    padding: 10px 0 16px;
+    border-bottom: 1px solid #2a2a4a;
+}
+
+.trader-profile .profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+}
+
+.trader-profile .profile-header h3 {
+    color: #f0f0f0;
+    font-size: 22px;
+    margin: 0 0 4px;
+}
+
+.trader-profile .profile-header p {
+    color: #8892b0;
+    font-size: 14px;
+    margin: 0 0 10px;
+}
+
+.trader-profile .badge-free {
+    background: #2a2a4a;
+    color: #a8b2d1;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.trader-profile .badge-premium {
+    background: #f7b731;
+    color: #1a1a2e;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.trader-profile .profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid #2a2a4a;
+    margin-bottom: 18px;
+}
+
+.trader-profile .stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.trader-profile .stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #667;
+}
+
+.trader-profile .stat-value {
+    font-weight: 600;
+    color: #f0f0f0;
+    font-size: 16px;
+}
+
+.trader-profile .stat-value.paid {
+    color: #4ade80;
+}
+.trader-profile .stat-value.unpaid {
+    color: #f5a0a0;
+}
+
+.trader-profile .profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.trader-profile .profile-actions button {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #fff;
+}
+
+.trader-profile .upgrade-btn {
+    background: #f7b731;
+    color: #1a1a2e;
+}
+.trader-profile .upgrade-btn:hover {
+    background: #ffc84a;
+    transform: translateY(-2px);
+}
+
+.trader-profile .manage-btn {
+    background: #2a2a4a;
+}
+.trader-profile .manage-btn:hover {
+    background: #3a3a5a;
+    transform: translateY(-2px);
+}
+/* ======================== */
+/* ADMIN MODAL (simple)    */
+/* ======================== */
+
+.member-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.member-modal .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+}
+.member-modal .modal-box {
+    position: relative;
+    background: #1a1a2e;
+    border-radius: 16px;
+    padding: 28px 30px;
+    max-width: 480px;
+    width: 92%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid #2a2a4a;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 1;
+}
+.member-modal .close-modal {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #8892b0;
+    font-size: 28px;
+    cursor: pointer;
+}
+.member-modal .close-modal:hover {
+    color: #f0f0f0;
+}
+.member-modal .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #2a2a4a;
+}
+.member-modal .modal-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.member-modal .modal-header h2 {
+    color: #f0f0f0;
+    font-size: 20px;
+    margin: 0 0 2px;
+}
+.member-modal .modal-header p {
+    color: #8892b0;
+    margin: 0 0 6px;
+}
+.member-modal .modal-header .status-badge {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.member-modal .modal-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    background: #12121e;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+.member-modal .modal-info p {
+    margin: 4px 0;
+    color: #a8b2d1;
+}
+.member-modal .modal-info strong {
+    color: #f0f0f0;
+}
+.member-modal .modal-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.member-modal .modal-actions-grid button {
+    padding: 8px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #fff;
+    background: #2a2a4a;
+}
+.member-modal .modal-actions-grid button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.member-modal .modal-actions-grid .approve-btn {
+    background: #1b8a4a;
+}
+.member-modal .modal-actions-grid .approve-btn:hover {
+    background: #239e55;
+}
+.member-modal .modal-actions-grid .premium-btn {
+    background: #f7b731;
+    color: #1a1a2e;
+}
+.member-modal .modal-actions-grid .premium-btn:hover {
+    background: #ffc84a;
+}
+.member-modal .modal-actions-grid .remove-premium-btn {
+    background: #b8860b;
+}
+.member-modal .modal-actions-grid .remove-premium-btn:hover {
+    background: #d49a0e;
+}
+.member-modal .modal-actions-grid .admin-btn {
+    background: #4a6cf7;
+}
+.member-modal .modal-actions-grid .admin-btn:hover {
+    background: #5a7cff;
+}
+.member-modal .modal-actions-grid .demote-btn {
+    background: #6b6b8a;
+}
+.member-modal .modal-actions-grid .demote-btn:hover {
+    background: #7e7e9e;
+}
+.member-modal .modal-actions-grid .suspend-btn {
+    background: #8b1a1a;
+}
+.member-modal .modal-actions-grid .suspend-btn:hover {
+    background: #a52222;
+}
+.member-modal .modal-actions-grid .activate-btn {
+    background: #1b6b8a;
+}
+.member-modal .modal-actions-grid .activate-btn:hover {
+    background: #2180a0;
+}
+.member-modal .modal-actions-grid .delete-btn {
+    background: #cc3333;
+}
+.member-modal .modal-actions-grid .delete-btn:hover {
+    background: #dd4444;
+}
+
+/* ======================== */
+/* TOAST NOTIFICATION      */
+/* ======================== */
+
+.gtrades-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a1a2e;
+    color: #f0f0f0;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    border: 1px solid #2a2a4a;
+    z-index: 99999;
+    opacity: 0;
+    transition: all 0.4s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.gtrades-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .member-modal .modal-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    .gtrades-toast {
+        white-space: normal;
+        max-width: 90%;
+        text-align: center;
+    }
+}
