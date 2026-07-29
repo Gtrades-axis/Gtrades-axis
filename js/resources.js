@@ -33,17 +33,15 @@ let currentCategory = "All";
 AUTH
 ========================================== */
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth,(user)=>{
 
-    if (!user) {
+    if(!user){
 
-        window.location.href = "login.html";
+        window.location.href="login.html";
 
         return;
 
     }
-
-    loadResources();
 
 });
 

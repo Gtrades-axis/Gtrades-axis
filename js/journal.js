@@ -42,9 +42,22 @@ function $(id) { return document.getElementById(id); }
 
 // ─── REFRESH UI ──────────────────────────────────────────────
 function refreshUI() {
+
+    if (!document.getElementById('recentTrades') &&
+        !document.getElementById('equityChart') &&
+        !document.getElementById('monthlyChart')) {
+
+        return;
+
+    }
+
+
     loadDashboard();
+
     loadRecentTrades();
+
     initializeCharts();
+
 }
 
 // ─── BUILD TRADE OBJECT ──────────────────────────────────────
@@ -458,24 +471,48 @@ function populateForm(trade) {
 // ─── INIT ──────────────────────────────────────────────────────
 loadTrades();
 document.addEventListener('DOMContentLoaded', function() {
+
     const form = document.getElementById('tradeForm');
+
+
+    // Only run journal functions on journal page
     if (form) {
+
         form.removeEventListener('submit', saveTrade);
+
         form.addEventListener('submit', saveTrade);
+
         console.log('✅ Journal form ready');
+
+
+        if (!editId) {
+
+            const header = document.querySelector('.page-header h1');
+
+            if (header) {
+
+                header.innerHTML =
+                '<i class="fa-solid fa-chart-line"></i> Trading Journal';
+
+            }
+
+        }
+
+
     } else {
-        console.error('❌ Form #tradeForm not found');
+
+        console.log(
+        'ℹ️ Journal form not found - skipping journal initialization'
+        );
+
+        return;
+
     }
 
-    // If not in edit mode, show normal title
-    if (!editId) {
-        const header = document.querySelector('.page-header h1');
-        if (header) {
-            header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
-        }
-    }
 
     refreshUI();
+
+});
 });
 
 // Listen for storage changes (other tabs)
