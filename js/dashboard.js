@@ -40,7 +40,30 @@ const membershipBadge = document.getElementById("membershipBadge");
 const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 const notificationContainer = document.getElementById("notificationContainer");
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
 
+const userName = document.getElementById("userName");
+const userEmail = document.getElementById("userEmail");
+// ============================================================
+// LOGOUT BUTTON — DIRECT ATTACHMENT
+// ============================================================
+
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        } catch (error) {
+            console.error("Logout error:", error);
+            showDashboardMessage("❌ Logout failed. Please try again.");
+        }
+    });
+}
+// ... etc
 // ============================================================
 // AUTHENTICATION
 // ============================================================
@@ -679,7 +702,23 @@ console.log("=================================");
 console.log("GTRADES-AXIS™ USER DASHBOARD READY");
 console.log("User:", currentUser?.email);
 console.log("=================================");
+// ============================================================
+// LOGOUT (FINAL FIX)
+// ============================================================
 
+document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('#logoutBtn');
+    if (btn) {
+        e.preventDefault();
+        try {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        } catch (error) {
+            console.error("Logout error:", error);
+            showDashboardMessage("❌ Logout failed. Please try again.");
+        }
+    }
+});
 // ============================================================
 // END DASHBOARD.JS
 // ============================================================
