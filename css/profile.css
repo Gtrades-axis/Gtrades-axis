@@ -490,3 +490,157 @@ justify-content:center;
         text-align: center;
     }
 }
+/* ==========================================================
+   GTRADES-AXIS™ PROFILE V2 STYLES
+   ========================================================== */
+
+.profile-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 40px 20px;
+}
+
+.profile-card {
+    background: #1a1a2e;
+    border-radius: 24px;
+    padding: 40px 36px;
+    max-width: 520px;
+    width: 100%;
+    border: 1px solid #2a2a4a;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #2a2a4a;
+    margin-bottom: 24px;
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    color: #fff;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-info h2 {
+    color: #f0f0f0;
+    font-size: 24px;
+    margin: 0 0 4px;
+}
+
+.profile-info p {
+    color: #8892b0;
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+
+.member-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.member-badge.free {
+    background: #2a2a4a;
+    color: #a8b2d1;
+}
+
+.member-badge.premium {
+    background: #f7b731;
+    color: #1a1a2e;
+}
+
+.member-badge.admin {
+    background: #4a6cf7;
+    color: #fff;
+}
+
+/* Profile Grid */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    margin-bottom: 28px;
+}
+
+.info-card h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #667;
+    margin: 0 0 4px;
+}
+
+.info-card p {
+    font-weight: 600;
+    color: #f0f0f0;
+    font-size: 18px;
+    margin: 0;
+}
+
+.info-card p.paid {
+    color: #4ade80;
+}
+
+.info-card p.unpaid {
+    color: #f5a0a0;
+}
+
+/* Actions */
+.profile-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.profile-actions .upgrade-btn {
+    flex: 1;
+    padding: 12px 0;
+    background: #f7b731;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.profile-actions .upgrade-btn:hover {
+    background: #ffc84a;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .profile-card {
+        padding: 24px 20px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+}
