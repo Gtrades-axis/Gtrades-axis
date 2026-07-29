@@ -1,6 +1,6 @@
 // ============================================================
 // GTRADES-AXIS™
-// ADMIN MEMBERS MANAGEMENT — TABLE VERSION
+// ADMIN MEMBERS MANAGEMENT — TABLE VERSION (FIXED)
 // ============================================================
 
 import { auth, db } from "../firebase.js";
@@ -19,7 +19,6 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-
 // ============================================================
 // GLOBAL STATE
 // ============================================================
@@ -29,7 +28,6 @@ let filteredMembers = [];
 
 let currentFilter = "all";
 let currentSearch = "";
-
 
 // ============================================================
 // DOM ELEMENTS
@@ -44,7 +42,6 @@ const premiumMembersEl = document.getElementById("premiumMembers");
 const adminMembersEl = document.getElementById("adminMembers");
 const pendingMembersEl = document.getElementById("pendingMembers");
 const suspendedMembersEl = document.getElementById("suspendedMembers");
-
 
 // ============================================================
 // AUTHENTICATION CHECK
@@ -80,7 +77,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-
 // ============================================================
 // LOAD MEMBERS REALTIME
 // ============================================================
@@ -111,7 +107,6 @@ function loadMembers() {
     );
 }
 
-
 // ============================================================
 // STATISTICS
 // ============================================================
@@ -129,7 +124,6 @@ function updateStatistics() {
     if (pendingMembersEl) pendingMembersEl.textContent = pending;
     if (suspendedMembersEl) suspendedMembersEl.textContent = suspended;
 }
-
 
 // ============================================================
 // FILTER SYSTEM
@@ -174,7 +168,6 @@ function applyFilters() {
     renderMembers();
 }
 
-
 // ============================================================
 // SEARCH EVENT
 // ============================================================
@@ -185,7 +178,6 @@ if (searchInput) {
         applyFilters();
     });
 }
-
 
 // ============================================================
 // FILTER BUTTON EVENTS
@@ -200,7 +192,6 @@ filterButtons.forEach(button => {
     });
 });
 
-
 // ============================================================
 // RENDER MEMBERS — TABLE VERSION
 // ============================================================
@@ -208,7 +199,6 @@ filterButtons.forEach(button => {
 function renderMembers() {
     if (!membersContainer) return;
 
-    // Build the full table HTML (header + rows)
     let html = `
         <table class="members-table">
             <thead>
@@ -247,7 +237,6 @@ function renderMembers() {
     membersContainer.innerHTML = html;
 }
 
-
 // ============================================================
 // MEMBER ROW — TABLE ROW
 // ============================================================
@@ -279,7 +268,6 @@ function createMemberRow(member) {
         statusClass = "status-deleted";
     }
 
-    // Payment indicator: show a check or dash based on membership
     const paymentIcon = (member.membership === "premium" || member.role === "admin")
         ? '<span class="payment-paid">✓</span>'
         : '<span class="payment-free">—</span>';
@@ -307,7 +295,6 @@ function createMemberRow(member) {
     `;
 }
 
-
 // ============================================================
 // DATE FORMATTER
 // ============================================================
@@ -332,7 +319,6 @@ function formatDate(timestamp) {
         return "N/A";
     }
 }
-
 
 // ============================================================
 // ERROR DISPLAY
@@ -365,7 +351,6 @@ function showError(message) {
     `;
 }
 
-
 // ============================================================
 // REFRESH FUNCTION
 // ============================================================
@@ -375,38 +360,61 @@ window.refreshMembers = function () {
     applyFilters();
 };
 
-
 // ============================================================
-// MEMBER ACTION EVENT HANDLER
+// SINGLE CLICK HANDLER FOR ALL BUTTONS (including modal)
 // ============================================================
 
 document.addEventListener("click", async (e) => {
-    const target = e.target;
+    // --- Handle table action buttons (View / Manage) ---
+    const actionBtn = e.target.closest(".btn-view, .btn-manage");
+    if (actionBtn) {
+        const id = actionBtn.dataset.id;
+        if (id) openMemberModal(id);
+        return;
+    }
 
-    if (target.classList.contains("btn-manage") || target.classList.contains("btn-view")) {
-        const id = target.dataset.id;
-        openMemberModal(id);
+    // --- Handle modal buttons (approve, premium, admin, etc.) ---
+    const modalBtn = e.target.closest("button[data-id]");
+    if (!modalBtn) return;
+
+    const id = modalBtn.dataset.id;
+    if (!id) return;
+
+    // Check which action class the button has
+    if (modalBtn.classList.contains("approve-btn")) {
+        await approveMember(id);
+    } else if (modalBtn.classList.contains("premium-btn")) {
+        await makePremium(id);
+    } else if (modalBtn.classList.contains("remove-premium-btn")) {
+        await removePremium(id);
+    } else if (modalBtn.classList.contains("admin-btn")) {
+        await makeAdmin(id);
+    } else if (modalBtn.classList.contains("demote-btn")) {
+        await demoteMember(id);
+    } else if (modalBtn.classList.contains("suspend-btn")) {
+        await suspendMember(id);
+    } else if (modalBtn.classList.contains("activate-btn")) {
+        await activateMember(id);
+    } else if (modalBtn.classList.contains("delete-btn")) {
+        await deleteMember(id);
     }
 });
 
-
 // ============================================================
-// MEMBER MODAL
+// MEMBER MODAL (with cleanup)
 // ============================================================
 
 function openMemberModal(id) {
     const member = allMembers.find(m => m.id === id);
     if (!member) return;
 
-    let modal = document.getElementById("memberModal");
+    // Remove any existing modal to avoid duplication
+    const existingModal = document.getElementById("memberModal");
+    if (existingModal) existingModal.remove();
 
-    if (!modal) {
-        modal = document.createElement("div");
-        modal.id = "memberModal";
-        modal.className = "member-modal";
-        document.body.appendChild(modal);
-    }
-
+    const modal = document.createElement("div");
+    modal.id = "memberModal";
+    modal.className = "member-modal";
     modal.innerHTML = `
         <div class="modal-overlay"></div>
         <div class="modal-box">
@@ -434,44 +442,21 @@ function openMemberModal(id) {
         </div>
     `;
 
+    document.body.appendChild(modal);
     modal.style.display = "flex";
 
     modal.querySelector(".close-modal").onclick = () => {
         modal.style.display = "none";
     };
+
+    // Close when clicking overlay
+    modal.querySelector(".modal-overlay").onclick = () => {
+        modal.style.display = "none";
+    };
 }
 
-
 // ============================================================
-// MODAL BUTTON ACTIONS
-// ============================================================
-
-document.addEventListener("click", async (e) => {
-    const id = e.target.dataset.id;
-    if (!id) return;
-
-    if (e.target.classList.contains("approve-btn")) {
-        await approveMember(id);
-    } else if (e.target.classList.contains("premium-btn")) {
-        await makePremium(id);
-    } else if (e.target.classList.contains("remove-premium-btn")) {
-        await removePremium(id);
-    } else if (e.target.classList.contains("admin-btn")) {
-        await makeAdmin(id);
-    } else if (e.target.classList.contains("demote-btn")) {
-        await demoteMember(id);
-    } else if (e.target.classList.contains("suspend-btn")) {
-        await suspendMember(id);
-    } else if (e.target.classList.contains("activate-btn")) {
-        await activateMember(id);
-    } else if (e.target.classList.contains("delete-btn")) {
-        await deleteMember(id);
-    }
-});
-
-
-// ============================================================
-// APPROVE MEMBER
+// CRUD FUNCTIONS (unchanged)
 // ============================================================
 
 async function approveMember(id) {
@@ -487,11 +472,6 @@ async function approveMember(id) {
     }
 }
 
-
-// ============================================================
-// MAKE PREMIUM
-// ============================================================
-
 async function makePremium(id) {
     try {
         await updateDoc(doc(db, "users", id), {
@@ -505,11 +485,6 @@ async function makePremium(id) {
     }
 }
 
-
-// ============================================================
-// REMOVE PREMIUM
-// ============================================================
-
 async function removePremium(id) {
     try {
         await updateDoc(doc(db, "users", id), {
@@ -521,11 +496,6 @@ async function removePremium(id) {
         console.error(error);
     }
 }
-
-
-// ============================================================
-// MAKE ADMIN
-// ============================================================
 
 async function makeAdmin(id) {
     try {
@@ -539,11 +509,6 @@ async function makeAdmin(id) {
     }
 }
 
-
-// ============================================================
-// DEMOTE MEMBER
-// ============================================================
-
 async function demoteMember(id) {
     try {
         await updateDoc(doc(db, "users", id), {
@@ -555,11 +520,6 @@ async function demoteMember(id) {
         console.error(error);
     }
 }
-
-
-// ============================================================
-// SUSPEND MEMBER
-// ============================================================
 
 async function suspendMember(id) {
     try {
@@ -574,11 +534,6 @@ async function suspendMember(id) {
     }
 }
 
-
-// ============================================================
-// ACTIVATE MEMBER
-// ============================================================
-
 async function activateMember(id) {
     try {
         await updateDoc(doc(db, "users", id), {
@@ -591,11 +546,6 @@ async function activateMember(id) {
         console.error(error);
     }
 }
-
-
-// ============================================================
-// DELETE MEMBER
-// ============================================================
 
 async function deleteMember(id) {
     const confirmDelete = confirm("Are you sure you want to delete this member?");
@@ -613,7 +563,6 @@ async function deleteMember(id) {
         console.error("Delete error:", error);
     }
 }
-
 
 // ============================================================
 // CSV EXPORT
@@ -648,7 +597,6 @@ window.exportMembersCSV = function () {
     URL.revokeObjectURL(url);
 };
 
-
 // ============================================================
 // SORT SYSTEM
 // ============================================================
@@ -676,17 +624,11 @@ window.sortMembers = function (type) {
     renderMembers();
 };
 
-
-// ============================================================
-// TIME HELPER
-// ============================================================
-
 function getTime(value) {
     if (!value) return 0;
     if (value.seconds) return value.seconds * 1000;
     return new Date(value).getTime();
 }
-
 
 // ============================================================
 // NOTIFICATION SYSTEM
@@ -710,19 +652,6 @@ function notify(message) {
     }, 3000);
 }
 
-
-// ============================================================
-// CLOSE MODAL OUTSIDE CLICK
-// ============================================================
-
-document.addEventListener("click", (e) => {
-    const modal = document.getElementById("memberModal");
-    if (modal && e.target.classList.contains("modal-overlay")) {
-        modal.style.display = "none";
-    }
-});
-
-
 // ============================================================
 // KEYBOARD SHORTCUTS
 // ============================================================
@@ -733,7 +662,6 @@ document.addEventListener("keydown", (e) => {
         if (modal) modal.style.display = "none";
     }
 });
-
 
 // ============================================================
 // LIVE SEARCH CLEAR
@@ -747,7 +675,6 @@ window.clearMemberSearch = function () {
     }
 };
 
-
 // ============================================================
 // MANUAL REFRESH
 // ============================================================
@@ -755,7 +682,6 @@ window.clearMemberSearch = function () {
 window.reloadMembers = function () {
     loadMembers();
 };
-
 
 // ============================================================
 // SECURITY CHECK
@@ -778,7 +704,6 @@ window.checkAdminAccess = async function () {
     return true;
 };
 
-
 // ============================================================
 // RESPONSIVE HELPERS
 // ============================================================
@@ -795,7 +720,6 @@ function handleResponsive() {
 window.addEventListener("resize", handleResponsive);
 handleResponsive();
 
-
 // ============================================================
 // GLOBAL DEBUG
 // ============================================================
@@ -807,13 +731,4 @@ window.GTRADES_ADMIN = {
     export: exportMembersCSV
 };
 
-
-// ============================================================
-// INITIAL LOG
-// ============================================================
-
-console.log("GTRADES-AXIS™ Admin Members Loaded (Table Version)");
-
-// ============================================================
-// END ADMIN-MEMBERS.JS
-// ============================================================
+console.log("GTRADES-AXIS™ Admin Members Loaded (Table Version - Fixed)");
