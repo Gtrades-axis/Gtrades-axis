@@ -513,7 +513,6 @@ document.addEventListener('DOMContentLoaded', function() {
     refreshUI();
 
 });
-});
 
 // Listen for storage changes (other tabs)
 window.addEventListener('storage', function(e) {
