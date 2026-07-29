@@ -1,255 +1,490 @@
 import { auth, db } from "./firebase.js";
 
 import {
-    signOut,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+signOut,
+onAuthStateChanged
+}
+from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-import {
-    doc,
-    getDoc,
-    collection,
-    getDocs,
-    query,
-    orderBy,
-    limit
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import{
+
+doc,
+getDoc,
+collection,
+getDocs,
+query,
+orderBy,
+limit
+
+}
+from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 /* ==========================================
 ELEMENTS
 ========================================== */
 
-const logoutBtn = document.getElementById("logoutBtn");
+const logoutBtn=document.getElementById("logoutBtn");
 
-const userName = document.getElementById("userName");
+const userName=document.getElementById("userName");
 
-const resourceCount = document.getElementById("resourceCount");
+const memberBadge=document.querySelector(".member-badge");
 
-const lessonCount = document.getElementById("lessonCount");
+const resourceCount=document.getElementById("resourceCount");
 
-const videoCount = document.getElementById("videoCount");
+const lessonCount=document.getElementById("lessonCount");
 
-const latestResources = document.getElementById("latestResources");
+const videoCount=document.getElementById("videoCount");
 
-const announcements = document.getElementById("announcements");
+const latestResources=document.getElementById("latestResources");
+
+const announcements=document.getElementById("announcements");
+
+/* ==========================================
+CURRENT USER
+========================================== */
+
+let currentUser=null;
+
+let membership="free";
+
+let role="free";
 
 /* ==========================================
 AUTH
 ========================================== */
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth,async(user)=>{
 
-    if (!user) {
+if(!user){
 
-        window.location.href = "login.html";
+location.href="login.html";
 
-        return;
+return;
 
-    }
+}
 
-    try {
+currentUser=user;
 
-        const userRef = doc(db, "users", user.uid);
+const snap=await getDoc(
 
-        const snap = await getDoc(userRef);
+doc(db,"users",user.uid)
 
-        if (snap.exists()) {
+);
 
-            const data = snap.data();
+if(!snap.exists()){
 
-            userName.textContent =
-                data.firstName || data.name || "Trader";
+location.href="login.html";
 
-        } else {
+return;
 
-            userName.textContent = "Trader";
+}
 
-        }
+const data=snap.data();
 
-    } catch (e) {
+userName.innerText=data.name||"Trader";
 
-        console.error(e);
+membership=data.membership||"free";
 
-    }
+role=data.role||"free";
 
-    loadDashboard();
+/* ==========================================
+BADGE
+========================================== */
+
+if(role==="admin"){
+
+memberBadge.innerHTML=
+
+`👑 Administrator`;
+
+memberBadge.className=
+
+"member-badge admin";
+
+}
+
+else if(membership==="premium"){
+
+memberBadge.innerHTML=
+
+`⭐ Premium Member`;
+
+memberBadge.className=
+
+"member-badge premium";
+
+}
+
+else{
+
+memberBadge.innerHTML=
+
+`🆓 Free Member`;
+
+memberBadge.className=
+
+"member-badge free";
+
+}
+
+loadDashboard();
+
+});
+/* ==========================================================
+LOAD DASHBOARD
+========================================================== */
+
+async function loadDashboard(){
+
+await Promise.all([
+
+loadResources(),
+
+loadAcademy(),
+
+loadVideos(),
+
+loadLatestResources(),
+
+loadAnnouncements()
+
+]);
+
+setupPremiumLocks();
+
+}
+
+/* ==========================================================
+PREMIUM LOCKS
+========================================================== */
+
+function setupPremiumLocks(){
+
+// Admin has access to everything
+if(role==="admin") return;
+
+// Premium has access to everything
+if(membership==="premium") return;
+
+// -------------------------------
+// Free Users
+// -------------------------------
+
+lockCard(
+
+"resources.html",
+
+"Premium Resources"
+
+);
+
+lockCard(
+
+"journal.html",
+
+"Trading Journal"
+
+);
+
+lockCard(
+
+"profile.html",
+
+"Premium Profile Features"
+
+);
+
+// Future pages
+
+lockCard(
+
+"ai-review.html",
+
+"AI Trade Review"
+
+);
+
+lockCard(
+
+"analytics.html",
+
+"Advanced Analytics"
+
+);
+
+}
+
+/* ==========================================================
+LOCK CARD
+========================================================== */
+
+function lockCard(page,feature){
+
+document.querySelectorAll("a").forEach(link=>{
+
+if(link.getAttribute("href")!==page) return;
+
+const card=link.closest(".quick-card");
+
+if(card){
+
+card.classList.add("locked");
+
+if(!card.querySelector(".lock-badge")){
+
+const badge=document.createElement("div");
+
+badge.className="lock-badge";
+
+badge.innerHTML=`
+<i class="fa-solid fa-lock"></i>
+Premium
+`;
+
+card.appendChild(badge);
+
+}
+
+}
+
+link.addEventListener("click",(e)=>{
+
+e.preventDefault();
+
+showPremiumPopup(feature);
 
 });
 
-/* ==========================================
+});
+
+}
+
+/* ==========================================================
+PREMIUM POPUP
+========================================================== */
+
+function showPremiumPopup(feature){
+
+if(document.getElementById("premiumPopup"))
+
+return;
+
+const popup=document.createElement("div");
+
+popup.id="premiumPopup";
+
+popup.className="premium-popup";
+
+popup.innerHTML=`
+
+<div class="premium-box">
+
+<div class="premium-icon">
+
+🔒
+
+</div>
+
+<h2>
+
+Premium Required
+
+</h2>
+
+<p>
+
+<b>${feature}</b>
+
+is available only for Premium Members.
+
+</p>
+
+<ul>
+
+<li>✔ Premium Academy</li>
+
+<li>✔ Trading Journal</li>
+
+<li>✔ Premium Resources</li>
+
+<li>✔ AI Trade Review</li>
+
+<li>✔ Advanced Analytics</li>
+
+<li>✔ Future Updates</li>
+
+</ul>
+
+<div class="premium-actions">
+
+<a
+
+href="membership.html"
+
+class="upgrade-btn">
+
+Upgrade Membership
+
+</a>
+
+<button
+
+id="closePremium">
+
+Maybe Later
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+document.body.appendChild(popup);
+
+document
+
+.getElementById("closePremium")
+
+.onclick=()=>{
+
+popup.remove();
+
+};
+
+}
+
+/* ==========================================================
 LOGOUT
-========================================== */
+========================================================== */
 
-if (logoutBtn) {
+logoutBtn.onclick=async()=>{
 
-    logoutBtn.addEventListener("click", async () => {
+if(!confirm("Logout?")) return;
 
-        if (!confirm("Logout?")) return;
+await signOut(auth);
 
-        try {
+location.href="login.html";
 
-            await signOut(auth);
-
-            location.href = "login.html";
-
-        }
-
-        catch (e) {
-
-            console.error(e);
-
-            alert(e.message);
-
-        }
-
-    });
-
-}
-
-/* ==========================================
-LOAD DASHBOARD
-========================================== */
-
-async function loadDashboard() {
-
-    await Promise.all([
-
-        loadResources(),
-
-        loadAcademy(),
-
-        loadVideos(),
-
-        loadLatestResources(),
-
-        loadAnnouncements()
-
-    ]);
-
-}
-/* ==========================================
-RESOURCE COUNT
-========================================== */
-
-async function loadResources() {
-
-    try {
-
-        const snapshot = await getDocs(collection(db, "resources"));
-
-        resourceCount.textContent = snapshot.size;
-
-    }
-
-    catch (e) {
-
-        console.error(e);
-
-        resourceCount.textContent = "0";
-
-    }
-
-}
-
-/* ==========================================
-ACADEMY COUNT
-========================================== */
-
-async function loadAcademy() {
-
-    try {
-
-        const snapshot = await getDocs(collection(db, "academy"));
-
-        lessonCount.textContent = snapshot.size;
-
-    }
-
-    catch (e) {
-
-        console.error(e);
-
-        lessonCount.textContent = "0";
-
-    }
-
-}
-
-/* ==========================================
-VIDEO COUNT
-========================================== */
-
-async function loadVideos() {
-
-    try {
-
-        const snapshot = await getDocs(collection(db, "videos"));
-
-        videoCount.textContent = snapshot.size;
-
-    }
-
-    catch (e) {
-
-        console.error(e);
-
-        videoCount.textContent = "0";
-
-    }
-
-}
-
-/* ==========================================
+};
+/* ==========================================================
 LATEST RESOURCES
-========================================== */
+========================================================== */
 
-async function loadLatestResources() {
+async function loadLatestResources(){
 
-    try {
+try{
 
-        const q = query(
+const q=query(
 
-            collection(db, "resources"),
+collection(db,"resources"),
 
-            orderBy("createdAt", "desc"),
+orderBy("createdAt","desc"),
 
-            limit(5)
+limit(6)
 
-        );
+);
 
-        const snapshot = await getDocs(q);
+const snapshot=await getDocs(q);
 
-        latestResources.innerHTML = "";
+latestResources.innerHTML="";
 
-        if (snapshot.empty) {
+if(snapshot.empty){
 
-            latestResources.innerHTML = `
+latestResources.innerHTML=`
 
-            <div class="loading-card">
+<div class="loading-card">
 
-                No Resources Available
+No Resources Available
 
-            </div>
+</div>
 
-            `;
+`;
 
-            return;
+return;
 
-        }
+}
 
-        snapshot.forEach(docSnap => {
+snapshot.forEach(docSnap=>{
 
-            const resource = docSnap.data();
+const resource=docSnap.data();
 
-            latestResources.innerHTML += `
+const premium=resource.premium===true;
+
+let html="";
+
+if(
+
+premium &&
+
+membership!=="premium" &&
+
+role!=="admin"
+
+){
+
+html=`
+
+<div class="resource-item locked-resource">
+
+<div class="resource-info">
+
+<h3>
+
+🔒 ${resource.title}
+
+</h3>
+
+<p>
+
+${resource.description||"Premium Resource"}
+
+</p>
+
+<span class="premium-label">
+
+Premium Resource
+
+</span>
+
+</div>
+
+<button
+
+class="locked-download"
+
+data-feature="${resource.title}">
+
+Locked
+
+</button>
+
+</div>
+
+`;
+
+}else{
+
+html=`
 
 <div class="resource-item">
 
-<div class="resource-left">
+<div class="resource-info">
 
-<h3>${resource.title}</h3>
+<h3>
 
-<p>${resource.description || "Premium Resource"}</p>
+${resource.title}
+
+</h3>
+
+<p>
+
+${resource.description||""}
+
+</p>
 
 </div>
 
@@ -269,155 +504,39 @@ Download
 
 `;
 
-        });
-
-    }
-
-    catch (e) {
-
-        console.error(e);
-
-    }
-
-}
-/* ==========================================
-ANNOUNCEMENTS
-========================================== */
-
-async function loadAnnouncements() {
-
-    try {
-
-        const q = query(
-            collection(db, "announcements"),
-            orderBy("createdAt", "desc"),
-            limit(5)
-        );
-
-        const snapshot = await getDocs(q);
-
-        announcements.innerHTML = "";
-
-        if (snapshot.empty) {
-
-            announcements.innerHTML = `
-
-            <div class="announcement">
-
-                <h4>No Announcements</h4>
-
-                <p>You're all caught up.</p>
-
-            </div>
-
-            `;
-
-            return;
-
-        }
-
-        snapshot.forEach(docSnap => {
-
-            const notice = docSnap.data();
-
-            announcements.innerHTML += `
-
-<div class="announcement">
-
-<h4>${notice.title}</h4>
-
-<p>${notice.message}</p>
-
-</div>
-
-`;
-
-        });
-
-    }
-
-    catch (e) {
-
-        console.error(e);
-
-        announcements.innerHTML = `
-
-        <div class="announcement">
-
-            <h4>Error</h4>
-
-            <p>Failed to load announcements.</p>
-
-        </div>
-
-        `;
-
-    }
-
 }
 
-/* ==========================================
-AUTO REFRESH
-========================================== */
-
-setInterval(() => {
-
-    loadLatestResources();
-
-    loadAnnouncements();
-
-}, 60000);
-
-/* ==========================================
-MOBILE SIDEBAR
-========================================== */
-
-const sidebar = document.querySelector(".sidebar");
-
-const mobileToggle = document.querySelector(".mobile-toggle");
-
-if (mobileToggle) {
-
-    mobileToggle.addEventListener("click", () => {
-
-        sidebar.classList.toggle("active");
-
-    });
-
-}
-
-/* ==========================================
-ACTIVE MENU
-========================================== */
-
-document.querySelectorAll(".menu li a").forEach(link => {
-
-    if (link.href === window.location.href) {
-
-        link.parentElement.classList.add("active");
-
-    }
+latestResources.innerHTML+=html;
 
 });
 
-/* ==========================================
-SMOOTH PAGE LOAD
-========================================== */
+/* ==============================
+LOCK BUTTONS
+============================== */
 
-window.addEventListener("load", () => {
+document
 
-    document.body.style.opacity = "1";
+.querySelectorAll(".locked-download")
+
+.forEach(button=>{
+
+button.onclick=()=>{
+
+showPremiumPopup(
+
+button.dataset.feature
+
+);
+
+};
 
 });
 
-/* ==========================================
-CONSOLE
-========================================== */
+}
+catch(error){
 
-console.log("===================================");
+console.error(error);
 
-console.log("GTRADES-AXIS Student Dashboard");
+}
 
-console.log("Dashboard Loaded Successfully");
-
-console.log("===================================");
+}

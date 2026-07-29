@@ -1,271 +1,280 @@
-/* ======================================================
-   GTRADES-AXIS™ PREMIUM GUARD
-====================================================== */
+/* ==========================================================
+GTRADES-AXIS™
+UNIVERSAL PREMIUM GUARD
+========================================================== */
 
-window.PremiumGuard = async function(options = {}) {
+import { auth, db } from "./firebase.js";
 
-    const feature = options.feature || "Premium Feature";
+import {
 
-    // Firebase Authentication check
-    firebase.auth().onAuthStateChanged(async(user)=>{
+onAuthStateChanged
 
-        // ==================================================
-        // USER NOT LOGGED IN
-        // ==================================================
+}
+from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-        if(!user){
+import{
 
-            showOverlay(
+doc,
+getDoc
 
-                "🔐 Login Required",
+}
+from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-                "Please login to continue.",
+/* ==========================================================
+PUBLIC FUNCTION
+========================================================== */
 
-                [
-                    {
-                        text:"Login",
-                        url:"login.html",
-                        primary:true
-                    }
-                ]
+window.PremiumGuard=function({
 
-            );
+feature="Premium Feature"
 
-            return;
+}={}){
 
-        }
+onAuthStateChanged(auth,async(user)=>{
 
-        // ==================================================
-        // GET USER DOCUMENT
-        // ==================================================
+/* ===========================
+NOT LOGGED IN
+=========================== */
 
-        const doc = await firebase.firestore()
+if(!user){
 
-        .collection("users")
+showPopup(
 
-        .doc(user.uid)
+"Login Required",
 
-        .get();
+"Please login to continue.",
 
-        if(!doc.exists){
+"login.html"
 
-            showOverlay(
+);
 
-                "Account Not Found",
+return;
 
-                "Please contact support."
+}
 
-            );
+/* ===========================
+GET USER
+=========================== */
 
-            return;
+const snap=await getDoc(
 
-        }
+doc(db,"users",user.uid)
 
-        const data = doc.data();
+);
 
-        // ==================================================
-        // ACCOUNT APPROVAL
-        // ==================================================
+if(!snap.exists()){
 
-        if(data.active!==true){
+showPopup(
 
-            showOverlay(
+"Account Not Found",
 
-                "⏳ Awaiting Approval",
+"Please contact support.",
 
-                "Your account is waiting for administrator approval.",
+"login.html"
 
-                [
+);
 
-                    {
+return;
 
-                        text:"Dashboard",
+}
 
-                        url:"dashboard.html",
+const data=snap.data();
 
-                        primary:true
+/* ===========================
+WAITING APPROVAL
+=========================== */
 
-                    }
+if(data.active!==true){
 
-                ]
+showPopup(
 
-            );
+"Awaiting Approval",
 
-            return;
+"Your account has not yet been approved by an administrator.",
 
-        }
+"pending.html"
 
-        // ==================================================
-        // PREMIUM MEMBERSHIP
-        // ==================================================
+);
 
-        if(data.membership!=="premium"){
+return;
 
-            showPremium(
+}
 
-                feature
+/* ===========================
+ADMIN
+=========================== */
 
-            );
+if(data.role==="admin"){
 
-            return;
+document.body.classList.add(
 
-        }
+"premium-authorized"
 
-        // ==================================================
-        // ACCESS GRANTED
-        // ==================================================
+);
 
-        document.body.classList.add(
+return;
 
-            "premium-authorized"
+}
 
-        );
+/* ===========================
+PREMIUM
+=========================== */
 
-    });
+if(data.membership==="premium"){
+
+document.body.classList.add(
+
+"premium-authorized"
+
+);
+
+return;
+
+}
+
+/* ===========================
+FREE
+=========================== */
+
+showPremium(feature);
+
+});
 
 };
-
-/* ======================================================
-   PREMIUM WINDOW
-====================================================== */
+/* ==========================================================
+PREMIUM WINDOW
+========================================================== */
 
 function showPremium(feature){
 
-    showOverlay(
+showPopup(
 
-        "⭐ Premium Required",
+"Premium Required",
 
-        `${feature} is available exclusively to GTRADES-AXIS™ Premium Members.`,
+feature+
 
-        [
+" is available only for Premium Members.",
 
-            {
+"membership.html",
 
-                text:"Upgrade Membership",
+true
 
-                url:"membership.html",
-
-                primary:true
-
-            },
-
-            {
-
-                text:"Back Dashboard",
-
-                url:"dashboard.html"
-
-            }
-
-        ]
-
-    );
+);
 
 }
-/* ======================================================
-   REUSABLE OVERLAY
-====================================================== */
 
-function showOverlay(title,message,buttons=[]){
+/* ==========================================================
+POPUP
+========================================================== */
 
-    // Prevent duplicate overlays
-    if(document.getElementById("premiumGuardOverlay")){
+function showPopup(
 
-        return;
+title,
 
-    }
+message,
 
-    // Blur page
-    document.body.classList.add("premium-locked");
+url,
 
-    const overlay=document.createElement("div");
+upgrade=false
 
-    overlay.id="premiumGuardOverlay";
+){
 
-    overlay.className="premium-guard-overlay";
+if(
 
-    let buttonsHTML="";
+document.getElementById(
 
-    buttons.forEach(button=>{
+"premiumPopup"
 
-        buttonsHTML+=`
+)
 
-            <a
+)
 
-            href="${button.url}"
+return;
 
-            class="premium-btn
+const popup=document.createElement("div");
 
-            ${button.primary?"primary":"secondary"}">
+popup.id="premiumPopup";
 
-                ${button.text}
+popup.className="premium-popup";
 
-            </a>
+popup.innerHTML=`
 
-        `;
+<div class="premium-box">
 
-    });
+<div class="premium-icon">
 
-    overlay.innerHTML=`
+🔒
 
-    <div class="premium-card">
+</div>
 
-        <div class="premium-icon">
+<h2>
 
-            🔒
+${title}
 
-        </div>
+</h2>
 
-        <h1>
+<p>
 
-            ${title}
+${message}
 
-        </h1>
+</p>
 
-        <p>
+<div class="premium-list">
 
-            ${message}
+<div>📒 Trading Journal</div>
 
-        </p>
+<div>📚 Premium Resources</div>
 
-        <div class="premium-features">
+<div>🎓 Premium Academy</div>
 
-            <h3>
+<div>🤖 AI Trade Review</div>
 
-                Premium Membership Includes
+<div>📈 Analytics</div>
 
-            </h3>
+<div>🏆 Certificates</div>
 
-            <ul>
+</div>
 
-                <li>📒 Professional Trading Journal</li>
+<div class="premium-buttons">
 
-                <li>🎓 Premium Trading Academy</li>
+<a
 
-                <li>🤖 AI Trade Review</li>
+href="${url}"
 
-                <li>📊 Advanced Analytics</li>
+class="upgrade-btn">
 
-                <li>📚 Premium Resources</li>
+${upgrade?"Upgrade Membership":"Continue"}
 
-                <li>🏆 Certificates</li>
+</a>
 
-                <li>🚀 Future Premium Updates</li>
+<button id="closePremium">
 
-            </ul>
+Close
 
-        </div>
+</button>
 
-        <div class="premium-buttons">
+</div>
 
-            ${buttonsHTML}
+</div>
 
-        </div>
+`;
 
-    </div>
+document.body.appendChild(popup);
 
-    `;
+document
 
-    document.body.appendChild(overlay);
+.getElementById(
+
+"closePremium"
+
+)
+
+.onclick=()=>{
+
+popup.remove();
+
+};
 
 }

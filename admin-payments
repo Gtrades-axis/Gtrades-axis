@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Payment Management | GTRADES-AXIS™
+</title>
+
+<link rel="stylesheet" href="css/admin.css">
+
+<link rel="stylesheet" href="css/admin-payments.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img src="images/imageslogo.png.png">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+<p>
+
+Administrator
+
+</p>
+
+</div>
+
+<ul>
+
+<li>
+
+<a href="admin.html">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="admin-members.html">
+
+<i class="fa-solid fa-users"></i>
+
+Members
+
+</a>
+
+</li>
+
+<li class="active">
+
+<a href="admin-payments.html">
+
+<i class="fa-solid fa-money-check-dollar"></i>
+
+Payments
+
+</a>
+
+</li>
+
+<li>
+
+<a href="resources-admin.html">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+</li>
+
+<li>
+
+<a href="academy-admin.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+</li>
+
+<li>
+
+<a href="videos-admin.html">
+
+<i class="fa-solid fa-circle-play"></i>
+
+Videos
+
+</a>
+
+</li>
+
+</ul>
+
+<button id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- MAIN -->
+
+<main class="main-content">
+
+<div class="page-header">
+
+<div>
+
+<h1>
+
+Payment Verification
+
+</h1>
+
+<p>
+
+Approve or reject premium membership requests.
+
+</p>
+
+</div>
+
+</div>
+
+<!-- STATS -->
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<i class="fa-solid fa-clock"></i>
+
+<h2 id="pendingCount">
+
+0
+
+</h2>
+
+<p>
+
+Pending
+
+</p>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-circle-check"></i>
+
+<h2 id="approvedCount">
+
+0
+
+</h2>
+
+<p>
+
+Approved
+
+</p>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-circle-xmark"></i>
+
+<h2 id="rejectedCount">
+
+0
+
+</h2>
+
+<p>
+
+Rejected
+
+</p>
+
+</div>
+
+<div class="stat-card">
+
+<i class="fa-solid fa-sack-dollar"></i>
+
+<h2 id="revenue">
+
+$0
+
+</h2>
+
+<p>
+
+Revenue
+
+</p>
+
+</div>
+
+</div>
+
+<!-- FILTERS -->
+
+<div class="toolbar">
+
+<input
+
+type="text"
+
+id="searchPayment"
+
+placeholder="Search member...">
+
+<select id="statusFilter">
+
+<option value="all">
+
+All
+
+</option>
+
+<option value="pending">
+
+Pending
+
+</option>
+
+<option value="approved">
+
+Approved
+
+</option>
+
+<option value="rejected">
+
+Rejected
+
+</option>
+
+</select>
+
+</div>
+
+<!-- PAYMENTS -->
+
+<div id="paymentsGrid"
+
+class="payments-grid">
+
+<!-- JS -->
+
+</div>
+
+</main>
+
+</div>
+
+<!-- PAYMENT MODAL -->
+
+<div
+
+class="modal"
+
+id="paymentModal">
+
+<div class="modal-content">
+
+<span
+
+class="close"
+
+id="closeModal">
+
+&times;
+
+</span>
+
+<h2>
+
+Payment Details
+
+</h2>
+
+<div class="payment-details">
+
+<p>
+
+<strong>Name</strong>
+
+<span id="mName"></span>
+
+</p>
+
+<p>
+
+<strong>Email</strong>
+
+<span id="mEmail"></span>
+
+</p>
+
+<p>
+
+<strong>Plan</strong>
+
+<span id="mPlan"></span>
+
+</p>
+
+<p>
+
+<strong>Amount</strong>
+
+<span id="mAmount"></span>
+
+</p>
+
+<p>
+
+<strong>Method</strong>
+
+<span id="mMethod"></span>
+
+</p>
+
+<p>
+
+<strong>Transaction ID</strong>
+
+<span id="mTransaction"></span>
+
+</p>
+
+<p>
+
+<strong>Status</strong>
+
+<span id="mStatus"></span>
+
+</p>
+
+</div>
+
+<div class="modal-buttons">
+
+<button
+
+id="approveBtn"
+
+class="approve">
+
+Approve
+
+</button>
+
+<button
+
+id="rejectBtn"
+
+class="reject">
+
+Reject
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script
+
+type="module"
+
+src="js/admin-payments.js">
+
+</script>
+
+</body>
+
+</html>
