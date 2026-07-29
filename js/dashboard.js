@@ -1,6 +1,6 @@
 // ============================================================
 // GTRADES-AXIS™
-// USER DASHBOARD
+// USER DASHBOARD – FIXED VERSION
 // ============================================================
 
 import { auth, db } from "../firebase.js";
@@ -11,7 +11,6 @@ import {
     onSnapshot,
     collection,
     query,
-    where,
     orderBy,
     limit
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -22,55 +21,26 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 // ============================================================
-// GLOBAL VARIABLES
+// DOM REFERENCES (only elements that exist in the HTML)
+// ============================================================
+
+const userNameEl = document.getElementById("userName");
+const memberBadgeEl = document.getElementById("membershipBadge");
+const resourceCountEl = document.getElementById("resourceCount");
+const lessonCountEl = document.getElementById("lessonCount");
+const videoCountEl = document.getElementById("videoCount");
+const latestResourcesEl = document.getElementById("latestResources");
+
+// ============================================================
+// AUTH STATE
 // ============================================================
 
 let currentUser = null;
 let userData = {};
-let userProgress = {};
-let notifications = [];
-
-// ============================================================
-// DOM ELEMENTS
-// ============================================================
-
-const userName = document.getElementById("userName");
-const userEmail = document.getElementById("userEmail");
-const membershipBadge = document.getElementById("membershipBadge");
-const progressBar = document.getElementById("progressBar");
-const progressText = document.getElementById("progressText");
-const notificationContainer = document.getElementById("notificationContainer");
-// ============================================================
-// DOM ELEMENTS
-// ============================================================
-
-const userName = document.getElementById("userName");
-const userEmail = document.getElementById("userEmail");
-// ============================================================
-// LOGOUT BUTTON — DIRECT ATTACHMENT
-// ============================================================
-
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-            await signOut(auth);
-            window.location.href = "../login.html";
-        } catch (error) {
-            console.error("Logout error:", error);
-            showDashboardMessage("❌ Logout failed. Please try again.");
-        }
-    });
-}
-// ... etc
-// ============================================================
-// AUTHENTICATION
-// ============================================================
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
-        window.location.href = "../login.html";
+        window.location.href = "login.html";
         return;
     }
 
@@ -80,645 +50,154 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!snap.exists()) {
             await signOut(auth);
-            window.location.href = "../login.html";
+            window.location.href = "login.html";
             return;
         }
 
         currentUser = user;
-        userData = {
-            id: user.uid,
-            ...snap.data()
-        };
+        userData = { id: user.uid, ...snap.data() };
 
         initializeDashboard();
     } catch (error) {
-        console.error("Dashboard auth error:", error);
+        console.error("Auth error:", error);
     }
 });
 
 // ============================================================
-// INITIALIZE DASHBOARD
+// DASHBOARD INIT
 // ============================================================
 
 function initializeDashboard() {
-    displayProfile();
-    loadUserProgress();
-    loadNotifications();
-    loadUserStatistics();
-    setupDashboardListeners();
+    displayUserInfo();
+    listenStats();
+    listenLatestResources();
 }
 
 // ============================================================
-// DISPLAY PROFILE
+// DISPLAY USER INFO
 // ============================================================
 
-function displayProfile() {
-    if (userName) {
-        userName.textContent = userData.name || "Trader";
+function displayUserInfo() {
+    if (userNameEl) {
+        userNameEl.textContent = userData.name || "Trader";
     }
 
-    if (userEmail) {
-        userEmail.textContent = userData.email || "";
-    }
-
-    if (membershipBadge) {
+    if (memberBadgeEl) {
         const membership = userData.membership || "member";
-        membershipBadge.textContent = membership.toUpperCase();
-        membershipBadge.className = "membership-" + membership;
+        const label = membership === "premium" ? "⭐ Premium Member" : "Member";
+        memberBadgeEl.textContent = label;
+        memberBadgeEl.style.background = membership === "premium" ? "#fbbf24" : "#6b7280";
+        memberBadgeEl.style.color = "#1f2937";
     }
 }
 
 // ============================================================
-// LOAD USER PROGRESS
+// REAL‑TIME STATS (Resources, Lessons, Videos)
 // ============================================================
 
-function loadUserProgress() {
-    const progressRef = doc(db, "progress", currentUser.uid);
+function listenStats() {
+    const resourcesQuery = collection(db, "resources");
+    onSnapshot(resourcesQuery, (snapshot) => {
+        if (resourceCountEl) resourceCountEl.textContent = snapshot.size;
+    }, (err) => console.error("Resources count error:", err));
 
-    onSnapshot(progressRef, snapshot => {
-        if (snapshot.exists()) {
-            userProgress = snapshot.data();
-        } else {
-            userProgress = {
-                completedModules: 0,
-                totalModules: 10
-            };
-        }
-        updateProgressDisplay();
-    }, error => {
-        console.error("Progress error:", error);
-    });
+    const lessonsQuery = collection(db, "lessons");
+    onSnapshot(lessonsQuery, (snapshot) => {
+        if (lessonCountEl) lessonCountEl.textContent = snapshot.size;
+    }, (err) => console.error("Lessons count error:", err));
+
+    const videosQuery = collection(db, "videos");
+    onSnapshot(videosQuery, (snapshot) => {
+        if (videoCountEl) videoCountEl.textContent = snapshot.size;
+    }, (err) => console.error("Videos count error:", err));
 }
 
 // ============================================================
-// UPDATE PROGRESS DISPLAY
+// LATEST RESOURCES (latest 3)
 // ============================================================
 
-function updateProgressDisplay() {
-    const completed = userProgress.completedModules || 0;
-    const total = userProgress.totalModules || 10;
-    const percentage = Math.round((completed / total) * 100);
+function listenLatestResources() {
+    if (!latestResourcesEl) return;
 
-    if (progressBar) {
-        progressBar.style.width = percentage + "%";
-    }
-
-    if (progressText) {
-        progressText.textContent = percentage + "% Complete";
-    }
-}
-
-// ============================================================
-// LOAD NOTIFICATIONS
-// ============================================================
-
-function loadNotifications() {
-    const notificationsQuery = query(
-        collection(db, "notifications"),
-        where("userId", "==", currentUser.uid),
+    const q = query(
+        collection(db, "resources"),
         orderBy("createdAt", "desc"),
-        limit(5)
+        limit(3)
     );
 
-    onSnapshot(notificationsQuery, snapshot => {
-        notifications = [];
-        snapshot.forEach(item => {
-            notifications.push({
-                id: item.id,
-                ...item.data()
-            });
-        });
-        renderNotifications();
-    }, error => {
-        console.log("Notifications unavailable", error);
-    });
-}
+    onSnapshot(q, (snapshot) => {
+        latestResourcesEl.innerHTML = "";
 
-// ============================================================
-// RENDER NOTIFICATIONS
-// ============================================================
-
-function renderNotifications() {
-    if (!notificationContainer) return;
-    notificationContainer.innerHTML = "";
-
-    if (notifications.length === 0) {
-        notificationContainer.innerHTML = `
-            <div class="empty-state">No notifications</div>
-        `;
-        return;
-    }
-
-    notifications.forEach(notification => {
-        const item = document.createElement("div");
-        item.className = "notification-item";
-        item.innerHTML = `
-            <h4>${notification.title || "Notice"}</h4>
-            <p>${notification.message || ""}</p>
-        `;
-        notificationContainer.appendChild(item);
-    });
-}
-
-// ============================================================
-// USER STATISTICS
-// ============================================================
-
-function loadUserStatistics() {
-    const statsRef = doc(db, "statistics", currentUser.uid);
-
-    onSnapshot(statsRef, snapshot => {
-        if (snapshot.exists()) {
-            displayStatistics(snapshot.data());
+        if (snapshot.empty) {
+            latestResourcesEl.innerHTML = `<div class="empty-state">No resources available</div>`;
+            return;
         }
-    });
-}
 
-// ============================================================
-// DISPLAY STATISTICS
-// ============================================================
-
-function displayStatistics(stats) {
-    const trades = document.getElementById("totalTrades");
-    const wins = document.getElementById("winningTrades");
-    const winRate = document.getElementById("winRate");
-
-    if (trades) trades.textContent = stats.trades || 0;
-    if (wins) wins.textContent = stats.wins || 0;
-    if (winRate) winRate.textContent = stats.winRate || "0%";
-}
-
-// ============================================================
-// DASHBOARD REALTIME LISTENERS
-// ============================================================
-
-function setupDashboardListeners() {
-    listenUserProfile();
-    listenAchievements();
-    listenCourses();
-}
-
-// ============================================================
-// USER PROFILE LIVE UPDATE
-// ============================================================
-
-function listenUserProfile() {
-    const userRef = doc(db, "users", currentUser.uid);
-
-    onSnapshot(userRef, snapshot => {
-        if (snapshot.exists()) {
-            userData = {
-                id: snapshot.id,
-                ...snapshot.data()
-            };
-            displayProfile();
-        }
-    }, error => {
-        console.error("Profile listener error:", error);
-    });
-}
-
-// ============================================================
-// ACHIEVEMENTS SYSTEM
-// ============================================================
-
-function listenAchievements() {
-    const achievementRef = doc(db, "achievements", currentUser.uid);
-
-    onSnapshot(achievementRef, snapshot => {
-        if (snapshot.exists()) {
-            renderAchievements(snapshot.data());
-        }
-    });
-}
-
-// ============================================================
-// RENDER ACHIEVEMENTS
-// ============================================================
-
-function renderAchievements(data) {
-    const container = document.getElementById("achievementContainer");
-    if (!container) return;
-
-    container.innerHTML = "";
-    const badges = data.badges || [];
-
-    if (badges.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">No achievements yet</div>
-        `;
-        return;
-    }
-
-    badges.forEach(badge => {
-        const item = document.createElement("div");
-        item.className = "achievement-card";
-        item.innerHTML = `
-            <div class="badge-icon">🏆</div>
-            <h4>${badge.name || "Achievement"}</h4>
-            <p>${badge.description || ""}</p>
-        `;
-        container.appendChild(item);
-    });
-}
-
-// ============================================================
-// COURSE PROGRESS
-// ============================================================
-
-function listenCourses() {
-    const coursesQuery = query(
-        collection(db, "courseProgress"),
-        where("userId", "==", currentUser.uid)
-    );
-
-    onSnapshot(coursesQuery, snapshot => {
-        let courses = [];
-        snapshot.forEach(item => {
-            courses.push({
-                id: item.id,
-                ...item.data()
-            });
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const item = document.createElement("div");
+            item.className = "resource-item";
+            item.innerHTML = `
+                <h4>${data.title || "Untitled"}</h4>
+                <p>${data.description || ""}</p>
+                <a href="${data.fileUrl || "#"}" target="_blank">View →</a>
+            `;
+            latestResourcesEl.appendChild(item);
         });
-        renderCourses(courses);
+    }, (error) => {
+        console.error("Latest resources error:", error);
+        latestResourcesEl.innerHTML = `<div class="error-state">Failed to load resources</div>`;
     });
 }
 
 // ============================================================
-// RENDER COURSES
+// LOGOUT – SINGLE, RELIABLE HANDLER (using event delegation)
 // ============================================================
 
-function renderCourses(courses) {
-    const container = document.getElementById("courseContainer");
-    if (!container) return;
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("#logoutBtn");
+    if (!btn) return;
 
-    container.innerHTML = "";
-
-    if (courses.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">Start your academy journey</div>
-        `;
-        return;
-    }
-
-    courses.forEach(course => {
-        const card = document.createElement("div");
-        card.className = "course-card";
-        const progress = course.progress || 0;
-        card.innerHTML = `
-            <h3>${course.title || "Course"}</h3>
-            <div class="course-progress">
-                <div class="progress-fill" style="width:${progress}%"></div>
-            </div>
-            <p>${progress}% Complete</p>
-        `;
-        container.appendChild(card);
-    });
-}
-
-// ============================================================
-// LOGOUT BUTTON — CLICK HANDLER
-// ============================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                await signOut(auth);
-                window.location.href = "../login.html";
-            } catch (error) {
-                console.error("Logout failed:", error);
-                showDashboardMessage("❌ Logout failed. Please try again.");
-            }
-        });
-    }
-});
-
-// ============================================================
-// LOGOUT (window function for inline usage)
-// ============================================================
-
-window.logoutUser = async function() {
+    e.preventDefault();
     try {
         await signOut(auth);
-        window.location.href = "../login.html";
+        window.location.href = "login.html";
     } catch (error) {
         console.error("Logout failed:", error);
-        showDashboardMessage("❌ Logout failed. Please try again.");
-    }
-};
-
-// ============================================================
-// PROFILE PAGE
-// ============================================================
-
-window.openProfile = function() {
-    window.location.href = "profile.html";
-};
-
-// ============================================================
-// ACADEMY PAGE
-// ============================================================
-
-window.openAcademy = function() {
-    window.location.href = "academy-dashboard.html";
-};
-
-// ============================================================
-// JOURNAL PAGE
-// ============================================================
-
-window.openJournal = function() {
-    window.location.href = "journal.html";
-};
-
-// ============================================================
-// RESOURCES PAGE
-// ============================================================
-
-window.openResources = function() {
-    if (userData.membership === "premium" || userData.role === "admin") {
-        window.location.href = "resources.html";
-    } else {
-        showDashboardMessage("Premium membership required");
-    }
-};
-
-// ============================================================
-// DASHBOARD MESSAGE
-// ============================================================
-
-function showDashboardMessage(message) {
-    let box = document.getElementById("dashboardMessage");
-
-    if (!box) {
-        box = document.createElement("div");
-        box.id = "dashboardMessage";
-        box.className = "dashboard-toast";
-        document.body.appendChild(box);
-    }
-
-    box.textContent = message;
-    box.classList.add("show");
-
-    setTimeout(() => {
-        box.classList.remove("show");
-    }, 3000);
-}
-
-// ============================================================
-// USER DATA ACCESS
-// ============================================================
-
-window.getCurrentUserData = function() {
-    return userData;
-};
-
-// ============================================================
-// REFRESH DASHBOARD
-// ============================================================
-
-window.refreshUserDashboard = function() {
-    displayProfile();
-    updateProgressDisplay();
-    renderNotifications();
-};
-
-// ============================================================
-// DASHBOARD ERROR HANDLING
-// ============================================================
-
-window.addEventListener("error", (event) => {
-    console.error("Dashboard Error:", event.error);
-});
-
-// ============================================================
-// SAFE TEXT HELPER
-// ============================================================
-
-function safeText(value, fallback = "N/A") {
-    if (value === undefined || value === null || value === "") {
-        return fallback;
-    }
-    return value;
-}
-
-// ============================================================
-// DAILY LOGIN TRACKING
-// ============================================================
-
-async function trackDailyLogin() {
-    if (!currentUser) return;
-    try {
-        const loginRef = doc(db, "userActivity", currentUser.uid);
-        console.log("Daily login tracked");
-    } catch (error) {
-        console.error("Login tracking error:", error);
-    }
-}
-
-// ============================================================
-// PREMIUM STATUS CHECK
-// ============================================================
-
-function checkPremiumAccess() {
-    if (!userData) return false;
-    return (userData.membership === "premium" || userData.role === "admin");
-}
-
-window.hasPremiumAccess = checkPremiumAccess;
-
-// ============================================================
-// PREMIUM GUARD
-// ============================================================
-
-window.requirePremium = function(callback) {
-    if (checkPremiumAccess()) {
-        callback();
-    } else {
-        showDashboardMessage("Upgrade to Premium Academy");
-    }
-};
-
-// ============================================================
-// USER LEVEL SYSTEM
-// ============================================================
-
-function calculateLevel() {
-    const progress = userProgress.completedModules || 0;
-    let level = "Beginner";
-
-    if (progress >= 3) level = "Learner";
-    if (progress >= 6) level = "Trader";
-    if (progress >= 9) level = "Professional";
-
-    displayLevel(level);
-}
-
-// ============================================================
-// DISPLAY LEVEL
-// ============================================================
-
-function displayLevel(level) {
-    const element = document.getElementById("userLevel");
-    if (element) {
-        element.textContent = level;
-    }
-}
-
-// ============================================================
-// STREAK TRACKER
-// ============================================================
-
-function updateLearningStreak() {
-    const streak = userData.learningStreak || 0;
-    const element = document.getElementById("learningStreak");
-    if (element) {
-        element.textContent = streak + " Days";
-    }
-}
-
-// ============================================================
-// DASHBOARD LOADER
-// ============================================================
-
-function showDashboardLoader() {
-    const loader = document.getElementById("dashboardLoader");
-    if (loader) {
-        loader.style.display = "block";
-    }
-}
-
-function hideDashboardLoader() {
-    const loader = document.getElementById("dashboardLoader");
-    if (loader) {
-        loader.style.display = "none";
-    }
-}
-
-// ============================================================
-// PAGE READY ACTIONS
-// ============================================================
-
-window.addEventListener("load", () => {
-    hideDashboardLoader();
-    trackDailyLogin();
-    calculateLevel();
-    updateLearningStreak();
-});
-
-// ============================================================
-// MOBILE NAVIGATION
-// ============================================================
-
-const mobileButton = document.getElementById("mobileMenuButton");
-const navigation = document.querySelector(".dashboard-sidebar");
-
-if (mobileButton && navigation) {
-    mobileButton.addEventListener("click", () => {
-        navigation.classList.toggle("active");
-    });
-}
-
-// ============================================================
-// CLOSE MOBILE MENU
-// ============================================================
-
-document.addEventListener("click", (event) => {
-    if (
-        navigation &&
-        mobileButton &&
-        !navigation.contains(event.target) &&
-        !mobileButton.contains(event.target)
-    ) {
-        navigation.classList.remove("active");
+        showToast("❌ Logout failed. Please try again.");
     }
 });
 
 // ============================================================
-// AUTO REFRESH
+// TOAST MESSAGE (optional)
 // ============================================================
 
-let refreshTimer;
+function showToast(msg) {
+    const existing = document.getElementById("gtToast");
+    if (existing) existing.remove();
 
-function startAutoRefresh() {
-    refreshTimer = setInterval(() => {
-        if (auth.currentUser) {
-            refreshUserDashboard();
-        }
-    }, 120000);
+    const toast = document.createElement("div");
+    toast.id = "gtToast";
+    toast.style.cssText = `
+        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+        background: #1f2937; color: #fff; padding: 12px 24px;
+        border-radius: 8px; font-weight: 500; z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: opacity 0.3s;
+    `;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-startAutoRefresh();
-
 // ============================================================
-// CLEANUP
+// GLOBAL HELPERS
 // ============================================================
 
-window.addEventListener("beforeunload", () => {
-    if (refreshTimer) {
-        clearInterval(refreshTimer);
-    }
-});
-
-// ============================================================
-// SESSION SECURITY
-// ============================================================
-
-setInterval(async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if (!snap.exists()) {
-            await signOut(auth);
-            window.location.href = "../login.html";
-        }
-    } catch (error) {
-        console.error("Session check error:", error);
-    }
-}, 300000);
-
-// ============================================================
-// GLOBAL DASHBOARD API
-// ============================================================
-
-window.GTRADES_DASHBOARD = {
-    user: () => userData,
-    progress: () => userProgress,
-    notifications: () => notifications,
-    premium: () => checkPremiumAccess(),
-    refresh: () => refreshUserDashboard()
+window.refreshDashboard = function () {
+    displayUserInfo();
+    listenStats();
+    listenLatestResources();
 };
 
-// ============================================================
-// INITIAL MESSAGE
-// ============================================================
-
-console.log("=================================");
-console.log("GTRADES-AXIS™ USER DASHBOARD READY");
-console.log("User:", currentUser?.email);
-console.log("=================================");
-// ============================================================
-// LOGOUT (FINAL FIX)
-// ============================================================
-
-document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('#logoutBtn');
-    if (btn) {
-        e.preventDefault();
-        try {
-            await signOut(auth);
-            window.location.href = "../login.html";
-        } catch (error) {
-            console.error("Logout error:", error);
-            showDashboardMessage("❌ Logout failed. Please try again.");
-        }
-    }
-});
-// ============================================================
-// END DASHBOARD.JS
-// ============================================================
+console.log("✅ GTRADES-AXIS Dashboard ready");
