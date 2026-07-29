@@ -37,7 +37,9 @@ let currentSearch = "";
 // ============================================================
 
 const membersContainer =
-    document.getElementById("membersContainer");
+document.getElementById(
+    "membersTable"
+);
 
 const searchInput =
     document.getElementById("memberSearch");

@@ -1,6 +1,7 @@
 // ============================================================
 // GTRADES AXIS™ – ADMIN MEMBERS MANAGEMENT (FIXED)
 // ============================================================
+console.log("ADMIN MEMBERS JS LOADED");
 
 import { db, auth } from "../firebase.js";
 import {
