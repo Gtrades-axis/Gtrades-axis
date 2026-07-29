@@ -101,7 +101,7 @@ function listenStats() {
         if (resourceCountEl) resourceCountEl.textContent = snapshot.size;
     }, (err) => console.error("Resources count error:", err));
 
-    const lessonsQuery = collection(db, "lessons");
+    const lessonsQuery = collection(db, "academy");
     onSnapshot(lessonsQuery, (snapshot) => {
         if (lessonCountEl) lessonCountEl.textContent = snapshot.size;
     }, (err) => console.error("Lessons count error:", err));
