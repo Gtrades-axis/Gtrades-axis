@@ -772,3 +772,146 @@ grid-template-columns:1fr;
 }
 
 }
+/* =====================================================
+   MEMBERS TABLE FIX
+===================================================== */
+
+.members-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+
+.members-table tbody tr{
+
+    background:#ffffff;
+
+    border-bottom:1px solid #e5e7eb;
+
+}
+
+
+.members-table td{
+
+    padding:18px;
+
+    vertical-align:middle;
+
+}
+
+
+
+.user-cell{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+
+
+.member-avatar-small{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:50%;
+
+    background:#1677ff;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+
+
+.badge{
+
+    padding:6px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+
+
+.badge.admin{
+
+    background:#111827;
+
+    color:white;
+
+}
+
+
+
+.badge.premium{
+
+    background:#fbbf24;
+
+    color:#111;
+
+}
+
+
+
+.badge.member{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+
+
+.badge.active{
+
+    background:#16a34a;
+
+    color:white;
+
+}
+
+
+
+.manage-btn{
+
+    background:#1267ff;
+
+    color:white;
+
+    border:none;
+
+    padding:8px 15px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+
+.manage-btn:hover{
+
+    opacity:.85;
+
+}
