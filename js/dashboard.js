@@ -1,542 +1,2020 @@
-import { auth, db } from "./firebase.js";
+// ============================================================
+// GTRADES-AXIS™
+// USER DASHBOARD
+// PART 1/3
+// ============================================================
+
+import { auth, db } from "../firebase.js";
 
 import {
-signOut,
-onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    doc,
+    getDoc,
+    onSnapshot,
+    collection,
+    query,
+    where,
+    orderBy,
+    limit
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import{
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-doc,
-getDoc,
-collection,
-getDocs,
-query,
-orderBy,
-limit
 
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+// ============================================================
+// GLOBAL VARIABLES
+// ============================================================
 
-/* ==========================================
-ELEMENTS
-========================================== */
+let currentUser = null;
 
-const logoutBtn=document.getElementById("logoutBtn");
+let userData = {};
 
-const userName=document.getElementById("userName");
+let userProgress = {};
 
-const memberBadge=document.querySelector(".member-badge");
+let notifications = [];
 
-const resourceCount=document.getElementById("resourceCount");
 
-const lessonCount=document.getElementById("lessonCount");
 
-const videoCount=document.getElementById("videoCount");
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
 
-const latestResources=document.getElementById("latestResources");
-
-const announcements=document.getElementById("announcements");
-
-/* ==========================================
-CURRENT USER
-========================================== */
-
-let currentUser=null;
-
-let membership="free";
-
-let role="free";
-
-/* ==========================================
-AUTH
-========================================== */
-
-onAuthStateChanged(auth,async(user)=>{
-
-if(!user){
-
-location.href="login.html";
-
-return;
-
-}
-
-currentUser=user;
-
-const snap=await getDoc(
-
-doc(db,"users",user.uid)
-
+const userName =
+document.getElementById(
+    "userName"
 );
 
-if(!snap.exists()){
 
-location.href="login.html";
-
-return;
-
-}
-
-const data=snap.data();
-
-userName.innerText=data.name||"Trader";
-
-membership=data.membership||"free";
-
-role=data.role||"free";
-
-/* ==========================================
-BADGE
-========================================== */
-
-if(role==="admin"){
-
-memberBadge.innerHTML=
-
-`👑 Administrator`;
-
-memberBadge.className=
-
-"member-badge admin";
-
-}
-
-else if(membership==="premium"){
-
-memberBadge.innerHTML=
-
-`⭐ Premium Member`;
-
-memberBadge.className=
-
-"member-badge premium";
-
-}
-
-else{
-
-memberBadge.innerHTML=
-
-`🆓 Free Member`;
-
-memberBadge.className=
-
-"member-badge free";
-
-}
-
-loadDashboard();
-
-});
-/* ==========================================================
-LOAD DASHBOARD
-========================================================== */
-
-async function loadDashboard(){
-
-await Promise.all([
-
-loadResources(),
-
-loadAcademy(),
-
-loadVideos(),
-
-loadLatestResources(),
-
-loadAnnouncements()
-
-]);
-
-setupPremiumLocks();
-
-}
-
-/* ==========================================================
-PREMIUM LOCKS
-========================================================== */
-
-function setupPremiumLocks(){
-
-// Admin has access to everything
-if(role==="admin") return;
-
-// Premium has access to everything
-if(membership==="premium") return;
-
-// -------------------------------
-// Free Users
-// -------------------------------
-
-lockCard(
-
-"resources.html",
-
-"Premium Resources"
-
+const userEmail =
+document.getElementById(
+    "userEmail"
 );
 
-lockCard(
 
-"journal.html",
-
-"Trading Journal"
-
+const membershipBadge =
+document.getElementById(
+    "membershipBadge"
 );
 
-lockCard(
 
-"profile.html",
-
-"Premium Profile Features"
-
+const progressBar =
+document.getElementById(
+    "progressBar"
 );
 
-// Future pages
 
-lockCard(
-
-"ai-review.html",
-
-"AI Trade Review"
-
+const progressText =
+document.getElementById(
+    "progressText"
 );
 
-lockCard(
 
-"analytics.html",
-
-"Advanced Analytics"
-
+const notificationContainer =
+document.getElementById(
+    "notificationContainer"
 );
 
-}
 
-/* ==========================================================
-LOCK CARD
-========================================================== */
 
-function lockCard(page,feature){
 
-document.querySelectorAll("a").forEach(link=>{
+// ============================================================
+// AUTHENTICATION
+// ============================================================
 
-if(link.getAttribute("href")!==page) return;
+onAuthStateChanged(
+auth,
+async(user)=>{
 
-const card=link.closest(".quick-card");
 
-if(card){
+    if(!user){
 
-card.classList.add("locked");
 
-if(!card.querySelector(".lock-badge")){
+        window.location.href =
+        "../login.html";
 
-const badge=document.createElement("div");
 
-badge.className="lock-badge";
+        return;
 
-badge.innerHTML=`
-<i class="fa-solid fa-lock"></i>
-Premium
-`;
 
-card.appendChild(badge);
+    }
 
-}
 
-}
 
-link.addEventListener("click",(e)=>{
+    try{
 
-e.preventDefault();
 
-showPremiumPopup(feature);
+        const userRef =
+        doc(
+            db,
+            "users",
+            user.uid
+        );
+
+
+
+        const snap =
+        await getDoc(
+            userRef
+        );
+
+
+
+        if(
+            !snap.exists()
+        ){
+
+
+            await signOut(auth);
+
+
+            window.location.href =
+            "../login.html";
+
+
+            return;
+
+
+        }
+
+
+
+        currentUser =
+        user;
+
+
+
+        userData =
+        {
+
+            id:user.uid,
+
+            ...snap.data()
+
+        };
+
+
+
+        initializeDashboard();
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Dashboard auth error:",
+            error
+        );
+
+
+    }
+
 
 });
 
-});
+
+
+
+// ============================================================
+// INITIALIZE DASHBOARD
+// ============================================================
+
+function initializeDashboard(){
+
+
+
+    displayProfile();
+
+
+    loadUserProgress();
+
+
+    loadNotifications();
+
+
+    loadUserStatistics();
+
+
+    setupDashboardListeners();
+
+
 
 }
 
-/* ==========================================================
-PREMIUM POPUP
-========================================================== */
 
-function showPremiumPopup(feature){
 
-if(document.getElementById("premiumPopup"))
 
-return;
 
-const popup=document.createElement("div");
+// ============================================================
+// DISPLAY PROFILE
+// ============================================================
 
-popup.id="premiumPopup";
+function displayProfile(){
 
-popup.className="premium-popup";
 
-popup.innerHTML=`
 
-<div class="premium-box">
+    if(userName){
 
-<div class="premium-icon">
 
-🔒
+        userName.textContent =
+        userData.name ||
+        "Trader";
 
-</div>
 
-<h2>
+    }
 
-Premium Required
 
-</h2>
 
-<p>
+    if(userEmail){
 
-<b>${feature}</b>
 
-is available only for Premium Members.
+        userEmail.textContent =
+        userData.email ||
+        "";
 
-</p>
 
-<ul>
+    }
 
-<li>✔ Premium Academy</li>
 
-<li>✔ Trading Journal</li>
 
-<li>✔ Premium Resources</li>
+    if(membershipBadge){
 
-<li>✔ AI Trade Review</li>
 
-<li>✔ Advanced Analytics</li>
 
-<li>✔ Future Updates</li>
+        const membership =
+        userData.membership ||
+        "member";
 
-</ul>
 
-<div class="premium-actions">
 
-<a
+        membershipBadge.textContent =
+        membership
+        .toUpperCase();
 
-href="membership.html"
 
-class="upgrade-btn">
 
-Upgrade Membership
+        membershipBadge.className =
+        "membership-" +
+        membership;
 
-</a>
 
-<button
 
-id="closePremium">
+    }
 
-Maybe Later
 
-</button>
 
-</div>
+}
 
-</div>
 
-`;
 
-document.body.appendChild(popup);
 
-document
+// ============================================================
+// LOAD USER PROGRESS
+// ============================================================
 
-.getElementById("closePremium")
+function loadUserProgress(){
 
-.onclick=()=>{
 
-popup.remove();
+
+    const progressRef =
+    doc(
+        db,
+        "progress",
+        currentUser.uid
+    );
+
+
+
+    onSnapshot(
+        progressRef,
+        snapshot=>{
+
+
+            if(snapshot.exists()){
+
+
+                userProgress =
+                snapshot.data();
+
+
+
+            }
+            else{
+
+
+                userProgress =
+                {
+
+
+                    completedModules:0,
+
+
+                    totalModules:10
+
+
+                };
+
+
+            }
+
+
+
+            updateProgressDisplay();
+
+
+
+        },
+        error=>{
+
+
+            console.error(
+                "Progress error:",
+                error
+            );
+
+
+        }
+    );
+
+
+}
+
+
+
+
+// ============================================================
+// UPDATE PROGRESS DISPLAY
+// ============================================================
+
+function updateProgressDisplay(){
+
+
+
+    const completed =
+    userProgress.completedModules ||
+    0;
+
+
+
+    const total =
+    userProgress.totalModules ||
+    10;
+
+
+
+    const percentage =
+    Math.round(
+        (completed / total)
+        *100
+    );
+
+
+
+    if(progressBar){
+
+
+        progressBar.style.width =
+        percentage+"%";
+
+
+    }
+
+
+
+    if(progressText){
+
+
+        progressText.textContent =
+        percentage+"% Complete";
+
+
+    }
+
+
+
+}
+
+
+
+
+// ============================================================
+// LOAD NOTIFICATIONS
+// ============================================================
+
+function loadNotifications(){
+
+
+
+    const notificationsQuery =
+    query(
+
+        collection(
+            db,
+            "notifications"
+        ),
+
+
+        where(
+            "userId",
+            "==",
+            currentUser.uid
+        ),
+
+
+        orderBy(
+            "createdAt",
+            "desc"
+        ),
+
+
+        limit(5)
+
+    );
+
+
+
+    onSnapshot(
+        notificationsQuery,
+        snapshot=>{
+
+
+            notifications=[];
+
+
+
+            snapshot.forEach(
+                item=>{
+
+
+                    notifications.push({
+
+                        id:item.id,
+
+                        ...item.data()
+
+                    });
+
+
+                }
+            );
+
+
+
+            renderNotifications();
+
+
+
+        },
+        error=>{
+
+
+            console.log(
+                "Notifications unavailable",
+                error
+            );
+
+
+        }
+    );
+
+
+}
+
+
+
+
+// ============================================================
+// RENDER NOTIFICATIONS
+// ============================================================
+
+function renderNotifications(){
+
+
+
+    if(!notificationContainer)
+        return;
+
+
+
+    notificationContainer.innerHTML="";
+
+
+
+    if(
+        notifications.length===0
+    ){
+
+
+        notificationContainer.innerHTML = `
+
+        <div class="empty-state">
+
+        No notifications
+
+        </div>
+
+        `;
+
+
+        return;
+
+
+    }
+
+
+
+    notifications.forEach(notification=>{
+
+
+        const item =
+        document.createElement(
+            "div"
+        );
+
+
+
+        item.className =
+        "notification-item";
+
+
+
+        item.innerHTML = `
+
+
+        <h4>
+
+        ${notification.title || "Notice"}
+
+        </h4>
+
+
+        <p>
+
+        ${notification.message || ""}
+
+        </p>
+
+
+        `;
+
+
+
+        notificationContainer.appendChild(
+            item
+        );
+
+
+    });
+
+
+}
+
+
+
+
+// ============================================================
+// USER STATISTICS
+// ============================================================
+
+function loadUserStatistics(){
+
+
+
+    const statsRef =
+    doc(
+        db,
+        "statistics",
+        currentUser.uid
+    );
+
+
+
+    onSnapshot(
+        statsRef,
+        snapshot=>{
+
+
+            if(
+                snapshot.exists()
+            ){
+
+
+                displayStatistics(
+                    snapshot.data()
+                );
+
+
+            }
+
+
+        }
+    );
+
+
+}
+
+
+
+
+// ============================================================
+// DISPLAY STATISTICS
+// ============================================================
+
+function displayStatistics(stats){
+
+
+
+    const trades =
+    document.getElementById(
+        "totalTrades"
+    );
+
+
+
+    const wins =
+    document.getElementById(
+        "winningTrades"
+    );
+
+
+
+    const winRate =
+    document.getElementById(
+        "winRate"
+    );
+
+
+
+    if(trades)
+
+        trades.textContent =
+        stats.trades || 0;
+
+
+
+    if(wins)
+
+        wins.textContent =
+        stats.wins || 0;
+
+
+
+    if(winRate)
+
+        winRate.textContent =
+        stats.winRate || "0%";
+
+
+
+}
+
+
+
+// ============================================================
+// END PART 1/3
+// ============================================================
+// ============================================================
+// GTRADES-AXIS™
+// USER DASHBOARD
+// PART 2/3
+// ============================================================
+
+
+// ============================================================
+// DASHBOARD REALTIME LISTENERS
+// ============================================================
+
+function setupDashboardListeners(){
+
+
+    listenUserProfile();
+
+
+    listenAchievements();
+
+
+    listenCourses();
+
+
+}
+
+
+
+// ============================================================
+// USER PROFILE LIVE UPDATE
+// ============================================================
+
+function listenUserProfile(){
+
+
+    const userRef =
+    doc(
+        db,
+        "users",
+        currentUser.uid
+    );
+
+
+    onSnapshot(
+        userRef,
+        snapshot=>{
+
+
+            if(
+                snapshot.exists()
+            ){
+
+
+                userData =
+                {
+
+                    id:snapshot.id,
+
+                    ...snapshot.data()
+
+                };
+
+
+                displayProfile();
+
+
+            }
+
+
+        },
+        error=>{
+
+
+            console.error(
+                "Profile listener error:",
+                error
+            );
+
+
+        }
+    );
+
+
+}
+
+
+
+
+// ============================================================
+// ACHIEVEMENTS SYSTEM
+// ============================================================
+
+function listenAchievements(){
+
+
+
+    const achievementRef =
+    doc(
+        db,
+        "achievements",
+        currentUser.uid
+    );
+
+
+
+    onSnapshot(
+        achievementRef,
+        snapshot=>{
+
+
+            if(
+                snapshot.exists()
+            ){
+
+
+                renderAchievements(
+                    snapshot.data()
+                );
+
+
+            }
+
+
+        }
+    );
+
+
+
+}
+
+
+
+// ============================================================
+// RENDER ACHIEVEMENTS
+// ============================================================
+
+function renderAchievements(data){
+
+
+
+    const container =
+    document.getElementById(
+        "achievementContainer"
+    );
+
+
+
+    if(!container)
+        return;
+
+
+
+    container.innerHTML="";
+
+
+
+    const badges =
+    data.badges || [];
+
+
+
+    if(
+        badges.length===0
+    ){
+
+
+        container.innerHTML = `
+
+        <div class="empty-state">
+
+        No achievements yet
+
+        </div>
+
+        `;
+
+
+        return;
+
+
+    }
+
+
+
+    badges.forEach(
+        badge=>{
+
+
+            const item =
+            document.createElement(
+                "div"
+            );
+
+
+
+            item.className =
+            "achievement-card";
+
+
+
+            item.innerHTML = `
+
+
+            <div class="badge-icon">
+
+            🏆
+
+            </div>
+
+
+            <h4>
+
+            ${badge.name || "Achievement"}
+
+            </h4>
+
+
+            <p>
+
+            ${badge.description || ""}
+
+            </p>
+
+
+            `;
+
+
+
+            container.appendChild(
+                item
+            );
+
+
+        }
+    );
+
+
+
+}
+
+
+
+
+// ============================================================
+// COURSE PROGRESS
+// ============================================================
+
+function listenCourses(){
+
+
+
+    const coursesQuery =
+    query(
+
+        collection(
+            db,
+            "courseProgress"
+        ),
+
+
+        where(
+            "userId",
+            "==",
+            currentUser.uid
+        )
+
+    );
+
+
+
+    onSnapshot(
+        coursesQuery,
+        snapshot=>{
+
+
+            let courses=[];
+
+
+
+            snapshot.forEach(
+                item=>{
+
+
+                    courses.push({
+
+                        id:item.id,
+
+                        ...item.data()
+
+                    });
+
+
+                }
+            );
+
+
+
+            renderCourses(
+                courses
+            );
+
+
+
+        }
+    );
+
+
+
+}
+
+
+
+
+// ============================================================
+// RENDER COURSES
+// ============================================================
+
+function renderCourses(courses){
+
+
+
+    const container =
+    document.getElementById(
+        "courseContainer"
+    );
+
+
+
+    if(!container)
+        return;
+
+
+
+    container.innerHTML="";
+
+
+
+    if(
+        courses.length===0
+    ){
+
+
+        container.innerHTML = `
+
+        <div class="empty-state">
+
+        Start your academy journey
+
+        </div>
+
+        `;
+
+
+        return;
+
+
+    }
+
+
+
+
+    courses.forEach(course=>{
+
+
+        const card =
+        document.createElement(
+            "div"
+        );
+
+
+
+        card.className =
+        "course-card";
+
+
+
+        const progress =
+        course.progress || 0;
+
+
+
+        card.innerHTML = `
+
+
+        <h3>
+
+        ${course.title || "Course"}
+
+        </h3>
+
+
+        <div class="course-progress">
+
+
+            <div
+
+            class="progress-fill"
+
+            style="width:${progress}%">
+
+            </div>
+
+
+        </div>
+
+
+
+        <p>
+
+        ${progress}% Complete
+
+        </p>
+
+
+        `;
+
+
+
+        container.appendChild(
+            card
+        );
+
+
+
+    });
+
+
+
+}
+
+
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+window.logoutUser =
+async function(){
+
+
+
+    try{
+
+
+        await signOut(auth);
+
+
+
+        window.location.href =
+        "../login.html";
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Logout failed:",
+            error
+        );
+
+
+    }
+
 
 };
 
-}
 
-/* ==========================================================
-LOGOUT
-========================================================== */
 
-logoutBtn.onclick=async()=>{
 
-if(!confirm("Logout?")) return;
+// ============================================================
+// PROFILE PAGE
+// ============================================================
 
-await signOut(auth);
+window.openProfile =
+function(){
 
-location.href="login.html";
+
+
+    window.location.href =
+    "profile.html";
+
+
 
 };
-/* ==========================================================
-LATEST RESOURCES
-========================================================== */
 
-async function loadLatestResources(){
 
-try{
 
-const q=query(
 
-collection(db,"resources"),
+// ============================================================
+// ACADEMY PAGE
+// ============================================================
 
-orderBy("createdAt","desc"),
+window.openAcademy =
+function(){
 
-limit(6)
 
-);
 
-const snapshot=await getDocs(q);
+    window.location.href =
+    "academy-dashboard.html";
 
-latestResources.innerHTML="";
 
-if(snapshot.empty){
+};
 
-latestResources.innerHTML=`
 
-<div class="loading-card">
 
-No Resources Available
 
-</div>
+// ============================================================
+// JOURNAL PAGE
+// ============================================================
 
-`;
+window.openJournal =
+function(){
 
-return;
+
+
+    window.location.href =
+    "journal.html";
+
+
+};
+
+
+
+
+// ============================================================
+// RESOURCES PAGE
+// ============================================================
+
+window.openResources =
+function(){
+
+
+
+    if(
+        userData.membership==="premium"
+        ||
+        userData.role==="admin"
+    ){
+
+
+        window.location.href =
+        "resources.html";
+
+
+    }
+    else{
+
+
+        showDashboardMessage(
+            "Premium membership required"
+        );
+
+
+    }
+
+
+
+};
+
+
+
+
+// ============================================================
+// DASHBOARD MESSAGE
+// ============================================================
+
+function showDashboardMessage(message){
+
+
+
+    let box =
+    document.getElementById(
+        "dashboardMessage"
+    );
+
+
+
+    if(!box){
+
+
+        box =
+        document.createElement(
+            "div"
+        );
+
+
+        box.id =
+        "dashboardMessage";
+
+
+        box.className =
+        "dashboard-toast";
+
+
+        document.body.appendChild(
+            box
+        );
+
+
+    }
+
+
+
+    box.textContent =
+    message;
+
+
+
+    box.classList.add(
+        "show"
+    );
+
+
+
+    setTimeout(()=>{
+
+
+        box.classList.remove(
+            "show"
+        );
+
+
+    },3000);
+
+
 
 }
 
-snapshot.forEach(docSnap=>{
 
-const resource=docSnap.data();
 
-const premium=resource.premium===true;
 
-let html="";
+// ============================================================
+// USER DATA ACCESS
+// ============================================================
 
-if(
+window.getCurrentUserData =
+function(){
 
-premium &&
 
-membership!=="premium" &&
+    return userData;
 
-role!=="admin"
 
+};
+
+
+
+
+// ============================================================
+// REFRESH DASHBOARD
+// ============================================================
+
+window.refreshUserDashboard =
+function(){
+
+
+
+    displayProfile();
+
+
+    updateProgressDisplay();
+
+
+    renderNotifications();
+
+
+
+};
+
+
+
+
+// ============================================================
+// END PART 2/3
+// ============================================================
+// ============================================================
+// GTRADES-AXIS™
+// USER DASHBOARD
+// PART 3/3
+// ============================================================
+
+
+// ============================================================
+// DASHBOARD ERROR HANDLING
+// ============================================================
+
+window.addEventListener(
+"error",
+(event)=>{
+
+
+    console.error(
+        "Dashboard Error:",
+        event.error
+    );
+
+
+});
+
+
+
+
+// ============================================================
+// SAFE TEXT HELPER
+// ============================================================
+
+function safeText(
+value,
+fallback="N/A"
 ){
 
-html=`
 
-<div class="resource-item locked-resource">
+    if(
+        value === undefined ||
+        value === null ||
+        value === ""
+    ){
 
-<div class="resource-info">
+        return fallback;
 
-<h3>
+    }
 
-🔒 ${resource.title}
 
-</h3>
+    return value;
 
-<p>
-
-${resource.description||"Premium Resource"}
-
-</p>
-
-<span class="premium-label">
-
-Premium Resource
-
-</span>
-
-</div>
-
-<button
-
-class="locked-download"
-
-data-feature="${resource.title}">
-
-Locked
-
-</button>
-
-</div>
-
-`;
-
-}else{
-
-html=`
-
-<div class="resource-item">
-
-<div class="resource-info">
-
-<h3>
-
-${resource.title}
-
-</h3>
-
-<p>
-
-${resource.description||""}
-
-</p>
-
-</div>
-
-<a
-
-href="${resource.link}"
-
-target="_blank"
-
-class="resource-download">
-
-Download
-
-</a>
-
-</div>
-
-`;
 
 }
 
-latestResources.innerHTML+=html;
 
-});
 
-/* ==============================
-LOCK BUTTONS
-============================== */
 
-document
+// ============================================================
+// DAILY LOGIN TRACKING
+// ============================================================
 
-.querySelectorAll(".locked-download")
+async function trackDailyLogin(){
 
-.forEach(button=>{
 
-button.onclick=()=>{
 
-showPremiumPopup(
+    if(!currentUser)
+        return;
 
-button.dataset.feature
 
-);
+
+    try{
+
+
+        const loginRef =
+        doc(
+            db,
+            "userActivity",
+            currentUser.uid
+        );
+
+
+
+        console.log(
+            "Daily login tracked"
+        );
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Login tracking error:",
+            error
+        );
+
+
+    }
+
+
+}
+
+
+
+
+// ============================================================
+// PREMIUM STATUS CHECK
+// ============================================================
+
+function checkPremiumAccess(){
+
+
+
+    if(
+        !userData
+    )
+        return false;
+
+
+
+    return (
+
+        userData.membership==="premium"
+
+        ||
+
+        userData.role==="admin"
+
+    );
+
+
+}
+
+
+
+
+window.hasPremiumAccess =
+checkPremiumAccess;
+
+
+
+
+// ============================================================
+// PREMIUM GUARD
+// ============================================================
+
+window.requirePremium =
+function(callback){
+
+
+
+    if(
+        checkPremiumAccess()
+    ){
+
+
+        callback();
+
+
+    }
+    else{
+
+
+        showDashboardMessage(
+            "Upgrade to Premium Academy"
+        );
+
+
+    }
+
+
 
 };
 
+
+
+
+// ============================================================
+// USER LEVEL SYSTEM
+// ============================================================
+
+function calculateLevel(){
+
+
+
+    const progress =
+    userProgress.completedModules || 0;
+
+
+
+    let level =
+    "Beginner";
+
+
+
+    if(progress >= 3)
+
+        level =
+        "Learner";
+
+
+
+    if(progress >= 6)
+
+        level =
+        "Trader";
+
+
+
+    if(progress >= 9)
+
+        level =
+        "Professional";
+
+
+
+    displayLevel(
+        level
+    );
+
+
+
+}
+
+
+
+
+// ============================================================
+// DISPLAY LEVEL
+// ============================================================
+
+function displayLevel(level){
+
+
+
+    const element =
+    document.getElementById(
+        "userLevel"
+    );
+
+
+
+    if(element){
+
+
+        element.textContent =
+        level;
+
+
+    }
+
+
+}
+
+
+
+
+// ============================================================
+// STREAK TRACKER
+// ============================================================
+
+function updateLearningStreak(){
+
+
+
+    const streak =
+    userData.learningStreak || 0;
+
+
+
+    const element =
+    document.getElementById(
+        "learningStreak"
+    );
+
+
+
+    if(element){
+
+
+        element.textContent =
+        streak + " Days";
+
+
+    }
+
+
+
+}
+
+
+
+
+// ============================================================
+// DASHBOARD LOADER
+// ============================================================
+
+function showDashboardLoader(){
+
+
+
+    const loader =
+    document.getElementById(
+        "dashboardLoader"
+    );
+
+
+
+    if(loader){
+
+
+        loader.style.display =
+        "block";
+
+
+    }
+
+
+}
+
+
+
+
+function hideDashboardLoader(){
+
+
+
+    const loader =
+    document.getElementById(
+        "dashboardLoader"
+    );
+
+
+
+    if(loader){
+
+
+        loader.style.display =
+        "none";
+
+
+    }
+
+
+}
+
+
+
+
+// ============================================================
+// PAGE READY ACTIONS
+// ============================================================
+
+window.addEventListener(
+"load",
+()=>{
+
+
+    hideDashboardLoader();
+
+
+    trackDailyLogin();
+
+
+    calculateLevel();
+
+
+    updateLearningStreak();
+
+
 });
 
-}
-catch(error){
 
-console.error(error);
+
+
+// ============================================================
+// MOBILE NAVIGATION
+// ============================================================
+
+const mobileButton =
+document.getElementById(
+    "mobileMenuButton"
+);
+
+
+
+const navigation =
+document.querySelector(
+    ".dashboard-sidebar"
+);
+
+
+
+if(
+    mobileButton &&
+    navigation
+){
+
+
+
+    mobileButton.addEventListener(
+        "click",
+        ()=>{
+
+
+            navigation.classList.toggle(
+                "active"
+            );
+
+
+        }
+    );
+
 
 }
 
+
+
+
+// ============================================================
+// CLOSE MOBILE MENU
+// ============================================================
+
+document.addEventListener(
+"click",
+(event)=>{
+
+
+    if(
+        navigation &&
+        mobileButton &&
+        !navigation.contains(
+            event.target
+        )
+        &&
+        !mobileButton.contains(
+            event.target
+        )
+    ){
+
+
+        navigation.classList.remove(
+            "active"
+        );
+
+
+    }
+
+
+});
+
+
+
+
+// ============================================================
+// AUTO REFRESH
+// ============================================================
+
+let refreshTimer;
+
+
+
+function startAutoRefresh(){
+
+
+
+    refreshTimer =
+    setInterval(()=>{
+
+
+        if(
+            auth.currentUser
+        ){
+
+
+            refreshUserDashboard();
+
+
+        }
+
+
+
+    },120000);
+
+
+
 }
+
+
+
+startAutoRefresh();
+
+
+
+
+// ============================================================
+// CLEANUP
+// ============================================================
+
+window.addEventListener(
+"beforeunload",
+()=>{
+
+
+    if(refreshTimer){
+
+
+        clearInterval(
+            refreshTimer
+        );
+
+
+    }
+
+
+});
+
+
+
+
+// ============================================================
+// SESSION SECURITY
+// ============================================================
+
+setInterval(
+async()=>{
+
+
+    const user =
+    auth.currentUser;
+
+
+
+    if(!user)
+        return;
+
+
+
+    try{
+
+
+        const snap =
+        await getDoc(
+            doc(
+                db,
+                "users",
+                user.uid
+            )
+        );
+
+
+
+        if(
+            !snap.exists()
+        ){
+
+
+            await signOut(auth);
+
+
+            window.location.href =
+            "../login.html";
+
+
+        }
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Session check error:",
+            error
+        );
+
+
+    }
+
+
+
+},
+300000
+);
+
+
+
+
+// ============================================================
+// GLOBAL DASHBOARD API
+// ============================================================
+
+window.GTRADES_DASHBOARD = {
+
+
+    user(){
+
+        return userData;
+
+    },
+
+
+    progress(){
+
+        return userProgress;
+
+    },
+
+
+    notifications(){
+
+        return notifications;
+
+    },
+
+
+    premium(){
+
+        return checkPremiumAccess();
+
+    },
+
+
+    refresh(){
+
+        refreshUserDashboard();
+
+    }
+
+
+};
+
+
+
+
+// ============================================================
+// INITIAL MESSAGE
+// ============================================================
+
+console.log(
+    "================================="
+);
+
+
+console.log(
+    "GTRADES-AXIS™ USER DASHBOARD READY"
+);
+
+
+console.log(
+    "User:",
+    currentUser?.email
+);
+
+
+console.log(
+    "================================="
+);
+
+
+
+
+// ============================================================
+// END DASHBOARD.JS
+// ============================================================

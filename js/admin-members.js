@@ -1,961 +1,2119 @@
-/* ==========================================================
-GTRADES-AXIS™
-ADMIN MEMBERS
-PART 3A (JS)
-========================================================== */
+// ============================================================
+// GTRADES-AXIS™
+// ADMIN MEMBERS MANAGEMENT
+// PART 1/3
+// ============================================================
 
-import { auth, db } from "./firebase.js";
+import { auth, db } from "../firebase.js";
 
 import {
-signOut,
-onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    collection,
+    doc,
+    getDoc,
+    onSnapshot,
+    updateDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import{
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-collection,
-getDocs,
-doc,
-updateDoc,
-deleteDoc,
-onSnapshot
 
-}
-from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+// ============================================================
+// GLOBAL STATE
+// ============================================================
 
-/* ==========================================================
-ELEMENTS
-========================================================== */
+let allMembers = [];
+let filteredMembers = [];
 
-const membersGrid=document.getElementById("membersGrid");
+let currentFilter = "all";
+let currentSearch = "";
 
-const totalMembers=document.getElementById("totalMembers");
 
-const freeMembers=document.getElementById("freeMembers");
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
 
-const premiumMembers=document.getElementById("premiumMembers");
+const membersContainer =
+    document.getElementById("membersContainer");
 
-const adminMembers=document.getElementById("adminMembers");
+const searchInput =
+    document.getElementById("memberSearch");
 
-const suspendedMembers=document.getElementById("suspendedMembers");
+const filterButtons =
+    document.querySelectorAll("[data-filter]");
 
-const searchInput=document.getElementById("searchInput");
 
-const roleFilter=document.getElementById("roleFilter");
+const totalMembersEl =
+    document.getElementById("totalMembers");
 
-const statusFilter=document.getElementById("statusFilter");
+const premiumMembersEl =
+    document.getElementById("premiumMembers");
 
-const logoutBtn=document.getElementById("logoutBtn");
+const adminMembersEl =
+    document.getElementById("adminMembers");
 
-/* ==========================================================
-MODAL
-========================================================== */
+const pendingMembersEl =
+    document.getElementById("pendingMembers");
 
-const modal=document.getElementById("memberModal");
+const suspendedMembersEl =
+    document.getElementById("suspendedMembers");
 
-const closeModal=document.getElementById("closeModal");
 
-const modalName=document.getElementById("modalName");
+// ============================================================
+// AUTHENTICATION CHECK
+// ============================================================
 
-const modalEmail=document.getElementById("modalEmail");
+onAuthStateChanged(auth, async (user)=>{
 
-const modalRole=document.getElementById("modalRole");
+    if(!user){
 
-const modalStatus=document.getElementById("modalStatus");
+        window.location.href =
+        "../login.html";
 
-const modalPayment=document.getElementById("modalPayment");
+        return;
+    }
 
-const modalJoined=document.getElementById("modalJoined");
 
-const makeFree=document.getElementById("makeFree");
+    try{
 
-const makePremium=document.getElementById("makePremium");
+        const adminRef =
+        doc(db,"users",user.uid);
 
-const makeAdmin=document.getElementById("makeAdmin");
 
-const suspendUser=document.getElementById("suspendUser");
+        const adminSnap =
+        await getDoc(adminRef);
 
-const deleteUser=document.getElementById("deleteUser");
 
-/* ==========================================================
-VARIABLES
-========================================================== */
+        if(!adminSnap.exists()){
 
-let members=[];
+            await signOut(auth);
 
-let selectedUser=null;
+            window.location.href =
+            "../login.html";
 
-let currentAdmin=null;
+            return;
+        }
 
-/* ==========================================================
-AUTH
-========================================================== */
 
-onAuthStateChanged(auth,user=>{
+        const adminData =
+        adminSnap.data();
 
-if(!user){
 
-window.location="login.html";
+        if(adminData.role !== "admin"){
 
-return;
+            await signOut(auth);
 
-}
+            window.location.href =
+            "../index.html";
 
-currentAdmin=user.uid;
+            return;
+        }
 
-loadMembers();
 
-});
+        loadMembers();
 
-/* ==========================================================
-LOGOUT
-========================================================== */
 
-logoutBtn.onclick=async()=>{
+    }catch(error){
 
-if(!confirm("Logout?")) return;
-
-await signOut(auth);
-
-window.location="login.html";
-
-};
-
-/* ==========================================================
-LOAD MEMBERS
-========================================================== */
-
-function loadMembers(){
-
-onSnapshot(
-
-collection(db,"users"),
-
-(snapshot)=>{
-
-members=[];
-
-snapshot.forEach(docSnap=>{
-
-members.push({
-
-id:docSnap.id,
-
-...docSnap.data()
-
-});
-
-});
-
-renderMembers();
-
-}
-
-);
-
-}
-
-/* ==========================================================
-RENDER
-========================================================== */
-
-function renderMembers(){
-
-membersGrid.innerHTML="";
-
-let total=0;
-
-let free=0;
-
-let premium=0;
-
-let admin=0;
-
-let suspended=0;
-
-const search=searchInput.value.toLowerCase();
-
-const role=roleFilter.value;
-
-const status=statusFilter.value;
-
-members.forEach(member=>{
-
-const name=(member.name||"").toLowerCase();
-
-const email=(member.email||"").toLowerCase();
-
-if(
-
-!name.includes(search)
-
-&&
-
-!email.includes(search)
-
-){
-
-return;
-
-}
-
-if(
-
-role!="all"
-
-&&
-
-member.role!==role
-
-){
-
-return;
-
-}
-
-if(
-
-status!="all"
-
-&&
-
-member.accountStatus!==status
-
-){
-
-return;
-
-}
-
-total++;
-
-if(member.role==="free") free++;
-
-if(member.role==="premium") premium++;
-
-if(member.role==="admin") admin++;
-
-if(member.accountStatus==="suspended") suspended++;
-
-let badge="role-free";
-
-let badgeText="FREE";
-
-if(member.role==="premium"){
-
-badge="role-premium";
-
-badgeText="⭐ PREMIUM";
-
-}
-
-if(member.role==="admin"){
-
-badge="role-admin";
-
-badgeText="🛡 ADMIN";
-
-}
-
-const joined=
-
-member.createdAt?.toDate?.()
-
-?member.createdAt.toDate().toLocaleDateString()
-
-:"-";
-
-const card=document.createElement("div");
-
-card.className="member-card";
-
-card.innerHTML=`
-
-<div class="member-top">
-
-<div class="member-avatar">
-
-<i class="fa-solid fa-user"></i>
-
-</div>
-
-<div class="member-info">
-
-<h3>${member.name||"Unknown"}</h3>
-
-<p>${member.email||""}</p>
-
-<span class="role-badge ${badge}">
-
-${badgeText}
-
-</span>
-
-</div>
-
-</div>
-
-<div class="status">
-
-<div>
-
-<span>Status</span><br>
-
-<b>
-
-${member.accountStatus||"active"}
-
-</b>
-
-</div>
-
-<div>
-
-<span>Payment</span><br>
-
-<b>
-
-${member.paymentStatus||"unpaid"}
-
-</b>
-
-</div>
-
-<div>
-
-<span>Joined</span><br>
-
-<b>
-
-${joined}
-
-</b>
-
-</div>
-
-</div>
-
-<div class="card-buttons">
-
-<button class="view-btn">
-
-View
-
-</button>
-
-<button class="free-btn">
-
-Free
-
-</button>
-
-<button class="premium-btn">
-
-Premium
-
-</button>
-
-<button class="admin-btn">
-
-Admin
-
-</button>
-
-<button class="suspend-btn">
-
-${member.accountStatus==="suspended"
-
-?"Activate"
-
-:"Suspend"}
-
-</button>
-
-<button class="delete-btn">
-
-Delete
-
-</button>
-
-</div>
-
-`;
-
-membersGrid.appendChild(card);
-/* ==========================================================
-CONTINUE FROM PART 3A
-PART 3B
-========================================================== */
-
-        /* ===========================
-        VIEW BUTTON
-        =========================== */
-
-        card.querySelector(".view-btn").onclick=()=>{
-
-            selectedUser=member;
-
-            modal.style.display="flex";
-
-            modalName.textContent=member.name||"-";
-
-            modalEmail.textContent=member.email||"-";
-
-            modalRole.textContent=member.role||"free";
-
-            modalStatus.textContent=member.accountStatus||"active";
-
-            modalPayment.textContent=member.paymentStatus||"unpaid";
-
-            modalJoined.textContent=joined;
-
-            // Hide role buttons for yourself
-
-            if(member.uid===currentAdmin){
-
-                makeFree.style.display="none";
-
-                makePremium.style.display="none";
-
-                makeAdmin.style.display="none";
-
-                suspendUser.style.display="none";
-
-                deleteUser.style.display="none";
-
-            }else{
-
-                makeFree.style.display="block";
-
-                makePremium.style.display="block";
-
-                makeAdmin.style.display="block";
-
-                suspendUser.style.display="block";
-
-                deleteUser.style.display="block";
-
-            }
-
-        };
-
-    });
-
-    /* ===========================
-    UPDATE STATS
-    =========================== */
-
-    totalMembers.innerText=total;
-
-    freeMembers.innerText=free;
-
-    premiumMembers.innerText=premium;
-
-    adminMembers.innerText=admin;
-
-    suspendedMembers.innerText=suspended;
-
-}
-
-/* ==========================================================
-CHANGE ROLE
-========================================================== */
-
-async function changeRole(role){
-
-if(!selectedUser) return;
-
-try{
-
-await updateDoc(
-
-doc(db,"users",selectedUser.id),
-
-{
-
-role:role
-
-}
-
-);
-
-modal.style.display="none";
-
-}
-catch(err){
-
-console.error(err);
-
-alert(err.message);
-
-}
-
-}
-
-/* ==========================================================
-MAKE FREE
-========================================================== */
-
-makeFree.onclick=()=>{
-
-if(confirm("Make this user Free?")){
-
-changeRole("free");
-
-}
-
-};
-
-/* ==========================================================
-MAKE PREMIUM
-========================================================== */
-
-makePremium.onclick=()=>{
-
-if(confirm("Upgrade to Premium?")){
-
-changeRole("premium");
-
-}
-
-};
-
-/* ==========================================================
-MAKE ADMIN
-========================================================== */
-
-makeAdmin.onclick=()=>{
-
-if(confirm("Promote to Administrator?")){
-
-changeRole("admin");
-
-}
-
-};
-
-/* ==========================================================
-SUSPEND / ACTIVATE
-========================================================== */
-
-suspendUser.onclick=async()=>{
-
-if(!selectedUser) return;
-
-const status=
-
-selectedUser.accountStatus==="suspended"
-
-?
-
-"active"
-
-:
-
-"suspended";
-
-try{
-
-await updateDoc(
-
-doc(db,"users",selectedUser.id),
-
-{
-
-accountStatus:status
-
-}
-
-);
-
-modal.style.display="none";
-
-}
-catch(err){
-
-console.error(err);
-
-}
-
-};
-
-/* ==========================================================
-DELETE USER
-========================================================== */
-
-deleteUser.onclick=async()=>{
-
-if(!selectedUser) return;
-
-if(
-
-!confirm(
-
-"Delete this member permanently?"
-
-)
-
-)
-
-return;
-
-try{
-
-await deleteDoc(
-
-doc(db,"users",selectedUser.id)
-
-);
-
-modal.style.display="none";
-
-}
-catch(err){
-
-console.error(err);
-
-alert(err.message);
-
-}
-
-};
-
-/* ==========================================================
-SEARCH
-========================================================== */
-
-searchInput.addEventListener(
-
-"input",
-
-renderMembers
-
-);
-
-/* ==========================================================
-ROLE FILTER
-========================================================== */
-
-roleFilter.addEventListener(
-
-"change",
-
-renderMembers
-
-);
-
-/* ==========================================================
-STATUS FILTER
-========================================================== */
-
-statusFilter.addEventListener(
-
-"change",
-
-renderMembers
-
-);
-
-/* ==========================================================
-CLOSE MODAL
-========================================================== */
-
-closeModal.onclick=()=>{
-
-modal.style.display="none";
-
-};
-
-window.onclick=(e)=>{
-
-if(e.target===modal){
-
-modal.style.display="none";
-
-}
-
-};
-
-/* ==========================================================
-CONSOLE
-========================================================== */
-
-console.log("===================================");
-
-console.log("GTRADES-AXIS™ Members Management");
-
-console.log("Loaded Successfully");
-
-console.log("===================================");
-/* ==========================================================
-GTRADES-AXIS™
-ADMIN MEMBERS
-PART 4
-========================================================== */
-
-/* ==========================================
-AUTO REFRESH COUNTS
-========================================== */
-
-setInterval(() => {
-
-    renderMembers();
-
-}, 10000);
-
-/* ==========================================
-MEMBER SORTING
-========================================== */
-
-function sortMembers(type){
-
-    switch(type){
-
-        case "az":
-
-            members.sort((a,b)=>
-
-                (a.name||"").localeCompare(b.name||"")
-
-            );
-
-        break;
-
-        case "za":
-
-            members.sort((a,b)=>
-
-                (b.name||"").localeCompare(a.name||"")
-
-            );
-
-        break;
-
-        case "newest":
-
-            members.sort((a,b)=>
-
-                (b.createdAt?.seconds||0)-
-
-                (a.createdAt?.seconds||0)
-
-            );
-
-        break;
-
-        case "oldest":
-
-            members.sort((a,b)=>
-
-                (a.createdAt?.seconds||0)-
-
-                (b.createdAt?.seconds||0)
-
-            );
-
-        break;
+        console.error(
+            "Admin verification error:",
+            error
+        );
 
     }
 
+});
+
+
+// ============================================================
+// LOAD MEMBERS REALTIME
+// ============================================================
+
+function loadMembers(){
+
+
+    const usersRef =
+    collection(db,"users");
+
+
+    onSnapshot(
+        usersRef,
+        snapshot=>{
+
+
+            allMembers = [];
+
+
+            snapshot.forEach(docSnap=>{
+
+
+                const data =
+                docSnap.data();
+
+
+                allMembers.push({
+
+                    id:docSnap.id,
+
+                    ...data
+
+
+                });
+
+
+            });
+
+
+            updateStatistics();
+
+
+            applyFilters();
+
+
+        },
+
+
+        error=>{
+
+
+            console.error(
+                "Members listener error:",
+                error
+            );
+
+
+            showError(
+                "Unable to load members"
+            );
+
+
+        }
+
+    );
+
+}
+
+
+
+// ============================================================
+// STATISTICS
+// ============================================================
+
+function updateStatistics(){
+
+
+    const total =
+    allMembers.length;
+
+
+    const premium =
+    allMembers.filter(
+        m=>m.membership==="premium"
+    ).length;
+
+
+    const admins =
+    allMembers.filter(
+        m=>m.role==="admin"
+    ).length;
+
+
+    const pending =
+    allMembers.filter(
+        m=>
+        !m.active ||
+        m.status==="pending"
+    ).length;
+
+
+    const suspended =
+    allMembers.filter(
+        m=>
+        m.status==="suspended"
+    ).length;
+
+
+
+    if(totalMembersEl)
+        totalMembersEl.textContent =
+        total;
+
+
+    if(premiumMembersEl)
+        premiumMembersEl.textContent =
+        premium;
+
+
+    if(adminMembersEl)
+        adminMembersEl.textContent =
+        admins;
+
+
+    if(pendingMembersEl)
+        pendingMembersEl.textContent =
+        pending;
+
+
+    if(suspendedMembersEl)
+        suspendedMembersEl.textContent =
+        suspended;
+
+
+}
+
+
+
+// ============================================================
+// FILTER SYSTEM
+// ============================================================
+
+function applyFilters(){
+
+
+    filteredMembers =
+    allMembers.filter(member=>{
+
+
+        let matchesSearch = true;
+
+
+        if(currentSearch){
+
+
+            const search =
+            currentSearch.toLowerCase();
+
+
+
+            matchesSearch =
+
+            (
+                member.name
+                ?.toLowerCase()
+                .includes(search)
+
+                ||
+
+                member.email
+                ?.toLowerCase()
+                .includes(search)
+
+            );
+
+
+        }
+
+
+
+        let matchesFilter = true;
+
+
+
+        switch(currentFilter){
+
+
+            case "premium":
+
+                matchesFilter =
+                member.membership==="premium";
+
+            break;
+
+
+
+            case "admin":
+
+                matchesFilter =
+                member.role==="admin";
+
+            break;
+
+
+
+            case "pending":
+
+                matchesFilter =
+                !member.active ||
+                member.status==="pending";
+
+            break;
+
+
+
+            case "suspended":
+
+                matchesFilter =
+                member.status==="suspended";
+
+            break;
+
+
+
+            case "active":
+
+                matchesFilter =
+                member.active===true;
+
+            break;
+
+
+
+            default:
+
+                matchesFilter=true;
+
+
+        }
+
+
+
+        return matchesSearch && matchesFilter;
+
+
+    });
+
+
+
     renderMembers();
 
-}
-
-/* ==========================================
-COPY EMAIL
-========================================== */
-
-function copyEmail(email){
-
-navigator.clipboard.writeText(email);
-
-alert("Email copied.");
 
 }
 
-/* ==========================================
-COPY UID
-========================================== */
 
-function copyUID(uid){
 
-navigator.clipboard.writeText(uid);
+// ============================================================
+// SEARCH EVENT
+// ============================================================
 
-alert("UID copied.");
+if(searchInput){
+
+
+    searchInput.addEventListener(
+        "input",
+        e=>{
+
+
+            currentSearch =
+            e.target.value;
+
+
+            applyFilters();
+
+
+        }
+    );
+
 
 }
 
-/* ==========================================
-EXPORT MEMBERS CSV
-========================================== */
 
-function exportCSV(){
 
-let csv="Name,Email,Role,Status,Payment\n";
+// ============================================================
+// FILTER BUTTON EVENTS
+// ============================================================
 
-members.forEach(user=>{
+filterButtons.forEach(button=>{
 
-csv+=`${user.name},
 
-${user.email},
+    button.addEventListener(
+        "click",
+        ()=>{
 
-${user.role},
 
-${user.accountStatus},
+            filterButtons.forEach(btn=>
+                btn.classList.remove("active")
+            );
 
-${user.paymentStatus}\n`;
+
+            button.classList.add("active");
+
+
+
+            currentFilter =
+            button.dataset.filter;
+
+
+
+            applyFilters();
+
+
+        }
+    );
+
 
 });
 
-const blob=new Blob([csv],{
 
-type:"text/csv"
 
-});
+// ============================================================
+// RENDER MEMBERS
+// ============================================================
 
-const url=
+function renderMembers(){
 
-URL.createObjectURL(blob);
 
-const a=document.createElement("a");
+    if(!membersContainer)
+        return;
 
-a.href=url;
 
-a.download="members.csv";
 
-a.click();
+    membersContainer.innerHTML="";
 
-URL.revokeObjectURL(url);
 
-}
 
-/* ==========================================
-REFRESH BUTTON
-========================================== */
+    if(filteredMembers.length===0){
 
-function refreshMembers(){
 
-renderMembers();
+        membersContainer.innerHTML = `
 
-}
+        <div class="empty-state">
 
-/* ==========================================
-ONLINE USERS
-========================================== */
+            <h3>No Members Found</h3>
 
-function countOnline(){
+            <p>
+            No users match the current filter.
+            </p>
 
-let online=0;
+        </div>
 
-members.forEach(user=>{
+        `;
 
-if(user.online===true){
 
-online++;
+        return;
 
-}
+    }
 
-});
 
-console.log(
 
-"Online Members:",
+    filteredMembers.forEach(member=>{
 
-online
 
-);
+        const card =
+        createMemberCard(member);
 
-}
 
-/* ==========================================
-SHOW LOADER
-========================================== */
 
-function showLoader(){
+        membersContainer.appendChild(card);
 
-membersGrid.innerHTML=`
 
-<div class="loading">
 
-<i class="fa-solid fa-spinner fa-spin"></i>
+    });
 
-Loading Members...
-
-</div>
-
-`;
 
 }
 
-/* ==========================================
-EMPTY STATE
-========================================== */
 
-function emptyState(){
 
-membersGrid.innerHTML=`
+// ============================================================
+// MEMBER CARD
+// ============================================================
 
-<div class="empty-members">
+function createMemberCard(member){
 
-<i class="fa-solid fa-users"></i>
 
-<h2>
+    const card =
+    document.createElement("div");
 
-No Members Found
 
-</h2>
+    card.className =
+    "member-card";
 
-<p>
 
-Try another search.
 
-</p>
+    let roleBadge =
+    "Member";
 
-</div>
 
-`;
+    if(member.role==="admin")
+        roleBadge="Admin";
+
+
+    else if(member.membership==="premium")
+        roleBadge="Premium";
+
+
+
+    let status =
+    member.active
+    ? "Active"
+    : "Pending";
+
+
+
+    if(member.status==="suspended")
+        status="Suspended";
+
+
+
+    card.innerHTML = `
+
+
+    <div class="member-header">
+
+
+        <div class="member-avatar">
+
+            ${
+            member.name
+            ?
+            member.name
+            .charAt(0)
+            .toUpperCase()
+            :
+            "U"
+            }
+
+        </div>
+
+
+        <div>
+
+
+            <h3>
+
+            ${member.name || "Unknown User"}
+
+            </h3>
+
+
+            <p>
+
+            ${member.email || ""}
+
+            </p>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="member-info">
+
+
+        <span>
+
+        Role:
+        <b>${roleBadge}</b>
+
+        </span>
+
+
+
+        <span>
+
+        Status:
+        <b>${status}</b>
+
+        </span>
+
+
+
+        <span>
+
+        Joined:
+        <b>
+        ${formatDate(member.createdAt)}
+        </b>
+
+        </span>
+
+
+    </div>
+
+
+
+    <div class="member-actions">
+
+
+        <button
+        class="view-member"
+        data-id="${member.id}">
+
+        View
+
+        </button>
+
+
+        <button
+        class="manage-member"
+        data-id="${member.id}">
+
+        Manage
+
+        </button>
+
+
+    </div>
+
+
+
+    `;
+
+
+
+    return card;
+
 
 }
 
-/* ==========================================
-CHECK EMPTY
-========================================== */
 
-if(members.length===0){
 
-emptyState();
+// ============================================================
+// DATE FORMATTER
+// ============================================================
+
+function formatDate(timestamp){
+
+
+    if(!timestamp)
+        return "N/A";
+
+
+
+    try{
+
+
+        if(timestamp.seconds){
+
+            return new Date(
+                timestamp.seconds*1000
+            )
+            .toLocaleDateString();
+
+        }
+
+
+
+        return new Date(timestamp)
+        .toLocaleDateString();
+
+
+
+    }catch{
+
+
+        return "N/A";
+
+    }
+
 
 }
 
-/* ==========================================
-ESC CLOSE
-========================================== */
+
+
+// ============================================================
+// ERROR DISPLAY
+// ============================================================
+
+function showError(message){
+
+
+    if(!membersContainer)
+        return;
+
+
+
+    membersContainer.innerHTML=`
+
+    <div class="error-state">
+
+        <h3>Error</h3>
+
+        <p>
+        ${message}
+        </p>
+
+    </div>
+
+    `;
+
+
+}
+
+
+
+// ============================================================
+// REFRESH FUNCTION
+// ============================================================
+
+window.refreshMembers = function(){
+
+
+    updateStatistics();
+
+    applyFilters();
+
+
+};
+
+
+
+// ============================================================
+// END PART 1/3
+// ============================================================
+// ============================================================
+// GTRADES-AXIS™
+// ADMIN MEMBERS MANAGEMENT
+// PART 2/3
+// ============================================================
+
+
+// ============================================================
+// MEMBER ACTION EVENT HANDLER
+// ============================================================
 
 document.addEventListener(
+"click",
+async(e)=>{
 
-"keydown",
 
+    const target =
+    e.target;
+
+
+
+    if(
+        target.classList.contains("manage-member")
+    ){
+
+
+        const id =
+        target.dataset.id;
+
+
+        openMemberModal(id);
+
+
+    }
+
+
+
+    if(
+        target.classList.contains("view-member")
+    ){
+
+
+        const id =
+        target.dataset.id;
+
+
+        openMemberModal(id);
+
+
+    }
+
+
+
+});
+
+
+
+// ============================================================
+// MEMBER MODAL
+// ============================================================
+
+function openMemberModal(id){
+
+
+    const member =
+    allMembers.find(
+        m=>m.id===id
+    );
+
+
+
+    if(!member)
+        return;
+
+
+
+    let modal =
+    document.getElementById(
+        "memberModal"
+    );
+
+
+
+    if(!modal){
+
+
+        modal =
+        document.createElement("div");
+
+
+        modal.id =
+        "memberModal";
+
+
+        modal.className =
+        "member-modal";
+
+
+        document.body.appendChild(modal);
+
+
+    }
+
+
+
+    modal.innerHTML = `
+
+
+    <div class="modal-overlay"></div>
+
+
+    <div class="modal-box">
+
+
+        <button class="close-modal">
+
+        ×
+
+        </button>
+
+
+
+        <h2>
+
+        Member Management
+
+        </h2>
+
+
+
+        <div class="modal-profile">
+
+
+            <h3>
+
+            ${member.name || "Unknown"}
+
+            </h3>
+
+
+            <p>
+
+            ${member.email || ""}
+
+            </p>
+
+
+        </div>
+
+
+
+        <div class="modal-details">
+
+
+            <p>
+
+            Role:
+            <strong>
+            ${member.role || "member"}
+            </strong>
+
+            </p>
+
+
+
+            <p>
+
+            Membership:
+            <strong>
+            ${member.membership || "free"}
+            </strong>
+
+            </p>
+
+
+
+            <p>
+
+            Status:
+            <strong>
+            ${
+            member.active
+            ?
+            "Active"
+            :
+            "Inactive"
+            }
+
+            </strong>
+
+            </p>
+
+
+
+        </div>
+
+
+
+        <div class="modal-actions">
+
+
+            <button
+            class="approve-btn"
+            data-id="${member.id}">
+
+            Approve
+
+            </button>
+
+
+
+            <button
+            class="premium-btn"
+            data-id="${member.id}">
+
+            Make Premium
+
+            </button>
+
+
+
+            <button
+            class="remove-premium-btn"
+            data-id="${member.id}">
+
+            Remove Premium
+
+            </button>
+
+
+
+            <button
+            class="admin-btn"
+            data-id="${member.id}">
+
+            Make Admin
+
+            </button>
+
+
+
+            <button
+            class="demote-btn"
+            data-id="${member.id}">
+
+            Demote
+
+            </button>
+
+
+
+            <button
+            class="suspend-btn"
+            data-id="${member.id}">
+
+            Suspend
+
+            </button>
+
+
+
+            <button
+            class="activate-btn"
+            data-id="${member.id}">
+
+            Activate
+
+            </button>
+
+
+
+            <button
+            class="delete-btn danger"
+            data-id="${member.id}">
+
+            Delete
+
+            </button>
+
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+
+
+    modal.style.display =
+    "flex";
+
+
+
+    modal.querySelector(
+        ".close-modal"
+    )
+    .onclick=()=>{
+
+        modal.style.display="none";
+
+    };
+
+
+}
+
+
+
+
+// ============================================================
+// MODAL BUTTON ACTIONS
+// ============================================================
+
+document.addEventListener(
+"click",
+async(e)=>{
+
+
+    const id =
+    e.target.dataset.id;
+
+
+
+    if(!id)
+        return;
+
+
+
+    if(
+        e.target.classList.contains(
+            "approve-btn"
+        )
+    ){
+
+        await approveMember(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "premium-btn"
+        )
+    ){
+
+        await makePremium(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "remove-premium-btn"
+        )
+    ){
+
+        await removePremium(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "admin-btn"
+        )
+    ){
+
+        await makeAdmin(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "demote-btn"
+        )
+    ){
+
+        await demoteMember(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "suspend-btn"
+        )
+    ){
+
+        await suspendMember(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "activate-btn"
+        )
+    ){
+
+        await activateMember(id);
+
+    }
+
+
+
+    if(
+        e.target.classList.contains(
+            "delete-btn"
+        )
+    ){
+
+        await deleteMember(id);
+
+    }
+
+
+
+});
+
+
+
+// ============================================================
+// APPROVE MEMBER
+// ============================================================
+
+async function approveMember(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                active:true,
+
+                status:"active",
+
+                approvedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+        notify(
+        "Member approved"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+
+// ============================================================
+// MAKE PREMIUM
+// ============================================================
+
+async function makePremium(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                membership:
+                "premium",
+
+                active:true,
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+        notify(
+        "Premium membership activated"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+// ============================================================
+// REMOVE PREMIUM
+// ============================================================
+
+async function removePremium(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                membership:
+                "member",
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+
+        notify(
+        "Premium removed"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+// ============================================================
+// MAKE ADMIN
+// ============================================================
+
+async function makeAdmin(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                role:
+                "admin",
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+        notify(
+        "Admin privileges granted"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+// ============================================================
+// DEMOTE MEMBER
+// ============================================================
+
+async function demoteMember(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                role:
+                "member",
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+        notify(
+        "User demoted"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+// ============================================================
+// SUSPEND MEMBER
+// ============================================================
+
+async function suspendMember(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                active:false,
+
+                status:
+                "suspended",
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+
+        notify(
+        "Member suspended"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+// ============================================================
+// ACTIVATE MEMBER
+// ============================================================
+
+async function activateMember(id){
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                active:true,
+
+                status:
+                "active",
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+        notify(
+        "Member activated"
+        );
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+
+}
+
+
+
+// ============================================================
+// END PART 2/3
+// ============================================================
+// ============================================================
+// GTRADES-AXIS™
+// ADMIN MEMBERS MANAGEMENT
+// PART 3/3
+// ============================================================
+
+
+// ============================================================
+// DELETE MEMBER
+// ============================================================
+
+async function deleteMember(id){
+
+
+    const confirmDelete =
+    confirm(
+        "Are you sure you want to delete this member?"
+    );
+
+
+    if(!confirmDelete)
+        return;
+
+
+
+    try{
+
+
+        await updateDoc(
+            doc(db,"users",id),
+            {
+
+                deleted:true,
+
+                active:false,
+
+                status:
+                "deleted",
+
+                updatedAt:
+                serverTimestamp()
+
+            }
+        );
+
+
+        notify(
+            "Member removed"
+        );
+
+
+
+    }catch(error){
+
+
+        console.error(
+            "Delete error:",
+            error
+        );
+
+
+    }
+
+
+}
+
+
+
+
+// ============================================================
+// CSV EXPORT
+// ============================================================
+
+window.exportMembersCSV =
+function(){
+
+
+
+    if(
+        allMembers.length===0
+    ){
+
+        notify(
+            "No members available"
+        );
+
+        return;
+
+    }
+
+
+
+    let csv =
+
+    "Name,Email,Role,Membership,Status,Created\n";
+
+
+
+    allMembers.forEach(member=>{
+
+
+        csv +=
+
+        `"${member.name || ""}",` +
+
+        `"${member.email || ""}",` +
+
+        `"${member.role || "member"}",` +
+
+        `"${member.membership || "free"}",` +
+
+        `"${member.status || "active"}",` +
+
+        `"${formatDate(member.createdAt)}"\n`;
+
+
+
+    });
+
+
+
+    const blob =
+    new Blob(
+        [csv],
+        {
+            type:
+            "text/csv"
+        }
+    );
+
+
+
+    const url =
+    URL.createObjectURL(blob);
+
+
+
+    const link =
+    document.createElement("a");
+
+
+
+    link.href=url;
+
+
+    link.download =
+    "gtrades-members.csv";
+
+
+
+    document.body.appendChild(link);
+
+
+
+    link.click();
+
+
+
+    document.body.removeChild(link);
+
+
+
+    URL.revokeObjectURL(url);
+
+
+
+};
+
+
+
+
+// ============================================================
+// SORT SYSTEM
+// ============================================================
+
+window.sortMembers =
+function(type){
+
+
+    switch(type){
+
+
+        case "name":
+
+
+            filteredMembers.sort(
+                (a,b)=>
+                (a.name||"")
+                .localeCompare(
+                    b.name||""
+                )
+            );
+
+
+        break;
+
+
+
+        case "date":
+
+
+            filteredMembers.sort(
+                (a,b)=>
+                getTime(
+                    b.createdAt
+                )
+                -
+                getTime(
+                    a.createdAt
+                )
+            );
+
+
+        break;
+
+
+
+        case "premium":
+
+
+            filteredMembers.sort(
+                (a,b)=>{
+
+
+                    if(
+                        a.membership==="premium"
+                    )
+                        return -1;
+
+
+                    if(
+                        b.membership==="premium"
+                    )
+                        return 1;
+
+
+                    return 0;
+
+
+                }
+            );
+
+
+        break;
+
+
+
+    }
+
+
+
+    renderMembers();
+
+
+};
+
+
+
+
+// ============================================================
+// TIME HELPER
+// ============================================================
+
+function getTime(value){
+
+
+    if(!value)
+        return 0;
+
+
+
+    if(value.seconds)
+
+        return value.seconds * 1000;
+
+
+
+    return new Date(value)
+    .getTime();
+
+
+
+}
+
+
+
+// ============================================================
+// NOTIFICATION SYSTEM
+// ============================================================
+
+function notify(message){
+
+
+    let toast =
+    document.getElementById(
+        "gtradesToast"
+    );
+
+
+
+    if(!toast){
+
+
+        toast =
+        document.createElement(
+            "div"
+        );
+
+
+        toast.id =
+        "gtradesToast";
+
+
+        toast.className =
+        "gtrades-toast";
+
+
+        document.body.appendChild(
+            toast
+        );
+
+
+    }
+
+
+
+    toast.textContent =
+    message;
+
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+
+    setTimeout(()=>{
+
+
+        toast.classList.remove(
+            "show"
+        );
+
+
+    },3000);
+
+
+
+}
+
+
+
+
+// ============================================================
+// CLOSE MODAL OUTSIDE CLICK
+// ============================================================
+
+document.addEventListener(
+"click",
 (e)=>{
 
-if(e.key==="Escape"){
 
-modal.style.display="none";
+    const modal =
+    document.getElementById(
+        "memberModal"
+    );
+
+
+
+    if(
+        modal &&
+        e.target.classList.contains(
+            "modal-overlay"
+        )
+    ){
+
+
+        modal.style.display =
+        "none";
+
+
+    }
+
+
+});
+
+
+
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+
+document.addEventListener(
+"keydown",
+(e)=>{
+
+
+    if(
+        e.key==="Escape"
+    ){
+
+
+        const modal =
+        document.getElementById(
+            "memberModal"
+        );
+
+
+
+        if(modal)
+
+            modal.style.display =
+            "none";
+
+
+    }
+
+
+
+});
+
+
+
+
+// ============================================================
+// LIVE SEARCH CLEAR
+// ============================================================
+
+window.clearMemberSearch =
+function(){
+
+
+    if(searchInput){
+
+
+        searchInput.value="";
+
+        currentSearch="";
+
+        applyFilters();
+
+
+    }
+
+
+};
+
+
+
+
+// ============================================================
+// MANUAL REFRESH
+// ============================================================
+
+window.reloadMembers =
+function(){
+
+
+    loadMembers();
+
+
+
+};
+
+
+
+
+// ============================================================
+// SECURITY CHECK
+// ============================================================
+
+window.checkAdminAccess =
+async function(){
+
+
+    const user =
+    auth.currentUser;
+
+
+
+    if(!user){
+
+        window.location.href =
+        "../login.html";
+
+        return false;
+
+    }
+
+
+
+    const snap =
+    await getDoc(
+        doc(
+            db,
+            "users",
+            user.uid
+        )
+    );
+
+
+
+    if(
+        !snap.exists() ||
+        snap.data().role!=="admin"
+    ){
+
+
+        await signOut(auth);
+
+
+
+        window.location.href =
+        "../login.html";
+
+
+
+        return false;
+
+
+    }
+
+
+
+    return true;
+
+
+};
+
+
+
+
+// ============================================================
+// RESPONSIVE HELPERS
+// ============================================================
+
+function handleResponsive(){
+
+
+    const width =
+    window.innerWidth;
+
+
+
+    if(
+        width < 768
+    ){
+
+
+        document.body
+        .classList
+        .add(
+            "mobile-admin"
+        );
+
+
+    }
+
+    else{
+
+
+        document.body
+        .classList
+        .remove(
+            "mobile-admin"
+        );
+
+
+    }
+
 
 }
 
-}
 
-/* ==========================================
-END
-========================================== */
 
+window.addEventListener(
+"resize",
+handleResponsive
 );
+
+
+
+handleResponsive();
+
+
+
+
+// ============================================================
+// GLOBAL DEBUG
+// ============================================================
+
+window.GTRADES_ADMIN = {
+
+
+    members:
+    ()=>allMembers,
+
+
+    filtered:
+    ()=>filteredMembers,
+
+
+    refresh:
+    reloadMembers,
+
+
+    export:
+    exportMembersCSV
+
+
+};
+
+
+
+
+// ============================================================
+// INITIAL LOG
+// ============================================================
 
 console.log(
-
-"Advanced Member Manager Loaded"
-
+    "GTRADES-AXIS™ Admin Members Loaded"
 );
+
+
+
+// ============================================================
+// END ADMIN-MEMBERS.JS
+// ============================================================
