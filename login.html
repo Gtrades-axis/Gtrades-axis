@@ -9,32 +9,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="css/login.css" />
-    <!-- Add custom styles for the new elements (or put them in login.css) -->
     <style>
-        /* Quick inline styles – move these to login.css for production */
+        /* Quick inline styles – move to login.css later */
         .password-group {
-            display: flex;
-            align-items: center;
             position: relative;
         }
         .password-group input {
-            flex: 1;
-            padding-right: 130px; /* make room for the forgot link */
+            padding-right: 48px; /* space for the eye icon */
         }
-        .forgot-link {
+        .toggle-pw {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.8rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            font-size: 1.1rem;
+            padding: 0;
+        }
+        .toggle-pw:hover {
+            color: #333;
+        }
+
+        /* Forgot link row – below the password */
+        .forgot-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px;
+            margin-bottom: 18px;
+        }
+        .forgot-link {
+            font-size: 0.85rem;
             color: #6c63ff;
             text-decoration: none;
-            white-space: nowrap;
+            font-weight: 500;
         }
         .forgot-link:hover {
             text-decoration: underline;
         }
 
+        /* Google button & "or" divider */
         .google-btn {
             width: 100%;
             padding: 14px;
@@ -56,7 +72,6 @@
             background: #f8f9fa;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        .google-btn img,
         .google-btn i {
             font-size: 1.3rem;
         }
@@ -67,7 +82,7 @@
             gap: 16px;
             color: #aaa;
             font-size: 0.85rem;
-            margin: 8px 0 20px;
+            margin: 0 0 20px 0;
         }
         .divider-or::before,
         .divider-or::after {
@@ -77,9 +92,9 @@
             background: #ddd;
         }
 
-        /* Adjust spacing for existing elements if needed */
+        /* Small spacing tweaks */
         .login-btn {
-            margin-top: 8px;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -101,7 +116,7 @@
             <h1>Welcome <span class="gradient-text">Back</span></h1>
             <p class="subtitle">Login to access your Academy Resources</p>
 
-            <!-- ===== NEW: Sign in with Google ===== -->
+            <!-- Google Sign-in -->
             <button class="google-btn" id="googleLoginBtn">
                 <i class="fa-brands fa-google"></i> Sign in with Google
             </button>
@@ -116,17 +131,20 @@
                 <!-- Email -->
                 <div class="input-group">
                     <i class="fa-regular fa-envelope"></i>
-                    <input type="email" id="email" value="GTRADES@GMAIL.COM" required />
+                    <input type="email" id="email" value="_" required />
                 </div>
 
-                <!-- Password with forgot link -->
+                <!-- Password (with toggle eye) -->
                 <div class="input-group password-group">
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" id="password" placeholder="Password" required />
                     <button type="button" class="toggle-pw" id="togglePassword">
                         <i class="fa-regular fa-eye"></i>
                     </button>
-                    <!-- ===== NEW: Forgot Password link (inline) ===== -->
+                </div>
+
+                <!-- 🔽 Forgot password – now below the password field -->
+                <div class="forgot-row">
                     <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
                 </div>
 
@@ -172,19 +190,16 @@
                 });
             }
 
-            // ===== NEW: Google login handler =====
+            // Google login handler
             const googleBtn = document.getElementById('googleLoginBtn');
             if (googleBtn) {
                 googleBtn.addEventListener('click', function() {
-                    // Redirect to your backend OAuth route
+                    // Change this to your actual OAuth endpoint
                     window.location.href = '/auth/google';
-                    // Or if using Firebase: 
-                    // const provider = new firebase.auth.GoogleAuthProvider();
-                    // firebase.auth().signInWithPopup(provider)...
                 });
             }
 
-            // Your existing form submission logic (if any) remains here.
+            // Your existing form submission logic goes here (if any)
         })();
     </script>
 
