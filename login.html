@@ -9,6 +9,79 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="css/login.css" />
+    <!-- Add custom styles for the new elements (or put them in login.css) -->
+    <style>
+        /* Quick inline styles – move these to login.css for production */
+        .password-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .password-group input {
+            flex: 1;
+            padding-right: 130px; /* make room for the forgot link */
+        }
+        .forgot-link {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: #6c63ff;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            background: #fff;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            margin-bottom: 16px;
+        }
+        .google-btn:hover {
+            background: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .google-btn img,
+        .google-btn i {
+            font-size: 1.3rem;
+        }
+
+        .divider-or {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #aaa;
+            font-size: 0.85rem;
+            margin: 8px 0 20px;
+        }
+        .divider-or::before,
+        .divider-or::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        /* Adjust spacing for existing elements if needed */
+        .login-btn {
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
 
@@ -28,21 +101,33 @@
             <h1>Welcome <span class="gradient-text">Back</span></h1>
             <p class="subtitle">Login to access your Academy Resources</p>
 
+            <!-- ===== NEW: Sign in with Google ===== -->
+            <button class="google-btn" id="googleLoginBtn">
+                <i class="fa-brands fa-google"></i> Sign in with Google
+            </button>
+
+            <!-- Divider "or" -->
+            <div class="divider-or">or</div>
+
             <!-- Error message -->
             <div id="errorMsg" class="msg error" style="display:none;"></div>
 
             <form id="loginForm">
+                <!-- Email -->
                 <div class="input-group">
                     <i class="fa-regular fa-envelope"></i>
                     <input type="email" id="email" value="GTRADES@GMAIL.COM" required />
                 </div>
 
-                <div class="input-group">
+                <!-- Password with forgot link -->
+                <div class="input-group password-group">
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" id="password" placeholder="Password" required />
                     <button type="button" class="toggle-pw" id="togglePassword">
                         <i class="fa-regular fa-eye"></i>
                     </button>
+                    <!-- ===== NEW: Forgot Password link (inline) ===== -->
+                    <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
                 </div>
 
                 <button type="submit" class="login-btn">
@@ -67,10 +152,12 @@
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script type="module" src="js/auth.js"></script>
 
     <script>
         (function() {
+            // Toggle password visibility
             const toggleBtn = document.getElementById('togglePassword');
             const pwInput = document.getElementById('password');
             if (toggleBtn && pwInput) {
@@ -84,6 +171,20 @@
                     }
                 });
             }
+
+            // ===== NEW: Google login handler =====
+            const googleBtn = document.getElementById('googleLoginBtn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', function() {
+                    // Redirect to your backend OAuth route
+                    window.location.href = '/auth/google';
+                    // Or if using Firebase: 
+                    // const provider = new firebase.auth.GoogleAuthProvider();
+                    // firebase.auth().signInWithPopup(provider)...
+                });
+            }
+
+            // Your existing form submission logic (if any) remains here.
         })();
     </script>
 
