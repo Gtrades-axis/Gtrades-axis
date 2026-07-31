@@ -1,248 +1,430 @@
-// ==========================================================
+// ============================================================
 // GTRADES-AXIS™
-// PAYMENT SYSTEM
+// PAYMENT.JS
 // PART 1
-// Firebase Setup + Form Initialization + User Validation
-// ==========================================================
+// ============================================================
 
-
-console.log("PAYMENT JS LOADED");
-
-
-// ===============================
-// FIREBASE IMPORTS
-// ===============================
-import {
-    getStorage,
-    ref,
-    uploadBytes,
-    getDownloadURL
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 import { auth, db } from "./firebase.js";
 
-
 import {
+
     onAuthStateChanged
+
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-
 import {
+
     doc,
+
     getDoc
+
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+// ============================================================
+// DOM
+// ============================================================
 
+const fullName =
+document.getElementById("fullName");
 
-// ===============================
-// PAGE ELEMENTS
-// ===============================
+const email =
+document.getElementById("email");
 
+const plan =
+document.getElementById("plan");
 
-const paymentForm = document.getElementById(
-    "paymentForm"
-);
+const amount =
+document.getElementById("amount");
 
+const method =
+document.getElementById("method");
 
-const userEmailInput = document.getElementById(
-    "userEmail"
-);
+const transactionCode =
+document.getElementById("transactionCode");
 
+const notes =
+document.getElementById("notes");
 
-const userNameInput = document.getElementById(
-    "userName"
-);
+const submitBtn =
+document.getElementById("submitPayment");
 
+const loading =
+document.getElementById("loadingScreen");
 
-const membershipInput = document.getElementById(
-    "membershipPlan"
-);
+const successModal =
+document.getElementById("successModal");
 
+const successClose =
+document.getElementById("successClose");
 
+const paymentMessage =
+document.getElementById("paymentMessage");
 
-console.log(
-    "Payment Form:",
-    paymentForm
-);
+// ============================================================
+// GLOBALS
+// ============================================================
 
+let currentUser = null;
 
+let currentUserData = null;
 
-// ===============================
-// CHECK LOGIN STATUS
-// ===============================
+// ============================================================
+// AUTH
+// ============================================================
 
-
-onAuthStateChanged(auth, async (user)=>{
-
+onAuthStateChanged(auth, async(user)=>{
 
     if(!user){
 
-        console.log(
-            "No logged in user"
-        );
-
-
-        /*
-        User is not logged in.
-        Redirect to login page.
-        */
-
-
-        alert(
-            "Please login before making payment."
-        );
-
-
-        window.location.href =
-        "login.html";
-
+        window.location.href="login.html";
 
         return;
 
     }
 
-
-
-    console.log(
-        "Logged in user:",
-        user.email
-    );
-
-
-
-    // Fill email automatically
-
-    if(userEmailInput){
-
-        userEmailInput.value =
-        user.email;
-
-        userEmailInput.readOnly =
-        true;
-
-    }
-
-
-
-    // Get user profile
+    currentUser=user;
 
     try{
 
+        const snap=
 
-        const userRef =
-        doc(
-            db,
-            "users",
-            user.uid
+        await getDoc(
+
+            doc(db,"users",user.uid)
+
         );
 
+        if(!snap.exists()){
 
-        const userSnap =
-        await getDoc(userRef);
+            alert(
 
+                "Account not found."
 
-
-        if(userSnap.exists()){
-
-
-            const userData =
-            userSnap.data();
-
-
-
-            console.log(
-                "User Data:",
-                userData
             );
 
+            window.location.href="dashboard.html";
 
-
-            if(userNameInput){
-
-                userNameInput.value =
-                userData.name || "";
-
-            }
-
+            return;
 
         }
 
+        currentUserData=snap.data();
 
+        // ----------------------------------------------------
+
+        if(currentUserData.role==="admin"){
+
+            alert(
+
+                "Administrators do not require Premium."
+
+            );
+
+            window.location.href="admin.html";
+
+            return;
+
+        }
+
+        // ----------------------------------------------------
+
+        fullName.value=
+
+        currentUserData.name || "";
+
+        email.value=
+
+        currentUserData.email || "";
+
+        // ----------------------------------------------------
+
+        if(
+
+            currentUserData.membership==="premium"
+
+        ){
+
+            paymentMessage.className=
+
+            "payment-message success";
+
+            paymentMessage.textContent=
+
+            "Your account is already Premium.";
+
+            submitBtn.disabled=true;
+
+        }
 
     }
+
     catch(error){
 
+        console.error(error);
 
-        console.error(
-            "User data loading error:",
-            error
+        alert(
+
+            "Failed to load account."
+
         );
 
-
     }
-
-
 
 });
 
+// ============================================================
+// SUCCESS MODAL
+// ============================================================
 
+successClose?.addEventListener(
 
-// ===============================
-// DEFAULT PLAN
-// ===============================
+    "click",
 
+    ()=>{
 
-if(membershipInput){
+        successModal.style.display="none";
 
+        window.location.href="dashboard.html";
 
-    membershipInput.addEventListener(
-        "change",
-        ()=>{
+    }
 
+);
 
-            console.log(
-                "Selected Plan:",
-                membershipInput.value
-            );
+console.log(
 
+"✅ PAYMENT PART 1 LOADED"
 
-        }
-    );
-
-
-}
-
-
-
-// ===============================
-// FORM CHECK
-// ===============================
-
-
-if(!paymentForm){
-
-
-    console.error(
-        "Payment form not found"
-    );
-
-
-}
-else{
-
-
-    console.log(
-        "Payment form ready"
-    );
-
-
-}
-// ==========================================================
+);
+// ============================================================
 // GTRADES-AXIS™
-// PAYMENT SYSTEM
+// PAYMENT.JS
 // PART 2
-// Submit Payment Request + Firestore Storage
-// ==========================================================
+// ============================================================
 
+import {
+
+    collection,
+
+    query,
+
+    where,
+
+    getDocs
+
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// ============================================================
+// PLAN SELECTION
+// ============================================================
+
+plan?.addEventListener("change", () => {
+
+    if (plan.value === "Monthly") {
+
+        amount.value = 50;
+
+    }
+
+    if (plan.value === "Lifetime") {
+
+        amount.value = 200;
+
+    }
+
+});
+
+// ============================================================
+// ALLOW ONLY VALID AMOUNTS
+// ============================================================
+
+amount?.addEventListener("input", () => {
+
+    amount.value = amount.value.replace(/[^0-9.]/g, "");
+
+});
+
+// ============================================================
+// TRANSACTION CODE
+// ============================================================
+
+transactionCode?.addEventListener("input", () => {
+
+    transactionCode.value =
+
+    transactionCode.value.toUpperCase();
+
+});
+
+// ============================================================
+// CHECK DUPLICATE TRANSACTION
+// ============================================================
+
+async function transactionExists(code) {
+
+    const q = query(
+
+        collection(db, "payments"),
+
+        where("transactionCode", "==", code)
+
+    );
+
+    const snap = await getDocs(q);
+
+    return !snap.empty;
+
+}
+
+// ============================================================
+// VALIDATION
+// ============================================================
+
+async function validatePayment() {
+
+    paymentMessage.className = "payment-message";
+
+    paymentMessage.textContent = "";
+
+    if (!plan.value) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Select a membership plan.";
+
+        return false;
+
+    }
+
+    if (!method.value) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Select a payment method.";
+
+        return false;
+
+    }
+
+    if (!amount.value) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Enter payment amount.";
+
+        return false;
+
+    }
+
+    if (plan.value === "Monthly" &&
+
+        Number(amount.value) !== 50) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Monthly Premium costs exactly $50.";
+
+        return false;
+
+    }
+
+    if (plan.value === "Lifetime" &&
+
+        Number(amount.value) !== 200) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Lifetime Premium costs exactly $200.";
+
+        return false;
+
+    }
+
+    if (transactionCode.value.trim().length < 5) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Enter a valid transaction code.";
+
+        return false;
+
+    }
+
+    const exists =
+
+    await transactionExists(
+
+        transactionCode.value.trim()
+
+    );
+
+    if (exists) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "This transaction code has already been submitted.";
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+// ============================================================
+// LOADING
+// ============================================================
+
+function showLoading() {
+
+    loading.style.display = "flex";
+
+    submitBtn.disabled = true;
+
+}
+
+function hideLoading() {
+
+    loading.style.display = "none";
+
+    submitBtn.disabled = false;
+
+}
+
+console.log("✅ PAYMENT PART 2 LOADED");
+// ============================================================
+// GTRADES-AXIS™
+// PAYMENT.JS
+// PART 3
+// ============================================================
 
 import {
 
@@ -252,1153 +434,320 @@ import {
 
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+// ============================================================
+// SUBMIT PAYMENT
+// ============================================================
 
+document
 
+.getElementById("paymentForm")
 
-// ===============================
-// PAYMENT FORM SUBMISSION
-// ===============================
-
-
-if(paymentForm){
-
-
-paymentForm.addEventListener(
-"submit",
-async(e)=>{
-
+.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
+    if (!currentUser || !currentUserData) return;
 
+    const valid = await validatePayment();
 
-    console.log(
-        "Payment submission started"
-    );
-
-
-
-    const user =
-    auth.currentUser;
-
-
-
-    if(!user){
-
-
-        alert(
-            "Please login first."
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    // ===============================
-    // FORM VALUES
-    // ===============================
-
-
-    const email =
-    userEmailInput.value.trim();
-
-
-
-    const name =
-    userNameInput.value.trim();
-
-
-
-    const plan =
-    membershipInput.value;
-
-
-
-    const paymentMethod =
-    document.getElementById(
-        "paymentMethod"
-    )?.value;
-
-
-
-    const transactionId =
-    document.getElementById(
-        "transactionId"
-    )?.value.trim();
-
-
-
-
-
-    // ===============================
-    // VALIDATION
-    // ===============================
-
-
-    if(
-        !name ||
-        !email ||
-        !plan ||
-        !paymentMethod ||
-        !transactionId
-    ){
-
-
-        alert(
-            "Please complete all payment details."
-        );
-
-
-        return;
-
-
-    }
-
-
-
-
-    // ===============================
-    // LOADING STATE
-    // ===============================
-
-
-    const submitButton =
-    paymentForm.querySelector(
-        "button[type='submit']"
-    );
-
-
-
-    if(submitButton){
-
-
-        submitButton.disabled =
-        true;
-
-
-        submitButton.innerHTML =
-        "Submitting...";
-
-
-    }
-
-
-
-
-
-    try{
-
-
-
-        // ===============================
-        // CREATE PAYMENT REQUEST
-        // ===============================
-
-
-        const paymentRef =
-        await addDoc(
-
-            collection(
-                db,
-                "payments"
-            ),
-
-            {
-
-
-                userId:
-                user.uid,
-
-
-                name:
-                name,
-
-
-                email:
-                email,
-
-
-                plan:
-                plan,
-
-
-                paymentMethod:
-                paymentMethod,
-
-
-                transactionId:
-                transactionId,
-
-
-
-                status:
-                "pending",
-
-
-
-                membership:
-                "pending",
-
-
-
-                createdAt:
-                serverTimestamp()
-
-
-
-            }
-
-
-        );
-
-
-
-
-        console.log(
-            "Payment Created:",
-            paymentRef.id
-        );
-
-
-
-
-
-        alert(
-            "Payment submitted successfully. Waiting for admin approval."
-        );
-
-
-
-
-        // Clear form
-
-
-        paymentForm.reset();
-
-
-
-        if(userEmailInput){
-
-            userEmailInput.value =
-            user.email;
-
-        }
-
-
-
-
-    }
-    catch(error){
-
-
-
-        console.error(
-            "Payment submission error:",
-            error
-        );
-
-
-
-        alert(
-            "Payment failed. Please try again."
-        );
-
-
-
-    }
-    finally{
-
-
-
-        if(submitButton){
-
-
-            submitButton.disabled =
-            false;
-
-
-            submitButton.innerHTML =
-            "Submit Payment";
-
-
-        }
-
-
-
-    }
-
-
-
-});
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 3
-// Payment Proof Upload System
-// ==========================================================
-
-
-// ===============================
-// STORAGE INITIALIZATION
-// ===============================
-
-const storage = getStorage();
-
-
-
-// ===============================
-// PAYMENT PROOF ELEMENT
-// ===============================
-
-
-const proofInput =
-document.getElementById(
-    "paymentProof"
-);
-
-
-
-
-let uploadedProofURL = "";
-
-
-
-
-// ===============================
-// FILE VALIDATION + PREVIEW
-// ===============================
-
-
-if(proofInput){
-
-
-proofInput.addEventListener(
-"change",
-async()=>{
-
-
-    const file =
-    proofInput.files[0];
-
-
-
-    if(!file){
-
-        return;
-
-    }
-
-
-
-    console.log(
-        "Selected proof:",
-        file.name
-    );
-
-
-
-    // Allowed file types
-
-    const allowedTypes = [
-
-        "image/jpeg",
-        "image/png",
-        "application/pdf"
-
-    ];
-
-
-
-    if(
-        !allowedTypes.includes(
-            file.type
-        )
-    ){
-
-
-        alert(
-            "Only JPG, PNG or PDF files are allowed."
-        );
-
-
-        proofInput.value = "";
-
-        return;
-
-
-    }
-
-
-
-    // Maximum size 5MB
-
-    if(
-        file.size >
-        5 * 1024 * 1024
-    ){
-
-
-        alert(
-            "File size must be below 5MB."
-        );
-
-
-        proofInput.value = "";
-
-        return;
-
-
-    }
-
-
-
-    const user =
-    auth.currentUser;
-
-
-
-    if(!user){
-
-        alert(
-            "Login required."
-        );
-
-        return;
-
-    }
-
-
-
-    try{
-
-
-        const fileName =
-
-        Date.now()
-        +
-        "_"
-        +
-        file.name;
-
-
-
-        const storageRef =
-
-        ref(
-
-            storage,
-
-            "paymentProofs/"
-            +
-            user.uid
-            +
-            "/"
-            +
-            fileName
-
-        );
-
-
-
-
-        const uploadResult =
-
-        await uploadBytes(
-
-            storageRef,
-
-            file
-
-        );
-
-
-
-
-        uploadedProofURL =
-
-        await getDownloadURL(
-
-            uploadResult.ref
-
-        );
-
-
-
-        console.log(
-            "Proof uploaded:",
-            uploadedProofURL
-        );
-
-
-
-    }
-    catch(error){
-
-
-        console.error(
-            "Upload error:",
-            error
-        );
-
-
-        alert(
-            "Proof upload failed."
-        );
-
-
-    }
-
-
-
-});
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 4
-// UI Feedback + Duplicate Protection + Status Checking
-// ==========================================================
-
-
-import {
-
-    query,
-    where,
-    getDocs,
-    limit
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-// ===============================
-// UI ELEMENTS
-// ===============================
-
-
-const loadingScreen =
-
-document.querySelector(
-    ".loading-screen"
-);
-
-
-
-const successModal =
-
-document.querySelector(
-    ".success-modal"
-);
-
-
-
-const successClose =
-
-document.querySelector(
-    ".success-close"
-);
-
-
-
-
-// ===============================
-// SHOW LOADING
-// ===============================
-
-
-function showLoading(){
-
-
-    if(loadingScreen){
-
-        loadingScreen.classList.add(
-            "active"
-        );
-
-    }
-
-
-}
-
-
-
-
-// ===============================
-// HIDE LOADING
-// ===============================
-
-
-function hideLoading(){
-
-
-    if(loadingScreen){
-
-        loadingScreen.classList.remove(
-            "active"
-        );
-
-    }
-
-
-}
-
-
-
-
-// ===============================
-// SHOW SUCCESS MODAL
-// ===============================
-
-
-function showSuccess(){
-
-
-    if(successModal){
-
-        successModal.classList.add(
-            "active"
-        );
-
-    }
-
-
-}
-
-
-
-
-// ===============================
-// CLOSE SUCCESS MODAL
-// ===============================
-
-
-if(successClose){
-
-
-successClose.addEventListener(
-"click",
-()=>{
-
-
-    successModal.classList.remove(
-        "active"
-    );
-
-
-    window.location.href =
-    "dashboard.html";
-
-
-});
-
-
-
-}
-
-
-
-
-// ===============================
-// CHECK EXISTING PAYMENT
-// ===============================
-
-
-async function checkExistingPayment(uid){
-
-
-    try{
-
-
-        const paymentsRef =
-
-        collection(
-            db,
-            "payments"
-        );
-
-
-
-        const q =
-
-        query(
-
-            paymentsRef,
-
-
-            where(
-                "userId",
-                "==",
-                uid
-            ),
-
-
-            where(
-                "status",
-                "==",
-                "pending"
-            ),
-
-
-            limit(1)
-
-        );
-
-
-
-        const snapshot =
-
-        await getDocs(q);
-
-
-
-
-        if(
-            !snapshot.empty
-        ){
-
-
-            console.log(
-                "Existing pending payment found"
-            );
-
-
-            return true;
-
-
-        }
-
-
-
-        return false;
-
-
-
-    }
-    catch(error){
-
-
-        console.error(
-            "Payment check error:",
-            error
-        );
-
-
-        return false;
-
-
-    }
-
-
-
-}
-
-
-
-
-// ===============================
-// UPDATE SUBMIT FUNCTION
-// ===============================
-
-
-const originalSubmit = paymentForm;
-
-
-
-if(paymentForm){
-
-
-paymentForm.addEventListener(
-"submit",
-async()=>{
-
-
-    const user =
-    auth.currentUser;
-
-
-
-    if(!user){
-
-        return;
-
-    }
-
-
-
-    const exists =
-
-    await checkExistingPayment(
-        user.uid
-    );
-
-
-
-    if(exists){
-
-
-        alert(
-            "You already have a pending payment request."
-        );
-
-
-        return false;
-
-
-    }
-
-
+    if (!valid) return;
 
     showLoading();
 
+    try {
 
+        await addDoc(
 
-});
+            collection(db, "payments"),
 
+            {
 
+                uid: currentUser.uid,
 
-}
+                name: currentUserData.name,
 
+                email: currentUserData.email,
 
+                plan: plan.value,
 
+                method: method.value,
 
+                amount: Number(amount.value),
 
-// ===============================
-// PAYMENT SUCCESS HANDLER
-// ===============================
+                transactionCode:
 
+                transactionCode.value.trim(),
 
-// This function can be called
-// after successful Firestore save
+                notes:
 
+                notes.value.trim(),
 
-window.paymentSuccess = function(){
+                membershipBefore:
 
+                currentUserData.membership || "free",
 
-    hideLoading();
+                status: "pending",
 
+                reviewedBy: "",
 
-    showSuccess();
+                reviewedAt: null,
 
+                submittedAt:
 
+                serverTimestamp()
 
-};
+            }
 
+        );
 
+        hideLoading();
 
+        successModal.style.display = "flex";
 
+        document
 
-// ===============================
-// CHECK USER PAYMENT STATUS
-// ===============================
+        .getElementById("paymentForm")
 
+        .reset();
 
-async function checkPaymentStatus(){
+        fullName.value =
 
+        currentUserData.name;
 
-const user =
-auth.currentUser;
+        email.value =
 
+        currentUserData.email;
 
+        document
 
-if(!user){
+        .getElementById("selectedPlanName")
 
-    return;
+        .textContent =
 
-}
+        "No Plan Selected";
 
+        document
 
+        .getElementById("selectedPlanPrice")
 
-try{
+        .textContent =
 
-
-const q =
-
-query(
-
-collection(
-    db,
-    "payments"
-),
-
-
-where(
-    "userId",
-    "==",
-    user.uid
-),
-
-
-limit(1)
-
-);
-
-
-
-const result =
-
-await getDocs(q);
-
-
-
-if(!result.empty){
-
-
-const data =
-
-result.docs[0].data();
-
-
-
-console.log(
-    "Current payment status:",
-    data.status
-);
-
-
-
-}
-
-
-
-}
-catch(error){
-
-
-console.error(
-    "Status check error:",
-    error
-);
-
-
-}
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 5 FINAL
-// Real-Time Approval Detection + Premium Unlock
-// ==========================================================
-
-
-import {
-
-    onSnapshot
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-
-// ===============================
-// LISTEN FOR PAYMENT APPROVAL
-// ===============================
-
-
-function listenForPaymentApproval(){
-
-
-
-const user =
-auth.currentUser;
-
-
-
-if(!user){
-
-    return;
-
-}
-
-
-
-
-
-const paymentsQuery =
-
-query(
-
-collection(
-    db,
-    "payments"
-),
-
-
-where(
-    "userId",
-    "==",
-    user.uid
-),
-
-
-limit(1)
-
-);
-
-
-
-
-
-onSnapshot(
-
-paymentsQuery,
-
-(snapshot)=>{
-
-
-    if(snapshot.empty){
-
-        return;
+        "$0";
 
     }
 
+    catch (error) {
 
+        console.error(error);
 
+        hideLoading();
 
-    snapshot.forEach(
+        paymentMessage.className =
 
-    (paymentDoc)=>{
+        "payment-message error";
 
+        paymentMessage.textContent =
 
+        "Failed to submit payment. Please try again.";
 
-        const paymentData =
+    }
 
-        paymentDoc.data();
+});
 
+console.log("✅ PAYMENT PART 3 LOADED");
+// ============================================================
+// GTRADES-AXIS™
+// PAYMENT.JS
+// PART 4 (FINAL)
+// ============================================================
 
+// ============================================================
+// PLAN BUTTONS
+// ============================================================
 
+document.querySelectorAll(".select-plan").forEach(button => {
 
-        console.log(
-            "Payment Update:",
-            paymentData
-        );
+    button.addEventListener("click", () => {
 
+        const selectedPlan = button.dataset.plan;
+        const selectedPrice = button.dataset.price;
 
+        plan.value = selectedPlan;
+        amount.value = selectedPrice;
 
+        document.getElementById("selectedPlanName").textContent =
+            selectedPlan + " Premium";
 
-
-        // ===============================
-        // APPROVED
-        // ===============================
-
-
-
-        if(
-
-            paymentData.status ===
-            "approved"
-
-        ){
-
-
-
-            console.log(
-                "Payment Approved"
-            );
-
-
-
-            showSuccess();
-
-
-
-        }
-
-
-
-
-
-        // ===============================
-        // REJECTED
-        // ===============================
-
-
-
-        if(
-
-            paymentData.status ===
-            "rejected"
-
-        ){
-
-
-
-            alert(
-                "Your payment was rejected. Please contact support."
-            );
-
-
-
-        }
-
-
-
+        document.getElementById("selectedPlanPrice").textContent =
+            "$" + selectedPrice;
 
     });
 
+});
 
+// ============================================================
+// PLAN DROPDOWN
+// ============================================================
 
-},
+plan?.addEventListener("change", () => {
 
-(error)=>{
+    if (plan.value === "Monthly") {
 
+        amount.value = 50;
 
-    console.error(
-        "Approval listener error:",
-        error
-    );
+        document.getElementById("selectedPlanName").textContent =
+            "Monthly Premium";
 
-
-}
-
-
-
-);
-
-
-
-}
-
-
-
-
-
-// ===============================
-// START LISTENER AFTER LOGIN
-// ===============================
-
-
-onAuthStateChanged(
-
-auth,
-
-(user)=>{
-
-
-    if(user){
-
-
-        listenForPaymentApproval();
-
-
+        document.getElementById("selectedPlanPrice").textContent =
+            "$50";
 
     }
 
+    if (plan.value === "Lifetime") {
 
+        amount.value = 200;
+
+        document.getElementById("selectedPlanName").textContent =
+            "Lifetime Premium";
+
+        document.getElementById("selectedPlanPrice").textContent =
+            "$200";
+
+    }
 
 });
+
+// ============================================================
+// COPY BUTTONS
+// ============================================================
+
+document.querySelectorAll(".copy-btn").forEach(button => {
+
+    button.addEventListener("click", async () => {
+
+        try {
+
+            await navigator.clipboard.writeText(
+
+                button.dataset.copy
+
+            );
+
+            const original = button.innerHTML;
+
+            button.innerHTML =
+                '<i class="fa-solid fa-check"></i>';
+
+            setTimeout(() => {
+
+                button.innerHTML = original;
+
+            }, 1500);
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+        }
+
+    });
+
+});
+
+// ============================================================
+// SUCCESS MODAL
+// ============================================================
+
+successClose?.addEventListener("click", () => {
+
+    successModal.style.display = "none";
+
+    window.location.href = "dashboard.html";
+
+});
+
+// ============================================================
+// ESC CLOSE
+// ============================================================
+
+window.addEventListener("keydown", (e) => {
+
+    if (e.key === "Escape") {
+
+        successModal.style.display = "none";
+
+    }
+
+});
+
+// ============================================================
+// CLICK OUTSIDE MODAL
+// ============================================================
+
+window.addEventListener("click", (e) => {
+
+    if (e.target === successModal) {
+
+        successModal.style.display = "none";
+
+    }
+
+});
+
+// ============================================================
+// DEFAULT VALUES
+// ============================================================
+
+window.addEventListener("load", () => {
+
+    document.getElementById("selectedPlanName").textContent =
+        "No Plan Selected";
+
+    document.getElementById("selectedPlanPrice").textContent =
+        "$0";
+
+    paymentMessage.className =
+        "payment-message";
+
+    paymentMessage.textContent = "";
+
+});
+
+// ============================================================
+// RESET FORM
+// ============================================================
+
+function resetPaymentForm() {
+
+    document.getElementById("paymentForm").reset();
+
+    if (currentUserData) {
+
+        fullName.value = currentUserData.name || "";
+
+        email.value = currentUserData.email || "";
+
+    }
+
+    document.getElementById("selectedPlanName").textContent =
+        "No Plan Selected";
+
+    document.getElementById("selectedPlanPrice").textContent =
+        "$0";
+
+    paymentMessage.className =
+        "payment-message";
+
+    paymentMessage.textContent = "";
+
+}
+
+// ============================================================
+// GLOBAL
+// ============================================================
+
+window.resetPaymentForm = resetPaymentForm;
+
+console.log("✅ PAYMENT SYSTEM FULLY LOADED");
