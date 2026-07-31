@@ -1,5 +1,7 @@
 // ============================================================
-// GTRADES-AXIS™ – AUTH GUARD
+// GTRADES-AXIS™
+// AUTH SYSTEM
+// PART 1 OF 4
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -16,83 +18,124 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ============================================================
-// PAGE GUARD
+// GLOBAL USER
+// ============================================================
+
+window.currentUser = null;
+
+// ============================================================
+// PAGE LISTS
+// ============================================================
+
+const PUBLIC_PAGES = [
+
+    "index.html",
+    "login.html",
+    "register.html",
+    "pending.html",
+    "premium.html",
+    "access-denied.html"
+
+];
+
+const PREMIUM_PAGES = [
+
+    "premium-academy.html",
+    "resources.html",
+    "journal.html",
+    "videos.html",
+    "analytics.html",
+    "history.html",
+    "ai-review.html"
+
+];
+
+const ADMIN_PAGES = [
+
+    "admin.html",
+    "members.html",
+    "admin-payments.html",
+    "academy-admin.html",
+    "resources-admin.html",
+    "videos-admin.html",
+    "settings.html"
+
+];
+
+// ============================================================
+// CURRENT PAGE
+// ============================================================
+
+function currentPage() {
+
+    return window.location.pathname
+        .split("/")
+        .pop() || "index.html";
+
+}
+
+// ============================================================
+// REDIRECT
+// ============================================================
+
+function redirect(page) {
+
+    if (currentPage() !== page) {
+
+        window.location.href = page;
+
+    }
+
+}
+
+// ============================================================
+// AUTH STATE
 // ============================================================
 
 onAuthStateChanged(auth, async (user) => {
 
-    const currentPage =
-        window.location.pathname.split("/").pop() || "index.html";
+    const page = currentPage();
 
-    const publicPages = [
-
-        "index.html",
-
-        "login.html",
-
-        "register.html",
-
-        "pending.html",
-
-        "access-denied.html",
-
-        "premium.html"
-
-    ];
-
-    const premiumPages = [
-
-        "journal.html",
-
-        "premium-academy.html",
-
-        "resources.html",
-
-        "videos.html",
-
-        "ai-review.html",
-
-        "analytics.html",
-
-        "history.html"
-
-    ];
-
-    // ========================================================
+    //----------------------------------------------------------
     // NOT LOGGED IN
-    // ========================================================
+    //----------------------------------------------------------
 
-    if (!user && !publicPages.includes(currentPage)) {
+    if (!user) {
 
-        window.location.href = "login.html";
+        if (!PUBLIC_PAGES.includes(page)) {
+
+            redirect("login.html");
+
+        }
 
         return;
 
     }
 
-    if (!user) return;
-
-    // ========================================================
-    // GET USER DATA
-    // ========================================================
+    //----------------------------------------------------------
+    // LOAD USER DOCUMENT
+    //----------------------------------------------------------
 
     let userData = null;
 
     try {
 
-        const snap = await getDoc(doc(db, "users", user.uid));
+        const snap = await getDoc(
+            doc(db, "users", user.uid)
+        );
 
         if (!snap.exists()) {
 
-            window.location.href = "pending.html";
-
+            redirect("pending.html");
             return;
 
         }
 
         userData = snap.data();
+
+        userData.uid = user.uid;
+
         window.currentUser = userData;
-window.currentUser.uid = user.uid;
 
     }
 
@@ -100,45 +143,58 @@ window.currentUser.uid = user.uid;
 
         console.error(error);
 
-        window.location.href = "login.html";
+        redirect("login.html");
+
+        return;
+
+    };
+
+    //----------------------------------------------------------
+    // USER MUST BE APPROVED
+    //----------------------------------------------------------
+
+    if (userData.active !== true) {
+
+        if (page !== "pending.html") {
+
+            redirect("pending.html");
+
+        }
 
         return;
 
     }
-
-    // ========================================================
+        //----------------------------------------------------------
     // LOGIN / REGISTER PAGES
-    // ========================================================
+    //----------------------------------------------------------
 
     if (
 
-        publicPages.includes(currentPage)
+        PUBLIC_PAGES.includes(page)
 
-        && currentPage !== "pending.html"
+        &&
 
-        && currentPage !== "premium.html"
+        page !== "pending.html"
 
-        && currentPage !== "access-denied.html"
+        &&
+
+        page !== "premium.html"
+
+        &&
+
+        page !== "access-denied.html"
 
     ) {
 
-        if (userData.active !== true) {
-
-            window.location.href = "pending.html";
-
-            return;
-
-        }
-
         if (userData.role === "admin") {
 
-            window.location.href = "admin.html";
+            redirect("admin.html");
 
         }
 
         else {
 
-            window.location.href = "dashboard.html";
+            redirect("dashboard.html");
 
         }
 
@@ -146,41 +202,13 @@ window.currentUser.uid = user.uid;
 
     }
 
-    // ========================================================
-    // USER MUST BE APPROVED
-    // ========================================================
-
-    if (userData.active !== true) {
-
-        window.location.href = "pending.html";
-
-        return;
-
-    }
-
-    // ========================================================
+    //----------------------------------------------------------
     // ADMIN PAGES
-    // ========================================================
-
-    const adminPages = [
-
-        "admin.html",
-
-        "members.html",
-
-        "admin-payments.html",
-
-        "academy-admin.html",
-
-        "resources-admin.html",
-
-        "videos-admin.html"
-
-    ];
+    //----------------------------------------------------------
 
     if (
 
-        adminPages.includes(currentPage)
+        ADMIN_PAGES.includes(page)
 
         &&
 
@@ -188,45 +216,67 @@ window.currentUser.uid = user.uid;
 
     ) {
 
-        window.location.href = "access-denied.html";
+        redirect("access-denied.html");
 
         return;
 
     }
 
- 
-// ========================================================
-// PREMIUM PAGES
-// ========================================================
+    //----------------------------------------------------------
+    // PREMIUM PROTECTION
+    //----------------------------------------------------------
 
-if (
+    const isPremium =
 
-    premiumPages.includes(currentPage)
+        userData.membership === "premium";
 
-    &&
+    const isAdmin =
 
-    userData.role !== "admin"
+        userData.role === "admin";
 
-    &&
+    if (
 
-    userData.membership !== "premium"
+        PREMIUM_PAGES.includes(page)
 
-) {
+        &&
 
-    sessionStorage.setItem(
+        !isPremium
 
-        "premiumFeature",
+        &&
 
-        currentPage
+        !isAdmin
 
-    );
+    ) {
 
-    window.location.href = "premium.html";
+        sessionStorage.setItem(
 
-    return;
+            "premiumFeature",
 
-}
+            page
 
+        );
+
+        redirect("premium.html");
+
+        return;
+
+    }
+
+    //----------------------------------------------------------
+    // PAGE LOADED SUCCESSFULLY
+    //----------------------------------------------------------
+
+    console.log("✅ Auth Guard Passed");
+
+    console.log("User:", userData.name);
+
+    console.log("Role:", userData.role);
+
+    console.log("Membership:", userData.membership);
+
+    console.log("Current Page:", page);
+
+});
 // ============================================================
 // LOGIN
 // ============================================================
@@ -263,6 +313,8 @@ export async function loginUser(email, password) {
 
     catch (error) {
 
+        console.error(error);
+
         return {
 
             success: false,
@@ -281,7 +333,17 @@ export async function loginUser(email, password) {
 
 export async function logoutUser() {
 
-    await signOut(auth);
+    try {
+
+        await signOut(auth);
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+    }
 
     sessionStorage.removeItem(
 
@@ -289,133 +351,171 @@ export async function logoutUser() {
 
     );
 
+    window.currentUser = null;
+
     window.location.href = "login.html";
 
 }
 
+// ============================================================
+// CURRENT USER
+// ============================================================
+
+export function getCurrentUser() {
+
+    return window.currentUser;
+
+}
+
+// ============================================================
+// CHECK ADMIN
+// ============================================================
+
+export function isAdmin() {
+
+    return (
+
+        window.currentUser &&
+
+        window.currentUser.role === "admin"
+
+    );
+
+}
+
+// ============================================================
+// CHECK PREMIUM
+// ============================================================
+
+export function isPremium() {
+
+    return (
+
+        window.currentUser &&
+
+        (
+
+            window.currentUser.role === "admin"
+
+            ||
+
+            window.currentUser.membership === "premium"
+
+        )
+
+    );
+
+}
 // ============================================================
 // LOGIN FORM
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const loginForm =
-
-        document.getElementById("loginForm");
+    const loginForm = document.getElementById("loginForm");
 
     if (loginForm) {
 
-        loginForm.addEventListener(
+        loginForm.addEventListener("submit", async (e) => {
 
-            "submit",
+            e.preventDefault();
 
-            async (e) => {
+            const email = document.getElementById("email")?.value.trim();
 
-                e.preventDefault();
+            const password = document.getElementById("password")?.value;
 
-                const email =
+            const errorEl = document.getElementById("errorMsg");
 
-                    document.getElementById("email")?.value.trim();
+            const btn = loginForm.querySelector(
+                'button[type="submit"]'
+            );
 
-                const password =
+            if (!email || !password) {
 
-                    document.getElementById("password")?.value;
+                if (errorEl) {
 
-                const errorEl =
-
-                    document.getElementById("errorMsg");
-
-                const btn =
-
-                    loginForm.querySelector(
-
-                        'button[type="submit"]'
-
-                    );
-
-                if (!email || !password) {
-
-                    if (errorEl)
-
-                        errorEl.textContent =
-
-                            "Please fill in all fields.";
-
-                    return;
+                    errorEl.textContent =
+                        "Please fill in all fields.";
 
                 }
 
-                btn.disabled = true;
-
-                btn.innerHTML =
-
-                    '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
-
-                if (errorEl)
-
-                    errorEl.textContent = "";
-
-                const result =
-
-                    await loginUser(
-
-                        email,
-
-                        password
-
-                    );
-
-                if (!result.success) {
-
-                    let msg =
-
-                        "Login failed.";
-
-                    const map = {
-
-                        "auth/user-not-found":
-
-                        "No account found.",
-
-                        "auth/wrong-password":
-
-                        "Incorrect password.",
-
-                        "auth/too-many-requests":
-
-                        "Too many attempts.",
-
-                        "auth/network-request-failed":
-
-                        "Check your internet connection."
-
-                    };
-
-                    if (map[result.code])
-
-                        msg = map[result.code];
-
-                    if (errorEl)
-
-                        errorEl.textContent = msg;
-
-                    btn.disabled = false;
-
-                    btn.innerHTML =
-
-                        '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
-
-                }
+                return;
 
             }
 
-        );
+            btn.disabled = true;
+
+            btn.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+
+            if (errorEl) {
+
+                errorEl.textContent = "";
+
+            }
+
+            const result = await loginUser(
+
+                email,
+
+                password
+
+            );
+
+            if (!result.success) {
+
+                let msg = "Login failed.";
+
+                switch (result.code) {
+
+                    case "auth/user-not-found":
+                        msg = "No account found.";
+                        break;
+
+                    case "auth/wrong-password":
+                        msg = "Incorrect password.";
+                        break;
+
+                    case "auth/invalid-credential":
+                        msg = "Invalid email or password.";
+                        break;
+
+                    case "auth/invalid-email":
+                        msg = "Invalid email address.";
+                        break;
+
+                    case "auth/too-many-requests":
+                        msg = "Too many attempts. Try again later.";
+                        break;
+
+                    case "auth/network-request-failed":
+                        msg = "Check your internet connection.";
+                        break;
+
+                }
+
+                if (errorEl) {
+
+                    errorEl.textContent = msg;
+
+                }
+
+                btn.disabled = false;
+
+                btn.innerHTML =
+                    '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
+
+            }
+
+        });
 
     }
 
-    const logoutBtn =
+    // ========================================================
+    // LOGOUT BUTTON
+    // ========================================================
 
-        document.getElementById("logoutBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     if (logoutBtn) {
 
@@ -431,4 +531,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-console.log("✅ AUTH GUARD LOADED");
+// ============================================================
+// READY
+// ============================================================
+
+console.log("=======================================");
+console.log(" GTRADES-AXIS AUTH SYSTEM LOADED");
+console.log(" Premium Protection Enabled");
+console.log(" Admin Protection Enabled");
+console.log("=======================================");
