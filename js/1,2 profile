@@ -1,0 +1,753 @@
+// ============================================================
+// GTRADES-AXIS™
+// PAYMENT.JS
+// PART 1
+// ============================================================
+
+import { auth, db } from "./firebase.js";
+
+import {
+
+    onAuthStateChanged
+
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import {
+
+    doc,
+
+    getDoc
+
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// ============================================================
+// DOM
+// ============================================================
+
+const fullName =
+document.getElementById("fullName");
+
+const email =
+document.getElementById("email");
+
+const plan =
+document.getElementById("plan");
+
+const amount =
+document.getElementById("amount");
+
+const method =
+document.getElementById("method");
+
+const transactionCode =
+document.getElementById("transactionCode");
+
+const notes =
+document.getElementById("notes");
+
+const submitBtn =
+document.getElementById("submitPayment");
+
+const loading =
+document.getElementById("loadingScreen");
+
+const successModal =
+document.getElementById("successModal");
+
+const successClose =
+document.getElementById("successClose");
+
+const paymentMessage =
+document.getElementById("paymentMessage");
+
+// ============================================================
+// GLOBALS
+// ============================================================
+
+let currentUser = null;
+
+let currentUserData = null;
+
+// ============================================================
+// AUTH
+// ============================================================
+
+onAuthStateChanged(auth, async(user)=>{
+
+    if(!user){
+
+        window.location.href="login.html";
+
+        return;
+
+    }
+
+    currentUser=user;
+
+    try{
+
+        const snap=
+
+        await getDoc(
+
+            doc(db,"users",user.uid)
+
+        );
+
+        if(!snap.exists()){
+
+            alert(
+
+                "Account not found."
+
+            );
+
+            window.location.href="dashboard.html";
+
+            return;
+
+        }
+
+        currentUserData=snap.data();
+
+        // ----------------------------------------------------
+
+        if(currentUserData.role==="admin"){
+
+            alert(
+
+                "Administrators do not require Premium."
+
+            );
+
+            window.location.href="admin.html";
+
+            return;
+
+        }
+
+        // ----------------------------------------------------
+
+        fullName.value=
+
+        currentUserData.name || "";
+
+        email.value=
+
+        currentUserData.email || "";
+
+        // ----------------------------------------------------
+
+        if(
+
+            currentUserData.membership==="premium"
+
+        ){
+
+            paymentMessage.className=
+
+            "payment-message success";
+
+            paymentMessage.textContent=
+
+            "Your account is already Premium.";
+
+            submitBtn.disabled=true;
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(
+
+            "Failed to load account."
+
+        );
+
+    }
+
+});
+
+// ============================================================
+// SUCCESS MODAL
+// ============================================================
+
+successClose?.addEventListener(
+
+    "click",
+
+    ()=>{
+
+        successModal.style.display="none";
+
+        window.location.href="dashboard.html";
+
+    }
+
+);
+
+console.log(
+
+"✅ PAYMENT PART 1 LOADED"
+
+);
+// ============================================================
+// GTRADES-AXIS™
+// PAYMENT.JS
+// PART 2
+// ============================================================
+
+import {
+
+    collection,
+
+    query,
+
+    where,
+
+    getDocs
+
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// ============================================================
+// PLAN SELECTION
+// ============================================================
+
+plan?.addEventListener("change", () => {
+
+    if (plan.value === "Monthly") {
+
+        amount.value = 50;
+
+    }
+
+    if (plan.value === "Lifetime") {
+
+        amount.value = 200;
+
+    }
+
+});
+
+// ============================================================
+// ALLOW ONLY VALID AMOUNTS
+// ============================================================
+
+amount?.addEventListener("input", () => {
+
+    amount.value = amount.value.replace(/[^0-9.]/g, "");
+
+});
+
+// ============================================================
+// TRANSACTION CODE
+// ============================================================
+
+transactionCode?.addEventListener("input", () => {
+
+    transactionCode.value =
+
+    transactionCode.value.toUpperCase();
+
+});
+
+// ============================================================
+// CHECK DUPLICATE TRANSACTION
+// ============================================================
+
+async function transactionExists(code) {
+
+    const q = query(
+
+        collection(db, "payments"),
+
+        where("transactionCode", "==", code)
+
+    );
+
+    const snap = await getDocs(q);
+
+    return !snap.empty;
+
+}
+
+// ============================================================
+// VALIDATION
+// ============================================================
+
+async function validatePayment() {
+
+    paymentMessage.className = "payment-message";
+
+    paymentMessage.textContent = "";
+
+    if (!plan.value) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Select a membership plan.";
+
+        return false;
+
+    }
+
+    if (!method.value) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Select a payment method.";
+
+        return false;
+
+    }
+
+    if (!amount.value) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Enter payment amount.";
+
+        return false;
+
+    }
+
+    if (plan.value === "Monthly" &&
+
+        Number(amount.value) !== 50) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Monthly Premium costs exactly $50.";
+
+        return false;
+
+    }
+
+    if (plan.value === "Lifetime" &&
+
+        Number(amount.value) !== 200) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Lifetime Premium costs exactly $200.";
+
+        return false;
+
+    }
+
+    if (transactionCode.value.trim().length < 5) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Enter a valid transaction code.";
+
+        return false;
+
+    }
+
+    const exists =
+
+    await transactionExists(
+
+        transactionCode.value.trim()
+
+    );
+
+    if (exists) {
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "This transaction code has already been submitted.";
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+// ============================================================
+// LOADING
+// ============================================================
+
+function showLoading() {
+
+    loading.style.display = "flex";
+
+    submitBtn.disabled = true;
+
+}
+
+function hideLoading() {
+
+    loading.style.display = "none";
+
+    submitBtn.disabled = false;
+
+}
+
+console.log("✅ PAYMENT PART 2 LOADED");
+// ============================================================
+// GTRADES-AXIS™
+// PAYMENT.JS
+// PART 3
+// ============================================================
+
+import {
+
+    collection,
+    addDoc,
+    serverTimestamp
+
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// ============================================================
+// SUBMIT PAYMENT
+// ============================================================
+
+document
+
+.getElementById("paymentForm")
+
+.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    if (!currentUser || !currentUserData) return;
+
+    const valid = await validatePayment();
+
+    if (!valid) return;
+
+    showLoading();
+
+    try {
+
+        await addDoc(
+
+            collection(db, "payments"),
+
+            {
+
+                uid: currentUser.uid,
+
+                name: currentUserData.name,
+
+                email: currentUserData.email,
+
+                plan: plan.value,
+
+                method: method.value,
+
+                amount: Number(amount.value),
+
+                transactionCode:
+
+                transactionCode.value.trim(),
+
+                notes:
+
+                notes.value.trim(),
+
+                membershipBefore:
+
+                currentUserData.membership || "free",
+
+                status: "pending",
+
+                reviewedBy: "",
+
+                reviewedAt: null,
+
+                submittedAt:
+
+                serverTimestamp()
+
+            }
+
+        );
+
+        hideLoading();
+
+        successModal.style.display = "flex";
+
+        document
+
+        .getElementById("paymentForm")
+
+        .reset();
+
+        fullName.value =
+
+        currentUserData.name;
+
+        email.value =
+
+        currentUserData.email;
+
+        document
+
+        .getElementById("selectedPlanName")
+
+        .textContent =
+
+        "No Plan Selected";
+
+        document
+
+        .getElementById("selectedPlanPrice")
+
+        .textContent =
+
+        "$0";
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        hideLoading();
+
+        paymentMessage.className =
+
+        "payment-message error";
+
+        paymentMessage.textContent =
+
+        "Failed to submit payment. Please try again.";
+
+    }
+
+});
+
+console.log("✅ PAYMENT PART 3 LOADED");
+// ============================================================
+// GTRADES-AXIS™
+// PAYMENT.JS
+// PART 4 (FINAL)
+// ============================================================
+
+// ============================================================
+// PLAN BUTTONS
+// ============================================================
+
+document.querySelectorAll(".select-plan").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const selectedPlan = button.dataset.plan;
+        const selectedPrice = button.dataset.price;
+
+        plan.value = selectedPlan;
+        amount.value = selectedPrice;
+
+        document.getElementById("selectedPlanName").textContent =
+            selectedPlan + " Premium";
+
+        document.getElementById("selectedPlanPrice").textContent =
+            "$" + selectedPrice;
+
+    });
+
+});
+
+// ============================================================
+// PLAN DROPDOWN
+// ============================================================
+
+plan?.addEventListener("change", () => {
+
+    if (plan.value === "Monthly") {
+
+        amount.value = 50;
+
+        document.getElementById("selectedPlanName").textContent =
+            "Monthly Premium";
+
+        document.getElementById("selectedPlanPrice").textContent =
+            "$50";
+
+    }
+
+    if (plan.value === "Lifetime") {
+
+        amount.value = 200;
+
+        document.getElementById("selectedPlanName").textContent =
+            "Lifetime Premium";
+
+        document.getElementById("selectedPlanPrice").textContent =
+            "$200";
+
+    }
+
+});
+
+// ============================================================
+// COPY BUTTONS
+// ============================================================
+
+document.querySelectorAll(".copy-btn").forEach(button => {
+
+    button.addEventListener("click", async () => {
+
+        try {
+
+            await navigator.clipboard.writeText(
+
+                button.dataset.copy
+
+            );
+
+            const original = button.innerHTML;
+
+            button.innerHTML =
+                '<i class="fa-solid fa-check"></i>';
+
+            setTimeout(() => {
+
+                button.innerHTML = original;
+
+            }, 1500);
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+        }
+
+    });
+
+});
+
+// ============================================================
+// SUCCESS MODAL
+// ============================================================
+
+successClose?.addEventListener("click", () => {
+
+    successModal.style.display = "none";
+
+    window.location.href = "dashboard.html";
+
+});
+
+// ============================================================
+// ESC CLOSE
+// ============================================================
+
+window.addEventListener("keydown", (e) => {
+
+    if (e.key === "Escape") {
+
+        successModal.style.display = "none";
+
+    }
+
+});
+
+// ============================================================
+// CLICK OUTSIDE MODAL
+// ============================================================
+
+window.addEventListener("click", (e) => {
+
+    if (e.target === successModal) {
+
+        successModal.style.display = "none";
+
+    }
+
+});
+
+// ============================================================
+// DEFAULT VALUES
+// ============================================================
+
+window.addEventListener("load", () => {
+
+    document.getElementById("selectedPlanName").textContent =
+        "No Plan Selected";
+
+    document.getElementById("selectedPlanPrice").textContent =
+        "$0";
+
+    paymentMessage.className =
+        "payment-message";
+
+    paymentMessage.textContent = "";
+
+});
+
+// ============================================================
+// RESET FORM
+// ============================================================
+
+function resetPaymentForm() {
+
+    document.getElementById("paymentForm").reset();
+
+    if (currentUserData) {
+
+        fullName.value = currentUserData.name || "";
+
+        email.value = currentUserData.email || "";
+
+    }
+
+    document.getElementById("selectedPlanName").textContent =
+        "No Plan Selected";
+
+    document.getElementById("selectedPlanPrice").textContent =
+        "$0";
+
+    paymentMessage.className =
+        "payment-message";
+
+    paymentMessage.textContent = "";
+
+}
+
+// ============================================================
+// GLOBAL
+// ============================================================
+
+window.resetPaymentForm = resetPaymentForm;
+
+console.log("✅ PAYMENT SYSTEM FULLY LOADED");
