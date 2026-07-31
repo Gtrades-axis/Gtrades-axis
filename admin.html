@@ -29,7 +29,12 @@ SIDEBAR
 
 <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo">
 <h2>
-
+<li>
+    <a href="admin-payments.html">
+        <i class="fa-solid fa-money-check-dollar"></i>
+        <span>Payments</span>
+    </a>
+</li>
 GTRADES
 
 <span>AXIS™</span>
@@ -796,81 +801,6 @@ placeholder="🔍 Search Resources">
 
 </section>
 <!-- ==========================
-PAYMENT MANAGEMENT
-========================== -->
-
-<section class="dashboard-card large" id="payments">
-
-
-<div class="card-header">
-
-<div>
-
-<h2>
-
-<i class="fa-solid fa-credit-card"></i>
-
-Payment Requests
-
-</h2>
-
-<p>
-
-Review and approve member payments.
-
-</p>
-
-</div>
-
-
-</div>
-
-
-
-<div class="table-container">
-
-
-<table class="members-table">
-
-
-<thead>
-
-<tr>
-
-<th>User</th>
-
-<th>Email</th>
-
-<th>Plan</th>
-
-<th>Method</th>
-
-<th>Proof</th>
-
-<th>Status</th>
-
-<th>Action</th>
-
-</tr>
-
-
-</thead>
-
-
-<tbody id="paymentsTable">
-
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-</section>
-<!-- ==========================
 MEMBER MANAGEMENT MODAL
 ========================== -->
 
@@ -1068,7 +998,10 @@ SCRIPTS – FIXED ORDER
 <!-- 2. Admin logic (members, resources) – these will run after auth -->
 <script type="module" src="js/admin/admin-members.js"></script>
 <script type="module" src="js/admin/resources.js"></script>
+<<<<<<< HEAD
 <script type="module" src="js/admin/admin-payments.js"></script>
+=======
+>>>>>>> parent of 7a49903 (payments)
 
 <!-- 3. Logout handler – ensures logout button works even if auth.js doesn't catch it -->
 <script type="module">
