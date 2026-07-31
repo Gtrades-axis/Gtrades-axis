@@ -1,7 +1,7 @@
 // ============================================================
 // GTRADES-AXIS™
-// AUTH SYSTEM
-// PART 1 OF 4
+// AUTH GUARD (v2)
+// Premium Preview System
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -18,105 +18,75 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ============================================================
-// GLOBAL USER
-// ============================================================
-
-window.currentUser = null;
-
-// ============================================================
-// PAGE LISTS
+// PUBLIC PAGES
 // ============================================================
 
 const PUBLIC_PAGES = [
-
     "index.html",
     "login.html",
     "register.html",
     "pending.html",
-    "premium.html",
-    "access-denied.html"
-
+    "access-denied.html",
+    "premium.html"
 ];
 
-const PREMIUM_PAGES = [
-
-    "premium-academy.html",
-    "resources.html",
-    "journal.html",
-    "videos.html",
-    "analytics.html",
-    "history.html",
-    "ai-review.html"
-
-];
+// ============================================================
+// ADMIN PAGES
+// ============================================================
 
 const ADMIN_PAGES = [
-
     "admin.html",
     "members.html",
     "admin-payments.html",
     "academy-admin.html",
     "resources-admin.html",
-    "videos-admin.html",
-    "settings.html"
-
+    "videos-admin.html"
 ];
 
 // ============================================================
-// CURRENT PAGE
+// PREMIUM PAGES
+// (NO REDIRECTS ANYMORE)
 // ============================================================
 
-function currentPage() {
-
-    return window.location.pathname
-        .split("/")
-        .pop() || "index.html";
-
-}
-
-// ============================================================
-// REDIRECT
-// ============================================================
-
-function redirect(page) {
-
-    if (currentPage() !== page) {
-
-        window.location.href = page;
-
-    }
-
-}
+const PREMIUM_PAGES = [
+    "premium-academy.html",
+    "journal.html",
+    "resources.html",
+    "videos.html",
+    "analytics.html",
+    "history.html",
+    "ai-review.html"
+];
 
 // ============================================================
-// AUTH STATE
+// PAGE GUARD
 // ============================================================
 
 onAuthStateChanged(auth, async (user) => {
 
-    const page = currentPage();
+    const currentPage =
+        window.location.pathname.split("/").pop() || "index.html";
 
-    //----------------------------------------------------------
-    // NOT LOGGED IN
-    //----------------------------------------------------------
+    // ========================================================
+    // USER NOT LOGGED IN
+    // ========================================================
 
     if (!user) {
 
-        if (!PUBLIC_PAGES.includes(page)) {
+        if (!PUBLIC_PAGES.includes(currentPage)) {
 
-            redirect("login.html");
+            window.location.href = "login.html";
 
         }
 
         return;
-
     }
 
-    //----------------------------------------------------------
+    // ========================================================
     // LOAD USER DOCUMENT
-    //----------------------------------------------------------
+    // ========================================================
 
-    let userData = null;
+    let userData;
 
     try {
 
@@ -126,155 +96,100 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!snap.exists()) {
 
-            redirect("pending.html");
-            return;
+            window.location.href = "pending.html";
 
+            return;
         }
 
         userData = snap.data();
 
-        userData.uid = user.uid;
-
-        window.currentUser = userData;
+        // Make available everywhere
+        window.currentUser = {
+            uid: user.uid,
+            ...userData
+        };
 
     }
 
-    catch (error) {
+    catch (err) {
 
-        console.error(error);
+        console.error(err);
 
-        redirect("login.html");
+        window.location.href = "login.html";
 
         return;
 
-    };
-
-    //----------------------------------------------------------
-    // USER MUST BE APPROVED
-    //----------------------------------------------------------
+    }
+        // ========================================================
+    // ACCOUNT NOT APPROVED
+    // ========================================================
 
     if (userData.active !== true) {
 
-        if (page !== "pending.html") {
+        if (currentPage !== "pending.html") {
 
-            redirect("pending.html");
+            window.location.href = "pending.html";
 
         }
 
         return;
-
     }
-        //----------------------------------------------------------
-    // LOGIN / REGISTER PAGES
-    //----------------------------------------------------------
+
+    // ========================================================
+    // LOGIN / REGISTER REDIRECT
+    // ========================================================
 
     if (
-
-        PUBLIC_PAGES.includes(page)
-
-        &&
-
-        page !== "pending.html"
-
-        &&
-
-        page !== "premium.html"
-
-        &&
-
-        page !== "access-denied.html"
-
+        currentPage === "login.html" ||
+        currentPage === "register.html"
     ) {
 
         if (userData.role === "admin") {
 
-            redirect("admin.html");
+            window.location.href = "admin.html";
 
-        }
+        } else {
 
-        else {
-
-            redirect("dashboard.html");
+            window.location.href = "dashboard.html";
 
         }
 
         return;
-
     }
 
-    //----------------------------------------------------------
-    // ADMIN PAGES
-    //----------------------------------------------------------
+    // ========================================================
+    // ADMIN PAGE PROTECTION
+    // ========================================================
 
     if (
-
-        ADMIN_PAGES.includes(page)
-
-        &&
-
+        ADMIN_PAGES.includes(currentPage) &&
         userData.role !== "admin"
-
     ) {
 
-        redirect("access-denied.html");
+        window.location.href = "access-denied.html";
 
         return;
-
     }
 
-    //----------------------------------------------------------
-    // PREMIUM PROTECTION
-    //----------------------------------------------------------
+    // ========================================================
+    // PREMIUM PAGE
+    // NO REDIRECTS
+    // ========================================================
 
-    const isPremium =
-
-        userData.membership === "premium";
-
-    const isAdmin =
-
+    window.isAdmin =
         userData.role === "admin";
 
-    if (
+    window.isPremium =
+        userData.membership === "premium";
 
-        PREMIUM_PAGES.includes(page)
+    window.hasPremiumAccess =
+        window.isAdmin || window.isPremium;
 
-        &&
+    window.isPremiumPage =
+        PREMIUM_PAGES.includes(currentPage);
 
-        !isPremium
-
-        &&
-
-        !isAdmin
-
-    ) {
-
-        sessionStorage.setItem(
-
-            "premiumFeature",
-
-            page
-
-        );
-
-        redirect("premium.html");
-
-        return;
-
-    }
-
-    //----------------------------------------------------------
-    // PAGE LOADED SUCCESSFULLY
-    //----------------------------------------------------------
-
-    console.log("✅ Auth Guard Passed");
-
-    console.log("User:", userData.name);
-
-    console.log("Role:", userData.role);
-
-    console.log("Membership:", userData.membership);
-
-    console.log("Current Page:", page);
+    console.log("Current User", window.currentUser);
+    console.log("Premium Access:", window.hasPremiumAccess);
 
 });
 // ============================================================
@@ -286,41 +201,25 @@ export async function loginUser(email, password) {
     try {
 
         await signInWithEmailAndPassword(
-
             auth,
-
             email,
-
             password
-
         );
 
         sessionStorage.setItem(
-
             "gtrades_user_logged_in",
-
             "true"
-
         );
 
         return {
-
             success: true
-
         };
 
-    }
-
-    catch (error) {
-
-        console.error(error);
+    } catch (error) {
 
         return {
-
             success: false,
-
             code: error.code
-
         };
 
     }
@@ -337,73 +236,17 @@ export async function logoutUser() {
 
         await signOut(auth);
 
-    }
+        sessionStorage.removeItem(
+            "gtrades_user_logged_in"
+        );
 
-    catch (error) {
+        window.location.href = "login.html";
+
+    } catch (error) {
 
         console.error(error);
 
     }
-
-    sessionStorage.removeItem(
-
-        "gtrades_user_logged_in"
-
-    );
-
-    window.currentUser = null;
-
-    window.location.href = "login.html";
-
-}
-
-// ============================================================
-// CURRENT USER
-// ============================================================
-
-export function getCurrentUser() {
-
-    return window.currentUser;
-
-}
-
-// ============================================================
-// CHECK ADMIN
-// ============================================================
-
-export function isAdmin() {
-
-    return (
-
-        window.currentUser &&
-
-        window.currentUser.role === "admin"
-
-    );
-
-}
-
-// ============================================================
-// CHECK PREMIUM
-// ============================================================
-
-export function isPremium() {
-
-    return (
-
-        window.currentUser &&
-
-        (
-
-            window.currentUser.role === "admin"
-
-            ||
-
-            window.currentUser.membership === "premium"
-
-        )
-
-    );
 
 }
 // ============================================================
@@ -411,6 +254,10 @@ export function isPremium() {
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    // ========================================================
+    // LOGIN FORM
+    // ========================================================
 
     const loginForm = document.getElementById("loginForm");
 
@@ -420,15 +267,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
             e.preventDefault();
 
-            const email = document.getElementById("email")?.value.trim();
+            const email =
+                document.getElementById("email")?.value.trim();
 
-            const password = document.getElementById("password")?.value;
+            const password =
+                document.getElementById("password")?.value;
 
-            const errorEl = document.getElementById("errorMsg");
+            const errorEl =
+                document.getElementById("errorMsg");
 
-            const btn = loginForm.querySelector(
-                'button[type="submit"]'
-            );
+            const btn =
+                loginForm.querySelector(
+                    'button[type="submit"]'
+                );
 
             if (!email || !password) {
 
@@ -454,43 +305,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
-            const result = await loginUser(
-
-                email,
-
-                password
-
-            );
+            const result =
+                await loginUser(
+                    email,
+                    password
+                );
 
             if (!result.success) {
 
                 let msg = "Login failed.";
 
-                switch (result.code) {
+                const map = {
 
-                    case "auth/user-not-found":
-                        msg = "No account found.";
-                        break;
+                    "auth/user-not-found":
+                        "No account found.",
 
-                    case "auth/wrong-password":
-                        msg = "Incorrect password.";
-                        break;
+                    "auth/wrong-password":
+                        "Incorrect password.",
 
-                    case "auth/invalid-credential":
-                        msg = "Invalid email or password.";
-                        break;
+                    "auth/invalid-credential":
+                        "Incorrect email or password.",
 
-                    case "auth/invalid-email":
-                        msg = "Invalid email address.";
-                        break;
+                    "auth/too-many-requests":
+                        "Too many login attempts. Try again later.",
 
-                    case "auth/too-many-requests":
-                        msg = "Too many attempts. Try again later.";
-                        break;
+                    "auth/network-request-failed":
+                        "Network error. Check your internet connection."
 
-                    case "auth/network-request-failed":
-                        msg = "Check your internet connection.";
-                        break;
+                };
+
+                if (map[result.code]) {
+
+                    msg = map[result.code];
 
                 }
 
@@ -507,6 +353,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
+            // Success redirect is handled automatically
+            // by onAuthStateChanged()
+
         });
 
     }
@@ -515,16 +364,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // LOGOUT BUTTON
     // ========================================================
 
-    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutBtn =
+        document.getElementById("logoutBtn");
 
     if (logoutBtn) {
 
         logoutBtn.addEventListener(
-
             "click",
-
             logoutUser
-
         );
 
     }
@@ -532,11 +379,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============================================================
-// READY
+// GLOBAL HELPERS
 // ============================================================
 
-console.log("=======================================");
-console.log(" GTRADES-AXIS AUTH SYSTEM LOADED");
-console.log(" Premium Protection Enabled");
-console.log(" Admin Protection Enabled");
-console.log("=======================================");
+window.isLoggedIn = () => !!auth.currentUser;
+
+window.getCurrentUser = () => window.currentUser || null;
+
+window.userHasPremium = () => window.hasPremiumAccess === true;
+
+window.userIsAdmin = () => window.isAdmin === true;
+
+// ============================================================
+
+console.log("✅ GTRADES-AXIS AUTH GUARD v2 LOADED");
