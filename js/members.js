@@ -175,12 +175,18 @@ approveBtn?.addEventListener("click", async () => {
 
     try {
         const userRef = doc(db, "users", selectedUser.id);
-        await updateDoc(userRef, {
-            active: true,
-            status: "active",
-            role: "member",
-membership: "free"  // ✅ CRITICAL – changes role from "pending" to "member"
-        });
+        await updateDoc(userRef,{
+
+    active:true,
+
+    status:"active",
+
+    role:"member",
+
+    membership:
+        selectedUser.membership || "free"
+
+});
         alert("✅ Member Approved Successfully!");
         modal.style.display = "none";
         selectedUser = null;
@@ -195,8 +201,14 @@ membership: "free"  // ✅ CRITICAL – changes role from "pending" to "member"
 premiumBtn?.addEventListener("click", async () => {
     if (!selectedUser) { alert("No member selected."); return; }
     try {
-        await updateDoc(doc(db, "users", selectedUser.id), {
-    membership: "premium"
+        await updateDoc(doc(db,"users",selectedUser.id),{
+
+    membership:"premium",
+
+    payment:"paid",
+
+    paymentStatus:"approved"
+
 });
         alert("Member is now Premium.");
         modal.style.display = "none";
@@ -220,7 +232,13 @@ suspendBtn?.addEventListener("click", async () => {
     if (!selectedUser) return;
     if (!confirm("Suspend this member?")) return;
     try {
-        await updateDoc(doc(db, "users", selectedUser.id), { active: false, status: "suspended" });
+        await updateDoc(doc(db,"users",selectedUser.id),{
+
+    active:false,
+
+    status:"suspended"
+
+});
         alert("Member Suspended.");
         modal.style.display = "none";
         loadMembersRealtime();

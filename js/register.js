@@ -34,18 +34,28 @@ if (form) {
             const user = userCredential.user;
 
             await updateProfile(user, { displayName: name });
+await setDoc(doc(db, "users", user.uid), {
 
-            await setDoc(doc(db, "users", user.uid), {
-                name: name,
-                email: email,
-                role: "member",
-               membership: "free",
-                   active: false,
-               status: "pending",
-             payment: "unpaid",
-                createdAt: serverTimestamp(),
-                uid: user.uid
-            });
+    uid: user.uid,
+
+    name: name,
+    email: email,
+
+    role: "member",
+    membership: "free",
+
+    active: false,
+    status: "pending",
+
+    payment: "unpaid",
+
+    paymentStatus: "none",
+
+    createdAt: serverTimestamp(),
+
+    updatedAt: serverTimestamp()
+
+});
 
             alert("✅ Registration successful!\n\nYour account is pending administrator approval.");
             window.location.href = "pending.html";

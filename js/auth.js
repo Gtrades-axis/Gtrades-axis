@@ -91,6 +91,8 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         userData = snap.data();
+        window.currentUser = userData;
+window.currentUser.uid = user.uid;
 
     }
 
@@ -192,39 +194,38 @@ onAuthStateChanged(auth, async (user) => {
 
     }
 
-    // ========================================================
-    // PREMIUM PAGES
-    // ========================================================
+ 
+// ========================================================
+// PREMIUM PAGES
+// ========================================================
 
-    if (
+if (
 
-        premiumPages.includes(currentPage)
+    premiumPages.includes(currentPage)
 
-        &&
+    &&
 
-        userData.role !== "premium"
+    userData.role !== "admin"
 
-        &&
+    &&
 
-        userData.role !== "admin"
+    userData.membership !== "premium"
 
-    ) {
+) {
 
-        sessionStorage.setItem(
+    sessionStorage.setItem(
 
-            "premiumFeature",
+        "premiumFeature",
 
-            currentPage
+        currentPage
 
-        );
+    );
 
-        window.location.href = "premium.html";
+    window.location.href = "premium.html";
 
-        return;
+    return;
 
-    }
-
-});
+}
 
 // ============================================================
 // LOGIN
