@@ -1220,24 +1220,42 @@
   <!-- ==========================================================
   RESOURCE MANAGEMENT
   ========================================================== -->
-  <section class="dashboard-card" id="resources">
-    <div class="card-header">
-      <div>
-        <h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2>
-        <p>Manage all premium resources.</p>
-      </div>
+  <!-- ==========================================================
+RESOURCE MANAGEMENT
+========================================================== -->
+<section class="dashboard-card" id="resources">
+  <div class="card-header">
+    <div>
+      <h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2>
+      <p>Manage all premium resources.</p>
     </div>
-    <div class="resource-toolbar">
-      <input type="text" id="resourceSearch" placeholder="🔍 Search Resources" />
-      <select id="resourceFilter">
-        <option value="All">All</option>
-        <option value="PDF">PDF</option>
-        <option value="Indicator">Indicator</option>
-        <option value="Journal">Journal</option>
-        <option value="Strategy">Strategy</option>
-        <option value="Video">Video</option>
-      </select>
+    <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+      <i class="fa-solid fa-plus"></i> Add Resource
+    </button>
+  </div>
+
+  <!-- Resource list (full table) -->
+  <div id="resourceListContainer">
+    <div class="table-container">
+      <table class="members-table" id="resourceTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="resourceTableBody">
+          <tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
+
+  <!-- Add/Edit resource form (hidden by default) -->
+  <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+    <h3 id="resourceFormTitle">Add New Resource</h3>
     <form id="resourceForm">
       <input type="text" id="resourceTitle" placeholder="Resource Title" required />
       <select id="resourceCategory" required>
@@ -1254,9 +1272,14 @@
         <button type="button" id="chooseFileBtn">📁 Choose File</button>
       </div>
       <label><input type="checkbox" id="premiumOnly" /> Premium Members Only</label>
-      <button type="submit" class="upload-btn">Save Resource</button>
+      <div style="display:flex; gap:12px;">
+        <button type="submit" class="upload-btn" id="saveResourceBtn">Save Resource</button>
+        <button type="button" class="btn-secondary" id="cancelResourceBtn" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-secondary);">Cancel</button>
+      </div>
+      <input type="hidden" id="editingResourceId" />
     </form>
-  </section>
+  </div>
+</section>
 
   <!-- Footer -->
   <footer class="admin-footer">
