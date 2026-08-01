@@ -238,7 +238,7 @@
 </script>
 
 <script type="module">
-  // ─── IMPORTS ──────────────────────────────────────────────
+  // ─── IMPORTS (ALL AT THE TOP) ─────────────────────────────
   import { auth, db } from "./js/firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
   import {
@@ -247,6 +247,7 @@
     where,
     onSnapshot,
     doc,
+    getDoc,
     updateDoc,
     serverTimestamp,
     orderBy,
@@ -387,10 +388,6 @@
     statRejected.textContent = rejected;
     statTotal.textContent = payments.length;
   }
-
-  // ─── HELPERS ──────────────────────────────────────────────────
-  // getDoc for auth guard (imported in the guard itself)
-  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
   console.log("✅ Admin payments page ready.");
 </script>
