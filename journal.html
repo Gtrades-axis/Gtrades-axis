@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── Full CSS ── */
+    /* ── Full CSS (unchanged) ── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
     :root {
@@ -523,6 +523,42 @@
 
     function $(id) { return document.getElementById(id); }
 
+    // ─── AUTO RR CALCULATION ──────────────────────────────────
+    function computeRR() {
+      const direction = document.getElementById('direction').value;
+      const entry = parseFloat(document.getElementById('entry').value);
+      const stopLoss = parseFloat(document.getElementById('stopLoss').value);
+      const takeProfit = parseFloat(document.getElementById('takeProfit').value);
+      const rrInput = document.getElementById('rr');
+
+      if (!isNaN(entry) && !isNaN(stopLoss) && !isNaN(takeProfit) && stopLoss !== entry && takeProfit !== entry) {
+        let rr;
+        if (direction === 'BUY') {
+          rr = (takeProfit - entry) / (entry - stopLoss);
+        } else {
+          rr = (entry - takeProfit) / (stopLoss - entry);
+        }
+        if (rr > 0) {
+          rrInput.value = rr.toFixed(2);
+        } else {
+          rrInput.value = '';
+        }
+      } else {
+        rrInput.value = '';
+      }
+    }
+
+    // Attach auto-RR listeners
+    ['entry', 'stopLoss', 'takeProfit', 'direction'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', computeRR);
+        el.addEventListener('change', computeRR);
+      }
+    });
+    // Run once to set initial value (if any fields have values)
+    computeRR();
+
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
       const resultVal = val('result') || 'Pending';
@@ -604,7 +640,6 @@
       const isUpdate = $('#updateMode')?.value === 'true';
       console.log('Is update mode?', isUpdate);
 
-      // Validate required fields
       const date = val('tradeDate');
       if (!date) {
         alert('Please select a date.');
@@ -621,11 +656,9 @@
         }
         saveTrades();
         alert('✅ Trade updated!');
-        // Reset update mode
         if (document.getElementById('updateMode')) {
           document.getElementById('updateMode').value = 'false';
         }
-        // Restore button and header
         const submitBtn = document.querySelector('#saveTradeBtn');
         if (submitBtn) {
           submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
@@ -639,7 +672,6 @@
         if (headerP) {
           headerP.textContent = 'Record • Review • Improve • Repeat';
         }
-        // Remove hidden flag
         const flag = document.getElementById('updateMode');
         if (flag) flag.remove();
         window.location.href = 'history.html';
@@ -647,7 +679,6 @@
         trades.unshift(trade);
         saveTrades();
         form.reset();
-        // Re-set today's date
         const dateInput = document.getElementById('tradeDate');
         if (dateInput) {
           dateInput.value = new Date().toISOString().split('T')[0];
@@ -767,23 +798,22 @@
       });
     }
 
-    // ─── CLOSE TRADE ──────────────────────────────────────────
+    // ─── CLOSE TRADE (SIMPLIFIED) ──────────────────────────
     window.closeTrade = function(id) {
       const trade = trades.find(t => t.id === id);
       if (!trade) return;
+
       if (trade.status === 'Closed') {
         viewTrade(trade);
         return;
       }
+
       const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
       if (!outcome) return;
+
       const profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
       const commission = parseFloat(prompt("Commission ($)", 0)) || 0;
       const rr = parseFloat(prompt("Actual RR", 0)) || 0;
-      const management = prompt("Management Quality\nExcellent\nGood\nAverage\nPoor");
-      const psych = prompt("Psychology Notes");
-      const lesson = prompt("Lesson Learned");
-      const improvement = prompt("Improvement");
 
       trade.status = 'Closed';
       trade.closed = new Date().toISOString();
@@ -791,9 +821,6 @@
       trade.profit = profit;
       trade.commission = commission;
       trade.rr = rr;
-      trade.management = management;
-      trade.psychologyNote = psych;
-      trade.reviewNote = { lesson, improvement };
 
       saveTrades();
       refreshUI();
@@ -962,7 +989,7 @@
       }
     }
 
-    // ─── ATTACH FORM SUBMIT (directly, no DOMContentLoaded) ──
+    // ─── ATTACH FORM SUBMIT ──────────────────────────────────
     const form = document.getElementById('tradeForm');
     if (form) {
       form.removeEventListener('submit', saveTrade);
