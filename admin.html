@@ -1,1022 +1,982 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTRADES AXIS™ | Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0b0d15;
+      color: #e8edf5;
+      min-height: 100vh;
+      display: flex;
+    }
+    :root {
+      --bg-primary: #0b0d15;
+      --bg-secondary: #131724;
+      --bg-card: #1a1f2f;
+      --bg-card-hover: #222a3e;
+      --border-color: #2a3450;
+      --text-primary: #e8edf5;
+      --text-secondary: #9aa4bf;
+      --accent-blue: #4f7cff;
+      --green: #00c897;
+      --red: #ff4766;
+      --gold: #f5a623;
+      --radius: 12px;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
 
-<title>GTRADES AXIS™ | Admin Dashboard</title>
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 28px 16px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .sidebar .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .sidebar .logo img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #0f1628;
+      padding: 4px;
+    }
+    .sidebar .logo h2 {
+      font-size: 18px;
+      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sidebar .logo h2 span { -webkit-text-fill-color: var(--accent-blue); }
+    .sidebar nav { flex: 1; }
+    .sidebar nav ul { list-style: none; padding: 0; }
+    .sidebar nav ul li { margin: 2px 0; }
+    .sidebar nav ul li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      transition: 0.2s;
+      font-size: 14px;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .sidebar nav ul li a:hover {
+      background: var(--bg-card);
+      color: #fff;
+    }
+    .sidebar nav ul li.active a {
+      background: rgba(79,124,255,0.12);
+      color: var(--accent-blue);
+      border-left-color: var(--accent-blue);
+    }
+    .sidebar nav ul li a i { width: 20px; text-align: center; }
+    .sidebar .logout-btn {
+      margin-top: auto;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,71,102,0.08);
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: 0.25s;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+    }
+    .sidebar .logout-btn:hover { background: rgba(255,71,102,0.18); }
 
-<link rel="stylesheet" href="css/admin.css">
+    /* ── Main ── */
+    .admin-main {
+      flex: 1;
+      padding: 28px 36px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    /* ── Header ── */
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .admin-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .admin-header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .admin-header .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    #liveDate {
+      color: var(--text-secondary);
+      font-size: 14px;
+      padding: 6px 16px;
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: 0.25s;
+    }
+    .stat-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .stat-card .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .stat-card .stat-icon.blue { background: rgba(79,124,255,0.15); color: var(--accent-blue); }
+    .stat-card .stat-icon.gold { background: rgba(245,166,35,0.15); color: var(--gold); }
+    .stat-card .stat-icon.green { background: rgba(0,200,151,0.15); color: var(--green); }
+    .stat-card .stat-icon.purple { background: rgba(156,39,176,0.15); color: #9c27b0; }
+    .stat-card .stat-icon.red { background: rgba(255,71,102,0.15); color: var(--red); }
+    .stat-card div h2 {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .stat-card div p {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
 
+    /* ── Quick Actions ── */
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .quick-actions button {
+      padding: 10px 22px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-weight: 500;
+      font-size: 14px;
+      transition: 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-actions button:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-blue);
+    }
+    .quick-actions button i { color: var(--accent-blue); }
+
+    /* ── Dashboard Grid ── */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .dashboard-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .dashboard-card h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dashboard-card h2 i { color: var(--accent-blue); }
+    .dashboard-card.large { grid-column: 1; }
+
+    /* ── Members Table ── */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card-header p { color: var(--text-secondary); font-size: 13px; }
+    .card-header input {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      min-width: 200px;
+    }
+    .card-header input:focus { border-color: var(--accent-blue); }
+    .table-container { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 700px;
+    }
+    thead {
+      border-bottom: 2px solid var(--border-color);
+    }
+    thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-color);
+      transition: 0.2s;
+    }
+    tbody tr:hover { background: var(--bg-card-hover); }
+    tbody td {
+      padding: 10px 12px;
+      vertical-align: middle;
+    }
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-cell .avatar-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge.member { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
+    .badge.admin { background: rgba(245,166,35,0.12); color: var(--gold); }
+    .badge.premium { background: rgba(0,200,151,0.12); color: var(--green); }
+    .badge.free { background: rgba(156,39,176,0.12); color: #9c27b0; }
+    .badge.active { background: rgba(0,200,151,0.12); color: var(--green); }
+    .badge.pending { background: rgba(245,166,35,0.12); color: var(--gold); }
+    .badge.suspended { background: rgba(255,71,102,0.12); color: var(--red); }
+    .badge.paid { background: rgba(0,200,151,0.12); color: var(--green); }
+    .badge.unpaid { background: rgba(255,71,102,0.12); color: var(--red); }
+
+    .manage-btn {
+      padding: 4px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .manage-btn:hover {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+
+    /* ── Right Panel ── */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .right-panel .dashboard-card { grid-column: 1; }
+
+    .empty-card {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--text-secondary);
+    }
+    .empty-card i {
+      font-size: 2rem;
+      color: var(--border-color);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .empty-card h3 { font-size: 16px; margin-bottom: 4px; }
+    .empty-card p { font-size: 13px; }
+
+    .recent-member {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .recent-member:last-child { border-bottom: none; }
+    .recent-member .avatar-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .recent-member h4 { font-size: 14px; }
+    .recent-member p { font-size: 12px; color: var(--text-secondary); }
+
+    .overview-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+    .overview-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .overview-item span { color: var(--text-secondary); font-size: 13px; }
+    .overview-item strong { font-size: 15px; }
+
+    .activity-feed .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .activity-feed .activity-item:last-child { border-bottom: none; }
+    .activity-item .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .activity-icon.blue { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
+    .activity-icon.green { background: rgba(0,200,151,0.12); color: var(--green); }
+    .activity-icon.gold { background: rgba(245,166,35,0.12); color: var(--gold); }
+    .activity-item h4 { font-size: 14px; }
+    .activity-item p { font-size: 12px; color: var(--text-secondary); }
+
+    /* ── Resource Section ── */
+    .resource-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .resource-toolbar input,
+    .resource-toolbar select {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      flex: 1;
+      min-width: 150px;
+    }
+    .resource-toolbar input:focus,
+    .resource-toolbar select:focus { border-color: var(--accent-blue); }
+
+    #resourceForm {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    #resourceForm input,
+    #resourceForm select,
+    #resourceForm textarea {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      width: 100%;
+    }
+    #resourceForm textarea { grid-column: 1 / -1; min-height: 80px; resize: vertical; }
+    #resourceForm input:focus,
+    #resourceForm select:focus,
+    #resourceForm textarea:focus { border-color: var(--accent-blue); }
+    .file-picker {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      grid-column: 1 / -1;
+    }
+    .file-picker input[type="text"] { flex: 1; }
+    .file-picker button {
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 13px;
+      white-space: nowrap;
+      transition: 0.2s;
+    }
+    .file-picker button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
+    #resourceForm label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      grid-column: 1 / -1;
+    }
+    .upload-btn {
+      grid-column: 1 / -1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent-blue);
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.25s;
+    }
+    .upload-btn:hover { background: #3a66e0; }
+
+    /* ── Member Modal ── */
+    .member-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .member-modal.active { display: flex; }
+    .member-modal-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      max-width: 500px;
+      width: 90%;
+      padding: 30px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .member-modal-content .close-modal {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 28px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: 0.2s;
+    }
+    .member-modal-content .close-modal:hover { color: #fff; }
+    .member-modal-content h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .member-modal-content h2 i { color: var(--accent-blue); }
+    .member-profile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .member-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .member-profile h3 { font-size: 18px; }
+    .member-profile p { color: var(--text-secondary); font-size: 14px; }
+
+    .member-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-box {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .detail-box label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      display: block;
+    }
+    .detail-box span {
+      font-size: 16px;
+      font-weight: 600;
+      display: block;
+      margin-top: 2px;
+    }
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .modal-actions button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.2s;
+      flex: 1 0 auto;
+      justify-content: center;
+    }
+    .approve-btn { background: rgba(0,200,151,0.12); color: var(--green); }
+    .approve-btn:hover { background: var(--green); color: #fff; }
+    .premium-btn { background: rgba(245,166,35,0.12); color: var(--gold); }
+    .premium-btn:hover { background: var(--gold); color: #0b0d15; }
+    .admin-btn { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
+    .admin-btn:hover { background: var(--accent-blue); color: #fff; }
+    .suspend-btn { background: rgba(255,71,102,0.12); color: var(--red); }
+    .suspend-btn:hover { background: var(--red); color: #fff; }
+    .delete-btn { background: rgba(255,71,102,0.12); color: var(--red); }
+    .delete-btn:hover { background: var(--red); color: #fff; }
+
+    /* ── Footer ── */
+    .admin-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1200px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
+    @media (max-width: 992px) {
+      .sidebar { width: 200px; padding: 20px 12px; }
+      .admin-main { padding: 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .right-panel { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 12px 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        min-height: auto;
+      }
+      .sidebar .logo { margin-bottom: 0; flex: 1; }
+      .sidebar nav { flex: 1 1 100%; order: 3; margin-top: 12px; }
+      .sidebar nav ul { display: flex; flex-wrap: wrap; gap: 4px; }
+      .sidebar nav ul li a { padding: 6px 12px; font-size: 12px; border-left: none; }
+      .sidebar nav ul li.active a { border-left: none; border-bottom: 2px solid var(--accent-blue); }
+      .sidebar .logout-btn { margin-top: 0; padding: 6px 14px; font-size: 12px; }
+      .admin-main { padding: 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .right-panel { grid-template-columns: 1fr; }
+      #resourceForm { grid-template-columns: 1fr; }
+      .card-header { flex-direction: column; align-items: stretch; }
+      .card-header input { min-width: unset; }
+      .member-details { grid-template-columns: 1fr; }
+      .modal-actions { flex-direction: column; }
+      .modal-actions button { flex: 1; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .admin-header h1 { font-size: 22px; }
+      .admin-header .header-right { width: 100%; flex-direction: column; align-items: stretch; }
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- ==========================
-SIDEBAR
-========================== -->
-
+<!-- ===== SIDEBAR ===== -->
 <aside class="sidebar">
-
-<div class="logo">
-
-<img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo">
-<h2>
-<li>
-    <a href="admin-payments.html">
-        <i class="fa-solid fa-money-check-dollar"></i>
-        <span>Payments</span>
-    </a>
-</li>
-GTRADES
-
-<span>AXIS™</span>
-
-</h2>
-
-</div>
-
-<nav>
-
-<ul>
-
-<li class="active">
-
-<a href="#dashboard">
-
-<i class="fa-solid fa-chart-line"></i>
-
-Dashboard
-
-</a>
-
-</li>
-
-<li>
-
-<a href="#members">
-
-<i class="fa-solid fa-users"></i>
-
-Members
-
-</a>
-
-</li>
-
-<li>
-
-<a href="#academy">
-
-<i class="fa-solid fa-graduation-cap"></i>
-
-Academy
-
-</a>
-
-</li>
-
-<li>
-
-<li>
-
-<a href="#resources">
-
-<i class="fa-solid fa-folder-open"></i>
-
-Resources
-</a>
-
-</li>
-
-<li>
-
-<a href="#payments">
-
-<i class="fa-solid fa-credit-card"></i>
-
-Payments
-
-</a>
-
-</li>
-
-<li>
-
-<a href="#settings">
-
-<i class="fa-solid fa-gear"></i>
-
-Settings
-
-</a>
-
-</li>
-
-</ul>
-
-</nav>
-
-<button id="logoutBtn">
-
-<i class="fa-solid fa-right-from-bracket"></i>
-
-Logout
-
-</button>
-
+  <div class="logo">
+    <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" />
+    <h2>GTRADES <span>AXIS™</span></h2>
+  </div>
+  <nav>
+    <ul>
+      <li class="active"><a href="#dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="#members"><i class="fa-solid fa-users"></i> Members</a></li>
+      <li><a href="#academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
+      <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
+      <li><a href="admin-payments.html"><i class="fa-solid fa-credit-card"></i> Payments</a></li>
+      <li><a href="#settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
+    </ul>
+  </nav>
+  <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
 </aside>
 
-<!-- ==========================
-MAIN
-========================== -->
-
+<!-- ===== MAIN ===== -->
 <main class="admin-main">
 
-<header class="admin-header">
-
+  <!-- Header -->
+  <header class="admin-header">
     <div>
-
-        <h1>GTRADES-AXIS ADMIN</h1>
-
-        <p>
-            Manage Members • Academy • Resources
-        </p>
-
+      <h1>GTRADES-AXIS ADMIN</h1>
+      <p>Manage Members • Academy • Resources</p>
     </div>
-
-    <div class="admin-header-right">
-
-        <div id="liveDate"></div>
-
-        
-
+    <div class="header-right">
+      <div id="liveDate"></div>
     </div>
+  </header>
 
-</header>
-
-<!-- ==========================
-<section class="stats-grid">
-
+  <!-- Stats -->
+  <section class="stats-grid">
     <div class="stat-card">
-
-        <div class="stat-icon blue">
-
-            <i class="fa-solid fa-users"></i>
-
-        </div>
-
-        <div>
-
-            <h2 id="totalMembers">0</h2>
-
-            <p>Total Members</p>
-
-        </div>
-
+      <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+      <div><h2 id="totalMembers">0</h2><p>Total Members</p></div>
     </div>
-
     <div class="stat-card">
-
-        <div class="stat-icon gold">
-
-            <i class="fa-solid fa-crown"></i>
-
-        </div>
-
-        <div>
-
-            <h2 id="premiumMembers">0</h2>
-
-            <p>Premium Members</p>
-
-        </div>
-
+      <div class="stat-icon gold"><i class="fa-solid fa-crown"></i></div>
+      <div><h2 id="premiumMembers">0</h2><p>Premium Members</p></div>
     </div>
-
     <div class="stat-card">
-
-        <div class="stat-icon green">
-
-            <i class="fa-solid fa-folder-open"></i>
-
-        </div>
-
-        <div>
-
-            <h2 id="resourceCount">0</h2>
-
-            <p>Resources</p>
-
-        </div>
-
+      <div class="stat-icon green"><i class="fa-solid fa-folder-open"></i></div>
+      <div><h2 id="resourceCount">0</h2><p>Resources</p></div>
     </div>
-
     <div class="stat-card">
+      <div class="stat-icon purple"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="fa-solid fa-clock"></i></div>
+      <div><h2 id="pendingCount">0</h2><p>Pending</p></div>
+    </div>
+  </section>
 
-        <div class="stat-icon purple">
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <button onclick="location.href='#members'"><i class="fa-solid fa-user-plus"></i> Add Member</button>
+    <button onclick="location.href='#resources'"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
+    <button onclick="location.href='#academy'"><i class="fa-solid fa-book-medical"></i> Add Lesson</button>
+    <button onclick="location.href='admin-payments.html'"><i class="fa-solid fa-credit-card"></i> Payments</button>
+  </section>
 
-            <i class="fa-solid fa-graduation-cap"></i>
+  <!-- Dashboard Grid -->
+  <div class="dashboard-grid">
 
-        </div>
-
+    <!-- Members Table -->
+    <div class="dashboard-card large" id="members">
+      <div class="card-header">
         <div>
-
-            <h2 id="lessonCount">0</h2>
-
-            <p>Academy Lessons</p>
-
+          <h2><i class="fa-solid fa-users"></i> Members Management</h2>
+          <p>Manage all registered users.</p>
         </div>
-
-    </div>
-
-</section>
-
-<!- ==========================
-QUICK ACTIONS
-========================== -->
-
-<section class="quick-actions">
-
-<button>
-
-<i class="fa-solid fa-user-plus"></i>
-
-Add Member
-
-</button>
-
-<button>
-
-<i class="fa-solid fa-folder-plus"></i>
-
-New Resource
-
-</button>
-
-<button>
-
-<i class="fa-solid fa-book-medical"></i>
-
-Add Lesson
-
-</button>
-
-<button>
-
-<i class="fa-solid fa-credit-card"></i>
-
-Payments
-
-</button>
-
-</section>
-
-<!-- ==========================
-DASHBOARD GRID STARTS
-========================== -->
-<div class="dashboard-grid">
-
-    <!-- Quick Actions -->
-
-    <div class="dashboard-card">
-
-        <h2>
-
-            <i class="fa-solid fa-bolt"></i>
-
-            Quick Actions
-
-        </h2>
-
-        <div class="quick-grid">
-
-            <button class="quick-btn" onclick="location.href='#resources'">
-
-                <i class="fa-solid fa-folder-plus"></i>
-
-                Add Resource
-
-            </button>
-
-            <button class="quick-btn" onclick="location.href='#members'">
-
-                <i class="fa-solid fa-users"></i>
-
-                Members
-
-            </button>
-
-            <button class="quick-btn" onclick="location.href='#academy'">
-
-                <i class="fa-solid fa-graduation-cap"></i>
-
-                Academy
-
-            </button>
-
-            <button class="quick-btn">
-
-                <i class="fa-solid fa-chart-line"></i>
-
-                Analytics
-
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- Activity Feed -->
-
-    <div class="dashboard-card">
-
-        <h2>
-
-            <i class="fa-solid fa-clock-rotate-left"></i>
-
-            Recent Activity
-
-        </h2>
-
-        <div class="activity-feed">
-
-            <div class="activity-item">
-
-                <div class="activity-icon blue">
-
-                    <i class="fa-solid fa-folder-plus"></i>
-
-                </div>
-
-                <div>
-
-                    <h4>System Ready</h4>
-
-                    <p>Waiting for activity...</p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-<section class="dashboard-grid">
-    <!-- ==========================
-MEMBERS MANAGEMENT
-========================== -->
-
-<div class="dashboard-card large" id="members">
-
-    <div class="card-header">
-
-        <div>
-
-            <h2>
-
-                <i class="fa-solid fa-users"></i>
-
-                Members Management
-
-            </h2>
-
-            <p>
-
-                Manage all registered users.
-
-            </p>
-
-        </div>
-
-        <input
-            type="text"
-            id="memberSearch"
-            placeholder="🔍 Search member...">
-
-    </div>
-
-    <div class="table-container">
-
+        <input type="text" id="memberSearch" placeholder="🔍 Search member..." />
+      </div>
+      <div class="table-container">
         <table class="members-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>User</th>
-
-                    <th>Membership</th>
-
-                    <th>Status</th>
-
-                    <th>Payment</th>
-
-                    <th>Joined</th>
-
-                    <th></th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="membersTable">
-
-            </tbody>
-
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Membership</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Joined</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="membersTable"></tbody>
         </table>
-
+      </div>
     </div>
 
-</div>
-
-<!-- ==========================
-RIGHT PANEL
-========================== -->
-
-<div class="right-panel">
-
-<!-- Recent Members -->
-
-<div class="dashboard-card">
-
-<h2>
-
-<i class="fa-solid fa-user-clock"></i>
-
-Recent Members
-
-</h2>
-
-<div id="recentMembers">
-
-<div class="empty-card">
-
-No members yet.
-
-</div>
-
-</div>
-
-</div>
-
-<!-- Latest Resources (sidebar) – renamed to avoid duplicate ID -->
-
-<div class="dashboard-card">
-
-<h2>
-
-<i class="fa-solid fa-folder-open"></i>
-
-Latest Resources
-
-</h2>
-
-<div id="latestResourcesSidebar">   <!-- ✅ Renamed from latestResources -->
-
-<div class="empty-card">
-
-<i class="fa-solid fa-folder-open"></i>
-
-<h3>No Resources Yet</h3>
-
-<p>Publish your first resource to make it available to students.</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- Quick Statistics -->
-
-<div class="dashboard-card">
-
-<h2>
-
-<i class="fa-solid fa-chart-column"></i>
-
-Platform Overview
-
-</h2>
-
-<div class="overview-list">
-
-<div class="overview-item">
-
-<span>
-
-Premium Members
-
-</span>
-
-<strong id="premiumOverview">
-
-0
-
-</strong>
-
-</div>
-
-<div class="overview-item">
-
-<span>
-
-Pending Approval
-
-</span>
-
-<strong id="pendingOverview">
-
-0
-
-</strong>
-
-</div>
-
-<div class="overview-item">
-
-<span>
-
-Resources
-
-</span>
-
-<strong id="resourceOverview">
-
-0
-
-</strong>
-
-</div>
-
-<div class="overview-item">
-
-<span>
-
-Lessons
-
-</span>
-
-<strong id="lessonOverview">
-
-0
-
-</strong>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- Recent Activity -->
-
-<div class="dashboard-card">
-
-<h2>
-
-<i class="fa-solid fa-bolt"></i>
-
-Recent Activity
-
-</h2>
-
-<div class="activity-feed">
-
-<div class="activity-item">
-
-<div class="activity-icon blue">
-
-<i class="fa-solid fa-user-plus"></i>
-
-</div>
-
-<div>
-
-<h4>
-
-New member registrations
-
-</h4>
-
-<p>
-
-Live updates appear here.
-
-</p>
-
-</div>
-
-</div>
-
-<div class="activity-item">
-
-<div class="activity-icon green">
-
-<i class="fa-solid fa-folder-plus"></i>
-
-</div>
-
-<div>
-
-<h4>
-
-Latest resource uploads
-
-</h4>
-
-<p>
-
-Recent uploads appear here.
-
-</p>
-
-</div>
-
-</div>
-
-<div class="activity-item">
-
-<div class="activity-icon gold">
-
-<i class="fa-solid fa-graduation-cap"></i>
-
-</div>
-
-<div>
-
-<h4>
-
-Academy updates
-
-</h4>
-
-<p>
-
-Lesson updates appear here.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-RESOURCE MANAGEMENT
-========================== -->
-
-<section class="dashboard-card" id="resources">
-
-<div class="card-header">
-
-<div>
-
-<h2>
-
-<i class="fa-solid fa-folder-open"></i>
-
-Resource Manager
-
-</h2>
-
-<p>
-
-Manage all premium resources.
-
-</p>
-
-</div>
-
-</div>
-
-<div class="resource-toolbar">
-
-<input
-type="text"
-id="resourceSearch"
-placeholder="🔍 Search Resources">
-
-<select id="resourceFilter">
-
-<option value="All">All</option>
-
-<option value="PDF">PDF</option>
-
-<option value="Indicator">Indicator</option>
-
-<option value="Journal">Journal</option>
-
-<option value="Strategy">Strategy</option>
-
-<option value="Video">Video</option>
-
-</select>
-
-</div>
-
-<!-- ✅ Removed duplicate latestResources – this section now uses the main one -->
-
-<!-- ✅ Fixed the extra closing div -->
-<form id="resourceForm">
-
-    <input
-        type="text"
-        id="resourceTitle"
-        placeholder="Resource Title"
-        required>
-
-    <select id="resourceCategory" required>
-
+    <!-- Right Panel -->
+    <div class="right-panel">
+
+      <!-- Recent Members -->
+      <div class="dashboard-card">
+        <h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2>
+        <div id="recentMembers"><div class="empty-card">No members yet.</div></div>
+      </div>
+
+      <!-- Latest Resources -->
+      <div class="dashboard-card">
+        <h2><i class="fa-solid fa-folder-open"></i> Latest Resources</h2>
+        <div id="latestResourcesSidebar">
+          <div class="empty-card">
+            <i class="fa-solid fa-folder-open"></i>
+            <h3>No Resources Yet</h3>
+            <p>Publish your first resource.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Overview -->
+      <div class="dashboard-card">
+        <h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2>
+        <div class="overview-list">
+          <div class="overview-item"><span>Premium Members</span><strong id="premiumOverview">0</strong></div>
+          <div class="overview-item"><span>Pending Approval</span><strong id="pendingOverview">0</strong></div>
+          <div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div>
+          <div class="overview-item"><span>Lessons</span><strong id="lessonOverview">0</strong></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="dashboard-card">
+        <h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2>
+        <div class="activity-feed" id="activityFeed">
+          <div class="activity-item">
+            <div class="activity-icon blue"><i class="fa-solid fa-user-plus"></i></div>
+            <div><h4>New member registrations</h4><p>Live updates appear here.</p></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon green"><i class="fa-solid fa-folder-plus"></i></div>
+            <div><h4>Latest resource uploads</h4><p>Recent uploads appear here.</p></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon gold"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div><h4>Academy updates</h4><p>Lesson updates appear here.</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-panel -->
+  </div><!-- /dashboard-grid -->
+
+  <!-- Resources Section -->
+  <section class="dashboard-card" id="resources">
+    <div class="card-header">
+      <div>
+        <h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2>
+        <p>Manage all premium resources.</p>
+      </div>
+    </div>
+    <div class="resource-toolbar">
+      <input type="text" id="resourceSearch" placeholder="🔍 Search Resources" />
+      <select id="resourceFilter">
+        <option value="All">All</option>
         <option value="PDF">PDF</option>
         <option value="Indicator">Indicator</option>
         <option value="Journal">Journal</option>
         <option value="Strategy">Strategy</option>
         <option value="Video">Video</option>
-
-    </select>
-
-    <textarea
-        id="resourceDescription"
-        placeholder="Description"></textarea>
-
-    <div class="file-picker">
-
-        <input type="file" id="resourceFilePicker" hidden>
-
-        <input
-            type="text"
-            id="resourceFile"
-            readonly
-            placeholder="Choose a file">
-
-        <button
-            type="button"
-            id="chooseFileBtn">
-
-            📁 Choose File
-
-        </button>
-
+      </select>
     </div>
-
-    <label>
-
-        <input
-            type="checkbox"
-            id="premiumOnly">
-
-        Premium Members Only
-
-    </label>
-
-    <button
-        type="submit"
-        class="upload-btn">
-
-        Save Resource
-
-    </button>
-
-</form>
-
-</section>
-<!-- ==========================
-MEMBER MANAGEMENT MODAL
-========================== -->
-
-<div class="member-modal" id="memberModal">
-
-    <div class="member-modal-content">
-
-        <span class="close-modal" id="closeModal">&times;</span>
-
-        <h2>
-
-            <i class="fa-solid fa-user"></i>
-
-            Member Details
-
-        </h2>
-
-        <div class="member-profile">
-
-            <div class="member-avatar" id="memberAvatar">
-
-                U
-
-            </div>
-
-            <div>
-
-                <h3 id="modalName">
-
-                    Member Name
-
-                </h3>
-
-                <p id="modalEmail">
-
-                    member@email.com
-
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="member-details">
-
-            <div class="detail-box">
-
-                <label>
-
-                    Membership
-
-                </label>
-
-                <span id="modalRole">
-
-                    Free
-
-                </span>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-
-                    Status
-
-                </label>
-
-                <span id="modalStatus">
-
-                    Pending
-
-                </span>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-
-                    Payment
-
-                </label>
-
-                <span id="modalPayment">
-
-                    Unpaid
-
-                </span>
-
-            </div>
-
-            <div class="detail-box">
-
-                <label>
-
-                    Joined
-
-                </label>
-
-                <span id="modalJoined">
-
-                    --
-
-                </span>
-
-            </div>
-
-        </div>
-
-        <div class="modal-actions">
-
-            <button
-                id="approveBtn"
-                class="approve-btn">
-
-                <i class="fa-solid fa-circle-check"></i>
-
-                Approve
-
-            </button>
-
-            <button
-                id="premiumBtn"
-                class="premium-btn">
-
-                <i class="fa-solid fa-crown"></i>
-
-                Premium
-
-            </button>
-
-            <button
-                id="adminBtn"
-                class="admin-btn">
-
-                <i class="fa-solid fa-user-shield"></i>
-
-                Admin
-
-            </button>
-
-            <button
-                id="suspendBtn"
-                class="suspend-btn">
-
-                <i class="fa-solid fa-ban"></i>
-
-                Suspend
-
-            </button>
-
-            <button
-                id="deleteBtn"
-                class="delete-btn">
-
-                <i class="fa-solid fa-trash"></i>
-
-                Delete
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ==========================
-FOOTER
-========================== -->
-
-<footer class="admin-footer">
-
-    <p>
-
-        © 2026 GTRADES AXIS™ |
-
-        Professional Trading Platform
-
-    </p>
-
-</footer>
-
+    <form id="resourceForm">
+      <input type="text" id="resourceTitle" placeholder="Resource Title" required />
+      <select id="resourceCategory" required>
+        <option value="PDF">PDF</option>
+        <option value="Indicator">Indicator</option>
+        <option value="Journal">Journal</option>
+        <option value="Strategy">Strategy</option>
+        <option value="Video">Video</option>
+      </select>
+      <textarea id="resourceDescription" placeholder="Description"></textarea>
+      <div class="file-picker">
+        <input type="file" id="resourceFilePicker" hidden />
+        <input type="text" id="resourceFile" readonly placeholder="Choose a file" />
+        <button type="button" id="chooseFileBtn">📁 Choose File</button>
+      </div>
+      <label><input type="checkbox" id="premiumOnly" /> Premium Members Only</label>
+      <button type="submit" class="upload-btn">Save Resource</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer class="admin-footer">
+    <p>© 2026 GTRADES AXIS™ | Professional Trading Platform</p>
+  </footer>
 </main>
 
-<!-- ==========================
-SCRIPTS – FIXED ORDER
-========================== -->
+<!-- ===== MEMBER MODAL ===== -->
+<div class="member-modal" id="memberModal">
+  <div class="member-modal-content">
+    <button class="close-modal" id="closeModal">&times;</button>
+    <h2><i class="fa-solid fa-user"></i> Member Details</h2>
+    <div class="member-profile">
+      <div class="member-avatar" id="memberAvatar">U</div>
+      <div>
+        <h3 id="modalName">Member Name</h3>
+        <p id="modalEmail">member@email.com</p>
+      </div>
+    </div>
+    <div class="member-details">
+      <div class="detail-box"><label>Membership</label><span id="modalRole">Free</span></div>
+      <div class="detail-box"><label>Status</label><span id="modalStatus">Pending</span></div>
+      <div class="detail-box"><label>Payment</label><span id="modalPayment">Unpaid</span></div>
+      <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
+    </div>
+    <div class="modal-actions">
+      <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-circle-check"></i> Approve</button>
+      <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
+      <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-user-shield"></i> Admin</button>
+      <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
+      <button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
 
-<!-- 1. Auth guard – protects page and ensures admin role -->
-<script type="module" src="js/auth.js"></script>
-
-<!-- 2. Admin logic (members, resources) – these will run after auth -->
-<script type="module" src="js/admin/admin-members.js"></script>
-<script type="module" src="js/admin/resources.js"></script>
-
-<!-- 3. Logout handler – ensures logout button works even if auth.js doesn't catch it -->
-<script type="module">
-    import { auth } from "./js/firebase.js";
-    import { signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-            await signOut(auth);
-            window.location.href = "login.html";
-        });
-    }
+<!-- ===== SCRIPTS ===== -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+  }
+}
 </script>
 
-<!-- 4. ⚠️ Comment out admin.js if it reloads members/recent resources (it conflicts) -->
-<!-- <script type="module" src="js/admin.js"></script> -->
-<!-- If you need admin.js for other dashboard stats, uncomment it after checking it doesn't override members.js -->
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/admin/admin-members.js"></script>
+<script type="module" src="js/admin/resources.js"></script>
+<script type="module">
+  import { auth } from "./js/firebase.js";
+  import { signOut } from "firebase/auth";
+
+  // Logout
+  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+    if (confirm("Logout?")) {
+      await signOut(auth);
+      window.location.href = "login.html";
+    }
+  });
+
+  // Live Date
+  function updateClock() {
+    const el = document.getElementById("liveDate");
+    if (el) {
+      el.textContent = new Date().toLocaleString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  console.log("✅ Admin dashboard ready.");
+</script>
 
 </body>
-
 </html>
