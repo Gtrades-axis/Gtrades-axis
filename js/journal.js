@@ -1,13 +1,136 @@
 /* ==========================================================
-   GTRADES AXIS™ – TRADING JOURNAL (FULL EDIT SUPPORT)
-   ========================================================= */
+   GTRADES AXIS™
+   JOURNAL PREMIUM GUARD
+   ========================================================== */
 
-const STORAGE_KEY = "trades";
-let trades = [];
-let equityChartInstance = null;
-let monthlyChartInstance = null;
-let editingTrade = null;
+import { auth, db } from "./firebase.js";
 
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+let currentUser = null;
+
+async function checkJournalAccess() {
+
+    return new Promise((resolve) => {
+
+        onAuthStateChanged(auth, async (user) => {
+
+            if (!user) {
+
+                window.location.href = "login.html";
+
+                return;
+
+            }
+
+            currentUser = user;
+
+            try {
+
+                const snap = await getDoc(doc(db, "users", user.uid));
+
+                if (!snap.exists()) {
+
+                    alert("User account not found.");
+
+                    window.location.href = "dashboard.html";
+
+                    return;
+
+                }
+
+                const data = snap.data();
+
+                const role = data.role || "member";
+                const membership = data.membership || "free";
+
+                console.log("Journal Access Check");
+                console.log(data);
+
+                const allowed =
+                    role === "admin" ||
+                    membership === "premium";
+
+                if (!allowed) {
+
+                    document.body.innerHTML = `
+
+                    <div style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    height:100vh;
+                    background:#0b1120;
+                    color:white;
+                    font-family:Arial;
+                    text-align:center;
+                    padding:40px;
+                    ">
+
+                        <div>
+
+                            <i class="fa-solid fa-lock"
+                               style="
+                               font-size:70px;
+                               color:#fbbf24;
+                               margin-bottom:20px;
+                               display:block;
+                               ">
+                            </i>
+
+                            <h1>Premium Membership Required</h1>
+
+                            <p style="
+                            color:#94a3b8;
+                            margin:20px 0;
+                            ">
+                            The Trading Journal is available only to Premium Members.
+                            </p>
+
+                            <a href="dashboard.html"
+                               style="
+                               display:inline-block;
+                               padding:14px 28px;
+                               background:#1d9bf0;
+                               color:white;
+                               border-radius:8px;
+                               text-decoration:none;
+                               ">
+                               Return to Dashboard
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    `;
+
+                    throw new Error("Journal blocked");
+
+                }
+
+                resolve(true);
+
+            }
+
+            catch(err){
+
+                console.error(err);
+
+            }
+
+        });
+
+    });
+
+}
 // ─── LOAD & SAVE ────────────────────────────────────────────
 function loadTrades() {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -470,7 +593,37 @@ function populateForm(trade) {
 
 // ─── INIT ──────────────────────────────────────────────────────
 loadTrades();
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", async () => {
+
+    try{
+
+        await checkJournalAccess();
+
+        loadTrades();
+
+        const form=document.getElementById("tradeForm");
+
+        if(form){
+
+            form.removeEventListener("submit",saveTrade);
+
+            form.addEventListener("submit",saveTrade);
+
+        }
+
+        refreshUI();
+
+        console.log("Journal Ready");
+
+    }
+
+    catch(e){
+
+        console.log("Journal Locked");
+
+    }
+
+});
 
     const form = document.getElementById('tradeForm');
 
