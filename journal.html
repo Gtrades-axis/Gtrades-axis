@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── Full CSS (unchanged) ── */
+    /* ── Full CSS ── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
     :root {
@@ -525,11 +525,12 @@
 
     // ─── AUTO RR CALCULATION ──────────────────────────────────
     function computeRR() {
-      const direction = document.getElementById('direction').value;
-      const entry = parseFloat(document.getElementById('entry').value);
-      const stopLoss = parseFloat(document.getElementById('stopLoss').value);
-      const takeProfit = parseFloat(document.getElementById('takeProfit').value);
+      const direction = document.getElementById('direction')?.value;
+      const entry = parseFloat(document.getElementById('entry')?.value);
+      const stopLoss = parseFloat(document.getElementById('stopLoss')?.value);
+      const takeProfit = parseFloat(document.getElementById('takeProfit')?.value);
       const rrInput = document.getElementById('rr');
+      if (!rrInput) return;
 
       if (!isNaN(entry) && !isNaN(stopLoss) && !isNaN(takeProfit) && stopLoss !== entry && takeProfit !== entry) {
         let rr;
@@ -549,7 +550,8 @@
     }
 
     // Attach auto-RR listeners
-    ['entry', 'stopLoss', 'takeProfit', 'direction'].forEach(id => {
+    const rrFields = ['entry', 'stopLoss', 'takeProfit', 'direction'];
+    rrFields.forEach(id => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('input', computeRR);
@@ -557,7 +559,7 @@
       }
     });
     // Run once to set initial value (if any fields have values)
-    computeRR();
+    setTimeout(computeRR, 10); // wait for DOM
 
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
@@ -798,7 +800,7 @@
       });
     }
 
-    // ─── CLOSE TRADE (SIMPLIFIED) ──────────────────────────
+    // ─── CLOSE TRADE – SIMPLIFIED ──────────────────────────
     window.closeTrade = function(id) {
       const trade = trades.find(t => t.id === id);
       if (!trade) return;
@@ -808,19 +810,20 @@
         return;
       }
 
+      // Only ask for: Outcome, Profit/Loss, Commission (RR is unchanged)
       const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
       if (!outcome) return;
 
       const profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
       const commission = parseFloat(prompt("Commission ($)", 0)) || 0;
-      const rr = parseFloat(prompt("Actual RR", 0)) || 0;
 
+      // Update trade – RR stays as planned (computed from entry/SL/TP)
       trade.status = 'Closed';
       trade.closed = new Date().toISOString();
       trade.result = outcome;
       trade.profit = profit;
       trade.commission = commission;
-      trade.rr = rr;
+      // Do NOT change trade.rr – it stays as the planned RR
 
       saveTrades();
       refreshUI();
