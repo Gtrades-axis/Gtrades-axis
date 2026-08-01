@@ -206,11 +206,85 @@ onAuthStateChanged(auth, async (user) => {
   console.log("✅ User logged in:", user.uid);
 
   try {
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const role = userDoc.exists() ? userDoc.data().role : "member";
-    console.log("👤 User role:", role);
+ const userDoc = await getDoc(doc(db, "users", user.uid));
 
-    if (role !== "premium" && role !== "admin") {
+if (!userDoc.exists()) {
+    window.location.href = "login.html";
+    return;
+}
+
+const userData = userDoc.data();
+
+console.log("Current User:", userData);
+
+const isPremium =
+    userData.membership === "premium";
+
+const isAdmin =
+    userData.role === "admin";
+
+console.log("Premium:", isPremium);
+console.log("Admin:", isAdmin);
+
+if (!isPremium && !isAdmin) {
+
+    modulesGrid.innerHTML = `
+        <div style="
+            grid-column:1/-1;
+            text-align:center;
+            padding:80px 20px;
+        ">
+
+            <i class="fa-solid fa-lock"
+               style="
+                    font-size:70px;
+                    color:#ffb300;
+                    margin-bottom:20px;
+                    display:block;
+               "></i>
+
+            <h2 style="margin-bottom:15px;">
+                Premium Access Required
+            </h2>
+
+            <p style="
+                color:#94a3b8;
+                margin-bottom:35px;
+                font-size:17px;
+            ">
+                Upgrade to Premium to unlock all Academy modules.
+            </p>
+
+            <a href="payment.html"
+               style="
+                    display:inline-block;
+                    padding:14px 35px;
+                    background:#1d9bf0;
+                    color:white;
+                    border-radius:8px;
+                    text-decoration:none;
+                    margin-right:15px;
+               ">
+                Upgrade Now
+            </a>
+
+            <a href="dashboard.html"
+               style="
+                    display:inline-block;
+                    padding:14px 35px;
+                    background:#202938;
+                    color:white;
+                    border-radius:8px;
+                    text-decoration:none;
+               ">
+                Dashboard
+            </a>
+
+        </div>
+    `;
+
+    return;
+}
       modulesGrid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
           <i class="fa-solid fa-lock" style="font-size:3rem;color:#ffb300;display:block;margin-bottom:16px;"></i>
