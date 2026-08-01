@@ -155,9 +155,35 @@
       background: #2a3450;
       color: #fff;
     }
+
+    /* ── Loading state: hide everything while checking auth ── */
+    #app.loading #lockOverlay,
+    #app.loading .locked-content {
+      display: none !important;
+    }
+    #app.loading {
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #app.loading::after {
+      content: "";
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #4f7cff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Show/hide content and lock ── */
     .locked-content { display: block; }
-    .locked .locked-content { display: none; }
     .locked #lockOverlay { display: block; }
+    .locked .locked-content { display: none; }
 
     /* ── Academy specific styles ── */
     .topbar {
@@ -522,7 +548,7 @@
 </div>
 
 <!-- ===========================
-     SCRIPTS
+     SCRIPTS (all in one place)
 =========================== -->
 <script type="importmap">
 {
@@ -536,19 +562,24 @@
 
 <script type="module">
   // ─── IMPORTS ─────────────────────────────────────────────
-  import { initPremiumLock } from './js/premium-lock.js';
-  import { logoutUser } from './js/auth.js';
-  import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-  import { auth, db } from './js/firebase.js';
+  import { auth, db } from "./js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { logoutUser } from "./js/auth.js";
 
-  // ─── LOGOUT ──────────────────────────────────────────────────
-  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-    if (confirm('Logout?')) {
-      await logoutUser();
-    }
-  });
+  // ─── DOM refs ─────────────────────────────────────────────
+  const app = document.getElementById('app');
+  const modulesGrid = document.getElementById('modulesGrid');
+  const progressPercent = document.getElementById('progressPercent');
+  const progressText = document.getElementById('progressText');
+  const continueBtn = document.getElementById('continueBtn');
+  const lessonCompleted = document.getElementById('lessonCompleted');
+  const quizPassed = document.getElementById('quizPassed');
+  const certificateCount = document.getElementById('certificateCount');
+  const learningHours = document.getElementById('learningHours');
+  const activityLog = document.getElementById('activityLog');
 
-  // ─── FULL FALLBACK MODULES (all 7 modules) ──────────────
+  // ─── FULL FALLBACK MODULES ──────────────────────────────
   const FALLBACK_MODULES = [
     {
       id: "mod_1",
@@ -563,7 +594,14 @@
         { id: "lsn_1_4", title: "Setting Up Your Trading Environment", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_1_5", title: "Recommended Tools", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* full quiz data omitted for brevity, but you can copy from your original file */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
+          { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 },
+          { question: "What is the primary rule of trading?", options: ["Protect your capital", "Make maximum profit", "Trade every day", "Use high leverage"], correct: 0 }
+        ]
+      }
     },
     {
       id: "mod_2",
@@ -582,7 +620,14 @@
         { id: "lsn_2_8", title: "BOS & CHoCH", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_2_9", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* ... */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
+          { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 },
+          { question: "What is the HTF bias used for?", options: ["Determining overall trend direction", "Entry timing", "Risk management", "Setting stop loss"], correct: 0 }
+        ]
+      }
     },
     {
       id: "mod_3",
@@ -600,7 +645,14 @@
         { id: "lsn_3_7", title: "Liquidity Mapping", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_3_8", title: "Practical Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* ... */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
+          { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 },
+          { question: "Engineered liquidity is:", options: ["Created by institutions to trap traders", "Natural market movement", "Always bullish", "Always bearish"], correct: 0 }
+        ]
+      }
     },
     {
       id: "mod_4",
@@ -617,7 +669,14 @@
         { id: "lsn_4_6", title: "Combining Structure with S&D", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_4_7", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* ... */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
+          { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 },
+          { question: "Demand zones are typically found:", options: ["Near support levels", "Near resistance levels", "In the middle of a range", "Above price"], correct: 0 }
+        ]
+      }
     },
     {
       id: "mod_5",
@@ -635,7 +694,13 @@
         { id: "lsn_5_7", title: "Trade Management", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_5_8", title: "Exit Strategy", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* ... */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What does LC-1 stand for?", options: ["Liquidity Capture 1", "Low Confidence 1", "Long Call 1", "Limit Close 1"], correct: 0 },
+          { question: "What is the main purpose of a confirmation checklist?", options: ["Avoid impulsive entries", "Increase position size", "Trade more frequently", "Use higher leverage"], correct: 0 }
+        ]
+      }
     },
     {
       id: "mod_6",
@@ -651,7 +716,13 @@
         { id: "lsn_6_5", title: "Prop Firm Rules", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_6_6", title: "Managing Drawdown", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* ... */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is a recommended risk per trade for beginners?", options: ["1-2%", "5-10%", "20%", "50%"], correct: 0 },
+          { question: "What is drawdown?", options: ["Peak-to-trough decline in equity", "Maximum profit", "Average win", "Total trades"], correct: 0 }
+        ]
+      }
     },
     {
       id: "mod_7",
@@ -667,167 +738,222 @@
         { id: "lsn_7_5", title: "Building Consistency", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
         { id: "lsn_7_6", title: "Common Trading Mistakes", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
       ],
-      quiz: { passingScore: 70, questions: [ /* ... */ ] }
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is the most common mistake traders make?", options: ["Overtrading", "Using stop losses", "Following a plan", "Keeping a journal"], correct: 0 },
+          { question: "How can you improve trading consistency?", options: ["Stick to your trading plan", "Trade every signal", "Increase risk", "Ignore the market"], correct: 0 }
+        ]
+      }
     }
   ];
 
-  // ─── ACADEMY INIT (runs only when unlocked) ──────────────
-  function initAcademy(userData) {
-    console.log('✅ Academy unlocked – loading modules...');
+  // ─── STATE ──────────────────────────────────────────────────
+  let progress = null;
+  let modules = [];
 
-    const modulesGrid = document.getElementById("modulesGrid");
-    const progressPercent = document.getElementById("progressPercent");
-    const progressText = document.getElementById("progressText");
-    const continueBtn = document.getElementById("continueBtn");
-    const lessonCompleted = document.getElementById("lessonCompleted");
-    const quizPassed = document.getElementById("quizPassed");
-    const certificateCount = document.getElementById("certificateCount");
-    const learningHours = document.getElementById("learningHours");
-    const activityLog = document.getElementById("activityLog");
-
-    let progress = null;
-    let modules = [];
-
-    // ─── Load progress ──────────────────────────────────────
-    async function loadProgress() {
-      try {
-        const docRef = doc(db, "user_progress", auth.currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        progress = docSnap.exists() ? docSnap.data() : { modules: {} };
-        console.log("📊 Progress loaded:", progress);
-      } catch (e) {
-        console.error("Progress load error:", e);
-        progress = { modules: {} };
-      }
+  // ─── LOAD PROGRESS ──────────────────────────────────────────
+  async function loadProgress(uid) {
+    try {
+      const docRef = doc(db, "user_progress", uid);
+      const docSnap = await getDoc(docRef);
+      progress = docSnap.exists() ? docSnap.data() : { modules: {} };
+      console.log("📊 Progress loaded:", progress);
+    } catch (e) {
+      console.error("Progress load error:", e);
+      progress = { modules: {} };
     }
+  }
 
-    // ─── Load modules (Firestore or fallback) ──────────────
-    async function loadModules() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "academy_modules"));
-        if (querySnapshot.empty) {
-          console.warn("⚠️ No modules in Firestore. Using fallback data.");
-          modules = FALLBACK_MODULES;
-        } else {
-          modules = [];
-          querySnapshot.forEach((doc) => {
-            modules.push({ id: doc.id, ...doc.data() });
-          });
-          console.log(`📦 Loaded ${modules.length} modules from Firestore.`);
-        }
-        modules.sort((a, b) => (a.order || 0) - (b.order || 0));
-      } catch (e) {
-        console.error("Error loading modules:", e);
+  // ─── LOAD MODULES ──────────────────────────────────────────
+  async function loadModules() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "academy_modules"));
+      if (querySnapshot.empty) {
+        console.warn("⚠️ No modules in Firestore. Using fallback data.");
         modules = FALLBACK_MODULES;
-        console.log("🔄 Using fallback modules due to error.");
+      } else {
+        modules = [];
+        querySnapshot.forEach((doc) => {
+          modules.push({ id: doc.id, ...doc.data() });
+        });
+        console.log(`📦 Loaded ${modules.length} modules from Firestore.`);
       }
+      modules.sort((a, b) => (a.order || 0) - (b.order || 0));
+    } catch (e) {
+      console.error("Error loading modules:", e);
+      modules = FALLBACK_MODULES;
+      console.log("🔄 Using fallback modules due to error.");
+    }
+  }
+
+  // ─── RENDER DASHBOARD ──────────────────────────────────────
+  function renderDashboard() {
+    if (!modules.length) {
+      modulesGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">No modules available. Check back soon!</div>`;
+      return;
     }
 
-    // ─── Render Dashboard ──────────────────────────────────
-    function renderDashboard() {
-      if (!modules.length) {
-        modulesGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">No modules available. Check back soon!</div>`;
+    let totalLessons = 0, completedLessons = 0, firstIncomplete = null;
+    modules.forEach((mod) => {
+      const modProgress = progress.modules[mod.id] || {};
+      const completed = modProgress.completedLessons || [];
+      const total = mod.lessons ? mod.lessons.length : 0;
+      totalLessons += total;
+      completedLessons += completed.length;
+      if (completed.length < total && !firstIncomplete) {
+        firstIncomplete = {
+          moduleId: mod.id,
+          lessonId: mod.lessons[completed.length]?.id,
+        };
+      }
+    });
+
+    const pct = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    progressPercent.textContent = pct + "%";
+    progressText.textContent = `${completedLessons} of ${totalLessons} Lessons Completed`;
+
+    if (firstIncomplete) {
+      const mod = modules.find(m => m.id === firstIncomplete.moduleId);
+      const lesson = mod?.lessons.find(l => l.id === firstIncomplete.lessonId);
+      continueBtn.textContent = `Continue ${mod?.title || ''} – ${lesson?.title || ''}`;
+      continueBtn.onclick = () => window.location.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
+    } else {
+      continueBtn.textContent = "🎉 All modules complete! View Certificate";
+      continueBtn.onclick = () => window.location.href = "certificate.html?final=true";
+    }
+
+    let lessonsDone = 0, quizzesPassed = 0, certificates = 0;
+    modules.forEach(mod => {
+      const modProgress = progress.modules[mod.id] || {};
+      const completed = modProgress.completedLessons || [];
+      const total = mod.lessons ? mod.lessons.length : 0;
+      lessonsDone += completed.length;
+      if (modProgress.quizPassed) quizzesPassed++;
+      if (completed.length === total && (mod.hasQuiz ? modProgress.quizPassed : true)) certificates++;
+    });
+    lessonCompleted.textContent = lessonsDone;
+    quizPassed.textContent = quizzesPassed;
+    certificateCount.textContent = certificates;
+    learningHours.textContent = "0h";
+
+    const activities = [];
+    if (lessonsDone > 0) activities.push(`📘 Completed ${lessonsDone} lessons`);
+    if (quizzesPassed > 0) activities.push(`✅ Passed ${quizzesPassed} quizzes`);
+    if (certificates > 0) activities.push(`🏆 Earned ${certificates} certificates`);
+    if (activities.length === 0) activities.push("No activity yet. Start learning!");
+    activityLog.innerHTML = activities.map(a => `<div class="activity-item">${a}</div>`).join('');
+
+    let html = "";
+    modules.forEach((mod, idx) => {
+      const modProgress = progress.modules[mod.id] || {};
+      const completed = modProgress.completedLessons || [];
+      const total = mod.lessons ? mod.lessons.length : 0;
+      const pctMod = total ? Math.round((completed.length / total) * 100) : 0;
+
+      let unlocked = (idx === 0) ? true : (() => {
+        const prevMod = modules[idx-1];
+        const prevProgress = progress.modules[prevMod.id] || {};
+        const prevCompleted = prevProgress.completedLessons || [];
+        const prevTotal = prevMod.lessons ? prevMod.lessons.length : 0;
+        return prevCompleted.length === prevTotal && (prevMod.hasQuiz ? prevProgress.quizPassed : true);
+      })();
+
+      const isCompleted = unlocked && completed.length === total && (mod.hasQuiz ? modProgress.quizPassed : true);
+      const statusLabel = isCompleted ? "✅ Completed" : unlocked ? "▶ In Progress" : "🔒 Locked";
+      const statusClass = isCompleted ? "completed" : unlocked ? "active" : "locked";
+
+      html += `
+        <div class="module-card">
+          <div class="module-header">
+            <h3>${mod.title}</h3>
+            <span class="status ${statusClass}">${statusLabel}</span>
+          </div>
+          <p>${mod.description || ''}</p>
+          <div class="module-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width:${pctMod}%;"></div></div>
+            <span>${completed.length}/${total} lessons</span>
+          </div>
+          <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">
+            ${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}
+          </a>
+          ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Take Quiz</a>` : ''}
+        </div>
+      `;
+    });
+    modulesGrid.innerHTML = html;
+  }
+
+  // ─── AUTH + LOCK LOGIC ─────────────────────────────────────
+  // Start with loading state
+  app.classList.add('loading');
+
+  onAuthStateChanged(auth, async (user) => {
+    // If no user, lock the page (show overlay)
+    if (!user) {
+      app.classList.remove('loading');
+      app.classList.add('locked');
+      return;
+    }
+
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+        app.classList.remove('loading');
+        app.classList.add('locked');
         return;
       }
 
-      let totalLessons = 0, completedLessons = 0, firstIncomplete = null;
-      modules.forEach((mod) => {
-        const modProgress = progress.modules[mod.id] || {};
-        const completed = modProgress.completedLessons || [];
-        const total = mod.lessons ? mod.lessons.length : 0;
-        totalLessons += total;
-        completedLessons += completed.length;
-        if (completed.length < total && !firstIncomplete) {
-          firstIncomplete = {
-            moduleId: mod.id,
-            lessonId: mod.lessons[completed.length]?.id,
-          };
-        }
-      });
+      const data = userDoc.data();
+      const role = data.role || 'member';
+      const membership = data.membership || 'free';
+      const hasPremium = (role === 'admin' || membership === 'premium');
 
-      const pct = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
-      progressPercent.textContent = pct + "%";
-      progressText.textContent = `${completedLessons} of ${totalLessons} Lessons Completed`;
+      // Remove loading state
+      app.classList.remove('loading');
 
-      if (firstIncomplete) {
-        const mod = modules.find(m => m.id === firstIncomplete.moduleId);
-        const lesson = mod?.lessons.find(l => l.id === firstIncomplete.lessonId);
-        continueBtn.textContent = `Continue ${mod?.title || ''} – ${lesson?.title || ''}`;
-        continueBtn.onclick = () => window.location.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
+      if (hasPremium) {
+        // ✅ Premium/admin – show content
+        app.classList.remove('locked');
+        // Load academy data
+        await loadProgress(user.uid);
+        await loadModules();
+        renderDashboard();
       } else {
-        continueBtn.textContent = "🎉 All modules complete! View Certificate";
-        continueBtn.onclick = () => window.location.href = "certificate.html?final=true";
+        // ❌ Free/pending – show lock
+        app.classList.add('locked');
       }
-
-      let lessonsDone = 0, quizzesPassed = 0, certificates = 0;
-      modules.forEach(mod => {
-        const modProgress = progress.modules[mod.id] || {};
-        const completed = modProgress.completedLessons || [];
-        const total = mod.lessons ? mod.lessons.length : 0;
-        lessonsDone += completed.length;
-        if (modProgress.quizPassed) quizzesPassed++;
-        if (completed.length === total && (mod.hasQuiz ? modProgress.quizPassed : true)) certificates++;
-      });
-      lessonCompleted.textContent = lessonsDone;
-      quizPassed.textContent = quizzesPassed;
-      certificateCount.textContent = certificates;
-      learningHours.textContent = "0h";
-
-      const activities = [];
-      if (lessonsDone > 0) activities.push(`📘 Completed ${lessonsDone} lessons`);
-      if (quizzesPassed > 0) activities.push(`✅ Passed ${quizzesPassed} quizzes`);
-      if (certificates > 0) activities.push(`🏆 Earned ${certificates} certificates`);
-      if (activities.length === 0) activities.push("No activity yet. Start learning!");
-      activityLog.innerHTML = activities.map(a => `<div class="activity-item">${a}</div>`).join('');
-
-      let html = "";
-      modules.forEach((mod, idx) => {
-        const modProgress = progress.modules[mod.id] || {};
-        const completed = modProgress.completedLessons || [];
-        const total = mod.lessons ? mod.lessons.length : 0;
-        const pctMod = total ? Math.round((completed.length / total) * 100) : 0;
-
-        let unlocked = (idx === 0) ? true : (() => {
-          const prevMod = modules[idx-1];
-          const prevProgress = progress.modules[prevMod.id] || {};
-          const prevCompleted = prevProgress.completedLessons || [];
-          const prevTotal = prevMod.lessons ? prevMod.lessons.length : 0;
-          return prevCompleted.length === prevTotal && (prevMod.hasQuiz ? prevProgress.quizPassed : true);
-        })();
-
-        const isCompleted = unlocked && completed.length === total && (mod.hasQuiz ? modProgress.quizPassed : true);
-        const statusLabel = isCompleted ? "✅ Completed" : unlocked ? "▶ In Progress" : "🔒 Locked";
-        const statusClass = isCompleted ? "completed" : unlocked ? "active" : "locked";
-
-        html += `
-          <div class="module-card">
-            <div class="module-header">
-              <h3>${mod.title}</h3>
-              <span class="status ${statusClass}">${statusLabel}</span>
-            </div>
-            <p>${mod.description || ''}</p>
-            <div class="module-progress">
-              <div class="progress-bar"><div class="progress-fill" style="width:${pctMod}%;"></div></div>
-              <span>${completed.length}/${total} lessons</span>
-            </div>
-            <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">
-              ${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}
-            </a>
-            ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Take Quiz</a>` : ''}
-          </div>
-        `;
-      });
-      modulesGrid.innerHTML = html;
+    } catch (error) {
+      console.error('Auth error:', error);
+      app.classList.remove('loading');
+      app.classList.add('locked');
     }
+  });
 
-    // ─── Run ──────────────────────────────────────────────────
-    await loadProgress();
-    await loadModules();
-    renderDashboard();
+  // ─── LOGOUT ──────────────────────────────────────────────────
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    if (confirm('Logout?')) {
+      await logoutUser();
+    }
+  });
+
+  // Note: The sidebar has no logout button – we need to add one.
+  // Let's add a logout button to the sidebar if it doesn't exist.
+  const sidebarNav = document.querySelector('.sidebar nav');
+  if (sidebarNav) {
+    const logoutLi = document.createElement('li');
+    logoutLi.style.marginTop = '40px';
+    logoutLi.innerHTML = `<a href="#" id="logoutBtnSidebar" style="color:#ff4766;"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
+    sidebarNav.appendChild(logoutLi);
+    document.getElementById('logoutBtnSidebar')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (confirm('Logout?')) {
+        await logoutUser();
+      }
+    });
   }
 
-  // ─── INIT LOCK ──────────────────────────────────────────────────
-  initPremiumLock('app', initAcademy);
+  console.log('✅ Premium Academy ready.');
 </script>
 
 </body>
