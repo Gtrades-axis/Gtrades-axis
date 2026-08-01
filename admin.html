@@ -8,7 +8,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    /* ── Reset & Base ── */
+    /* ===========================
+       RESET & BASE
+    =========================== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -16,6 +18,7 @@
       color: #e8edf5;
       min-height: 100vh;
       display: flex;
+      font-size: 16px;
     }
     :root {
       --bg-primary: #0b0d15;
@@ -35,12 +38,16 @@
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
 
-    /* ── Scrollbar ── */
+    /* ===========================
+       SCROLLBAR
+    =========================== */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-primary); }
     ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
 
-    /* ── Sidebar ── */
+    /* ===========================
+       SIDEBAR
+    =========================== */
     .sidebar {
       width: var(--sidebar-width);
       min-height: 100vh;
@@ -71,7 +78,7 @@
       padding: 4px;
     }
     .sidebar .logo h2 {
-      font-size: 18px;
+      font-size: 1.125rem;
       background: linear-gradient(135deg, #fff 30%, #00d4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -88,7 +95,7 @@
       border-radius: 8px;
       color: var(--text-secondary);
       transition: 0.2s;
-      font-size: 14px;
+      font-size: 0.875rem;
       font-weight: 500;
       border-left: 3px solid transparent;
     }
@@ -109,7 +116,7 @@
       border-radius: 8px;
       background: rgba(255,71,102,0.08);
       color: var(--red);
-      font-size: 14px;
+      font-size: 0.875rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -121,7 +128,9 @@
     }
     .sidebar .logout-btn:hover { background: rgba(255,71,102,0.18); }
 
-    /* ── Main ── */
+    /* ===========================
+       MAIN
+    =========================== */
     .admin-main {
       flex: 1;
       padding: 28px 36px 40px;
@@ -130,7 +139,9 @@
       width: 100%;
     }
 
-    /* ── Header ── */
+    /* ===========================
+       HEADER
+    =========================== */
     .admin-header {
       display: flex;
       justify-content: space-between;
@@ -140,7 +151,7 @@
       margin-bottom: 32px;
     }
     .admin-header h1 {
-      font-size: 28px;
+      font-size: 1.75rem;
       font-weight: 700;
       background: linear-gradient(135deg, #fff 30%, #00d4ff);
       -webkit-background-clip: text;
@@ -148,7 +159,7 @@
     }
     .admin-header p {
       color: var(--text-secondary);
-      font-size: 14px;
+      font-size: 0.875rem;
       margin-top: 2px;
     }
     .admin-header .header-right {
@@ -159,17 +170,19 @@
     }
     #liveDate {
       color: var(--text-secondary);
-      font-size: 14px;
+      font-size: 0.875rem;
       padding: 6px 18px;
       background: var(--bg-card);
       border-radius: 20px;
       border: 1px solid var(--border-color);
     }
 
-    /* ── Stats Grid ── */
+    /* ===========================
+       STATS
+    =========================== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 18px;
       margin-bottom: 28px;
     }
@@ -177,10 +190,10 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius);
-      padding: 22px 24px;
+      padding: 20px 22px;
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
       transition: 0.25s;
     }
     .stat-card:hover {
@@ -189,13 +202,13 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
     .stat-card .stat-icon {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 1.25rem;
       flex-shrink: 0;
     }
     .stat-card .stat-icon.blue { background: rgba(79,124,255,0.15); color: var(--accent-blue); }
@@ -204,17 +217,19 @@
     .stat-card .stat-icon.purple { background: rgba(156,39,176,0.15); color: #9c27b0; }
     .stat-card .stat-icon.red { background: rgba(255,71,102,0.15); color: var(--red); }
     .stat-card div h2 {
-      font-size: 28px;
+      font-size: 1.75rem;
       font-weight: 700;
       line-height: 1.2;
     }
     .stat-card div p {
       color: var(--text-secondary);
-      font-size: 13px;
+      font-size: 0.8rem;
       margin-top: 2px;
     }
 
-    /* ── Quick Actions ── */
+    /* ===========================
+       QUICK ACTIONS
+    =========================== */
     .quick-actions {
       display: flex;
       flex-wrap: wrap;
@@ -222,13 +237,13 @@
       margin-bottom: 28px;
     }
     .quick-actions button {
-      padding: 10px 24px;
+      padding: 10px 22px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       background: var(--bg-card);
       color: var(--text-primary);
       font-weight: 500;
-      font-size: 14px;
+      font-size: 0.875rem;
       transition: 0.25s;
       display: inline-flex;
       align-items: center;
@@ -240,7 +255,9 @@
     }
     .quick-actions button i { color: var(--accent-blue); }
 
-    /* ── Dashboard Grid ── */
+    /* ===========================
+       DASHBOARD GRID
+    =========================== */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -251,12 +268,12 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius);
-      padding: 24px 28px;
+      padding: 22px 24px;
     }
     .dashboard-card h2 {
-      font-size: 18px;
+      font-size: 1.125rem;
       font-weight: 600;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -264,24 +281,26 @@
     .dashboard-card h2 i { color: var(--accent-blue); }
     .dashboard-card.large { grid-column: 1; }
 
-    /* ── Members Table ── */
+    /* ===========================
+       TABLE
+    =========================== */
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
-    .card-header p { color: var(--text-secondary); font-size: 13px; }
+    .card-header p { color: var(--text-secondary); font-size: 0.8rem; }
     .card-header input,
     .card-header select {
       background: var(--bg-primary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 8px 16px;
+      padding: 8px 14px;
       color: #fff;
-      font-size: 13px;
+      font-size: 0.8rem;
       font-family: 'Poppins', sans-serif;
       outline: none;
       min-width: 160px;
@@ -295,17 +314,17 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 0.8rem;
       min-width: 700px;
     }
     thead {
       border-bottom: 2px solid var(--border-color);
     }
     thead th {
-      padding: 14px 14px 12px 14px;
+      padding: 12px 12px 10px 12px;
       text-align: left;
       font-weight: 600;
-      font-size: 11px;
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-secondary);
@@ -316,7 +335,7 @@
     }
     tbody tr:hover { background: var(--bg-card-hover); }
     tbody td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       vertical-align: middle;
     }
     .user-cell {
@@ -325,8 +344,8 @@
       gap: 12px;
     }
     .user-cell .avatar-small {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--accent-blue);
       color: #fff;
@@ -334,25 +353,18 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 0.8rem;
       flex-shrink: 0;
     }
-    .user-cell .user-info {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-    .user-cell .user-info strong { font-size: 13px; }
-    .user-cell .user-info small {
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
+    .user-cell .user-info { display: flex; flex-direction: column; gap: 1px; }
+    .user-cell .user-info strong { font-size: 0.8rem; }
+    .user-cell .user-info small { font-size: 0.7rem; color: var(--text-secondary); }
 
     .badge {
       display: inline-block;
-      padding: 2px 14px;
+      padding: 2px 12px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 0.65rem;
       font-weight: 600;
       text-transform: uppercase;
     }
@@ -367,12 +379,12 @@
     .badge.unpaid { background: rgba(255,71,102,0.12); color: var(--red); }
 
     .manage-btn {
-      padding: 5px 16px;
+      padding: 4px 14px;
       border: 1px solid var(--border-color);
       border-radius: 6px;
       background: transparent;
       color: var(--text-secondary);
-      font-size: 12px;
+      font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
       transition: 0.2s;
@@ -383,7 +395,9 @@
       color: #fff;
     }
 
-    /* ── Right Panel ── */
+    /* ===========================
+       RIGHT PANEL
+    =========================== */
     .right-panel {
       display: flex;
       flex-direction: column;
@@ -393,29 +407,29 @@
 
     .empty-card {
       text-align: center;
-      padding: 28px 12px;
+      padding: 24px 12px;
       color: var(--text-secondary);
     }
     .empty-card i {
-      font-size: 2.2rem;
+      font-size: 2rem;
       color: var(--border-color);
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-    .empty-card h3 { font-size: 16px; margin-bottom: 4px; }
-    .empty-card p { font-size: 13px; }
+    .empty-card h3 { font-size: 1rem; margin-bottom: 4px; }
+    .empty-card p { font-size: 0.8rem; }
 
     .recent-member {
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 10px 0;
+      padding: 8px 0;
       border-bottom: 1px solid var(--border-color);
     }
     .recent-member:last-child { border-bottom: none; }
     .recent-member .avatar-small {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--accent-blue);
       color: #fff;
@@ -423,169 +437,78 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 0.8rem;
       flex-shrink: 0;
     }
     .recent-member .member-info { flex: 1; }
-    .recent-member h4 { font-size: 14px; }
-    .recent-member p { font-size: 12px; color: var(--text-secondary); }
+    .recent-member h4 { font-size: 0.875rem; }
+    .recent-member p { font-size: 0.75rem; color: var(--text-secondary); }
 
     .overview-list {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px 16px;
+      gap: 4px 16px;
     }
     .overview-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
+      padding: 6px 0;
       border-bottom: 1px solid var(--border-color);
     }
     .overview-item:last-child { border-bottom: none; }
-    .overview-item span { color: var(--text-secondary); font-size: 13px; }
-    .overview-item strong { font-size: 16px; font-weight: 600; }
+    .overview-item span { color: var(--text-secondary); font-size: 0.8rem; }
+    .overview-item strong { font-size: 1rem; font-weight: 600; }
 
     .activity-feed .activity-item {
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 12px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--border-color);
     }
     .activity-feed .activity-item:last-child { border-bottom: none; }
     .activity-item .activity-icon {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 1rem;
       flex-shrink: 0;
     }
     .activity-icon.blue { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
     .activity-icon.green { background: rgba(0,200,151,0.12); color: var(--green); }
     .activity-icon.gold { background: rgba(245,166,35,0.12); color: var(--gold); }
     .activity-item .activity-info { flex: 1; }
-    .activity-item h4 { font-size: 14px; }
-    .activity-item p { font-size: 12px; color: var(--text-secondary); }
+    .activity-item h4 { font-size: 0.875rem; }
+    .activity-item p { font-size: 0.75rem; color: var(--text-secondary); }
 
-    /* ── Academy Management ── */
-    .academy-section {
+    /* ===========================
+       MANAGER SECTIONS (video, resource, academy)
+    =========================== */
+    .manager-section {
       margin-top: 24px;
     }
-    .academy-section .dashboard-card {
+    .manager-section .dashboard-card {
       margin-bottom: 24px;
     }
-
-    .academy-grid {
+    .manager-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
-    .module-list-card {
-      grid-column: 1;
-    }
-    .module-form-card {
-      grid-column: 2;
-    }
-
-    .module-item {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 16px 18px;
-      margin-bottom: 12px;
-      transition: 0.2s;
-    }
-    .module-item:hover { border-color: var(--accent-blue); }
-    .module-item .module-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .module-item .module-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .module-item .module-header .module-actions {
-      display: flex;
-      gap: 6px;
-    }
-    .module-item .module-header .module-actions button {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: 0.2s;
-    }
-    .module-item .module-header .module-actions button:hover {
-      background: var(--bg-card);
-      color: #fff;
-    }
-    .module-item .module-header .module-actions .edit-module { color: var(--accent-blue); }
-    .module-item .module-header .module-actions .delete-module { color: var(--red); }
-    .module-item .module-meta {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .module-item .module-meta span { display: inline-flex; align-items: center; gap: 4px; }
-    .module-item .module-lessons {
-      margin-top: 10px;
-      padding-left: 16px;
-      border-left: 2px solid var(--border-color);
-    }
-    .module-item .module-lessons .lesson-item {
-      font-size: 13px;
-      color: var(--text-secondary);
-      padding: 4px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .module-item .module-lessons .lesson-item .lesson-actions button {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      padding: 2px 6px;
-      font-size: 12px;
-      transition: 0.2s;
-    }
-    .module-item .module-lessons .lesson-item .lesson-actions button:hover { color: var(--red); }
-    .module-item .add-lesson-btn {
-      margin-top: 8px;
-      padding: 4px 12px;
-      border: 1px dashed var(--border-color);
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 12px;
-      transition: 0.2s;
-      width: 100%;
-      text-align: center;
-    }
-    .module-item .add-lesson-btn:hover {
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-    }
-
-    .academy-form {
+    .manager-list-card { grid-column: 1; }
+    .manager-form-card { grid-column: 2; }
+    .manager-form {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
-    .academy-form .full-width { grid-column: 1 / -1; }
-    .academy-form label {
-      font-size: 12px;
+    .manager-form .full-width { grid-column: 1 / -1; }
+    .manager-form label {
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.3px;
@@ -593,213 +516,86 @@
       display: block;
       margin-bottom: 4px;
     }
-    .academy-form input,
-    .academy-form select,
-    .academy-form textarea {
+    .manager-form input,
+    .manager-form select,
+    .manager-form textarea {
       background: var(--bg-primary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 8px 14px;
       color: #fff;
-      font-size: 13px;
+      font-size: 0.8rem;
       font-family: 'Poppins', sans-serif;
       outline: none;
       width: 100%;
     }
-    .academy-form input:focus,
-    .academy-form select:focus,
-    .academy-form textarea:focus { border-color: var(--accent-blue); }
-    .academy-form textarea { min-height: 60px; resize: vertical; }
-    .academy-form .checkbox-group {
+    .manager-form input:focus,
+    .manager-form select:focus,
+    .manager-form textarea:focus { border-color: var(--accent-blue); }
+    .manager-form textarea { min-height: 60px; resize: vertical; }
+    .manager-form .checkbox-group {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .academy-form .checkbox-group input[type="checkbox"] {
+    .manager-form .checkbox-group input[type="checkbox"] {
       width: 18px;
       height: 18px;
       accent-color: var(--accent-blue);
     }
-    .academy-form .checkbox-group label {
+    .manager-form .checkbox-group label {
       text-transform: none;
       font-weight: 400;
       color: var(--text-secondary);
       margin-bottom: 0;
     }
-    .academy-form .form-actions {
+    .manager-form .form-actions {
       grid-column: 1 / -1;
       display: flex;
       gap: 12px;
     }
-    .academy-form .form-actions button {
-      padding: 10px 24px;
+    .manager-form .form-actions button {
+      padding: 10px 22px;
       border: none;
       border-radius: 8px;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 0.875rem;
       transition: 0.25s;
       flex: 1;
     }
-    .academy-form .form-actions .save-module-btn {
+    .manager-form .form-actions .save-btn {
       background: var(--accent-blue);
       color: #fff;
     }
-    .academy-form .form-actions .save-module-btn:hover { background: #3a66e0; }
-    .academy-form .form-actions .cancel-module-btn {
+    .manager-form .form-actions .save-btn:hover { background: #3a66e0; }
+    .manager-form .form-actions .cancel-btn {
       background: var(--bg-primary);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
     }
-    .academy-form .form-actions .cancel-module-btn:hover { background: var(--border-color); }
+    .manager-form .form-actions .cancel-btn:hover { background: var(--border-color); }
 
-    .lesson-form-row {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 12px;
-      grid-column: 1 / -1;
-    }
-    .lesson-form-row .lesson-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .lesson-form-row .lesson-fields .full-width { grid-column: 1 / -1; }
-    .lesson-form-row .lesson-fields label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      color: var(--text-secondary);
-      display: block;
-      margin-bottom: 2px;
-    }
-    .lesson-form-row .lesson-fields input,
-    .lesson-form-row .lesson-fields select {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 6px 12px;
-      color: #fff;
-      font-size: 12px;
-      font-family: 'Poppins', sans-serif;
-      outline: none;
-      width: 100%;
-    }
-    .lesson-form-row .lesson-fields input:focus,
-    .lesson-form-row .lesson-fields select:focus { border-color: var(--accent-blue); }
-    .lesson-form-row .lesson-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      grid-column: 1 / -1;
-    }
-    .lesson-form-row .lesson-actions button {
-      padding: 6px 16px;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 12px;
-      transition: 0.2s;
-    }
-    .lesson-form-row .lesson-actions .add-lesson-btn {
-      background: var(--green);
-      color: #0b0d15;
-    }
-    .lesson-form-row .lesson-actions .add-lesson-btn:hover { opacity: 0.8; }
-    .lesson-form-row .lesson-actions .remove-lesson-btn {
-      background: rgba(255,71,102,0.12);
-      color: var(--red);
-    }
-    .lesson-form-row .lesson-actions .remove-lesson-btn:hover { background: rgba(255,71,102,0.25); }
-
-    /* ── Resource Section ── */
-    .resource-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .resource-toolbar input,
-    .resource-toolbar select {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 8px 16px;
-      color: #fff;
-      font-size: 13px;
-      font-family: 'Poppins', sans-serif;
-      outline: none;
-      flex: 1;
-      min-width: 150px;
-    }
-    .resource-toolbar input:focus,
-    .resource-toolbar select:focus { border-color: var(--accent-blue); }
-
-    #resourceForm {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 16px;
-    }
-    #resourceForm input,
-    #resourceForm select,
-    #resourceForm textarea {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px 16px;
-      color: #fff;
-      font-size: 13px;
-      font-family: 'Poppins', sans-serif;
-      outline: none;
-      width: 100%;
-    }
-    #resourceForm textarea { grid-column: 1 / -1; min-height: 80px; resize: vertical; }
-    #resourceForm input:focus,
-    #resourceForm select:focus,
-    #resourceForm textarea:focus { border-color: var(--accent-blue); }
     .file-picker {
       display: flex;
       gap: 10px;
       align-items: center;
-      grid-column: 1 / -1;
     }
     .file-picker input[type="text"] { flex: 1; }
     .file-picker button {
-      padding: 8px 20px;
+      padding: 8px 18px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       background: var(--bg-card);
       color: var(--text-primary);
-      font-size: 13px;
+      font-size: 0.8rem;
       white-space: nowrap;
       transition: 0.2s;
     }
     .file-picker button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
-    #resourceForm label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-secondary);
-      font-size: 13px;
-      grid-column: 1 / -1;
-    }
-    .upload-btn {
-      grid-column: 1 / -1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: var(--accent-blue);
-      color: #fff;
-      font-weight: 600;
-      font-size: 15px;
-      transition: 0.25s;
-    }
-    .upload-btn:hover { background: #3a66e0; }
 
-    /* ── Member Modal ── */
+    /* ===========================
+       MEMBER MODAL
+    =========================== */
     .member-modal {
       display: none;
       position: fixed;
@@ -816,7 +612,7 @@
       border-radius: var(--radius);
       max-width: 520px;
       width: 92%;
-      padding: 32px 28px;
+      padding: 30px 26px;
       position: relative;
       max-height: 90vh;
       overflow-y: auto;
@@ -834,7 +630,7 @@
     }
     .member-modal-content .close-modal:hover { color: #fff; }
     .member-modal-content h2 {
-      font-size: 22px;
+      font-size: 1.375rem;
       margin-bottom: 20px;
       display: flex;
       align-items: center;
@@ -850,20 +646,20 @@
       border-bottom: 1px solid var(--border-color);
     }
     .member-avatar {
-      width: 58px;
-      height: 58px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: var(--accent-blue);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 1.5rem;
       font-weight: 700;
       flex-shrink: 0;
     }
-    .member-profile h3 { font-size: 18px; }
-    .member-profile p { color: var(--text-secondary); font-size: 14px; }
+    .member-profile h3 { font-size: 1.125rem; }
+    .member-profile p { color: var(--text-secondary); font-size: 0.875rem; }
 
     .member-details {
       display: grid;
@@ -874,17 +670,17 @@
     .detail-box {
       background: var(--bg-primary);
       border-radius: 8px;
-      padding: 12px 16px;
+      padding: 12px 14px;
     }
     .detail-box label {
-      font-size: 11px;
+      font-size: 0.65rem;
       text-transform: uppercase;
       color: var(--text-secondary);
       letter-spacing: 0.5px;
       display: block;
     }
     .detail-box span {
-      font-size: 16px;
+      font-size: 1rem;
       font-weight: 600;
       display: block;
       margin-top: 2px;
@@ -895,11 +691,11 @@
       gap: 8px;
     }
     .modal-actions button {
-      padding: 8px 18px;
+      padding: 8px 16px;
       border: none;
       border-radius: 6px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 0.8rem;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -918,22 +714,26 @@
     .delete-btn { background: rgba(255,71,102,0.12); color: var(--red); }
     .delete-btn:hover { background: var(--red); color: #fff; }
 
-    /* ── Footer ── */
+    /* ===========================
+       FOOTER
+    =========================== */
     .admin-footer {
       margin-top: 40px;
       padding-top: 20px;
       border-top: 1px solid var(--border-color);
       text-align: center;
       color: var(--text-secondary);
-      font-size: 13px;
+      font-size: 0.8rem;
     }
 
-    /* ── Responsive ── */
+    /* ===========================
+       RESPONSIVE
+    =========================== */
     @media (max-width: 1200px) {
       .dashboard-grid { grid-template-columns: 1fr; }
       .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-      .academy-grid { grid-template-columns: 1fr; }
-      .module-form-card { grid-column: 1; }
+      .manager-grid { grid-template-columns: 1fr; }
+      .manager-form-card { grid-column: 1; }
     }
     @media (max-width: 992px) {
       .sidebar { width: 200px; padding: 20px 14px; }
@@ -956,32 +756,29 @@
       .sidebar .logo { margin-bottom: 0; flex: 1; }
       .sidebar nav { flex: 1 1 100%; order: 3; margin-top: 10px; }
       .sidebar nav ul { display: flex; flex-wrap: wrap; gap: 4px; }
-      .sidebar nav ul li a { padding: 6px 14px; font-size: 12px; border-left: none; }
+      .sidebar nav ul li a { padding: 6px 14px; font-size: 0.75rem; border-left: none; }
       .sidebar nav ul li.active a { border-left: none; border-bottom: 2px solid var(--accent-blue); }
-      .sidebar .logout-btn { margin-top: 0; padding: 6px 14px; font-size: 12px; }
+      .sidebar .logout-btn { margin-top: 0; padding: 6px 14px; font-size: 0.75rem; }
       .admin-main { padding: 16px; }
       .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .dashboard-grid { grid-template-columns: 1fr; }
       .right-panel { grid-template-columns: 1fr; }
-      #resourceForm { grid-template-columns: 1fr; }
+      .manager-form { grid-template-columns: 1fr; }
+      .manager-form .full-width { grid-column: 1; }
       .card-header { flex-direction: column; align-items: stretch; }
       .card-header input { min-width: unset; }
       .member-details { grid-template-columns: 1fr; }
       .modal-actions { flex-direction: column; }
       .modal-actions button { flex: 1; }
       .overview-list { grid-template-columns: 1fr; }
-      .academy-form { grid-template-columns: 1fr; }
-      .academy-form .full-width { grid-column: 1; }
-      .lesson-form-row .lesson-fields { grid-template-columns: 1fr; }
-      .academy-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
       .stats-grid { grid-template-columns: 1fr; }
-      .admin-header h1 { font-size: 22px; }
+      .admin-header h1 { font-size: 1.375rem; }
       .admin-header .header-right { width: 100%; flex-direction: column; align-items: stretch; }
       .quick-actions { flex-direction: column; }
       .quick-actions button { justify-content: center; }
-      .dashboard-card { padding: 18px 16px; }
+      .dashboard-card { padding: 16px; }
     }
   </style>
 </head>
@@ -1009,7 +806,7 @@
 <!-- ===== MAIN ===== -->
 <main class="admin-main">
 
-  <!-- Header -->
+  <!-- HEADER -->
   <header class="admin-header">
     <div>
       <h1>GTRADES-AXIS ADMIN</h1>
@@ -1020,7 +817,7 @@
     </div>
   </header>
 
-  <!-- Stats -->
+  <!-- STATS -->
   <section class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
@@ -1044,7 +841,7 @@
     </div>
   </section>
 
-  <!-- Quick Actions -->
+  <!-- QUICK ACTIONS -->
   <section class="quick-actions">
     <button onclick="location.href='#members'"><i class="fa-solid fa-user-plus"></i> Add Member</button>
     <button onclick="location.href='#resources'"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
@@ -1052,10 +849,10 @@
     <button onclick="location.href='admin-payments.html'"><i class="fa-solid fa-credit-card"></i> Payments</button>
   </section>
 
-  <!-- Dashboard Grid -->
+  <!-- DASHBOARD GRID -->
   <div class="dashboard-grid">
 
-    <!-- Members Table -->
+    <!-- MEMBERS TABLE -->
     <div class="dashboard-card large" id="members">
       <div class="card-header">
         <div>
@@ -1081,25 +878,13 @@
       </div>
     </div>
 
-    <!-- Right Panel -->
+    <!-- RIGHT PANEL -->
     <div class="right-panel">
 
       <!-- Recent Members -->
       <div class="dashboard-card">
         <h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2>
         <div id="recentMembers"><div class="empty-card">No members yet.</div></div>
-      </div>
-
-      <!-- Latest Resources -->
-      <div class="dashboard-card">
-        <h2><i class="fa-solid fa-folder-open"></i> Latest Resources</h2>
-        <div id="latestResourcesSidebar">
-          <div class="empty-card">
-            <i class="fa-solid fa-folder-open"></i>
-            <h3>No Resources Yet</h3>
-            <p>Publish your first resource.</p>
-          </div>
-        </div>
       </div>
 
       <!-- Platform Overview -->
@@ -1136,237 +921,162 @@
   </div><!-- /dashboard-grid -->
 
   <!-- ==========================================================
-  ACADEMY MANAGEMENT
+       VIDEO MANAGER
   ========================================================== -->
-  <section class="academy-section" id="academy">
+  <section class="manager-section" id="videos">
     <div class="dashboard-card">
       <div class="card-header">
         <div>
-          <h2><i class="fa-solid fa-graduation-cap"></i> Academy Management</h2>
-          <p>Add, edit, and organize academy modules and lessons.</p>
+          <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
+          <p>Manage all premium videos.</p>
         </div>
-        <button id="addModuleBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
-          <i class="fa-solid fa-plus"></i> New Module
+        <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+          <i class="fa-solid fa-plus"></i> Add Video
         </button>
       </div>
 
-      <div class="academy-grid">
+      <div id="videoListContainer">
+        <div class="table-container">
+          <table class="members-table" id="videoTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="videoTableBody">
+              <tr><td colspan="5"><div class="empty-card">No videos yet.</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-        <!-- Module List -->
-        <div class="module-list-card">
-          <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text-secondary);">
-            <i class="fa-solid fa-list"></i> Modules
-          </h3>
-          <div id="moduleList">
-            <div class="empty-card">
-              <i class="fa-solid fa-book-open"></i>
-              <h3>No Modules Yet</h3>
-              <p>Create your first module to start building the academy.</p>
-            </div>
+      <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+        <h3 id="videoFormTitle">Add New Video</h3>
+        <form id="videoForm" class="manager-form">
+          <div class="full-width">
+            <label>Video Title</label>
+            <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
           </div>
-        </div>
-
-        <!-- Module Form -->
-        <div class="module-form-card">
-          <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text-secondary);">
-            <i class="fa-solid fa-pen"></i> <span id="moduleFormTitle">Add New Module</span>
-          </h3>
-          <form id="moduleForm" class="academy-form">
-            <div class="full-width">
-              <label>Module Title</label>
-              <input type="text" id="moduleTitle" placeholder="e.g. Introduction" required />
-            </div>
-            <div class="full-width">
-              <label>Description</label>
-              <textarea id="moduleDescription" placeholder="Brief description of the module" rows="2"></textarea>
-            </div>
-            <div>
-              <label>Order</label>
-              <input type="number" id="moduleOrder" placeholder="1" min="1" value="1" />
-            </div>
-            <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;padding-top:8px;">
-              <input type="checkbox" id="moduleHasQuiz" checked />
-              <label for="moduleHasQuiz" style="text-transform:none;font-weight:400;color:var(--text-secondary);margin:0;">Has Quiz</label>
-            </div>
-
-            <!-- Lessons -->
-            <div class="full-width">
-              <label style="display:flex;justify-content:space-between;align-items:center;">
-                <span>Lessons</span>
-                <button type="button" id="addLessonRowBtn" style="background:none;border:none;color:var(--accent-blue);font-size:13px;cursor:pointer;">
-                  <i class="fa-solid fa-plus"></i> Add Lesson
-                </button>
-              </label>
-              <div id="lessonsContainer">
-                <!-- Lesson rows will be added here -->
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="save-module-btn" id="saveModuleBtn">
-                <i class="fa-solid fa-floppy-disk"></i> Save Module
-              </button>
-              <button type="button" class="cancel-module-btn" id="cancelModuleBtn" style="display:none;">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-
+          <div>
+            <label>Category</label>
+            <select id="videoCategory" required>
+              <option value="Market Structure">Market Structure</option>
+              <option value="Liquidity">Liquidity</option>
+              <option value="Supply & Demand">Supply & Demand</option>
+              <option value="Entries">Entries</option>
+              <option value="Psychology">Psychology</option>
+            </select>
+          </div>
+          <div>
+            <label>Duration</label>
+            <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
+          </div>
+          <div class="full-width">
+            <label>YouTube Video ID</label>
+            <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
+            <small style="color:var(--text-secondary);font-size:0.7rem;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
+          </div>
+          <div class="full-width">
+            <label>Thumbnail Emoji</label>
+            <input type="text" id="videoThumbnail" placeholder="🎯" value="📹" maxlength="2" />
+          </div>
+          <div class="checkbox-group full-width">
+            <input type="checkbox" id="videoPremiumOnly" />
+            <label for="videoPremiumOnly">Premium Only</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button>
+            <button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button>
+          </div>
+          <input type="hidden" id="editingVideoId" />
+        </form>
       </div>
     </div>
   </section>
 
   <!-- ==========================================================
-  RESOURCE MANAGEMENT
+       RESOURCE MANAGER
   ========================================================== -->
-  <!-- ==========================================================
-RESOURCE MANAGEMENT
-========================================================== -->
-<section class="dashboard-card" id="resources">
-  <div class="card-header">
-    <div>
-      <h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2>
-      <p>Manage all premium resources.</p>
-    </div>
-    <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
-      <i class="fa-solid fa-plus"></i> Add Resource
-    </button>
-  </div>
-
-  <!-- Resource list (full table) -->
-  <div id="resourceListContainer">
-    <div class="table-container">
-      <table class="members-table" id="resourceTable">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="resourceTableBody">
-          <tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Add/Edit resource form (hidden by default) -->
-  <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-    <h3 id="resourceFormTitle">Add New Resource</h3>
-    <form id="resourceForm">
-      <input type="text" id="resourceTitle" placeholder="Resource Title" required />
-      <select id="resourceCategory" required>
-        <option value="PDF">PDF</option>
-        <option value="Indicator">Indicator</option>
-        <option value="Journal">Journal</option>
-        <option value="Strategy">Strategy</option>
-        <option value="Video">Video</option>
-      </select>
-      <textarea id="resourceDescription" placeholder="Description"></textarea>
-      <div class="file-picker">
-        <input type="file" id="resourceFilePicker" hidden />
-        <input type="text" id="resourceFile" readonly placeholder="Choose a file" />
-        <button type="button" id="chooseFileBtn">📁 Choose File</button>
+  <section class="manager-section" id="resources">
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2>
+          <p>Manage all premium resources.</p>
+        </div>
+        <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+          <i class="fa-solid fa-plus"></i> Add Resource
+        </button>
       </div>
-      <label><input type="checkbox" id="premiumOnly" /> Premium Members Only</label>
-      <div style="display:flex; gap:12px;">
-        <button type="submit" class="upload-btn" id="saveResourceBtn">Save Resource</button>
-        <button type="button" class="btn-secondary" id="cancelResourceBtn" style="padding:10px 20px;border-radius:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-secondary);">Cancel</button>
-      </div>
-      <input type="hidden" id="editingResourceId" />
-    </form>
-  </div>
-</section>
 
-  <!-- Footer -->
+      <div id="resourceListContainer">
+        <div class="table-container">
+          <table class="members-table" id="resourceTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resourceTableBody">
+              <tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+        <h3 id="resourceFormTitle">Add New Resource</h3>
+        <form id="resourceForm" class="manager-form">
+          <div class="full-width">
+            <label>Resource Title</label>
+            <input type="text" id="resourceTitle" placeholder="Resource Title" required />
+          </div>
+          <div>
+            <label>Category</label>
+            <select id="resourceCategory" required>
+              <option value="PDF">PDF</option>
+              <option value="Indicator">Indicator</option>
+              <option value="Journal">Journal</option>
+              <option value="Strategy">Strategy</option>
+              <option value="Video">Video</option>
+            </select>
+          </div>
+          <div class="full-width">
+            <label>Description</label>
+            <textarea id="resourceDescription" placeholder="Description"></textarea>
+          </div>
+          <div class="file-picker full-width">
+            <input type="file" id="resourceFilePicker" hidden />
+            <input type="text" id="resourceFile" readonly placeholder="Choose a file" />
+            <button type="button" id="chooseFileBtn">📁 Choose File</button>
+          </div>
+          <div class="checkbox-group full-width">
+            <input type="checkbox" id="premiumOnly" />
+            <label for="premiumOnly">Premium Members Only</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" id="saveResourceBtn"><i class="fa-solid fa-floppy-disk"></i> Save Resource</button>
+            <button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button>
+          </div>
+          <input type="hidden" id="editingResourceId" />
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer class="admin-footer">
     <p>© 2026 GTRADES AXIS™ | Professional Trading Platform</p>
   </footer>
 </main>
-<!-- ==========================================================
-VIDEO MANAGEMENT
-========================================================== -->
-<section class="dashboard-card" id="videos">
-  <div class="card-header">
-    <div>
-      <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
-      <p>Manage all premium videos.</p>
-    </div>
-    <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
-      <i class="fa-solid fa-plus"></i> Add Video
-    </button>
-  </div>
 
-  <!-- Video list (full table) -->
-  <div id="videoListContainer">
-    <div class="table-container">
-      <table class="members-table" id="videoTable">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Duration</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="videoTableBody">
-          <tr><td colspan="5"><div class="empty-card">No videos yet.</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Add/Edit video form (hidden by default) -->
-  <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-    <h3 id="videoFormTitle">Add New Video</h3>
-    <form id="videoForm" class="academy-form">
-      <div class="full-width">
-        <label>Video Title</label>
-        <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
-      </div>
-      <div>
-        <label>Category</label>
-        <select id="videoCategory" required>
-          <option value="Market Structure">Market Structure</option>
-          <option value="Liquidity">Liquidity</option>
-          <option value="Supply & Demand">Supply & Demand</option>
-          <option value="Entries">Entries</option>
-          <option value="Psychology">Psychology</option>
-        </select>
-      </div>
-      <div>
-        <label>Duration</label>
-        <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
-      </div>
-      <div class="full-width">
-        <label>YouTube Video ID</label>
-        <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
-        <small style="color:var(--text-secondary);font-size:12px;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
-      </div>
-      <div class="full-width">
-        <label>Thumbnail Emoji</label>
-        <input type="text" id="videoThumbnail" placeholder="🎯" value="📹" maxlength="2" />
-      </div>
-      <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;padding-top:8px;">
-        <input type="checkbox" id="videoPremiumOnly" />
-        <label for="videoPremiumOnly" style="text-transform:none;font-weight:400;color:var(--text-secondary);margin:0;">Premium Only</label>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="save-module-btn" id="saveVideoBtn">
-          <i class="fa-solid fa-floppy-disk"></i> Save Video
-        </button>
-        <button type="button" class="cancel-module-btn" id="cancelVideoBtn">
-          Cancel
-        </button>
-      </div>
-      <input type="hidden" id="editingVideoId" />
-    </form>
-  </div>
-</section>
 <!-- ===== MEMBER MODAL ===== -->
 <div class="member-modal" id="memberModal">
   <div class="member-modal-content">
@@ -1410,344 +1120,11 @@ VIDEO MANAGEMENT
 <script type="module" src="js/admin/admin-members.js"></script>
 <script type="module" src="js/admin/resources.js"></script>
 <script type="module" src="js/admin/videos.js"></script>
-<!-- Academy Management Logic -->
 <script type="module">
-  import { auth, db } from "./js/firebase.js";
-  import {
-    collection,
-    doc,
-    getDocs,
-    addDoc,
-    updateDoc,
-    deleteDoc,
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp,
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-  import { signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { auth } from "./js/firebase.js";
+  import { signOut } from "firebase/auth";
 
-  // ─── DOM REFS ──────────────────────────────────────────────
-  const moduleList = document.getElementById("moduleList");
-  const moduleForm = document.getElementById("moduleForm");
-  const moduleTitle = document.getElementById("moduleTitle");
-  const moduleDescription = document.getElementById("moduleDescription");
-  const moduleOrder = document.getElementById("moduleOrder");
-  const moduleHasQuiz = document.getElementById("moduleHasQuiz");
-  const lessonsContainer = document.getElementById("lessonsContainer");
-  const addLessonBtn = document.getElementById("addLessonRowBtn");
-  const addModuleBtn = document.getElementById("addModuleBtn");
-  const cancelModuleBtn = document.getElementById("cancelModuleBtn");
-  const saveModuleBtn = document.getElementById("saveModuleBtn");
-  const moduleFormTitle = document.getElementById("moduleFormTitle");
-
-  let editingModuleId = null;
-  let allModules = [];
-
-  // ─── ADD LESSON ROW ──────────────────────────────────────
-  function addLessonRow(lessonData = null) {
-    const row = document.createElement("div");
-    row.className = "lesson-form-row";
-    row.innerHTML = `
-      <div class="lesson-fields">
-        <div>
-          <label>Lesson Title</label>
-          <input type="text" class="lesson-title" placeholder="e.g. Welcome" value="${lessonData?.title || ''}" />
-        </div>
-        <div>
-          <label>Type</label>
-          <select class="lesson-type">
-            <option value="video" ${lessonData?.type === 'video' ? 'selected' : ''}>Video</option>
-            <option value="pdf" ${lessonData?.type === 'pdf' ? 'selected' : ''}>PDF</option>
-            <option value="text" ${lessonData?.type === 'text' ? 'selected' : ''}>Text</option>
-          </select>
-        </div>
-        <div>
-          <label>Video URL</label>
-          <input type="url" class="lesson-video" placeholder="https://..." value="${lessonData?.videoUrl || ''}" />
-        </div>
-        <div>
-          <label>PDF URL</label>
-          <input type="url" class="lesson-pdf" placeholder="https://..." value="${lessonData?.pdfUrl || ''}" />
-        </div>
-        <div class="full-width">
-          <label>Notes</label>
-          <input type="text" class="lesson-notes" placeholder="Additional notes" value="${lessonData?.notes || ''}" />
-        </div>
-      </div>
-      <div class="lesson-actions">
-        <button type="button" class="remove-lesson-btn"><i class="fa-solid fa-trash"></i> Remove</button>
-      </div>
-    `;
-
-    // Remove lesson
-    row.querySelector(".remove-lesson-btn").addEventListener("click", () => {
-      if (lessonsContainer.children.length > 1) {
-        row.remove();
-      } else {
-        alert("You need at least one lesson per module.");
-      }
-    });
-
-    lessonsContainer.appendChild(row);
-  }
-
-  // ─── ADD LESSON BUTTON ──────────────────────────────────
-  addLessonBtn?.addEventListener("click", () => addLessonRow());
-
-  // ─── LOAD MODULES ──────────────────────────────────────
-  function loadModules() {
-    const q = query(collection(db, "academy_modules"), orderBy("order", "asc"));
-
-    onSnapshot(q, (snapshot) => {
-      allModules = [];
-      snapshot.forEach((doc) => {
-        allModules.push({ id: doc.id, ...doc.data() });
-      });
-      renderModuleList();
-      updateLessonCount();
-    }, (error) => {
-      console.error("Error loading modules:", error);
-    });
-  }
-
-  // ─── RENDER MODULE LIST ──────────────────────────────────
-  function renderModuleList() {
-    if (allModules.length === 0) {
-      moduleList.innerHTML = `
-        <div class="empty-card">
-          <i class="fa-solid fa-book-open"></i>
-          <h3>No Modules Yet</h3>
-          <p>Create your first module to start building the academy.</p>
-        </div>
-      `;
-      return;
-    }
-
-    let html = "";
-    allModules.forEach((mod) => {
-      const lessons = mod.lessons || [];
-      html += `
-        <div class="module-item" data-id="${mod.id}">
-          <div class="module-header">
-            <div>
-              <h3>${mod.title || "Untitled"}</h3>
-              <div class="module-meta">
-                <span><i class="fa-solid fa-list"></i> ${lessons.length} lessons</span>
-                <span><i class="fa-solid fa-sort"></i> Order: ${mod.order || 0}</span>
-                <span><i class="fa-solid fa-question-circle"></i> ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'}</span>
-              </div>
-            </div>
-            <div class="module-actions">
-              <button class="edit-module" data-id="${mod.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
-              <button class="delete-module" data-id="${mod.id}" title="Delete"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-          ${lessons.length > 0 ? `
-            <div class="module-lessons">
-              ${lessons.map((l, idx) => `
-                <div class="lesson-item">
-                  <span>${idx + 1}. ${l.title || "Untitled"} <span style="color:var(--text-secondary);font-size:11px;">(${l.type || 'video'})</span></span>
-                  <div class="lesson-actions">
-                    <button class="remove-lesson-from-module" data-module="${mod.id}" data-lesson-idx="${idx}" title="Remove lesson"><i class="fa-solid fa-times"></i></button>
-                  </div>
-                </div>
-              `).join("")}
-            </div>
-          ` : `<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;">No lessons yet</div>`}
-          <button class="add-lesson-btn" data-module="${mod.id}"><i class="fa-solid fa-plus"></i> Add Lesson</button>
-        </div>
-      `;
-    });
-
-    moduleList.innerHTML = html;
-
-    // ── Edit module ──
-    moduleList.querySelectorAll(".edit-module").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.id;
-        const mod = allModules.find((m) => m.id === id);
-        if (mod) editModule(mod);
-      });
-    });
-
-    // ── Delete module ──
-    moduleList.querySelectorAll(".delete-module").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const id = btn.dataset.id;
-        if (confirm("Delete this module and all its lessons?")) {
-          try {
-            await deleteDoc(doc(db, "academy_modules", id));
-            alert("✅ Module deleted.");
-          } catch (e) {
-            console.error(e);
-            alert("Error deleting module.");
-          }
-        }
-      });
-    });
-
-    // ── Add lesson to module (from list) ──
-    moduleList.querySelectorAll(".add-lesson-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.module;
-        const mod = allModules.find((m) => m.id === id);
-        if (mod) {
-          const title = prompt("Lesson title:");
-          if (title && title.trim()) {
-            const lessons = mod.lessons || [];
-            lessons.push({
-              id: "lsn_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-              title: title.trim(),
-              type: "video",
-              videoUrl: "",
-              pdfUrl: "",
-              notes: "",
-            });
-            updateDoc(doc(db, "academy_modules", id), { lessons })
-              .then(() => alert("✅ Lesson added."))
-              .catch((e) => alert("Error: " + e.message));
-          }
-        }
-      });
-    });
-
-    // ── Remove lesson from module ──
-    moduleList.querySelectorAll(".remove-lesson-from-module").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const moduleId = btn.dataset.module;
-        const idx = parseInt(btn.dataset.lessonIdx);
-        const mod = allModules.find((m) => m.id === moduleId);
-        if (mod && confirm("Remove this lesson?")) {
-          const lessons = mod.lessons || [];
-          lessons.splice(idx, 1);
-          try {
-            await updateDoc(doc(db, "academy_modules", moduleId), { lessons });
-            alert("✅ Lesson removed.");
-          } catch (e) {
-            alert("Error: " + e.message);
-          }
-        }
-      });
-    });
-  }
-
-  // ─── EDIT MODULE ────────────────────────────────────────
-  function editModule(mod) {
-    editingModuleId = mod.id;
-    moduleTitle.value = mod.title || "";
-    moduleDescription.value = mod.description || "";
-    moduleOrder.value = mod.order || 1;
-    moduleHasQuiz.checked = mod.hasQuiz !== false;
-
-    // Clear lessons container
-    lessonsContainer.innerHTML = "";
-    const lessons = mod.lessons || [];
-    if (lessons.length === 0) {
-      addLessonRow();
-    } else {
-      lessons.forEach((l) => addLessonRow(l));
-    }
-
-    moduleFormTitle.textContent = "Edit Module";
-    saveModuleBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Module';
-    cancelModuleBtn.style.display = "inline-block";
-    addModuleBtn.textContent = "+ Add Module";
-  }
-
-  // ─── CANCEL EDIT ────────────────────────────────────────
-  function cancelEdit() {
-    editingModuleId = null;
-    moduleForm.reset();
-    moduleOrder.value = 1;
-    moduleHasQuiz.checked = true;
-    lessonsContainer.innerHTML = "";
-    addLessonRow();
-    moduleFormTitle.textContent = "Add New Module";
-    saveModuleBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Module';
-    cancelModuleBtn.style.display = "none";
-    addModuleBtn.textContent = "+ Add Module";
-  }
-
-  cancelModuleBtn?.addEventListener("click", cancelEdit);
-
-  addModuleBtn?.addEventListener("click", () => {
-    if (editingModuleId) {
-      cancelEdit();
-    }
-    document.getElementById("academy").scrollIntoView({ behavior: "smooth" });
-  });
-
-  // ─── SAVE MODULE ────────────────────────────────────────
-  moduleForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const title = moduleTitle.value.trim();
-    if (!title) {
-      alert("Please enter a module title.");
-      return;
-    }
-
-    // Collect lessons
-    const lessonRows = lessonsContainer.querySelectorAll(".lesson-form-row");
-    const lessons = [];
-    lessonRows.forEach((row) => {
-      const title = row.querySelector(".lesson-title").value.trim();
-      if (title) {
-        lessons.push({
-          id: "lsn_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-          title: title,
-          type: row.querySelector(".lesson-type").value,
-          videoUrl: row.querySelector(".lesson-video").value || "",
-          pdfUrl: row.querySelector(".lesson-pdf").value || "",
-          notes: row.querySelector(".lesson-notes").value || "",
-        });
-      }
-    });
-
-    if (lessons.length === 0) {
-      alert("Please add at least one lesson.");
-      return;
-    }
-
-    const data = {
-      title: title,
-      description: moduleDescription.value.trim() || "",
-      order: parseInt(moduleOrder.value) || 1,
-      hasQuiz: moduleHasQuiz.checked,
-      lessons: lessons,
-      updatedAt: serverTimestamp(),
-    };
-
-    try {
-      if (editingModuleId) {
-        await updateDoc(doc(db, "academy_modules", editingModuleId), data);
-        alert("✅ Module updated!");
-      } else {
-        await addDoc(collection(db, "academy_modules"), {
-          ...data,
-          createdAt: serverTimestamp(),
-        });
-        alert("✅ Module created!");
-      }
-      cancelEdit();
-    } catch (error) {
-      console.error(error);
-      alert("Error saving module: " + error.message);
-    }
-  });
-
-  // ─── UPDATE LESSON COUNT ──────────────────────────────
-  function updateLessonCount() {
-    let total = 0;
-    allModules.forEach((m) => {
-      total += (m.lessons || []).length;
-    });
-    const el = document.getElementById("lessonCount");
-    if (el) el.textContent = total;
-  }
-
-  // ─── LOGOUT ──────────────────────────────────────────────
+  // Logout
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     if (confirm("Logout?")) {
       await signOut(auth);
@@ -1755,7 +1132,7 @@ VIDEO MANAGEMENT
     }
   });
 
-  // ─── LIVE DATE ────────────────────────────────────────────
+  // Live Date
   function updateClock() {
     const el = document.getElementById("liveDate");
     if (el) {
@@ -1772,12 +1149,7 @@ VIDEO MANAGEMENT
   updateClock();
   setInterval(updateClock, 1000);
 
-  // ─── INIT ────────────────────────────────────────────────
-  // Start with one lesson row
-  addLessonRow();
-  loadModules();
-
-  console.log("✅ Academy management ready.");
+  console.log("✅ Admin dashboard ready.");
 </script>
 
 </body>
