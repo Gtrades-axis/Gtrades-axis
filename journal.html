@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── Full CSS ── */
+    /* ── Full CSS (unchanged) ── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
     :root {
@@ -303,7 +303,7 @@
           </div>
         </section>
 
-        <!-- RECENT TRADES -->
+        <!-- RECENT TRADES – NOW SHOWS ONLY PENDING, MAX 4 -->
         <section class="recent-trades-card">
           <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Trades</h2>
           <div id="recentTrades"></div>
@@ -558,8 +558,8 @@
         el.addEventListener('change', computeRR);
       }
     });
-    // Run once to set initial value (if any fields have values)
-    setTimeout(computeRR, 10); // wait for DOM
+    // Run once to set initial value
+    setTimeout(computeRR, 10);
 
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
@@ -639,7 +639,8 @@
       console.log('💾 SaveTrade triggered!');
 
       const form = e.target;
-      const isUpdate = $('#updateMode')?.value === 'true';
+      // Use editingTrade to determine if we are updating
+      const isUpdate = editingTrade !== null;
       console.log('Is update mode?', isUpdate);
 
       const date = val('tradeDate');
@@ -658,9 +659,8 @@
         }
         saveTrades();
         alert('✅ Trade updated!');
-        if (document.getElementById('updateMode')) {
-          document.getElementById('updateMode').value = 'false';
-        }
+        // Reset update mode
+        editingTrade = null;
         const submitBtn = document.querySelector('#saveTradeBtn');
         if (submitBtn) {
           submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
@@ -779,22 +779,27 @@
       setText('bestSession', bestSession);
     }
 
-    // ─── RECENT TRADES ────────────────────────────────────────
+    // ─── RECENT TRADES ── SHOW ONLY PENDING, MAX 4 ──────────
     function loadRecentTrades() {
       const container = document.getElementById('recentTrades');
       if (!container) return;
-      if (trades.length === 0) {
-        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No trades yet.</div>';
+
+      // Filter trades that are pending
+      const pendingTrades = trades.filter(t => t.status === 'Pending' || t.result === 'Pending');
+      const displayTrades = pendingTrades.slice(0, 4); // limit to 4
+
+      if (displayTrades.length === 0) {
+        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No pending trades.</div>';
         return;
       }
       container.innerHTML = '';
-      trades.slice(0, 8).forEach(t => {
+      displayTrades.forEach(t => {
         container.innerHTML += `
           <div class="trade-row">
             <div><strong>${t.pair || '?'}</strong><br><span style="font-size:12px; color: var(--text-secondary);">${t.direction || ''}</span></div>
             <div>${t.entryModel || '-'}</div>
-            <div><span class="status ${(t.status || 'pending').toLowerCase()}">${t.status || 'Pending'}</span></div>
-            <div><button onclick="closeTrade('${t.id}')" class="btn">${t.status === 'Closed' ? 'View' : 'Close'}</button></div>
+            <div><span class="status pending">Pending</span></div>
+            <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
           </div>
         `;
       });
@@ -810,20 +815,19 @@
         return;
       }
 
-      // Only ask for: Outcome, Profit/Loss, Commission (RR is unchanged)
+      // Only ask for: Outcome, Profit/Loss, Commission
       const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
       if (!outcome) return;
 
       const profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
       const commission = parseFloat(prompt("Commission ($)", 0)) || 0;
 
-      // Update trade – RR stays as planned (computed from entry/SL/TP)
       trade.status = 'Closed';
       trade.closed = new Date().toISOString();
       trade.result = outcome;
       trade.profit = profit;
       trade.commission = commission;
-      // Do NOT change trade.rr – it stays as the planned RR
+      // Keep the planned RR
 
       saveTrades();
       refreshUI();
