@@ -8,52 +8,264 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="stylesheet" href="premium-academy.css" />
   <style>
-    /* ── Lock Overlay ── */
-    #lockOverlay {
-      display: none;
-      text-align: center;
-      padding: 60px 20px;
-      max-width: 700px;
-      margin: 0 auto;
+    /* ── Reset & Base ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0b0d15;
+      color: #e8edf5;
+      min-height: 100vh;
     }
-    #lockOverlay .lock-icon {
-      font-size: 4rem;
-      color: #f5a623;
-      background: rgba(245, 166, 35, 0.15);
-      width: 100px;
-      height: 100px;
-      line-height: 100px;
-      border-radius: 50%;
-      margin: 0 auto 24px;
+    :root {
+      --bg-primary: #0b0d15;
+      --bg-secondary: #131724;
+      --bg-card: #1a1f2f;
+      --bg-card-hover: #222a3e;
+      --border-color: #2a3450;
+      --text-primary: #e8edf5;
+      --text-secondary: #9aa4bf;
+      --accent-blue: #4f7cff;
+      --accent-blue-glow: rgba(79,124,255,0.15);
+      --green: #00c897;
+      --red: #ff4766;
+      --gold: #f5a623;
+      --radius: 12px;
     }
-    #lockOverlay h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
-    #lockOverlay .subtitle { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto 32px; line-height: 1.6; }
-    #lockOverlay .feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; text-align: left; margin: 0 auto 36px; max-width: 480px; }
-    #lockOverlay .feature-list .feature-item { display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 0.95rem; }
-    #lockOverlay .feature-list .feature-item i { color: #00c897; font-size: 1.1rem; width: 20px; text-align: center; }
-    #lockOverlay .lock-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    #lockOverlay .lock-buttons a { display: inline-block; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.25s; }
-    #lockOverlay .lock-buttons .btn-upgrade { background: linear-gradient(135deg, #f5a623, #f7c948); color: #0b0d15; }
-    #lockOverlay .lock-buttons .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3); }
-    #lockOverlay .lock-buttons .btn-dashboard { background: #1a1f2f; color: #94a3b8; border: 1px solid #2a3450; }
-    #lockOverlay .lock-buttons .btn-dashboard:hover { background: #2a3450; color: #fff; }
-    .locked-content { display: block; }
-    .locked .locked-content { display: none; }
-    .locked #lockOverlay { display: block; }
 
-    /* ── AI Review extra styles ── */
-    .ai-review-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .academy-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR – Premium, Attractive ─── */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 28px 18px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+      transition: 0.3s;
+    }
+
+    .sidebar .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .sidebar .logo .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f7cff, #00d4ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .sidebar .logo h2 {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .sidebar .logo h2 .gradient-text {
+      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sidebar .logo h2 span {
+      color: var(--accent-blue);
+      -webkit-text-fill-color: var(--accent-blue);
+    }
+    .sidebar .logo .subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      -webkit-text-fill-color: var(--text-secondary);
+    }
+
+    .sidebar .premium-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(245,166,35,0.05));
+      border: 1px solid rgba(245,166,35,0.2);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 24px;
+      width: fit-content;
+    }
+    .sidebar .premium-badge i {
+      font-size: 10px;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+      flex: 1;
+    }
+    .sidebar nav ul li {
+      margin: 2px 0;
+    }
+    .sidebar nav ul li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+    .sidebar nav ul li a i {
+      width: 20px;
+      text-align: center;
+      font-size: 16px;
+      transition: 0.25s;
+    }
+    .sidebar nav ul li a:hover {
+      background: var(--bg-card);
+      color: #fff;
+    }
+    .sidebar nav ul li a:hover i {
+      color: var(--accent-blue);
+    }
+    .sidebar nav ul li.active a {
+      background: var(--accent-blue-glow);
+      color: var(--accent-blue);
+      border-left-color: var(--accent-blue);
+    }
+    .sidebar nav ul li.active a i {
+      color: var(--accent-blue);
+    }
+
+    .sidebar .logout-btn {
+      margin-top: auto;
+      padding: 11px 16px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255,71,102,0.08);
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: 0.25s;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      border: 1px solid transparent;
+    }
+    .sidebar .logout-btn:hover {
+      background: rgba(255,71,102,0.18);
+      border-color: rgba(255,71,102,0.15);
+    }
+    .sidebar .logout-btn i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      padding: 30px 40px;
+      background: var(--bg-primary);
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .topbar h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .topbar h1 i {
+      color: var(--accent-blue);
+      margin-right: 10px;
+    }
+    .topbar p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .topbar a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .topbar a:hover {
+      text-decoration: underline;
+    }
+    .user-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-box img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+    }
+    .user-box h4 {
+      font-size: 16px;
+    }
+    .user-box p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ── AI Review styles ── */
+    .ai-review-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
     .upload-section {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 24px;
+      padding: 28px;
       margin-bottom: 24px;
     }
-    .upload-section h2 { font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-    .upload-section h2 i { color: #1d9bf0; }
+    .upload-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .upload-section h2 i { color: var(--accent-blue); }
     .upload-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -62,7 +274,7 @@
     }
     .upload-box {
       background: rgba(255,255,255,0.03);
-      border: 2px dashed rgba(255,255,255,0.1);
+      border: 2px dashed var(--border-color);
       border-radius: 12px;
       padding: 20px;
       text-align: center;
@@ -70,15 +282,28 @@
       transition: 0.3s;
       position: relative;
     }
-    .upload-box:hover { border-color: #1d9bf0; background: rgba(29,155,240,0.05); }
+    .upload-box:hover {
+      border-color: var(--accent-blue);
+      background: var(--accent-blue-glow);
+    }
     .upload-box .icon { font-size: 2.5rem; color: #64748b; margin-bottom: 8px; }
-    .upload-box .label { font-size: 0.85rem; color: #94a3b8; }
-    .upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-    .upload-box .preview { margin-top: 10px; max-width: 100%; border-radius: 8px; max-height: 100px; }
+    .upload-box .label { font-size: 0.85rem; color: var(--text-secondary); }
+    .upload-box input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .upload-box .preview {
+      margin-top: 10px;
+      max-width: 100%;
+      border-radius: 8px;
+      max-height: 100px;
+    }
     .analyze-btn {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #1d9bf0, #4db6ff);
+      background: linear-gradient(135deg, var(--accent-blue), #3a66e0);
       color: #fff;
       border: none;
       border-radius: 12px;
@@ -87,11 +312,19 @@
       cursor: pointer;
       transition: 0.3s;
     }
-    .analyze-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .analyze-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79,124,255,0.3);
+    }
+    .analyze-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
     .results {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 24px;
       margin-top: 24px;
@@ -103,49 +336,99 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--border-color);
     }
     .result-item:last-child { border-bottom: none; }
-    .result-item .label { color: #94a3b8; font-weight: 500; }
+    .result-item .label { color: var(--text-secondary); font-weight: 500; }
     .result-item .score { font-weight: 600; }
-    .score-good { color: #00c853; }
-    .score-warning { color: #ffb300; }
-    .score-bad { color: #ff4d4f; }
+    .score-good { color: var(--green); }
+    .score-warning { color: var(--gold); }
+    .score-bad { color: var(--red); }
     .photon-score {
       text-align: center;
       padding: 20px;
-      background: rgba(255,215,0,0.05);
+      background: rgba(245,166,35,0.05);
       border-radius: 12px;
       margin-bottom: 16px;
     }
-    .photon-score .number { font-size: 3rem; font-weight: 700; color: #ffb300; }
-    .photon-score .label { color: #94a3b8; }
+    .photon-score .number { font-size: 3rem; font-weight: 700; color: var(--gold); }
+    .photon-score .label { color: var(--text-secondary); }
     .suggestions {
       margin-top: 16px;
       background: rgba(255,255,255,0.03);
       border-radius: 12px;
       padding: 16px;
     }
-    .suggestions h4 { margin-bottom: 8px; color: #e2e8f0; }
+    .suggestions h4 { margin-bottom: 8px; color: var(--text-primary); }
     .suggestions ul { list-style: none; padding: 0; }
     .suggestions ul li {
       padding: 6px 0;
-      color: #cbd5e1;
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .suggestions ul li i { color: #1d9bf0; }
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #1d9bf0;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
+    .suggestions ul li i { color: var(--accent-blue); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sidebar .logo {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+        flex: 1;
+      }
+      .sidebar nav {
+        flex: 1 1 100%;
+        order: 3;
+        margin-top: 12px;
+      }
+      .sidebar nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .sidebar nav ul li {
+        flex: 1 0 auto;
+      }
+      .sidebar nav ul li a {
+        padding: 8px 14px;
+        font-size: 12px;
+        border-left: none;
+        border-radius: 8px;
+      }
+      .sidebar nav ul li.active a {
+        border-left: none;
+        border-bottom: 2px solid var(--accent-blue);
+      }
+      .sidebar .logout-btn {
+        margin-top: 0;
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+      .sidebar .premium-badge {
+        display: none;
+      }
+      .content {
+        padding: 20px;
+      }
+      .topbar h1 {
+        font-size: 22px;
+      }
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
     }
-    .back-link:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -155,9 +438,15 @@
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="logo">
-      <h2>GTRADES <span>AXIS™</span></h2>
-      <p>Premium Academy</p>
+      <div class="logo-icon"><i class="fa-solid fa-chart-simple"></i></div>
+      <div>
+        <h2><span class="gradient-text">GTRADES</span> <span>AXIS™</span></h2>
+        <div class="subtitle">Premium Academy</div>
+      </div>
     </div>
+
+    <div class="premium-badge"><i class="fa-solid fa-crown"></i> Premium</div>
+
     <nav>
       <ul>
         <li><a href="dashboard.html"><i class="fas fa-house"></i> Dashboard</a></li>
@@ -168,6 +457,10 @@
         <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
       </ul>
     </nav>
+
+    <button class="logout-btn" id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
   </aside>
 
   <!-- ===== CONTENT ===== -->
@@ -177,10 +470,7 @@
     <div id="lockOverlay">
       <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
       <h2>Premium Members Only</h2>
-      <p class="subtitle">
-        This feature is available exclusively to GTRADES-AXIS™ Premium Members.
-        Upgrade your membership to unlock advanced trading tools and educational content.
-      </p>
+      <p class="subtitle">This feature is available exclusively to GTRADES-AXIS™ Premium Members.</p>
       <div class="feature-list">
         <div class="feature-item"><i class="fa-solid fa-check"></i> Professional Trading Journal</div>
         <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Trading Academy</div>
@@ -194,15 +484,14 @@
       </div>
     </div>
 
-    <!-- AI REVIEW CONTENT (wrapped in .locked-content) -->
+    <!-- MAIN CONTENT (visible when unlocked) -->
     <div class="locked-content">
+
       <!-- TOPBAR -->
       <header class="topbar">
         <div>
-          <h1>AI Trade Review</h1>
-          <p>
-            <a href="dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
-          </p>
+          <h1><i class="fas fa-brain"></i> AI Trade Review</h1>
+          <p><a href="dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a></p>
         </div>
         <div class="user-box">
           <img src="images/avatar.png" alt="" />
@@ -218,7 +507,7 @@
         <!-- Upload Section -->
         <div class="upload-section">
           <h2><i class="fas fa-cloud-upload-alt"></i> Upload Screenshots</h2>
-          <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:16px;">
+          <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:16px;">
             Upload your HTF, MTF, and Entry screenshots for AI analysis.
           </p>
           <div class="upload-grid">
@@ -267,10 +556,14 @@
         </div>
 
       </div>
+
     </div><!-- /.locked-content -->
   </div><!-- /#app -->
 </div>
 
+<!-- ===========================
+     SCRIPTS
+=========================== -->
 <script type="importmap">
 {
   "imports": {
@@ -282,70 +575,115 @@
 </script>
 
 <script type="module">
-import { initPremiumLock } from './js/premium-lock.js';
-import { logoutUser } from './js/auth.js';
+  import { auth, db } from "./js/firebase.js";
+  import { onAuthStateChanged } from "firebase/auth";
+  import { doc, getDoc } from "firebase/firestore";
+  import { logoutUser } from "./js/auth.js";
 
-// ─── LOGOUT ──────────────────────────────────────────────────
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-  if (confirm('Logout?')) {
-    await logoutUser();
-  }
-});
+  // ─── LOGOUT ──────────────────────────────────────────────
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    if (confirm('Logout?')) {
+      await logoutUser();
+    }
+  });
 
-// ─── AI REVIEW INIT ──────────────────────────────────────────
-function initAIReview(userData) {
-  console.log('✅ AI Review unlocked – initializing...');
+  // ─── LOCK LOGIC ──────────────────────────────────────────
+  const app = document.getElementById('app');
 
-  // ─── Your existing AI review logic ──────────────────────
-  // (Copy all the logic from your original ai-review.js here)
-  // For brevity I'll include a minimal working example,
-  // but you can paste your full ai-review.js code inside this function.
+  function startLock() {
+    if (!app) return;
+    app.classList.add('loading');
 
-  // Example: file upload previews
-  document.querySelectorAll('.upload-box input[type="file"]').forEach(input => {
-    input.addEventListener('change', function(e) {
-      const file = this.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-          const preview = this.parentElement.querySelector('.preview');
-          preview.src = ev.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        app.classList.remove('loading');
+        app.classList.add('locked');
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) {
+          app.classList.remove('loading');
+          app.classList.add('locked');
+          return;
+        }
+
+        const data = userDoc.data();
+        const role = data.role || 'member';
+        const membership = data.membership || 'free';
+        const hasPremium = (role === 'admin' || membership === 'premium');
+
+        app.classList.remove('loading');
+
+        if (hasPremium) {
+          app.classList.remove('locked');
+          initAIReview();
+        } else {
+          app.classList.add('locked');
+        }
+      } catch (error) {
+        console.error(error);
+        app.classList.remove('loading');
+        app.classList.add('locked');
       }
     });
-  });
+  }
 
-  // Analyze button (mock)
-  document.getElementById('analyzeBtn')?.addEventListener('click', function() {
-    const results = document.getElementById('results');
-    results.classList.add('visible');
-    document.getElementById('photonScore').textContent = '78';
-    document.getElementById('scoreStructure').textContent = 'Good';
-    document.getElementById('scoreStructure').className = 'score score-good';
-    document.getElementById('scoreLiquidity').textContent = 'Excellent';
-    document.getElementById('scoreLiquidity').className = 'score score-good';
-    document.getElementById('scoreSupplyDemand').textContent = 'Fair';
-    document.getElementById('scoreSupplyDemand').className = 'score score-warning';
-    document.getElementById('scoreEntry').textContent = 'Good';
-    document.getElementById('scoreEntry').className = 'score score-good';
-    document.getElementById('scoreRisk').textContent = 'Needs Work';
-    document.getElementById('scoreRisk').className = 'score score-bad';
-    document.getElementById('scorePsychology').textContent = 'Good';
-    document.getElementById('scorePsychology').className = 'score score-good';
-    document.getElementById('suggestionList').innerHTML = `
-      <li><i class="fas fa-lightbulb"></i> Improve risk management – always set SL before entry.</li>
-      <li><i class="fas fa-lightbulb"></i> Wait for clear POI mitigation before entering.</li>
-      <li><i class="fas fa-lightbulb"></i> Consider using a higher timeframe for confluence.</li>
-    `;
-  });
+  // ─── AI REVIEW LOGIC ──────────────────────────────────────
+  function initAIReview() {
+    console.log('✅ AI Review unlocked');
+
+    // File upload previews
+    document.querySelectorAll('.upload-box input[type="file"]').forEach(input => {
+      input.addEventListener('change', function(e) {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          const preview = this.parentElement.querySelector('.preview');
+          reader.onload = function(ev) {
+            preview.src = ev.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
+    // Analyze button (mock)
+    document.getElementById('analyzeBtn')?.addEventListener('click', function() {
+      const results = document.getElementById('results');
+      results.classList.add('visible');
+      document.getElementById('photonScore').textContent = '78';
+      document.getElementById('scoreStructure').textContent = 'Good';
+      document.getElementById('scoreStructure').className = 'score score-good';
+      document.getElementById('scoreLiquidity').textContent = 'Excellent';
+      document.getElementById('scoreLiquidity').className = 'score score-good';
+      document.getElementById('scoreSupplyDemand').textContent = 'Fair';
+      document.getElementById('scoreSupplyDemand').className = 'score score-warning';
+      document.getElementById('scoreEntry').textContent = 'Good';
+      document.getElementById('scoreEntry').className = 'score score-good';
+      document.getElementById('scoreRisk').textContent = 'Needs Work';
+      document.getElementById('scoreRisk').className = 'score score-bad';
+      document.getElementById('scorePsychology').textContent = 'Good';
+      document.getElementById('scorePsychology').className = 'score score-good';
+      document.getElementById('suggestionList').innerHTML = `
+        <li><i class="fas fa-lightbulb"></i> Improve risk management – always set SL before entry.</li>
+        <li><i class="fas fa-lightbulb"></i> Wait for clear POI mitigation before entering.</li>
+        <li><i class="fas fa-lightbulb"></i> Consider using a higher timeframe for confluence.</li>
+      `;
+    });
+  }
+
+  // ─── START ──────────────────────────────────────────────────
+  const appContainer = document.getElementById('app');
+  if (!appContainer) {
+    document.addEventListener('DOMContentLoaded', startLock);
+  } else {
+    startLock();
+  }
 
   console.log('✅ AI Review ready.');
-}
-
-// ─── INIT LOCK ──────────────────────────────────────────────────
-initPremiumLock('app', initAIReview);
 </script>
 
 </body>
