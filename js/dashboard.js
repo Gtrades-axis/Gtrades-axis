@@ -1,757 +1,149 @@
-// ============================================================
-// GTRADES-AXIS™
-// USER DASHBOARD – FINAL FIXED VERSION
-// ============================================================
-
-
-import { auth, db } from "../firebase.js";
-
+import { auth, db } from "./firebase.js";
 import {
-    doc,
-    getDoc,
-    onSnapshot,
-    collection,
-    query,
-    orderBy,
-    limit
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  doc,
+  getDoc,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+// ─── DOM REFS ──────────────────────────────────────────────
+const userName = document.getElementById("userName");
+const membershipBadge = document.getElementById("membershipBadge");
+const resourceCount = document.getElementById("resourceCount");
+const lessonCount = document.getElementById("lessonCount");
+const videoCount = document.getElementById("videoCount");
+const latestResources = document.getElementById("latestResources");
 
-import {
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-
-
-// ============================================================
-// DOM REFERENCES
-// ============================================================
-
-const userNameEl = document.getElementById("userName");
-const memberBadgeEl = document.getElementById("membershipBadge");
-
-const resourceCountEl = document.getElementById("resourceCount");
-const lessonCountEl = document.getElementById("lessonCount");
-const videoCountEl = document.getElementById("videoCount");
-
-const latestResourcesEl = document.getElementById("latestResources");
-
-
-
-// ============================================================
-// GLOBAL STATE
-// ============================================================
-
-let currentUser = null;
-let userData = {};
-
-let listenersStarted = false;
-
-
-
-// ============================================================
-// AUTH CHECK
-// ============================================================
-
-onAuthStateChanged(auth, async (user)=>{
-
-
-    if(!user){
-
-        window.location.href = "login.html";
-        return;
-
-    }
-
-
-
-    try{
-
-
-        const userRef = doc(
-            db,
-            "users",
-            user.uid
-        );
-
-
-        const snap = await getDoc(userRef);
-
-
-
-        if(!snap.exists()){
-
-
-            console.error(
-                "User profile missing"
-            );
-
-
-            await signOut(auth);
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-
-        currentUser = user;
-
-
-        userData = {
-
-            id:user.uid,
-
-            ...snap.data()
-
-        };
-
-
-
-        initializeDashboard();
-
-
-
-    }catch(error){
-
-        console.error(
-            "Authentication error:",
-            error
-        );
-
-    }
-
-
+// ─── LOGOUT ──────────────────────────────────────────────────
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  if (!confirm("Logout?")) return;
+  try {
+    await signOut(auth);
+    window.location.href = "login.html";
+  } catch (e) {
+    console.error(e);
+  }
 });
 
+// ─── AUTH & USER DATA ──────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
 
+  try {
+    // Fetch user data
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      userName.textContent = data.name || "Trader";
 
+      const role = data.role || "member";
+      const membership = data.membership || "free";
 
-
-// ============================================================
-// INITIALIZE DASHBOARD
-// ============================================================
-
-
-function initializeDashboard(){
-
-
-    displayUserInfo();
-
-
-
-    if(!listenersStarted){
-
-
-        listenStats();
-
-
-        listenLatestResources();
-
-
-        listenersStarted = true;
-
-
+      if (role === "admin") {
+        membershipBadge.textContent = "⭐ Admin";
+        membershipBadge.style.background = "#f5a623";
+        membershipBadge.style.color = "#0b0d15";
+      } else if (membership === "premium") {
+        membershipBadge.textContent = "⭐ Premium Member";
+        membershipBadge.style.background = "#f5a623";
+        membershipBadge.style.color = "#0b0d15";
+      } else {
+        membershipBadge.textContent = "Free Member";
+        membershipBadge.style.background = "#2a3450";
+        membershipBadge.style.color = "#9aa4bf";
+      }
     }
 
+    // Load counts & latest resources
+    await loadCounts();
+    await loadLatestResources();
+  } catch (e) {
+    console.error("Dashboard error:", e);
+  }
+});
 
+// ─── LOAD COUNTS ─────────────────────────────────────────────
+async function loadCounts() {
+  try {
+    // Resources
+    const resourcesSnap = await getDocs(collection(db, "resources"));
+    resourceCount.textContent = resourcesSnap.size;
+
+    // Academy lessons (count from academy_modules)
+    const modulesSnap = await getDocs(collection(db, "academy_modules"));
+    let lessonTotal = 0;
+    modulesSnap.forEach((doc) => {
+      const data = doc.data();
+      lessonTotal += (data.lessons || []).length;
+    });
+    lessonCount.textContent = lessonTotal;
+
+    // Videos (from videos collection or fallback)
+    // You can either use a dedicated "videos" collection or count from resources with category "Video"
+    // Here we count resources with category "Video"
+    // ─── Instead of filtering resources ───
+const videosSnap = await getDocs(collection(db, "videos"));
+videoCount.textContent = videosSnap.size;
+  }
 }
 
+// ─── LOAD LATEST RESOURCES ──────────────────────────────────
+async function loadLatestResources() {
+  try {
+    const q = query(
+      collection(db, "resources"),
+      orderBy("createdAt", "desc"),
+      limit(3)
+    );
+    const snapshot = await getDocs(q);
 
-
-
-
-
-
-// ============================================================
-// USER DISPLAY
-// ============================================================
-
-
-function displayUserInfo(){
-
-
-
-    if(userNameEl){
-
-
-        userNameEl.textContent =
-            userData.name ||
-            userData.username ||
-            "Trader";
-
-
+    if (snapshot.empty) {
+      latestResources.innerHTML = `
+        <div class="loading-card" style="padding:20px 0; color: var(--text-secondary);">
+          <i class="fa-solid fa-folder-open"></i> No resources yet.
+        </div>
+      `;
+      return;
     }
 
-
-
-
-
-    if(memberBadgeEl){
-
-
-
-        const membership =
-            userData.membership ||
-            "member";
-
-
-
-        if(membership==="premium"){
-
-
-            memberBadgeEl.textContent =
-                "⭐ Premium Member";
-
-
-            memberBadgeEl.style.background =
-                "#fbbf24";
-
-
-            memberBadgeEl.style.color =
-                "#1f2937";
-
-
-
-        }else{
-
-
-            memberBadgeEl.textContent =
-                "Member";
-
-
-            memberBadgeEl.style.background =
-                "#6b7280";
-
-
-            memberBadgeEl.style.color =
-                "#ffffff";
-
-
-        }
-
-
-    }
-
-
-
-}
-
-
-
-
-
-
-
-
-// ============================================================
-// REAL TIME COUNTS
-// ============================================================
-
-
-function listenStats(){
-
-
-
-    // ===============================
-    // RESOURCES
-    // ===============================
-
-
-    const resourcesRef =
-        collection(
-            db,
-            "resources"
-        );
-
-
-
-    onSnapshot(
-        resourcesRef,
-
-
-        (snapshot)=>{
-
-
-            if(resourceCountEl){
-
-                resourceCountEl.textContent =
-                    snapshot.size;
-
-            }
-
-
-        },
-
-
-        (error)=>{
-
-
-            console.error(
-                "Resources count error:",
-                error
-            );
-
-
-            if(resourceCountEl)
-                resourceCountEl.textContent="0";
-
-
-        }
-
-    );
-
-
-
-
-
-    // ===============================
-    // LESSONS
-    // ===============================
-
-
-    const lessonsRef =
-        collection(
-            db,
-            "academy_modules"
-        );
-
-
-
-    onSnapshot(
-        lessonsRef,
-
-
-        (snapshot)=>{
-
-
-            if(lessonCountEl){
-
-                lessonCountEl.textContent =
-                    snapshot.size;
-
-            }
-
-
-        },
-
-
-        (error)=>{
-
-
-            console.error(
-                "Lessons count error:",
-                error
-            );
-
-
-            if(lessonCountEl)
-                lessonCountEl.textContent="0";
-
-
-        }
-
-    );
-
-
-
-
-
-
-    // ===============================
-    // VIDEOS
-    // ===============================
-
-
-    const videosRef =
-        collection(
-            db,
-            "videos"
-        );
-
-
-
-    onSnapshot(
-        videosRef,
-
-
-        (snapshot)=>{
-
-
-            if(videoCountEl){
-
-                videoCountEl.textContent =
-                    snapshot.size;
-
-            }
-
-
-        },
-
-
-        (error)=>{
-
-
-            console.error(
-                "Videos count error:",
-                error
-            );
-
-
-            if(videoCountEl)
-                videoCountEl.textContent="0";
-
-
-        }
-
-
-    );
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ============================================================
-// LATEST RESOURCES
-// ============================================================
-
-
-function listenLatestResources(){
-
-
-
-    if(!latestResourcesEl)
-        return;
-
-
-
-
-    const resourcesQuery =
-        query(
-
-            collection(
-                db,
-                "resources"
-            ),
-
-            orderBy(
-                "createdAt",
-                "desc"
-            ),
-
-            limit(3)
-
-        );
-
-
-
-
-
-    onSnapshot(
-
-        resourcesQuery,
-
-
-        (snapshot)=>{
-
-
-            latestResourcesEl.innerHTML="";
-
-
-
-            if(snapshot.empty){
-
-
-                latestResourcesEl.innerHTML = `
-
-                <div class="empty-state">
-
-                No resources available
-
-                </div>
-
-                `;
-
-
-                return;
-
-
-            }
-
-
-
-
-
-            snapshot.forEach((resource)=>{
-
-
-                const data =
-                    resource.data();
-
-
-
-                const item =
-                    document.createElement(
-                        "div"
-                    );
-
-
-
-                item.className =
-                    "resource-item";
-
-
-
-                item.innerHTML = `
-
-
-                <h4>
-
-                ${data.title || "Untitled"}
-
-                </h4>
-
-
-                <p>
-
-                ${data.description || ""}
-
-                </p>
-
-
-                <a href="${
-                    data.fileUrl || "#"
-                }" target="_blank">
-
-                View →
-
-                </a>
-
-
-                `;
-
-
-
-                latestResourcesEl.appendChild(
-                    item
-                );
-
-
-
-            });
-
-
-
-        },
-
-
-
-        (error)=>{
-
-
-            console.error(
-                "Latest resources error:",
-                error
-            );
-
-
-            latestResourcesEl.innerHTML = `
-
-            <div class="error-state">
-
-            Failed to load resources
-
+    let html = "";
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const isPremium = data.premiumOnly || false;
+      html += `
+        <div class="resource-item" style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--border-color, #2a3450);">
+          <i class="fa-solid fa-file-pdf" style="color:var(--accent-blue, #4f7cff);"></i>
+          <div style="flex:1;">
+            <strong style="font-size:14px;">${data.title}</strong>
+            <div style="font-size:12px; color:var(--text-secondary, #9aa4bf);">
+              ${data.category || "Resource"}
+              ${isPremium ? ' <span style="color:var(--gold, #f5a623);">⭐ Premium</span>' : ''}
             </div>
-
-            `;
-
-
-        }
-
-
-    );
-
-
-
-}
-
-
-
-
-
-
-
-
-// ============================================================
-// LOGOUT
-// ============================================================
-
-
-document.addEventListener(
-"click",
-async(e)=>{
-
-
-    const btn =
-        e.target.closest(
-            "#logoutBtn"
-        );
-
-
-    if(!btn)
-        return;
-
-
-
-    e.preventDefault();
-
-
-
-    try{
-
-
-        await signOut(auth);
-
-
-
-        window.location.href =
-            "login.html";
-
-
-
-    }catch(error){
-
-
-        console.error(
-            "Logout failed:",
-            error
-        );
-
-
-        showToast(
-            "❌ Logout failed"
-        );
-
-
-    }
-
-
-
-});
-
-
-
-
-
-
-
-// ============================================================
-// TOAST
-// ============================================================
-
-
-function showToast(message){
-
-
-
-    const old =
-        document.getElementById(
-            "gtToast"
-        );
-
-
-
-    if(old)
-        old.remove();
-
-
-
-
-
-    const toast =
-        document.createElement(
-            "div"
-        );
-
-
-
-    toast.id =
-        "gtToast";
-
-
-
-    toast.style.cssText = `
-
-        position:fixed;
-        bottom:20px;
-        left:50%;
-        transform:translateX(-50%);
-        background:#1f2937;
-        color:white;
-        padding:12px 24px;
-        border-radius:8px;
-        font-weight:500;
-        z-index:9999;
-
+          </div>
+          <a href="${data.link || '#'}" target="_blank" style="color:var(--accent-blue, #4f7cff); font-size:12px; text-decoration:none; white-space:nowrap;">
+            View <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      `;
+    });
+    latestResources.innerHTML = html;
+  } catch (e) {
+    console.error("Error loading latest resources:", e);
+    latestResources.innerHTML = `
+      <div class="loading-card" style="padding:20px 0; color: var(--text-secondary);">
+        <i class="fa-solid fa-triangle-exclamation"></i> Could not load resources.
+      </div>
     `;
-
-
-
-    toast.textContent =
-        message;
-
-
-
-    document.body.appendChild(
-        toast
-    );
-
-
-
-    setTimeout(
-        ()=>toast.remove(),
-        3000
-    );
-
-
+  }
 }
-
-
-
-
-
-
-
-// ============================================================
-// MANUAL REFRESH
-// ============================================================
-
-
-window.refreshDashboard =
-function(){
-
-
-    displayUserInfo();
-
-
-};
-
-
-
-
-
-console.log(
-"✅ GTRADES-AXIS Dashboard Loaded"
-);
