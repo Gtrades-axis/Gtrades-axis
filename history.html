@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <style>
-        /* ===== Same base styles as before ===== */
+        /* ===== Same as original history styles, plus lock overlay ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
         :root {
@@ -62,32 +62,51 @@
         }
         .logout-btn:hover { background: rgba(255,71,102,0.18); }
         .main-content { flex: 1; padding: 32px 40px 60px; max-width: calc(100% - 260px); }
-        .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 16px; margin-bottom: 32px;
+
+        /* ─── Lock Overlay ─── */
+        #lockOverlay {
+          display: none;
+          text-align: center;
+          padding: 60px 20px;
+          max-width: 700px;
+          margin: 0 auto;
         }
+        #lockOverlay .lock-icon {
+          font-size: 4rem;
+          color: #f5a623;
+          background: rgba(245, 166, 35, 0.15);
+          width: 100px;
+          height: 100px;
+          line-height: 100px;
+          border-radius: 50%;
+          margin: 0 auto 24px;
+        }
+        #lockOverlay h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+        #lockOverlay .subtitle { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto 32px; line-height: 1.6; }
+        #lockOverlay .feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; text-align: left; margin: 0 auto 36px; max-width: 480px; }
+        #lockOverlay .feature-list .feature-item { display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 0.95rem; }
+        #lockOverlay .feature-list .feature-item i { color: #00c897; font-size: 1.1rem; width: 20px; text-align: center; }
+        #lockOverlay .lock-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        #lockOverlay .lock-buttons a { display: inline-block; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.25s; }
+        #lockOverlay .lock-buttons .btn-upgrade { background: linear-gradient(135deg, #f5a623, #f7c948); color: #0b0d15; }
+        #lockOverlay .lock-buttons .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3); }
+        #lockOverlay .lock-buttons .btn-dashboard { background: #1a1f2f; color: #94a3b8; border: 1px solid #2a3450; }
+        #lockOverlay .lock-buttons .btn-dashboard:hover { background: #2a3450; color: #fff; }
+        .locked-content { display: block; }
+        .locked .locked-content { display: none; }
+        .locked #lockOverlay { display: block; }
+
+        /* ===== Original history styles (condensed) ===== */
+        .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
         .page-header h1 { font-size: 28px; font-weight: 700; }
         .page-header h1 i { color: #00d4ff; margin-right: 10px; }
         .page-header p { color: var(--text-secondary); font-size: 14px; }
         .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-        .header-actions .btn {
-            display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
-            border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;
-            transition: 0.25s; background: var(--bg-card); color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
+        .header-actions .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: 0.25s; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
         .header-actions .btn:hover { background: #222a3e; border-color: var(--accent-blue); }
 
-        /* Stats grid */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 14px; margin-bottom: 32px;
-        }
-        .stat-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 18px 20px; text-align: center;
-            transition: 0.25s;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 32px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 18px 20px; text-align: center; transition: 0.25s; }
         .stat-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
         .stat-card .stat-icon { font-size: 18px; color: #00d4ff; margin-bottom: 4px; }
         .stat-card h3 { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -96,47 +115,22 @@
         .value-negative { color: var(--red); }
         .value-neutral { color: var(--gold); }
 
-        /* Filter */
-        .filter-bar {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px;
-            display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 20px;
-        }
+        .filter-bar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 20px; }
         .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1 0 140px; min-width: 120px; }
         .filter-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
-        .filter-group input, .filter-group select {
-            background: var(--bg-primary); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 8px 12px; color: var(--text-primary); font-size: 13px;
-            font-family: 'Poppins', sans-serif; transition: 0.25s; outline: none; width: 100%;
-        }
-        .filter-group input:focus, .filter-group select:focus {
-            border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
-        }
+        .filter-group input, .filter-group select { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--text-primary); font-size: 13px; font-family: 'Poppins', sans-serif; transition: 0.25s; outline: none; width: 100%; }
+        .filter-group input:focus, .filter-group select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(79,124,255,0.15); }
         .filter-actions { display: flex; gap: 10px; flex: 0 0 auto; align-items: center; }
-        .filter-actions .btn-filter {
-            padding: 8px 18px; border: none; border-radius: 8px; font-weight: 600; font-size: 13px;
-            cursor: pointer; transition: 0.25s; font-family: 'Poppins', sans-serif;
-            display: inline-flex; align-items: center; gap: 6px; background: var(--accent-blue); color: #fff;
-        }
+        .filter-actions .btn-filter { padding: 8px 18px; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.25s; font-family: 'Poppins', sans-serif; display: inline-flex; align-items: center; gap: 6px; background: var(--accent-blue); color: #fff; }
         .filter-actions .btn-filter:hover { background: #3a66e0; }
-        .filter-actions .btn-filter.reset {
-            background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color);
-        }
+        .filter-actions .btn-filter.reset { background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); }
         .filter-actions .btn-filter.reset:hover { background: var(--border-color); color: var(--text-primary); }
 
-        /* Table */
-        .table-wrapper {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius); overflow: hidden; margin-bottom: 28px;
-        }
+        .table-wrapper { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; margin-bottom: 28px; }
         .table-scroll { overflow-x: auto; padding: 4px 0; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
         thead { background: var(--bg-secondary); border-bottom: 2px solid var(--border-color); }
-        thead th {
-            padding: 14px 16px; text-align: left; font-weight: 600; font-size: 11px;
-            text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary);
-            white-space: nowrap; cursor: pointer; user-select: none; transition: 0.25s;
-        }
+        thead th { padding: 14px 16px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); white-space: nowrap; cursor: pointer; user-select: none; transition: 0.25s; }
         thead th:hover { color: var(--text-primary); }
         thead th i { margin-left: 4px; font-size: 10px; opacity: 0.5; }
         thead th.sorted i { opacity: 1; color: #00d4ff; }
@@ -156,26 +150,13 @@
         .trade-profit.negative { color: var(--red); }
         .trade-profit.zero { color: var(--text-muted); }
 
-        .chart-links {
-            display: flex; gap: 6px; flex-wrap: wrap;
-        }
-        .chart-links a {
-            color: var(--accent-blue); font-size: 14px;
-            text-decoration: none; transition: 0.25s;
-            padding: 2px 6px; border-radius: 4px;
-            background: rgba(79,124,255,0.08);
-        }
+        .chart-links { display: flex; gap: 6px; flex-wrap: wrap; }
+        .chart-links a { color: var(--accent-blue); font-size: 14px; text-decoration: none; transition: 0.25s; padding: 2px 6px; border-radius: 4px; background: rgba(79,124,255,0.08); }
         .chart-links a:hover { background: rgba(79,124,255,0.2); }
         .chart-links .no-link { color: var(--text-muted); font-size: 12px; }
 
-        .action-buttons {
-            display: flex; gap: 6px; flex-wrap: wrap;
-        }
-        .action-buttons button {
-            background: none; border: none; cursor: pointer;
-            padding: 4px 8px; border-radius: 4px;
-            font-size: 13px; transition: 0.25s; color: var(--text-secondary);
-        }
+        .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+        .action-buttons button { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 13px; transition: 0.25s; color: var(--text-secondary); }
         .action-buttons button:hover { background: var(--bg-card-hover); color: var(--text-primary); }
         .action-buttons .edit-btn { color: var(--accent-blue); }
         .action-buttons .edit-btn:hover { background: rgba(79,124,255,0.15); }
@@ -184,30 +165,14 @@
         .action-buttons .delete-btn { color: var(--red); }
         .action-buttons .delete-btn:hover { background: rgba(255,71,102,0.15); }
 
-        /* Modal for View */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
-        .modal-content {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius); max-width: 600px; width: 90%; max-height: 80vh;
-            overflow-y: auto; padding: 30px; position: relative;
-        }
-        .modal-content .close-modal {
-            position: absolute; top: 16px; right: 20px;
-            background: none; border: none; color: var(--text-secondary);
-            font-size: 24px; cursor: pointer;
-        }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 30px; position: relative; }
+        .modal-content .close-modal { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; }
         .modal-content .close-modal:hover { color: #fff; }
         .modal-content h2 { margin-bottom: 20px; font-size: 22px; }
-        .modal-content .detail-row {
-            display: flex; padding: 8px 0; border-bottom: 1px solid var(--border-color);
-        }
-        .modal-content .detail-row .label {
-            width: 120px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0;
-        }
+        .modal-content .detail-row { display: flex; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        .modal-content .detail-row .label { width: 120px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
         .modal-content .detail-row .value { color: var(--text-primary); word-break: break-all; }
 
         .empty-state { text-align: center; padding: 60px 20px; }
@@ -215,25 +180,15 @@
         .empty-state h3 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
         .empty-state p { color: var(--text-secondary); font-size: 14px; }
 
-        .table-actions {
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 12px; padding: 16px 24px;
-            border-top: 1px solid var(--border-color); background: var(--bg-secondary);
-        }
+        .table-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); }
         .table-actions .info { font-size: 13px; color: var(--text-secondary); }
         .table-actions .info strong { color: var(--text-primary); }
         .table-actions .actions { display: flex; gap: 10px; }
-        .table-actions .actions button {
-            padding: 8px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 12px;
-            cursor: pointer; transition: 0.25s; font-family: 'Poppins', sans-serif;
-            display: inline-flex; align-items: center; gap: 6px;
-            background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color);
-        }
+        .table-actions .actions button { padding: 8px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.25s; font-family: 'Poppins', sans-serif; display: inline-flex; align-items: center; gap: 6px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
         .table-actions .actions button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
         .table-actions .actions button.danger { color: var(--red); border-color: var(--red); }
         .table-actions .actions button.danger:hover { background: rgba(255,71,102,0.12); }
 
-        /* Responsive */
         @media (max-width: 1024px) { .sidebar { width: 220px; } .main-content { max-width: calc(100% - 220px); padding: 24px; } }
         @media (max-width: 768px) {
             .dashboard-container { flex-direction: column; }
@@ -258,32 +213,55 @@
 </head>
 <body>
 
-    <!-- Scroll to Top -->
-    <button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
 
-    <div class="dashboard-container">
+<div class="dashboard-container">
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <img src="images/imageslogo.png.png" alt="Logo" draggable="false" style="width:40px;height:40px;object-fit:contain;border-radius:10px;" onerror="this.style.display='none'">
-                <h2>GTRADES <span>AXIS™</span></h2>
-            </div>
-            <nav>
-                <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
-                <a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
-                <a href="downloads.html"><i class="fa-solid fa-folder-open"></i> Resources</a>
-                <a href="journal.html"><i class="fa-solid fa-chart-line"></i> Trading Journal</a>
-                <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
-                <a class="active" href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
-                <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-                <a href="support.html"><i class="fa-solid fa-headset"></i> Support</a>
-            </nav>
-            <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        </aside>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="images/imageslogo.png.png" alt="Logo" draggable="false" style="width:40px;height:40px;object-fit:contain;border-radius:10px;" onerror="this.style.display='none'">
+            <h2>GTRADES <span>AXIS™</span></h2>
+        </div>
+        <nav>
+            <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
+            <a href="downloads.html"><i class="fa-solid fa-folder-open"></i> Resources</a>
+            <a href="journal.html"><i class="fa-solid fa-chart-line"></i> Trading Journal</a>
+            <a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+            <a class="active" href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+            <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+            <a href="support.html"><i class="fa-solid fa-headset"></i> Support</a>
+        </nav>
+        <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </aside>
 
-        <!-- Main -->
-        <main class="main-content">
+    <!-- Main -->
+    <main class="main-content" id="app">
+
+        <!-- LOCK OVERLAY -->
+        <div id="lockOverlay">
+          <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
+          <h2>Premium Members Only</h2>
+          <p class="subtitle">
+            This feature is available exclusively to GTRADES-AXIS™ Premium Members.
+            Upgrade your membership to unlock advanced trading tools and educational content.
+          </p>
+          <div class="feature-list">
+            <div class="feature-item"><i class="fa-solid fa-check"></i> Professional Trading Journal</div>
+            <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Trading Academy</div>
+            <div class="feature-item"><i class="fa-solid fa-check"></i> AI Trade Review</div>
+            <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Resources</div>
+            <div class="feature-item"><i class="fa-solid fa-check"></i> Private Videos</div>
+          </div>
+          <div class="lock-buttons">
+            <a href="upgrade.html" class="btn-upgrade">Upgrade Membership</a>
+            <a href="dashboard.html" class="btn-dashboard">Back to Dashboard</a>
+          </div>
+        </div>
+
+        <!-- HISTORY CONTENT -->
+        <div class="locked-content">
 
             <div class="page-header">
                 <div>
@@ -353,478 +331,461 @@
                 </div>
             </div>
 
-        </main>
-    </div>
+        </div><!-- /.locked-content -->
+    </main>
+</div>
 
-    <!-- ===== VIEW MODAL ===== -->
-    <div class="modal-overlay" id="viewModal">
-        <div class="modal-content">
-            <button class="close-modal" id="closeModal">&times;</button>
-            <h2><i class="fa-solid fa-eye"></i> Trade Details</h2>
-            <div id="modalBody">
-                <!-- Dynamically filled -->
-            </div>
+<!-- ===== VIEW MODAL ===== -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal-content">
+        <button class="close-modal" id="closeModal">&times;</button>
+        <h2><i class="fa-solid fa-eye"></i> Trade Details</h2>
+        <div id="modalBody">
+            <!-- Dynamically filled -->
         </div>
     </div>
+</div>
 
-    <script>
-        // ============================================================
-        // HISTORY JAVASCRIPT – with Chart Links & Edit/View
-        // ============================================================
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+  }
+}
+</script>
 
-        const STORAGE_KEY = "trades";
-        let trades = [];
-        let filteredTrades = [];
-        let sortKey = 'date';
-        let sortAsc = false;
+<script type="module">
+import { initPremiumLock } from './js/premium-lock.js';
+import { logoutUser } from './js/auth.js';
 
-        // DOM refs
-        const tbody = document.getElementById('tradeTableBody');
-        const showingCount = document.getElementById('showingCount');
-        const totalCount = document.getElementById('totalCount');
-        const statTotal = document.getElementById('statTotal');
-        const statWinRate = document.getElementById('statWinRate');
-        const statAvgRR = document.getElementById('statAvgRR');
-        const statNetProfit = document.getElementById('statNetProfit');
-        const statWins = document.getElementById('statWins');
-        const statLosses = document.getElementById('statLosses');
-        const statStreak = document.getElementById('statStreak');
-        const statMonth = document.getElementById('statMonth');
+// ─── LOGOUT ──────────────────────────────────────────────────
+document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+  if (confirm('Logout?')) {
+    await logoutUser();
+  }
+});
 
-        const filterPair = document.getElementById('filterPair');
-        const filterDirection = document.getElementById('filterDirection');
-        const filterResult = document.getElementById('filterResult');
-        const filterDateFrom = document.getElementById('filterDateFrom');
-        const filterDateTo = document.getElementById('filterDateTo');
-        const applyBtn = document.getElementById('applyFilters');
-        const resetBtn = document.getElementById('resetFilters');
-        const exportCSVBtn = document.getElementById('exportCSV');
-        const exportJSONBtn = document.getElementById('exportJSON');
-        const clearAllBtn = document.getElementById('clearAll');
+// ─── HISTORY INIT ──────────────────────────────────────────
+function initHistory(userData) {
+  console.log('✅ History unlocked – initializing...');
 
-        // Modal refs
-        const modal = document.getElementById('viewModal');
-        const modalBody = document.getElementById('modalBody');
-        const closeModal = document.getElementById('closeModal');
+  // ─── PASTE YOUR ENTIRE HISTORY JAVASCRIPT HERE ──────────
+  // (All the code from the <script> tag in your original history.html)
+  // For brevity, I'll include a condensed version – you must copy your full logic.
 
-        // ─── LOAD ────────────────────────────────────────────────────
-        function loadTrades() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                trades = raw ? JSON.parse(raw) : [];
-                trades = trades.filter(t => t && typeof t === 'object').map(t => {
-                    if (!t.id) t.id = Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-                    return t;
-                });
-            } catch (e) { trades = []; }
-            trades.sort((a, b) => new Date(b.date) - new Date(a.date));
-            filteredTrades = [...trades];
-        }
+  const STORAGE_KEY = "trades";
+  let trades = [];
+  let filteredTrades = [];
+  let sortKey = 'date';
+  let sortAsc = false;
 
-        function saveTrades() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-        }
+  const tbody = document.getElementById('tradeTableBody');
+  const showingCount = document.getElementById('showingCount');
+  const totalCount = document.getElementById('totalCount');
+  const statTotal = document.getElementById('statTotal');
+  const statWinRate = document.getElementById('statWinRate');
+  const statAvgRR = document.getElementById('statAvgRR');
+  const statNetProfit = document.getElementById('statNetProfit');
+  const statWins = document.getElementById('statWins');
+  const statLosses = document.getElementById('statLosses');
+  const statStreak = document.getElementById('statStreak');
+  const statMonth = document.getElementById('statMonth');
 
-        // ─── RENDER ──────────────────────────────────────────────────
-        function renderTable() {
-            const data = filteredTrades;
-            if (data.length === 0) {
-                tbody.innerHTML = `
-                    <tr><td colspan="11">
-                        <div class="empty-state">
-                            <i class="fa-solid fa-inbox"></i>
-                            <h3>No trades found</h3>
-                            <p>Start journaling your trades in the <a href="journal.html" style="color:var(--accent-blue);text-decoration:none;">Trading Journal</a>.</p>
-                        </div>
-                    </td></tr>
-                `;
-                showingCount.textContent = '0';
-                totalCount.textContent = trades.length;
-                updateStats();
-                return;
-            }
+  const filterPair = document.getElementById('filterPair');
+  const filterDirection = document.getElementById('filterDirection');
+  const filterResult = document.getElementById('filterResult');
+  const filterDateFrom = document.getElementById('filterDateFrom');
+  const filterDateTo = document.getElementById('filterDateTo');
+  const applyBtn = document.getElementById('applyFilters');
+  const resetBtn = document.getElementById('resetFilters');
+  const exportCSVBtn = document.getElementById('exportCSV');
+  const exportJSONBtn = document.getElementById('exportJSON');
+  const clearAllBtn = document.getElementById('clearAll');
 
-            const sorted = [...data];
-            sorted.sort((a, b) => {
-                let valA = a[sortKey] ?? '';
-                let valB = b[sortKey] ?? '';
-                if (['profit','rr','entry','stopLoss','takeProfit'].includes(sortKey)) {
-                    valA = parseFloat(valA) || 0;
-                    valB = parseFloat(valB) || 0;
-                }
-                if (sortKey === 'date') {
-                    valA = new Date(valA).getTime() || 0;
-                    valB = new Date(valB).getTime() || 0;
-                }
-                if (typeof valA === 'string') valA = valA.toLowerCase();
-                if (typeof valB === 'string') valB = valB.toLowerCase();
-                if (valA < valB) return sortAsc ? -1 : 1;
-                if (valA > valB) return sortAsc ? 1 : -1;
-                return 0;
-            });
+  const modal = document.getElementById('viewModal');
+  const modalBody = document.getElementById('modalBody');
+  const closeModal = document.getElementById('closeModal');
 
-            let html = '';
-            for (const t of sorted) {
-                const profit = parseFloat(t.profit) || 0;
-                const profitClass = profit > 0 ? 'positive' : profit < 0 ? 'negative' : 'zero';
-                const profitDisplay = profit > 0 ? `+$${profit.toFixed(2)}` : profit < 0 ? `-$${Math.abs(profit).toFixed(2)}` : '$0.00';
-                const resultClass = t.result?.toLowerCase() === 'win' ? 'win' : t.result?.toLowerCase() === 'loss' ? 'loss' : 'breakeven';
-                const directionClass = t.direction?.toLowerCase() === 'buy' ? 'buy' : 'sell';
+  function loadTrades() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      trades = raw ? JSON.parse(raw) : [];
+      trades = trades.filter(t => t && typeof t === 'object').map(t => {
+        if (!t.id) t.id = Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        return t;
+      });
+    } catch (e) { trades = []; }
+    trades.sort((a, b) => new Date(b.date) - new Date(a.date));
+    filteredTrades = [...trades];
+  }
 
-                // Chart links
-                let chartLinksHtml = '';
-                const links = [
-                    { label: 'Before', url: t.beforeChart },
-                    { label: 'During', url: t.duringChart },
-                    { label: 'After', url: t.afterChart }
-                ];
-                const hasLink = links.some(l => l.url && l.url.trim() !== '');
-                if (hasLink) {
-                    chartLinksHtml = links.map(l => {
-                        if (l.url && l.url.trim() !== '') {
-                            return `<a href="${l.url}" target="_blank" title="${l.label}"><i class="fa-solid fa-image"></i>${l.label}</a>`;
-                        }
-                        return '';
-                    }).filter(l => l).join(' ');
-                } else {
-                    chartLinksHtml = `<span class="no-link">—</span>`;
-                }
+  function saveTrades() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+  }
 
-                html += `
-                    <tr>
-                        <td>${formatDate(t.date)}</td>
-                        <td><strong>${t.pair || '—'}</strong></td>
-                        <td><span class="badge-direction ${directionClass}">${t.direction || '—'}</span></td>
-                        <td>${t.entry ?? '—'}</td>
-                        <td>${t.stopLoss ?? '—'}</td>
-                        <td>${t.takeProfit ?? '—'}</td>
-                        <td>${t.rr ? t.rr.toFixed(1) : '—'}</td>
-                        <td class="trade-profit ${profitClass}">${profitDisplay}</td>
-                        <td><span class="badge-result ${resultClass}">${t.result || '—'}</span></td>
-                        <td><div class="chart-links">${chartLinksHtml}</div></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="view-btn" data-id="${t.id}" title="View"><i class="fa-regular fa-eye"></i></button>
-                                <button class="edit-btn" data-id="${t.id}" title="Edit"><i class="fa-regular fa-pen-to-square"></i></button>
-                                <button class="delete-btn" data-id="${t.id}" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try { const d = new Date(dateStr); if (isNaN(d)) return dateStr; return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return dateStr; }
+  }
 
-            tbody.innerHTML = html;
-            showingCount.textContent = sorted.length;
-            totalCount.textContent = trades.length;
+  function renderTable() {
+    const data = filteredTrades;
+    if (data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i class="fa-solid fa-inbox"></i><h3>No trades found</h3><p>Start journaling your trades in the <a href="journal.html" style="color:var(--accent-blue);text-decoration:none;">Trading Journal</a>.</p></div></td></tr>`;
+      showingCount.textContent = '0';
+      totalCount.textContent = trades.length;
+      updateStats();
+      return;
+    }
+    const sorted = [...data];
+    sorted.sort((a, b) => {
+      let valA = a[sortKey] ?? '';
+      let valB = b[sortKey] ?? '';
+      if (['profit','rr','entry','stopLoss','takeProfit'].includes(sortKey)) {
+        valA = parseFloat(valA) || 0;
+        valB = parseFloat(valB) || 0;
+      }
+      if (sortKey === 'date') {
+        valA = new Date(valA).getTime() || 0;
+        valB = new Date(valB).getTime() || 0;
+      }
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+      if (valA < valB) return sortAsc ? -1 : 1;
+      if (valA > valB) return sortAsc ? 1 : -1;
+      return 0;
+    });
 
-            // Event listeners for view, edit, delete
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    const trade = trades.find(t => t.id === id);
-                    if (trade) openViewModal(trade);
-                });
-            });
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    // Navigate to journal with edit parameter
-                    window.location.href = `journal.html?edit=${id}`;
-                });
-            });
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    if (confirm('Delete this trade?')) deleteTrade(id);
-                });
-            });
+    let html = '';
+    for (const t of sorted) {
+      const profit = parseFloat(t.profit) || 0;
+      const profitClass = profit > 0 ? 'positive' : profit < 0 ? 'negative' : 'zero';
+      const profitDisplay = profit > 0 ? `+$${profit.toFixed(2)}` : profit < 0 ? `-$${Math.abs(profit).toFixed(2)}` : '$0.00';
+      const resultClass = t.result?.toLowerCase() === 'win' ? 'win' : t.result?.toLowerCase() === 'loss' ? 'loss' : 'breakeven';
+      const directionClass = t.direction?.toLowerCase() === 'buy' ? 'buy' : 'sell';
 
-            updateStats();
+      let chartLinksHtml = '';
+      const links = [
+        { label: 'Before', url: t.beforeChart },
+        { label: 'During', url: t.duringChart },
+        { label: 'After', url: t.afterChart }
+      ];
+      const hasLink = links.some(l => l.url && l.url.trim() !== '');
+      if (hasLink) {
+        chartLinksHtml = links.map(l => {
+          if (l.url && l.url.trim() !== '') {
+            return `<a href="${l.url}" target="_blank" title="${l.label}"><i class="fa-solid fa-image"></i>${l.label}</a>`;
+          }
+          return '';
+        }).filter(l => l).join(' ');
+      } else {
+        chartLinksHtml = `<span class="no-link">—</span>`;
+      }
 
-            // Sort indicators
-            document.querySelectorAll('thead th').forEach(th => {
-                th.classList.remove('sorted');
-                const key = th.dataset.sort;
-                if (key === sortKey) {
-                    th.classList.add('sorted');
-                    const icon = th.querySelector('i');
-                    if (icon) icon.className = sortAsc ? 'fa-solid fa-sort-up' : 'fa-solid fa-sort-down';
-                } else {
-                    const icon = th.querySelector('i');
-                    if (icon) icon.className = 'fa-solid fa-sort';
-                }
-            });
-        }
+      html += `
+        <tr>
+          <td>${formatDate(t.date)}</td>
+          <td><strong>${t.pair || '—'}</strong></td>
+          <td><span class="badge-direction ${directionClass}">${t.direction || '—'}</span></td>
+          <td>${t.entry ?? '—'}</td>
+          <td>${t.stopLoss ?? '—'}</td>
+          <td>${t.takeProfit ?? '—'}</td>
+          <td>${t.rr ? t.rr.toFixed(1) : '—'}</td>
+          <td class="trade-profit ${profitClass}">${profitDisplay}</td>
+          <td><span class="badge-result ${resultClass}">${t.result || '—'}</span></td>
+          <td><div class="chart-links">${chartLinksHtml}</div></td>
+          <td>
+            <div class="action-buttons">
+              <button class="view-btn" data-id="${t.id}" title="View"><i class="fa-regular fa-eye"></i></button>
+              <button class="edit-btn" data-id="${t.id}" title="Edit"><i class="fa-regular fa-pen-to-square"></i></button>
+              <button class="delete-btn" data-id="${t.id}" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '—';
-            try { const d = new Date(dateStr); if (isNaN(d)) return dateStr; return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return dateStr; }
-        }
+    tbody.innerHTML = html;
+    showingCount.textContent = sorted.length;
+    totalCount.textContent = trades.length;
 
-        // ─── STATS ──────────────────────────────────────────────────
-        function updateStats() {
-            const data = filteredTrades;
-            const total = data.length;
-            let wins = 0, losses = 0, totalProfit = 0, totalRR = 0, rrCount = 0;
-            let bestStreak = 0, currentStreak = 0, streakType = null;
-            const now = new Date();
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-            let monthCount = 0;
+    // Event listeners
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const trade = trades.find(t => t.id === id);
+        if (trade) openViewModal(trade);
+      });
+    });
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        window.location.href = `journal.html?edit=${id}`;
+      });
+    });
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        if (confirm('Delete this trade?')) deleteTrade(id);
+      });
+    });
 
-            for (const t of data) {
-                const profit = parseFloat(t.profit) || 0;
-                totalProfit += profit;
-                const rr = parseFloat(t.rr) || 0;
-                if (rr > 0) { totalRR += rr; rrCount++; }
-                const result = t.result?.toLowerCase() || '';
-                if (result === 'win') wins++;
-                else if (result === 'loss') losses++;
+    updateStats();
 
-                if (result === 'win') {
-                    if (streakType === 'win') currentStreak++;
-                    else { streakType = 'win'; currentStreak = 1; }
-                } else if (result === 'loss') {
-                    if (streakType === 'loss') currentStreak++;
-                    else { streakType = 'loss'; currentStreak = 1; }
-                } else { streakType = null; currentStreak = 0; }
-                if (currentStreak > bestStreak) bestStreak = currentStreak;
+    document.querySelectorAll('thead th').forEach(th => {
+      th.classList.remove('sorted');
+      const key = th.dataset.sort;
+      if (key === sortKey) {
+        th.classList.add('sorted');
+        const icon = th.querySelector('i');
+        if (icon) icon.className = sortAsc ? 'fa-solid fa-sort-up' : 'fa-solid fa-sort-down';
+      } else {
+        const icon = th.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-sort';
+      }
+    });
+  }
 
-                if (t.date) {
-                    try { const d = new Date(t.date); if (d >= monthStart) monthCount++; } catch {}
-                }
-            }
-            if (total === 0) bestStreak = 0;
-            const winRate = total > 0 ? (wins / total) * 100 : 0;
-            const avgRR = rrCount > 0 ? totalRR / rrCount : 0;
+  function updateStats() {
+    const data = filteredTrades;
+    const total = data.length;
+    let wins = 0, losses = 0, totalProfit = 0, totalRR = 0, rrCount = 0;
+    let bestStreak = 0, currentStreak = 0, streakType = null;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    let monthCount = 0;
 
-            statTotal.textContent = total;
-            statWinRate.textContent = winRate.toFixed(1) + '%';
-            statWinRate.className = winRate >= 50 ? 'value-positive' : winRate > 0 ? 'value-neutral' : 'value-negative';
-            statAvgRR.textContent = avgRR.toFixed(1);
-            statNetProfit.textContent = (totalProfit >= 0 ? '+' : '') + '$' + totalProfit.toFixed(2);
-            statNetProfit.className = totalProfit > 0 ? 'value-positive' : totalProfit < 0 ? 'value-negative' : 'value-neutral';
-            statWins.textContent = wins;
-            statLosses.textContent = losses;
-            statStreak.textContent = bestStreak;
-            statMonth.textContent = monthCount;
-        }
+    for (const t of data) {
+      const profit = parseFloat(t.profit) || 0;
+      totalProfit += profit;
+      const rr = parseFloat(t.rr) || 0;
+      if (rr > 0) { totalRR += rr; rrCount++; }
+      const result = t.result?.toLowerCase() || '';
+      if (result === 'win') wins++;
+      else if (result === 'loss') losses++;
 
-        // ─── DELETE ──────────────────────────────────────────────────
-        function deleteTrade(id) {
-            trades = trades.filter(t => t.id !== id);
-            saveTrades();
-            applyFiltersAndRender();
-        }
+      if (result === 'win') {
+        if (streakType === 'win') currentStreak++;
+        else { streakType = 'win'; currentStreak = 1; }
+      } else if (result === 'loss') {
+        if (streakType === 'loss') currentStreak++;
+        else { streakType = 'loss'; currentStreak = 1; }
+      } else { streakType = null; currentStreak = 0; }
+      if (currentStreak > bestStreak) bestStreak = currentStreak;
 
-        // ─── FILTER ──────────────────────────────────────────────────
-        function applyFiltersAndRender() {
-            const pair = filterPair.value.trim().toLowerCase();
-            const direction = filterDirection.value;
-            const result = filterResult.value;
-            const from = filterDateFrom.value;
-            const to = filterDateTo.value;
+      if (t.date) {
+        try { const d = new Date(t.date); if (d >= monthStart) monthCount++; } catch {}
+      }
+    }
+    if (total === 0) bestStreak = 0;
+    const winRate = total > 0 ? (wins / total) * 100 : 0;
+    const avgRR = rrCount > 0 ? totalRR / rrCount : 0;
 
-            filteredTrades = trades.filter(t => {
-                if (pair && !(t.pair || '').toLowerCase().includes(pair)) return false;
-                if (direction && (t.direction || '').toUpperCase() !== direction) return false;
-                if (result && (t.result || '') !== result) return false;
-                if (from) { try { if (new Date(t.date) < new Date(from)) return false; } catch { return false; } }
-                if (to) {
-                    try {
-                        const d = new Date(t.date);
-                        const toDate = new Date(to); toDate.setHours(23,59,59,999);
-                        if (d > toDate) return false;
-                    } catch { return false; }
-                }
-                return true;
-            });
-            renderTable();
-        }
+    statTotal.textContent = total;
+    statWinRate.textContent = winRate.toFixed(1) + '%';
+    statWinRate.className = winRate >= 50 ? 'value-positive' : winRate > 0 ? 'value-neutral' : 'value-negative';
+    statAvgRR.textContent = avgRR.toFixed(1);
+    statNetProfit.textContent = (totalProfit >= 0 ? '+' : '') + '$' + totalProfit.toFixed(2);
+    statNetProfit.className = totalProfit > 0 ? 'value-positive' : totalProfit < 0 ? 'value-negative' : 'value-neutral';
+    statWins.textContent = wins;
+    statLosses.textContent = losses;
+    statStreak.textContent = bestStreak;
+    statMonth.textContent = monthCount;
+  }
 
-        // ─── VIEW MODAL ──────────────────────────────────────────────
-        function openViewModal(trade) {
-            // Build detail rows
-            const fields = [
-                { label: 'Date', value: trade.date || '-' },
-                { label: 'Time', value: trade.time || '-' },
-                { label: 'Pair', value: trade.pair || '-' },
-                { label: 'Direction', value: trade.direction || '-' },
-                { label: 'Session', value: trade.session || '-' },
-                { label: 'Broker', value: trade.broker || '-' },
-                { label: 'Account', value: trade.account || '-' },
-                { label: 'Lot Size', value: trade.lotSize || '-' },
-                { label: 'Entry', value: trade.entry ?? '-' },
-                { label: 'Stop Loss', value: trade.stopLoss ?? '-' },
-                { label: 'Take Profit', value: trade.takeProfit ?? '-' },
-                { label: 'Risk %', value: trade.risk ?? '-' },
-                { label: 'RR', value: trade.rr ?? '-' },
-                { label: 'P/L', value: trade.profit ? `$${trade.profit}` : '-' },
-                { label: 'Commission', value: trade.commission ? `$${trade.commission}` : '-' },
-                { label: 'Result', value: trade.result || '-' },
-                { label: 'Confidence', value: trade.confidence || '-' },
-                { label: 'Emotion', value: trade.emotion || '-' },
-                { label: 'Discipline', value: trade.discipline || '-' },
-                { label: 'Patience', value: trade.patience || '-' },
-                { label: 'Summary', value: trade.tradeSummary || '-' },
-                { label: 'Strengths', value: trade.strengths || '-' },
-                { label: 'Mistakes', value: trade.mistakes || '-' },
-                { label: 'Lesson', value: trade.lessonLearned || '-' },
-                { label: 'Improvement', value: trade.improvementPlan || '-' },
-                { label: 'Before Chart', value: trade.beforeChart ? `<a href="${trade.beforeChart}" target="_blank">${trade.beforeChart}</a>` : '-' },
-                { label: 'During Chart', value: trade.duringChart ? `<a href="${trade.duringChart}" target="_blank">${trade.duringChart}</a>` : '-' },
-                { label: 'After Chart', value: trade.afterChart ? `<a href="${trade.afterChart}" target="_blank">${trade.afterChart}</a>` : '-' },
-                { label: 'Notes', value: trade.notes || '-' },
-                { label: 'HTF Swing', value: trade.htfSwing || '-' },
-                { label: 'HTF Internal', value: trade.htfInternal || '-' },
-                { label: 'MTF Swing', value: trade.mtfSwing || '-' },
-                { label: 'MTF Internal', value: trade.mtfInternal || '-' },
-                { label: 'LTF Structure', value: trade.ltfStructure || '-' },
-                { label: 'Liquidity', value: trade.liquidity || '-' },
-                { label: 'POI', value: trade.poi || '-' },
-                { label: 'Entry Model', value: trade.entryModel || '-' },
-                { label: 'Confirmation', value: trade.entryConfirmation || '-' },
-                { label: 'Trade Valid', value: trade.tradeValid || '-' },
-                // Confluences (show as checkmarks)
-                { label: 'Confluences', value: getConfluenceLabels(trade.confluences) || '-' }
-            ];
+  function deleteTrade(id) {
+    trades = trades.filter(t => t.id !== id);
+    saveTrades();
+    applyFiltersAndRender();
+  }
 
-            let html = '';
-            fields.forEach(f => {
-                html += `
-                    <div class="detail-row">
-                        <div class="label">${f.label}</div>
-                        <div class="value">${f.value}</div>
-                    </div>
-                `;
-            });
-            modalBody.innerHTML = html;
-            modal.classList.add('active');
-        }
+  function applyFiltersAndRender() {
+    const pair = filterPair.value.trim().toLowerCase();
+    const direction = filterDirection.value;
+    const result = filterResult.value;
+    const from = filterDateFrom.value;
+    const to = filterDateTo.value;
 
-        function getConfluenceLabels(confluences) {
-            if (!confluences) return '';
-            const labels = [];
-            const map = {
-                htfSwing: 'HTF Swing',
-                htfInternal: 'HTF Internal',
-                mtfSwing: 'MTF Swing',
-                mtfInternal: 'MTF Internal',
-                htfDemand: 'HTF Demand',
-                htfSupply: 'HTF Supply',
-                mtfDemand: 'MTF Demand',
-                mtfSupply: 'MTF Supply',
-                premium: 'Premium',
-                discount: 'Discount',
-                sweep: 'Liquidity Sweep',
-                choch: 'CHOCH',
-                bos: 'BOS',
-                mitigation: 'POI Mitigation',
-                refined: 'Refined POI',
-                extreme: 'Extreme POI'
-            };
-            Object.keys(confluences).forEach(key => {
-                if (confluences[key]) labels.push(map[key] || key);
-            });
-            return labels.length ? labels.join(', ') : '';
-        }
+    filteredTrades = trades.filter(t => {
+      if (pair && !(t.pair || '').toLowerCase().includes(pair)) return false;
+      if (direction && (t.direction || '').toUpperCase() !== direction) return false;
+      if (result && (t.result || '') !== result) return false;
+      if (from) { try { if (new Date(t.date) < new Date(from)) return false; } catch { return false; } }
+      if (to) {
+        try {
+          const d = new Date(t.date);
+          const toDate = new Date(to); toDate.setHours(23,59,59,999);
+          if (d > toDate) return false;
+        } catch { return false; }
+      }
+      return true;
+    });
+    renderTable();
+  }
 
-        // Close modal
-        closeModal.addEventListener('click', () => modal.classList.remove('active'));
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+  function openViewModal(trade) {
+    const fields = [
+      { label: 'Date', value: trade.date || '-' },
+      { label: 'Time', value: trade.time || '-' },
+      { label: 'Pair', value: trade.pair || '-' },
+      { label: 'Direction', value: trade.direction || '-' },
+      { label: 'Session', value: trade.session || '-' },
+      { label: 'Broker', value: trade.broker || '-' },
+      { label: 'Account', value: trade.account || '-' },
+      { label: 'Lot Size', value: trade.lotSize || '-' },
+      { label: 'Entry', value: trade.entry ?? '-' },
+      { label: 'Stop Loss', value: trade.stopLoss ?? '-' },
+      { label: 'Take Profit', value: trade.takeProfit ?? '-' },
+      { label: 'Risk %', value: trade.risk ?? '-' },
+      { label: 'RR', value: trade.rr ?? '-' },
+      { label: 'P/L', value: trade.profit ? `$${trade.profit}` : '-' },
+      { label: 'Commission', value: trade.commission ? `$${trade.commission}` : '-' },
+      { label: 'Result', value: trade.result || '-' },
+      { label: 'Confidence', value: trade.confidence || '-' },
+      { label: 'Emotion', value: trade.emotion || '-' },
+      { label: 'Discipline', value: trade.discipline || '-' },
+      { label: 'Patience', value: trade.patience || '-' },
+      { label: 'Summary', value: trade.tradeSummary || '-' },
+      { label: 'Strengths', value: trade.strengths || '-' },
+      { label: 'Mistakes', value: trade.mistakes || '-' },
+      { label: 'Lesson', value: trade.lessonLearned || '-' },
+      { label: 'Improvement', value: trade.improvementPlan || '-' },
+      { label: 'Before Chart', value: trade.beforeChart ? `<a href="${trade.beforeChart}" target="_blank">${trade.beforeChart}</a>` : '-' },
+      { label: 'During Chart', value: trade.duringChart ? `<a href="${trade.duringChart}" target="_blank">${trade.duringChart}</a>` : '-' },
+      { label: 'After Chart', value: trade.afterChart ? `<a href="${trade.afterChart}" target="_blank">${trade.afterChart}</a>` : '-' },
+      { label: 'Notes', value: trade.notes || '-' },
+      { label: 'HTF Swing', value: trade.htfSwing || '-' },
+      { label: 'HTF Internal', value: trade.htfInternal || '-' },
+      { label: 'MTF Swing', value: trade.mtfSwing || '-' },
+      { label: 'MTF Internal', value: trade.mtfInternal || '-' },
+      { label: 'LTF Structure', value: trade.ltfStructure || '-' },
+      { label: 'Liquidity', value: trade.liquidity || '-' },
+      { label: 'POI', value: trade.poi || '-' },
+      { label: 'Entry Model', value: trade.entryModel || '-' },
+      { label: 'Confirmation', value: trade.entryConfirmation || '-' },
+      { label: 'Trade Valid', value: trade.tradeValid || '-' },
+      { label: 'Confluences', value: getConfluenceLabels(trade.confluences) || '-' }
+    ];
 
-        // ─── EXPORT ──────────────────────────────────────────────────
-        function exportCSV() {
-            if (filteredTrades.length === 0) { alert('No trades to export.'); return; }
-            const headers = ['Date','Pair','Direction','Entry','Stop Loss','Take Profit','RR','Profit','Result','Notes'];
-            const rows = filteredTrades.map(t => [
-                t.date || '', t.pair || '', t.direction || '',
-                t.entry ?? '', t.stopLoss ?? '', t.takeProfit ?? '',
-                t.rr ?? '', t.profit ?? '', t.result || '',
-                (t.notes || '').replace(/,/g, ';')
-            ]);
-            let csv = headers.join(',') + '\n';
-            rows.forEach(row => csv += row.join(',') + '\n');
-            downloadFile(csv, 'trades_export.csv', 'text/csv');
-        }
+    let html = '';
+    fields.forEach(f => {
+      html += `<div class="detail-row"><div class="label">${f.label}</div><div class="value">${f.value}</div></div>`;
+    });
+    modalBody.innerHTML = html;
+    modal.classList.add('active');
+  }
 
-        function exportJSON() {
-            if (filteredTrades.length === 0) { alert('No trades to export.'); return; }
-            downloadFile(JSON.stringify(filteredTrades, null, 2), 'trades_export.json', 'application/json');
-        }
+  function getConfluenceLabels(confluences) {
+    if (!confluences) return '';
+    const labels = [];
+    const map = {
+      htfSwing: 'HTF Swing', htfInternal: 'HTF Internal',
+      mtfSwing: 'MTF Swing', mtfInternal: 'MTF Internal',
+      htfDemand: 'HTF Demand', htfSupply: 'HTF Supply',
+      mtfDemand: 'MTF Demand', mtfSupply: 'MTF Supply',
+      premium: 'Premium', discount: 'Discount',
+      sweep: 'Liquidity Sweep', choch: 'CHOCH',
+      bos: 'BOS', mitigation: 'POI Mitigation',
+      refined: 'Refined POI', extreme: 'Extreme POI'
+    };
+    Object.keys(confluences).forEach(key => {
+      if (confluences[key]) labels.push(map[key] || key);
+    });
+    return labels.length ? labels.join(', ') : '';
+  }
 
-        function downloadFile(content, filename, mime) {
-            const blob = new Blob([content], { type: mime });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = filename;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+  closeModal.addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-        // ─── CLEAR ALL ──────────────────────────────────────────────
-        function clearAll() {
-            if (trades.length === 0) { alert('No trades to clear.'); return; }
-            if (confirm('⚠️ Delete ALL trades? This cannot be undone.')) {
-                trades = [];
-                saveTrades();
-                applyFiltersAndRender();
-            }
-        }
+  function exportCSV() {
+    if (filteredTrades.length === 0) { alert('No trades to export.'); return; }
+    const headers = ['Date','Pair','Direction','Entry','Stop Loss','Take Profit','RR','Profit','Result','Notes'];
+    const rows = filteredTrades.map(t => [
+      t.date || '', t.pair || '', t.direction || '',
+      t.entry ?? '', t.stopLoss ?? '', t.takeProfit ?? '',
+      t.rr ?? '', t.profit ?? '', t.result || '',
+      (t.notes || '').replace(/,/g, ';')
+    ]);
+    let csv = headers.join(',') + '\n';
+    rows.forEach(row => csv += row.join(',') + '\n');
+    downloadFile(csv, 'trades_export.csv', 'text/csv');
+  }
 
-        // ─── SORTING ─────────────────────────────────────────────────
-        function setupSorting() {
-            document.querySelectorAll('thead th[data-sort]').forEach(th => {
-                th.addEventListener('click', function() {
-                    const key = this.dataset.sort;
-                    if (sortKey === key) sortAsc = !sortAsc;
-                    else { sortKey = key; sortAsc = false; }
-                    renderTable();
-                });
-            });
-        }
+  function exportJSON() {
+    if (filteredTrades.length === 0) { alert('No trades to export.'); return; }
+    downloadFile(JSON.stringify(filteredTrades, null, 2), 'trades_export.json', 'application/json');
+  }
 
-        // ─── SCROLL TOP ─────────────────────────────────────────────
-        const scrollBtn = document.getElementById('scrollTopBtn');
-        if (scrollBtn) {
-            window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 300));
-            scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        }
+  function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
-        // ─── LOGOUT ──────────────────────────────────────────────────
-        document.getElementById('logoutBtn')?.addEventListener('click', function() {
-            if (confirm('Logout?')) window.location.href = 'index.html';
-        });
+  function clearAll() {
+    if (trades.length === 0) { alert('No trades to clear.'); return; }
+    if (confirm('⚠️ Delete ALL trades? This cannot be undone.')) {
+      trades = [];
+      saveTrades();
+      applyFiltersAndRender();
+    }
+  }
 
-        // ─── INIT ────────────────────────────────────────────────────
-        function init() {
-            loadTrades();
-            applyFiltersAndRender();
-            setupSorting();
+  function setupSorting() {
+    document.querySelectorAll('thead th[data-sort]').forEach(th => {
+      th.addEventListener('click', function() {
+        const key = this.dataset.sort;
+        if (sortKey === key) sortAsc = !sortAsc;
+        else { sortKey = key; sortAsc = false; }
+        renderTable();
+      });
+    });
+  }
 
-            applyBtn.addEventListener('click', applyFiltersAndRender);
-            resetBtn.addEventListener('click', function() {
-                filterPair.value = '';
-                filterDirection.value = '';
-                filterResult.value = '';
-                filterDateFrom.value = '';
-                filterDateTo.value = '';
-                applyFiltersAndRender();
-            });
-            document.querySelectorAll('.filter-group input, .filter-group select').forEach(el => {
-                el.addEventListener('keydown', e => { if (e.key === 'Enter') applyFiltersAndRender(); });
-            });
+  // Scroll top
+  const scrollBtn = document.getElementById('scrollTopBtn');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 300));
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
 
-            exportCSVBtn.addEventListener('click', exportCSV);
-            exportJSONBtn.addEventListener('click', exportJSON);
-            clearAllBtn.addEventListener('click', clearAll);
+  // Storage listener
+  window.addEventListener('storage', function(e) {
+    if (e.key === STORAGE_KEY) { loadTrades(); applyFiltersAndRender(); }
+  });
 
-            window.addEventListener('storage', function(e) {
-                if (e.key === STORAGE_KEY) { loadTrades(); applyFiltersAndRender(); }
-            });
-        }
+  // Init
+  loadTrades();
+  applyFiltersAndRender();
+  setupSorting();
 
-        document.addEventListener('DOMContentLoaded', init);
-        if (document.readyState === 'complete' || document.readyState === 'interactive') init();
-    </script>
+  applyBtn.addEventListener('click', applyFiltersAndRender);
+  resetBtn.addEventListener('click', function() {
+    filterPair.value = '';
+    filterDirection.value = '';
+    filterResult.value = '';
+    filterDateFrom.value = '';
+    filterDateTo.value = '';
+    applyFiltersAndRender();
+  });
+  document.querySelectorAll('.filter-group input, .filter-group select').forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') applyFiltersAndRender(); });
+  });
+  exportCSVBtn.addEventListener('click', exportCSV);
+  exportJSONBtn.addEventListener('click', exportJSON);
+  clearAllBtn.addEventListener('click', clearAll);
+
+  console.log('✅ History ready.');
+}
+
+// ─── INIT LOCK ──────────────────────────────────────────────────
+initPremiumLock('app', initHistory);
+</script>
+
 </body>
 </html>
