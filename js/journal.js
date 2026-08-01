@@ -1,144 +1,63 @@
-/* ==========================================================
-   GTRADES AXIS™
-   JOURNAL PREMIUM GUARD
-   ========================================================== */
+// ============================================================
+// GTRADES-AXIS™ – JOURNAL (Complete & Fixed)
+// ============================================================
 
 import { auth, db } from "./firebase.js";
-
 import {
-    doc,
-    getDoc
+  doc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
 import {
-    onAuthStateChanged
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-let currentUser = null;
+// ─── STATE ──────────────────────────────────────────────────
+const STORAGE_KEY = "trades";
+let trades = [];
+let editingTrade = null;
+let equityChartInstance = null;
+let monthlyChartInstance = null;
 
+// ─── PREMIUM LOCK ──────────────────────────────────────────
 async function checkJournalAccess() {
+  return new Promise((resolve) => {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (!snap.exists()) {
+          alert("User account not found.");
+          window.location.href = "dashboard.html";
+          return;
+        }
+        const data = snap.data();
+        const role = data.role || "member";
+        const membership = data.membership || "free";
+        const allowed = role === "admin" || membership === "premium";
 
-    return new Promise((resolve) => {
-
-        onAuthStateChanged(auth, async (user) => {
-
-            if (!user) {
-
-                window.location.href = "login.html";
-
-                return;
-
-            }
-
-            currentUser = user;
-
-            try {
-
-                const snap = await getDoc(doc(db, "users", user.uid));
-
-                if (!snap.exists()) {
-
-                    alert("User account not found.");
-
-                    window.location.href = "dashboard.html";
-
-                    return;
-
-                }
-
-                const data = snap.data();
-
-                const role = data.role || "member";
-                const membership = data.membership || "free";
-
-                console.log("Journal Access Check");
-                console.log(data);
-
-                const allowed =
-                    role === "admin" ||
-                    membership === "premium";
-
-                if (!allowed) {
-
-                    document.body.innerHTML = `
-
-                    <div style="
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    height:100vh;
-                    background:#0b1120;
-                    color:white;
-                    font-family:Arial;
-                    text-align:center;
-                    padding:40px;
-                    ">
-
-                        <div>
-
-                            <i class="fa-solid fa-lock"
-                               style="
-                               font-size:70px;
-                               color:#fbbf24;
-                               margin-bottom:20px;
-                               display:block;
-                               ">
-                            </i>
-
-                            <h1>Premium Membership Required</h1>
-
-                            <p style="
-                            color:#94a3b8;
-                            margin:20px 0;
-                            ">
-                            The Trading Journal is available only to Premium Members.
-                            </p>
-
-                            <a href="dashboard.html"
-                               style="
-                               display:inline-block;
-                               padding:14px 28px;
-                               background:#1d9bf0;
-                               color:white;
-                               border-radius:8px;
-                               text-decoration:none;
-                               ">
-                               Return to Dashboard
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                    `;
-
-                    throw new Error("Journal blocked");
-
-                }
-
-                resolve(true);
-
-            }
-
-            catch(err){
-
-                console.error(err);
-
-            }
-
-        });
-
+        if (!allowed) {
+          document.body.innerHTML = `
+            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0b1120;color:white;font-family:Arial;text-align:center;padding:40px;">
+              <div>
+                <i class="fa-solid fa-lock" style="font-size:70px;color:#fbbf24;margin-bottom:20px;display:block;"></i>
+                <h1>Premium Membership Required</h1>
+                <p style="color:#94a3b8;margin:20px 0;">The Trading Journal is available only to Premium Members.</p>
+                <a href="dashboard.html" style="display:inline-block;padding:14px 28px;background:#1d9bf0;color:white;border-radius:8px;text-decoration:none;">Return to Dashboard</a>
+              </div>
+            </div>
+          `;
+          throw new Error("Journal blocked");
+        }
+        resolve(true);
+      } catch (err) {
+        console.error(err);
+        resolve(false); 
+      }
     });
-
-}
-// ─── LOAD & SAVE ────────────────────────────────────────────
-function loadTrades() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    trades = saved ? JSON.parse(saved) : [];
-}
-
-function saveTrades() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+  });
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────
@@ -146,45 +65,31 @@ function val(id) {
     const el = document.getElementById(id);
     return el ? el.value : '';
 }
-
 function num(id) {
     return parseFloat(val(id)) || 0;
 }
-
 function isChecked(id) {
     const el = document.getElementById(id);
     return el ? el.checked : false;
 }
-
 function setText(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
 }
-
 function $(id) { return document.getElementById(id); }
 
-// ─── REFRESH UI ──────────────────────────────────────────────
-function refreshUI() {
-
-    if (!document.getElementById('recentTrades') &&
-        !document.getElementById('equityChart') &&
-        !document.getElementById('monthlyChart')) {
-
-        return;
-
-    }
-
-
-    loadDashboard();
-
-    loadRecentTrades();
-
-    initializeCharts();
-
+// ─── LOAD & SAVE ────────────────────────────────────────────
+function loadTrades() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    trades = saved ? JSON.parse(saved) : [];
+}
+function saveTrades() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
 }
 
 // ─── BUILD TRADE OBJECT ──────────────────────────────────────
 function buildTradeFromForm(isUpdate) {
+    const resultVal = val('result') || 'Pending';
     return {
         id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 8),
         date: val('tradeDate'),
@@ -195,24 +100,16 @@ function buildTradeFromForm(isUpdate) {
         broker: val('broker'),
         account: val('account'),
         lotSize: num('lotSize'),
-
-        // HTF
         htfSwing: val('htfSwing'),
         htfInternal: val('htfInternal'),
-
-        // MTF
         mtfSwing: val('mtfSwing'),
         mtfInternal: val('mtfInternal'),
-
-        // LTF
         ltfStructure: val('ltfStructure'),
         liquidity: val('liquidity'),
         poi: val('poi'),
         entryModel: val('entryModel'),
         entryConfirmation: val('entryConfirmation'),
         tradeValid: val('tradeValid'),
-
-        // Confluences
         confluences: {
             htfSwing: isChecked('confHTFSwing'),
             htfInternal: isChecked('confHTFInternal'),
@@ -231,8 +128,6 @@ function buildTradeFromForm(isUpdate) {
             refined: isChecked('confRefined'),
             extreme: isChecked('confExtreme')
         },
-
-        // Execution & Risk
         entry: num('entry'),
         stopLoss: num('stopLoss'),
         takeProfit: num('takeProfit'),
@@ -240,180 +135,104 @@ function buildTradeFromForm(isUpdate) {
         rr: num('rr'),
         profit: num('profit'),
         commission: num('commission'),
-        result: val('result') || 'Pending',
-
-        // Psychology
+        result: resultVal,
         confidence: val('confidence'),
         emotion: val('emotion'),
         discipline: val('discipline'),
         patience: val('patience'),
-
-        // Review
         tradeSummary: val('tradeSummary'),
         strengths: val('strengths'),
         mistakes: val('mistakes'),
         lessonLearned: val('lessonLearned'),
         improvementPlan: val('improvementPlan'),
-
-        // Chart References
         beforeChart: val('beforeChart'),
         duringChart: val('duringChart'),
         afterChart: val('afterChart'),
         notes: val('notes'),
-
-        // Status
-        status: isUpdate && editingTrade ? editingTrade.status : 'Pending',
+        status: resultVal === 'Pending' ? 'Pending' : 'Closed',
         created: isUpdate && editingTrade ? editingTrade.created : new Date().toISOString(),
-        closed: isUpdate && editingTrade ? editingTrade.closed : null
+        closed: isUpdate && editingTrade ? editingTrade.closed : (resultVal !== 'Pending' ? new Date().toISOString() : null)
     };
 }
 
-// ─── SAVE TRADE (new + update) ──────────────────────────────
+// ─── SAVE TRADE ──────────────────────────────────────────────
 function saveTrade(e) {
     e.preventDefault();
     const form = e.target;
-    const isUpdate = $( 'updateMode' )?.value === 'true';
-
-    loadTrades(); // refresh
-
+    const isUpdate = $('#updateMode')?.value === 'true';
+    loadTrades();
     const trade = buildTradeFromForm(isUpdate);
 
     if (isUpdate && editingTrade) {
-        // ── UPDATE ──
         const index = trades.findIndex(t => t.id === editingTrade.id);
-        if (index !== -1) {
-            trades[index] = trade;
-        }
+        if (index !== -1) trades[index] = trade;
         saveTrades();
         alert('✅ Trade updated!');
         window.location.href = 'history.html';
     } else {
-        // ── NEW TRADE ──
         trades.unshift(trade);
         saveTrades();
         form.reset();
         refreshUI();
-        alert('✅ Trade saved as Pending.');
+        alert('✅ Trade saved!');
     }
 }
 
-// ─── LOAD DASHBOARD ───────────────────────────────────────────
-function loadDashboard() {
-    const closed = trades.filter(t => t.status === "Closed");
-    const wins = closed.filter(t => t.result === "Win");
-    const losses = closed.filter(t => t.result === "Loss");
-    const pending = trades.filter(t => t.status === "Pending");
+// ─── REFRESH UI ──────────────────────────────────────────────
+function refreshUI() {
+    loadDashboard();
+    initializeCharts();
+}
 
-    const totalTrades = closed.length;
+// ─── LOAD DASHBOARD ──────────────────────────────────────────
+function loadDashboard() {
+    // FIX: Consider any trade with a valid, non-pending result as completed
+    const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
+    const wins = completed.filter(t => t.result && t.result.toLowerCase() === 'win');
+    const losses = completed.filter(t => t.result && t.result.toLowerCase() === 'loss');
+
+    const totalTrades = completed.length;
     const totalWins = wins.length;
     const totalLosses = losses.length;
     const winRate = totalTrades === 0 ? 0 : (totalWins / totalTrades) * 100;
-    const netProfit = closed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
-    const avgRR = totalTrades === 0 ? 0 : closed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
+    const netProfit = completed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
+    const avgRR = totalTrades === 0 ? 0 : completed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
 
     setText('totalTrades', totalTrades);
     setText('wins', totalWins);
     setText('losses', totalLosses);
+    setText('pendingCount', trades.filter(t => t.result && t.result.toLowerCase() === 'pending').length);
     setText('winRate', winRate.toFixed(1) + '%');
     setText('averageRR', avgRR.toFixed(2));
-    setText('netProfit', '$' + netProfit.toFixed(2));
-    setText('pendingTrades', pending.length);
-    calculatePerformance(closed);
-}
+    setText('netProfit', (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2));
 
-function calculatePerformance(closed) {
-    if (closed.length === 0) {
-        setText('bestPair', '-');
-        setText('worstPair', '-');
-        setText('bestSession', '-');
-        setText('winStreak', '0');
-        return;
+    // Streak
+    let streak = 0;
+    const allSorted = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (allSorted.length > 0) {
+        const last = allSorted[allSorted.length - 1];
+        if (last.result && last.result.toLowerCase() === "win") {
+            for (let i = allSorted.length - 1; i >= 0; i--) {
+                if (allSorted[i].result && allSorted[i].result.toLowerCase() === "win") streak++;
+                else break;
+            }
+        } else if (last.result && last.result.toLowerCase() === "loss") {
+            for (let i = allSorted.length - 1; i >= 0; i--) {
+                if (allSorted[i].result && allSorted[i].result.toLowerCase() === "loss") streak--;
+                else break;
+            }
+        }
     }
-    const pairStats = {};
-    const sessionStats = {};
-    let streak = 0, bestStreak = 0;
-    closed.forEach(t => {
-        const pair = t.pair || '?';
-        const session = t.session || '?';
-        const profit = parseFloat(t.profit) || 0;
-        pairStats[pair] = (pairStats[pair] || 0) + profit;
-        sessionStats[session] = (sessionStats[session] || 0) + profit;
-        if (t.result === 'Win') { streak++; if (streak > bestStreak) bestStreak = streak; }
-        else { streak = 0; }
-    });
-    const bestPair = Object.keys(pairStats).sort((a, b) => pairStats[b] - pairStats[a])[0];
-    const worstPair = Object.keys(pairStats).sort((a, b) => pairStats[a] - pairStats[b])[0];
-    const bestSession = Object.keys(sessionStats).sort((a, b) => sessionStats[b] - sessionStats[a])[0];
-    setText('bestPair', bestPair || '-');
-    setText('worstPair', worstPair || '-');
-    setText('bestSession', bestSession || '-');
-    setText('winStreak', bestStreak);
-}
+    setText('streak', streak > 0 ? '+' + streak : streak < 0 ? streak : '0');
 
-// ─── RECENT TRADES ────────────────────────────────────────────
-function loadRecentTrades() {
-    const container = document.getElementById('recentTrades');
-    if (!container) return;
-    if (trades.length === 0) {
-        container.innerHTML = '<div class="loading-card">No trades yet.</div>';
-        return;
-    }
-    container.innerHTML = '';
-    trades.slice(0, 8).forEach(t => {
-        container.innerHTML += `
-            <div class="trade-row">
-                <div><strong>${t.pair || '?'}</strong><br>${t.direction || ''}</div>
-                <div>${t.entryModel || '-'}</div>
-                <div><span class="status ${t.status.toLowerCase()}">${t.status}</span></div>
-                <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
-            </div>
-        `;
-    });
-}
-
-// ─── CLOSE TRADE (from recent trades) ──────────────────────
-function closeTrade(id) {
-    const trade = trades.find(t => t.id === id);
-    if (!trade) return;
-    if (trade.status === 'Closed') {
-        viewTrade(trade);
-        return;
-    }
-    const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
-    if (!outcome) return;
-    const profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
-    const commission = parseFloat(prompt("Commission ($)", 0)) || 0;
-    const rr = parseFloat(prompt("Actual RR", 0)) || 0;
-    const management = prompt("Management Quality\nExcellent\nGood\nAverage\nPoor");
-    const psych = prompt("Psychology Notes");
-    const lesson = prompt("Lesson Learned");
-    const improvement = prompt("Improvement");
-
-    trade.status = 'Closed';
-    trade.closed = new Date().toISOString();
-    trade.result = outcome;
-    trade.profit = profit;
-    trade.commission = commission;
-    trade.rr = rr;
-    trade.management = management;
-    trade.psychologyNote = psych;
-    trade.reviewNote = { lesson, improvement };
-
-    saveTrades();
-    refreshUI();
-    alert('✅ Trade closed successfully.');
-}
-
-function viewTrade(trade) {
-    alert(`
-PAIR        : ${trade.pair}
-STATUS      : ${trade.status}
-RESULT      : ${trade.result}
-PROFIT      : $${trade.profit}
-RR          : ${trade.rr}
-LESSON      : ${trade.reviewNote?.lesson || '-'}
-IMPROVEMENT : ${trade.reviewNote?.improvement || '-'}
-    `);
+    // Month count
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthCount = trades.filter(t => {
+        if (!t.date) return false;
+        try { const d = new Date(t.date); return d >= monthStart; } catch { return false; }
+    }).length;
+    setText('monthCount', monthCount);
 }
 
 // ─── CHARTS ────────────────────────────────────────────────────
@@ -427,29 +246,17 @@ function initializeCharts() {
 function destroyAllCharts() {
     if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
     if (monthlyChartInstance) { monthlyChartInstance.destroy(); monthlyChartInstance = null; }
-    ['equityChart', 'monthlyChart'].forEach(id => {
-        const canvas = document.getElementById(id);
-        if (!canvas) return;
-        if (Chart.instances) {
-            for (const key in Chart.instances) {
-                const instance = Chart.instances[key];
-                if (instance && instance.canvas === canvas) { instance.destroy(); break; }
-            }
-        }
-        if (typeof Chart.getChart === 'function') {
-            const existing = Chart.getChart(canvas);
-            if (existing) existing.destroy();
-        }
-    });
 }
 
 function buildEquityChart() {
     const canvas = document.getElementById('equityChart');
     if (!canvas) return;
-    const closed = trades.filter(t => t.status === 'Closed');
+    // FIX: Include all trades that have a result
+    const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
     let balance = 0;
     const data = [];
-    closed.forEach(t => {
+    const sorted = [...completed].sort((a, b) => new Date(a.date || a.created) - new Date(b.date || b.created));
+    sorted.forEach(t => {
         balance += (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0);
         data.push(balance);
     });
@@ -466,9 +273,12 @@ function buildEquityChart() {
 function buildMonthlyChart() {
     const canvas = document.getElementById('monthlyChart');
     if (!canvas) return;
+    // FIX: Use the 'date' field properly to sort and filter
+    const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
     const monthly = {};
-    trades.filter(t => t.status === 'Closed').forEach(t => {
-        const month = new Date(t.closed).toLocaleString('default', { month: 'short' });
+    completed.forEach(t => {
+        const date = t.closed || t.date || new Date();
+        const month = new Date(date).toLocaleString('default', { month: 'short' });
         monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0);
     });
     monthlyChartInstance = new Chart(canvas, {
@@ -481,57 +291,9 @@ function buildMonthlyChart() {
     });
 }
 
-// ─── EDIT MODE – populate form from URL param ──────────────
-const urlParams = new URLSearchParams(window.location.search);
-const editId = urlParams.get('edit');
-
-console.log('🔍 Edit ID from URL:', editId); // DEBUG
-
-if (editId) {
-    loadTrades();
-    editingTrade = trades.find(t => t.id === editId);
-    console.log('📦 Found trade:', editingTrade); // DEBUG
-
-    if (editingTrade) {
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Populating form with trade:', editingTrade);
-            populateForm(editingTrade);
-
-            // Change submit button
-            const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
-                submitBtn.classList.add('btn-update');
-            }
-
-            // Add hidden flag for update mode
-            const form = document.getElementById('tradeForm');
-            let flag = document.getElementById('updateMode');
-            if (!flag) {
-                flag = document.createElement('input');
-                flag.type = 'hidden';
-                flag.id = 'updateMode';
-                flag.value = 'true';
-                form.appendChild(flag);
-            } else {
-                flag.value = 'true';
-            }
-
-            // Change page title
-            const header = document.querySelector('.page-header h1');
-            if (header) {
-                header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
-            }
-        });
-    } else {
-        console.warn('⚠️ Trade not found for ID:', editId);
-    }
-}
-
+// ─── POPULATE FORM FOR EDITING ─────────────────────────────
 function populateForm(trade) {
-    console.log('📝 Populating form with:', trade);
-
-    // Text/select fields
+    if (!trade) return;
     const fields = [
         'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
         'htfSwing', 'htfInternal', 'mtfSwing', 'mtfInternal',
@@ -541,133 +303,82 @@ function populateForm(trade) {
         'tradeSummary', 'strengths', 'mistakes', 'lessonLearned', 'improvementPlan',
         'beforeChart', 'duringChart', 'afterChart', 'notes'
     ];
-
     fields.forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-            if (trade[id] !== undefined && trade[id] !== null) {
-                el.value = trade[id];
-                console.log(`  ✅ Set ${id} = ${trade[id]}`);
-            } else {
-                console.log(`  ⚠️ ${id} not found in trade data`);
-            }
-        } else {
-            console.warn(`  ❌ Element #${id} not found in DOM`);
-        }
+        if (el && trade[id] !== undefined && trade[id] !== null) el.value = trade[id];
     });
-
-    // Confluences – correct mapping
+    // Confluences mapping
     if (trade.confluences) {
-        const mapping = {
-            htfSwing: 'confHTFSwing',
-            htfInternal: 'confHTFInternal',
-            mtfSwing: 'confMTFSwing',
-            mtfInternal: 'confMTFInternal',
-            htfDemand: 'confHTFDemand',
-            htfSupply: 'confHTFSupply',
-            mtfDemand: 'confMTFDemand',
-            mtfSupply: 'confMTFSupply',
-            premium: 'confPremium',
-            discount: 'confDiscount',
-            sweep: 'confSweep',
-            choch: 'confChoch',
-            bos: 'confBos',
-            mitigation: 'confMitigation',
-            refined: 'confRefined',
-            extreme: 'confExtreme'
+        const map = {
+            htfSwing: 'confHTFSwing', htfInternal: 'confHTFInternal',
+            mtfSwing: 'confMTFSwing', mtfInternal: 'confMTFInternal',
+            htfDemand: 'confHTFDemand', htfSupply: 'confHTFSupply',
+            mtfDemand: 'confMTFDemand', mtfSupply: 'confMTFSupply',
+            premium: 'confPremium', discount: 'confDiscount',
+            sweep: 'confSweep', choch: 'confChoch',
+            bos: 'confBos', mitigation: 'confMitigation',
+            refined: 'confRefined', extreme: 'confExtreme'
         };
         Object.keys(trade.confluences).forEach(key => {
-            const checkboxId = mapping[key];
-            if (checkboxId) {
-                const checkbox = document.getElementById(checkboxId);
-                if (checkbox) {
-                    checkbox.checked = trade.confluences[key];
-                    console.log(`  ✅ Set ${checkboxId} = ${trade.confluences[key]}`);
-                }
-            }
+            const cb = document.getElementById(map[key]);
+            if (cb) cb.checked = trade.confluences[key];
         });
-    } else {
-        console.warn('⚠️ No confluences data found');
+    }
+    // Update UI for Edit Mode
+    document.querySelector('.page-header h1').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+    const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
+        submitBtn.classList.add('btn-update');
     }
 }
 
-// ─── INIT ──────────────────────────────────────────────────────
-loadTrades();
+// ─── INIT LOGIC ──────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
-
-    try{
-
+    try {
         await checkJournalAccess();
-
+        
+        // Check if we are editing
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        
         loadTrades();
 
-        const form=document.getElementById("tradeForm");
+        if (editId) {
+            editingTrade = trades.find(t => t.id === editId);
+            if (editingTrade) {
+                populateForm(editingTrade);
+                // Add hidden flag to form
+                const form = document.getElementById('tradeForm');
+                let flag = document.getElementById('updateMode');
+                if (!flag) {
+                    flag = document.createElement('input');
+                    flag.type = 'hidden';
+                    flag.id = 'updateMode';
+                    flag.value = 'true';
+                    form.appendChild(flag);
+                } else {
+                    flag.value = 'true';
+                }
+            }
+        }
 
-        if(form){
-
-            form.removeEventListener("submit",saveTrade);
-
-            form.addEventListener("submit",saveTrade);
-
+        // Attach submit listener
+        const form = document.getElementById('tradeForm');
+        if (form) {
+            form.removeEventListener('submit', saveTrade);
+            form.addEventListener('submit', saveTrade);
         }
 
         refreshUI();
-
-        console.log("Journal Ready");
-
+        console.log("✅ Journal ready and synced.");
+        
+    } catch (e) {
+        console.log("Journal Locked or Error:", e);
     }
-
-    catch(e){
-
-        console.log("Journal Locked");
-
-    }
-
 });
 
-    const form = document.getElementById('tradeForm');
-
-
-    // Only run journal functions on journal page
-    if (form) {
-
-        form.removeEventListener('submit', saveTrade);
-
-        form.addEventListener('submit', saveTrade);
-
-        console.log('✅ Journal form ready');
-
-
-        if (!editId) {
-
-            const header = document.querySelector('.page-header h1');
-
-            if (header) {
-
-                header.innerHTML =
-                '<i class="fa-solid fa-chart-line"></i> Trading Journal';
-
-            }
-
-        }
-
-
-    } else {
-
-        console.log(
-        'ℹ️ Journal form not found - skipping journal initialization'
-        );
-
-        return;
-
-    }
-
-
-    refreshUI();
-
-});
-
-// Listen for storage changes (other tabs)
+// ─── STORAGE SYNC ──────────────────────────────────────────
 window.addEventListener('storage', function(e) {
     if (e.key === STORAGE_KEY) {
         loadTrades();
@@ -675,90 +386,4 @@ window.addEventListener('storage', function(e) {
     }
 });
 
-console.log('✅ journal.js loaded');
-// ─── FORCE EDIT MODE (works even if the normal flow fails) ───
-(function() {
-    const params = new URLSearchParams(window.location.search);
-    const editId = params.get('edit');
-    if (!editId) return;
-
-    // Wait for the DOM to be ready
-    function populate() {
-        const trades = JSON.parse(localStorage.getItem('trades') || '[]');
-        const trade = trades.find(t => t.id === editId);
-        if (!trade) {
-            console.warn('❌ Trade not found for ID:', editId);
-            return;
-        }
-
-        console.log('✅ Force‑loading trade:', trade);
-
-        // ── Set all text/select fields ──
-        const fields = [
-            'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
-            'htfSwing', 'htfInternal', 'mtfSwing', 'mtfInternal',
-            'ltfStructure', 'liquidity', 'poi', 'entryModel', 'entryConfirmation', 'tradeValid',
-            'entry', 'stopLoss', 'takeProfit', 'risk', 'rr', 'profit', 'commission', 'result',
-            'confidence', 'emotion', 'discipline', 'patience',
-            'tradeSummary', 'strengths', 'mistakes', 'lessonLearned', 'improvementPlan',
-            'beforeChart', 'duringChart', 'afterChart', 'notes'
-        ];
-        fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && trade[id] !== undefined && trade[id] !== null) {
-                el.value = trade[id];
-            }
-        });
-
-        // ── Set confluences ──
-        if (trade.confluences) {
-            const map = {
-                htfSwing: 'confHTFSwing', htfInternal: 'confHTFInternal',
-                mtfSwing: 'confMTFSwing', mtfInternal: 'confMTFInternal',
-                htfDemand: 'confHTFDemand', htfSupply: 'confHTFSupply',
-                mtfDemand: 'confMTFDemand', mtfSupply: 'confMTFSupply',
-                premium: 'confPremium', discount: 'confDiscount',
-                sweep: 'confSweep', choch: 'confChoch',
-                bos: 'confBos', mitigation: 'confMitigation',
-                refined: 'confRefined', extreme: 'confExtreme'
-            };
-            Object.keys(trade.confluences).forEach(key => {
-                const cb = document.getElementById(map[key]);
-                if (cb) cb.checked = trade.confluences[key];
-            });
-        }
-
-        // ── Change button text ──
-        const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
-            submitBtn.classList.add('btn-update');
-        }
-
-        // ── Add hidden flag for update mode ──
-        const form = document.getElementById('tradeForm');
-        let flag = document.getElementById('updateMode');
-        if (!flag) {
-            flag = document.createElement('input');
-            flag.type = 'hidden';
-            flag.id = 'updateMode';
-            flag.value = 'true';
-            form.appendChild(flag);
-        } else {
-            flag.value = 'true';
-        }
-
-        // ── Change page title ──
-        const header = document.querySelector('.page-header h1');
-        if (header) header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
-
-        alert('✅ Trade loaded for editing!');
-    }
-
-    // Run when DOM is ready
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        populate();
-    } else {
-        document.addEventListener('DOMContentLoaded', populate);
-    }
-})();
+console.log('✅ journal.js loaded successfully');

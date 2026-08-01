@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ – PROFILE (Complete Fix)
+// GTRADES-AXIS™ – PROFILE (Complete & Fixed)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -130,27 +130,26 @@ function calculateStatistics(trades) {
     return;
   }
 
-  // ── Filter only closed trades ──
-  const closed = trades.filter(t => t.status === 'Closed');
-  const closedTotal = closed.length;
+  // ── FIX: Treat any trade with a result (not Pending) as completed ──
+  const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
+  const closedTotal = completed.length;
 
-  const wins = closed.filter(t => t.result === 'Win');
-  const losses = closed.filter(t => t.result === 'Loss');
-  const breakevens = closed.filter(t => t.result === 'Breakeven');
+  const wins = completed.filter(t => t.result && t.result.toLowerCase() === 'win');
+  const losses = completed.filter(t => t.result && t.result.toLowerCase() === 'loss');
 
   // ── Win Rate ──
   const winRateVal = closedTotal > 0 ? (wins.length / closedTotal) * 100 : 0;
   setText('winRate', winRateVal.toFixed(1) + '%');
 
   // ── Net Profit ──
-  const netProfit = closed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
+  const netProfit = completed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
   setText('profit', formatCurrency(netProfit));
 
   // ── Total Trades ──
   setText('totalTrades', total);
 
   // ── Average RR ──
-  const totalRR = closed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0);
+  const totalRR = completed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0);
   const avgRR = closedTotal > 0 ? totalRR / closedTotal : 0;
   setText('rrAverage', avgRR.toFixed(2));
 
@@ -165,14 +164,14 @@ function calculateStatistics(trades) {
   let streak = 0;
   if (allSorted.length > 0) {
     const last = allSorted[allSorted.length - 1];
-    if (last.result === "Win") {
+    if (last.result && last.result.toLowerCase() === "win") {
       for (let i = allSorted.length - 1; i >= 0; i--) {
-        if (allSorted[i].result === "Win") streak++;
+        if (allSorted[i].result && allSorted[i].result.toLowerCase() === "win") streak++;
         else break;
       }
-    } else if (last.result === "Loss") {
+    } else if (last.result && last.result.toLowerCase() === "loss") {
       for (let i = allSorted.length - 1; i >= 0; i--) {
-        if (allSorted[i].result === "Loss") streak--;
+        if (allSorted[i].result && allSorted[i].result.toLowerCase() === "loss") streak--;
         else break;
       }
     }
@@ -180,7 +179,7 @@ function calculateStatistics(trades) {
   setText('currentStreak', streak > 0 ? '+' + streak : streak < 0 ? streak : 0);
 
   // ── Best / Worst Trade ──
-  const profits = closed.map(t => parseFloat(t.profit) || 0);
+  const profits = completed.map(t => parseFloat(t.profit) || 0);
   const best = profits.length > 0 ? Math.max(...profits) : 0;
   const worst = profits.length > 0 ? Math.min(...profits) : 0;
   setText('bestTrade', formatCurrency(best));
@@ -193,7 +192,7 @@ function calculateStatistics(trades) {
   setText('avgLoss', formatCurrency(avgLossVal));
 
   // ── Largest RR ──
-  const maxRR = closed.reduce((max, t) => Math.max(max, parseFloat(t.rr) || 0), 0);
+  const maxRR = completed.reduce((max, t) => Math.max(max, parseFloat(t.rr) || 0), 0);
   setText('largestRR', maxRR.toFixed(1) + 'R');
 
   // ── Expectancy ──
@@ -244,11 +243,10 @@ saveGoals?.addEventListener('click', async () => {
 function loadDashboardData() {
   const trades = loadTrades();
 
-  // Journal summary
+  // Journal summary - use our fixed filtering method
   const total = trades.length;
-  const wins = trades.filter(t => t.result === 'Win').length;
-  const losses = trades.filter(t => t.result === 'Loss').length;
-  const breakevens = trades.filter(t => t.result === 'Breakeven').length;
+  const wins = trades.filter(t => t.result && t.result.toLowerCase() === 'win').length;
+  const losses = trades.filter(t => t.result && t.result.toLowerCase() === 'loss').length;
 
   setText('journalEntries', total);
   setText('journalWins', wins);
@@ -464,4 +462,4 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-console.log('✅ Profile loaded successfully.');
+console.log('✅ Profile loaded & synced successfully.');
