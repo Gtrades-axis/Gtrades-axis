@@ -1,1404 +1,321 @@
 // ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 1
-// Firebase Setup + Form Initialization + User Validation
+// GTRADES-AXIS™ – PAYMENT SYSTEM (Complete)
 // ==========================================================
 
-
-console.log("PAYMENT JS LOADED");
-
-
-// ===============================
-// FIREBASE IMPORTS
-// ===============================
-import {
-    getStorage,
-    ref,
-    uploadBytes,
-    getDownloadURL
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 import { auth, db } from "./firebase.js";
-
-
 import {
-    onAuthStateChanged
+  onAuthStateChanged,
+  signOut,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-
 import {
-    doc,
-    getDoc
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+  limit,
+  onSnapshot,
+  updateDoc,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-// ===============================
-// PAGE ELEMENTS
-// ===============================
-
-
-const paymentForm = document.getElementById(
-    "paymentForm"
-);
-
-
-const userEmailInput = document.getElementById(
-    "userEmail"
-);
-
-
-const userNameInput = document.getElementById(
-    "userName"
-);
-
-
-const membershipInput = document.getElementById(
-    "membershipPlan"
-);
-
-
-
-console.log(
-    "Payment Form:",
-    paymentForm
-);
-
-
-
-// ===============================
-// CHECK LOGIN STATUS
-// ===============================
-
-
-onAuthStateChanged(auth, async (user)=>{
-
-
-    if(!user){
-
-        console.log(
-            "No logged in user"
-        );
-
-
-        /*
-        User is not logged in.
-        Redirect to login page.
-        */
-
-
-        alert(
-            "Please login before making payment."
-        );
-
-
-        window.location.href =
-        "login.html";
-
-
-        return;
-
-    }
-
-
-
-    console.log(
-        "Logged in user:",
-        user.email
-    );
-
-
-
-    // Fill email automatically
-
-    if(userEmailInput){
-
-        userEmailInput.value =
-        user.email;
-
-        userEmailInput.readOnly =
-        true;
-
-    }
-
-
-
-    // Get user profile
-
-    try{
-
-
-        const userRef =
-        doc(
-            db,
-            "users",
-            user.uid
-        );
-
-
-        const userSnap =
-        await getDoc(userRef);
-
-
-
-        if(userSnap.exists()){
-
-
-            const userData =
-            userSnap.data();
-
-
-
-            console.log(
-                "User Data:",
-                userData
-            );
-
-
-
-            if(userNameInput){
-
-                userNameInput.value =
-                userData.name || "";
-
-            }
-
-
-        }
-
-
-
-    }
-    catch(error){
-
-
-        console.error(
-            "User data loading error:",
-            error
-        );
-
-
-    }
-
-
-
-});
-
-
-
-// ===============================
-// DEFAULT PLAN
-// ===============================
-
-
-if(membershipInput){
-
-
-    membershipInput.addEventListener(
-        "change",
-        ()=>{
-
-
-            console.log(
-                "Selected Plan:",
-                membershipInput.value
-            );
-
-
-        }
-    );
-
-
-}
-
-
-
-// ===============================
-// FORM CHECK
-// ===============================
-
-
-if(!paymentForm){
-
-
-    console.error(
-        "Payment form not found"
-    );
-
-
-}
-else{
-
-
-    console.log(
-        "Payment form ready"
-    );
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 2
-// Submit Payment Request + Firestore Storage
-// ==========================================================
-
-
 import {
-
-    collection,
-    addDoc,
-    serverTimestamp
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-// ===============================
-// PAYMENT FORM SUBMISSION
-// ===============================
-
-
-if(paymentForm){
-
-
-paymentForm.addEventListener(
-"submit",
-async(e)=>{
-
-
-    e.preventDefault();
-
-
-
-    console.log(
-        "Payment submission started"
-    );
-
-
-
-    const user =
-    auth.currentUser;
-
-
-
-    if(!user){
-
-
-        alert(
-            "Please login first."
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    // ===============================
-    // FORM VALUES
-    // ===============================
-
-
-    const email =
-    userEmailInput.value.trim();
-
-
-
-    const name =
-    userNameInput.value.trim();
-
-
-
-    const plan =
-    membershipInput.value;
-
-
-
-    const paymentMethod =
-    document.getElementById(
-        "paymentMethod"
-    )?.value;
-
-
-
-    const transactionId =
-    document.getElementById(
-        "transactionId"
-    )?.value.trim();
-
-
-
-
-
-    // ===============================
-    // VALIDATION
-    // ===============================
-
-
-    if(
-        !name ||
-        !email ||
-        !plan ||
-        !paymentMethod ||
-        !transactionId
-    ){
-
-
-        alert(
-            "Please complete all payment details."
-        );
-
-
-        return;
-
-
-    }
-
-
-
-
-    // ===============================
-    // LOADING STATE
-    // ===============================
-
-
-    const submitButton =
-    paymentForm.querySelector(
-        "button[type='submit']"
-    );
-
-
-
-    if(submitButton){
-
-
-        submitButton.disabled =
-        true;
-
-
-        submitButton.innerHTML =
-        "Submitting...";
-
-
-    }
-
-
-
-
-
-    try{
-
-
-
-        // ===============================
-        // CREATE PAYMENT REQUEST
-        // ===============================
-
-
-        const paymentRef =
-        await addDoc(
-
-            collection(
-                db,
-                "payments"
-            ),
-
-            {
-
-
-                userId:
-                user.uid,
-
-
-                name:
-                name,
-
-
-                email:
-                email,
-
-
-                plan:
-                plan,
-
-
-                paymentMethod:
-                paymentMethod,
-
-
-                transactionId:
-                transactionId,
-
-
-
-                status:
-                "pending",
-
-
-
-                membership:
-                "pending",
-
-
-
-                createdAt:
-                serverTimestamp()
-
-
-
-            }
-
-
-        );
-
-
-
-
-        console.log(
-            "Payment Created:",
-            paymentRef.id
-        );
-
-
-
-
-
-        alert(
-            "Payment submitted successfully. Waiting for admin approval."
-        );
-
-
-
-
-        // Clear form
-
-
-        paymentForm.reset();
-
-
-
-        if(userEmailInput){
-
-            userEmailInput.value =
-            user.email;
-
-        }
-
-
-
-
-    }
-    catch(error){
-
-
-
-        console.error(
-            "Payment submission error:",
-            error
-        );
-
-
-
-        alert(
-            "Payment failed. Please try again."
-        );
-
-
-
-    }
-    finally{
-
-
-
-        if(submitButton){
-
-
-            submitButton.disabled =
-            false;
-
-
-            submitButton.innerHTML =
-            "Submit Payment";
-
-
-        }
-
-
-
-    }
-
-
-
-});
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 3
-// Payment Proof Upload System
-// ==========================================================
-
-
-// ===============================
-// STORAGE INITIALIZATION
-// ===============================
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+
+// ─── DOM REFS ──────────────────────────────────────────────
+const paymentForm = document.getElementById("paymentForm");
+const userEmailInput = document.getElementById("userEmail");
+const userNameInput = document.getElementById("userName");
+const membershipInput = document.getElementById("membershipPlan");
+const paymentMethodInput = document.getElementById("paymentMethod");
+const transactionIdInput = document.getElementById("transactionId");
+const amountInput = document.getElementById("amount");
+const notesInput = document.getElementById("notes");
+const userIdHidden = document.getElementById("userId");
+const proofInput = document.getElementById("paymentProof");
+const submitBtn = document.getElementById("submitPayment");
+const paymentMessage = document.getElementById("paymentMessage");
+const loadingScreen = document.getElementById("loadingScreen");
+const successModal = document.getElementById("successModal");
+const successClose = document.getElementById("successClose");
 
 const storage = getStorage();
 
-
-
-// ===============================
-// PAYMENT PROOF ELEMENT
-// ===============================
-
-
-const proofInput =
-document.getElementById(
-    "paymentProof"
-);
-
-
-
-
 let uploadedProofURL = "";
+let currentUser = null;
+let userData = null;
 
+// ─── AUTH CHECK & FILL FORM ──────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert("Please login before upgrading.");
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = user;
+  userIdHidden.value = user.uid;
 
+  // Fill email
+  if (userEmailInput) {
+    userEmailInput.value = user.email;
+    userEmailInput.readOnly = true;
+  }
 
-
-// ===============================
-// FILE VALIDATION + PREVIEW
-// ===============================
-
-
-if(proofInput){
-
-
-proofInput.addEventListener(
-"change",
-async()=>{
-
-
-    const file =
-    proofInput.files[0];
-
-
-
-    if(!file){
-
-        return;
-
+  // Get user profile
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      userData = userSnap.data();
+      if (userNameInput) {
+        userNameInput.value = userData.name || "";
+        userNameInput.readOnly = true;
+      }
     }
-
-
-
-    console.log(
-        "Selected proof:",
-        file.name
-    );
-
-
-
-    // Allowed file types
-
-    const allowedTypes = [
-
-        "image/jpeg",
-        "image/png",
-        "application/pdf"
-
-    ];
-
-
-
-    if(
-        !allowedTypes.includes(
-            file.type
-        )
-    ){
-
-
-        alert(
-            "Only JPG, PNG or PDF files are allowed."
-        );
-
-
-        proofInput.value = "";
-
-        return;
-
-
-    }
-
-
-
-    // Maximum size 5MB
-
-    if(
-        file.size >
-        5 * 1024 * 1024
-    ){
-
-
-        alert(
-            "File size must be below 5MB."
-        );
-
-
-        proofInput.value = "";
-
-        return;
-
-
-    }
-
-
-
-    const user =
-    auth.currentUser;
-
-
-
-    if(!user){
-
-        alert(
-            "Login required."
-        );
-
-        return;
-
-    }
-
-
-
-    try{
-
-
-        const fileName =
-
-        Date.now()
-        +
-        "_"
-        +
-        file.name;
-
-
-
-        const storageRef =
-
-        ref(
-
-            storage,
-
-            "paymentProofs/"
-            +
-            user.uid
-            +
-            "/"
-            +
-            fileName
-
-        );
-
-
-
-
-        const uploadResult =
-
-        await uploadBytes(
-
-            storageRef,
-
-            file
-
-        );
-
-
-
-
-        uploadedProofURL =
-
-        await getDownloadURL(
-
-            uploadResult.ref
-
-        );
-
-
-
-        console.log(
-            "Proof uploaded:",
-            uploadedProofURL
-        );
-
-
-
-    }
-    catch(error){
-
-
-        console.error(
-            "Upload error:",
-            error
-        );
-
-
-        alert(
-            "Proof upload failed."
-        );
-
-
-    }
-
-
-
+  } catch (error) {
+    console.error("User data error:", error);
+  }
+
+  // Check if user already has pending payment
+  const hasPending = await checkExistingPayment(user.uid);
+  if (hasPending) {
+    alert("You already have a pending payment request. Please wait for admin approval.");
+    // Optionally disable form
+  }
+
+  // Start listening for approval
+  listenForPaymentApproval(user.uid);
+
+  console.log("✅ Payment page ready for:", user.email);
 });
 
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 4
-// UI Feedback + Duplicate Protection + Status Checking
-// ==========================================================
-
-
-import {
-
-    query,
-    where,
-    getDocs,
-    limit
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-// ===============================
-// UI ELEMENTS
-// ===============================
-
-
-const loadingScreen =
-
-document.querySelector(
-    ".loading-screen"
-);
-
-
-
-const successModal =
-
-document.querySelector(
-    ".success-modal"
-);
-
-
-
-const successClose =
-
-document.querySelector(
-    ".success-close"
-);
-
-
-
-
-// ===============================
-// SHOW LOADING
-// ===============================
-
-
-function showLoading(){
-
-
-    if(loadingScreen){
-
-        loadingScreen.classList.add(
-            "active"
-        );
-
-    }
-
-
-}
-
-
-
-
-// ===============================
-// HIDE LOADING
-// ===============================
-
-
-function hideLoading(){
-
-
-    if(loadingScreen){
-
-        loadingScreen.classList.remove(
-            "active"
-        );
-
-    }
-
-
-}
-
-
-
-
-// ===============================
-// SHOW SUCCESS MODAL
-// ===============================
-
-
-function showSuccess(){
-
-
-    if(successModal){
-
-        successModal.classList.add(
-            "active"
-        );
-
-    }
-
-
-}
-
-
-
-
-// ===============================
-// CLOSE SUCCESS MODAL
-// ===============================
-
-
-if(successClose){
-
-
-successClose.addEventListener(
-"click",
-()=>{
-
-
-    successModal.classList.remove(
-        "active"
+// ─── CHECK EXISTING PENDING PAYMENT ──────────────────────
+async function checkExistingPayment(uid) {
+  try {
+    const q = query(
+      collection(db, "payments"),
+      where("userId", "==", uid),
+      where("status", "==", "pending"),
+      limit(1)
     );
-
-
-    window.location.href =
-    "dashboard.html";
-
-
-});
-
-
-
+    const snap = await getDocs(q);
+    return !snap.empty;
+  } catch (e) {
+    console.error("Check pending error:", e);
+    return false;
+  }
 }
 
+// ─── PROOF UPLOAD ──────────────────────────────────────────
+if (proofInput) {
+  proofInput.addEventListener("change", async () => {
+    const file = proofInput.files[0];
+    if (!file) return;
 
-
-
-// ===============================
-// CHECK EXISTING PAYMENT
-// ===============================
-
-
-async function checkExistingPayment(uid){
-
-
-    try{
-
-
-        const paymentsRef =
-
-        collection(
-            db,
-            "payments"
-        );
-
-
-
-        const q =
-
-        query(
-
-            paymentsRef,
-
-
-            where(
-                "userId",
-                "==",
-                uid
-            ),
-
-
-            where(
-                "status",
-                "==",
-                "pending"
-            ),
-
-
-            limit(1)
-
-        );
-
-
-
-        const snapshot =
-
-        await getDocs(q);
-
-
-
-
-        if(
-            !snapshot.empty
-        ){
-
-
-            console.log(
-                "Existing pending payment found"
-            );
-
-
-            return true;
-
-
-        }
-
-
-
-        return false;
-
-
-
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only JPG, PNG or PDF files are allowed.");
+      proofInput.value = "";
+      return;
     }
-    catch(error){
-
-
-        console.error(
-            "Payment check error:",
-            error
-        );
-
-
-        return false;
-
-
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be below 5MB.");
+      proofInput.value = "";
+      return;
     }
 
+    if (!currentUser) {
+      alert("Please login.");
+      return;
+    }
 
-
+    try {
+      const fileName = Date.now() + "_" + file.name;
+      const storageRef = ref(storage, `paymentProofs/${currentUser.uid}/${fileName}`);
+      const uploadResult = await uploadBytes(storageRef, file);
+      uploadedProofURL = await getDownloadURL(uploadResult.ref);
+      console.log("Proof uploaded:", uploadedProofURL);
+      showMessage("Proof uploaded successfully ✅", "success");
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Proof upload failed.");
+    }
+  });
 }
 
+// ─── FORM SUBMISSION ──────────────────────────────────────
+if (paymentForm) {
+  paymentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-
-
-// ===============================
-// UPDATE SUBMIT FUNCTION
-// ===============================
-
-
-const originalSubmit = paymentForm;
-
-
-
-if(paymentForm){
-
-
-paymentForm.addEventListener(
-"submit",
-async()=>{
-
-
-    const user =
-    auth.currentUser;
-
-
-
-    if(!user){
-
-        return;
-
+    if (!currentUser) {
+      alert("Please login.");
+      return;
     }
 
+    // ── Validate ──
+    const name = userNameInput.value.trim();
+    const email = userEmailInput.value.trim();
+    const plan = membershipInput.value;
+    const method = paymentMethodInput.value;
+    const transactionId = transactionIdInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    const notes = notesInput.value.trim();
 
-
-    const exists =
-
-    await checkExistingPayment(
-        user.uid
-    );
-
-
-
-    if(exists){
-
-
-        alert(
-            "You already have a pending payment request."
-        );
-
-
-        return false;
-
-
+    if (!name || !email || !plan || !method || !transactionId || !amount) {
+      showMessage("Please complete all required fields.", "error");
+      return;
     }
 
+    // ── Check duplicate pending ──
+    const hasPending = await checkExistingPayment(currentUser.uid);
+    if (hasPending) {
+      showMessage("You already have a pending payment request. Please wait for admin approval.", "error");
+      return;
+    }
 
-
+    // ── Loading ──
     showLoading();
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-// ===============================
-// PAYMENT SUCCESS HANDLER
-// ===============================
-
-
-// This function can be called
-// after successful Firestore save
-
-
-window.paymentSuccess = function(){
-
-
-    hideLoading();
-
-
-    showSuccess();
-
-
-
-};
-
-
-
-
-
-// ===============================
-// CHECK USER PAYMENT STATUS
-// ===============================
-
-
-async function checkPaymentStatus(){
-
-
-const user =
-auth.currentUser;
-
-
-
-if(!user){
-
-    return;
-
-}
-
-
-
-try{
-
-
-const q =
-
-query(
-
-collection(
-    db,
-    "payments"
-),
-
-
-where(
-    "userId",
-    "==",
-    user.uid
-),
-
-
-limit(1)
-
-);
-
-
-
-const result =
-
-await getDocs(q);
-
-
-
-if(!result.empty){
-
-
-const data =
-
-result.docs[0].data();
-
-
-
-console.log(
-    "Current payment status:",
-    data.status
-);
-
-
-
-}
-
-
-
-}
-catch(error){
-
-
-console.error(
-    "Status check error:",
-    error
-);
-
-
-}
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// PAYMENT SYSTEM
-// PART 5 FINAL
-// Real-Time Approval Detection + Premium Unlock
-// ==========================================================
-
-
-import {
-
-    onSnapshot
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-
-// ===============================
-// LISTEN FOR PAYMENT APPROVAL
-// ===============================
-
-
-function listenForPaymentApproval(){
-
-
-
-const user =
-auth.currentUser;
-
-
-
-if(!user){
-
-    return;
-
-}
-
-
-
-
-
-const paymentsQuery =
-
-query(
-
-collection(
-    db,
-    "payments"
-),
-
-
-where(
-    "userId",
-    "==",
-    user.uid
-),
-
-
-limit(1)
-
-);
-
-
-
-
-
-onSnapshot(
-
-paymentsQuery,
-
-(snapshot)=>{
-
-
-    if(snapshot.empty){
-
-        return;
-
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = "Submitting...";
+
+    try {
+      // ── Save to Firestore ──
+      const paymentData = {
+        userId: currentUser.uid,
+        name,
+        email,
+        plan,
+        paymentMethod: method,
+        transactionId,
+        amount,
+        notes: notes || "",
+        proofURL: uploadedProofURL || "",
+        status: "pending",
+        membership: "pending",
+        createdAt: serverTimestamp(),
+      };
+
+      const docRef = await addDoc(collection(db, "payments"), paymentData);
+      console.log("✅ Payment saved with ID:", docRef.id);
+
+      hideLoading();
+      showSuccessModal();
+
+      // Reset form
+      paymentForm.reset();
+      if (userEmailInput) userEmailInput.value = email;
+      if (userNameInput) userNameInput.value = name;
+      uploadedProofURL = "";
+      if (proofInput) proofInput.value = "";
+
+    } catch (error) {
+      console.error("Payment error:", error);
+      showMessage("Payment submission failed. Please try again.", "error");
+    } finally {
+      hideLoading();
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
     }
+  });
+}
 
+// ─── LIVE LISTENER FOR PAYMENT APPROVAL ──────────────────
+function listenForPaymentApproval(uid) {
+  const q = query(
+    collection(db, "payments"),
+    where("userId", "==", uid),
+    where("status", "in", ["approved", "rejected"]),
+    limit(1)
+  );
 
+  onSnapshot(q, (snapshot) => {
+    if (snapshot.empty) return;
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      console.log("📡 Payment update:", data.status);
 
-
-    snapshot.forEach(
-
-    (paymentDoc)=>{
-
-
-
-        const paymentData =
-
-        paymentDoc.data();
-
-
-
-
-        console.log(
-            "Payment Update:",
-            paymentData
-        );
-
-
-
-
-
-        // ===============================
-        // APPROVED
-        // ===============================
-
-
-
-        if(
-
-            paymentData.status ===
-            "approved"
-
-        ){
-
-
-
-            console.log(
-                "Payment Approved"
-            );
-
-
-
-            showSuccess();
-
-
-
-        }
-
-
-
-
-
-        // ===============================
-        // REJECTED
-        // ===============================
-
-
-
-        if(
-
-            paymentData.status ===
-            "rejected"
-
-        ){
-
-
-
-            alert(
-                "Your payment was rejected. Please contact support."
-            );
-
-
-
-        }
-
-
-
-
+      if (data.status === "approved") {
+        // Update user's membership to premium
+        updateUserToPremium(uid);
+        showSuccessModal();
+      } else if (data.status === "rejected") {
+        alert("❌ Your payment was rejected. Please contact support.");
+      }
     });
-
-
-
-},
-
-(error)=>{
-
-
-    console.error(
-        "Approval listener error:",
-        error
-    );
-
-
+  }, (error) => {
+    console.error("Listener error:", error);
+  });
 }
 
-
-
-);
-
-
-
+// ─── UPDATE USER TO PREMIUM ──────────────────────────────
+async function updateUserToPremium(uid) {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, {
+      membership: "premium",
+      updatedAt: serverTimestamp(),
+    });
+    console.log("✅ User upgraded to premium!");
+  } catch (e) {
+    console.error("Failed to upgrade user:", e);
+  }
 }
 
+// ─── UI HELPERS ────────────────────────────────────────────
+function showMessage(msg, type = "info") {
+  if (!paymentMessage) return;
+  paymentMessage.textContent = msg;
+  paymentMessage.className = "payment-message " + type;
+  paymentMessage.style.display = "block";
+  setTimeout(() => { paymentMessage.style.display = "none"; }, 5000);
+}
 
+function showLoading() {
+  if (loadingScreen) loadingScreen.classList.add("active");
+}
 
+function hideLoading() {
+  if (loadingScreen) loadingScreen.classList.remove("active");
+}
 
+function showSuccessModal() {
+  if (successModal) successModal.classList.add("active");
+}
 
-// ===============================
-// START LISTENER AFTER LOGIN
-// ===============================
+if (successClose) {
+  successClose.addEventListener("click", () => {
+    successModal.classList.remove("active");
+    window.location.href = "dashboard.html";
+  });
+}
 
-
-onAuthStateChanged(
-
-auth,
-
-(user)=>{
-
-
-    if(user){
-
-
-        listenForPaymentApproval();
-
-
-
-    }
-
-
-
+// ─── PLAN SELECTION (copy buttons already in HTML) ─────────
+document.querySelectorAll(".select-plan").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const plan = btn.dataset.plan;
+    const price = btn.dataset.price;
+    if (membershipInput) membershipInput.value = plan;
+    if (amountInput) amountInput.value = price;
+    document.getElementById("selectedPlanName").textContent = plan + " Premium";
+    document.getElementById("selectedPlanPrice").textContent = "$" + price;
+    document.getElementById("paymentForm").scrollIntoView({ behavior: "smooth" });
+  });
 });
+
+// Copy buttons
+document.querySelectorAll(".copy-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    navigator.clipboard.writeText(btn.dataset.copy);
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    setTimeout(() => { btn.innerHTML = original; }, 1500);
+  });
+});
+
+console.log("✅ Payment system fully loaded.");
