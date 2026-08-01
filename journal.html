@@ -10,8 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── Your full existing CSS here ── */
-    /* (Keep all your styles exactly as they were – I'll keep them for brevity) */
+    /* ── Full existing CSS (kept exactly as before) ── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
     :root {
@@ -484,6 +483,10 @@
 
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
+      // Determine status based on result
+      const resultVal = val('result') || 'Pending';
+      const statusVal = resultVal === 'Pending' ? 'Pending' : 'Closed';
+
       const trade = {
         id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 8),
         date: val('tradeDate'),
@@ -529,7 +532,7 @@
         rr: num('rr'),
         profit: num('profit'),
         commission: num('commission'),
-        result: val('result') || 'Pending',
+        result: resultVal,
         confidence: val('confidence'),
         emotion: val('emotion'),
         discipline: val('discipline'),
@@ -543,9 +546,9 @@
         duringChart: val('duringChart'),
         afterChart: val('afterChart'),
         notes: val('notes'),
-        status: isUpdate && editingTrade ? editingTrade.status : 'Pending',
+        status: statusVal,
         created: isUpdate && editingTrade ? editingTrade.created : new Date().toISOString(),
-        closed: isUpdate && editingTrade ? editingTrade.closed : null
+        closed: isUpdate && editingTrade ? editingTrade.closed : (statusVal === 'Closed' ? new Date().toISOString() : null)
       };
       console.log('📝 Built trade object:', trade);
       return trade;
@@ -563,19 +566,39 @@
       const trade = buildTradeFromForm(isUpdate);
 
       if (isUpdate && editingTrade) {
+        // ── UPDATE ──
         const index = trades.findIndex(t => t.id === editingTrade.id);
         if (index !== -1) {
           trades[index] = trade;
         }
         saveTrades();
         alert('✅ Trade updated!');
+        // Reset update mode and form
+        if (document.getElementById('updateMode')) {
+          document.getElementById('updateMode').value = 'false';
+        }
+        form.reset();
+        // Restore submit button appearance
+        const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
+          submitBtn.className = 'btn-primary';
+        }
+        // Restore header
+        const header = document.querySelector('.page-header h1');
+        if (header) {
+          header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
+        }
+        document.querySelector('.page-header p').textContent = 'Record • Review • Improve • Repeat';
+        // Redirect to history
         window.location.href = 'history.html';
       } else {
+        // ── NEW TRADE ──
         trades.unshift(trade);
         saveTrades();
         form.reset();
         refreshUI();
-        alert('✅ Trade saved as Pending.');
+        alert('✅ Trade saved as ' + trade.result + '.');
       }
     }
 
