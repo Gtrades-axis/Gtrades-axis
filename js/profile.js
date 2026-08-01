@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ – PROFILE PAGE (FIXED)
+// GTRADES-AXIS™ – PROFILE PAGE (COMPLETE)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -8,6 +8,8 @@ import {
   updateProfile,
   updatePassword,
   signOut,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import {
   doc,
@@ -198,7 +200,7 @@ function calculateStatistics(trades) {
     maxStreak = 0;
 
   trades.forEach((trade) => {
-    const pnl = Number(trade.profit) || 0; // FIXED: use 'profit' not 'pnl'
+    const pnl = Number(trade.profit) || 0;
     const rr = Number(trade.rr) || 0;
 
     totalProfit += pnl;
@@ -222,7 +224,6 @@ function calculateStatistics(trades) {
     }
   });
 
-  // Update DOM
   totalTrades.textContent = trades.length;
   profit.textContent = "$" + totalProfit.toFixed(2);
   winRate.textContent = ((wins / trades.length) * 100).toFixed(1) + "%";
@@ -243,7 +244,6 @@ function calculateStatistics(trades) {
   largestRR.textContent = largestRRTrade.toFixed(2) + "R";
   expectancy.textContent = (totalProfit / trades.length).toFixed(2);
 
-  // Color
   profit.style.color = totalProfit >= 0 ? "#16c784" : "#ea3943";
 }
 
@@ -298,6 +298,109 @@ saveGoals?.addEventListener("click", async () => {
   } catch (error) {
     console.error(error);
     alert("Failed to save goals.");
+  }
+});
+
+// ─── EDIT PROFILE ──────────────────────────────────────────
+document.getElementById("editProfileBtn")?.addEventListener("click", async () => {
+  if (!currentUser) {
+    alert("Please login first.");
+    return;
+  }
+
+  const currentName = currentUserData?.name || "";
+  const newName = prompt("Enter your full name:", currentName);
+
+  if (newName === null) return; // User cancelled
+
+  const trimmedName = newName.trim();
+  if (!trimmedName) {
+    alert("Name cannot be empty.");
+    return;
+  }
+
+  try {
+    // Update Firebase Auth profile
+    await updateProfile(currentUser, { displayName: trimmedName });
+
+    // Update Firestore
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      name: trimmedName,
+      updatedAt: serverTimestamp(),
+    });
+
+    // Update local data
+    currentUserData.name = trimmedName;
+    populateProfile(currentUserData);
+
+    alert("✅ Profile updated successfully!");
+  } catch (error) {
+    console.error("Edit profile error:", error);
+    alert("Failed to update profile: " + error.message);
+  }
+});
+
+// ─── CHANGE PASSWORD ──────────────────────────────────────
+document.getElementById("changePasswordBtn")?.addEventListener("click", async () => {
+  if (!currentUser) {
+    alert("Please login first.");
+    return;
+  }
+
+  // Step 1: Ask for current password
+  const currentPassword = prompt("Enter your current password:");
+
+  if (currentPassword === null) return; // User cancelled
+
+  if (!currentPassword || currentPassword.trim() === "") {
+    alert("Current password is required.");
+    return;
+  }
+
+  // Step 2: Ask for new password
+  const newPassword = prompt("Enter your new password (minimum 6 characters):");
+
+  if (newPassword === null) return; // User cancelled
+
+  if (!newPassword || newPassword.trim().length < 6) {
+    alert("New password must be at least 6 characters.");
+    return;
+  }
+
+  // Step 3: Confirm new password
+  const confirmPassword = prompt("Confirm your new password:");
+
+  if (confirmPassword === null) return;
+
+  if (newPassword !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  try {
+    // Re-authenticate user before changing password
+    const credential = EmailAuthProvider.credential(
+      currentUser.email,
+      currentPassword
+    );
+    await reauthenticateWithCredential(currentUser, credential);
+
+    // Update password
+    await updatePassword(currentUser, newPassword);
+
+    alert("✅ Password changed successfully!");
+  } catch (error) {
+    console.error("Change password error:", error);
+
+    let errorMessage = "Failed to change password.";
+    if (error.code === "auth/wrong-password") {
+      errorMessage = "Current password is incorrect.";
+    } else if (error.code === "auth/too-many-requests") {
+      errorMessage = "Too many attempts. Please try again later.";
+    } else if (error.code === "auth/requires-recent-login") {
+      errorMessage = "Please log out and log back in, then try again.";
+    }
+    alert("❌ " + errorMessage);
   }
 });
 
@@ -425,7 +528,6 @@ function loadAllStats() {
   loadAcademy();
   loadAIReview();
   loadPsychology();
-  // Goals are loaded inside loadProfile after profile data is available
 }
 
 // ─── LOGOUT ──────────────────────────────────────────────────
