@@ -1286,7 +1286,87 @@ RESOURCE MANAGEMENT
     <p>© 2026 GTRADES AXIS™ | Professional Trading Platform</p>
   </footer>
 </main>
+<!-- ==========================================================
+VIDEO MANAGEMENT
+========================================================== -->
+<section class="dashboard-card" id="videos">
+  <div class="card-header">
+    <div>
+      <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
+      <p>Manage all premium videos.</p>
+    </div>
+    <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+      <i class="fa-solid fa-plus"></i> Add Video
+    </button>
+  </div>
 
+  <!-- Video list (full table) -->
+  <div id="videoListContainer">
+    <div class="table-container">
+      <table class="members-table" id="videoTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="videoTableBody">
+          <tr><td colspan="5"><div class="empty-card">No videos yet.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add/Edit video form (hidden by default) -->
+  <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+    <h3 id="videoFormTitle">Add New Video</h3>
+    <form id="videoForm" class="academy-form">
+      <div class="full-width">
+        <label>Video Title</label>
+        <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
+      </div>
+      <div>
+        <label>Category</label>
+        <select id="videoCategory" required>
+          <option value="Market Structure">Market Structure</option>
+          <option value="Liquidity">Liquidity</option>
+          <option value="Supply & Demand">Supply & Demand</option>
+          <option value="Entries">Entries</option>
+          <option value="Psychology">Psychology</option>
+        </select>
+      </div>
+      <div>
+        <label>Duration</label>
+        <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
+      </div>
+      <div class="full-width">
+        <label>YouTube Video ID</label>
+        <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
+        <small style="color:var(--text-secondary);font-size:12px;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
+      </div>
+      <div class="full-width">
+        <label>Thumbnail Emoji</label>
+        <input type="text" id="videoThumbnail" placeholder="🎯" value="📹" maxlength="2" />
+      </div>
+      <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;padding-top:8px;">
+        <input type="checkbox" id="videoPremiumOnly" />
+        <label for="videoPremiumOnly" style="text-transform:none;font-weight:400;color:var(--text-secondary);margin:0;">Premium Only</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="save-module-btn" id="saveVideoBtn">
+          <i class="fa-solid fa-floppy-disk"></i> Save Video
+        </button>
+        <button type="button" class="cancel-module-btn" id="cancelVideoBtn">
+          Cancel
+        </button>
+      </div>
+      <input type="hidden" id="editingVideoId" />
+    </form>
+  </div>
+</section>
 <!-- ===== MEMBER MODAL ===== -->
 <div class="member-modal" id="memberModal">
   <div class="member-modal-content">
