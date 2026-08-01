@@ -1,5 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ PREMIUM ACADEMY
+// GTRADES-AXIS™ PREMIUM ACADEMY – Lock‑compatible version
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -10,7 +10,6 @@ import {
   getDoc,
   setDoc,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 // ─── FALLBACK MODULES (correct order) ──────────────────────
 const FALLBACK_MODULES = [
@@ -181,10 +180,6 @@ const FALLBACK_MODULES = [
   }
 ];
 
-let currentUser = null;
-let progress = null;
-let modules = [];
-
 // ─── DOM refs ─────────────────────────────────────────────────
 const modulesGrid = document.getElementById("modulesGrid");
 const progressPercent = document.getElementById("progressPercent");
@@ -196,44 +191,13 @@ const certificateCount = document.getElementById("certificateCount");
 const learningHours = document.getElementById("learningHours");
 const activityLog = document.getElementById("activityLog");
 
-// ─── Auth guard ───────────────────────────────────────────────
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-  currentUser = user;
-  console.log("✅ User logged in:", user.uid);
-
-  try {
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const role = userDoc.exists() ? userDoc.data().role : "member";
-    console.log("👤 User role:", role);
-
-    if (role !== "premium" && role !== "admin") {
-      modulesGrid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
-          <i class="fa-solid fa-lock" style="font-size:3rem;color:#ffb300;display:block;margin-bottom:16px;"></i>
-          <h2>Premium Access Required</h2>
-          <p style="color:#94a3b8;margin-bottom:16px;">Upgrade to Premium to access the Academy.</p>
-          <a href="dashboard.html" style="display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#1d9bf0,#4db6ff);color:#fff;border-radius:8px;text-decoration:none;">Go to Dashboard</a>
-        </div>
-      `;
-      return;
-    }
-    await loadProgress();
-    await loadModules();
-    renderDashboard();
-  } catch (e) {
-    console.error("Auth setup error:", e);
-    modulesGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:#ff4d4f;">Error loading Academy. Please refresh.</div>`;
-  }
-});
+let progress = null;
+let modules = [];
 
 // ─── Load progress ─────────────────────────────────────────────
-async function loadProgress() {
+async function loadProgress(uid) {
   try {
-    const docRef = doc(db, "user_progress", currentUser.uid);
+    const docRef = doc(db, "user_progress", uid);
     const docSnap = await getDoc(docRef);
     progress = docSnap.exists() ? docSnap.data() : { modules: {} };
     console.log("📊 Progress loaded:", progress);
@@ -386,4 +350,17 @@ function renderDashboard() {
     `;
   });
   modulesGrid.innerHTML = html;
+}
+
+// ─── EXPORTED INIT FUNCTION (called by the lock system) ──────
+export async function initAcademy(userData) {
+  console.log("✅ Academy unlocked – initializing...", userData);
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    console.error("No authenticated user found.");
+    return;
+  }
+  await loadProgress(uid);
+  await loadModules();
+  renderDashboard();
 }
