@@ -923,80 +923,90 @@
   <!-- ==========================================================
        VIDEO MANAGER
   ========================================================== -->
-  <section class="manager-section" id="videos">
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div>
-          <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
-          <p>Manage all premium videos.</p>
-        </div>
+  <!-- ==========================================================
+VIDEO MANAGER
+========================================================== -->
+<section class="manager-section" id="videos">
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div>
+        <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
+        <p>Manage all premium videos.</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
           <i class="fa-solid fa-plus"></i> Add Video
         </button>
-      </div>
-
-      <div id="videoListContainer">
-        <div class="table-container">
-          <table class="members-table" id="videoTable">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="videoTableBody">
-              <tr><td colspan="5"><div class="empty-card">No videos yet.</div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="videoFormTitle">Add New Video</h3>
-        <form id="videoForm" class="manager-form">
-          <div class="full-width">
-            <label>Video Title</label>
-            <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
-          </div>
-          <div>
-            <label>Category</label>
-            <select id="videoCategory" required>
-              <option value="Market Structure">Market Structure</option>
-              <option value="Liquidity">Liquidity</option>
-              <option value="Supply & Demand">Supply & Demand</option>
-              <option value="Entries">Entries</option>
-              <option value="Psychology">Psychology</option>
-            </select>
-          </div>
-          <div>
-            <label>Duration</label>
-            <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
-          </div>
-          <div class="full-width">
-            <label>YouTube Video ID</label>
-            <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
-            <small style="color:var(--text-secondary);font-size:0.7rem;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
-          </div>
-          <div class="full-width">
-            <label>Thumbnail Emoji</label>
-            <input type="text" id="videoThumbnail" placeholder="🎯" value="📹" maxlength="2" />
-          </div>
-          <div class="checkbox-group full-width">
-            <input type="checkbox" id="videoPremiumOnly" />
-            <label for="videoPremiumOnly">Premium Only</label>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button>
-            <button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button>
-          </div>
-          <input type="hidden" id="editingVideoId" />
-        </form>
+        <button id="addSampleVideosBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;">
+          <i class="fa-solid fa-copy"></i> Add Sample Videos
+        </button>
       </div>
     </div>
-  </section>
+
+    <!-- Video list -->
+    <div id="videoListContainer">
+      <div class="table-container">
+        <table class="members-table" id="videoTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="videoTableBody">
+            <tr><td colspan="5"><div class="empty-card">No videos yet.</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Video form -->
+    <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+      <h3 id="videoFormTitle">Add New Video</h3>
+      <form id="videoForm" class="manager-form">
+        <div class="full-width">
+          <label>Video Title</label>
+          <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
+        </div>
+        <div>
+          <label>Category</label>
+          <select id="videoCategory" required>
+            <option value="Market Structure">Market Structure</option>
+            <option value="Supply & Demand">Supply & Demand</option>
+            <option value="Liquidity">Liquidity</option>
+            <option value="Entries">Entries</option>
+            <option value="Psychology">Psychology</option>
+          </select>
+        </div>
+        <div>
+          <label>Duration</label>
+          <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
+        </div>
+        <div class="full-width">
+          <label>YouTube Video ID</label>
+          <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
+          <small style="color:var(--text-secondary);font-size:0.7rem;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
+        </div>
+        <div class="full-width">
+          <label>Thumbnail Emoji</label>
+          <input type="text" id="videoThumbnail" placeholder="🎯" value="📹" maxlength="2" />
+        </div>
+        <div class="checkbox-group full-width">
+          <input type="checkbox" id="videoPremiumOnly" />
+          <label for="videoPremiumOnly">Premium Only</label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button>
+          <button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button>
+        </div>
+        <input type="hidden" id="editingVideoId" />
+      </form>
+    </div>
+  </div>
+</section>
 
   <!-- ==========================================================
        RESOURCE MANAGER

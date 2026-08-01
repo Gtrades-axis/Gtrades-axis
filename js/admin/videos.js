@@ -7,229 +7,64 @@ import {
   updateDoc,
   doc,
   serverTimestamp,
+  query,
+  where,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 /* =====================================
-ELEMENTS
+   SAMPLE VIDEOS DATA
 ===================================== */
-const videoForm = document.getElementById("videoForm");
-const videoListBody = document.getElementById("videoTableBody");
-const toggleFormBtn = document.getElementById("toggleVideoFormBtn");
-const formContainer = document.getElementById("videoFormContainer");
-const cancelBtn = document.getElementById("cancelVideoBtn");
-const formTitle = document.getElementById("videoFormTitle");
-const editingIdInput = document.getElementById("editingVideoId");
-
-let videos = [];
-let editingId = null;
+const SAMPLE_VIDEOS = [
+  { title: "Market Structure Basics (BOS & CHoCH)", category: "Market Structure", duration: "12:45", youtubeId: "dQw4w9WgXcQ", thumbnail: "🎯", premiumOnly: false },
+  { title: "Supply & Demand Zone Refinement", category: "Supply & Demand", duration: "15:10", youtubeId: "dQw4w9WgXcQ", thumbnail: "📊", premiumOnly: false },
+  { title: "Liquidity Grabs Explained", category: "Liquidity", duration: "08:22", youtubeId: "dQw4w9WgXcQ", thumbnail: "💧", premiumOnly: false },
+  { title: "Perfect Entry Checklist", category: "Entries", duration: "10:05", youtubeId: "dQw4w9WgXcQ", thumbnail: "✅", premiumOnly: false },
+  { title: "Mastering Trading Psychology", category: "Psychology", duration: "18:30", youtubeId: "dQw4w9WgXcQ", thumbnail: "🧠", premiumOnly: false },
+  { title: "Break of Structure (BOS) in Trend", category: "Market Structure", duration: "09:15", youtubeId: "dQw4w9WgXcQ", thumbnail: "📈", premiumOnly: false },
+  { title: "Change of Character (CHoCH) Deep Dive", category: "Market Structure", duration: "14:50", youtubeId: "dQw4w9WgXcQ", thumbnail: "🔄", premiumOnly: false },
+  { title: "Liquidity Sweep Before Entry", category: "Liquidity", duration: "07:40", youtubeId: "dQw4w9WgXcQ", thumbnail: "💦", premiumOnly: false },
+  { title: "How to Draw Supply & Demand Zones", category: "Supply & Demand", duration: "20:15", youtubeId: "dQw4w9WgXcQ", thumbnail: "✏️", premiumOnly: false },
+  { title: "Risk Management for Prop Firms", category: "Entries", duration: "11:25", youtubeId: "dQw4w9WgXcQ", thumbnail: "🛡️", premiumOnly: false },
+  { title: "Overcoming Fear & Greed", category: "Psychology", duration: "16:00", youtubeId: "dQw4w9WgXcQ", thumbnail: "🧘", premiumOnly: false },
+  { title: "Session Timing: London vs NY", category: "Entries", duration: "13:55", youtubeId: "dQw4w9WgXcQ", thumbnail: "🕒", premiumOnly: false }
+];
 
 /* =====================================
-TOGGLE FORM
+   ADD SAMPLE VIDEOS
 ===================================== */
-toggleFormBtn?.addEventListener("click", () => {
-  const isHidden = formContainer.style.display === "none";
-  formContainer.style.display = isHidden ? "block" : "none";
-  if (isHidden) {
-    formTitle.textContent = "Add New Video";
-    editingId = null;
-    editingIdInput.value = "";
-    videoForm.reset();
-    document.getElementById("videoThumbnail").value = "📹";
-    document.getElementById("saveVideoBtn").textContent = "Save Video";
-    toggleFormBtn.textContent = "✕ Cancel";
-  } else {
-    toggleFormBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Video';
-  }
-});
-
-cancelBtn?.addEventListener("click", () => {
-  formContainer.style.display = "none";
-  toggleFormBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Video';
-  videoForm.reset();
-  editingId = null;
-  editingIdInput.value = "";
-});
-
-/* =====================================
-LOAD VIDEOS
-===================================== */
-async function loadVideos() {
-  videos = [];
-  const snapshot = await getDocs(collection(db, "videos"));
-  snapshot.forEach(docSnap => {
-    videos.push({ id: docSnap.id, ...docSnap.data() });
-  });
-  renderVideos();
-}
-
-/* =====================================
-RENDER VIDEO TABLE
-===================================== */
-function renderVideos() {
-  if (!videoListBody) return;
-  videoListBody.innerHTML = "";
-
-  if (videos.length === 0) {
-    videoListBody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No videos uploaded.</div></td></tr>`;
-    return;
-  }
-
-  videos.forEach(video => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><strong>${video.title}</strong></td>
-      <td><span class="badge">${video.category}</span></td>
-      <td>${video.duration || "—"}</td>
-      <td>
-        <span class="badge ${video.premiumOnly ? 'premium' : 'free'}">
-          ${video.premiumOnly ? 'Premium' : 'Free'}
-        </span>
-      </td>
-      <td>
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          <button class="manage-btn edit-video" data-id="${video.id}" style="color:var(--accent-blue);border-color:var(--accent-blue);">
-            <i class="fa-solid fa-pen"></i> Edit
-          </button>
-          <button class="manage-btn toggle-video-premium" data-id="${video.id}" style="color:var(--gold);border-color:var(--gold);">
-            <i class="fa-solid fa-${video.premiumOnly ? 'lock' : 'unlock'}"></i> ${video.premiumOnly ? 'Make Free' : 'Make Premium'}
-          </button>
-          <button class="manage-btn delete-video" data-id="${video.id}" style="color:var(--red);border-color:var(--red);">
-            <i class="fa-solid fa-trash"></i> Delete
-          </button>
-        </div>
-      </td>
-    `;
-    videoListBody.appendChild(tr);
-  });
-
-  // Attach events
-  document.querySelectorAll(".edit-video").forEach(btn => {
-    btn.addEventListener("click", () => editVideo(btn.dataset.id));
-  });
-  document.querySelectorAll(".toggle-video-premium").forEach(btn => {
-    btn.addEventListener("click", () => toggleVideoPremium(btn.dataset.id));
-  });
-  document.querySelectorAll(".delete-video").forEach(btn => {
-    btn.addEventListener("click", () => deleteVideo(btn.dataset.id));
-  });
-}
-
-/* =====================================
-EDIT VIDEO
-===================================== */
-function editVideo(id) {
-  const video = videos.find(v => v.id === id);
-  if (!video) return;
-
-  editingId = id;
-  editingIdInput.value = id;
-  document.getElementById("videoTitle").value = video.title || "";
-  document.getElementById("videoCategory").value = video.category || "Market Structure";
-  document.getElementById("videoDuration").value = video.duration || "";
-  document.getElementById("videoYoutubeId").value = video.youtubeId || "";
-  document.getElementById("videoThumbnail").value = video.thumbnail || "📹";
-  document.getElementById("videoPremiumOnly").checked = video.premiumOnly || false;
-
-  formTitle.textContent = "Edit Video";
-  document.getElementById("saveVideoBtn").textContent = "Update Video";
-  formContainer.style.display = "block";
-  toggleFormBtn.textContent = "✕ Cancel";
-}
-
-/* =====================================
-TOGGLE PREMIUM STATUS
-===================================== */
-async function toggleVideoPremium(id) {
-  const video = videos.find(v => v.id === id);
-  if (!video) return;
-
-  const newStatus = !video.premiumOnly;
-  if (!confirm(`Mark this video as ${newStatus ? 'Premium' : 'Free'}?`)) return;
+async function addSampleVideos() {
+  if (!confirm("This will add 12 sample videos to your Firestore. Continue?")) return;
 
   try {
-    await updateDoc(doc(db, "videos", id), { premiumOnly: newStatus });
-    await loadVideos();
-    alert("✅ Video status updated.");
-  } catch (error) {
-    console.error(error);
-    alert("Error updating status.");
-  }
-}
-
-/* =====================================
-DELETE VIDEO
-===================================== */
-async function deleteVideo(id) {
-  const video = videos.find(v => v.id === id);
-  if (!video) return;
-  if (!confirm(`Delete "${video.title}" permanently?`)) return;
-
-  try {
-    await deleteDoc(doc(db, "videos", id));
-    await loadVideos();
-    alert("✅ Video deleted.");
-  } catch (error) {
-    console.error(error);
-    alert("Error deleting video.");
-  }
-}
-
-/* =====================================
-SAVE VIDEO (Add or Update)
-===================================== */
-videoForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const title = document.getElementById("videoTitle").value.trim();
-  const category = document.getElementById("videoCategory").value;
-  const duration = document.getElementById("videoDuration").value.trim();
-  const youtubeId = document.getElementById("videoYoutubeId").value.trim();
-  const thumbnail = document.getElementById("videoThumbnail").value.trim() || "📹";
-  const premiumOnly = document.getElementById("videoPremiumOnly").checked;
-  const editingId = document.getElementById("editingVideoId").value;
-
-  if (!title || !duration || !youtubeId) {
-    alert("Please fill in all required fields.");
-    return;
-  }
-
-  const data = {
-    title,
-    category,
-    duration,
-    youtubeId,
-    thumbnail,
-    premiumOnly,
-    updatedAt: serverTimestamp(),
-  };
-
-  if (!editingId) {
-    data.createdAt = serverTimestamp();
-  }
-
-  try {
-    if (editingId) {
-      await updateDoc(doc(db, "videos", editingId), data);
-      alert("✅ Video updated.");
-    } else {
-      await addDoc(collection(db, "videos"), data);
-      alert("✅ Video added.");
+    // Check if any videos already exist to avoid duplicates
+    const existing = await getDocs(collection(db, "videos"));
+    if (!existing.empty) {
+      if (!confirm("You already have videos. Adding samples will create duplicates. Continue?")) return;
     }
-    await loadVideos();
-    videoForm.reset();
-    document.getElementById("videoThumbnail").value = "📹";
-    formContainer.style.display = "none";
-    toggleFormBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Video';
-    editingIdInput.value = "";
+
+    let count = 0;
+    for (const video of SAMPLE_VIDEOS) {
+      await addDoc(collection(db, "videos"), {
+        ...video,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      count++;
+    }
+    alert(`✅ ${count} sample videos added successfully!`);
+    await loadVideos(); // refresh the table
   } catch (error) {
     console.error(error);
-    alert("Error saving video: " + error.message);
+    alert("Error adding sample videos: " + error.message);
   }
-});
+}
 
 /* =====================================
-INIT
+   ELEMENTS & EVENT LISTENERS
 ===================================== */
-loadVideos();
+// ... (your existing code: DOM refs, loadVideos, renderVideos, form submit, etc.)
 
-console.log("✅ Admin video manager ready.");
+// Add event listener for the "Add Sample Videos" button
+document.getElementById("addSampleVideosBtn")?.addEventListener("click", addSampleVideos);
+
+// ... rest of your existing code (toggle form, edit, delete, etc.)
