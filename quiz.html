@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    /* ── Reset & Base ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0b0d15;
+      color: #e8edf5;
+      min-height: 100vh;
+    }
+    .academy-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      background: #131724;
+      border-right: 1px solid #2a3450;
+      padding: 28px 18px;
+      flex-shrink: 0;
+    }
+    .sidebar .logo h2 {
+      font-size: 18px;
+      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sidebar .logo span { -webkit-text-fill-color: #4f7cff; }
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
+    }
+    .sidebar nav ul li { margin: 6px 0; }
+    .sidebar nav ul li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #9aa4bf;
+      text-decoration: none;
+      transition: 0.25s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar nav ul li a:hover {
+      background: #1a1f2f;
+      color: #fff;
+    }
+    .sidebar nav ul li.active a {
+      background: rgba(79,124,255,0.15);
+      color: #4f7cff;
+      border-left-color: #4f7cff;
+    }
+    .sidebar nav ul li a i { width: 20px; text-align: center; }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      padding: 30px 40px;
+      background: #0b0d15;
+    }
+
+    /* ── Lock Overlay ── */
+    #lockOverlay {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    #lockOverlay .lock-icon {
+      font-size: 4rem;
+      color: #f5a623;
+      background: rgba(245, 166, 35, 0.15);
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+    }
+    #lockOverlay h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    #lockOverlay .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    #lockOverlay .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+      text-align: left;
+      margin: 0 auto 36px;
+      max-width: 480px;
+    }
+    #lockOverlay .feature-list .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    #lockOverlay .feature-list .feature-item i {
+      color: #00c897;
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    #lockOverlay .lock-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #lockOverlay .lock-buttons a {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: 0.25s;
+    }
+    #lockOverlay .lock-buttons .btn-upgrade {
+      background: linear-gradient(135deg, #f5a623, #f7c948);
+      color: #0b0d15;
+    }
+    #lockOverlay .lock-buttons .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3);
+    }
+    #lockOverlay .lock-buttons .btn-dashboard {
+      background: #1a1f2f;
+      color: #94a3b8;
+      border: 1px solid #2a3450;
+    }
+    #lockOverlay .lock-buttons .btn-dashboard:hover {
+      background: #2a3450;
+      color: #fff;
+    }
+
+    /* ── Loading state ── */
+    #app.loading #lockOverlay,
+    #app.loading .locked-content {
+      display: none !important;
+    }
+    #app.loading {
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #app.loading::after {
+      content: "";
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #4f7cff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .locked-content { display: block; }
+    .locked #lockOverlay { display: block; }
+    .locked .locked-content { display: none; }
+
+    /* ── Quiz specific styles ── */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .topbar h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .topbar h1 i { color: #4f7cff; margin-right: 10px; }
+    .topbar .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #1d9bf0;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: rgba(29,155,240,0.08);
+      border: 1px solid rgba(29,155,240,0.15);
+      transition: 0.25s;
+    }
+    .topbar .back-link:hover {
+      background: rgba(29,155,240,0.15);
+      border-color: #1d9bf0;
+    }
+    .topbar .module-badge {
+      font-size: 14px;
+      color: #9aa4bf;
+      background: #131724;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid #2a3450;
+    }
+
+    .quiz-container {
+      background: #131724;
+      border: 1px solid #2a3450;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .quiz-container h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    .quiz-container .subtitle {
+      color: #9aa4bf;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .question-block {
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #2a3450;
+    }
+    .question-block:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .question-block .q-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4f7cff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .question-block .q-text {
+      font-size: 17px;
+      font-weight: 500;
+      margin: 6px 0 12px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #0b0d15;
+      border-radius: 8px;
+      border: 1px solid #2a3450;
+      cursor: pointer;
+      transition: 0.25s;
+      font-size: 14px;
+    }
+    .options label:hover {
+      border-color: #4f7cff;
+      background: rgba(79,124,255,0.05);
+    }
+    .options input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #4f7cff;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .options label.selected {
+      border-color: #4f7cff;
+      background: rgba(79,124,255,0.08);
+    }
+
+    .submit-area {
+      margin-top: 24px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .submit-area button {
+      padding: 12px 32px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.25s;
+      font-family: 'Poppins', sans-serif;
+      background: #4f7cff;
+      color: #fff;
+    }
+    .submit-area button:hover {
+      background: #3a66e0;
+      transform: translateY(-2px);
+    }
+    .submit-area button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+    }
+    .result-box.visible {
+      display: block;
+    }
+    .result-box.pass {
+      background: rgba(0,200,150,0.12);
+      border: 1px solid #00c897;
+    }
+    .result-box.fail {
+      background: rgba(255,71,102,0.12);
+      border: 1px solid #ff4766;
+    }
+    .result-box h3 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .result-box p {
+      color: #9aa4bf;
+      font-size: 14px;
+    }
+    .result-box .score {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .result-box.pass .score { color: #00c897; }
+    .result-box.fail .score { color: #ff4766; }
+
+    .error-message {
+      text-align: center;
+      padding: 30px 20px;
+      color: #ff4766;
+      background: rgba(255,71,102,0.08);
+      border-radius: 12px;
+      border: 1px solid rgba(255,71,102,0.15);
+    }
+    .error-message i {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { padding: 20px; }
+      .quiz-container { padding: 20px; }
+      .topbar { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="academy-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>GTRADES <span>AXIS™</span></h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html"><i class="fas fa-house"></i> Dashboard</a></li>
+        <li><a href="premium-academy.html"><i class="fas fa-book-open"></i> Modules</a></li>
+        <li><a href="resources.html"><i class="fas fa-folder-open"></i> Resources</a></li>
+        <li><a href="ai-review.html"><i class="fas fa-brain"></i> AI Review</a></li>
+        <li class="active"><a href="certificate.html"><i class="fas fa-award"></i> Certificates</a></li>
+        <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="content" id="app">
+
+    <!-- LOCK OVERLAY -->
+    <div id="lockOverlay">
+      <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
+      <h2>Premium Members Only</h2>
+      <p class="subtitle">
+        This feature is available exclusively to GTRADES-AXIS™ Premium Members.
+        Upgrade your membership to unlock advanced trading tools and educational content.
+      </p>
+      <div class="feature-list">
+        <div class="feature-item"><i class="fa-solid fa-check"></i> Professional Trading Journal</div>
+        <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Trading Academy</div>
+        <div class="feature-item"><i class="fa-solid fa-check"></i> AI Trade Review</div>
+        <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Resources</div>
+        <div class="feature-item"><i class="fa-solid fa-check"></i> Private Videos</div>
+      </div>
+      <div class="lock-buttons">
+        <a href="upgrade.html" class="btn-upgrade">Upgrade Membership</a>
+        <a href="dashboard.html" class="btn-dashboard">Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- QUIZ CONTENT -->
+    <div class="locked-content">
+
+      <!-- Topbar with Back button -->
+      <header class="topbar">
+        <div>
+          <h1><i class="fa-solid fa-pencil"></i> Quiz</h1>
+          <span class="module-badge" id="moduleBadge">Module</span>
+        </div>
+        <a href="premium-academy.html" class="back-link">
+          <i class="fa-solid fa-arrow-left"></i> Back to Modules
+        </a>
+      </header>
+
+      <!-- Quiz Container -->
+      <div class="quiz-container" id="quizContainer">
+        <h2 id="quizTitle">Loading quiz...</h2>
+        <p class="subtitle" id="quizSubtitle">Please wait...</p>
+        <div id="questionsContainer">
+          <!-- Questions rendered by JS -->
+        </div>
+        <div class="submit-area">
+          <button id="submitQuiz">Submit Quiz</button>
+          <span style="color:#9aa4bf;font-size:14px;" id="questionCount">0 questions</span>
+        </div>
+        <div class="result-box" id="resultBox">
+          <h3>Result</h3>
+          <div class="score" id="resultScore">0%</div>
+          <p id="resultMessage">You passed!</p>
+        </div>
+      </div>
+
+    </div><!-- /.locked-content -->
+  </div><!-- /#app -->
+</div>
+
+<!-- ===========================
+     SCRIPTS
+=========================== -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+  }
+}
+</script>
+
+<script type="module">
+  // ─── IMPORTS ─────────────────────────────────────────────
+  import { auth, db } from "./js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { logoutUser } from "./js/auth.js";
+
+  // ─── DOM REFS ─────────────────────────────────────────────
+  const app = document.getElementById('app');
+  const quizContainer = document.getElementById('quizContainer');
+  const quizTitle = document.getElementById('quizTitle');
+  const quizSubtitle = document.getElementById('quizSubtitle');
+  const moduleBadge = document.getElementById('moduleBadge');
+  const questionsContainer = document.getElementById('questionsContainer');
+  const submitBtn = document.getElementById('submitQuiz');
+  const questionCount = document.getElementById('questionCount');
+  const resultBox = document.getElementById('resultBox');
+  const resultScore = document.getElementById('resultScore');
+  const resultMessage = document.getElementById('resultMessage');
+
+  // ─── FULL FALLBACK MODULES (complete quiz data) ──────────
+  const FALLBACK_MODULES = [
+    {
+      id: "mod_1",
+      title: "Introduction",
+      description: "Welcome, academy overview, rules, environment setup, recommended tools.",
+      order: 1,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
+          { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 },
+          { question: "What is the primary rule of trading?", options: ["Protect your capital", "Make maximum profit", "Trade every day", "Use high leverage"], correct: 0 }
+        ]
+      }
+    },
+    {
+      id: "mod_2",
+      title: "Market Structure",
+      description: "HTF bias, MTF analysis, BOS, CHOCH, internal/external structure, examples.",
+      order: 2,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
+          { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 },
+          { question: "What is the HTF bias used for?", options: ["Determining overall trend direction", "Entry timing", "Risk management", "Setting stop loss"], correct: 0 }
+        ]
+      }
+    },
+    {
+      id: "mod_3",
+      title: "Liquidity",
+      description: "Equal highs/lows, sweeps, inducement, engineered liquidity, mapping.",
+      order: 3,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
+          { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 },
+          { question: "Engineered liquidity is:", options: ["Created by institutions to trap traders", "Natural market movement", "Always bullish", "Always bearish"], correct: 0 }
+        ]
+      }
+    },
+    {
+      id: "mod_4",
+      title: "Supply & Demand",
+      description: "Institutional zones, fresh vs tested, refinement, premium/discount, combining with structure.",
+      order: 4,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
+          { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 },
+          { question: "Demand zones are typically found:", options: ["Near support levels", "Near resistance levels", "In the middle of a range", "Above price"], correct: 0 }
+        ]
+      }
+    },
+    {
+      id: "mod_5",
+      title: "Trade Entries",
+      description: "LC-1, LC-2A, LTF RE, MTF RE, confirmation checklist, trade management, exit strategy.",
+      order: 5,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What does LC-1 stand for?", options: ["Liquidity Capture 1", "Low Confidence 1", "Long Call 1", "Limit Close 1"], correct: 0 },
+          { question: "What is the main purpose of a confirmation checklist?", options: ["Avoid impulsive entries", "Increase position size", "Trade more frequently", "Use higher leverage"], correct: 0 }
+        ]
+      }
+    },
+    {
+      id: "mod_6",
+      title: "Risk Management",
+      description: "Position sizing, risk per trade, daily/weekly limits, R:R, prop firm rules, drawdown.",
+      order: 6,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is a recommended risk per trade for beginners?", options: ["1-2%", "5-10%", "20%", "50%"], correct: 0 },
+          { question: "What is drawdown?", options: ["Peak-to-trough decline in equity", "Maximum profit", "Average win", "Total trades"], correct: 0 }
+        ]
+      }
+    },
+    {
+      id: "mod_7",
+      title: "Trading Psychology",
+      description: "Discipline, patience, emotional control, routine, consistency, common mistakes.",
+      order: 7,
+      hasQuiz: true,
+      lessons: [],
+      quiz: {
+        passingScore: 70,
+        questions: [
+          { question: "What is the most common mistake traders make?", options: ["Overtrading", "Using stop losses", "Following a plan", "Keeping a journal"], correct: 0 },
+          { question: "How can you improve trading consistency?", options: ["Stick to your trading plan", "Trade every signal", "Increase risk", "Ignore the market"], correct: 0 }
+        ]
+      }
+    }
+  ];
+
+  // ─── GET MODULE FROM URL ──────────────────────────────────
+  function getModuleFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const moduleId = params.get('module');
+    if (!moduleId) return null;
+    // Try fallback first
+    let module = FALLBACK_MODULES.find(m => m.id === moduleId);
+    if (module) return module;
+    // If not found, try to load from Firestore (if available)
+    return null;
+  }
+
+  // ─── RENDER QUIZ ──────────────────────────────────────────
+  function renderQuiz(module) {
+    if (!module || !module.quiz || !module.quiz.questions) {
+      questionsContainer.innerHTML = `
+        <div class="error-message">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <strong>Error loading quiz.</strong><br>
+          The quiz data for this module is missing or invalid.
+          <br><br>
+          <a href="premium-academy.html" style="color:#1d9bf0;text-decoration:none;">← Back to Academy</a>
+        </div>
+      `;
+      submitBtn.style.display = 'none';
+      return;
+    }
+
+    const questions = module.quiz.questions;
+    const passingScore = module.quiz.passingScore || 70;
+
+    quizTitle.textContent = `${module.title} — Quiz`;
+    quizSubtitle.textContent = `Passing score: ${passingScore}% • ${questions.length} questions`;
+    moduleBadge.textContent = `${module.title} — Quiz`;
+    questionCount.textContent = `${questions.length} questions`;
+
+    let html = '';
+    questions.forEach((q, idx) => {
+      html += `
+        <div class="question-block" data-q="${idx}">
+          <div class="q-number">Question ${idx + 1} of ${questions.length}</div>
+          <div class="q-text">${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, oi) => `
+              <label class="option-label" data-q="${idx}" data-opt="${oi}">
+                <input type="radio" name="q${idx}" value="${oi}" />
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    });
+    questionsContainer.innerHTML = html;
+
+    // Add click styling for selected options
+    document.querySelectorAll('.option-label').forEach(label => {
+      const radio = label.querySelector('input[type="radio"]');
+      radio.addEventListener('change', () => {
+        const qIdx = radio.name.replace('q', '');
+        document.querySelectorAll(`.option-label[data-q="${qIdx}"]`).forEach(l => l.classList.remove('selected'));
+        if (radio.checked) label.classList.add('selected');
+      });
+    });
+
+    // Store module data for submission
+    window._currentQuiz = { module, questions, passingScore };
+
+    submitBtn.disabled = false;
+    submitBtn.style.display = 'inline-flex';
+    resultBox.classList.remove('visible');
+  }
+
+  // ─── SUBMIT QUIZ ──────────────────────────────────────────
+  function submitQuiz() {
+    const data = window._currentQuiz;
+    if (!data) return;
+
+    const { questions, passingScore, module } = data;
+    let correct = 0;
+    let answered = 0;
+
+    questions.forEach((q, idx) => {
+      const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+      if (selected) {
+        answered++;
+        if (parseInt(selected.value) === q.correct) correct++;
+      }
+    });
+
+    const total = questions.length;
+    const score = Math.round((correct / total) * 100);
+    const passed = score >= passingScore;
+
+    // Show result
+    resultBox.classList.remove('pass', 'fail');
+    resultBox.classList.add('visible', passed ? 'pass' : 'fail');
+    resultScore.textContent = `${score}% (${correct}/${total})`;
+    resultMessage.textContent = passed
+      ? '✅ You passed! Well done!'
+      : '❌ You need to score above ' + passingScore + '% to pass. Review the module and try again.';
+
+    // Disable submit
+    submitBtn.disabled = true;
+
+    // Highlight correct/incorrect answers
+    document.querySelectorAll('.question-block').forEach((block, idx) => {
+      const selected = block.querySelector(`input[name="q${idx}"]:checked`);
+      const options = block.querySelectorAll('.option-label');
+      options.forEach((label, oi) => {
+        const radio = label.querySelector('input[type="radio"]');
+        const isCorrect = oi === questions[idx].correct;
+        if (isCorrect) {
+          label.style.borderColor = '#00c897';
+          label.style.background = 'rgba(0,200,150,0.08)';
+        } else if (selected && parseInt(selected.value) === oi && !isCorrect) {
+          label.style.borderColor = '#ff4766';
+          label.style.background = 'rgba(255,71,102,0.08)';
+        }
+        radio.disabled = true;
+      });
+    });
+
+    // If passed, save progress to Firestore
+    if (passed && auth.currentUser) {
+      saveQuizProgress(module.id);
+    }
+  }
+
+  // ─── SAVE QUIZ PROGRESS ──────────────────────────────────
+  async function saveQuizProgress(moduleId) {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const progressRef = doc(db, "user_progress", user.uid);
+      const progressSnap = await getDoc(progressRef);
+      let data = progressSnap.exists() ? progressSnap.data() : { modules: {} };
+      if (!data.modules) data.modules = {};
+      if (!data.modules[moduleId]) data.modules[moduleId] = {};
+      data.modules[moduleId].quizPassed = true;
+      await setDoc(progressRef, data);
+      console.log('✅ Quiz progress saved!');
+    } catch (e) {
+      console.error('Error saving quiz progress:', e);
+    }
+  }
+
+  // ─── AUTH + LOCK LOGIC ─────────────────────────────────────
+  app.classList.add('loading');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      app.classList.remove('loading');
+      app.classList.add('locked');
+      return;
+    }
+
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+        app.classList.remove('loading');
+        app.classList.add('locked');
+        return;
+      }
+
+      const data = userDoc.data();
+      const role = data.role || 'member';
+      const membership = data.membership || 'free';
+      const hasPremium = (role === 'admin' || membership === 'premium');
+
+      app.classList.remove('loading');
+
+      if (hasPremium) {
+        app.classList.remove('locked');
+
+        // Load quiz
+        const module = getModuleFromURL();
+        if (!module) {
+          // Try to load from Firestore if available
+          questionsContainer.innerHTML = `
+            <div class="error-message">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <strong>Module not found.</strong><br>
+              The module ID in the URL is invalid.
+              <br><br>
+              <a href="premium-academy.html" style="color:#1d9bf0;text-decoration:none;">← Back to Academy</a>
+            </div>
+          `;
+          submitBtn.style.display = 'none';
+          return;
+        }
+        renderQuiz(module);
+      } else {
+        app.classList.add('locked');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      app.classList.remove('loading');
+      app.classList.add('locked');
+    }
+  });
+
+  // ─── SUBMIT EVENT ──────────────────────────────────────────
+  submitBtn.addEventListener('click', submitQuiz);
+
+  // ─── LOGOUT ──────────────────────────────────────────────────
+  const sidebarNav = document.querySelector('.sidebar nav ul');
+  if (sidebarNav) {
+    const logoutLi = document.createElement('li');
+    logoutLi.style.marginTop = '40px';
+    logoutLi.innerHTML = `<a href="#" id="logoutBtnSidebar" style="color:#ff4766;"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
+    sidebarNav.appendChild(logoutLi);
+    document.getElementById('logoutBtnSidebar')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (confirm('Logout?')) {
+        await logoutUser();
+      }
+    });
+  }
+
+  console.log('✅ Quiz page ready.');
+</script>
+
+</body>
+</html>

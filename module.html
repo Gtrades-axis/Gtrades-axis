@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Module | GTRADES-AXIS™ Premium Academy</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="premium-academy.css">
+
+<link rel="stylesheet"
+href="module.css">
+
+</head>
+
+<body>
+
+<div class="module-page">
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header class="module-header">
+
+        <button
+        id="backButton"
+        class="back-btn">
+
+            <i class="fas fa-arrow-left"></i>
+
+            Back
+
+        </button>
+
+        <div class="module-header-content">
+
+            <span
+            id="moduleBadge"
+            class="module-badge">
+
+                Beginner
+
+            </span>
+
+            <h1
+            id="moduleTitle">
+
+                Loading Module...
+
+            </h1>
+
+            <p
+            id="moduleDescription">
+
+                Loading module description...
+
+            </p>
+
+        </div>
+
+    </header>
+
+    <!-- =========================================
+         HERO
+    ========================================== -->
+
+    <section class="module-hero">
+
+        <div class="module-image">
+
+            <img
+
+            id="moduleThumbnail"
+
+            src=""
+
+            alt="Module Thumbnail">
+
+        </div>
+
+        <div class="module-overview">
+
+            <div class="overview-card">
+
+                <h3>
+
+                    Module Progress
+
+                </h3>
+
+                <div class="progress-wrapper">
+
+                    <div class="progress-bar">
+
+                        <div
+
+                        id="moduleProgressBar"
+
+                        class="progress-fill">
+
+                        </div>
+
+                    </div>
+
+                    <span
+
+                    id="moduleProgressText">
+
+                        0% Completed
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="overview-grid">
+
+                <div class="overview-item">
+
+                    <i class="fas fa-book-open"></i>
+
+                    <div>
+
+                        <span>
+
+                            Lessons
+
+                        </span>
+
+                        <strong
+
+                        id="totalLessons">
+
+                            0
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-item">
+
+                    <i class="fas fa-layer-group"></i>
+
+                    <div>
+
+                        <span>
+
+                            Level
+
+                        </span>
+
+                        <strong
+
+                        id="moduleDifficulty">
+
+                            Beginner
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-item">
+
+                    <i class="fas fa-clock"></i>
+
+                    <div>
+
+                        <span>
+
+                            Duration
+
+                        </span>
+
+                        <strong
+
+                        id="moduleDuration">
+
+                            0 min
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-item">
+
+                    <i class="fas fa-circle-check"></i>
+
+                    <div>
+
+                        <span>
+
+                            Completed
+
+                        </span>
+
+                        <strong
+
+                        id="completedLessons">
+
+                            0/0
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+       <!-- =========================================
+         LESSONS
+    ========================================== -->
+
+    <section class="module-lessons">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+
+                    Lessons
+
+                </h2>
+
+                <p>
+
+                    Complete each lesson in order to unlock the next one.
+
+                </p>
+
+            </div>
+
+            <button
+
+            class="continue-btn"
+
+            onclick="continueLearning()">
+
+                <i class="fas fa-play"></i>
+
+                Continue Learning
+
+            </button>
+
+        </div>
+
+        <div
+
+        id="lessonList"
+
+        class="lesson-list">
+
+            <!-- Lessons loaded by module.js -->
+
+        </div>
+
+    </section>
+
+    <!-- =========================================
+         MODULE FOOTER
+    ========================================== -->
+
+    <section class="module-footer">
+
+        <div class="footer-card">
+
+            <i class="fas fa-graduation-cap"></i>
+
+            <div>
+
+                <h3>
+
+                    Complete This Module
+
+                </h3>
+
+                <p>
+
+                    Finish every lesson to unlock the next module.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="footer-card">
+
+            <i class="fas fa-bookmark"></i>
+
+            <div>
+
+                <h3>
+
+                    Continue Anytime
+
+                </h3>
+
+                <p>
+
+                    Your progress is automatically saved.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="footer-card">
+
+            <i class="fas fa-award"></i>
+
+            <div>
+
+                <h3>
+
+                    Earn Your Certificate
+
+                </h3>
+
+                <p>
+
+                    Complete all Academy modules to become a certified GTRADES-AXIS™ trader.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+ <!-- =========================================
+     SCRIPTS
+========================================== -->
+
+<script src="js/academyData.js"></script>
+
+<script src="js/academy.js"></script>
+
+<script src="js/module.js"></script>
+
+</body>
+
+</html>

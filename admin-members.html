@@ -1,0 +1,590 @@
+<!-- ==========================================================
+GTRADES-AXIS™
+ADMIN MEMBERS PAGE
+PART 1 (HTML)
+========================================================== -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Members Management | GTRADES-AXIS™
+</title>
+
+<link
+rel="stylesheet"
+href="css/admin.css">
+
+<link
+rel="stylesheet"
+href="css/admin-members.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+<!-- ==========================================================
+SIDEBAR
+========================================================== -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img
+src="images/imageslogo.png.png"
+alt="Logo">
+
+<h2>
+
+GTRADES
+
+<span>AXIS™</span>
+
+</h2>
+
+<p>
+
+Administrator
+
+</p>
+
+</div>
+
+<ul>
+
+<li>
+
+<a href="admin.html">
+
+<i class="fa-solid fa-gauge-high"></i>
+
+Dashboard
+
+</a>
+
+</li>
+
+<li class="active">
+
+<a href="admin-members.html">
+
+<i class="fa-solid fa-users"></i>
+
+Members
+
+</a>
+
+</li>
+
+<li>
+
+<a href="admin-payments.html">
+
+<i class="fa-solid fa-money-check-dollar"></i>
+
+Payments
+
+</a>
+
+</li>
+
+<li>
+
+<a href="resources-admin.html">
+
+<i class="fa-solid fa-folder-open"></i>
+
+Resources
+
+</a>
+
+</li>
+
+<li>
+
+<a href="academy-admin.html">
+
+<i class="fa-solid fa-graduation-cap"></i>
+
+Academy
+
+</a>
+
+</li>
+
+<li>
+
+<a href="videos-admin.html">
+
+<i class="fa-solid fa-circle-play"></i>
+
+Videos
+
+</a>
+
+</li>
+
+</ul>
+
+<button id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</button>
+
+</aside>
+
+<!-- ==========================================================
+MAIN
+========================================================== -->
+
+<main class="main-content">
+
+<!-- HEADER -->
+
+<div class="page-header">
+
+<div>
+
+<h1>
+
+Members Management
+
+</h1>
+
+<p>
+
+Manage all registered members,
+premium accounts and administrators.
+
+</p>
+
+</div>
+
+</div>
+
+<!-- ==========================================================
+STATISTICS
+========================================================== -->
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<div class="icon blue">
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+<div>
+
+<h2 id="totalMembers">
+
+0
+
+</h2>
+
+<p>
+
+Total Members
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="icon gray">
+
+<i class="fa-solid fa-user"></i>
+
+</div>
+
+<div>
+
+<h2 id="freeMembers">
+
+0
+
+</h2>
+
+<p>
+
+Free Members
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="icon gold">
+
+<i class="fa-solid fa-crown"></i>
+
+</div>
+
+<div>
+
+<h2 id="premiumMembers">
+
+0
+
+</h2>
+
+<p>
+
+Premium Members
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="icon red">
+
+<i class="fa-solid fa-user-shield"></i>
+
+</div>
+
+<div>
+
+<h2 id="adminMembers">
+
+0
+
+</h2>
+
+<p>
+
+Administrators
+
+</p>
+
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="icon orange">
+
+<i class="fa-solid fa-ban"></i>
+
+</div>
+
+<div>
+
+<h2 id="suspendedMembers">
+
+0
+
+</h2>
+
+<p>
+
+Suspended
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ==========================================================
+FILTERS
+========================================================== -->
+
+<div class="toolbar">
+
+<div class="search-box">
+
+<i class="fa-solid fa-search"></i>
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search member...">
+
+</div>
+
+<select id="roleFilter">
+
+<option value="all">
+
+All Roles
+
+</option>
+
+<option value="free">
+
+Free
+
+</option>
+
+<option value="premium">
+
+Premium
+
+</option>
+
+<option value="admin">
+
+Admin
+
+</option>
+
+</select>
+
+<select id="statusFilter">
+
+<option value="all">
+
+All Status
+
+</option>
+
+<option value="active">
+
+Active
+
+</option>
+
+<option value="suspended">
+
+Suspended
+
+</option>
+
+</select>
+
+</div>
+
+<!-- ==========================================================
+MEMBERS GRID
+========================================================== -->
+
+<div
+class="members-grid"
+id="membersGrid">
+
+<!-- Loaded From JS -->
+
+</div>
+
+</main>
+
+</div>
+
+<!-- ==========================================================
+MEMBER MODAL
+========================================================== -->
+
+<div
+class="modal"
+id="memberModal">
+
+<div class="modal-content">
+
+<span
+class="close"
+id="closeModal">
+
+&times;
+
+</span>
+
+<div class="modal-header">
+
+<div class="avatar">
+
+<i class="fa-solid fa-user"></i>
+
+</div>
+
+<div>
+
+<h2 id="modalName">
+
+Member
+
+</h2>
+
+<p id="modalEmail">
+
+email@email.com
+
+</p>
+
+</div>
+
+</div>
+
+<div class="modal-grid">
+
+<div class="info-card">
+
+<h4>
+
+Role
+
+</h4>
+
+<p id="modalRole">
+
+-
+
+</p>
+
+</div>
+
+<div class="info-card">
+
+<h4>
+
+Account Status
+
+</h4>
+
+<p id="modalStatus">
+
+-
+
+</p>
+
+</div>
+
+<div class="info-card">
+
+<h4>
+
+Payment Status
+
+</h4>
+
+<p id="modalPayment">
+
+-
+
+</p>
+
+</div>
+
+<div class="info-card">
+
+<h4>
+
+Joined
+
+</h4>
+
+<p id="modalJoined">
+
+-
+
+</p>
+
+</div>
+
+</div>
+
+<div class="action-buttons">
+
+<button
+class="free-btn"
+id="makeFree">
+
+<i class="fa-solid fa-user"></i>
+
+Make Free
+
+</button>
+
+<button
+class="premium-btn"
+id="makePremium">
+
+<i class="fa-solid fa-crown"></i>
+
+Make Premium
+
+</button>
+
+<button
+class="admin-btn"
+id="makeAdmin">
+
+<i class="fa-solid fa-user-shield"></i>
+
+Make Admin
+
+</button>
+
+<button
+class="suspend-btn"
+id="suspendUser">
+
+<i class="fa-solid fa-ban"></i>
+<button id="demoteBtn" class="btn btn-warning" style="display:none; margin:4px; background:#f5a623; color:#0b0d15; padding:8px 16px; border:none; border-radius:6px; cursor:pointer;">
+  <i class="fa-solid fa-user-slash"></i> Demote to Member
+</button>
+Suspend
+
+</button>
+
+<button
+class="delete-btn"
+id="deleteUser">
+
+<i class="fa-solid fa-trash"></i>
+
+Delete
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script
+type="module"
+src="js/admin-members.js">
+
+</script>
+
+</body>
+
+</html>
