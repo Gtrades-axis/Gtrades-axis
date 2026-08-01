@@ -274,7 +274,8 @@
       margin-bottom: 18px;
     }
     .card-header p { color: var(--text-secondary); font-size: 13px; }
-    .card-header input {
+    .card-header input,
+    .card-header select {
       background: var(--bg-primary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -283,9 +284,10 @@
       font-size: 13px;
       font-family: 'Poppins', sans-serif;
       outline: none;
-      min-width: 200px;
+      min-width: 160px;
     }
-    .card-header input:focus { border-color: var(--accent-blue); }
+    .card-header input:focus,
+    .card-header select:focus { border-color: var(--accent-blue); }
     .table-container {
       overflow-x: auto;
       margin-top: 4px;
@@ -468,6 +470,249 @@
     .activity-item .activity-info { flex: 1; }
     .activity-item h4 { font-size: 14px; }
     .activity-item p { font-size: 12px; color: var(--text-secondary); }
+
+    /* ── Academy Management ── */
+    .academy-section {
+      margin-top: 24px;
+    }
+    .academy-section .dashboard-card {
+      margin-bottom: 24px;
+    }
+
+    .academy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .module-list-card {
+      grid-column: 1;
+    }
+    .module-form-card {
+      grid-column: 2;
+    }
+
+    .module-item {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      transition: 0.2s;
+    }
+    .module-item:hover { border-color: var(--accent-blue); }
+    .module-item .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .module-item .module-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .module-item .module-header .module-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .module-item .module-header .module-actions button {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+    .module-item .module-header .module-actions button:hover {
+      background: var(--bg-card);
+      color: #fff;
+    }
+    .module-item .module-header .module-actions .edit-module { color: var(--accent-blue); }
+    .module-item .module-header .module-actions .delete-module { color: var(--red); }
+    .module-item .module-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .module-item .module-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .module-item .module-lessons {
+      margin-top: 10px;
+      padding-left: 16px;
+      border-left: 2px solid var(--border-color);
+    }
+    .module-item .module-lessons .lesson-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .module-item .module-lessons .lesson-item .lesson-actions button {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      padding: 2px 6px;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+    .module-item .module-lessons .lesson-item .lesson-actions button:hover { color: var(--red); }
+    .module-item .add-lesson-btn {
+      margin-top: 8px;
+      padding: 4px 12px;
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      transition: 0.2s;
+      width: 100%;
+      text-align: center;
+    }
+    .module-item .add-lesson-btn:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .academy-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .academy-form .full-width { grid-column: 1 / -1; }
+    .academy-form label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .academy-form input,
+    .academy-form select,
+    .academy-form textarea {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      width: 100%;
+    }
+    .academy-form input:focus,
+    .academy-form select:focus,
+    .academy-form textarea:focus { border-color: var(--accent-blue); }
+    .academy-form textarea { min-height: 60px; resize: vertical; }
+    .academy-form .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .academy-form .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-blue);
+    }
+    .academy-form .checkbox-group label {
+      text-transform: none;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+    .academy-form .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+    }
+    .academy-form .form-actions button {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.25s;
+      flex: 1;
+    }
+    .academy-form .form-actions .save-module-btn {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+    .academy-form .form-actions .save-module-btn:hover { background: #3a66e0; }
+    .academy-form .form-actions .cancel-module-btn {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+    .academy-form .form-actions .cancel-module-btn:hover { background: var(--border-color); }
+
+    .lesson-form-row {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      grid-column: 1 / -1;
+    }
+    .lesson-form-row .lesson-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .lesson-form-row .lesson-fields .full-width { grid-column: 1 / -1; }
+    .lesson-form-row .lesson-fields label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .lesson-form-row .lesson-fields input,
+    .lesson-form-row .lesson-fields select {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: #fff;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      width: 100%;
+    }
+    .lesson-form-row .lesson-fields input:focus,
+    .lesson-form-row .lesson-fields select:focus { border-color: var(--accent-blue); }
+    .lesson-form-row .lesson-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      grid-column: 1 / -1;
+    }
+    .lesson-form-row .lesson-actions button {
+      padding: 6px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+    .lesson-form-row .lesson-actions .add-lesson-btn {
+      background: var(--green);
+      color: #0b0d15;
+    }
+    .lesson-form-row .lesson-actions .add-lesson-btn:hover { opacity: 0.8; }
+    .lesson-form-row .lesson-actions .remove-lesson-btn {
+      background: rgba(255,71,102,0.12);
+      color: var(--red);
+    }
+    .lesson-form-row .lesson-actions .remove-lesson-btn:hover { background: rgba(255,71,102,0.25); }
 
     /* ── Resource Section ── */
     .resource-toolbar {
@@ -687,6 +932,8 @@
     @media (max-width: 1200px) {
       .dashboard-grid { grid-template-columns: 1fr; }
       .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .academy-grid { grid-template-columns: 1fr; }
+      .module-form-card { grid-column: 1; }
     }
     @media (max-width: 992px) {
       .sidebar { width: 200px; padding: 20px 14px; }
@@ -723,6 +970,10 @@
       .modal-actions { flex-direction: column; }
       .modal-actions button { flex: 1; }
       .overview-list { grid-template-columns: 1fr; }
+      .academy-form { grid-template-columns: 1fr; }
+      .academy-form .full-width { grid-column: 1; }
+      .lesson-form-row .lesson-fields { grid-template-columns: 1fr; }
+      .academy-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
       .stats-grid { grid-template-columns: 1fr; }
@@ -884,7 +1135,91 @@
     </div><!-- /right-panel -->
   </div><!-- /dashboard-grid -->
 
-  <!-- Resources Section -->
+  <!-- ==========================================================
+  ACADEMY MANAGEMENT
+  ========================================================== -->
+  <section class="academy-section" id="academy">
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <h2><i class="fa-solid fa-graduation-cap"></i> Academy Management</h2>
+          <p>Add, edit, and organize academy modules and lessons.</p>
+        </div>
+        <button id="addModuleBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+          <i class="fa-solid fa-plus"></i> New Module
+        </button>
+      </div>
+
+      <div class="academy-grid">
+
+        <!-- Module List -->
+        <div class="module-list-card">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text-secondary);">
+            <i class="fa-solid fa-list"></i> Modules
+          </h3>
+          <div id="moduleList">
+            <div class="empty-card">
+              <i class="fa-solid fa-book-open"></i>
+              <h3>No Modules Yet</h3>
+              <p>Create your first module to start building the academy.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Module Form -->
+        <div class="module-form-card">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text-secondary);">
+            <i class="fa-solid fa-pen"></i> <span id="moduleFormTitle">Add New Module</span>
+          </h3>
+          <form id="moduleForm" class="academy-form">
+            <div class="full-width">
+              <label>Module Title</label>
+              <input type="text" id="moduleTitle" placeholder="e.g. Introduction" required />
+            </div>
+            <div class="full-width">
+              <label>Description</label>
+              <textarea id="moduleDescription" placeholder="Brief description of the module" rows="2"></textarea>
+            </div>
+            <div>
+              <label>Order</label>
+              <input type="number" id="moduleOrder" placeholder="1" min="1" value="1" />
+            </div>
+            <div class="checkbox-group" style="display:flex;align-items:center;gap:10px;padding-top:8px;">
+              <input type="checkbox" id="moduleHasQuiz" checked />
+              <label for="moduleHasQuiz" style="text-transform:none;font-weight:400;color:var(--text-secondary);margin:0;">Has Quiz</label>
+            </div>
+
+            <!-- Lessons -->
+            <div class="full-width">
+              <label style="display:flex;justify-content:space-between;align-items:center;">
+                <span>Lessons</span>
+                <button type="button" id="addLessonRowBtn" style="background:none;border:none;color:var(--accent-blue);font-size:13px;cursor:pointer;">
+                  <i class="fa-solid fa-plus"></i> Add Lesson
+                </button>
+              </label>
+              <div id="lessonsContainer">
+                <!-- Lesson rows will be added here -->
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="save-module-btn" id="saveModuleBtn">
+                <i class="fa-solid fa-floppy-disk"></i> Save Module
+              </button>
+              <button type="button" class="cancel-module-btn" id="cancelModuleBtn" style="display:none;">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+  RESOURCE MANAGEMENT
+  ========================================================== -->
   <section class="dashboard-card" id="resources">
     <div class="card-header">
       <div>
@@ -971,11 +1306,345 @@
 <script type="module" src="js/auth.js"></script>
 <script type="module" src="js/admin/admin-members.js"></script>
 <script type="module" src="js/admin/resources.js"></script>
-<script type="module">
-  import { auth } from "./js/firebase.js";
-  import { signOut } from "firebase/auth";
 
-  // Logout
+<!-- Academy Management Logic -->
+<script type="module">
+  import { auth, db } from "./js/firebase.js";
+  import {
+    collection,
+    doc,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+  // ─── DOM REFS ──────────────────────────────────────────────
+  const moduleList = document.getElementById("moduleList");
+  const moduleForm = document.getElementById("moduleForm");
+  const moduleTitle = document.getElementById("moduleTitle");
+  const moduleDescription = document.getElementById("moduleDescription");
+  const moduleOrder = document.getElementById("moduleOrder");
+  const moduleHasQuiz = document.getElementById("moduleHasQuiz");
+  const lessonsContainer = document.getElementById("lessonsContainer");
+  const addLessonBtn = document.getElementById("addLessonRowBtn");
+  const addModuleBtn = document.getElementById("addModuleBtn");
+  const cancelModuleBtn = document.getElementById("cancelModuleBtn");
+  const saveModuleBtn = document.getElementById("saveModuleBtn");
+  const moduleFormTitle = document.getElementById("moduleFormTitle");
+
+  let editingModuleId = null;
+  let allModules = [];
+
+  // ─── ADD LESSON ROW ──────────────────────────────────────
+  function addLessonRow(lessonData = null) {
+    const row = document.createElement("div");
+    row.className = "lesson-form-row";
+    row.innerHTML = `
+      <div class="lesson-fields">
+        <div>
+          <label>Lesson Title</label>
+          <input type="text" class="lesson-title" placeholder="e.g. Welcome" value="${lessonData?.title || ''}" />
+        </div>
+        <div>
+          <label>Type</label>
+          <select class="lesson-type">
+            <option value="video" ${lessonData?.type === 'video' ? 'selected' : ''}>Video</option>
+            <option value="pdf" ${lessonData?.type === 'pdf' ? 'selected' : ''}>PDF</option>
+            <option value="text" ${lessonData?.type === 'text' ? 'selected' : ''}>Text</option>
+          </select>
+        </div>
+        <div>
+          <label>Video URL</label>
+          <input type="url" class="lesson-video" placeholder="https://..." value="${lessonData?.videoUrl || ''}" />
+        </div>
+        <div>
+          <label>PDF URL</label>
+          <input type="url" class="lesson-pdf" placeholder="https://..." value="${lessonData?.pdfUrl || ''}" />
+        </div>
+        <div class="full-width">
+          <label>Notes</label>
+          <input type="text" class="lesson-notes" placeholder="Additional notes" value="${lessonData?.notes || ''}" />
+        </div>
+      </div>
+      <div class="lesson-actions">
+        <button type="button" class="remove-lesson-btn"><i class="fa-solid fa-trash"></i> Remove</button>
+      </div>
+    `;
+
+    // Remove lesson
+    row.querySelector(".remove-lesson-btn").addEventListener("click", () => {
+      if (lessonsContainer.children.length > 1) {
+        row.remove();
+      } else {
+        alert("You need at least one lesson per module.");
+      }
+    });
+
+    lessonsContainer.appendChild(row);
+  }
+
+  // ─── ADD LESSON BUTTON ──────────────────────────────────
+  addLessonBtn?.addEventListener("click", () => addLessonRow());
+
+  // ─── LOAD MODULES ──────────────────────────────────────
+  function loadModules() {
+    const q = query(collection(db, "academy_modules"), orderBy("order", "asc"));
+
+    onSnapshot(q, (snapshot) => {
+      allModules = [];
+      snapshot.forEach((doc) => {
+        allModules.push({ id: doc.id, ...doc.data() });
+      });
+      renderModuleList();
+      updateLessonCount();
+    }, (error) => {
+      console.error("Error loading modules:", error);
+    });
+  }
+
+  // ─── RENDER MODULE LIST ──────────────────────────────────
+  function renderModuleList() {
+    if (allModules.length === 0) {
+      moduleList.innerHTML = `
+        <div class="empty-card">
+          <i class="fa-solid fa-book-open"></i>
+          <h3>No Modules Yet</h3>
+          <p>Create your first module to start building the academy.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = "";
+    allModules.forEach((mod) => {
+      const lessons = mod.lessons || [];
+      html += `
+        <div class="module-item" data-id="${mod.id}">
+          <div class="module-header">
+            <div>
+              <h3>${mod.title || "Untitled"}</h3>
+              <div class="module-meta">
+                <span><i class="fa-solid fa-list"></i> ${lessons.length} lessons</span>
+                <span><i class="fa-solid fa-sort"></i> Order: ${mod.order || 0}</span>
+                <span><i class="fa-solid fa-question-circle"></i> ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'}</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <button class="edit-module" data-id="${mod.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
+              <button class="delete-module" data-id="${mod.id}" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          ${lessons.length > 0 ? `
+            <div class="module-lessons">
+              ${lessons.map((l, idx) => `
+                <div class="lesson-item">
+                  <span>${idx + 1}. ${l.title || "Untitled"} <span style="color:var(--text-secondary);font-size:11px;">(${l.type || 'video'})</span></span>
+                  <div class="lesson-actions">
+                    <button class="remove-lesson-from-module" data-module="${mod.id}" data-lesson-idx="${idx}" title="Remove lesson"><i class="fa-solid fa-times"></i></button>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          ` : `<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;">No lessons yet</div>`}
+          <button class="add-lesson-btn" data-module="${mod.id}"><i class="fa-solid fa-plus"></i> Add Lesson</button>
+        </div>
+      `;
+    });
+
+    moduleList.innerHTML = html;
+
+    // ── Edit module ──
+    moduleList.querySelectorAll(".edit-module").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const mod = allModules.find((m) => m.id === id);
+        if (mod) editModule(mod);
+      });
+    });
+
+    // ── Delete module ──
+    moduleList.querySelectorAll(".delete-module").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (confirm("Delete this module and all its lessons?")) {
+          try {
+            await deleteDoc(doc(db, "academy_modules", id));
+            alert("✅ Module deleted.");
+          } catch (e) {
+            console.error(e);
+            alert("Error deleting module.");
+          }
+        }
+      });
+    });
+
+    // ── Add lesson to module (from list) ──
+    moduleList.querySelectorAll(".add-lesson-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.module;
+        const mod = allModules.find((m) => m.id === id);
+        if (mod) {
+          const title = prompt("Lesson title:");
+          if (title && title.trim()) {
+            const lessons = mod.lessons || [];
+            lessons.push({
+              id: "lsn_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+              title: title.trim(),
+              type: "video",
+              videoUrl: "",
+              pdfUrl: "",
+              notes: "",
+            });
+            updateDoc(doc(db, "academy_modules", id), { lessons })
+              .then(() => alert("✅ Lesson added."))
+              .catch((e) => alert("Error: " + e.message));
+          }
+        }
+      });
+    });
+
+    // ── Remove lesson from module ──
+    moduleList.querySelectorAll(".remove-lesson-from-module").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const moduleId = btn.dataset.module;
+        const idx = parseInt(btn.dataset.lessonIdx);
+        const mod = allModules.find((m) => m.id === moduleId);
+        if (mod && confirm("Remove this lesson?")) {
+          const lessons = mod.lessons || [];
+          lessons.splice(idx, 1);
+          try {
+            await updateDoc(doc(db, "academy_modules", moduleId), { lessons });
+            alert("✅ Lesson removed.");
+          } catch (e) {
+            alert("Error: " + e.message);
+          }
+        }
+      });
+    });
+  }
+
+  // ─── EDIT MODULE ────────────────────────────────────────
+  function editModule(mod) {
+    editingModuleId = mod.id;
+    moduleTitle.value = mod.title || "";
+    moduleDescription.value = mod.description || "";
+    moduleOrder.value = mod.order || 1;
+    moduleHasQuiz.checked = mod.hasQuiz !== false;
+
+    // Clear lessons container
+    lessonsContainer.innerHTML = "";
+    const lessons = mod.lessons || [];
+    if (lessons.length === 0) {
+      addLessonRow();
+    } else {
+      lessons.forEach((l) => addLessonRow(l));
+    }
+
+    moduleFormTitle.textContent = "Edit Module";
+    saveModuleBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Module';
+    cancelModuleBtn.style.display = "inline-block";
+    addModuleBtn.textContent = "+ Add Module";
+  }
+
+  // ─── CANCEL EDIT ────────────────────────────────────────
+  function cancelEdit() {
+    editingModuleId = null;
+    moduleForm.reset();
+    moduleOrder.value = 1;
+    moduleHasQuiz.checked = true;
+    lessonsContainer.innerHTML = "";
+    addLessonRow();
+    moduleFormTitle.textContent = "Add New Module";
+    saveModuleBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Module';
+    cancelModuleBtn.style.display = "none";
+    addModuleBtn.textContent = "+ Add Module";
+  }
+
+  cancelModuleBtn?.addEventListener("click", cancelEdit);
+
+  addModuleBtn?.addEventListener("click", () => {
+    if (editingModuleId) {
+      cancelEdit();
+    }
+    document.getElementById("academy").scrollIntoView({ behavior: "smooth" });
+  });
+
+  // ─── SAVE MODULE ────────────────────────────────────────
+  moduleForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const title = moduleTitle.value.trim();
+    if (!title) {
+      alert("Please enter a module title.");
+      return;
+    }
+
+    // Collect lessons
+    const lessonRows = lessonsContainer.querySelectorAll(".lesson-form-row");
+    const lessons = [];
+    lessonRows.forEach((row) => {
+      const title = row.querySelector(".lesson-title").value.trim();
+      if (title) {
+        lessons.push({
+          id: "lsn_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          title: title,
+          type: row.querySelector(".lesson-type").value,
+          videoUrl: row.querySelector(".lesson-video").value || "",
+          pdfUrl: row.querySelector(".lesson-pdf").value || "",
+          notes: row.querySelector(".lesson-notes").value || "",
+        });
+      }
+    });
+
+    if (lessons.length === 0) {
+      alert("Please add at least one lesson.");
+      return;
+    }
+
+    const data = {
+      title: title,
+      description: moduleDescription.value.trim() || "",
+      order: parseInt(moduleOrder.value) || 1,
+      hasQuiz: moduleHasQuiz.checked,
+      lessons: lessons,
+      updatedAt: serverTimestamp(),
+    };
+
+    try {
+      if (editingModuleId) {
+        await updateDoc(doc(db, "academy_modules", editingModuleId), data);
+        alert("✅ Module updated!");
+      } else {
+        await addDoc(collection(db, "academy_modules"), {
+          ...data,
+          createdAt: serverTimestamp(),
+        });
+        alert("✅ Module created!");
+      }
+      cancelEdit();
+    } catch (error) {
+      console.error(error);
+      alert("Error saving module: " + error.message);
+    }
+  });
+
+  // ─── UPDATE LESSON COUNT ──────────────────────────────
+  function updateLessonCount() {
+    let total = 0;
+    allModules.forEach((m) => {
+      total += (m.lessons || []).length;
+    });
+    const el = document.getElementById("lessonCount");
+    if (el) el.textContent = total;
+  }
+
+  // ─── LOGOUT ──────────────────────────────────────────────
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     if (confirm("Logout?")) {
       await signOut(auth);
@@ -983,7 +1652,7 @@
     }
   });
 
-  // Live Date
+  // ─── LIVE DATE ────────────────────────────────────────────
   function updateClock() {
     const el = document.getElementById("liveDate");
     if (el) {
@@ -1000,7 +1669,12 @@
   updateClock();
   setInterval(updateClock, 1000);
 
-  console.log("✅ Admin dashboard ready.");
+  // ─── INIT ────────────────────────────────────────────────
+  // Start with one lesson row
+  addLessonRow();
+  loadModules();
+
+  console.log("✅ Academy management ready.");
 </script>
 
 </body>
