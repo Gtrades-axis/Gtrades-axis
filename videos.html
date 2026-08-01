@@ -6,19 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Videos | GTRADES-AXIS™</title>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+  <!-- Dashboard styles (your existing file) -->
   <link rel="stylesheet" href="css/dashboard.css" />
 
   <style>
-    /* ── Your existing styles (unchanged) ── */
     :focus-visible {
       outline: 2px solid #0ea5e9;
       outline-offset: 2px;
       border-radius: 4px;
     }
+
     .skip-to-main {
       position: absolute;
       top: -40px;
@@ -30,7 +33,11 @@
       text-decoration: none;
       border-radius: 0 0 4px 0;
     }
-    .skip-to-main:focus { top: 0; }
+
+    .skip-to-main:focus {
+      top: 0;
+    }
+
     .skeleton {
       background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
       background-size: 200% 100%;
@@ -38,10 +45,16 @@
       border-radius: 12px;
       height: 200px;
     }
+
     @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
     }
+
     .video-card {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
@@ -49,31 +62,13 @@
       overflow: hidden;
       background: #1e293b;
       border: 1px solid #334155;
-      position: relative;
     }
+
     .video-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
     }
-    .video-card.locked {
-      opacity: 0.8;
-      cursor: default;
-    }
-    .video-card.locked .lock-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(11, 13, 21, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      flex-direction: column;
-      gap: 6px;
-      backdrop-filter: blur(2px);
-      z-index: 5;
-    }
-    .video-card.locked .lock-overlay i { font-size: 2.5rem; color: #f5a623; }
-    .video-card.locked .lock-overlay span { color: #e8edf5; font-weight: 500; font-size: 0.9rem; }
+
     .video-thumb {
       position: relative;
       background: #0f172a;
@@ -84,6 +79,7 @@
       font-size: 2rem;
       color: #64748b;
     }
+
     .video-duration {
       position: absolute;
       bottom: 8px;
@@ -94,38 +90,36 @@
       border-radius: 4px;
       font-size: 0.75rem;
     }
-    .video-info { padding: 1rem; }
+
+    .video-info {
+      padding: 1rem;
+    }
+
     .video-title {
       font-weight: 600;
       color: #f1f5f9;
       margin-bottom: 0.3rem;
       line-height: 1.4;
     }
+
     .video-meta {
       font-size: 0.85rem;
       color: #94a3b8;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
-    .badge {
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge-free { background: rgba(0, 200, 151, 0.15); color: #00c897; }
-    .badge-premium { background: rgba(245, 166, 35, 0.15); color: #f5a623; }
+
     .search-wrapper {
       position: relative;
       max-width: 400px;
       width: 100%;
     }
+
     .search-wrapper input {
       width: 100%;
       padding-right: 2.5rem;
     }
+
     .search-clear {
       position: absolute;
       right: 10px;
@@ -141,8 +135,15 @@
       border-radius: 50%;
       transition: color 0.2s;
     }
-    .search-clear:hover { color: #fff; }
-    .search-wrapper input:not(:placeholder-shown)~.search-clear { display: block; }
+
+    .search-clear:hover {
+      color: #fff;
+    }
+
+    .search-wrapper input:not(:placeholder-shown)~.search-clear {
+      display: block;
+    }
+
     .status-message {
       text-align: center;
       padding: 3rem 1rem;
@@ -150,10 +151,17 @@
       font-size: 0.95rem;
       display: none;
     }
-    .status-message.visible { display: block; }
+
+    .status-message.visible {
+      display: block;
+    }
+
     .video-modal {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
@@ -163,7 +171,12 @@
       opacity: 0;
       transition: all 0.3s ease;
     }
-    .video-modal.active { visibility: visible; opacity: 1; }
+
+    .video-modal.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
     .modal-content {
       position: relative;
       width: 90%;
@@ -173,7 +186,13 @@
       border-radius: 12px;
       overflow: hidden;
     }
-    .modal-content iframe { width: 100%; height: 100%; border: none; }
+
+    .modal-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
     .modal-close {
       position: absolute;
       top: -40px;
@@ -185,17 +204,23 @@
       cursor: pointer;
       transition: color 0.2s;
     }
-    .modal-close:hover { color: #0ea5e9; }
+
+    .modal-close:hover {
+      color: #0ea5e9;
+    }
+
     .sr-only {
       position: absolute;
-      width: 1px; height: 1px;
-      padding: 0; margin: -1px;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
       overflow: hidden;
-      clip: rect(0,0,0,0);
+      clip: rect(0, 0, 0, 0);
       border: 0;
     }
 
-    /* ── Lock Overlay (page-level) ── */
+    /* ── Lock Overlay ── */
     #lockOverlay {
       display: none;
       text-align: center;
@@ -203,6 +228,7 @@
       max-width: 700px;
       margin: 0 auto;
     }
+
     #lockOverlay .lock-icon {
       font-size: 4rem;
       color: #f5a623;
@@ -213,30 +239,118 @@
       border-radius: 50%;
       margin: 0 auto 24px;
     }
-    #lockOverlay h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
-    #lockOverlay .subtitle { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto 32px; line-height: 1.6; }
-    #lockOverlay .feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; text-align: left; margin: 0 auto 36px; max-width: 480px; }
-    #lockOverlay .feature-list .feature-item { display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 0.95rem; }
-    #lockOverlay .feature-list .feature-item i { color: #00c897; font-size: 1.1rem; width: 20px; text-align: center; }
-    #lockOverlay .lock-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    #lockOverlay .lock-buttons a { display: inline-block; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.25s; }
-    #lockOverlay .lock-buttons .btn-upgrade { background: linear-gradient(135deg, #f5a623, #f7c948); color: #0b0d15; }
-    #lockOverlay .lock-buttons .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3); }
-    #lockOverlay .lock-buttons .btn-dashboard { background: #1a1f2f; color: #94a3b8; border: 1px solid #2a3450; }
-    #lockOverlay .lock-buttons .btn-dashboard:hover { background: #2a3450; color: #fff; }
-    .locked-content { display: block; }
-    .locked .locked-content { display: none; }
-    .locked #lockOverlay { display: block; }
 
-    .dashboard { display: flex; min-height: 100vh; }
-    .main-content { flex: 1; }
-    .search-box { margin: 1rem 0; }
+    #lockOverlay h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    #lockOverlay .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+
+    #lockOverlay .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+      text-align: left;
+      margin: 0 auto 36px;
+      max-width: 480px;
+    }
+
+    #lockOverlay .feature-list .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    #lockOverlay .feature-list .feature-item i {
+      color: #00c897;
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    #lockOverlay .lock-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    #lockOverlay .lock-buttons a {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: 0.25s;
+    }
+
+    #lockOverlay .lock-buttons .btn-upgrade {
+      background: linear-gradient(135deg, #f5a623, #f7c948);
+      color: #0b0d15;
+    }
+
+    #lockOverlay .lock-buttons .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3);
+    }
+
+    #lockOverlay .lock-buttons .btn-dashboard {
+      background: #1a1f2f;
+      color: #94a3b8;
+      border: 1px solid #2a3450;
+    }
+
+    #lockOverlay .lock-buttons .btn-dashboard:hover {
+      background: #2a3450;
+      color: #fff;
+    }
+
+    .locked-content {
+      display: block;
+    }
+
+    .locked .locked-content {
+      display: none;
+    }
+
+    .locked #lockOverlay {
+      display: block;
+    }
+
+    /* ensure sidebar and main layout still work inside .dashboard */
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+    }
+
+    /* override any conflicting styles */
+    .search-box {
+      margin: 1rem 0;
+    }
+
     .resource-filters {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       margin: 1rem 0;
     }
+
     .filter-btn {
       background: #1e293b;
       border: 1px solid #334155;
@@ -246,14 +360,25 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .filter-btn:hover { background: #334155; color: #f1f5f9; }
-    .filter-btn.active { background: #0ea5e9; border-color: #0ea5e9; color: #fff; }
+
+    .filter-btn:hover {
+      background: #334155;
+      color: #f1f5f9;
+    }
+
+    .filter-btn.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: #fff;
+    }
+
     .resource-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 1.5rem;
       margin-top: 1.5rem;
     }
+
     .dashboard-footer {
       margin-top: 2rem;
       padding-top: 1rem;
@@ -271,30 +396,38 @@
 
   <div class="dashboard" id="app">
 
-    <!-- SIDEBAR -->
+    <!-- ===========================
+         SIDEBAR
+    =========================== -->
     <aside class="sidebar" aria-label="Main navigation">
       <div class="brand">
         <img src="images/logo.png" alt="GTRADES-AXIS Logo" />
         <h2>GTRADES<span>AXIS™</span></h2>
       </div>
+
       <nav aria-label="Primary">
         <ul class="menu">
-          <li><a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
-          <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i><span>Premium Resources</span></a></li>
-          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i><span>Premium Academy</span></a></li>
-          <li class="active"><a href="videos.html"><i class="fa-solid fa-circle-play"></i><span>Videos</span></a></li>
-          <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i><span>Trading Journal</span></a></li>
-          <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>My Profile</span></a></li>
-          <li><a href="support.html"><i class="fa-solid fa-headset"></i><span>Support</span></a></li>
+          <li><a href="dashboard.html"><i class="fa-solid fa-house" aria-hidden="true"></i><span>Dashboard</span></a></li>
+          <li><a href="resources.html"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><span>Premium Resources</span></a></li>
+          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i><span>Premium Academy</span></a></li>
+          <li class="active"><a href="videos.html" aria-current="page"><i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>Videos</span></a></li>
+          <li><a href="journal.html"><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Trading Journal</span></a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user" aria-hidden="true"></i><span>My Profile</span></a></li>
+          <li><a href="support.html"><i class="fa-solid fa-headset" aria-hidden="true"></i><span>Support</span></a></li>
         </ul>
       </nav>
-      <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <button id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout
+      </button>
     </aside>
 
-    <!-- MAIN CONTENT -->
+    <!-- ===========================
+         MAIN CONTENT
+    =========================== -->
     <main class="main-content" id="main-content">
 
-      <!-- PAGE LOCK OVERLAY -->
+      <!-- LOCK OVERLAY -->
       <div id="lockOverlay">
         <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
         <h2>Premium Members Only</h2>
@@ -315,7 +448,7 @@
         </div>
       </div>
 
-      <!-- CONTENT (visible when unlocked) -->
+      <!-- CONTENT (visible only when unlocked) -->
       <div class="locked-content">
         <header class="topbar">
           <div>
@@ -328,28 +461,31 @@
         <div class="search-box">
           <div class="search-wrapper">
             <label for="searchInput" class="sr-only">Search videos</label>
-            <input type="text" id="searchInput" placeholder="Search videos…" />
-            <button class="search-clear" id="clearSearch" type="button"><i class="fa-solid fa-times"></i></button>
+            <input type="text" id="searchInput" placeholder="Search videos…" aria-label="Search videos" />
+            <button class="search-clear" id="clearSearch" aria-label="Clear search" type="button">
+              <i class="fa-solid fa-times" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
 
-        <!-- FILTERS (custom order: Supply & Demand before Liquidity) -->
-        <div class="resource-filters" role="group">
-          <button class="filter-btn active" data-category="All">All</button>
-          <button class="filter-btn" data-category="Market Structure">Market Structure</button>
-          <button class="filter-btn" data-category="Supply & Demand">Supply & Demand</button>
-          <button class="filter-btn" data-category="Liquidity">Liquidity</button>
-          <button class="filter-btn" data-category="Entries">Entries</button>
-          <button class="filter-btn" data-category="Psychology">Psychology</button>
+        <!-- FILTERS -->
+        <div class="resource-filters" role="group" aria-label="Filter videos by category">
+          <button class="filter-btn active" data-category="All" aria-pressed="true">All</button>
+          <button class="filter-btn" data-category="Market Structure" aria-pressed="false">Market Structure</button>
+          <button class="filter-btn" data-category="Liquidity" aria-pressed="false">Liquidity</button>
+          <button class="filter-btn" data-category="Supply & Demand" aria-pressed="false">Supply & Demand</button>
+          <button class="filter-btn" data-category="Entries" aria-pressed="false">Entries</button>
+          <button class="filter-btn" data-category="Psychology" aria-pressed="false">Psychology</button>
         </div>
 
         <!-- VIDEO GRID -->
         <div id="videosContainer" class="resource-grid" role="status" aria-live="polite">
+          <!-- Skeleton loaders (replaced by JS) -->
           <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
           <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
         </div>
 
-        <div id="noResultsMessage" class="status-message">
+        <div id="noResultsMessage" class="status-message" role="alert">
           <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; margin-bottom:0.5rem; display:block;"></i>
           No videos match your search or filter.
         </div>
@@ -358,244 +494,191 @@
           <div class="footer-left">© 2026 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.</div>
           <div class="footer-right">Version 1.0</div>
         </footer>
-      </div>
+      </div><!-- /.locked-content -->
+
     </main>
-  </div>
+  </div><!-- /#app -->
 
   <!-- VIDEO MODAL -->
-  <div class="video-modal" id="videoModal" role="dialog" aria-modal="true">
+  <div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Video player">
     <div class="modal-content">
-      <button class="modal-close" id="closeModal">&times;</button>
+      <button class="modal-close" id="closeModal" aria-label="Close video">&times;</button>
       <iframe id="videoFrame" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
     </div>
   </div>
 
-  <!-- SCRIPTS -->
+  <!-- ===========================
+       SCRIPTS (Module)
+  =========================== -->
   <script type="importmap">
-  {
-    "imports": {
-      "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+    {
+      "imports": {
+        "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+      }
     }
-  }
   </script>
 
   <script type="module">
-    import { auth, db } from "./js/firebase.js";
-    import {
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import {
-      collection,
-      getDocs,
-      query,
-      orderBy,
-      doc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-    // ─── DOM REFS ──────────────────────────────────────────────
-    const container = document.getElementById("videosContainer");
-    const searchInput = document.getElementById("searchInput");
-    const clearBtn = document.getElementById("clearSearch");
-    const filterBtns = document.querySelectorAll(".filter-btn");
-    const modal = document.getElementById("videoModal");
-    const videoFrame = document.getElementById("videoFrame");
-    const closeModal = document.getElementById("closeModal");
-    const noResults = document.getElementById("noResultsMessage");
-
-    let videos = [];
-    let activeCategory = "All";
-    let currentUser = null;
-    let hasPremiumAccess = false;
-
-    // ─── CUSTOM CATEGORY ORDER (for display) ────────────────────
-    const categoryOrder = {
-      "Market Structure": 1,
-      "Supply & Demand": 2,
-      "Liquidity": 3,
-      "Entries": 4,
-      "Psychology": 5
-    };
-
-    // ─── AUTH + LOCK ──────────────────────────────────────────────
-    const appContainer = document.getElementById('app');
-    appContainer.classList.add('loading');
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        appContainer.classList.remove('loading');
-        appContainer.classList.add('locked');
-        return;
-      }
-      currentUser = user;
-
-      try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-          appContainer.classList.remove('loading');
-          appContainer.classList.add('locked');
-          return;
-        }
-        const data = userDoc.data();
-        const role = data.role || 'member';
-        const membership = data.membership || 'free';
-        hasPremiumAccess = (role === 'admin' || membership === 'premium');
-
-        appContainer.classList.remove('loading');
-
-        if (hasPremiumAccess) {
-          appContainer.classList.remove('locked');
-          await loadVideos();
-        } else {
-          appContainer.classList.add('locked');
-        }
-      } catch (error) {
-        console.error('Auth error:', error);
-        appContainer.classList.remove('loading');
-        appContainer.classList.add('locked');
-      }
-    });
+    // Import the lock system and logout
+    import { initPremiumLock } from './js/premium-lock.js';
+    import { logoutUser } from './js/auth.js';
 
     // ─── LOGOUT ──────────────────────────────────────────────────
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       if (confirm('Logout?')) {
-        await signOut(auth);
-        window.location.reload();
+        await logoutUser();
+        // The page will stay; the lock will appear because user is logged out.
       }
     });
 
-    // ─── LOAD VIDEOS FROM FIRESTORE ──────────────────────────────
-    async function loadVideos() {
-      videos = [];
-      try {
-        const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-        snapshot.forEach(doc => {
-          videos.push({ id: doc.id, ...doc.data() });
-        });
+    // ─── VIDEOS INIT (runs only when unlocked) ──────────────────
+    function initVideos(userData) {
+      console.log('✅ Videos unlocked – initializing...');
 
-        // Sort videos according to the custom category order
-        videos.sort((a, b) => {
-          const orderA = categoryOrder[a.category] || 99;
-          const orderB = categoryOrder[b.category] || 99;
-          return orderA - orderB;
-        });
+      // ---------- SAMPLE VIDEO DATA ----------
+      const videos = [
+        { id: 1, title: "Market Structure Basics (BOS & CHoCH)", category: "Market Structure", duration: "12:45",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "🎯" },
+          { id: 2, title: "Supply & Demand Zone Refinement", category: "Supply & Demand", duration: "15:10",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "📊" },
+        { id: 3, title: "Liquidity Grabs Explained", category: "Liquidity", duration: "08:22", youtubeId: "dQw4w9WgXcQ",
+          thumbnail: "💧" },
+        { id: 4, title: "Perfect Entry Checklist", category: "Entries", duration: "10:05", youtubeId: "dQw4w9WgXcQ",
+          thumbnail: "✅" },
+        { id: 5, title: "Mastering Trading Psychology", category: "Psychology", duration: "18:30",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "🧠" },
+        { id: 6, title: "Break of Structure (BOS) in Trend", category: "Market Structure", duration: "09:15",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "📈" },
+        { id: 7, title: "Change of Character (CHoCH) Deep Dive", category: "Market Structure", duration: "14:50",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "🔄" },
+        { id: 8, title: "Liquidity Sweep Before Entry", category: "Liquidity", duration: "07:40",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "💦" },
+        { id: 9, title: "How to Draw Supply & Demand Zones", category: "Supply & Demand", duration: "20:15",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "✏️" },
+        { id: 10, title: "Risk Management for Prop Firms", category: "Entries", duration: "11:25",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "🛡️" },
+        { id: 11, title: "Overcoming Fear & Greed", category: "Psychology", duration: "16:00",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "🧘" },
+        { id: 12, title: "Session Timing: London vs NY", category: "Entries", duration: "13:55",
+          youtubeId: "dQw4w9WgXcQ", thumbnail: "🕒" }
+      ];
 
-        renderVideos();
-      } catch (e) {
-        console.error("Error loading videos:", e);
-        container.innerHTML = `<div class="status-message visible" style="color:#ff4d4f;">Error loading videos. Please refresh.</div>`;
-      }
-    }
+      const container = document.getElementById('videosContainer');
+      const noResults = document.getElementById('noResultsMessage');
+      const searchInput = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearSearch');
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const modal = document.getElementById('videoModal');
+      const videoFrame = document.getElementById('videoFrame');
+      const closeModal = document.getElementById('closeModal');
 
-    // ─── RENDER VIDEOS ──────────────────────────────────────────
-    function renderVideos() {
-      container.innerHTML = "";
+      let activeCategory = 'All';
 
-      let filtered = videos;
+      // ---------- RENDER VIDEOS ----------
+      function renderVideos(filteredVids) {
+        container.innerHTML = '';
+        if (filteredVids.length === 0) {
+          noResults.classList.add('visible');
+          return;
+        }
+        noResults.classList.remove('visible');
 
-      // Category filter
-      if (activeCategory !== "All") {
-        filtered = filtered.filter(v => v.category === activeCategory);
-      }
-
-      // Search filter
-      const keyword = searchInput.value.toLowerCase().trim();
-      if (keyword) {
-        filtered = filtered.filter(v =>
-          v.title.toLowerCase().includes(keyword) ||
-          (v.category || "").toLowerCase().includes(keyword)
-        );
-      }
-
-      if (filtered.length === 0) {
-        noResults.classList.add("visible");
-        container.innerHTML = "";
-        return;
-      }
-      noResults.classList.remove("visible");
-
-      filtered.forEach(video => {
-        const isPremiumOnly = video.premiumOnly === true;
-        const canAccess = !isPremiumOnly || hasPremiumAccess;
-
-        const card = document.createElement("div");
-        card.className = `video-card${canAccess ? '' : ' locked'}`;
-        card.setAttribute("data-id", video.id);
-
-        card.innerHTML = `
-          <div class="video-thumb">
-            <span style="font-size:2.5rem;">${video.thumbnail || '📹'}</span>
-            <span class="video-duration">${video.duration || '—'}</span>
-            ${!canAccess ? `
-              <div class="lock-overlay">
-                <i class="fa-solid fa-lock"></i>
-                <span>Premium Only</span>
-              </div>
-            ` : ''}
-          </div>
-          <div class="video-info">
-            <div class="video-title">${video.title}</div>
-            <div class="video-meta">
-              <span>${video.category || 'General'}</span>
-              <span class="badge ${isPremiumOnly ? 'badge-premium' : 'badge-free'}">
-                ${isPremiumOnly ? 'Premium' : 'Free'}
-              </span>
+        filteredVids.forEach(vid => {
+          const card = document.createElement('div');
+          card.className = 'video-card';
+          card.setAttribute('data-id', vid.id);
+          card.innerHTML = `
+            <div class="video-thumb">
+              <span style="font-size:2.5rem;">${vid.thumbnail}</span>
+              <span class="video-duration">${vid.duration}</span>
             </div>
-          </div>
-        `;
+            <div class="video-info">
+              <div class="video-title">${vid.title}</div>
+              <div class="video-meta">
+                <span>${vid.category}</span>
+              </div>
+            </div>
+          `;
+          card.addEventListener('click', () => openVideo(vid.youtubeId));
+          container.appendChild(card);
+        });
+      }
 
-        if (canAccess) {
-          card.addEventListener('click', () => {
-            videoFrame.src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0`;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-          });
+      // ---------- FILTER & SEARCH ----------
+      function filterVideos() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let filtered = videos;
+
+        if (activeCategory !== 'All') {
+          filtered = filtered.filter(v => v.category === activeCategory);
         }
 
-        container.appendChild(card);
-      });
-    }
+        if (searchTerm) {
+          filtered = filtered.filter(v =>
+            v.title.toLowerCase().includes(searchTerm) ||
+            v.category.toLowerCase().includes(searchTerm)
+          );
+        }
 
-    // ─── SEARCH ──────────────────────────────────────────────────
-    searchInput?.addEventListener('input', renderVideos);
-    clearBtn?.addEventListener('click', () => {
-      searchInput.value = '';
-      renderVideos();
-      searchInput.focus();
-    });
-
-    // ─── FILTERS ──────────────────────────────────────────────────
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeCategory = btn.dataset.category;
-        renderVideos();
-      });
-    });
-
-    // ─── MODAL ──────────────────────────────────────────────────
-    closeModal?.addEventListener('click', closeVideoModal);
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) closeVideoModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('active')) {
-        closeVideoModal();
+        renderVideos(filtered);
       }
-    });
 
-    function closeVideoModal() {
-      videoFrame.src = '';
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+      // ---------- MODAL ----------
+      function openVideo(youtubeId) {
+        videoFrame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeVideoModal() {
+        videoFrame.src = '';
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      // ---------- EVENT LISTENERS ----------
+      searchInput.addEventListener('input', filterVideos);
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        filterVideos();
+        searchInput.focus();
+      });
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
+          });
+          btn.classList.add('active');
+          btn.setAttribute('aria-pressed', 'true');
+          activeCategory = btn.getAttribute('data-category');
+          filterVideos();
+        });
+      });
+
+      closeModal.addEventListener('click', closeVideoModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeVideoModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+          closeVideoModal();
+        }
+      });
+
+      // ---------- INIT ----------
+      renderVideos(videos); // replaces skeletons
+      console.log('✅ Videos ready.');
     }
 
-    console.log('✅ Videos page ready (Firestore).');
+    // ─── INIT LOCK ──────────────────────────────────────────────────
+    initPremiumLock('app', initVideos);
   </script>
 </body>
+
 </html>
