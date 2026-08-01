@@ -358,6 +358,20 @@
     .result-box.pass .score { color: #00c897; }
     .result-box.fail .score { color: #ff4766; }
 
+    .error-message {
+      text-align: center;
+      padding: 30px 20px;
+      color: #ff4766;
+      background: rgba(255,71,102,0.08);
+      border-radius: 12px;
+      border: 1px solid rgba(255,71,102,0.15);
+    }
+    .error-message i {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .content { padding: 20px; }
@@ -418,7 +432,7 @@
       <header class="topbar">
         <div>
           <h1><i class="fa-solid fa-pencil"></i> Quiz</h1>
-          <span class="module-badge" id="moduleBadge">Module 1 — Introduction</span>
+          <span class="module-badge" id="moduleBadge">Module</span>
         </div>
         <a href="premium-academy.html" class="back-link">
           <i class="fa-solid fa-arrow-left"></i> Back to Modules
@@ -427,8 +441,8 @@
 
       <!-- Quiz Container -->
       <div class="quiz-container" id="quizContainer">
-        <h2 id="quizTitle">Module 1 — Introduction</h2>
-        <p class="subtitle" id="quizSubtitle">Test your knowledge on this module.</p>
+        <h2 id="quizTitle">Loading quiz...</h2>
+        <p class="subtitle" id="quizSubtitle">Please wait...</p>
         <div id="questionsContainer">
           <!-- Questions rendered by JS -->
         </div>
@@ -464,7 +478,7 @@
   // ─── IMPORTS ─────────────────────────────────────────────
   import { auth, db } from "./js/firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
   import { logoutUser } from "./js/auth.js";
 
   // ─── DOM REFS ─────────────────────────────────────────────
@@ -480,7 +494,7 @@
   const resultScore = document.getElementById('resultScore');
   const resultMessage = document.getElementById('resultMessage');
 
-  // ─── FULL FALLBACK MODULES (same as academy) ────────────
+  // ─── FULL FALLBACK MODULES (complete quiz data) ──────────
   const FALLBACK_MODULES = [
     {
       id: "mod_1",
@@ -598,13 +612,25 @@
     const params = new URLSearchParams(window.location.search);
     const moduleId = params.get('module');
     if (!moduleId) return null;
-    return FALLBACK_MODULES.find(m => m.id === moduleId) || null;
+    // Try fallback first
+    let module = FALLBACK_MODULES.find(m => m.id === moduleId);
+    if (module) return module;
+    // If not found, try to load from Firestore (if available)
+    return null;
   }
 
   // ─── RENDER QUIZ ──────────────────────────────────────────
   function renderQuiz(module) {
     if (!module || !module.quiz || !module.quiz.questions) {
-      questionsContainer.innerHTML = `<p style="color:#ff4766;">Quiz not available for this module.</p>`;
+      questionsContainer.innerHTML = `
+        <div class="error-message">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <strong>Error loading quiz.</strong><br>
+          The quiz data for this module is missing or invalid.
+          <br><br>
+          <a href="premium-academy.html" style="color:#1d9bf0;text-decoration:none;">← Back to Academy</a>
+        </div>
+      `;
       submitBtn.style.display = 'none';
       return;
     }
@@ -640,7 +666,8 @@
     document.querySelectorAll('.option-label').forEach(label => {
       const radio = label.querySelector('input[type="radio"]');
       radio.addEventListener('change', () => {
-        document.querySelectorAll(`.option-label[data-q="${radio.name.replace('q', '')}"]`).forEach(l => l.classList.remove('selected'));
+        const qIdx = radio.name.replace('q', '');
+        document.querySelectorAll(`.option-label[data-q="${qIdx}"]`).forEach(l => l.classList.remove('selected'));
         if (radio.checked) label.classList.add('selected');
       });
     });
@@ -758,7 +785,16 @@
         // Load quiz
         const module = getModuleFromURL();
         if (!module) {
-          questionsContainer.innerHTML = `<p style="color:#ff4766;">Module not found. Please go back to the academy.</p>`;
+          // Try to load from Firestore if available
+          questionsContainer.innerHTML = `
+            <div class="error-message">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <strong>Module not found.</strong><br>
+              The module ID in the URL is invalid.
+              <br><br>
+              <a href="premium-academy.html" style="color:#1d9bf0;text-decoration:none;">← Back to Academy</a>
+            </div>
+          `;
           submitBtn.style.display = 'none';
           return;
         }
@@ -777,7 +813,6 @@
   submitBtn.addEventListener('click', submitQuiz);
 
   // ─── LOGOUT ──────────────────────────────────────────────────
-  // Add logout to sidebar if not present
   const sidebarNav = document.querySelector('.sidebar nav ul');
   if (sidebarNav) {
     const logoutLi = document.createElement('li');
@@ -795,8 +830,5 @@
   console.log('✅ Quiz page ready.');
 </script>
 
-</html>
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/quiz.js"></script>
 </body>
 </html>
