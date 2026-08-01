@@ -1,6 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™
-// PREMIUM LOCK – No‑redirect, clean lock screen
+// GTRADES-AXIS™ – PREMIUM LOCK (No flash, no redirects)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -10,7 +9,7 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-
 /**
  * Initialize the premium lock on a container.
  * @param {string} containerId – The id of the container that holds the lock overlay and content.
- * @param {Function} onUnlock – Optional callback executed when user has premium/admin access.
+ * @param {Function} onUnlock – Callback executed when user has premium/admin access.
  */
 export function initPremiumLock(containerId = 'app', onUnlock = null) {
   const container = document.getElementById(containerId);
@@ -19,12 +18,13 @@ export function initPremiumLock(containerId = 'app', onUnlock = null) {
     return;
   }
 
-  // Always start locked until we verify
-  container.classList.add('locked');
+  // ─── HIDE EVERYTHING while we check auth ────────────────────
+  container.classList.add('loading');
 
   onAuthStateChanged(auth, async (user) => {
+    // If no user, lock the page (show overlay)
     if (!user) {
-      // Not logged in → stay locked
+      container.classList.remove('loading');
       container.classList.add('locked');
       return;
     }
@@ -32,6 +32,7 @@ export function initPremiumLock(containerId = 'app', onUnlock = null) {
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
+        container.classList.remove('loading');
         container.classList.add('locked');
         return;
       }
@@ -41,17 +42,22 @@ export function initPremiumLock(containerId = 'app', onUnlock = null) {
       const membership = data.membership || 'free';
       const hasPremium = (role === 'admin' || membership === 'premium');
 
+      // ─── Remove loading state ──────────────────────────────
+      container.classList.remove('loading');
+
       if (hasPremium) {
-        // Unlock and optionally init the page
+        // ✅ Premium/admin – show content (remove locked class)
         container.classList.remove('locked');
         if (typeof onUnlock === 'function') {
           onUnlock(data);
         }
       } else {
+        // ❌ Free/pending – show lock overlay
         container.classList.add('locked');
       }
     } catch (error) {
       console.error('Premium lock error:', error);
+      container.classList.remove('loading');
       container.classList.add('locked');
     }
   });
