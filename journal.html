@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── Full CSS (unchanged) ── */
+    /* ── Full CSS (unchanged, but we keep it all) ── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
     :root {
@@ -115,7 +115,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Rest of your journal styles (unchanged) ── */
+    /* ── Rest of your journal styles ── */
     .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
     .page-header h1 { font-size: 28px; font-weight: 700; }
     .page-header h1 i { color: #00d4ff; margin-right: 10px; }
@@ -137,7 +137,51 @@
     .chart-card h2 { font-size: 16px; margin-bottom: 16px; font-weight: 600; }
     .chart-card h2 i { color: #00d4ff; margin-right: 8px; }
     .chart-wrapper { height: 220px; position: relative; }
-    .journal-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px; }
+
+    /* Recent Trades container */
+    .recent-trades-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 24px;
+    }
+    .recent-trades-card h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .recent-trades-card h2 i { color: #00d4ff; margin-right: 8px; }
+    .trade-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .trade-row:last-child { border-bottom: none; }
+    .trade-row .status {
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .trade-row .status.pending { background: rgba(245,166,35,0.15); color: #f5a623; }
+    .trade-row .status.closed { background: rgba(79,124,255,0.15); color: #4f7cff; }
+    .trade-row .btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 12px;
+    }
+    .trade-row .btn:hover { background: var(--bg-card-hover); color: #fff; }
+
+    .journal-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px; margin-top: 24px; }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .card-header h2 { font-size: 20px; font-weight: 600; }
     .card-header h2 i { color: #00d4ff; margin-right: 10px; }
@@ -264,7 +308,13 @@
           </div>
         </section>
 
-        <!-- FORM -->
+        <!-- RECENT TRADES (added) -->
+        <section class="recent-trades-card">
+          <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Trades</h2>
+          <div id="recentTrades"></div>
+        </section>
+
+        <!-- JOURNAL FORM -->
         <section class="journal-card">
           <div class="card-header">
             <div>
@@ -410,6 +460,7 @@
   </main>
 </div>
 
+<!-- ===== SINGLE MODULE SCRIPT ===== -->
 <script type="importmap">
 {
   "imports": {
@@ -685,17 +736,17 @@
       const container = document.getElementById('recentTrades');
       if (!container) return;
       if (trades.length === 0) {
-        container.innerHTML = '<div class="loading-card">No trades yet.</div>';
+        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No trades yet.</div>';
         return;
       }
       container.innerHTML = '';
       trades.slice(0, 8).forEach(t => {
         container.innerHTML += `
           <div class="trade-row">
-            <div><strong>${t.pair || '?'}</strong><br>${t.direction || ''}</div>
+            <div><strong>${t.pair || '?'}</strong><br><span style="font-size:12px; color: var(--text-secondary);">${t.direction || ''}</span></div>
             <div>${t.entryModel || '-'}</div>
-            <div><span class="status ${t.status.toLowerCase()}">${t.status}</span></div>
-            <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
+            <div><span class="status ${(t.status || 'pending').toLowerCase()}">${t.status || 'Pending'}</span></div>
+            <div><button onclick="closeTrade('${t.id}')" class="btn">${t.status === 'Closed' ? 'View' : 'Close'}</button></div>
           </div>
         `;
       });

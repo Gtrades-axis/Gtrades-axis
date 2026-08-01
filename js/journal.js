@@ -1,84 +1,55 @@
-// ============================================================
-// GTRADES-AXIS™ – JOURNAL (Complete & Working)
-// ============================================================
+/* ============================================================
+   GTRADES-AXIS™ – TRADING JOURNAL
+   ============================================================ */
 
-import { auth, db } from "./firebase.js";
-import {
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-// ─── STATE ──────────────────────────────────────────────────
 const STORAGE_KEY = "trades";
 let trades = [];
-let editingTrade = null;
 let equityChartInstance = null;
 let monthlyChartInstance = null;
+let editingTrade = null;
 
-// ─── PREMIUM LOCK ──────────────────────────────────────────
-async function checkJournalAccess() {
-  return new Promise((resolve) => {
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-      try {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if (!snap.exists()) {
-          alert("User account not found.");
-          window.location.href = "dashboard.html";
-          return;
-        }
-        const data = snap.data();
-        const role = data.role || "member";
-        const membership = data.membership || "free";
-        const allowed = role === "admin" || membership === "premium";
+// ─── LOAD & SAVE ────────────────────────────────────────────
+export function loadTrades() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  trades = saved ? JSON.parse(saved) : [];
+  return trades;
+}
 
-        if (!allowed) {
-          document.body.innerHTML = `
-            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0b1120;color:white;font-family:Arial;text-align:center;padding:40px;">
-              <div>
-                <i class="fa-solid fa-lock" style="font-size:70px;color:#fbbf24;margin-bottom:20px;display:block;"></i>
-                <h1>Premium Membership Required</h1>
-                <p style="color:#94a3b8;margin:20px 0;">The Trading Journal is available only to Premium Members.</p>
-                <a href="dashboard.html" style="display:inline-block;padding:14px 28px;background:#1d9bf0;color:white;border-radius:8px;text-decoration:none;">Return to Dashboard</a>
-              </div>
-            </div>
-          `;
-          throw new Error("Journal blocked");
-        }
-        resolve(true);
-      } catch (err) {
-        console.error(err);
-        resolve(false); 
-      }
-    });
-  });
+export function saveTrades() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+}
+
+export function getTrades() {
+  return trades;
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────
-function val(id) { return document.getElementById(id)?.value || ''; }
-function num(id) { return parseFloat(val(id)) || 0; }
-function isChecked(id) { return document.getElementById(id)?.checked || false; }
-function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
 
-// ─── LOAD & SAVE ────────────────────────────────────────────
-function loadTrades() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  trades = saved ? JSON.parse(saved) : [];
+function num(id) {
+  return parseFloat(val(id)) || 0;
 }
-function saveTrades() {
-  console.log("💾 Saving to localStorage...", trades);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+
+function isChecked(id) {
+  const el = document.getElementById(id);
+  return el ? el.checked : false;
 }
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function $(id) { return document.getElementById(id); }
 
 // ─── BUILD TRADE OBJECT ──────────────────────────────────────
 function buildTradeFromForm(isUpdate) {
   const resultVal = val('result') || 'Pending';
+  const statusVal = resultVal === 'Pending' ? 'Pending' : 'Closed';
+
   return {
     id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 8),
     date: val('tradeDate'),
@@ -138,95 +109,213 @@ function buildTradeFromForm(isUpdate) {
     duringChart: val('duringChart'),
     afterChart: val('afterChart'),
     notes: val('notes'),
-    status: resultVal === 'Pending' ? 'Pending' : 'Closed',
+    status: statusVal,
     created: isUpdate && editingTrade ? editingTrade.created : new Date().toISOString(),
-    closed: isUpdate && editingTrade ? editingTrade.closed : (resultVal !== 'Pending' ? new Date().toISOString() : null)
+    closed: isUpdate && editingTrade ? editingTrade.closed : (statusVal === 'Closed' ? new Date().toISOString() : null)
   };
 }
 
-// ─── SAVE TRADE ──────────────────────────────────────────────
-function handleSubmit(e) {
-  e.preventDefault(); // ⚠️ This STOPS the page from refreshing!
-  try {
-    console.log("✍️ Submit triggered!");
-    const form = e.target;
-    const isUpdate = document.getElementById('updateMode')?.value === 'true';
-    
-    loadTrades(); // Get latest data
-    const trade = buildTradeFromForm(isUpdate);
+// ─── SAVE TRADE (new + update) ──────────────────────────────
+function saveTrade(e) {
+  e.preventDefault();
+  console.log('💾 SaveTrade triggered!');
+  const form = e.target;
+  const isUpdate = $('#updateMode')?.value === 'true';
+  console.log('Is update mode?', isUpdate);
 
-    if (isUpdate && editingTrade) {
-      const index = trades.findIndex(t => t.id === editingTrade.id);
-      if (index !== -1) trades[index] = trade;
-      saveTrades();
-      alert('✅ Trade updated successfully!');
-      window.location.href = 'history.html'; // Redirect to history to see changes
-    } else {
-      trades.unshift(trade); // Add new trade
-      saveTrades();
-      form.reset(); // Clear the form
-      refreshUI(); // Update stats & charts immediately
-      alert('✅ Trade saved successfully! Check the stats above!');
+  loadTrades();
+  const trade = buildTradeFromForm(isUpdate);
+
+  if (isUpdate && editingTrade) {
+    // ── UPDATE ──
+    const index = trades.findIndex(t => t.id === editingTrade.id);
+    if (index !== -1) {
+      trades[index] = trade;
     }
-  } catch (error) {
-    console.error("❌ Error saving trade:", error);
-    alert("Error saving trade. Check console.");
+    saveTrades();
+    alert('✅ Trade updated!');
+    // Reset update mode
+    if (document.getElementById('updateMode')) {
+      document.getElementById('updateMode').value = 'false';
+    }
+    form.reset();
+    // Restore button appearance
+    const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
+      submitBtn.className = 'btn-primary';
+    }
+    // Restore header
+    const header = document.querySelector('.page-header h1');
+    if (header) {
+      header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
+    }
+    document.querySelector('.page-header p').textContent = 'Record • Review • Improve • Repeat';
+    // Redirect to history
+    window.location.href = 'history.html';
+  } else {
+    // ── NEW TRADE ──
+    trades.unshift(trade);
+    saveTrades();
+    form.reset();
+    refreshUI();
+    alert('✅ Trade saved as ' + trade.result + '.');
   }
 }
 
 // ─── REFRESH UI ──────────────────────────────────────────────
 function refreshUI() {
   loadDashboard();
+  loadRecentTrades();
   initializeCharts();
 }
 
 // ─── LOAD DASHBOARD ──────────────────────────────────────────
 function loadDashboard() {
-  const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
-  const wins = completed.filter(t => t.result && t.result.toLowerCase() === 'win');
-  const losses = completed.filter(t => t.result && t.result.toLowerCase() === 'loss');
-
-  const totalTrades = completed.length;
+  const all = trades;
+  const wins = all.filter(t => t.result === "Win");
+  const losses = all.filter(t => t.result === "Loss");
+  const pending = all.filter(t => t.status === "Pending" || t.result === "Pending");
+  const totalTrades = all.length;
   const totalWins = wins.length;
   const totalLosses = losses.length;
   const winRate = totalTrades === 0 ? 0 : (totalWins / totalTrades) * 100;
-  const netProfit = completed.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
-  const avgRR = totalTrades === 0 ? 0 : completed.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
+  const netProfit = all.reduce((sum, t) => sum + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0), 0);
+  const avgRR = totalTrades === 0 ? 0 : all.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
 
-  setText('totalTrades', totalTrades);
-  setText('wins', totalWins);
-  setText('losses', totalLosses);
-  setText('pendingCount', trades.filter(t => t.result && t.result.toLowerCase() === 'pending').length);
-  setText('winRate', winRate.toFixed(1) + '%');
-  setText('averageRR', avgRR.toFixed(2));
-  setText('netProfit', (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2));
-
-  // Streak
   let streak = 0;
-  const allSorted = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
-  if (allSorted.length > 0) {
-    const last = allSorted[allSorted.length - 1];
-    if (last.result && last.result.toLowerCase() === "win") {
-      for (let i = allSorted.length - 1; i >= 0; i--) {
-        if (allSorted[i].result && allSorted[i].result.toLowerCase() === "win") streak++;
+  const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (sorted.length > 0) {
+    const last = sorted[sorted.length - 1];
+    if (last.result === "Win") {
+      for (let i = sorted.length - 1; i >= 0; i--) {
+        if (sorted[i].result === "Win") streak++;
         else break;
       }
-    } else if (last.result && last.result.toLowerCase() === "loss") {
-      for (let i = allSorted.length - 1; i >= 0; i--) {
-        if (allSorted[i].result && allSorted[i].result.toLowerCase() === "loss") streak--;
+    } else if (last.result === "Loss") {
+      for (let i = sorted.length - 1; i >= 0; i--) {
+        if (sorted[i].result === "Loss") streak--;
         else break;
       }
     }
   }
-  setText('streak', streak > 0 ? '+' + streak : streak < 0 ? streak : '0');
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthCount = trades.filter(t => {
+  const monthCount = all.filter(t => {
     if (!t.date) return false;
     try { const d = new Date(t.date); return d >= monthStart; } catch { return false; }
   }).length;
+
+  setText('totalTrades', totalTrades);
+  setText('wins', totalWins);
+  setText('losses', totalLosses);
+  setText('pendingCount', pending.length);
+  setText('winRate', winRate.toFixed(1) + '%');
+  setText('averageRR', avgRR.toFixed(2));
+  setText('netProfit', (netProfit >= 0 ? '+' : '') + '$' + netProfit.toFixed(2));
+  setText('streak', streak > 0 ? '+' + streak : streak < 0 ? streak : '0');
   setText('monthCount', monthCount);
+
+  const winEl = document.getElementById('winRate');
+  if (winEl) winEl.className = winRate >= 50 ? 'value-positive' : winRate > 0 ? 'value-neutral' : 'value-negative';
+  const profitEl = document.getElementById('netProfit');
+  if (profitEl) {
+    const p = netProfit;
+    profitEl.className = p > 0 ? 'value-positive' : p < 0 ? 'value-negative' : 'value-neutral';
+  }
+  calculatePerformance(all);
+}
+
+function calculatePerformance(tradesArray) {
+  if (tradesArray.length === 0) {
+    setText('bestPair', '-');
+    setText('worstPair', '-');
+    setText('bestSession', '-');
+    setText('winStreak', '0');
+    return;
+  }
+  const pairStats = {};
+  const sessionStats = {};
+  tradesArray.forEach(t => {
+    const pair = t.pair || '?';
+    const session = t.session || '?';
+    const profit = parseFloat(t.profit) || 0;
+    pairStats[pair] = (pairStats[pair] || 0) + profit;
+    sessionStats[session] = (sessionStats[session] || 0) + profit;
+  });
+  let bestPair = Object.keys(pairStats).sort((a, b) => pairStats[b] - pairStats[a])[0] || '-';
+  let worstPair = Object.keys(pairStats).sort((a, b) => pairStats[a] - pairStats[b])[0] || '-';
+  let bestSession = Object.keys(sessionStats).sort((a, b) => sessionStats[b] - sessionStats[a])[0] || '-';
+  setText('bestPair', bestPair);
+  setText('worstPair', worstPair);
+  setText('bestSession', bestSession);
+}
+
+// ─── RECENT TRADES ────────────────────────────────────────────
+function loadRecentTrades() {
+  const container = document.getElementById('recentTrades');
+  if (!container) return;
+  if (trades.length === 0) {
+    container.innerHTML = '<div class="loading-card">No trades yet.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  trades.slice(0, 8).forEach(t => {
+    container.innerHTML += `
+      <div class="trade-row">
+        <div><strong>${t.pair || '?'}</strong><br>${t.direction || ''}</div>
+        <div>${t.entryModel || '-'}</div>
+        <div><span class="status ${t.status.toLowerCase()}">${t.status}</span></div>
+        <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
+      </div>
+    `;
+  });
+}
+
+// ─── CLOSE TRADE ──────────────────────────────────────────────
+function closeTrade(id) {
+  const trade = trades.find(t => t.id === id);
+  if (!trade) return;
+  if (trade.status === 'Closed') {
+    viewTrade(trade);
+    return;
+  }
+  const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
+  if (!outcome) return;
+  const profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
+  const commission = parseFloat(prompt("Commission ($)", 0)) || 0;
+  const rr = parseFloat(prompt("Actual RR", 0)) || 0;
+  const management = prompt("Management Quality\nExcellent\nGood\nAverage\nPoor");
+  const psych = prompt("Psychology Notes");
+  const lesson = prompt("Lesson Learned");
+  const improvement = prompt("Improvement");
+
+  trade.status = 'Closed';
+  trade.closed = new Date().toISOString();
+  trade.result = outcome;
+  trade.profit = profit;
+  trade.commission = commission;
+  trade.rr = rr;
+  trade.management = management;
+  trade.psychologyNote = psych;
+  trade.reviewNote = { lesson, improvement };
+
+  saveTrades();
+  refreshUI();
+  alert('✅ Trade closed successfully.');
+}
+
+function viewTrade(trade) {
+  alert(`
+    PAIR        : ${trade.pair}
+    STATUS      : ${trade.status}
+    RESULT      : ${trade.result}
+    PROFIT      : $${trade.profit}
+    RR          : ${trade.rr}
+    LESSON      : ${trade.reviewNote?.lesson || '-'}
+    IMPROVEMENT : ${trade.reviewNote?.improvement || '-'}
+  `);
 }
 
 // ─── CHARTS ────────────────────────────────────────────────────
@@ -240,16 +329,29 @@ function initializeCharts() {
 function destroyAllCharts() {
   if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
   if (monthlyChartInstance) { monthlyChartInstance.destroy(); monthlyChartInstance = null; }
+  ['equityChart', 'monthlyChart'].forEach(id => {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    if (Chart.instances) {
+      for (const key in Chart.instances) {
+        const instance = Chart.instances[key];
+        if (instance && instance.canvas === canvas) { instance.destroy(); break; }
+      }
+    }
+    if (typeof Chart.getChart === 'function') {
+      const existing = Chart.getChart(canvas);
+      if (existing) existing.destroy();
+    }
+  });
 }
 
 function buildEquityChart() {
   const canvas = document.getElementById('equityChart');
   if (!canvas) return;
-  const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
+  const closed = trades.filter(t => t.status === 'Closed');
   let balance = 0;
   const data = [];
-  const sorted = [...completed].sort((a, b) => new Date(a.date || a.created) - new Date(b.date || b.created));
-  sorted.forEach(t => {
+  closed.forEach(t => {
     balance += (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0);
     data.push(balance);
   });
@@ -266,11 +368,9 @@ function buildEquityChart() {
 function buildMonthlyChart() {
   const canvas = document.getElementById('monthlyChart');
   if (!canvas) return;
-  const completed = trades.filter(t => t.result && t.result.toLowerCase() !== 'pending');
   const monthly = {};
-  completed.forEach(t => {
-    const date = t.closed || t.date || new Date();
-    const month = new Date(date).toLocaleString('default', { month: 'short' });
+  trades.filter(t => t.status === 'Closed').forEach(t => {
+    const month = new Date(t.closed).toLocaleString('default', { month: 'short' });
     monthly[month] = (monthly[month] || 0) + (parseFloat(t.profit) || 0) - (parseFloat(t.commission) || 0);
   });
   monthlyChartInstance = new Chart(canvas, {
@@ -283,9 +383,10 @@ function buildMonthlyChart() {
   });
 }
 
-// ─── POPULATE FORM FOR EDITING ─────────────────────────────
+// ─── POPULATE FORM (edit mode) ──────────────────────────────
 function populateForm(trade) {
-  if (!trade) return;
+  console.log('📝 Populating form with trade:', trade);
+
   const fields = [
     'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
     'htfSwing', 'htfInternal', 'mtfSwing', 'mtfInternal',
@@ -295,79 +396,143 @@ function populateForm(trade) {
     'tradeSummary', 'strengths', 'mistakes', 'lessonLearned', 'improvementPlan',
     'beforeChart', 'duringChart', 'afterChart', 'notes'
   ];
+
   fields.forEach(id => {
     const el = document.getElementById(id);
-    if (el && trade[id] !== undefined && trade[id] !== null) el.value = trade[id];
+    if (el) {
+      if (trade[id] !== undefined && trade[id] !== null) {
+        el.value = trade[id];
+        console.log(`  ✅ Set ${id} = ${trade[id]}`);
+      }
+    }
   });
+
+  // Confluences
   if (trade.confluences) {
     const map = {
-      htfSwing: 'confHTFSwing', htfInternal: 'confHTFInternal',
-      mtfSwing: 'confMTFSwing', mtfInternal: 'confMTFInternal',
-      htfDemand: 'confHTFDemand', htfSupply: 'confHTFSupply',
-      mtfDemand: 'confMTFDemand', mtfSupply: 'confMTFSupply',
-      premium: 'confPremium', discount: 'confDiscount',
-      sweep: 'confSweep', choch: 'confChoch',
-      bos: 'confBos', mitigation: 'confMitigation',
-      refined: 'confRefined', extreme: 'confExtreme'
+      htfSwing: 'confHTFSwing',
+      htfInternal: 'confHTFInternal',
+      mtfSwing: 'confMTFSwing',
+      mtfInternal: 'confMTFInternal',
+      htfDemand: 'confHTFDemand',
+      htfSupply: 'confHTFSupply',
+      mtfDemand: 'confMTFDemand',
+      mtfSupply: 'confMTFSupply',
+      premium: 'confPremium',
+      discount: 'confDiscount',
+      sweep: 'confSweep',
+      choch: 'confChoch',
+      bos: 'confBos',
+      mitigation: 'confMitigation',
+      refined: 'confRefined',
+      extreme: 'confExtreme'
     };
     Object.keys(trade.confluences).forEach(key => {
       const cb = document.getElementById(map[key]);
       if (cb) cb.checked = trade.confluences[key];
     });
   }
-  document.querySelector('.page-header h1').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
-  const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
-  if (submitBtn) {
-    submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
-    submitBtn.classList.add('btn-update');
+}
+
+// ─── DETECT EDIT MODE ────────────────────────────────────────
+function checkEditMode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const editId = urlParams.get('edit');
+
+  if (editId) {
+    loadTrades();
+    editingTrade = trades.find(t => t.id === editId);
+    if (editingTrade) {
+      // Wait for DOM to be ready
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setupEditMode(editingTrade);
+      } else {
+        document.addEventListener('DOMContentLoaded', () => setupEditMode(editingTrade));
+      }
+    } else {
+      console.warn('⚠️ Trade not found for ID:', editId);
+    }
   }
 }
 
-// ─── INIT LOGIC ──────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    await checkJournalAccess();
-    const urlParams = new URLSearchParams(window.location.search);
-    const editId = urlParams.get('edit');
-    loadTrades();
+function setupEditMode(trade) {
+  console.log('✏️ Setting up edit mode for trade:', trade);
+  populateForm(trade);
 
-    if (editId) {
-      editingTrade = trades.find(t => t.id === editId);
-      if (editingTrade) {
-        populateForm(editingTrade);
-        const form = document.getElementById('tradeForm');
-        let flag = document.getElementById('updateMode');
-        if (!flag) {
-          flag = document.createElement('input');
-          flag.type = 'hidden';
-          flag.id = 'updateMode';
-          flag.value = 'true';
-          form.appendChild(flag);
-        } else {
-          flag.value = 'true';
-        }
-      }
-    }
-
-    const form = document.getElementById('tradeForm');
-    if (form) {
-      form.removeEventListener('submit', handleSubmit);
-      form.addEventListener('submit', handleSubmit);
-    }
-
-    refreshUI();
-    console.log("✅ Journal ready and synced.");
-  } catch (e) {
-    console.log("Journal Locked or Error:", e);
+  const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
+    submitBtn.className = 'btn-update';
   }
-});
 
-// ─── STORAGE SYNC ──────────────────────────────────────────
-window.addEventListener('storage', function(e) {
-  if (e.key === STORAGE_KEY) {
-    loadTrades();
-    refreshUI();
+  const form = document.getElementById('tradeForm');
+  let flag = document.getElementById('updateMode');
+  if (!flag) {
+    flag = document.createElement('input');
+    flag.type = 'hidden';
+    flag.id = 'updateMode';
+    flag.value = 'true';
+    form.appendChild(flag);
+  } else {
+    flag.value = 'true';
   }
-});
 
-console.log('✅ journal.js loaded successfully');
+  const header = document.querySelector('.page-header h1');
+  if (header) {
+    header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+  }
+  const headerP = document.querySelector('.page-header p');
+  if (headerP) {
+    headerP.textContent = 'Modify trade details and save changes.';
+  }
+}
+
+// ─── ATTACH FORM SUBMIT ──────────────────────────────────────
+function attachFormListener() {
+  const form = document.getElementById('tradeForm');
+  if (form) {
+    form.removeEventListener('submit', saveTrade);
+    form.addEventListener('submit', saveTrade);
+    console.log('✅ Submit listener attached to #tradeForm');
+  } else {
+    console.error('❌ Form #tradeForm not found');
+  }
+}
+
+// ─── EXPORTED INIT FUNCTION ──────────────────────────────────
+export function initJournal() {
+  console.log('✅ Journal initializing...');
+
+  loadTrades();
+  attachFormListener();
+  checkEditMode();
+
+  // Refresh UI after DOM is ready
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    refreshUI();
+  } else {
+    document.addEventListener('DOMContentLoaded', refreshUI);
+  }
+
+  // ─── SCROLL TO TOP ──────────────────────────────────────────
+  const scrollBtn = document.getElementById('scrollTopBtn');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 300);
+    });
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  // ─── STORAGE SYNC ──────────────────────────────────────────
+  window.addEventListener('storage', function(e) {
+    if (e.key === STORAGE_KEY) {
+      loadTrades();
+      refreshUI();
+    }
+  });
+
+  // ─── GLOBAL closeTrade for inline onclick ──────────────────
+  window.closeTrade = closeTrade;
+
+  console.log('✅ Journal fully initialized.');
+}
