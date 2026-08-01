@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ── Full existing CSS (kept exactly as before) ── */
+    /* ── Full CSS (unchanged) ── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
     :root {
@@ -202,7 +202,6 @@
 
   <!-- ===== MAIN CONTENT ===== -->
   <main class="main-content">
-    <!-- WRAPPER for lock system -->
     <div id="app">
 
       <!-- LOCK OVERLAY -->
@@ -411,7 +410,6 @@
   </main>
 </div>
 
-<!-- ===== SINGLE MODULE SCRIPT (no external imports) ===== -->
 <script type="importmap">
 {
   "imports": {
@@ -423,7 +421,6 @@
 </script>
 
 <script type="module">
-  // ─── IMPORTS ──────────────────────────────────────────────
   import { auth, db } from "./js/firebase.js";
   import { onAuthStateChanged } from "firebase/auth";
   import { doc, getDoc } from "firebase/firestore";
@@ -449,7 +446,6 @@
     let monthlyChartInstance = null;
     let editingTrade = null;
 
-    // ─── LOAD & SAVE ────────────────────────────────────────
     function loadTrades() {
       const saved = localStorage.getItem(STORAGE_KEY);
       trades = saved ? JSON.parse(saved) : [];
@@ -459,7 +455,6 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
     }
 
-    // ─── HELPERS ──────────────────────────────────────────────
     function val(id) {
       const el = document.getElementById(id);
       return el ? el.value : '';
@@ -483,7 +478,6 @@
 
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
-      // Determine status based on result
       const resultVal = val('result') || 'Pending';
       const statusVal = resultVal === 'Pending' ? 'Pending' : 'Closed';
 
@@ -566,34 +560,29 @@
       const trade = buildTradeFromForm(isUpdate);
 
       if (isUpdate && editingTrade) {
-        // ── UPDATE ──
         const index = trades.findIndex(t => t.id === editingTrade.id);
         if (index !== -1) {
           trades[index] = trade;
         }
         saveTrades();
         alert('✅ Trade updated!');
-        // Reset update mode and form
+        // Reset update mode
         if (document.getElementById('updateMode')) {
           document.getElementById('updateMode').value = 'false';
         }
-        form.reset();
-        // Restore submit button appearance
+        // Restore button and header
         const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
         if (submitBtn) {
           submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
           submitBtn.className = 'btn-primary';
         }
-        // Restore header
         const header = document.querySelector('.page-header h1');
         if (header) {
           header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
         }
         document.querySelector('.page-header p').textContent = 'Record • Review • Improve • Repeat';
-        // Redirect to history
         window.location.href = 'history.html';
       } else {
-        // ── NEW TRADE ──
         trades.unshift(trade);
         saveTrades();
         form.reset();
@@ -822,8 +811,11 @@
       });
     }
 
-    // ─── EDIT MODE ─────────────────────────────────────────────
+    // ─── POPULATE FORM FOR EDIT ─────────────────────────────
     function populateForm(trade) {
+      console.log('📝 Populating form with trade:', trade);
+
+      // Basic fields
       const fields = [
         'tradeDate', 'tradeTime', 'pair', 'direction', 'session', 'broker', 'account', 'lotSize',
         'htfSwing', 'htfInternal', 'mtfSwing', 'mtfInternal',
@@ -833,12 +825,22 @@
         'tradeSummary', 'strengths', 'mistakes', 'lessonLearned', 'improvementPlan',
         'beforeChart', 'duringChart', 'afterChart', 'notes'
       ];
+
       fields.forEach(id => {
         const el = document.getElementById(id);
-        if (el && trade[id] !== undefined && trade[id] !== null) {
-          el.value = trade[id];
+        if (el) {
+          if (trade[id] !== undefined && trade[id] !== null) {
+            el.value = trade[id];
+            console.log(`  ✅ Set ${id} = ${trade[id]}`);
+          } else {
+            console.log(`  ⚠️ ${id} not found in trade data`);
+          }
+        } else {
+          console.warn(`  ❌ Element #${id} not found`);
         }
       });
+
+      // Confluences
       if (trade.confluences) {
         const map = {
           htfSwing: 'confHTFSwing',
@@ -860,8 +862,13 @@
         };
         Object.keys(trade.confluences).forEach(key => {
           const cb = document.getElementById(map[key]);
-          if (cb) cb.checked = trade.confluences[key];
+          if (cb) {
+            cb.checked = trade.confluences[key];
+            console.log(`  ✅ Set ${map[key]} = ${trade.confluences[key]}`);
+          }
         });
+      } else {
+        console.warn('⚠️ No confluences data found');
       }
     }
 
@@ -870,47 +877,61 @@
     const editId = urlParams.get('edit');
 
     if (editId) {
-      loadTrades();
-      editingTrade = trades.find(t => t.id === editId);
-      if (editingTrade) {
-        populateForm(editingTrade);
-        const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
-        if (submitBtn) {
-          submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
-          submitBtn.className = 'btn-update';
-        }
-        const form = document.getElementById('tradeForm');
-        let flag = document.getElementById('updateMode');
-        if (!flag) {
-          flag = document.createElement('input');
-          flag.type = 'hidden';
-          flag.id = 'updateMode';
-          flag.value = 'true';
-          form.appendChild(flag);
+      // Ensure DOM is ready before populating
+      document.addEventListener('DOMContentLoaded', () => {
+        loadTrades();
+        editingTrade = trades.find(t => t.id === editId);
+        if (editingTrade) {
+          console.log('✏️ Editing trade:', editingTrade);
+          populateForm(editingTrade);
+
+          const submitBtn = document.querySelector('#tradeForm button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
+            submitBtn.className = 'btn-update';
+          }
+
+          const form = document.getElementById('tradeForm');
+          let flag = document.getElementById('updateMode');
+          if (!flag) {
+            flag = document.createElement('input');
+            flag.type = 'hidden';
+            flag.id = 'updateMode';
+            flag.value = 'true';
+            form.appendChild(flag);
+          } else {
+            flag.value = 'true';
+          }
+
+          const header = document.querySelector('.page-header h1');
+          if (header) {
+            header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+          }
+          document.querySelector('.page-header p').textContent = 'Modify trade details and save changes.';
         } else {
-          flag.value = 'true';
+          console.warn('⚠️ Trade not found for ID:', editId);
         }
-        const header = document.querySelector('.page-header h1');
-        if (header) {
-          header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
-        }
-        document.querySelector('.page-header p').textContent = 'Modify trade details and save changes.';
-      }
+      });
     }
 
     // ─── ATTACH FORM SUBMIT ──────────────────────────────────
-    const form = document.getElementById('tradeForm');
-    if (form) {
-      form.removeEventListener('submit', saveTrade);
-      form.addEventListener('submit', saveTrade);
-      console.log('✅ Submit listener attached to #tradeForm');
-    } else {
-      console.error('❌ Form #tradeForm not found');
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('tradeForm');
+      if (form) {
+        form.removeEventListener('submit', saveTrade);
+        form.addEventListener('submit', saveTrade);
+        console.log('✅ Submit listener attached to #tradeForm');
+      } else {
+        console.error('❌ Form #tradeForm not found');
+      }
+    });
 
     // ─── INIT ──────────────────────────────────────────────────
     loadTrades();
-    refreshUI();
+    // Ensure charts are loaded after DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshUI();
+    });
 
     // ─── SCROLL TO TOP ──────────────────────────────────────────
     const scrollBtn = document.getElementById('scrollTopBtn');
@@ -953,7 +974,6 @@
       return;
     }
 
-    // Start loading
     container.classList.add('loading');
 
     onAuthStateChanged(auth, async (user) => {
