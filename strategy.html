@@ -3,39 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Trading Strategy | GTRADES-AXIS™</title>
+  <title>Strategy | GTRADES-AXIS™</title>
   <meta name="description" content="The complete GTRADES-AXIS™ Institutional Trading Framework." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="icon" href="images/favicon.png" />
   <style>
-    /* ──────────────────────────────────────────────
-       OVERRIDES – FULL SCREEN, NO WASTED SPACE
-    ────────────────────────────────────────────── */
+    /* ============================================================
+       SAME STYLES AS INDEX – SCALED UP, BIG LOGO
+    ============================================================ */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
-    :root {
-      --primary: #4f7cff;
-      --primary-dark: #3a5fc9;
-      --primary-light: #7a9eff;
-      --bg-dark: #07090d;
-      --bg-card: #121a29;
-      --bg-card-hover: #1a2538;
-      --border-color: rgba(255, 255, 255, 0.06);
-      --text-primary: #e8edf5;
-      --text-secondary: #9aa4bf;
-      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
-      --shadow-hover: 0 20px 50px rgba(79, 124, 255, 0.1);
-      --radius: 16px;
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
     }
-
     body {
       font-family: 'Poppins', sans-serif;
       background: #07090d;
@@ -43,7 +30,6 @@
       line-height: 1.7;
       overflow-x: hidden;
       width: 100%;
-      max-width: 100%;
     }
     a {
       text-decoration: none;
@@ -57,321 +43,22 @@
       display: block;
     }
 
-    /* ─── CONTAINER – FULL WIDTH ─── */
+    /* ─── CONTAINER ─── */
     .container {
       width: 100%;
-      max-width: 100%;
-      padding: 0 20px;
+      max-width: 1300px;
       margin: 0 auto;
+      padding: 0 30px;
     }
 
-    /* ─── HERO – FIXED MOBILE LAYOUT ─── */
-    .hero {
-      padding-top: 110px;
-      padding-bottom: 70px;
-      background:
-        radial-gradient(circle at 30% 40%, rgba(79, 124, 255, 0.08), transparent 55%),
-        radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.04), transparent 50%),
-        linear-gradient(180deg, #07090d, #0e1522);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      width: 100%;
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 50px;
-      align-items: center;
-      width: 100%;
-    }
-    .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
-      font-weight: 800;
-      line-height: 1.05;
-      margin-bottom: 8px;
-    }
-    .hero h1 span {
-      color: var(--primary);
-      text-shadow: 0 0 8px rgba(79, 124, 255, 0.15), 0 0 20px rgba(79, 124, 255, 0.04);
-    }
-    .hero h2 {
-      font-size: clamp(1.3rem, 3vw, 2.2rem);
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #e8edf5;
-    }
-    .hero-description {
-      font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-      color: #c9d3dd;
-      max-width: 100%;
-      margin-bottom: 28px;
-      line-height: 1.7;
-    }
-    .hero-buttons {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 30px;
-    }
-    .primary-btn,
-    .secondary-btn {
-      padding: 14px 32px;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: clamp(0.85rem, 1.2vw, 1rem);
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-width: 140px;
-    }
-    .primary-btn {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: #fff;
-      box-shadow: 0 8px 24px rgba(79, 124, 255, 0.25);
-    }
-    .primary-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 40px rgba(79, 124, 255, 0.35);
-    }
-    .secondary-btn {
-      border: 2px solid var(--primary);
-      color: #fff;
-      background: transparent;
-    }
-    .secondary-btn:hover {
-      background: var(--primary);
-      transform: translateY(-3px);
-    }
-    .subtitle {
-      display: inline-block;
-      padding: 4px 14px;
-      background: rgba(79, 124, 255, 0.1);
-      border: 1px solid rgba(79, 124, 255, 0.2);
-      border-radius: 40px;
-      color: var(--primary);
-      font-size: clamp(0.65rem, 1vw, 0.85rem);
-      letter-spacing: 1.5px;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-    }
-
-    /* ─── GLASS CARD ─── */
-    .glass-card {
-      background: rgba(18, 26, 41, 0.8);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: var(--radius);
-      padding: clamp(24px, 3vw, 36px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      animation: float 5s ease-in-out infinite;
-      width: 100%;
-    }
-    .glass-card h3 {
-      font-size: clamp(1.2rem, 2vw, 1.6rem);
-      margin-bottom: 18px;
-      color: var(--primary);
-    }
-    .glass-card ul {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .glass-card li {
-      font-size: clamp(0.9rem, 1.1vw, 1.05rem);
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .glass-card li::before {
-      content: "✔";
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    /* ─── MOBILE FIX: NO SQUEEZE ─── */
-    @media (max-width: 992px) {
-      .hero-grid {
-        grid-template-columns: 1fr;
-        gap: 30px;
-        text-align: center;
-      }
-      .hero-buttons {
-        justify-content: center;
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .primary-btn,
-      .secondary-btn {
-        width: 100%;
-        justify-content: center;
-      }
-      .glass-card {
-        max-width: 100%;
-      }
-      .hero {
-        padding-top: 90px;
-        padding-bottom: 50px;
-        min-height: auto;
-      }
-      .hero-description {
-        max-width: 100%;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .hero {
-        padding-top: 80px;
-        padding-bottom: 40px;
-      }
-      .container {
-        padding: 0 14px;
-      }
-      .hero h1 {
-        font-size: 2rem;
-      }
-      .hero h2 {
-        font-size: 1.2rem;
-      }
-      .glass-card {
-        padding: 20px 16px;
-      }
-    }
-
-    /* ─── OTHER SECTIONS – FULL WIDTH ─── */
-    .section-title h2 {
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-    .section-title p {
-      color: var(--text-secondary);
-      font-size: clamp(1rem, 1.2vw, 1.2rem);
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .card,
-    .academy-card,
-    .flow-box,
-    .testimonial-card,
-    .faq-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      transition: all 0.3s ease;
-      box-shadow: var(--shadow-card);
-    }
-    .card:hover,
-    .academy-card:hover,
-    .flow-box:hover,
-    .testimonial-card:hover,
-    .faq-item:hover {
-      transform: translateY(-6px);
-      border-color: var(--primary);
-      box-shadow: var(--shadow-hover);
-      background: var(--bg-card-hover);
-    }
-
-    .section {
-      padding: 80px 0;
-    }
-    .academy,
-    .strategy,
-    .stats,
-    .testimonials,
-    .faq {
-      padding: 80px 0;
-    }
-
-    .academy-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      margin-top: 40px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 24px;
-      margin-top: 40px;
-    }
-    .testimonial-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-      margin-top: 40px;
-    }
-    .strategy-flow {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-top: 40px;
-    }
-    .flow-box {
-      width: 180px;
-      padding: 20px 16px;
-      text-align: center;
-    }
-    .flow-number {
-      width: 40px;
-      height: 40px;
-      margin: 0 auto 12px;
-      border-radius: 50%;
-      background: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 16px;
-      color: #fff;
-    }
-    .flow-box i {
-      color: var(--primary);
-      margin-bottom: 10px;
-    }
-    .flow-box h3 {
-      font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-      margin-bottom: 6px;
-    }
-    .flow-box p {
-      color: #c9d3dd;
-      font-size: clamp(0.75rem, 1vw, 0.85rem);
-      line-height: 1.5;
-    }
-    .flow-arrow {
-      color: var(--primary);
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    @media (max-width: 768px) {
-      .flow-arrow {
-        transform: rotate(90deg);
-        margin: 4px 0;
-      }
-      .flow-box {
-        width: 100%;
-        max-width: 280px;
-      }
-      .strategy-flow {
-        flex-direction: column;
-      }
-    }
-
-    /* ─── HEADER ─── */
+    /* ─── HEADER – TALLER FOR BIG LOGO ─── */
     header {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 80px;
-      background: rgba(7, 9, 13, 0.92);
+      height: 110px;
+      background: rgb(23 43 83 / 92%);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       z-index: 9999;
@@ -385,21 +72,22 @@
       align-items: center;
       width: 100%;
       padding: 0;
+      max-width: 100%;
     }
     .logo {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 18px;
       flex-shrink: 0;
     }
     .logo img {
-      width: 48px;
-      height: 48px;
+      width: 90px;
+      height: 90px;
       object-fit: contain;
       border-radius: 10px;
     }
     .logo h2 {
-      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-size: 2.4rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       white-space: nowrap;
@@ -408,98 +96,127 @@
       -webkit-text-fill-color: transparent;
     }
     .logo h2 span {
-      -webkit-text-fill-color: var(--primary);
+      -webkit-text-fill-color: #4f7cff;
     }
+
+    /* ─── DESKTOP NAV ─── */
     nav {
       display: flex;
       align-items: center;
+      flex: 1;
+      justify-content: center;
+      gap: 30px;
     }
     nav ul {
       display: flex;
-      gap: clamp(16px, 2.5vw, 36px);
+      gap: 38px;
       align-items: center;
     }
-    nav a {
+    nav ul li a {
       color: #c9d3dd;
-      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      font-size: 1.15rem;
       font-weight: 500;
       transition: 0.3s;
       position: relative;
       white-space: nowrap;
     }
-    nav a::after {
+    nav ul li a::after {
       content: '';
       position: absolute;
-      bottom: -4px;
+      bottom: -6px;
       left: 0;
       width: 0;
-      height: 2px;
-      background: var(--primary);
+      height: 3px;
+      background: #4f7cff;
       transition: 0.3s;
     }
-    nav a:hover::after {
+    nav ul li a:hover::after,
+    nav ul li a.active::after {
       width: 100%;
     }
-    nav a:hover {
+    nav ul li a:hover,
+    nav ul li a.active {
       color: #fff;
     }
-    nav a.active {
-      color: var(--primary);
-    }
-    nav a.active::after {
-      width: 100%;
-    }
-    .nav-buttons {
+
+    /* ─── SOCIAL ICONS ─── */
+    .nav-social {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-shrink: 0;
     }
-    .nav-buttons a {
+    .nav-social a {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: #151e2e;
-      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      color: #c9d3dd;
       transition: 0.3s;
-      font-size: 17px;
+      font-size: 18px;
     }
-    .nav-buttons a:hover {
+    .nav-social a:hover {
       transform: translateY(-3px);
+      color: #fff;
     }
-    .youtube:hover {
+    .nav-social .youtube:hover {
       background: #ff0000;
+      color: #fff;
     }
-    .telegram:hover {
+    .nav-social .telegram:hover {
       background: #229ed9;
+      color: #fff;
     }
-    .whatsapp:hover {
+    .nav-social .whatsapp:hover {
       background: #25d366;
+      color: #fff;
     }
-    .tiktok:hover {
+    .nav-social .tiktok:hover {
       background: #111;
+      color: #fff;
+    }
+
+    /* ─── HEADER BUTTONS ─── */
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      margin-left: 16px;
     }
     .join-btn {
       padding: 10px 28px;
-      border-radius: 30px;
+      border-radius: 50px;
       font-weight: 600;
-      font-size: clamp(0.85rem, 1.2vw, 1rem);
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
+      font-size: 1rem;
       transition: 0.35s;
-      width: auto;
-      height: auto;
+      white-space: nowrap;
+      border: 2.5px solid #4f7cff;
+      color: #4f7cff;
+      background: transparent;
     }
     .join-btn:hover {
-      background: var(--primary);
+      background: #4f7cff;
       color: #fff;
-      box-shadow: 0 0 20px rgba(79, 124, 255, 0.25);
+      box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
       transform: translateY(-2px);
     }
+    .dashboard-btn {
+      background: #fff;
+      border-color: #fff;
+      color: #000;
+    }
+    .dashboard-btn:hover {
+      background: #e8e8e8;
+      border-color: #e8e8e8;
+      color: #000;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Hamburger */
     .menu-toggle {
       display: none;
       flex-direction: column;
@@ -508,7 +225,7 @@
       border: none;
       cursor: pointer;
       padding: 4px;
-      margin-left: 12px;
+      margin-left: 14px;
     }
     .menu-toggle span {
       display: block;
@@ -528,100 +245,634 @@
       transform: rotate(-45deg) translate(5px, -5px);
     }
 
+    /* ─── MOBILE OVERLAY ─── */
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(2, 8, 24, 0.96);
+      backdrop-filter: blur(24px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-overlay-inner {
+      width: 100%;
+      max-width: 420px;
+      padding: 0 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+    .mobile-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    .mobile-nav-list li {
+      opacity: 0;
+      transform: translateY(24px) scale(0.95);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-overlay.open .mobile-nav-list li {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .mobile-nav-list li:nth-child(1) { transition-delay: 0.05s; }
+    .mobile-nav-list li:nth-child(2) { transition-delay: 0.10s; }
+    .mobile-nav-list li:nth-child(3) { transition-delay: 0.15s; }
+    .mobile-nav-list li:nth-child(4) { transition-delay: 0.20s; }
+    .mobile-nav-list li:nth-child(5) { transition-delay: 0.25s; }
+    .mobile-nav-list li:nth-child(6) { transition-delay: 0.30s; }
+
+    .mobile-link {
+      display: block;
+      font-size: 34px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.3s;
+    }
+    .mobile-link:hover {
+      color: #fff;
+    }
+
+    .mobile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+    .mobile-overlay.open .mobile-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .mobile-login,
+    .mobile-dashboard {
+      width: 100%;
+      padding: 16px;
+      text-align: center;
+      border-radius: 18px;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      background: transparent;
+      transition: background 0.3s;
+    }
+    .mobile-login:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .mobile-dashboard {
+      background: #fff;
+      color: #000;
+      border: none;
+      font-weight: 600;
+    }
+    .mobile-dashboard:hover {
+      background: #e8e8e8;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+    }
+
+    /* ─── RESPONSIVE BREAKPOINTS ─── */
+    @media (max-width: 1024px) {
+      header {
+        height: 90px;
+        padding: 0 14px;
+      }
+      .logo img {
+        width: 70px;
+        height: 70px;
+      }
+      .logo h2 {
+        font-size: 1.8rem;
+      }
+      nav ul {
+        gap: 22px;
+      }
+      nav ul li a {
+        font-size: 0.95rem;
+      }
+      .nav-social a {
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+      }
+      .join-btn {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+      }
+    }
+
     @media (max-width: 992px) {
       header {
-        height: 70px;
-        padding: 0 16px;
+        height: 76px;
+        padding: 0 12px;
+      }
+      .logo img {
+        width: 52px;
+        height: 52px;
+      }
+      .logo h2 {
+        font-size: 1.3rem;
+      }
+      nav {
+        display: none;
+      }
+      .menu-toggle {
+        display: flex;
+      }
+      .nav-social {
+        display: none;
+      }
+      .nav-buttons {
+        display: none;
+      }
+    }
+    @media (max-width: 480px) {
+      header {
+        height: 64px;
+        padding: 0 10px;
       }
       .logo img {
         width: 40px;
         height: 40px;
       }
       .logo h2 {
-        font-size: 1.2rem;
-      }
-      nav {
-        display: none;
-        position: absolute;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background: rgba(7, 9, 13, 0.96);
-        backdrop-filter: blur(16px);
-        padding: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        flex-direction: column;
-        align-items: stretch;
-        max-height: calc(100vh - 70px);
-        overflow-y: auto;
-      }
-      nav.open {
-        display: flex;
-      }
-      nav ul {
-        flex-direction: column;
-        gap: 6px;
-        width: 100%;
-      }
-      nav ul li a {
-        padding: 12px 16px;
-        border-radius: 8px;
-        width: 100%;
-        white-space: normal;
         font-size: 1rem;
       }
-      .nav-buttons {
-        margin-top: 16px;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-      }
-      .nav-buttons a {
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
-      }
-      .join-btn {
-        padding: 8px 20px;
-        font-size: 0.9rem;
-      }
-      .menu-toggle {
-        display: flex;
-      }
-    }
-    @media (max-width: 480px) {
-      header {
-        height: 62px;
-        padding: 0 12px;
-      }
-      .logo img {
-        width: 34px;
-        height: 34px;
-      }
-      .logo h2 {
-        font-size: 1rem;
-      }
-      .nav-buttons a {
-        width: 34px;
-        height: 34px;
-        font-size: 14px;
-      }
-      .join-btn {
-        padding: 6px 16px;
-        font-size: 0.8rem;
-      }
-      nav.open {
-        top: 62px;
-        max-height: calc(100vh - 62px);
+      .container {
+        padding: 0 14px;
       }
     }
 
-    /* ─── FOOTER ─── */
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(79, 124, 255, 0.08), transparent 55%),
+        radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.04), transparent 50%),
+        linear-gradient(180deg, #07090d, #0e1522);
+      padding-top: 120px;
+      padding-bottom: 50px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+      width: 100%;
+    }
+    .hero .subtitle {
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(79, 124, 255, 0.1);
+      border: 1px solid rgba(79, 124, 255, 0.2);
+      border-radius: 40px;
+      color: #4f7cff;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 6.5vw, 4.8rem);
+      font-weight: 800;
+      line-height: 1.08;
+      margin-bottom: 6px;
+    }
+    .hero h1 span {
+      color: #4f7cff;
+      text-shadow: 0 0 12px rgba(79, 124, 255, 0.15);
+    }
+    .hero h2 {
+      font-size: clamp(1.6rem, 3.2vw, 2.8rem);
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #e8edf5;
+    }
+    .hero-description {
+      font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+      color: #c9d3dd;
+      max-width: 100%;
+      margin-bottom: 32px;
+      line-height: 1.8;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .primary-btn,
+    .secondary-btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+      transition: 0.35s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 140px;
+    }
+    .primary-btn {
+      background: linear-gradient(135deg, #4f7cff, #7c3aed);
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(79, 124, 255, 0.2);
+    }
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #3a5fc9, #6c2bd9);
+      transform: translateY(-4px);
+      box-shadow: 0 0 40px rgba(79, 124, 255, 0.3);
+    }
+    .secondary-btn {
+      border: 2.5px solid #4f7cff;
+      color: #fff;
+      background: transparent;
+    }
+    .secondary-btn:hover {
+      background: #4f7cff;
+      transform: translateY(-4px);
+    }
+
+    .glass-card {
+      background: rgba(18, 26, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: clamp(28px, 3vw, 40px);
+      border-radius: 22px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: float 5s ease-in-out infinite;
+      width: 100%;
+    }
+    .glass-card h3 {
+      font-size: clamp(1.3rem, 2vw, 1.7rem);
+      margin-bottom: 18px;
+      color: #4f7cff;
+    }
+    .glass-card ul {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .glass-card li {
+      font-size: clamp(1rem, 1.2vw, 1.1rem);
+      color: #c9d3dd;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .glass-card li::before {
+      content: "✓";
+      color: #4f7cff;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 992px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+        text-align: center;
+      }
+      .hero-buttons {
+        justify-content: center;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .primary-btn,
+      .secondary-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .glass-card {
+        max-width: 100%;
+      }
+      .hero {
+        padding-top: 100px;
+        padding-bottom: 40px;
+        min-height: auto;
+      }
+    }
+    @media (max-width: 480px) {
+      .hero {
+        padding-top: 80px;
+        padding-bottom: 30px;
+      }
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+      .hero h2 {
+        font-size: 1.2rem;
+      }
+      .glass-card {
+        padding: 20px 16px;
+      }
+    }
+
+    /* ─── SECTIONS ─── */
+    section {
+      padding: 70px 0;
+    }
+    @media (max-width: 768px) {
+      section {
+        padding: 50px 0;
+      }
+    }
+    @media (max-width: 480px) {
+      section {
+        padding: 35px 0;
+      }
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+    .section-title h2 {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 800;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+    .section-title p {
+      font-size: clamp(1rem, 1.3vw, 1.2rem);
+      color: #c9d3dd;
+      max-width: 750px;
+      margin: 0 auto;
+    }
+
+    /* Cards */
+    .card,
+    .academy-card,
+    .flow-box,
+    .testimonial-card,
+    .faq-item {
+      background: #121a29;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 18px;
+      transition: 0.35s;
+      padding: 28px 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .card:hover,
+    .academy-card:hover,
+    .flow-box:hover,
+    .testimonial-card:hover,
+    .faq-item:hover {
+      transform: translateY(-6px);
+      border-color: #4f7cff;
+      box-shadow: 0 20px 50px rgba(79, 124, 255, 0.1);
+      background: #1a2538;
+    }
+
+    .academy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .academy-card .icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(79, 124, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .academy-card i {
+      font-size: 28px;
+      color: #4f7cff;
+    }
+    .academy-card h3 {
+      font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+      margin-bottom: 8px;
+    }
+    .academy-card p {
+      color: #c9d3dd;
+      font-size: clamp(0.9rem, 1.1vw, 1rem);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .cards .card {
+      text-align: center;
+    }
+    .cards .card i {
+      color: #4f7cff;
+      margin-bottom: 16px;
+    }
+    .cards .card h3 {
+      font-size: clamp(1.1rem, 1.4vw, 1.25rem);
+      margin-bottom: 8px;
+    }
+    .cards .card ul {
+      text-align: left;
+      margin-top: 10px;
+      padding-left: 10px;
+    }
+    .cards .card ul li {
+      color: #c9d3dd;
+      font-size: clamp(0.85rem, 1vw, 0.95rem);
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cards .card ul li::before {
+      content: "▸";
+      color: #4f7cff;
+    }
+
+    .strategy-flow {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 40px;
+    }
+    .flow-box {
+      width: 160px;
+      padding: 20px 14px;
+      text-align: center;
+    }
+    .flow-number {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: #4f7cff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: #fff;
+    }
+    .flow-box i {
+      color: #4f7cff;
+      margin-bottom: 10px;
+    }
+    .flow-box h3 {
+      font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+      margin-bottom: 6px;
+    }
+    .flow-box p {
+      color: #c9d3dd;
+      font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+    }
+    .flow-arrow {
+      color: #4f7cff;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .flow-arrow {
+        transform: rotate(90deg);
+        margin: 4px 0;
+      }
+      .flow-box {
+        width: 100%;
+        max-width: 220px;
+      }
+      .strategy-flow {
+        flex-direction: column;
+      }
+      .academy-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .academy-grid {
+        grid-template-columns: 1fr;
+      }
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Stats section */
+    .stats {
+      background: linear-gradient(180deg, #0e1522, #07090d);
+      padding: 55px 0;
+    }
+    .stats .cards .card {
+      background: #121a29;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .stats .cards .card h3 {
+      color: #4f7cff;
+      margin-bottom: 6px;
+    }
+    .stats .cards .card p {
+      color: #c9d3dd;
+      font-size: clamp(0.85rem, 1vw, 0.95rem);
+    }
+
+    /* Testimonials */
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .testimonial-card .stars {
+      color: #f5a623;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .testimonial-card p {
+      color: #c9d3dd;
+      font-size: clamp(0.9rem, 1.1vw, 1rem);
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .testimonial-card h4 {
+      color: #4f7cff;
+      font-size: clamp(0.9rem, 1.1vw, 1rem);
+    }
+    @media (max-width: 768px) {
+      .testimonial-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .testimonial-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* FAQ */
+    .faq-item {
+      padding: 20px 24px;
+      border-left: 5px solid #4f7cff;
+      margin-bottom: 16px;
+      transition: 0.35s;
+    }
+    .faq-item:hover {
+      transform: translateX(6px);
+    }
+    .faq-item h3 {
+      font-size: clamp(1rem, 1.2vw, 1.15rem);
+      margin-bottom: 6px;
+    }
+    .faq-item p {
+      color: #c9d3dd;
+      font-size: clamp(0.9rem, 1vw, 1rem);
+    }
+
+    /* CTA */
+    .cta {
+      padding: 65px 0;
+      text-align: center;
+      background: linear-gradient(180deg, #0e1522, #07090d);
+    }
+    .cta h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      margin-bottom: 12px;
+    }
+    .cta p {
+      max-width: 90%;
+      margin: 0 auto 28px;
+      color: #c9d3dd;
+      font-size: clamp(1rem, 1.3vw, 1.2rem);
+    }
+
+    /* Footer */
     footer {
       background: #05070b;
-      padding: 40px 5% 20px;
+      padding: 45px 5% 25px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     .footer-grid {
@@ -629,28 +880,30 @@
       grid-template-columns: 2fr 1fr 1fr 1fr;
       gap: 40px;
     }
-    .footer-about img {
-      width: 60px;
+    .footer-about .footer-logo {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
       margin-bottom: 12px;
     }
     .footer-about h2 {
-      font-size: clamp(1.2rem, 2vw, 1.5rem);
-      margin-bottom: 8px;
+      font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+      margin-bottom: 6px;
     }
     .footer-about span {
-      color: var(--primary);
+      color: #4f7cff;
     }
     .footer-about p {
       color: #bfc8d4;
       margin-bottom: 6px;
       line-height: 1.8;
-      font-size: clamp(0.85rem, 1vw, 0.95rem);
+      font-size: clamp(0.9rem, 1vw, 1rem);
     }
     .footer-links h3,
     .footer-contact h3 {
-      color: var(--primary);
+      color: #4f7cff;
       margin-bottom: 14px;
-      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      font-size: clamp(1.05rem, 1.3vw, 1.2rem);
     }
     .footer-links ul {
       padding: 0;
@@ -661,130 +914,109 @@
     .footer-links a {
       color: #d0d8e4;
       transition: 0.3s;
-      font-size: clamp(0.85rem, 1vw, 0.95rem);
+      font-size: clamp(0.9rem, 1vw, 1rem);
     }
     .footer-links a:hover {
-      color: var(--primary);
-      padding-left: 4px;
+      color: #4f7cff;
+      padding-left: 6px;
     }
     .footer-contact p {
       color: #d0d8e4;
       margin-bottom: 8px;
-      font-size: clamp(0.85rem, 1vw, 0.95rem);
+      font-size: clamp(0.9rem, 1vw, 1rem);
     }
     .footer-contact i {
-      color: var(--primary);
-      width: 20px;
+      color: #4f7cff;
+      width: 22px;
     }
     .copyright {
       text-align: center;
       color: #9aa8bb;
+      line-height: 2.2;
+      font-size: clamp(0.8rem, 0.9vw, 0.9rem);
       margin-top: 30px;
       padding-top: 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: clamp(0.75rem, 1vw, 0.85rem);
     }
     .copyright strong {
-      color: var(--primary);
+      color: #4f7cff;
     }
-
     @media (max-width: 768px) {
       .footer-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 30px;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
       }
-      .footer-about img {
+      .footer-about .footer-logo {
+        width: 70px;
+        height: 70px;
+      }
+    }
+    @media (max-width: 480px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        text-align: center;
+      }
+      .footer-about .footer-logo {
+        width: 60px;
+        height: 60px;
         margin: 0 auto 12px;
       }
     }
 
-    /* ─── SCROLL TOP ─── */
-    #scrollTop {
+    /* Scroll to top */
+    #scrollTopBtn {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 44px;
-      height: 44px;
+      bottom: 25px;
+      right: 25px;
+      width: 50px;
+      height: 50px;
       border: none;
       border-radius: 50%;
       background: linear-gradient(135deg, #4f7cff, #7c3aed);
       color: #fff;
-      font-size: 20px;
+      font-size: 22px;
       cursor: pointer;
-      box-shadow: 0 0 20px rgba(79, 124, 255, 0.3);
+      box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
       transition: 0.35s;
       opacity: 0;
       visibility: hidden;
       transform: translateY(20px);
       z-index: 999;
     }
-    #scrollTop.visible {
+    #scrollTopBtn.visible {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
     }
-    #scrollTop:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 40px rgba(79, 124, 255, 0.4);
+    #scrollTopBtn:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 50px rgba(79, 124, 255, 0.4);
     }
 
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: #07090d;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-      transition: 0.6s;
-    }
-    #loader.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .loader-logo {
-      text-align: center;
-      animation: pulse 1.8s infinite;
-    }
-    .loader-logo img {
-      width: 80px;
-      margin: 0 auto 20px;
-    }
-    .loader-logo h2 {
-      font-size: 32px;
-    }
-    .loader-logo span {
-      color: #4f7cff;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.06); }
-    }
     @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-14px);
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- ========== LOADER ========== -->
-  <div id="loader">
-    <div class="loader-logo">
-      <img src="images/logo.png" alt="Loading" />
-      <h2>GTRADES-<span>AXIS™</span></h2>
-    </div>
-  </div>
-
-  <!-- ========== HEADER ========== -->
+  <!-- ===== HEADER ===== -->
   <header>
     <div class="container">
       <div class="logo">
-        <img src="images/logo.png" alt="Logo" />
+        <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" />
         <h2>GTRADES-<span>AXIS™</span></h2>
       </div>
-      <nav id="mainNav">
+
+      <!-- Desktop Navigation -->
+      <nav id="desktopNav">
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="academy.html">Academy</a></li>
@@ -792,21 +1024,47 @@
           <li><a href="resources.html">Resources</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
-        <div class="nav-buttons">
+
+        <!-- Social Icons -->
+        <div class="nav-social">
           <a href="https://www.youtube.com/@GtradesAxis" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
           <a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank" class="telegram"><i class="fab fa-telegram"></i></a>
           <a href="https://wa.me/254712416214" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.tiktok.com/@gtrades_axis" target="_blank" class="tiktok"><i class="fab fa-tiktok"></i></a>
-          <a href="https://t.me/+iywzAr5VaI80Mjhk" class="join-btn" target="_blank">Join Community</a>
+        </div>
+
+        <!-- Login / Dashboard (same logic) -->
+        <div class="nav-buttons">
+          <a href="login.html" class="join-btn" id="loginBtn">Login</a>
+          <a href="dashboard.html" class="join-btn dashboard-btn" id="dashboardBtn" style="display:none;">Dashboard</a>
         </div>
       </nav>
+
+      <!-- Hamburger (mobile only) -->
       <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <!-- ========== HERO ========== -->
+  <!-- ===== MOBILE OVERLAY ===== -->
+  <div id="mobileOverlay" class="mobile-overlay">
+    <div class="mobile-overlay-inner">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-link">Home</a></li>
+        <li><a href="academy.html" class="mobile-link">Academy</a></li>
+        <li><a href="strategy.html" class="mobile-link">Strategy</a></li>
+        <li><a href="resources.html" class="mobile-link">Resources</a></li>
+        <li><a href="contact.html" class="mobile-link">Contact</a></li>
+      </ul>
+      <div class="mobile-actions">
+        <a href="login.html" class="mobile-login" id="mobileLoginBtn">Login</a>
+        <a href="dashboard.html" class="mobile-dashboard" id="mobileDashboardBtn" style="display:none;">Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HERO ===== -->
   <section class="hero">
     <div class="container hero-grid">
       <div>
@@ -838,7 +1096,7 @@
     </div>
   </section>
 
-  <!-- ========== FRAMEWORK INTRO ========== -->
+  <!-- ===== FRAMEWORK INTRO ===== -->
   <section class="section" id="framework">
     <div class="container">
       <div class="section-title">
@@ -848,7 +1106,7 @@
     </div>
   </section>
 
-  <!-- ========== STRATEGY PROCESS ========== -->
+  <!-- ===== STRATEGY PROCESS ===== -->
   <section class="strategy" id="process">
     <div class="container">
       <div class="section-title">
@@ -887,7 +1145,7 @@
     </div>
   </section>
 
-  <!-- ========== EXECUTION FRAMEWORK ========== -->
+  <!-- ===== EXECUTION FRAMEWORK ===== -->
   <section class="academy">
     <div class="container">
       <div class="section-title">
@@ -929,7 +1187,7 @@
     </div>
   </section>
 
-  <!-- ========== CORE CONCEPTS (4 PILLARS) ========== -->
+  <!-- ===== CORE CONCEPTS (4 PILLARS) ===== -->
   <section class="section">
     <div class="container">
       <div class="section-title">
@@ -961,7 +1219,7 @@
     </div>
   </section>
 
-  <!-- ========== ENTRY CHECKLIST ========== -->
+  <!-- ===== ENTRY CHECKLIST ===== -->
   <section class="academy">
     <div class="container">
       <div class="section-title">
@@ -1040,7 +1298,7 @@
   </section>
 
   <!-- ========== PROFESSIONAL ENTRY CHECKLIST ========== -->
- <section class="academy">
+  <section class="academy">
     <div class="container">
       <div class="section-title">
         <h2>Professional Entry Checklist</h2>
@@ -1052,13 +1310,13 @@
         <div class="academy-card"><h3>✅ Session</h3><p>London or New York only.</p></div>
         <div class="academy-card"><h3>✅ Supply / Demand</h3><p>Price reacts from institutional zone.</p></div>
         <div class="academy-card"><h3>✅ Liquidity Taken</h3><p>Stops have already been swept.</p></div>
-
         <div class="academy-card"><h3>✅ Confirmation Candle</h3><p>Strong rejection or continuation candle.</p></div>
         <div class="academy-card"><h3>✅ Risk</h3><p>Maximum 1% risk per trade.</p></div>
         <div class="academy-card"><h3>✅ Risk : Reward</h3><p>Minimum 1 : 2 RR.</p></div>
       </div>
     </div>
   </section>
+
   <!-- ========== TRADE MANAGEMENT RULES ========== -->
   <section class="strategy">
     <div class="container">
@@ -1173,19 +1431,21 @@
   </section>
 
   <!-- ========== FOOTER ========== -->
-  <footer>
+  <footer id="contact">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-about">
-           <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo".footer-logo" />
+          <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="footer-logo" />
           <h2>GTRADES-<span>AXIS™</span></h2>
-          <p>Trade with Structure. Execute with Precision.</p>
+          <p>Trade with Structure.<br />Execute with Precision.</p>
+          <p>Professional Smart Money Trading Framework built around Market Structure, Supply &amp; Demand, Liquidity and disciplined execution.</p>
         </div>
         <div class="footer-links">
           <h3>Quick Links</h3>
           <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="academy.html">Academy</a></li>
+            <li><a href="strategy.html">Strategy</a></li>
             <li><a href="resources.html">Resources</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
@@ -1193,50 +1453,50 @@
         <div class="footer-links">
           <h3>Community</h3>
           <ul>
-            <li><a href="https://www.youtube.com/@GtradesAxis" target="_blank">YouTube</a></li>
-            <li><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank">Telegram</a></li>
-            <li><a href="https://wa.me/254712416214" target="_blank">WhatsApp</a></li>
-            <li><a href="https://www.tiktok.com/@gtrades_axis" target="_blank">TikTok</a></li>
+            <li><a href="https://www.youtube.com/@GtradesAxis" target="_blank"><i class="fab fa-youtube"></i> YouTube</a></li>
+            <li><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank"><i class="fab fa-telegram"></i> Telegram</a></li>
+            <li><a href="https://wa.me/254712416214" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></li>
+            <li><a href="https://www.tiktok.com/@gtrades_axis" target="_blank"><i class="fab fa-tiktok"></i> TikTok</a></li>
           </ul>
         </div>
         <div class="footer-contact">
           <h3>Contact</h3>
-          <p>Nairobi, Kenya</p>
-          <p>WhatsApp: +254 712 416 214</p>
+          <p><i class="fab fa-whatsapp"></i> +254 712 416 214</p>
+          <p><i class="fab fa-telegram"></i> Telegram Community</p>
+          <p><i class="fas fa-location-dot"></i> Nairobi, Kenya</p>
         </div>
       </div>
+      <hr />
       <div class="copyright">
-        <p>© <span id="year"></span> GTRADES-AXIS™. All Rights Reserved.</p>
+        <p>© <span id="year"></span> GTRADES-AXIS™ | All Rights Reserved</p>
+        <p><strong>@gtrades_axis</strong></p>
       </div>
     </div>
   </footer>
 
-  <!-- ========== SCROLL BUTTON ========== -->
-  <button id="scrollTop"><i class="fas fa-arrow-up"></i></button>
+  <!-- ========== SCROLL TOP ========== -->
+  <button id="scrollTopBtn" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
 
   <!-- ========== SCRIPTS ========== -->
   <script>
-    // Loader
-    window.addEventListener('load', () => {
-      document.getElementById('loader').classList.add('hidden');
+    // ─── Mobile Overlay Toggle ──────────────────────────────────
+    const toggleBtn = document.getElementById('menuToggle');
+    const overlay = document.getElementById('mobileOverlay');
+
+    toggleBtn?.addEventListener('click', () => {
+      toggleBtn.classList.toggle('active');
+      overlay.classList.toggle('open');
     });
 
-    // Mobile menu
-    const toggle = document.getElementById('menuToggle');
-    const nav = document.getElementById('mainNav');
-    toggle?.addEventListener('click', () => {
-      toggle.classList.toggle('active');
-      nav.classList.toggle('open');
-    });
-    nav?.querySelectorAll('a').forEach(link => {
+    overlay?.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        toggle.classList.remove('active');
-        nav.classList.remove('open');
+        toggleBtn.classList.remove('active');
+        overlay.classList.remove('open');
       });
     });
 
-    // Scroll to top
-    const scrollBtn = document.getElementById('scrollTop');
+    // ─── Scroll to Top ──────────────────────────────────────────
+    const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
       scrollBtn.classList.toggle('visible', window.scrollY > 300);
     });
@@ -1244,8 +1504,29 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Dynamic year
+    // ─── Auth Buttons (desktop & mobile) ──────────────────────
+    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+    const loginBtn = document.getElementById('loginBtn');
+    const dashboardBtn = document.getElementById('dashboardBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
+
+    if (isLoggedIn) {
+      loginBtn.style.display = 'none';
+      dashboardBtn.style.display = 'inline-flex';
+      mobileLoginBtn.style.display = 'none';
+      mobileDashboardBtn.style.display = 'block';
+    } else {
+      loginBtn.style.display = 'inline-flex';
+      dashboardBtn.style.display = 'none';
+      mobileLoginBtn.style.display = 'block';
+      mobileDashboardBtn.style.display = 'none';
+    }
+
+    // ─── Dynamic Year ──────────────────────────────────────────
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    console.log('Strategy page ready.');
   </script>
 </body>
 </html>
