@@ -11,169 +11,183 @@
   <link rel="icon" href="images/favicon.png" />
   <style>
     /* ============================================================
-       SUPPORT PAGE – DASHBOARD COLOR MATCH
+       SUPPORT PAGE – DASHBOARD COLOR SCHEME
     ============================================================ */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+    html {
+      scroll-behavior: smooth;
     }
     body {
-      font-family: 'Poppins', sans-serif;
-      background: #0b0d15;
-      color: #e8edf5;
-      min-height: 100vh;
-    }
-    :root {
-      --bg-primary: #0b0d15;
-      --bg-secondary: #131724;
-      --bg-card: #1a1f2f;
-      --bg-card-hover: #222a3e;
-      --border-color: #2a3450;
-      --text-primary: #e8edf5;
-      --text-secondary: #9aa4bf;
-      --accent-blue: #4f7cff;
-      --green: #00c897;
-      --red: #ff4766;
-      --gold: #f5a623;
-      --gradient-main: linear-gradient(135deg, #4f7cff, #7c3aed);
-      --radius: 12px;
-    }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    ul {
-      list-style: none;
+      background: #f4f7fb;
+      color: #1b1b1b;
+      overflow-x: hidden;
     }
 
-    /* ── Dashboard layout ── */
+    /* ============================================================
+       VARIABLES (exactly as dashboard.css)
+    ============================================================ */
+    :root {
+      --primary: #005eff;
+      --primary-dark: #0040b8;
+      --dark: #0b1220;
+      --dark2: #161f2d;
+      --white: #ffffff;
+      --light: #f4f7fb;
+      --border: #e4e8ef;
+      --success: #18b663;
+      --danger: #e74c3c;
+      --warning: #f4b400;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      --radius: 18px;
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
     .dashboard {
       display: flex;
       min-height: 100vh;
-    }
-    .sidebar {
-      width: 260px;
-      background: var(--bg-secondary);
-      border-right: 1px solid var(--border-color);
-      padding: 28px 18px;
-      display: flex;
-      flex-direction: column;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-    .sidebar .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 40px;
-    }
-    .sidebar .brand img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      border-radius: 10px;
-    }
-    .sidebar .brand h2 {
-      font-size: 18px;
-      background: linear-gradient(135deg, #fff 30%, #00d4ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .sidebar .brand h2 span {
-      -webkit-text-fill-color: var(--accent-blue);
-    }
-    .sidebar .menu {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-    .sidebar .menu li {
-      margin: 0;
-    }
-    .sidebar .menu li a {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      border-radius: 8px;
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 500;
-      transition: 0.25s;
-      border-left: 3px solid transparent;
-    }
-    .sidebar .menu li a:hover {
-      background: var(--bg-card);
-      color: #fff;
-    }
-    .sidebar .menu li.active a {
-      background: rgba(79,124,255,0.15);
-      color: var(--accent-blue);
-      border-left-color: var(--accent-blue);
-    }
-    .sidebar .menu li a i {
-      width: 20px;
-      text-align: center;
-    }
-    #logoutBtn {
-      margin-top: auto;
-      padding: 12px 16px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255,71,102,0.08);
-      color: var(--red);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: 0.25s;
-      font-family: 'Poppins', sans-serif;
-      width: 100%;
-    }
-    #logoutBtn:hover {
-      background: rgba(255,71,102,0.18);
+      background: var(--light);
     }
 
-    .main-content {
-      flex: 1;
-      padding: 32px 40px 60px;
-      max-width: calc(100% - 260px);
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    .sidebar {
+      width: 270px;
+      background: var(--dark);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 25px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
+      z-index: 999;
     }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+    .brand img {
+      width: 55px;
+      height: 55px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #fff;
+      padding: 6px;
+    }
+    .brand h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .brand span {
+      color: #3b82f6;
+    }
+
+    .menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .menu li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 18px;
+      text-decoration: none;
+      color: #d5d9e2;
+      border-radius: 14px;
+      transition: 0.25s;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .menu li a i {
+      width: 22px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .menu li a:hover {
+      background: #16243c;
+      color: #fff;
+      transform: translateX(4px);
+    }
+    .menu li.active a {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(0, 94, 255, 0.35);
+    }
+
+    #logoutBtn {
+      margin-top: auto;
+      border: none;
+      background: #ef4444;
+      color: #fff;
+      padding: 15px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    #logoutBtn:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    /* ============================================================
+       MAIN CONTENT
+    ============================================================ */
+    .main-content {
+      margin-left: 270px;
+      width: calc(100% - 270px);
+      padding: 35px;
+      min-height: 100vh;
+    }
+
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 35px;
       flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 32px;
+      gap: 20px;
     }
     .topbar h1 {
-      font-size: 28px;
+      font-size: 34px;
       font-weight: 700;
+      color: #111827;
     }
     .topbar h1 i {
-      color: #00d4ff;
+      color: var(--primary);
       margin-right: 10px;
     }
-    .topbar h1 span {
-      background: var(--gradient-main);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
     .topbar p {
-      color: var(--text-secondary);
-      font-size: 14px;
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 15px;
     }
 
-    /* ── Support specific styles ── */
+    /* ============================================================
+       SUPPORT GRID
+    ============================================================ */
     .support-container {
       max-width: 1000px;
       margin: 0 auto;
@@ -181,84 +195,87 @@
     .support-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      gap: 25px;
       margin-top: 30px;
     }
     .support-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: #fff;
       border-radius: var(--radius);
-      padding: 24px 22px;
+      padding: 25px 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
       transition: 0.3s;
     }
     .support-card:hover {
-      border-color: var(--accent-blue);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
     }
     .support-card .icon {
-      font-size: 2.2rem;
-      color: var(--accent-blue);
-      margin-bottom: 12px;
+      font-size: 2.4rem;
+      color: var(--primary);
+      margin-bottom: 14px;
     }
     .support-card h3 {
       font-size: 1.2rem;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 6px;
-      color: var(--text-primary);
+      color: #111827;
     }
     .support-card p {
-      color: var(--text-secondary);
+      color: #6b7280;
       font-size: 0.9rem;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       line-height: 1.6;
     }
     .support-card a {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: var(--accent-blue);
-      font-weight: 500;
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
       transition: 0.2s;
     }
     .support-card a:hover {
-      color: #3a66e0;
+      color: var(--primary-dark);
       text-decoration: underline;
     }
 
+    /* ============================================================
+       SUPPORT FORM
+    ============================================================ */
     .support-form {
       grid-column: 1 / -1;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: #fff;
       border-radius: var(--radius);
       padding: 32px 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
       margin-top: 10px;
     }
     .support-form h3 {
-      font-size: 1.4rem;
-      font-weight: 600;
+      font-size: 1.5rem;
+      font-weight: 700;
       margin-bottom: 4px;
-      color: var(--text-primary);
+      color: #111827;
     }
-    .support-form h3 span {
-      background: var(--gradient-main);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .support-form h3 i {
+      color: var(--primary);
+      margin-right: 8px;
     }
     .support-form p {
-      color: var(--text-secondary);
-      margin-bottom: 20px;
+      color: #6b7280;
+      margin-bottom: 24px;
       font-size: 0.95rem;
     }
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .form-group label {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: var(--text-secondary);
+      color: #374151;
       margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -267,48 +284,50 @@
     .form-group textarea,
     .form-group select {
       width: 100%;
-      padding: 10px 14px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-size: 0.9rem;
-      font-family: 'Poppins', sans-serif;
+      padding: 12px 16px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: #1b1b1b;
+      font-size: 0.95rem;
       outline: none;
       transition: 0.25s;
+      font-family: "Poppins", sans-serif;
     }
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 94, 255, 0.15);
     }
     .form-group textarea {
-      min-height: 120px;
+      min-height: 130px;
       resize: vertical;
     }
     .submit-btn {
-      padding: 12px 32px;
-      background: var(--gradient-main);
+      padding: 14px 32px;
+      background: var(--primary);
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       color: #fff;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
       transition: 0.25s;
-      box-shadow: 0 4px 16px rgba(79,124,255,0.25);
+      box-shadow: 0 8px 20px rgba(0, 94, 255, 0.25);
     }
     .submit-btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(79,124,255,0.35);
+      background: var(--primary-dark);
+      transform: translateY(-3px);
     }
     #supportStatus {
       margin-top: 16px;
-      color: var(--accent-blue);
+      font-weight: 500;
     }
 
+    /* ============================================================
+       FAQ
+    ============================================================ */
     .faq-section {
       grid-column: 1 / -1;
       margin-top: 10px;
@@ -317,19 +336,20 @@
       font-size: 1.6rem;
       font-weight: 700;
       margin-bottom: 20px;
-      color: var(--text-primary);
+      color: #111827;
     }
     .faq-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: #fff;
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px 22px;
-      margin-bottom: 12px;
+      padding: 18px 24px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
       cursor: pointer;
       transition: 0.25s;
     }
     .faq-item:hover {
-      border-color: var(--accent-blue);
+      border-color: var(--primary);
     }
     .faq-item .question {
       display: flex;
@@ -337,93 +357,95 @@
       align-items: center;
       font-weight: 600;
       font-size: 1rem;
-      color: var(--text-primary);
+      color: #111827;
     }
     .faq-item .question i {
       transition: 0.3s;
-      color: var(--text-secondary);
+      color: #6b7280;
     }
     .faq-item .answer {
       max-height: 0;
       overflow: hidden;
       transition: 0.3s;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.6;
+      color: #6b7280;
+      font-size: 0.95rem;
+      line-height: 1.7;
     }
     .faq-item.active .answer {
       max-height: 300px;
-      padding-top: 12px;
+      padding-top: 14px;
     }
     .faq-item.active .question i {
       transform: rotate(180deg);
     }
     .faq-item .answer a {
-      color: var(--accent-blue);
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
     }
     .faq-item .answer a:hover {
       text-decoration: underline;
     }
 
+    /* ============================================================
+       FOOTER
+    ============================================================ */
     .dashboard-footer {
       margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-color);
+      padding: 20px 0;
       display: flex;
       justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      color: #6b7280;
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-right {
+      font-weight: 600;
+      color: var(--primary);
     }
 
-    @media (max-width: 992px) {
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .sidebar {
+        width: 240px;
+      }
       .main-content {
-        max-width: 100%;
-        padding: 24px;
+        margin-left: 240px;
+        width: calc(100% - 240px);
+        padding: 25px;
+      }
+      .topbar h1 {
+        font-size: 28px;
       }
     }
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .dashboard {
         flex-direction: column;
       }
       .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 16px;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        transition: 0.3s;
       }
-      .sidebar .brand {
-        margin-bottom: 0;
-        flex: 1;
-      }
-      .sidebar .menu {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 2px;
-        width: 100%;
-        margin-top: 10px;
-      }
-      .sidebar .menu li a {
-        padding: 8px 12px;
-        font-size: 12px;
-        border-left: none;
-        border-bottom: 2px solid transparent;
-      }
-      .sidebar .menu li.active a {
-        border-left: none;
-        border-bottom-color: var(--accent-blue);
-      }
-      #logoutBtn {
-        margin-top: 0;
-        padding: 6px 14px;
-        font-size: 12px;
+      .sidebar.active {
+        left: 0;
       }
       .main-content {
-        max-width: 100%;
-        padding: 16px;
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
       }
       .support-grid {
         grid-template-columns: 1fr;
@@ -435,26 +457,52 @@
         grid-column: 1;
       }
     }
+    @media (max-width: 768px) {
+      .topbar h1 {
+        font-size: 24px;
+      }
+      .support-card {
+        padding: 20px;
+      }
+      .support-form {
+        padding: 24px 20px;
+      }
+      .dashboard-footer {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 15px;
+      }
+      .topbar h1 {
+        font-size: 22px;
+      }
+      .support-card .icon {
+        font-size: 2rem;
+      }
+    }
   </style>
 </head>
 <body>
 
   <div class="dashboard">
     <!-- SIDEBAR -->
-    <aside class="sidebar" aria-label="Main navigation">
+    <aside class="sidebar">
       <div class="brand">
         <img src="images/logo.png" alt="GTRADES-AXIS Logo" />
         <h2>GTRADES<span>AXIS™</span></h2>
       </div>
-      <nav aria-label="Primary">
+      <nav>
         <ul class="menu">
-          <li><a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
-          <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i><span>Premium Resources</span></a></li>
-          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i><span>Premium Academy</span></a></li>
-          <li><a href="videos.html"><i class="fa-solid fa-circle-play"></i><span>Videos</span></a></li>
-          <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i><span>Trading Journal</span></a></li>
-          <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>My Profile</span></a></li>
-          <li class="active"><a href="support.html"><i class="fa-solid fa-headset"></i><span>Support</span></a></li>
+          <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+          <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i> Premium Resources</a></li>
+          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Premium Academy</a></li>
+          <li><a href="videos.html"><i class="fa-solid fa-circle-play"></i> Videos</a></li>
+          <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i> Trading Journal</a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li class="active"><a href="support.html"><i class="fa-solid fa-headset"></i> Support</a></li>
         </ul>
       </nav>
       <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
@@ -464,7 +512,7 @@
     <main class="main-content">
       <header class="topbar">
         <div>
-          <h1><i class="fa-solid fa-headset"></i> <span>Support</span></h1>
+          <h1><i class="fa-solid fa-headset"></i> Support</h1>
           <p>We’re here to help you trade with confidence.</p>
         </div>
       </header>
@@ -500,7 +548,7 @@
 
         <!-- Support Form -->
         <div class="support-form">
-          <h3>Submit a <span>Support Request</span></h3>
+          <h3><i class="fa-regular fa-pen-to-square"></i> Submit a Support Request</h3>
           <p>Fill in the form and we’ll get back to you as soon as possible.</p>
           <form id="supportForm">
             <div class="form-group">
@@ -613,12 +661,13 @@
 
       if (!name || !email || !message) {
         status.textContent = 'Please fill in all required fields.';
-        status.style.color = '#f87171';
+        status.style.color = '#e74c3c';
         return;
       }
 
+      // Simulate sending (replace with Firebase, EmailJS, etc.)
       status.textContent = '✅ Your support request has been sent! We\'ll get back to you shortly.';
-      status.style.color = '#4ade80';
+      status.style.color = '#18b663';
       this.reset();
     });
 
