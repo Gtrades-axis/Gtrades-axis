@@ -12,7 +12,7 @@
   <link rel="icon" href="images/favicon.png" />
   <style>
     /* ============================================================
-       SCALED UP – 150% ZOOM LOOK AT 100% DEFAULT
+       SCALED UP – LOGOS DOUBLED
     ============================================================ */
     * {
       margin: 0;
@@ -43,7 +43,7 @@
       display: block;
     }
 
-    /* ─── CONTAINER – WIDER ─── */
+    /* ─── CONTAINER ─── */
     .container {
       width: 100%;
       max-width: 1300px;
@@ -51,13 +51,13 @@
       padding: 0 30px;
     }
 
-    /* ─── HEADER – TALLER, MORE SPACIOUS ─── */
+    /* ─── HEADER – TALLER FOR BIG LOGO ─── */
     header {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 90px;
+      height: 110px;
       background: rgb(23 43 83 / 92%);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -77,17 +77,17 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 18px;
       flex-shrink: 0;
     }
     .logo img {
-      width: 52px;
-      height: 52px;
+      width: 90px;
+      height: 90px;
       object-fit: contain;
-      border-radius: 8px;
+      border-radius: 10px;
     }
     .logo h2 {
-      font-size: 1.8rem;
+      font-size: 2.4rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       white-space: nowrap;
@@ -99,7 +99,7 @@
       -webkit-text-fill-color: #4f7cff;
     }
 
-    /* ─── DESKTOP NAV – BIGGER GAPS ─── */
+    /* ─── DESKTOP NAV ─── */
     nav {
       display: flex;
       align-items: center;
@@ -137,7 +137,7 @@
       color: #fff;
     }
 
-    /* ─── SOCIAL ICONS – BIGGER ─── */
+    /* ─── SOCIAL ICONS ─── */
     .nav-social {
       display: flex;
       align-items: center;
@@ -177,7 +177,7 @@
       color: #fff;
     }
 
-    /* ─── HEADER BUTTONS – BIGGER ─── */
+    /* ─── HEADER BUTTONS ─── */
     .nav-buttons {
       display: flex;
       align-items: center;
@@ -214,7 +214,7 @@
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
     }
 
-    /* Hamburger (hidden on desktop) */
+    /* Hamburger */
     .menu-toggle {
       display: none;
       flex-direction: column;
@@ -243,7 +243,7 @@
       transform: rotate(-45deg) translate(5px, -5px);
     }
 
-    /* ─── MOBILE OVERLAY (FULL SCREEN) ─── */
+    /* ─── MOBILE OVERLAY ─── */
     .mobile-overlay {
       position: fixed;
       inset: 0;
@@ -350,15 +350,15 @@
     /* ─── RESPONSIVE BREAKPOINT ─── */
     @media (max-width: 1024px) {
       header {
-        height: 76px;
+        height: 90px;
         padding: 0 14px;
       }
       .logo img {
-        width: 38px;
-        height: 38px;
+        width: 70px;
+        height: 70px;
       }
       .logo h2 {
-        font-size: 1.2rem;
+        font-size: 1.8rem;
       }
       nav ul {
         gap: 22px;
@@ -379,17 +379,16 @@
 
     @media (max-width: 992px) {
       header {
-        height: 68px;
+        height: 76px;
         padding: 0 12px;
       }
       .logo img {
-        width: 34px;
-        height: 34px;
+        width: 52px;
+        height: 52px;
       }
       .logo h2 {
-        font-size: 1rem;
+        font-size: 1.3rem;
       }
-      /* Hide desktop nav, show hamburger */
       nav {
         display: none;
       }
@@ -405,22 +404,22 @@
     }
     @media (max-width: 480px) {
       header {
-        height: 60px;
+        height: 64px;
         padding: 0 10px;
       }
       .logo img {
-        width: 28px;
-        height: 28px;
+        width: 40px;
+        height: 40px;
       }
       .logo h2 {
-        font-size: 0.8rem;
+        font-size: 1rem;
       }
       .container {
         padding: 0 14px;
       }
     }
 
-    /* ─── HERO – SPACIOUS ─── */
+    /* ─── HERO ─── */
     .hero {
       min-height: 100vh;
       display: flex;
@@ -429,7 +428,7 @@
         radial-gradient(circle at 30% 40%, rgba(79, 124, 255, 0.08), transparent 55%),
         radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.04), transparent 50%),
         linear-gradient(180deg, #07090d, #0e1522);
-      padding-top: 100px;
+      padding-top: 120px;
       padding-bottom: 50px;
       overflow: hidden;
       position: relative;
@@ -589,14 +588,14 @@
         max-width: 100%;
       }
       .hero {
-        padding-top: 90px;
+        padding-top: 100px;
         padding-bottom: 40px;
         min-height: auto;
       }
     }
     @media (max-width: 480px) {
       .hero {
-        padding-top: 70px;
+        padding-top: 80px;
         padding-bottom: 30px;
       }
       .hero h1 {
@@ -613,7 +612,7 @@
       }
     }
 
-    /* ─── SECTIONS – MORE PADDING ─── */
+    /* ─── SECTIONS ─── */
     section {
       padding: 70px 0;
     }
@@ -645,7 +644,6 @@
       margin: 0 auto;
     }
 
-    /* About */
     .about {
       background: #0b1018;
     }
@@ -699,7 +697,6 @@
       }
     }
 
-    /* Academy */
     .academy {
       background: linear-gradient(180deg, #0b1018, #111827);
     }
@@ -769,7 +766,6 @@
       }
     }
 
-    /* Strategy Flow */
     .strategy {
       background: #07090d;
     }
@@ -838,7 +834,6 @@
       }
     }
 
-    /* Why / Features */
     .why {
       background: #0b1018;
     }
@@ -884,7 +879,6 @@
       }
     }
 
-    /* Community */
     .community {
       background: #07090d;
     }
@@ -948,7 +942,6 @@
       }
     }
 
-    /* Stats */
     .stats {
       background: linear-gradient(180deg, #0e1522, #07090d);
       padding: 55px 0;
@@ -991,7 +984,6 @@
       }
     }
 
-    /* Testimonials */
     .testimonials {
       background: #0b1018;
     }
@@ -1038,7 +1030,6 @@
       }
     }
 
-    /* FAQ */
     .faq {
       background: #07090d;
     }
@@ -1062,7 +1053,6 @@
       font-size: clamp(0.9rem, 1vw, 1rem);
     }
 
-    /* CTA */
     .cta {
       padding: 65px 0;
       text-align: center;
@@ -1091,7 +1081,7 @@
       }
     }
 
-    /* Footer */
+    /* ─── FOOTER – LOGO DOUBLED ─── */
     footer {
       background: #05070b;
       padding: 45px 5% 25px;
@@ -1103,11 +1093,13 @@
       gap: 40px;
     }
     .footer-about .footer-logo {
-      width: 56px;
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
       margin-bottom: 12px;
     }
     .footer-about h2 {
-      font-size: clamp(1.3rem, 2vw, 1.6rem);
+      font-size: clamp(1.8rem, 2.5vw, 2.2rem);
       margin-bottom: 6px;
     }
     .footer-about span {
@@ -1163,11 +1155,19 @@
         grid-template-columns: 1fr 1fr;
         gap: 25px;
       }
+      .footer-about .footer-logo {
+        width: 70px;
+        height: 70px;
+      }
     }
     @media (max-width: 480px) {
       .footer-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+      }
+      .footer-about .footer-logo {
+        width: 60px;
+        height: 60px;
       }
     }
 
