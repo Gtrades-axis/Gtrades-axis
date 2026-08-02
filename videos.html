@@ -527,26 +527,26 @@
         card.setAttribute("data-id", video.id);
 
         card.innerHTML = `
-          <div class="video-thumb">
-            <span style="font-size:2.5rem;">${video.thumbnail || '📹'}</span>
-            <span class="video-duration">${video.duration || '—'}</span>
-            ${!canAccess ? `
-              <div class="lock-overlay">
-                <i class="fa-solid fa-lock"></i>
-                <span>Premium Only</span>
-              </div>
-            ` : ''}
-          </div>
-          <div class="video-info">
-            <div class="video-title">${video.title}</div>
-            <div class="video-meta">
-              <span>${video.category || 'General'}</span>
-              <span class="badge ${isPremiumOnly ? 'badge-premium' : 'badge-free'}">
-                ${isPremiumOnly ? 'Premium' : 'Free'}
-              </span>
-            </div>
-          </div>
-        `;
+  <div class="video-thumb" style="position:relative; overflow:hidden;">
+    ${video.thumbnail ? `<img src="${video.thumbnail}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" />` : `<span style="font-size:2.5rem;position:relative;z-index:1;">${video.thumbnail || '📹'}</span>`}
+    <span class="video-duration" style="position:absolute;bottom:8px;right:8px;z-index:2;">${video.duration || '—'}</span>
+    ${!canAccess ? `
+      <div class="lock-overlay" style="position:absolute;inset:0;background:rgba(11,13,21,0.7);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;backdrop-filter:blur(2px);z-index:5;">
+        <i class="fa-solid fa-lock"></i>
+        <span>Premium Only</span>
+      </div>
+    ` : ''}
+  </div>
+  <div class="video-info">
+    <div class="video-title">${video.title}</div>
+    <div class="video-meta">
+      <span>${video.category || 'General'}</span>
+      <span class="badge ${isPremiumOnly ? 'badge-premium' : 'badge-free'}">
+        ${isPremiumOnly ? 'Premium' : 'Free'}
+      </span>
+    </div>
+  </div>
+`;
 
         if (canAccess) {
           card.addEventListener('click', () => {
