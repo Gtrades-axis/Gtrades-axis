@@ -12,7 +12,7 @@
   <link rel="icon" href="images/favicon.png" />
   <style>
     /* ============================================================
-       GTRADES-AXIS™ – MAIN STYLES
+       GTRADES-AXIS™ – MAIN STYLES (Enhanced)
     ============================================================ */
     * {
       margin: 0;
@@ -46,26 +46,27 @@
       margin: 0 auto;
     }
     section {
-      padding: 100px 0;
+      padding: 120px 0;
       position: relative;
     }
     .section-title {
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 70px;
     }
     .section-title h2 {
-      font-size: 44px;
+      font-size: 48px;
       font-weight: 800;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
     }
     .section-title p {
-      font-size: 18px;
+      font-size: 19px;
       color: #c9d3dd;
       max-width: 700px;
       margin: 0 auto;
     }
 
-    /* ----- HEADER ----- */
+    /* ----- HEADER (enhanced) ----- */
     header {
       position: fixed;
       top: 0;
@@ -95,7 +96,7 @@
       object-fit: contain;
     }
     .logo h2 {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 800;
       letter-spacing: 0.5px;
     }
@@ -105,16 +106,30 @@
     }
     nav ul {
       display: flex;
-      gap: 32px;
+      gap: 36px;
     }
     nav a {
       color: #c9d3dd;
       font-size: 15px;
       font-weight: 500;
       transition: 0.3s;
+      position: relative;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #0a84ff;
+      transition: 0.3s;
+    }
+    nav a:hover::after {
+      width: 100%;
     }
     nav a:hover {
-      color: #0a84ff;
+      color: #fff;
     }
     .nav-buttons {
       display: flex;
@@ -149,36 +164,41 @@
       background: #111;
     }
     .join-btn {
-      padding: 10px 24px;
-      background: #0a84ff;
-      border-radius: 8px;
+      padding: 10px 28px;
+      border-radius: 30px;
       font-weight: 600;
-      color: #fff;
-      margin-left: 6px;
-      transition: 0.3s;
-      width: auto;
-      height: auto;
-      border-radius: 8px;
-      background: #0a84ff;
       font-size: 14px;
+      background: transparent;
+      border: 2px solid #0a84ff;
+      color: #0a84ff;
+      transition: 0.35s;
+      margin-left: 6px;
+      box-shadow: 0 0 20px rgba(10, 132, 255, 0);
     }
     .join-btn:hover {
-      background: #38a3ff;
-      box-shadow: 0 0 20px #0a84ff, 0 0 40px rgba(10, 132, 255, 0.3);
+      background: #0a84ff;
+      color: #fff;
+      box-shadow: 0 0 30px rgba(10, 132, 255, 0.4);
+      transform: translateY(-2px);
     }
     .dashboard-btn {
       background: #16a34a;
+      border-color: #16a34a;
+      color: #fff;
     }
     .dashboard-btn:hover {
       background: #15803d;
+      border-color: #15803d;
+      box-shadow: 0 0 30px rgba(22, 163, 74, 0.4);
     }
 
-    /* ----- HERO ----- */
+    /* ----- HERO (more dynamic) ----- */
     .hero {
       min-height: 100vh;
       display: flex;
       align-items: center;
-      background: radial-gradient(circle at top right, rgba(10, 132, 255, 0.15), transparent 50%),
+      background: radial-gradient(circle at top right, rgba(10, 132, 255, 0.18), transparent 50%),
+        radial-gradient(circle at bottom left, rgba(10, 132, 255, 0.06), transparent 40%),
         linear-gradient(180deg, #07090d, #0e1522);
       padding-top: 80px;
       overflow: hidden;
@@ -187,27 +207,28 @@
     .hero-grid {
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
-      gap: 60px;
+      gap: 70px;
       align-items: center;
       position: relative;
       z-index: 2;
     }
     .hero .subtitle {
       display: inline-block;
-      padding: 6px 18px;
+      padding: 6px 20px;
       background: rgba(10, 132, 255, 0.12);
       border: 1px solid rgba(10, 132, 255, 0.25);
       border-radius: 40px;
       color: #0a84ff;
       font-size: 13px;
-      letter-spacing: 1.5px;
-      margin-bottom: 20px;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
     }
     .hero h1 {
-      font-size: 68px;
+      font-size: 72px;
       font-weight: 800;
       line-height: 1.05;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .hero h1 span {
       color: #0a84ff;
@@ -215,26 +236,28 @@
       animation: glow 2.5s infinite alternate;
     }
     .hero h2 {
-      font-size: 44px;
+      font-size: 46px;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      color: #e8edf5;
     }
     .hero-description {
-      font-size: 18px;
+      font-size: 19px;
       color: #c9d3dd;
       max-width: 600px;
-      margin-bottom: 36px;
+      margin-bottom: 40px;
+      line-height: 1.8;
     }
     .hero-buttons {
       display: flex;
-      gap: 16px;
+      gap: 18px;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+      margin-bottom: 44px;
     }
     .primary-btn,
     .secondary-btn {
-      padding: 14px 34px;
-      border-radius: 10px;
+      padding: 15px 38px;
+      border-radius: 12px;
       font-weight: 600;
       font-size: 16px;
       transition: 0.35s;
@@ -245,12 +268,12 @@
     .primary-btn {
       background: #0a84ff;
       color: #fff;
-      box-shadow: 0 10px 30px rgba(10, 132, 255, 0.3);
+      box-shadow: 0 12px 30px rgba(10, 132, 255, 0.3);
     }
     .primary-btn:hover {
       background: #38a3ff;
-      transform: translateY(-4px);
-      box-shadow: 0 0 30px #0a84ff, 0 0 60px rgba(10, 132, 255, 0.4);
+      transform: translateY(-5px);
+      box-shadow: 0 0 40px #0a84ff, 0 0 80px rgba(10, 132, 255, 0.3);
     }
     .secondary-btn {
       border: 2px solid #0a84ff;
@@ -259,43 +282,44 @@
     }
     .secondary-btn:hover {
       background: #0a84ff;
-      transform: translateY(-4px);
+      transform: translateY(-5px);
     }
     .hero-stats {
       display: flex;
-      gap: 40px;
+      gap: 50px;
       flex-wrap: wrap;
     }
     .hero-stats div h3 {
-      font-size: 34px;
+      font-size: 38px;
       color: #0a84ff;
       font-weight: 700;
     }
     .hero-stats div p {
       color: #c9d3dd;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 400;
     }
     .glass-card {
       background: rgba(18, 26, 41, 0.75);
       backdrop-filter: blur(18px);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      padding: 44px 36px;
+      border-radius: 24px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
       animation: float 5s ease-in-out infinite;
     }
     .glass-card h3 {
-      font-size: 26px;
-      margin-bottom: 22px;
+      font-size: 28px;
+      margin-bottom: 24px;
       color: #0a84ff;
     }
     .glass-card ul {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
     .glass-card li {
-      font-size: 17px;
+      font-size: 18px;
       color: #c9d3dd;
     }
 
@@ -305,36 +329,37 @@
     }
     .about .section-text {
       max-width: 850px;
-      margin: 0 auto 60px;
+      margin: 0 auto 70px;
       text-align: center;
-      font-size: 18px;
+      font-size: 19px;
       color: #c9d3dd;
+      line-height: 1.8;
     }
     .about-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
+      gap: 35px;
     }
     .about-card {
       background: #121a29;
-      padding: 40px 30px;
-      border-radius: 18px;
+      padding: 44px 32px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       text-align: center;
       transition: 0.35s;
     }
     .about-card:hover {
-      transform: translateY(-8px);
+      transform: translateY(-10px);
       border-color: #0a84ff;
-      box-shadow: 0 20px 40px rgba(10, 132, 255, 0.12);
+      box-shadow: 0 25px 50px rgba(10, 132, 255, 0.12);
     }
     .about-card i {
-      font-size: 44px;
+      font-size: 48px;
       color: #0a84ff;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
     .about-card h3 {
-      font-size: 26px;
+      font-size: 28px;
       margin-bottom: 14px;
     }
     .about-card p {
@@ -348,12 +373,12 @@
     .academy-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
+      gap: 35px;
     }
     .academy-card {
       background: #121a29;
-      padding: 35px 28px;
-      border-radius: 18px;
+      padding: 38px 30px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       transition: 0.35s;
       position: relative;
@@ -368,33 +393,33 @@
       height: 100%;
       background: #0a84ff;
       transform: scaleY(0);
-      transition: 0.35s;
+      transition: 0.4s;
       transform-origin: top;
     }
     .academy-card:hover::before {
       transform: scaleY(1);
     }
     .academy-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 20px 40px rgba(10, 132, 255, 0.1);
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px rgba(10, 132, 255, 0.1);
     }
     .academy-card .icon {
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       background: rgba(10, 132, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
     .academy-card i {
-      font-size: 28px;
+      font-size: 30px;
       color: #0a84ff;
     }
     .academy-card h3 {
-      font-size: 24px;
-      margin-bottom: 12px;
+      font-size: 26px;
+      margin-bottom: 14px;
     }
     .academy-card p {
       color: #c9d3dd;
@@ -410,26 +435,26 @@
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 50px;
+      gap: 16px;
+      margin-top: 60px;
     }
     .flow-box {
-      width: 170px;
+      width: 175px;
       background: #121a29;
-      padding: 24px 16px;
-      border-radius: 16px;
+      padding: 26px 18px;
+      border-radius: 18px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       text-align: center;
       transition: 0.35s;
     }
     .flow-box:hover {
-      transform: translateY(-6px);
+      transform: translateY(-8px);
       border-color: #0a84ff;
-      box-shadow: 0 20px 40px rgba(10, 132, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(10, 132, 255, 0.1);
     }
     .flow-number {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       margin: 0 auto 16px;
       border-radius: 50%;
       background: #0a84ff;
@@ -437,10 +462,10 @@
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 20px;
     }
     .flow-box h3 {
-      font-size: 20px;
+      font-size: 22px;
       margin-bottom: 10px;
     }
     .flow-box p {
@@ -448,7 +473,7 @@
       font-size: 14px;
     }
     .flow-arrow {
-      font-size: 28px;
+      font-size: 30px;
       color: #0a84ff;
       flex-shrink: 0;
     }
@@ -460,30 +485,30 @@
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin-top: 50px;
+      gap: 35px;
+      margin-top: 60px;
     }
     .feature {
       background: #121a29;
-      padding: 36px 28px;
-      border-radius: 18px;
+      padding: 40px 30px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       text-align: center;
       transition: 0.35s;
     }
     .feature:hover {
-      transform: translateY(-8px);
+      transform: translateY(-10px);
       border-color: #0a84ff;
-      box-shadow: 0 20px 40px rgba(10, 132, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(10, 132, 255, 0.1);
     }
     .feature i {
-      font-size: 44px;
+      font-size: 48px;
       color: #0a84ff;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
     .feature h3 {
-      font-size: 24px;
-      margin-bottom: 12px;
+      font-size: 26px;
+      margin-bottom: 14px;
     }
     .feature p {
       color: #c9d3dd;
@@ -496,25 +521,25 @@
     .community-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
-      margin-top: 50px;
+      gap: 35px;
+      margin-top: 60px;
     }
     .community-card {
       background: #121a29;
-      padding: 40px 24px;
-      border-radius: 18px;
+      padding: 44px 26px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       text-align: center;
       transition: 0.35s;
       color: #fff;
     }
     .community-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(10, 132, 255, 0.1);
+      transform: translateY(-10px);
+      box-shadow: 0 25px 50px rgba(10, 132, 255, 0.1);
     }
     .community-card i {
-      font-size: 50px;
-      margin-bottom: 18px;
+      font-size: 54px;
+      margin-bottom: 20px;
     }
     .community-card .youtube-icon {
       color: #ff0000;
@@ -529,12 +554,12 @@
       color: #fff;
     }
     .community-card h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
+      font-size: 26px;
+      margin-bottom: 12px;
     }
     .community-card p {
       color: #c9d3dd;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .community-card span {
       font-weight: 600;
@@ -544,34 +569,34 @@
     /* ----- STATS ----- */
     .stats {
       background: linear-gradient(180deg, #0e1522, #07090d);
-      padding: 80px 0;
+      padding: 90px 0;
     }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
+      gap: 35px;
     }
     .stat-card {
       background: #121a29;
-      padding: 40px 20px;
-      border-radius: 18px;
+      padding: 44px 20px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       text-align: center;
       transition: 0.35s;
     }
     .stat-card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-8px);
       border-color: #0a84ff;
     }
     .stat-card h2 {
-      font-size: 48px;
+      font-size: 52px;
       font-weight: 800;
       color: #0a84ff;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .stat-card p {
       color: #c9d3dd;
-      font-size: 16px;
+      font-size: 17px;
     }
 
     /* ----- TESTIMONIALS ----- */
@@ -581,35 +606,35 @@
     .testimonial-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin-top: 50px;
+      gap: 35px;
+      margin-top: 60px;
     }
     .testimonial-card {
       background: #121a29;
-      padding: 32px 28px;
-      border-radius: 18px;
+      padding: 36px 30px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       transition: 0.35s;
     }
     .testimonial-card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-8px);
       border-color: #0a84ff;
-      box-shadow: 0 20px 40px rgba(10, 132, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(10, 132, 255, 0.1);
     }
     .testimonial-card .stars {
       color: #f5a623;
-      font-size: 20px;
-      margin-bottom: 14px;
+      font-size: 22px;
+      margin-bottom: 16px;
     }
     .testimonial-card p {
       color: #c9d3dd;
-      font-size: 16px;
-      margin-bottom: 16px;
+      font-size: 17px;
+      margin-bottom: 18px;
       line-height: 1.6;
     }
     .testimonial-card h4 {
       color: #0a84ff;
-      font-size: 16px;
+      font-size: 17px;
     }
 
     /* ----- FAQ ----- */
@@ -618,19 +643,19 @@
     }
     .faq-item {
       background: #121a29;
-      padding: 24px 32px;
-      border-radius: 14px;
-      border-left: 4px solid #0a84ff;
-      margin-bottom: 20px;
+      padding: 26px 36px;
+      border-radius: 16px;
+      border-left: 5px solid #0a84ff;
+      margin-bottom: 22px;
       transition: 0.35s;
     }
     .faq-item:hover {
-      transform: translateX(6px);
-      box-shadow: 0 12px 30px rgba(10, 132, 255, 0.08);
+      transform: translateX(8px);
+      box-shadow: 0 15px 35px rgba(10, 132, 255, 0.08);
     }
     .faq-item h3 {
-      font-size: 20px;
-      margin-bottom: 8px;
+      font-size: 22px;
+      margin-bottom: 10px;
     }
     .faq-item p {
       color: #c9d3dd;
@@ -638,64 +663,66 @@
 
     /* ----- CTA ----- */
     .cta {
-      padding: 100px 0;
+      padding: 120px 0;
       text-align: center;
       background: linear-gradient(rgba(7, 9, 13, 0.85), rgba(7, 9, 13, 0.95)),
         url('../images/hero-bg.jpg') center/cover;
     }
     .cta h2 {
-      font-size: 48px;
-      margin-bottom: 16px;
+      font-size: 52px;
+      margin-bottom: 18px;
     }
     .cta p {
-      max-width: 700px;
-      margin: 0 auto 36px;
+      max-width: 720px;
+      margin: 0 auto 40px;
       color: #c9d3dd;
-      font-size: 18px;
+      font-size: 20px;
     }
     .cta-buttons {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 24px;
       flex-wrap: wrap;
     }
 
-    /* ----- FOOTER ----- */
+    /* ----- FOOTER (enhanced) ----- */
     footer {
       background: #05070b;
-      padding: 70px 8% 30px;
+      padding: 80px 8% 30px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     .footer-grid {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 50px;
+      gap: 60px;
     }
     .footer-about .footer-logo {
-      width: 60px;
-      margin-bottom: 14px;
+      width: 65px;
+      margin-bottom: 16px;
     }
     .footer-about h2 {
-      font-size: 26px;
-      margin-bottom: 10px;
+      font-size: 28px;
+      margin-bottom: 12px;
     }
     .footer-about span {
       color: #0a84ff;
     }
     .footer-about p {
       color: #bfc8d4;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      line-height: 1.8;
     }
     .footer-links h3,
     .footer-contact h3 {
       color: #0a84ff;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      font-size: 20px;
     }
     .footer-links ul {
       padding: 0;
     }
     .footer-links li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .footer-links a {
       color: #d0d8e4;
@@ -703,29 +730,29 @@
     }
     .footer-links a:hover {
       color: #0a84ff;
-      padding-left: 4px;
+      padding-left: 6px;
     }
     .footer-contact p {
       color: #d0d8e4;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .footer-contact i {
       color: #0a84ff;
-      width: 22px;
+      width: 24px;
     }
     footer hr {
-      margin: 40px 0 20px;
+      margin: 50px 0 24px;
       border: 0;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
     .copyright {
       text-align: center;
       color: #9aa8bb;
-      line-height: 2;
+      line-height: 2.2;
     }
     .copyright strong {
       color: #0a84ff;
-      font-size: 17px;
+      font-size: 18px;
     }
 
     /* ----- SCROLL TOP ----- */
@@ -733,15 +760,15 @@
       position: fixed;
       bottom: 30px;
       right: 30px;
-      width: 52px;
-      height: 52px;
+      width: 54px;
+      height: 54px;
       border: none;
       border-radius: 50%;
       background: #0a84ff;
       color: #fff;
-      font-size: 22px;
+      font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 0 25px rgba(10, 132, 255, 0.3);
+      box-shadow: 0 0 30px rgba(10, 132, 255, 0.3);
       transition: 0.35s;
       opacity: 0;
       visibility: hidden;
@@ -754,8 +781,8 @@
       transform: translateY(0);
     }
     #scrollTopBtn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 40px rgba(10, 132, 255, 0.5);
+      transform: translateY(-5px);
+      box-shadow: 0 0 50px rgba(10, 132, 255, 0.5);
     }
 
     /* ----- ANIMATIONS ----- */
@@ -773,11 +800,11 @@
         transform: translateY(0);
       }
       50% {
-        transform: translateY(-16px);
+        transform: translateY(-18px);
       }
     }
 
-    /* ----- RESPONSIVE ----- */
+    /* ----- RESPONSIVE (refined) ----- */
     @media (max-width: 1200px) {
       .hero-grid {
         grid-template-columns: 1fr;
@@ -794,7 +821,7 @@
         justify-content: center;
       }
       .glass-card {
-        max-width: 500px;
+        max-width: 520px;
         margin: 0 auto;
       }
       .about-grid,
@@ -811,31 +838,36 @@
       }
       .footer-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 30px;
+        gap: 40px;
       }
     }
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
       header .container {
         flex-wrap: wrap;
         justify-content: center;
-        gap: 10px;
+        gap: 12px;
       }
       nav ul {
-        gap: 18px;
+        gap: 22px;
         flex-wrap: wrap;
         justify-content: center;
       }
       .logo h2 {
-        font-size: 20px;
+        font-size: 24px;
       }
+      section {
+        padding: 80px 0;
+      }
+    }
+    @media (max-width: 768px) {
       .hero h1 {
-        font-size: 44px;
+        font-size: 48px;
       }
       .hero h2 {
-        font-size: 30px;
+        font-size: 32px;
       }
       .section-title h2 {
-        font-size: 34px;
+        font-size: 36px;
       }
       .about-grid,
       .academy-grid,
@@ -850,11 +882,11 @@
         text-align: center;
       }
       .footer-about .footer-logo {
-        margin: 0 auto 14px;
+        margin: 0 auto 16px;
       }
       .strategy-flow {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
       }
       .flow-arrow {
         transform: rotate(90deg);
@@ -863,16 +895,23 @@
         flex-wrap: wrap;
         justify-content: center;
       }
+      .join-btn {
+        padding: 8px 20px;
+        font-size: 13px;
+      }
     }
     @media (max-width: 480px) {
       .hero h1 {
-        font-size: 32px;
+        font-size: 34px;
       }
       .hero h2 {
-        font-size: 24px;
+        font-size: 26px;
       }
       .cta h2 {
         font-size: 32px;
+      }
+      .glass-card {
+        padding: 28px 20px;
       }
     }
   </style>
@@ -948,7 +987,7 @@
   <!-- ===== ABOUT ===== -->
   <section class="about" id="about">
     <div class="container">
-      <h2 style="font-size:44px;font-weight:800;text-align:center;margin-bottom:20px;">About GTRADES-AXIS™</h2>
+      <h2 style="font-size:48px;font-weight:800;text-align:center;margin-bottom:24px;">About GTRADES-AXIS™</h2>
       <p class="section-text">
         GTRADES-AXIS™ is a complete trading ecosystem developed to help traders understand
         institutional market behavior instead of relying on indicators or random signals.
@@ -1211,9 +1250,7 @@
     });
 
     // ─── Auth Buttons ──────────────────────────────────────────
-    // (Example: check if user is logged in via localStorage or auth)
-    // For demonstration, we'll show/hide based on a flag.
-    // Replace this with your actual Firebase auth listener.
+    // Replace this with your Firebase auth listener.
     const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
     const loginBtn = document.getElementById('loginBtn');
     const dashboardBtn = document.getElementById('dashboardBtn');
@@ -1225,8 +1262,7 @@
       dashboardBtn.style.display = 'none';
     }
 
-    // ─── Simple counter animation (optional) ──────────────────
-    // If you want the numbers to animate on scroll, you can add IntersectionObserver.
+    // ─── Optional: Add smooth reveal animations (you can add IntersectionObserver later) ──
     console.log('GTRADES-AXIS™ ready.');
   </script>
 </body>
