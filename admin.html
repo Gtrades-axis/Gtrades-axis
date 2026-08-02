@@ -1,12 +1,4 @@
-Yes, you absolutely can! In the previous code, the buttons disappeared once the status changed. 
-
-I have updated the logic so the **Approve** and **Reject** buttons **always show up**, even if the payment was already approved or rejected. This allows you to override a previous decision, fix a mistake, or approve a payment you previously declined. 
-
-*(If you click "Approve" on an already approved payment, it will just update the timestamp. If you click "Reject" on an approved payment, it will update the payment status without removing the user's premium status—so you don't accidentally kick a user out while fixing a mistake).*
-
-Here is your **full, updated `admin.html`** with this fix included. Replace your current file entirely:
-
-```html
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
