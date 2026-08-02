@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <style>
+    /* ── Additional support-specific styles ── */
+    .support-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .support-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .support-card {
+      background: var(--bg-card, #1a1f2f);
+      border: 1px solid var(--border-color, #2a3450);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: 0.3s;
+    }
+    .support-card:hover {
+      border-color: var(--accent-blue, #4f7cff);
+      transform: translateY(-4px);
+    }
+    .support-card .icon {
+      font-size: 2.2rem;
+      color: var(--accent-blue, #4f7cff);
+      margin-bottom: 12px;
+    }
+    .support-card h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .support-card p {
+      color: var(--text-secondary, #9aa4bf);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    .support-card a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-blue, #4f7cff);
+      font-weight: 500;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .support-card a:hover {
+      color: var(--accent-blue, #4f7cff);
+      text-decoration: underline;
+    }
+    .support-form {
+      grid-column: 1 / -1;
+      background: var(--bg-card, #1a1f2f);
+      border: 1px solid var(--border-color, #2a3450);
+      border-radius: 16px;
+      padding: 32px 28px;
+    }
+    .support-form h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .support-form p {
+      color: var(--text-secondary, #9aa4bf);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary, #9aa4bf);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-primary, #0b0d15);
+      border: 1px solid var(--border-color, #2a3450);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      transition: 0.25s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--accent-blue, #4f7cff);
+      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
+    }
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .submit-btn {
+      padding: 12px 32px;
+      background: var(--accent-blue, #4f7cff);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+    .submit-btn:hover {
+      background: #3a66e0;
+      transform: translateY(-2px);
+    }
+    .faq-section {
+      grid-column: 1 / -1;
+    }
+    .faq-item {
+      background: var(--bg-card, #1a1f2f);
+      border: 1px solid var(--border-color, #2a3450);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+    .faq-item:hover {
+      border-color: var(--accent-blue, #4f7cff);
+    }
+    .faq-item .question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .faq-item .question i {
+      transition: 0.3s;
+      color: var(--text-secondary, #9aa4bf);
+    }
+    .faq-item .answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: 0.3s;
+      color: var(--text-secondary, #9aa4bf);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .faq-item.active .answer {
+      max-height: 300px;
+      padding-top: 12px;
+    }
+    .faq-item.active .question i {
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 768px) {
+      .support-grid {
+        grid-template-columns: 1fr;
+      }
+      .support-form {
+        grid-column: 1;
+      }
+      .faq-section {
+        grid-column: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+    <!-- SIDEBAR (same as student pages) -->
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <img src="images/logo.png" alt="GTRADES-AXIS Logo" />
+        <h2>GTRADES<span>AXIS™</span></h2>
+      </div>
+      <nav aria-label="Primary">
+        <ul class="menu">
+          <li><a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
+          <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i><span>Premium Resources</span></a></li>
+          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i><span>Premium Academy</span></a></li>
+          <li><a href="videos.html"><i class="fa-solid fa-circle-play"></i><span>Videos</span></a></li>
+          <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i><span>Trading Journal</span></a></li>
+          <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>My Profile</span></a></li>
+          <li class="active"><a href="support.html"><i class="fa-solid fa-headset"></i><span>Support</span></a></li>
+        </ul>
+      </nav>
+      <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="topbar">
+        <div>
+          <h1>Support</h1>
+          <p>We’re here to help you trade with confidence.</p>
+        </div>
+      </header>
+
+      <div class="support-container">
+        <!-- Quick Contact Cards -->
+        <div class="support-grid">
+          <div class="support-card">
+            <div class="icon"><i class="fab fa-telegram"></i></div>
+            <h3>Telegram</h3>
+            <p>Join our community channel for instant updates and discussions.</p>
+            <a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank">Join Telegram →</a>
+          </div>
+          <div class="support-card">
+            <div class="icon"><i class="fab fa-whatsapp"></i></div>
+            <h3>WhatsApp</h3>
+            <p>Chat directly with our support team on WhatsApp.</p>
+            <a href="https://wa.me/254712416214" target="_blank">Chat Now →</a>
+          </div>
+          <div class="support-card">
+            <div class="icon"><i class="fas fa-envelope"></i></div>
+            <h3>Email Support</h3>
+            <p>Send us an email and we’ll reply within 24 hours.</p>
+            <a href="mailto:gtradesupport@gmail.com">gtradesupport@gmail.com</a>
+          </div>
+          <div class="support-card">
+            <div class="icon"><i class="fas fa-question-circle"></i></div>
+            <h3>FAQ</h3>
+            <p>Find answers to the most common questions below.</p>
+            <a href="#faq">Browse FAQs ↓</a>
+          </div>
+        </div>
+
+        <!-- Support Form -->
+        <div class="support-form">
+          <h3>Submit a Support Request</h3>
+          <p>Fill in the form and we’ll get back to you as soon as possible.</p>
+          <form id="supportForm">
+            <div class="form-group">
+              <label for="supportName">Your Name</label>
+              <input type="text" id="supportName" placeholder="John Doe" required />
+            </div>
+            <div class="form-group">
+              <label for="supportEmail">Email Address</label>
+              <input type="email" id="supportEmail" placeholder="john@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="supportSubject">Subject</label>
+              <select id="supportSubject">
+                <option value="General Inquiry">General Inquiry</option>
+                <option value="Technical Issue">Technical Issue</option>
+                <option value="Billing / Payment">Billing / Payment</option>
+                <option value="Academy Content">Academy Content</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="supportMessage">Message</label>
+              <textarea id="supportMessage" placeholder="Describe your issue in detail…" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Send Request</button>
+          </form>
+          <div id="supportStatus" style="margin-top:16px; color:var(--accent-blue, #4f7cff);"></div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section" id="faq">
+          <h2 style="margin-bottom:20px; font-size:1.6rem;">Frequently Asked Questions</h2>
+          <div class="faq-item">
+            <div class="question"><span>How do I upgrade to Premium?</span><i class="fas fa-chevron-down"></i></div>
+            <div class="answer">You can upgrade by visiting the <a href="upgrade.html" style="color:var(--accent-blue, #4f7cff);">Upgrade</a> page and following the instructions. Once your payment is verified, your account will be upgraded automatically.</div>
+          </div>
+          <div class="faq-item">
+            <div class="question"><span>What markets are covered in the Academy?</span><i class="fas fa-chevron-down"></i></div>
+            <div class="answer">The academy covers Forex, Gold (XAU/USD), Indices, and selected Cryptocurrencies.</div>
+          </div>
+          <div class="faq-item">
+            <div class="question"><span>How do I reset my password?</span><i class="fas fa-chevron-down"></i></div>
+            <div class="answer">On the login page, click “Forgot Password” and follow the instructions to reset your password via email.</div>
+          </div>
+          <div class="faq-item">
+            <div class="question"><span>How do I contact support?</span><i class="fas fa-chevron-down"></i></div>
+            <div class="answer">You can use the form above, email us directly at <a href="mailto:gtradesupport@gmail.com" style="color:var(--accent-blue, #4f7cff);">gtradesupport@gmail.com</a>, or reach out via Telegram or WhatsApp.</div>
+          </div>
+          <div class="faq-item">
+            <div class="question"><span>Do I need prior trading experience?</span><i class="fas fa-chevron-down"></i></div>
+            <div class="answer">No. The academy is designed for beginners and progresses to advanced Smart Money Concepts.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="dashboard-footer">
+        <div class="footer-left">© 2026 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.</div>
+        <div class="footer-right">Version 1.0</div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { auth } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    // ─── AUTH GUARD ──────────────────────────────────────────────
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+    });
+
+    // ─── LOGOUT ──────────────────────────────────────────────────
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      if (confirm('Logout?')) {
+        await signOut(auth);
+        window.location.href = "login.html";
+      }
+    });
+
+    // ─── FAQ TOGGLE ──────────────────────────────────────────────
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('active');
+      });
+    });
+
+    // ─── SUPPORT FORM ────────────────────────────────────────────
+    document.getElementById('supportForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const status = document.getElementById('supportStatus');
+      const name = document.getElementById('supportName').value.trim();
+      const email = document.getElementById('supportEmail').value.trim();
+      const message = document.getElementById('supportMessage').value.trim();
+
+      if (!name || !email || !message) {
+        status.textContent = 'Please fill in all required fields.';
+        status.style.color = '#f87171';
+        return;
+      }
+
+      // Simulate sending (replace with Firebase, EmailJS, etc.)
+      status.textContent = '✅ Your support request has been sent! We\'ll get back to you shortly.';
+      status.style.color = '#4ade80';
+      this.reset();
+    });
+
+    console.log('✅ Support page ready.');
+  </script>
+</body>
+</html>
