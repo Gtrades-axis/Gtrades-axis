@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GTRADES AXIS™ | Admin</title>
-  <link rel="stylesheet" href="css/admin.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -38,9 +37,6 @@
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
 
-    /* ===========================
-       SCROLLBAR
-    =========================== */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-primary); }
     ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
@@ -139,9 +135,6 @@
       width: 100%;
     }
 
-    /* ===========================
-       HEADER
-    =========================== */
     .admin-header {
       display: flex;
       justify-content: space-between;
@@ -157,17 +150,8 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .admin-header p {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      margin-top: 2px;
-    }
-    .admin-header .header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+    .admin-header p { color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px; }
+    .admin-header .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     #liveDate {
       color: var(--text-secondary);
       font-size: 0.875rem;
@@ -196,11 +180,7 @@
       gap: 16px;
       transition: 0.25s;
     }
-    .stat-card:hover {
-      border-color: var(--accent-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    }
+    .stat-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
     .stat-card .stat-icon {
       width: 48px;
       height: 48px;
@@ -216,16 +196,8 @@
     .stat-card .stat-icon.green { background: rgba(0,200,151,0.15); color: var(--green); }
     .stat-card .stat-icon.purple { background: rgba(156,39,176,0.15); color: #9c27b0; }
     .stat-card .stat-icon.red { background: rgba(255,71,102,0.15); color: var(--red); }
-    .stat-card div h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    .stat-card div p {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      margin-top: 2px;
-    }
+    .stat-card div h2 { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
+    .stat-card div p { color: var(--text-secondary); font-size: 0.8rem; margin-top: 2px; }
 
     /* ===========================
        QUICK ACTIONS
@@ -249,10 +221,7 @@
       align-items: center;
       gap: 8px;
     }
-    .quick-actions button:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--accent-blue);
-    }
+    .quick-actions button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
     .quick-actions button i { color: var(--accent-blue); }
 
     /* ===========================
@@ -281,9 +250,6 @@
     .dashboard-card h2 i { color: var(--accent-blue); }
     .dashboard-card.large { grid-column: 1; }
 
-    /* ===========================
-       TABLE
-    =========================== */
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -307,19 +273,15 @@
     }
     .card-header input:focus,
     .card-header select:focus { border-color: var(--accent-blue); }
-    .table-container {
-      overflow-x: auto;
-      margin-top: 4px;
-    }
+
+    .table-container { overflow-x: auto; margin-top: 4px; }
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.8rem;
       min-width: 700px;
     }
-    thead {
-      border-bottom: 2px solid var(--border-color);
-    }
+    thead { border-bottom: 2px solid var(--border-color); }
     thead th {
       padding: 12px 12px 10px 12px;
       text-align: left;
@@ -329,15 +291,10 @@
       letter-spacing: 0.5px;
       color: var(--text-secondary);
     }
-    tbody tr {
-      border-bottom: 1px solid var(--border-color);
-      transition: 0.2s;
-    }
+    tbody tr { border-bottom: 1px solid var(--border-color); transition: 0.2s; }
     tbody tr:hover { background: var(--bg-card-hover); }
-    tbody td {
-      padding: 10px 12px;
-      vertical-align: middle;
-    }
+    tbody td { padding: 10px 12px; vertical-align: middle; }
+
     .user-cell {
       display: flex;
       align-items: center;
@@ -377,6 +334,8 @@
     .badge.suspended { background: rgba(255,71,102,0.12); color: var(--red); }
     .badge.paid { background: rgba(0,200,151,0.12); color: var(--green); }
     .badge.unpaid { background: rgba(255,71,102,0.12); color: var(--red); }
+    .badge.published { background: rgba(0,200,151,0.12); color: var(--green); }
+    .badge.draft { background: rgba(245,166,35,0.12); color: var(--gold); }
 
     .manage-btn {
       padding: 4px 14px;
@@ -395,9 +354,6 @@
       color: #fff;
     }
 
-    /* ===========================
-       RIGHT PANEL
-    =========================== */
     .right-panel {
       display: flex;
       flex-direction: column;
@@ -410,12 +366,7 @@
       padding: 24px 12px;
       color: var(--text-secondary);
     }
-    .empty-card i {
-      font-size: 2rem;
-      color: var(--border-color);
-      display: block;
-      margin-bottom: 8px;
-    }
+    .empty-card i { font-size: 2rem; color: var(--border-color); display: block; margin-bottom: 8px; }
     .empty-card h3 { font-size: 1rem; margin-bottom: 4px; }
     .empty-card p { font-size: 0.8rem; }
 
@@ -486,21 +437,16 @@
     .activity-item p { font-size: 0.75rem; color: var(--text-secondary); }
 
     /* ===========================
-       MANAGER SECTIONS (video, resource, academy)
+       MANAGER SECTIONS
     =========================== */
-    .manager-section {
-      margin-top: 24px;
-    }
-    .manager-section .dashboard-card {
-      margin-bottom: 24px;
-    }
+    .manager-section { margin-top: 24px; }
+    .manager-section .dashboard-card { margin-bottom: 24px; }
+
     .manager-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
-    .manager-list-card { grid-column: 1; }
-    .manager-form-card { grid-column: 2; }
     .manager-form {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -532,7 +478,7 @@
     .manager-form input:focus,
     .manager-form select:focus,
     .manager-form textarea:focus { border-color: var(--accent-blue); }
-    .manager-form textarea { min-height: 60px; resize: vertical; }
+    .manager-form textarea { min-height: 100px; resize: vertical; }
     .manager-form .checkbox-group {
       display: flex;
       align-items: center;
@@ -575,23 +521,12 @@
     }
     .manager-form .form-actions .cancel-btn:hover { background: var(--border-color); }
 
-    .file-picker {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .file-picker input[type="text"] { flex: 1; }
-    .file-picker button {
-      padding: 8px 18px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 0.8rem;
-      white-space: nowrap;
+    /* ─── ACADEMY LESSON MANAGER ─── */
+    .lesson-status-toggle {
+      cursor: pointer;
       transition: 0.2s;
     }
-    .file-picker button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
+    .lesson-status-toggle:hover { opacity: 0.7; }
 
     /* ===========================
        MEMBER MODAL
@@ -637,6 +572,7 @@
       gap: 10px;
     }
     .member-modal-content h2 i { color: var(--accent-blue); }
+
     .member-profile {
       display: flex;
       align-items: center;
@@ -685,6 +621,7 @@
       display: block;
       margin-top: 2px;
     }
+
     .modal-actions {
       display: flex;
       flex-wrap: wrap;
@@ -703,28 +640,16 @@
       flex: 1 0 auto;
       justify-content: center;
     }
-    .approve-btn {background: #00c853;color: var(--green);}
+    .approve-btn {background: rgba(0,200,151,0.12);color: var(--green);}
     .approve-btn:hover { background: var(--green); color: #fff; }
-    .premium-btn {background: rgb(245 166 35 / 72%);color: var(--gold);}
+    .premium-btn {background: rgba(245,166,35,0.12);color: var(--gold);}
     .premium-btn:hover { background: var(--gold); color: #0b0d15; }
-    .admin-btn {background: #b74242;color: var(--accent-blue);}
+    .admin-btn {background: rgba(79,124,255,0.12);color: var(--accent-blue);}
     .admin-btn:hover { background: var(--accent-blue); color: #fff; }
-    .suspend-btn {background: #0f8cff;color: var(--red);}
+    .suspend-btn {background: rgba(255,71,102,0.12);color: var(--red);}
     .suspend-btn:hover { background: var(--red); color: #fff; }
-    .delete-btn {background: rgb(255 71 105);color: var(--red);}
+    .delete-btn {background: rgba(255,71,102,0.12);color: var(--red);}
     .delete-btn:hover { background: var(--red); color: #fff; }
-
-    /* ===========================
-       FOOTER
-    =========================== */
-    .admin-footer {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
 
     /* ===========================
        RESPONSIVE
@@ -733,7 +658,6 @@
       .dashboard-grid { grid-template-columns: 1fr; }
       .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
       .manager-grid { grid-template-columns: 1fr; }
-      .manager-form-card { grid-column: 1; }
     }
     @media (max-width: 992px) {
       .sidebar { width: 200px; padding: 20px 14px; }
@@ -780,6 +704,15 @@
       .quick-actions button { justify-content: center; }
       .dashboard-card { padding: 16px; }
     }
+
+    .admin-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
@@ -796,7 +729,7 @@
       <li><a href="#members"><i class="fa-solid fa-users"></i> Members</a></li>
       <li><a href="#academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
       <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
-      <li><a href="admin-payments.html"><i class="fa-solid fa-credit-card"></i> Payments</a></li>
+      <li><a href="#videos"><i class="fa-solid fa-video"></i> Videos</a></li>
       <li><a href="#settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
     </ul>
   </nav>
@@ -828,25 +761,25 @@
       <div><h2 id="premiumMembers">0</h2><p>Premium Members</p></div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon green"><i class="fa-solid fa-folder-open"></i></div>
-      <div><h2 id="resourceCount">0</h2><p>Resources</p></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon purple"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="stat-icon green"><i class="fa-solid fa-graduation-cap"></i></div>
       <div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon purple"><i class="fa-solid fa-video"></i></div>
+      <div><h2 id="videoCount">0</h2><p>Videos</p></div>
+    </div>
+    <div class="stat-card">
       <div class="stat-icon red"><i class="fa-solid fa-clock"></i></div>
-      <div><h2 id="pendingCount">0</h2><p>Pending</p></div>
+      <div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div>
     </div>
   </section>
 
   <!-- QUICK ACTIONS -->
   <section class="quick-actions">
+    <button onclick="document.getElementById('academy').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-book-medical"></i> Add Lesson</button>
+    <button onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-video-plus"></i> Add Video</button>
+    <button onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
     <button onclick="location.href='#members'"><i class="fa-solid fa-user-plus"></i> Add Member</button>
-    <button onclick="location.href='#resources'"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
-    <button onclick="location.href='#academy'"><i class="fa-solid fa-book-medical"></i> Add Lesson</button>
-    <button onclick="location.href='admin-payments.html'"><i class="fa-solid fa-credit-card"></i> Payments</button>
   </section>
 
   <!-- DASHBOARD GRID -->
@@ -873,7 +806,9 @@
               <th></th>
             </tr>
           </thead>
-          <tbody id="membersTable"></tbody>
+          <tbody id="membersTable">
+            <tr><td colspan="6"><div class="empty-card">Loading members...</div></td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -881,24 +816,21 @@
     <!-- RIGHT PANEL -->
     <div class="right-panel">
 
-      <!-- Recent Members -->
       <div class="dashboard-card">
         <h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2>
         <div id="recentMembers"><div class="empty-card">No members yet.</div></div>
       </div>
 
-      <!-- Platform Overview -->
       <div class="dashboard-card">
         <h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2>
         <div class="overview-list">
           <div class="overview-item"><span>Premium Members</span><strong id="premiumOverview">0</strong></div>
-          <div class="overview-item"><span>Pending Approval</span><strong id="pendingOverview">0</strong></div>
+          <div class="overview-item"><span>Academy Lessons</span><strong id="lessonOverview">0</strong></div>
+          <div class="overview-item"><span>Videos</span><strong id="videoOverview">0</strong></div>
           <div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div>
-          <div class="overview-item"><span>Lessons</span><strong id="lessonOverview">0</strong></div>
         </div>
       </div>
 
-      <!-- Recent Activity -->
       <div class="dashboard-card">
         <h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2>
         <div class="activity-feed" id="activityFeed">
@@ -907,12 +839,12 @@
             <div class="activity-info"><h4>New member registrations</h4><p>Live updates appear here.</p></div>
           </div>
           <div class="activity-item">
-            <div class="activity-icon green"><i class="fa-solid fa-folder-plus"></i></div>
-            <div class="activity-info"><h4>Latest resource uploads</h4><p>Recent uploads appear here.</p></div>
-          </div>
-          <div class="activity-item">
             <div class="activity-icon gold"><i class="fa-solid fa-graduation-cap"></i></div>
             <div class="activity-info"><h4>Academy updates</h4><p>Lesson updates appear here.</p></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon green"><i class="fa-solid fa-folder-plus"></i></div>
+            <div class="activity-info"><h4>Latest resource uploads</h4><p>Recent uploads appear here.</p></div>
           </div>
         </div>
       </div>
@@ -921,103 +853,171 @@
   </div><!-- /dashboard-grid -->
 
   <!-- ==========================================================
+       ACADEMY MANAGER
+  ========================================================== -->
+  <section class="manager-section" id="academy">
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <h2><i class="fa-solid fa-graduation-cap"></i> Academy Manager</h2>
+          <p>Manage all academy lessons/modules. Published lessons appear in the student portal.</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="toggleLessonFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+            <i class="fa-solid fa-plus"></i> Add Lesson
+          </button>
+          <button id="addSampleLessonsBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;">
+            <i class="fa-solid fa-copy"></i> Add Sample Lessons
+          </button>
+        </div>
+      </div>
+
+      <!-- Lesson list -->
+      <div id="lessonListContainer">
+        <div class="table-container">
+          <table class="members-table" id="lessonTable">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="lessonTableBody">
+              <tr><td colspan="5"><div class="empty-card">No lessons yet. Click "Add Lesson" to create one.</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Lesson form -->
+      <div id="lessonFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+        <h3 id="lessonFormTitle">Add New Lesson</h3>
+        <form id="lessonForm" class="manager-form">
+          <div>
+            <label>Module Number</label>
+            <input type="number" id="lessonModule" placeholder="e.g. 1" required min="1" />
+          </div>
+          <div>
+            <label>Lesson Title</label>
+            <input type="text" id="lessonTitle" placeholder="e.g. Introduction to Market Structure" required />
+          </div>
+          <div class="full-width">
+            <label>Full Content (HTML supported)</label>
+            <textarea id="lessonContent" placeholder="Write the full lesson content here. You can use HTML tags like &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, etc." rows="12"></textarea>
+            <small style="color:var(--text-secondary);font-size:0.7rem;">Supports HTML. Use &lt;h3&gt; for subheadings, &lt;p&gt; for paragraphs, &lt;ul&gt; and &lt;li&gt; for lists.</small>
+          </div>
+          <div class="full-width">
+            <label>Video ID (optional)</label>
+            <input type="text" id="lessonVideoId" placeholder="dQw4w9WgXcQ" />
+            <small style="color:var(--text-secondary);font-size:0.7rem;">YouTube video ID to embed at the top of the lesson.</small>
+          </div>
+          <div class="checkbox-group full-width">
+            <input type="checkbox" id="lessonPublished" checked />
+            <label for="lessonPublished">Published (visible to students)</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" id="saveLessonBtn"><i class="fa-solid fa-floppy-disk"></i> Save Lesson</button>
+            <button type="button" class="cancel-btn" id="cancelLessonBtn">Cancel</button>
+          </div>
+          <input type="hidden" id="editingLessonId" />
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
        VIDEO MANAGER
   ========================================================== -->
-  <!-- ==========================================================
-VIDEO MANAGER
-========================================================== -->
-<!-- ==========================================================
-VIDEO MANAGER
-========================================================== -->
-<section class="manager-section" id="videos">
-  <div class="dashboard-card">
-    <div class="card-header">
-      <div>
-        <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
-        <p>Manage all premium videos.</p>
-      </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
-          <i class="fa-solid fa-plus"></i> Add Video
-        </button>
-        <button id="addSampleVideosBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;">
-          <i class="fa-solid fa-copy"></i> Add Sample Videos
-        </button>
-      </div>
-    </div>
-
-    <!-- Video list -->
-    <div id="videoListContainer">
-      <div class="table-container">
-        <table class="members-table" id="videoTable">
-          <thead>
-            <tr>
-              <th>Thumbnail</th>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Duration</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="videoTableBody">
-            <tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Video form -->
-    <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-      <h3 id="videoFormTitle">Add New Video</h3>
-      <form id="videoForm" class="manager-form">
-        <div class="full-width">
-          <label>Video Title</label>
-          <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
-        </div>
+  <section class="manager-section" id="videos">
+    <div class="dashboard-card">
+      <div class="card-header">
         <div>
-          <label>Category</label>
-          <select id="videoCategory" required>
-            <option value="Market Structure">Market Structure</option>
-            <option value="Supply & Demand">Supply & Demand</option>
-            <option value="Liquidity">Liquidity</option>
-            <option value="Entries">Entries</option>
-            <option value="Psychology">Psychology</option>
-          </select>
+          <h2><i class="fa-solid fa-video"></i> Video Manager</h2>
+          <p>Manage all premium videos.</p>
         </div>
-        <div>
-          <label>Duration</label>
-          <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+            <i class="fa-solid fa-plus"></i> Add Video
+          </button>
+          <button id="addSampleVideosBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;">
+            <i class="fa-solid fa-copy"></i> Add Sample Videos
+          </button>
         </div>
-        <div class="full-width">
-          <label>YouTube Video ID</label>
-          <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
-          <small style="color:var(--text-secondary);font-size:0.7rem;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
+      </div>
+
+      <div id="videoListContainer">
+        <div class="table-container">
+          <table class="members-table" id="videoTable">
+            <thead>
+              <tr>
+                <th>Thumbnail</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="videoTableBody">
+              <tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr>
+            </tbody>
+          </table>
         </div>
-        <div class="full-width">
-          <label>Thumbnail Image</label>
-          <div class="file-picker">
-            <input type="file" id="videoThumbnailFile" accept="image/*" />
-            <div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;">
-              <img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" />
-            </div>
-            <small style="color:var(--text-secondary);font-size:0.7rem; display:block; margin-top:4px;">Upload a square image (recommended 320x320).</small>
+      </div>
+
+      <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+        <h3 id="videoFormTitle">Add New Video</h3>
+        <form id="videoForm" class="manager-form">
+          <div class="full-width">
+            <label>Video Title</label>
+            <input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required />
           </div>
-        </div>
-        <div class="checkbox-group full-width">
-          <input type="checkbox" id="videoPremiumOnly" />
-          <label for="videoPremiumOnly">Premium Only</label>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button>
-          <button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button>
-        </div>
-        <input type="hidden" id="editingVideoId" />
-        <input type="hidden" id="existingThumbnailUrl" />
-      </form>
+          <div>
+            <label>Category</label>
+            <select id="videoCategory" required>
+              <option value="Market Structure">Market Structure</option>
+              <option value="Supply & Demand">Supply & Demand</option>
+              <option value="Liquidity">Liquidity</option>
+              <option value="Entries">Entries</option>
+              <option value="Psychology">Psychology</option>
+            </select>
+          </div>
+          <div>
+            <label>Duration</label>
+            <input type="text" id="videoDuration" placeholder="e.g. 12:45" required />
+          </div>
+          <div class="full-width">
+            <label>YouTube Video ID</label>
+            <input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required />
+            <small style="color:var(--text-secondary);font-size:0.7rem;">The ID from the YouTube URL (e.g. dQw4w9WgXcQ)</small>
+          </div>
+          <div class="full-width">
+            <label>Thumbnail Image</label>
+            <div class="file-picker">
+              <input type="file" id="videoThumbnailFile" accept="image/*" />
+              <div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;">
+                <img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" />
+              </div>
+              <small style="color:var(--text-secondary);font-size:0.7rem; display:block; margin-top:4px;">Upload a square image (recommended 320x320).</small>
+            </div>
+          </div>
+          <div class="checkbox-group full-width">
+            <input type="checkbox" id="videoPremiumOnly" />
+            <label for="videoPremiumOnly">Premium Only</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button>
+            <button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button>
+          </div>
+          <input type="hidden" id="editingVideoId" />
+          <input type="hidden" id="existingThumbnailUrl" />
+        </form>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- ==========================================================
        RESOURCE MANAGER
@@ -1094,7 +1094,7 @@ VIDEO MANAGER
 
   <!-- FOOTER -->
   <footer class="admin-footer">
-    <p>© 2026 GTRADES AXIS™ | Professional Trading Platform</p>
+    <p>© <span id="year"></span> GTRADES AXIS™ | Professional Trading Platform</p>
   </footer>
 </main>
 
@@ -1145,7 +1145,7 @@ VIDEO MANAGER
   import { auth } from "./js/firebase.js";
   import { signOut } from "firebase/auth";
 
-  // Logout
+  // ─── Logout ───
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     if (confirm("Logout?")) {
       await signOut(auth);
@@ -1153,7 +1153,7 @@ VIDEO MANAGER
     }
   });
 
-  // Live Date
+  // ─── Live Date ───
   function updateClock() {
     const el = document.getElementById("liveDate");
     if (el) {
@@ -1170,8 +1170,291 @@ VIDEO MANAGER
   updateClock();
   setInterval(updateClock, 1000);
 
-  console.log("✅ Admin dashboard ready.");
-</script>
+  // ─── Dynamic Year ───
+  document.getElementById("year").textContent = new Date().getFullYear();
 
+  // ─── ACADEMY LESSON MANAGER (localStorage) ───
+
+  // Load lessons from localStorage
+  function loadLessons() {
+    try {
+      return JSON.parse(localStorage.getItem('gtrades_lessons')) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveLessons(lessons) {
+    localStorage.setItem('gtrades_lessons', JSON.stringify(lessons));
+  }
+
+  // Sample lessons
+  function getSampleLessons() {
+    return [
+      {
+        id: Date.now().toString() + '1',
+        module: 1,
+        title: "Introduction to Market Structure",
+        content: `<h3>What is Market Structure?</h3>
+          <p>Market structure is the framework that shows how price moves over time. It reveals who is in control - buyers or sellers.</p>
+          <h3>Higher Highs & Higher Lows</h3>
+          <p>When price makes Higher Highs and Higher Lows, the market is in an uptrend.</p>
+          <h3>Lower Highs & Lower Lows</h3>
+          <p>When price makes Lower Highs and Lower Lows, the market is in a downtrend.</p>`,
+        videoId: "dQw4w9WgXcQ",
+        published: true,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: Date.now().toString() + '2',
+        module: 2,
+        title: "Understanding BOS & CHoCH",
+        content: `<h3>Break of Structure (BOS)</h3>
+          <p>A BOS confirms the continuation of the current trend.</p>
+          <h3>Change of Character (CHoCH)</h3>
+          <p>A CHoCH signals a potential reversal in the market.</p>`,
+        videoId: "",
+        published: true,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: Date.now().toString() + '3',
+        module: 3,
+        title: "Liquidity Concepts",
+        content: `<h3>What is Liquidity?</h3>
+          <p>Liquidity refers to areas where stop losses and pending orders are clustered.</p>
+          <h3>Buy Side Liquidity</h3>
+          <p>Areas above previous highs where buy stops are placed.</p>
+          <h3>Sell Side Liquidity</h3>
+          <p>Areas below previous lows where sell stops are placed.</p>`,
+        videoId: "",
+        published: true,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  // Render lessons table
+  function renderLessons() {
+    const lessons = loadLessons();
+    const tbody = document.getElementById('lessonTableBody');
+    const countEl = document.getElementById('lessonCount');
+    const pendingEl = document.getElementById('pendingLessons');
+    const overviewEl = document.getElementById('lessonOverview');
+
+    if (countEl) countEl.textContent = lessons.length;
+    if (pendingEl) pendingEl.textContent = lessons.filter(l => !l.published).length;
+    if (overviewEl) overviewEl.textContent = lessons.length;
+
+    if (lessons.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No lessons yet. Click "Add Lesson" to create one.</div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lessons.map((lesson, index) => `
+      <tr>
+        <td><strong>Module ${lesson.module}</strong></td>
+        <td>${lesson.title}</td>
+        <td>
+          <span class="badge ${lesson.published ? 'published' : 'draft'} lesson-status-toggle" 
+                data-id="${lesson.id}" 
+                title="Click to toggle status">
+            ${lesson.published ? 'Published' : 'Draft'}
+          </span>
+        </td>
+        <td>${new Date(lesson.createdAt).toLocaleDateString()}</td>
+        <td>
+          <button class="manage-btn edit-lesson" data-id="${lesson.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+          <button class="manage-btn delete-lesson" data-id="${lesson.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Toggle status click
+    document.querySelectorAll('.lesson-status-toggle').forEach(el => {
+      el.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const lessons = loadLessons();
+        const lesson = lessons.find(l => l.id === id);
+        if (lesson) {
+          lesson.published = !lesson.published;
+          saveLessons(lessons);
+          renderLessons();
+          renderVideoCounts();
+          addActivity(`Toggled lesson "${lesson.title}" to ${lesson.published ? 'Published' : 'Draft'}`);
+        }
+      });
+    });
+
+    // Edit click
+    document.querySelectorAll('.edit-lesson').forEach(el => {
+      el.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const lessons = loadLessons();
+        const lesson = lessons.find(l => l.id === id);
+        if (lesson) {
+          document.getElementById('editingLessonId').value = id;
+          document.getElementById('lessonModule').value = lesson.module;
+          document.getElementById('lessonTitle').value = lesson.title;
+          document.getElementById('lessonContent').value = lesson.content || '';
+          document.getElementById('lessonVideoId').value = lesson.videoId || '';
+          document.getElementById('lessonPublished').checked = lesson.published !== false;
+          document.getElementById('lessonFormTitle').textContent = 'Edit Lesson';
+          document.getElementById('saveLessonBtn').textContent = 'Update Lesson';
+          document.getElementById('lessonFormContainer').style.display = 'block';
+          document.getElementById('lessonFormContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Delete click
+    document.querySelectorAll('.delete-lesson').forEach(el => {
+      el.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const lessons = loadLessons();
+        const lesson = lessons.find(l => l.id === id);
+        if (confirm(`Delete lesson "${lesson?.title}"?`)) {
+          const updated = lessons.filter(l => l.id !== id);
+          saveLessons(updated);
+          renderLessons();
+          renderVideoCounts();
+          addActivity(`Deleted lesson "${lesson?.title}"`);
+        }
+      });
+    });
+  }
+
+  // Activity feed
+  function addActivity(text) {
+    const feed = document.getElementById('activityFeed');
+    if (!feed) return;
+    const time = new Date().toLocaleTimeString();
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+    item.innerHTML = `
+      <div class="activity-icon gold"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="activity-info"><h4>${text}</h4><p>${time}</p></div>
+    `;
+    feed.prepend(item);
+    // Keep only last 10
+    while (feed.children.length > 10) {
+      feed.removeChild(feed.lastChild);
+    }
+  }
+
+  // Toggle form
+  document.getElementById('toggleLessonFormBtn')?.addEventListener('click', function() {
+    const container = document.getElementById('lessonFormContainer');
+    if (container.style.display === 'none') {
+      container.style.display = 'block';
+      document.getElementById('lessonFormTitle').textContent = 'Add New Lesson';
+      document.getElementById('saveLessonBtn').textContent = 'Save Lesson';
+      document.getElementById('editingLessonId').value = '';
+      document.getElementById('lessonForm').reset();
+      document.getElementById('lessonPublished').checked = true;
+      document.getElementById('lessonFormContainer').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      container.style.display = 'none';
+    }
+  });
+
+  document.getElementById('cancelLessonBtn')?.addEventListener('click', function() {
+    document.getElementById('lessonFormContainer').style.display = 'none';
+    document.getElementById('lessonForm').reset();
+    document.getElementById('editingLessonId').value = '';
+  });
+
+  // Save lesson
+  document.getElementById('lessonForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('editingLessonId').value;
+    const moduleNum = parseInt(document.getElementById('lessonModule').value);
+    const title = document.getElementById('lessonTitle').value.trim();
+    const content = document.getElementById('lessonContent').value;
+    const videoId = document.getElementById('lessonVideoId').value.trim();
+    const published = document.getElementById('lessonPublished').checked;
+
+    if (!title) {
+      alert('Please enter a lesson title.');
+      return;
+    }
+    if (!moduleNum || moduleNum < 1) {
+      alert('Please enter a valid module number (1 or higher).');
+      return;
+    }
+
+    const lessons = loadLessons();
+
+    if (id) {
+      // Edit existing
+      const index = lessons.findIndex(l => l.id === id);
+      if (index !== -1) {
+        lessons[index] = {
+          ...lessons[index],
+          module: moduleNum,
+          title: title,
+          content: content,
+          videoId: videoId,
+          published: published
+        };
+        saveLessons(lessons);
+        addActivity(`Updated lesson "${title}"`);
+      }
+    } else {
+      // New lesson
+      const newLesson = {
+        id: Date.now().toString(),
+        module: moduleNum,
+        title: title,
+        content: content,
+        videoId: videoId,
+        published: published,
+        createdAt: new Date().toISOString()
+      };
+      lessons.push(newLesson);
+      saveLessons(lessons);
+      addActivity(`Added lesson "${title}"`);
+    }
+
+    renderLessons();
+    renderVideoCounts();
+    document.getElementById('lessonFormContainer').style.display = 'none';
+    document.getElementById('lessonForm').reset();
+    document.getElementById('editingLessonId').value = '';
+    document.getElementById('lessonPublished').checked = true;
+  });
+
+  // Add sample lessons
+  document.getElementById('addSampleLessonsBtn')?.addEventListener('click', function() {
+    const existing = loadLessons();
+    if (existing.length > 0) {
+      if (!confirm('This will add 3 sample lessons to your existing lessons. Continue?')) return;
+    }
+    const samples = getSampleLessons();
+    const all = [...existing, ...samples];
+    saveLessons(all);
+    renderLessons();
+    renderVideoCounts();
+    addActivity('Added 3 sample lessons');
+  });
+
+  // ─── Render video counts ───
+  function renderVideoCounts() {
+    try {
+      const videos = JSON.parse(localStorage.getItem('gtrades_videos')) || [];
+      const videoCountEl = document.getElementById('videoCount');
+      const videoOverviewEl = document.getElementById('videoOverview');
+      if (videoCountEl) videoCountEl.textContent = videos.length;
+      if (videoOverviewEl) videoOverviewEl.textContent = videos.length;
+    } catch {}
+  }
+
+  // ─── Init ───
+  renderLessons();
+  renderVideoCounts();
+
+  console.log('✅ Admin dashboard ready.');
+</script>
 </body>
 </html>
