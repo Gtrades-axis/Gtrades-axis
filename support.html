@@ -11,7 +11,7 @@
   <link rel="icon" href="images/favicon.png" />
   <style>
     /* ============================================================
-       SUPPORT PAGE – CLEAN DARK THEME
+       SUPPORT PAGE – DASHBOARD COLOR MATCH
     ============================================================ */
     * {
       margin: 0;
@@ -35,6 +35,8 @@
       --accent-blue: #4f7cff;
       --green: #00c897;
       --red: #ff4766;
+      --gold: #f5a623;
+      --gradient-main: linear-gradient(135deg, #4f7cff, #7c3aed);
       --radius: 12px;
     }
     a {
@@ -45,7 +47,7 @@
       list-style: none;
     }
 
-    /* ── Dashboard layout (same as student pages) ── */
+    /* ── Dashboard layout ── */
     .dashboard {
       display: flex;
       min-height: 100vh;
@@ -160,6 +162,12 @@
       color: #00d4ff;
       margin-right: 10px;
     }
+    .topbar h1 span {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .topbar p {
       color: var(--text-secondary);
       font-size: 14px;
@@ -232,6 +240,12 @@
       margin-bottom: 4px;
       color: var(--text-primary);
     }
+    .support-form h3 span {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .support-form p {
       color: var(--text-secondary);
       margin-bottom: 20px;
@@ -275,7 +289,7 @@
     }
     .submit-btn {
       padding: 12px 32px;
-      background: var(--accent-blue);
+      background: var(--gradient-main);
       border: none;
       border-radius: 8px;
       color: #fff;
@@ -283,10 +297,12 @@
       font-size: 1rem;
       cursor: pointer;
       transition: 0.25s;
+      box-shadow: 0 4px 16px rgba(79,124,255,0.25);
     }
     .submit-btn:hover {
-      background: #3a66e0;
+      opacity: 0.9;
       transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79,124,255,0.35);
     }
     #supportStatus {
       margin-top: 16px;
@@ -448,7 +464,7 @@
     <main class="main-content">
       <header class="topbar">
         <div>
-          <h1><i class="fa-solid fa-headset"></i> Support</h1>
+          <h1><i class="fa-solid fa-headset"></i> <span>Support</span></h1>
           <p>We’re here to help you trade with confidence.</p>
         </div>
       </header>
@@ -484,7 +500,7 @@
 
         <!-- Support Form -->
         <div class="support-form">
-          <h3>Submit a Support Request</h3>
+          <h3>Submit a <span>Support Request</span></h3>
           <p>Fill in the form and we’ll get back to you as soon as possible.</p>
           <form id="supportForm">
             <div class="form-group">
@@ -601,7 +617,6 @@
         return;
       }
 
-      // Simulate sending (replace with Firebase, EmailJS, etc.)
       status.textContent = '✅ Your support request has been sent! We\'ll get back to you shortly.';
       status.style.color = '#4ade80';
       this.reset();
