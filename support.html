@@ -8,9 +8,164 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="images/favicon.png" />
   <style>
-    /* ── Additional support-specific styles ── */
+    /* ============================================================
+       SUPPORT PAGE – CLEAN DARK THEME
+    ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0b0d15;
+      color: #e8edf5;
+      min-height: 100vh;
+    }
+    :root {
+      --bg-primary: #0b0d15;
+      --bg-secondary: #131724;
+      --bg-card: #1a1f2f;
+      --bg-card-hover: #222a3e;
+      --border-color: #2a3450;
+      --text-primary: #e8edf5;
+      --text-secondary: #9aa4bf;
+      --accent-blue: #4f7cff;
+      --green: #00c897;
+      --red: #ff4766;
+      --radius: 12px;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    ul {
+      list-style: none;
+    }
+
+    /* ── Dashboard layout (same as student pages) ── */
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 260px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 28px 18px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .sidebar .brand img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .sidebar .brand h2 {
+      font-size: 18px;
+      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sidebar .brand h2 span {
+      -webkit-text-fill-color: var(--accent-blue);
+    }
+    .sidebar .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .sidebar .menu li {
+      margin: 0;
+    }
+    .sidebar .menu li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: 0.25s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar .menu li a:hover {
+      background: var(--bg-card);
+      color: #fff;
+    }
+    .sidebar .menu li.active a {
+      background: rgba(79,124,255,0.15);
+      color: var(--accent-blue);
+      border-left-color: var(--accent-blue);
+    }
+    .sidebar .menu li a i {
+      width: 20px;
+      text-align: center;
+    }
+    #logoutBtn {
+      margin-top: auto;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,71,102,0.08);
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: 0.25s;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+    }
+    #logoutBtn:hover {
+      background: rgba(255,71,102,0.18);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 32px 40px 60px;
+      max-width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .topbar h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .topbar h1 i {
+      color: #00d4ff;
+      margin-right: 10px;
+    }
+    .topbar p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    /* ── Support specific styles ── */
     .support-container {
       max-width: 1000px;
       margin: 0 auto;
@@ -18,85 +173,91 @@
     .support-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 30px;
+      gap: 24px;
       margin-top: 30px;
     }
     .support-card {
-      background: var(--bg-card, #1a1f2f);
-      border: 1px solid var(--border-color, #2a3450);
-      border-radius: 16px;
-      padding: 28px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 24px 22px;
       transition: 0.3s;
     }
     .support-card:hover {
-      border-color: var(--accent-blue, #4f7cff);
+      border-color: var(--accent-blue);
       transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
     .support-card .icon {
       font-size: 2.2rem;
-      color: var(--accent-blue, #4f7cff);
+      color: var(--accent-blue);
       margin-bottom: 12px;
     }
     .support-card h3 {
       font-size: 1.2rem;
       font-weight: 600;
       margin-bottom: 6px;
+      color: var(--text-primary);
     }
     .support-card p {
-      color: var(--text-secondary, #9aa4bf);
+      color: var(--text-secondary);
       font-size: 0.9rem;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+      line-height: 1.6;
     }
     .support-card a {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      color: var(--accent-blue, #4f7cff);
+      gap: 6px;
+      color: var(--accent-blue);
       font-weight: 500;
-      text-decoration: none;
       transition: 0.2s;
     }
     .support-card a:hover {
-      color: var(--accent-blue, #4f7cff);
+      color: #3a66e0;
       text-decoration: underline;
     }
+
     .support-form {
       grid-column: 1 / -1;
-      background: var(--bg-card, #1a1f2f);
-      border: 1px solid var(--border-color, #2a3450);
-      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
       padding: 32px 28px;
+      margin-top: 10px;
     }
     .support-form h3 {
       font-size: 1.4rem;
       font-weight: 600;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      color: var(--text-primary);
     }
     .support-form p {
-      color: var(--text-secondary, #9aa4bf);
+      color: var(--text-secondary);
       margin-bottom: 20px;
+      font-size: 0.95rem;
     }
     .form-group {
       margin-bottom: 16px;
     }
     .form-group label {
       display: block;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-secondary, #9aa4bf);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
       margin-bottom: 4px;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.5px;
     }
     .form-group input,
     .form-group textarea,
     .form-group select {
       width: 100%;
       padding: 10px 14px;
-      background: var(--bg-primary, #0b0d15);
-      border: 1px solid var(--border-color, #2a3450);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      color: #fff;
+      color: var(--text-primary);
       font-size: 0.9rem;
       font-family: 'Poppins', sans-serif;
       outline: none;
@@ -105,8 +266,8 @@
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
-      border-color: var(--accent-blue, #4f7cff);
-      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
     }
     .form-group textarea {
       min-height: 120px;
@@ -114,7 +275,7 @@
     }
     .submit-btn {
       padding: 12px 32px;
-      background: var(--accent-blue, #4f7cff);
+      background: var(--accent-blue);
       border: none;
       border-radius: 8px;
       color: #fff;
@@ -127,20 +288,32 @@
       background: #3a66e0;
       transform: translateY(-2px);
     }
+    #supportStatus {
+      margin-top: 16px;
+      color: var(--accent-blue);
+    }
+
     .faq-section {
       grid-column: 1 / -1;
+      margin-top: 10px;
+    }
+    .faq-section h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-primary);
     }
     .faq-item {
-      background: var(--bg-card, #1a1f2f);
-      border: 1px solid var(--border-color, #2a3450);
-      border-radius: 12px;
-      padding: 18px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 16px 22px;
       margin-bottom: 12px;
       cursor: pointer;
       transition: 0.25s;
     }
     .faq-item:hover {
-      border-color: var(--accent-blue, #4f7cff);
+      border-color: var(--accent-blue);
     }
     .faq-item .question {
       display: flex;
@@ -148,16 +321,17 @@
       align-items: center;
       font-weight: 600;
       font-size: 1rem;
+      color: var(--text-primary);
     }
     .faq-item .question i {
       transition: 0.3s;
-      color: var(--text-secondary, #9aa4bf);
+      color: var(--text-secondary);
     }
     .faq-item .answer {
       max-height: 0;
       overflow: hidden;
       transition: 0.3s;
-      color: var(--text-secondary, #9aa4bf);
+      color: var(--text-secondary);
       font-size: 0.9rem;
       line-height: 1.6;
     }
@@ -168,8 +342,73 @@
     .faq-item.active .question i {
       transform: rotate(180deg);
     }
+    .faq-item .answer a {
+      color: var(--accent-blue);
+    }
+    .faq-item .answer a:hover {
+      text-decoration: underline;
+    }
 
+    .dashboard-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 992px) {
+      .main-content {
+        max-width: 100%;
+        padding: 24px;
+      }
+    }
     @media (max-width: 768px) {
+      .dashboard {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sidebar .brand {
+        margin-bottom: 0;
+        flex: 1;
+      }
+      .sidebar .menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2px;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .sidebar .menu li a {
+        padding: 8px 12px;
+        font-size: 12px;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+      }
+      .sidebar .menu li.active a {
+        border-left: none;
+        border-bottom-color: var(--accent-blue);
+      }
+      #logoutBtn {
+        margin-top: 0;
+        padding: 6px 14px;
+        font-size: 12px;
+      }
+      .main-content {
+        max-width: 100%;
+        padding: 16px;
+      }
       .support-grid {
         grid-template-columns: 1fr;
       }
@@ -185,7 +424,7 @@
 <body>
 
   <div class="dashboard">
-    <!-- SIDEBAR (same as student pages) -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" aria-label="Main navigation">
       <div class="brand">
         <img src="images/logo.png" alt="GTRADES-AXIS Logo" />
@@ -207,10 +446,9 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
-      <!-- Header -->
       <header class="topbar">
         <div>
-          <h1>Support</h1>
+          <h1><i class="fa-solid fa-headset"></i> Support</h1>
           <p>We’re here to help you trade with confidence.</p>
         </div>
       </header>
@@ -274,15 +512,15 @@
             </div>
             <button type="submit" class="submit-btn">Send Request</button>
           </form>
-          <div id="supportStatus" style="margin-top:16px; color:var(--accent-blue, #4f7cff);"></div>
+          <div id="supportStatus"></div>
         </div>
 
         <!-- FAQ Section -->
         <div class="faq-section" id="faq">
-          <h2 style="margin-bottom:20px; font-size:1.6rem;">Frequently Asked Questions</h2>
+          <h2>Frequently Asked Questions</h2>
           <div class="faq-item">
             <div class="question"><span>How do I upgrade to Premium?</span><i class="fas fa-chevron-down"></i></div>
-            <div class="answer">You can upgrade by visiting the <a href="upgrade.html" style="color:var(--accent-blue, #4f7cff);">Upgrade</a> page and following the instructions. Once your payment is verified, your account will be upgraded automatically.</div>
+            <div class="answer">You can upgrade by visiting the <a href="upgrade.html">Upgrade</a> page and following the instructions. Once your payment is verified, your account will be upgraded automatically.</div>
           </div>
           <div class="faq-item">
             <div class="question"><span>What markets are covered in the Academy?</span><i class="fas fa-chevron-down"></i></div>
@@ -294,7 +532,7 @@
           </div>
           <div class="faq-item">
             <div class="question"><span>How do I contact support?</span><i class="fas fa-chevron-down"></i></div>
-            <div class="answer">You can use the form above, email us directly at <a href="mailto:gtradesupport@gmail.com" style="color:var(--accent-blue, #4f7cff);">gtradesupport@gmail.com</a>, or reach out via Telegram or WhatsApp.</div>
+            <div class="answer">You can use the form above, email us directly at <a href="mailto:gtradesupport@gmail.com">gtradesupport@gmail.com</a>, or reach out via Telegram or WhatsApp.</div>
           </div>
           <div class="faq-item">
             <div class="question"><span>Do I need prior trading experience?</span><i class="fas fa-chevron-down"></i></div>
@@ -311,7 +549,7 @@
     </main>
   </div>
 
-  <!-- SCRIPTS -->
+  <!-- ===== SCRIPTS ===== -->
   <script type="importmap">
   {
     "imports": {
