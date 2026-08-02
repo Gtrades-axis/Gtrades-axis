@@ -99,6 +99,7 @@
       -webkit-text-fill-color: #4f7cff;
     }
 
+    /* ─── DESKTOP NAV ─── */
     nav {
       display: flex;
       align-items: center;
@@ -223,11 +224,11 @@
       transform: rotate(-45deg) translate(4px, -4px);
     }
 
-    /* ─── MOBILE OVERLAY ─── */
+    /* ─── MOBILE OVERLAY (FULL SCREEN) ─── */
     .mobile-overlay {
       position: fixed;
       inset: 0;
-      z-index: 9998;
+      z-index: 99999;
       background: rgba(2, 8, 24, 0.96);
       backdrop-filter: blur(24px);
       display: flex;
@@ -327,7 +328,7 @@
       box-shadow: 0 0 24px rgba(255, 255, 255, 0.15);
     }
 
-    /* Hide desktop nav on mobile */
+    /* ─── RESPONSIVE BREAKPOINT ─── */
     @media (max-width: 992px) {
       header {
         height: 60px;
@@ -340,8 +341,9 @@
       .logo h2 {
         font-size: 0.85rem;
       }
+      /* Hide desktop nav, show hamburger */
       nav {
-        display: none; /* desktop nav hidden, overlay takes over */
+        display: none;
       }
       .menu-toggle {
         display: flex;
@@ -1460,7 +1462,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-about">
-          <img src="images/logo.png" alt="GTRADES-AXIS Logo" class="footer-logo" />
+          <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo".footer-logo" />
           <h2>GTRADES-<span>AXIS™</span></h2>
           <p>Trade with Structure.<br />Execute with Precision.</p>
           <p>Professional Smart Money Trading Framework built around Market Structure, Supply &amp; Demand, Liquidity and disciplined execution.</p>
