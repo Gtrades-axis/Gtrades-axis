@@ -12,7 +12,7 @@
   <link rel="icon" href="images/favicon.png" />
   <style>
     /* ============================================================
-       GTRADES-AXIS™ – MAIN STYLES (Colour update + category fix)
+       GTRADES-AXIS™ – MAIN STYLES (Refined)
     ============================================================ */
     * {
       margin: 0;
@@ -66,18 +66,18 @@
       margin: 0 auto;
     }
 
-    /* ----- COLOUR VARIABLES (NEW MODERN SCHEME) ----- */
+    /* ----- COLOUR VARIABLES (modern, accessible) ----- */
     :root {
       --primary: #4f7cff;
       --primary-dark: #3a5fc9;
       --primary-light: #7a9eff;
       --gradient-main: linear-gradient(135deg, #4f7cff, #7c3aed);
       --gradient-hover: linear-gradient(135deg, #3a5fc9, #6c2bd9);
-      --glow: 0 0 25px rgba(79, 124, 255, 0.4);
-      --shadow: 0 12px 30px rgba(79, 124, 255, 0.25);
+      --glow-subtle: 0 0 20px rgba(79, 124, 255, 0.25);
+      --shadow-soft: 0 8px 24px rgba(79, 124, 255, 0.15);
     }
 
-    /* ----- HEADER (enhanced) ----- */
+    /* ----- HEADER ----- */
     header {
       position: fixed;
       top: 0;
@@ -113,7 +113,7 @@
     }
     .logo span {
       color: var(--primary);
-      text-shadow: 0 0 12px var(--primary), 0 0 28px var(--primary);
+      text-shadow: 0 0 10px rgba(79, 124, 255, 0.3);
     }
     nav ul {
       display: flex;
@@ -184,12 +184,11 @@
       color: var(--primary);
       transition: 0.35s;
       margin-left: 6px;
-      box-shadow: 0 0 20px rgba(79, 124, 255, 0);
     }
     .join-btn:hover {
       background: var(--primary);
       color: #fff;
-      box-shadow: var(--glow);
+      box-shadow: var(--glow-subtle);
       transform: translateY(-2px);
     }
     .dashboard-btn {
@@ -203,13 +202,13 @@
       box-shadow: 0 0 30px rgba(22, 163, 74, 0.4);
     }
 
-    /* ----- HERO (more dynamic) ----- */
+    /* ----- HERO (cleaner background, subdued glow) ----- */
     .hero {
       min-height: 100vh;
       display: flex;
       align-items: center;
-      background: radial-gradient(circle at top right, rgba(79, 124, 255, 0.18), transparent 50%),
-        radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.08), transparent 40%),
+      background: radial-gradient(circle at 30% 40%, rgba(79, 124, 255, 0.08), transparent 55%),
+        radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.04), transparent 50%),
         linear-gradient(180deg, #07090d, #0e1522);
       padding-top: 80px;
       overflow: hidden;
@@ -226,8 +225,8 @@
     .hero .subtitle {
       display: inline-block;
       padding: 6px 20px;
-      background: rgba(79, 124, 255, 0.12);
-      border: 1px solid rgba(79, 124, 255, 0.25);
+      background: rgba(79, 124, 255, 0.1);
+      border: 1px solid rgba(79, 124, 255, 0.2);
       border-radius: 40px;
       color: var(--primary);
       font-size: 13px;
@@ -243,8 +242,7 @@
     }
     .hero h1 span {
       color: var(--primary);
-      text-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
-      animation: glow 2.5s infinite alternate;
+      text-shadow: 0 0 12px rgba(79, 124, 255, 0.3), 0 0 30px rgba(79, 124, 255, 0.1);
     }
     .hero h2 {
       font-size: 46px;
@@ -279,12 +277,12 @@
     .primary-btn {
       background: var(--gradient-main);
       color: #fff;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-soft);
     }
     .primary-btn:hover {
       background: var(--gradient-hover);
       transform: translateY(-5px);
-      box-shadow: 0 0 40px var(--primary), 0 0 80px rgba(79, 124, 255, 0.3);
+      box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
     }
     .secondary-btn {
       border: 2px solid var(--primary);
@@ -334,7 +332,7 @@
       color: #c9d3dd;
     }
 
-    /* ----- ABOUT (order fixed) ----- */
+    /* ----- ABOUT (order: Structure → S&D → Liquidity) ----- */
     .about {
       background: #0b1018;
     }
@@ -362,7 +360,7 @@
     .about-card:hover {
       transform: translateY(-10px);
       border-color: var(--primary);
-      box-shadow: 0 25px 50px rgba(79, 124, 255, 0.12);
+      box-shadow: 0 25px 50px rgba(79, 124, 255, 0.1);
     }
     .about-card i {
       font-size: 48px;
@@ -377,7 +375,7 @@
       color: #c9d3dd;
     }
 
-    /* ----- ACADEMY (order fixed: Structure → S&D → Liquidity → Entries → Risk → Psychology) ----- */
+    /* ----- ACADEMY (order: Structure → S&D → Liquidity → Entries → Risk → Psychology) ----- */
     .academy {
       background: linear-gradient(180deg, #0b1018, #111827);
     }
@@ -437,7 +435,7 @@
       font-size: 15px;
     }
 
-    /* ----- STRATEGY (order fixed: Structure → S&D → Liquidity → Entries → Execution → Management) ----- */
+    /* ----- STRATEGY (order: Structure → S&D → Liquidity → Confirmation → Execution → Management) ----- */
     .strategy {
       background: #07090d;
     }
@@ -489,7 +487,7 @@
       flex-shrink: 0;
     }
 
-    /* ----- WHY US ----- */
+    /* ----- WHY US (unchanged) ----- */
     .why {
       background: #0b1018;
     }
@@ -525,7 +523,7 @@
       color: #c9d3dd;
     }
 
-    /* ----- COMMUNITY ----- */
+    /* ----- COMMUNITY (unchanged) ----- */
     .community {
       background: #07090d;
     }
@@ -577,7 +575,7 @@
       color: var(--primary);
     }
 
-    /* ----- STATS ----- */
+    /* ----- STATS (unchanged) ----- */
     .stats {
       background: linear-gradient(180deg, #0e1522, #07090d);
       padding: 90px 0;
@@ -610,7 +608,7 @@
       font-size: 17px;
     }
 
-    /* ----- TESTIMONIALS ----- */
+    /* ----- TESTIMONIALS (unchanged) ----- */
     .testimonials {
       background: #0b1018;
     }
@@ -648,7 +646,7 @@
       font-size: 17px;
     }
 
-    /* ----- FAQ ----- */
+    /* ----- FAQ (unchanged) ----- */
     .faq {
       background: #07090d;
     }
@@ -672,7 +670,7 @@
       color: #c9d3dd;
     }
 
-    /* ----- CTA ----- */
+    /* ----- CTA (unchanged) ----- */
     .cta {
       padding: 120px 0;
       text-align: center;
@@ -779,7 +777,7 @@
       color: #fff;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: var(--glow);
+      box-shadow: 0 0 20px rgba(79, 124, 255, 0.3);
       transition: 0.35s;
       opacity: 0;
       visibility: hidden;
@@ -793,137 +791,50 @@
     }
     #scrollTopBtn:hover {
       transform: translateY(-5px);
-      box-shadow: 0 0 50px var(--primary);
+      box-shadow: 0 0 40px rgba(79, 124, 255, 0.4);
     }
 
     /* ----- ANIMATIONS ----- */
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 10px var(--primary), 0 0 25px var(--primary), 0 0 45px var(--primary);
-      }
-      to {
-        text-shadow: 0 0 18px var(--primary-light), 0 0 40px var(--primary-light), 0 0 70px var(--primary-light);
-      }
-    }
     @keyframes float {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-18px);
-      }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-16px); }
     }
 
-    /* ----- RESPONSIVE (refined) ----- */
+    /* ----- RESPONSIVE (unchanged) ----- */
     @media (max-width: 1200px) {
-      .hero-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-      .hero-description {
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .hero-buttons {
-        justify-content: center;
-      }
-      .hero-stats {
-        justify-content: center;
-      }
-      .glass-card {
-        max-width: 520px;
-        margin: 0 auto;
-      }
-      .about-grid,
-      .academy-grid,
-      .features-grid,
-      .testimonial-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .community-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
-      }
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero-description { margin-left: auto; margin-right: auto; }
+      .hero-buttons { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .glass-card { max-width: 520px; margin: 0 auto; }
+      .about-grid, .academy-grid, .features-grid, .testimonial-grid { grid-template-columns: repeat(2, 1fr); }
+      .community-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
     }
     @media (max-width: 992px) {
-      header .container {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 12px;
-      }
-      nav ul {
-        gap: 22px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .logo h2 {
-        font-size: 24px;
-      }
-      section {
-        padding: 80px 0;
-      }
+      header .container { flex-wrap: wrap; justify-content: center; gap: 12px; }
+      nav ul { gap: 22px; flex-wrap: wrap; justify-content: center; }
+      .logo h2 { font-size: 24px; }
+      section { padding: 80px 0; }
     }
     @media (max-width: 768px) {
-      .hero h1 {
-        font-size: 48px;
-      }
-      .hero h2 {
-        font-size: 32px;
-      }
-      .section-title h2 {
-        font-size: 36px;
-      }
-      .about-grid,
-      .academy-grid,
-      .features-grid,
-      .testimonial-grid,
-      .community-grid,
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-      .footer-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-      .footer-about .footer-logo {
-        margin: 0 auto 16px;
-      }
-      .strategy-flow {
-        flex-direction: column;
-        gap: 12px;
-      }
-      .flow-arrow {
-        transform: rotate(90deg);
-      }
-      .nav-buttons {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .join-btn {
-        padding: 8px 20px;
-        font-size: 13px;
-      }
+      .hero h1 { font-size: 48px; }
+      .hero h2 { font-size: 32px; }
+      .section-title h2 { font-size: 36px; }
+      .about-grid, .academy-grid, .features-grid, .testimonial-grid, .community-grid, .stats-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+      .footer-about .footer-logo { margin: 0 auto 16px; }
+      .strategy-flow { flex-direction: column; gap: 12px; }
+      .flow-arrow { transform: rotate(90deg); }
+      .nav-buttons { flex-wrap: wrap; justify-content: center; }
+      .join-btn { padding: 8px 20px; font-size: 13px; }
     }
     @media (max-width: 480px) {
-      .hero h1 {
-        font-size: 34px;
-      }
-      .hero h2 {
-        font-size: 26px;
-      }
-      .cta h2 {
-        font-size: 32px;
-      }
-      .glass-card {
-        padding: 28px 20px;
-      }
+      .hero h1 { font-size: 34px; }
+      .hero h2 { font-size: 26px; }
+      .cta h2 { font-size: 32px; }
+      .glass-card { padding: 28px 20px; }
     }
   </style>
 </head>
@@ -983,7 +894,7 @@
         <div class="glass-card">
           <h3>Today's Focus</h3>
           <ul>
-            <li>✓ Market Structure</li>
+            <li>✓ Identify Structure (Bullish/Bearish)</li>
             <li>✓ Supply & Demand</li>
             <li>✓ Liquidity Sweep</li>
             <li>✓ Confirmation Entry</li>
@@ -995,7 +906,7 @@
     </div>
   </section>
 
-  <!-- ===== ABOUT (order fixed: Structure → S&D → Liquidity) ===== -->
+  <!-- ===== ABOUT ===== -->
   <section class="about" id="about">
     <div class="container">
       <h2 style="font-size:48px;font-weight:800;text-align:center;margin-bottom:24px;">About GTRADES-AXIS™</h2>
@@ -1008,8 +919,8 @@
       <div class="about-grid">
         <div class="about-card">
           <i class="fas fa-chart-line"></i>
-          <h3>Market Structure</h3>
-          <p>Learn how institutions create trends, continuations and reversals before entering trades.</p>
+          <h3>Identify Structure</h3>
+          <p>Learn to read bullish and bearish market structure before any trade.</p>
         </div>
         <div class="about-card">
           <i class="fas fa-layer-group"></i>
@@ -1025,7 +936,7 @@
     </div>
   </section>
 
-  <!-- ===== ACADEMY (order fixed: Structure → S&D → Liquidity → Entries → Risk → Psychology) ===== -->
+  <!-- ===== ACADEMY ===== -->
   <section class="academy" id="academy">
     <div class="container">
       <div class="section-title">
@@ -1035,7 +946,7 @@
       <div class="academy-grid">
         <div class="academy-card">
           <div class="icon"><i class="fas fa-project-diagram"></i></div>
-          <h3>Market Structure</h3>
+          <h3>Identify Structure</h3>
           <p>Master BOS, CHoCH, trend continuation, trend reversal, internal & external structure.</p>
         </div>
         <div class="academy-card">
@@ -1067,7 +978,7 @@
     </div>
   </section>
 
-  <!-- ===== STRATEGY (order fixed: Structure → S&D → Liquidity → Confirmation → Execution → Management) ===== -->
+  <!-- ===== STRATEGY ===== -->
   <section class="strategy" id="strategy">
     <div class="container">
       <div class="section-title">
@@ -1077,7 +988,7 @@
       <div class="strategy-flow">
         <div class="flow-box"><div class="flow-number">01</div><h3>HTF Bias</h3><p>Determine overall direction.</p></div>
         <div class="flow-arrow"><i class="fas fa-angle-right"></i></div>
-        <div class="flow-box"><div class="flow-number">02</div><h3>Structure</h3><p>Identify BOS &amp; CHoCH.</p></div>
+        <div class="flow-box"><div class="flow-number">02</div><h3>Structure</h3><p>Identify Bullish/Bearish.</p></div>
         <div class="flow-arrow"><i class="fas fa-angle-right"></i></div>
         <div class="flow-box"><div class="flow-number">03</div><h3>S&amp;D</h3><p>Locate institutional zones.</p></div>
         <div class="flow-arrow"><i class="fas fa-angle-right"></i></div>
@@ -1092,7 +1003,7 @@
     </div>
   </section>
 
-  <!-- ===== WHY US ===== -->
+  <!-- ===== WHY US (unchanged) ===== -->
   <section class="why" id="why">
     <div class="container">
       <div class="section-title"><h2>Why Choose GTRADES-AXIS™</h2></div>
