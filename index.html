@@ -223,6 +223,111 @@
       transform: rotate(-45deg) translate(4px, -4px);
     }
 
+    /* ─── MOBILE OVERLAY ─── */
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(2, 8, 24, 0.96);
+      backdrop-filter: blur(24px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-overlay-inner {
+      width: 100%;
+      max-width: 380px;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .mobile-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    .mobile-nav-list li {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-overlay.open .mobile-nav-list li {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .mobile-nav-list li:nth-child(1) { transition-delay: 0.05s; }
+    .mobile-nav-list li:nth-child(2) { transition-delay: 0.10s; }
+    .mobile-nav-list li:nth-child(3) { transition-delay: 0.15s; }
+    .mobile-nav-list li:nth-child(4) { transition-delay: 0.20s; }
+    .mobile-nav-list li:nth-child(5) { transition-delay: 0.25s; }
+    .mobile-nav-list li:nth-child(6) { transition-delay: 0.30s; }
+
+    .mobile-link {
+      display: block;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.3s;
+    }
+    .mobile-link:hover {
+      color: #fff;
+    }
+
+    .mobile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+    .mobile-overlay.open .mobile-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .mobile-login,
+    .mobile-dashboard {
+      width: 100%;
+      padding: 14px;
+      text-align: center;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      background: transparent;
+      transition: background 0.3s;
+    }
+    .mobile-login:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .mobile-dashboard {
+      background: #fff;
+      color: #000;
+      border: none;
+      font-weight: 600;
+    }
+    .mobile-dashboard:hover {
+      background: #e8e8e8;
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Hide desktop nav on mobile */
     @media (max-width: 992px) {
       header {
         height: 60px;
@@ -236,51 +341,7 @@
         font-size: 0.85rem;
       }
       nav {
-        display: none;
-        position: absolute;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        background: rgba(7, 9, 13, 0.96);
-        backdrop-filter: blur(16px);
-        padding: 12px 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        flex-direction: column;
-        align-items: stretch;
-        max-height: calc(100vh - 60px);
-        overflow-y: auto;
-      }
-      nav.open {
-        display: flex;
-      }
-      nav ul {
-        flex-direction: column;
-        gap: 2px;
-        width: 100%;
-      }
-      nav ul li a {
-        padding: 8px 12px;
-        border-radius: 6px;
-        width: 100%;
-        white-space: normal;
-        font-size: 0.85rem;
-      }
-      .nav-buttons {
-        margin-top: 10px;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px;
-        padding-top: 10px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-      }
-      .nav-buttons a {
-        width: 30px;
-        height: 30px;
-        font-size: 13px;
-      }
-      .join-btn {
-        padding: 4px 12px;
-        font-size: 0.75rem;
+        display: none; /* desktop nav hidden, overlay takes over */
       }
       .menu-toggle {
         display: flex;
@@ -297,19 +358,6 @@
       }
       .logo h2 {
         font-size: 0.75rem;
-      }
-      .nav-buttons a {
-        width: 28px;
-        height: 28px;
-        font-size: 11px;
-      }
-      .join-btn {
-        padding: 3px 10px;
-        font-size: 0.65rem;
-      }
-      nav.open {
-        top: 56px;
-        max-height: calc(100vh - 56px);
       }
     }
 
@@ -1117,7 +1165,8 @@
         <h2>GTRADES-<span>AXIS™</span></h2>
       </div>
 
-      <nav id="mainNav">
+      <!-- Desktop Navigation (hidden on mobile) -->
+      <nav id="desktopNav">
         <ul>
           <li><a href="#home">Home</a></li>
           <li><a href="#about">About</a></li>
@@ -1136,11 +1185,30 @@
         </div>
       </nav>
 
+      <!-- Hamburger button -->
       <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
+
+  <!-- ===== MOBILE OVERLAY MENU ===== -->
+  <div id="mobileOverlay" class="mobile-overlay">
+    <div class="mobile-overlay-inner">
+      <ul class="mobile-nav-list">
+        <li><a href="#home" class="mobile-link">Home</a></li>
+        <li><a href="#about" class="mobile-link">About</a></li>
+        <li><a href="#academy" class="mobile-link">Academy</a></li>
+        <li><a href="#strategy" class="mobile-link">Strategy</a></li>
+        <li><a href="#community" class="mobile-link">Community</a></li>
+        <li><a href="#contact" class="mobile-link">Contact</a></li>
+      </ul>
+      <div class="mobile-actions">
+        <a href="login.html" class="mobile-login" id="mobileLoginBtn">Login</a>
+        <a href="dashboard.html" class="mobile-dashboard" id="mobileDashboardBtn" style="display:none;">Dashboard</a>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== HERO ===== -->
   <section class="hero" id="home">
@@ -1436,19 +1504,20 @@
 
   <!-- ===== SCRIPTS ===== -->
   <script>
-    // ─── Mobile Menu Toggle ──────────────────────────────────────
-    const toggle = document.getElementById('menuToggle');
-    const nav = document.getElementById('mainNav');
+    // ─── Mobile Overlay Toggle ──────────────────────────────────
+    const toggleBtn = document.getElementById('menuToggle');
+    const overlay = document.getElementById('mobileOverlay');
 
-    toggle?.addEventListener('click', () => {
-      toggle.classList.toggle('active');
-      nav.classList.toggle('open');
+    toggleBtn?.addEventListener('click', () => {
+      toggleBtn.classList.toggle('active');
+      overlay.classList.toggle('open');
     });
 
-    nav?.querySelectorAll('a').forEach(link => {
+    // Close overlay when a link is clicked
+    overlay?.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        toggle.classList.remove('active');
-        nav.classList.remove('open');
+        toggleBtn.classList.remove('active');
+        overlay.classList.remove('open');
       });
     });
 
@@ -1461,16 +1530,23 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ─── Auth Buttons ──────────────────────────────────────────
+    // ─── Auth Buttons (desktop & mobile) ──────────────────────
     const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
     const loginBtn = document.getElementById('loginBtn');
     const dashboardBtn = document.getElementById('dashboardBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
+
     if (isLoggedIn) {
       loginBtn.style.display = 'none';
       dashboardBtn.style.display = 'inline-flex';
+      mobileLoginBtn.style.display = 'none';
+      mobileDashboardBtn.style.display = 'block';
     } else {
       loginBtn.style.display = 'inline-flex';
       dashboardBtn.style.display = 'none';
+      mobileLoginBtn.style.display = 'block';
+      mobileDashboardBtn.style.display = 'none';
     }
 
     console.log('GTRADES-AXIS™ ready.');
