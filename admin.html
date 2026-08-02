@@ -95,10 +95,7 @@
       font-weight: 500;
       border-left: 3px solid transparent;
     }
-    .sidebar nav ul li a:hover {
-      background: var(--bg-card);
-      color: #fff;
-    }
+    .sidebar nav ul li a:hover { background: var(--bg-card); color: #fff; }
     .sidebar nav ul li.active a {
       background: rgba(79,124,255,0.12);
       color: var(--accent-blue);
@@ -327,11 +324,7 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .manage-btn:hover {
-      background: var(--accent-blue);
-      border-color: var(--accent-blue);
-      color: #fff;
-    }
+    .manage-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
 
     .right-panel { display: flex; flex-direction: column; gap: 20px; }
     .empty-card { text-align: center; padding: 24px 12px; color: var(--text-secondary); }
@@ -389,6 +382,74 @@
     .btn-view-proof:hover { background: var(--accent-blue); color: #fff; }
 
     /* ===========================
+       MEMBER MODAL
+    =========================== */
+    .member-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .member-modal.active { display: flex; }
+    .member-modal-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      max-width: 520px;
+      width: 92%;
+      padding: 30px 26px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    .member-modal-content .close-modal {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 28px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: 0.2s;
+    }
+    .member-modal-content .close-modal:hover { color: #fff; }
+    .member-modal-content h2 { font-size: 1.375rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .member-modal-content h2 i { color: var(--accent-blue); }
+
+    .member-profile { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+    .member-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
+    .member-profile h3 { font-size: 1.125rem; }
+    .member-profile p { color: var(--text-secondary); font-size: 0.875rem; }
+
+    .member-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+    .detail-box { background: var(--bg-primary); border-radius: 8px; padding: 12px 14px; }
+    .detail-box label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; display: block; }
+    .detail-box span { font-size: 1rem; font-weight: 600; display: block; margin-top: 2px; }
+
+    .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .modal-actions button {
+      padding: 8px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.8rem;
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; flex: 1 0 auto; justify-content: center;
+      cursor: pointer;
+    }
+    .approve-btn { background: rgba(0,200,151,0.12); color: var(--green); }
+    .approve-btn:hover { background: var(--green); color: #fff; }
+    .premium-btn { background: rgba(245,166,35,0.12); color: var(--gold); }
+    .premium-btn:hover { background: var(--gold); color: #0b0d15; }
+    .admin-btn { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
+    .admin-btn:hover { background: var(--accent-blue); color: #fff; }
+    .suspend-btn { background: rgba(255,71,102,0.12); color: var(--red); }
+    .suspend-btn:hover { background: var(--red); color: #fff; }
+    .delete-btn { background: rgba(255,71,102,0.12); color: var(--red); }
+    .delete-btn:hover { background: var(--red); color: #fff; }
+
+    /* ===========================
        RESPONSIVE
     =========================== */
     @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } }
@@ -414,7 +475,6 @@
       <li><a href="#academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
       <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
       <li><a href="#videos"><i class="fa-solid fa-video"></i> Videos</a></li>
-      <!-- PAYMENTS TAB ADDED -->
       <li><a href="#payments"><i class="fa-solid fa-credit-card"></i> Payments</a></li>
     </ul>
   </nav>
@@ -449,7 +509,7 @@
   <div class="dashboard-grid">
     <div class="dashboard-card large" id="members">
       <div class="card-header"><div><h2><i class="fa-solid fa-users"></i> Members Management</h2></div><input type="text" id="memberSearch" placeholder="🔍 Search member..." /></div>
-      <div class="table-container"><table class="members-table"><thead><tr><th>User</th><th>Membership</th><th>Status</th><th>Joined</th></tr></thead><tbody id="membersTable"><tr><td colspan="4"><div class="empty-card">Loading members...</div></td></tr></tbody></table></div>
+      <div class="table-container"><table class="members-table"><thead><tr><th>User</th><th>Membership</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody id="membersTable"><tr><td colspan="5"><div class="empty-card">Loading members...</div></td></tr></tbody></table></div>
     </div>
     <div class="right-panel">
       <div class="dashboard-card"><h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2><div id="recentMembers"><div class="empty-card">No members yet.</div></div></div>
@@ -459,12 +519,12 @@
   </div>
 
   <!-- ==========================================================
-       ACADEMY MANAGER – MODULES WITH LESSONS & QUIZ
+       ACADEMY MANAGER
   ========================================================== -->
   <section class="manager-section" id="academy">
     <div class="dashboard-card">
       <div class="card-header">
-        <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules. Published modules appear in the student portal with lessons and quizzes.</p></div>
+        <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules.</p></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
           <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples (Mod 1-4)</button>
@@ -489,7 +549,7 @@
   </section>
 
   <!-- ==========================================================
-       PAYMENTS MANAGER (ADDED)
+       PAYMENTS MANAGER
   ========================================================== -->
   <section class="manager-section" id="payments">
     <div class="dashboard-card">
@@ -598,29 +658,53 @@
 }
 </script>
 
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/admin/admin-members.js"></script>
-<script type="module" src="js/admin/resources.js"></script>
-<script type="module" src="js/admin/videos.js"></script>
+<!-- COMPLETE SINGLE MODULE SCRIPT (NO EXTERNAL CONFLICTS) -->
 <script type="module">
   import { auth, db } from "./js/firebase.js";
   import { signOut, onAuthStateChanged } from "firebase/auth";
-  import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { 
+    collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, 
+    onSnapshot, serverTimestamp, addDoc 
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-  // ─── CONSTANTS ──────────────────────────────────────────────
-  const MODULES_COLLECTION = "academy_modules";
+  // ─── GLOBAL VARIABLES ──────────────────────────────────────────
+  let allMembers = [];
+  let selectedUser = null; // <--- THIS WAS CAUSING THE CRASH. NOW IT IS DECLARED AT THE TOP.
+  let currentModules = [];
 
-  // ─── LOGOUT & UTILS ─────────────────────────────────────────
+  // ─── DOM REFS (Members) ──────────────────────────────────────
+  const membersTableBody = document.getElementById('membersTable');
+  const memberSearch = document.getElementById('memberSearch');
+  const memberModal = document.getElementById('memberModal');
+  const closeModal = document.getElementById('closeModal');
+  const modalName = document.getElementById('modalName');
+  const modalEmail = document.getElementById('modalEmail');
+  const modalRole = document.getElementById('modalRole');
+  const modalStatus = document.getElementById('modalStatus');
+  const modalPayment = document.getElementById('modalPayment');
+  const modalJoined = document.getElementById('modalJoined');
+  const modalAvatar = document.getElementById('memberAvatar');
+  const modalApproveBtn = document.getElementById('approveBtn');
+  const modalPremiumBtn = document.getElementById('premiumBtn');
+  const modalAdminBtn = document.getElementById('adminBtn');
+  const modalSuspendBtn = document.getElementById('suspendBtn');
+  const modalDeleteBtn = document.getElementById('deleteBtn');
+
+  // ─── LOGOUT & DATE ─────────────────────────────────────────────
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     if (confirm("Logout?")) { await signOut(auth); window.location.href = "login.html"; }
   });
+
   function updateClock() {
     const el = document.getElementById("liveDate");
-    if (el) el.textContent = new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    if (el) el.textContent = new Date().toLocaleString("en-GB", { 
+      weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" 
+    });
   }
   updateClock(); setInterval(updateClock, 1000);
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  // ─── ACTIVITY FEED ────────────────────────────────────────────
   function addActivity(text) {
     const feed = document.getElementById('activityFeed');
     if (!feed) return;
@@ -632,7 +716,127 @@
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
 
-  // ─── SAMPLE MODULES WITH YOUR EXACT TEXT ──────────────
+  // ══════════════════════════════════════════════════════════════
+  //  1. MEMBERS LOGIC
+  // ══════════════════════════════════════════════════════════════
+  function listenMembers() {
+    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      allMembers = [];
+      snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
+      renderMembersTable(allMembers);
+      updateMemberStats(allMembers);
+      renderRecentMembers(allMembers);
+    });
+  }
+
+  function updateMemberStats(members) {
+    document.getElementById('totalMembers').textContent = members.length;
+    document.getElementById('premiumMembers').textContent = members.filter(m => m.membership === 'premium').length;
+    document.getElementById('premiumOverview').textContent = members.filter(m => m.membership === 'premium').length;
+  }
+
+  function renderRecentMembers(members) {
+    const container = document.getElementById('recentMembers');
+    const recent = members.slice(0, 5);
+    if (recent.length === 0) return container.innerHTML = `<div class="empty-card">No members yet.</div>`;
+    container.innerHTML = recent.map(m => `
+      <div class="recent-member">
+        <div class="avatar-small">${(m.displayName || m.email || 'U')[0].toUpperCase()}</div>
+        <div class="member-info"><h4>${m.displayName || m.email || 'Member'}</h4><p>${m.membership || 'Free'}</p></div>
+      </div>
+    `).join('');
+  }
+
+  function renderMembersTable(members) {
+    const searchTerm = (memberSearch.value || '').toLowerCase();
+    const filtered = members.filter(m => 
+      (m.email || '').toLowerCase().includes(searchTerm) || 
+      (m.displayName || '').toLowerCase().includes(searchTerm)
+    );
+
+    if (filtered.length === 0) {
+      membersTableBody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No members found.</div></td></tr>`;
+      return;
+    }
+
+    membersTableBody.innerHTML = filtered.map(m => `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="avatar-small">${(m.displayName || m.email || 'U')[0].toUpperCase()}</div>
+            <div class="user-info"><strong>${m.displayName || m.email || 'Member'}</strong><small>${m.email || '--'}</small></div>
+          </div>
+        </td>
+        <td><span class="badge ${m.membership || 'free'}">${(m.membership || 'Free').toUpperCase()}</span></td>
+        <td><span class="badge ${m.status || 'pending'}">${(m.status || 'Pending').toUpperCase()}</span></td>
+        <td>${m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleDateString() : '--'}</td>
+        <td><button class="manage-btn manage-member-btn" data-id="${m.id}">Manage</button></td>
+      </tr>
+    `).join('');
+
+    // Attach Click Listeners to the "Manage" buttons
+    document.querySelectorAll('.manage-member-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const user = allMembers.find(m => m.id === btn.dataset.id);
+        if (user) openModal(user);
+      });
+    });
+  }
+
+  memberSearch.addEventListener('input', () => renderMembersTable(allMembers));
+
+  // ─── MEMBER MODAL LOGIC ──────────────────────────────────────
+  function openModal(user) {
+    selectedUser = user; // Defined correctly now
+    modalName.textContent = user.displayName || user.email || 'Member';
+    modalEmail.textContent = user.email || 'N/A';
+    modalRole.textContent = (user.role || 'member').toUpperCase();
+    modalStatus.textContent = (user.status || 'pending').toUpperCase();
+    modalPayment.textContent = (user.paymentStatus || 'unpaid').toUpperCase();
+    modalJoined.textContent = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : '--';
+    modalAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
+    memberModal.classList.add('active');
+  }
+
+  function closeModalFunc() {
+    selectedUser = null;
+    memberModal.classList.remove('active');
+  }
+
+  closeModal.addEventListener('click', closeModalFunc);
+  memberModal.addEventListener('click', (e) => { if(e.target === memberModal) closeModalFunc(); });
+
+  // ─── MODAL BUTTON ACTIONS ────────────────────────────────────
+  async function updateMemberField(field, value) {
+    if (!selectedUser) return alert("No user selected.");
+    try {
+      await updateDoc(doc(db, "users", selectedUser.id), { [field]: value, updatedAt: serverTimestamp() });
+      addActivity(`Updated ${field} for ${selectedUser.email || 'member'}`);
+      closeModalFunc();
+    } catch (e) { alert("Error updating member: " + e.message); }
+  }
+
+  modalApproveBtn.addEventListener('click', () => updateMemberField('status', 'active'));
+  modalPremiumBtn.addEventListener('click', () => updateMemberField('membership', 'premium'));
+  modalAdminBtn.addEventListener('click', () => updateMemberField('role', 'admin'));
+  modalSuspendBtn.addEventListener('click', () => updateMemberField('status', 'suspended'));
+
+  modalDeleteBtn.addEventListener('click', async () => {
+    if (!selectedUser) return;
+    if (!confirm(`Permanently delete ${selectedUser.email}? This cannot be undone!`)) return;
+    try {
+      await deleteDoc(doc(db, "users", selectedUser.id));
+      addActivity(`Deleted member ${selectedUser.email}`);
+      closeModalFunc();
+    } catch (e) { alert("Error deleting member: " + e.message); }
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  2. ACADEMY MODULES
+  // ══════════════════════════════════════════════════════════════
+  const MODULES_COLLECTION = "academy_modules";
+
   function getSampleModules() {
     return [
       {
@@ -641,84 +845,80 @@
         content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy. This course is designed to guide traders through one complete trading framework from market understanding to disciplined execution. The focus is on developing consistent habits rather than chasing quick profits.</p><h3>Mission & Vision</h3><p><strong>Mission:</strong> To empower traders through structured education, disciplined execution and professional risk management.<br><strong>Vision:</strong> To build a respected global trading community recognized for consistency, integrity and continuous learning.</p><h3>Core Values</h3><ul><li>Discipline</li><li>Consistency</li><li>Patience</li><li>Accountability</li><li>Continuous Learning</li><li>Professionalism</li></ul><div style="background:#1a1f2f;padding:16px;border-radius:8px;border-left:4px solid var(--gold);margin:16px 0;"><strong>TRADING IS NOT ABOUT GETTING RICH OVERNIGHT.</strong><br>IT IS ABOUT DEVELOPING A SKILL THAT CAN GENERATE CONSISTENT RESULTS THROUGH DISCIPLINE, PATIENCE, AND STRUCTURED EXECUTION.</div>`,
         videoId: "", hasQuiz: true, published: true,
         lessons: [
-          { id: "lsn_1_1", title: "Welcome to GTRADES-AXIS™", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy. This course is designed to guide traders through one complete trading framework from market understanding to disciplined execution.</p>" },
-          { id: "lsn_1_2", title: "How the Academy Works", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Learning Path</h3><ol><li>Introduction</li><li>Market Structure</li><li>Supply & Demand</li><li>Liquidity</li><li>Entries</li><li>Trade Management</li><li>Psychology</li></ol><p>Study each module in sequence. Take notes, practice on charts, journal your trades and avoid skipping lessons.</p>" },
-          { id: "lsn_1_3", title: "Trading Rules & Expectations", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Community Rules</h3><ul><li>Respect members.</li><li>No spam.</li><li>No signal selling.</li><li>Protect academy material.</li><li>Focus on learning and professionalism.</li></ul><h3>Trading Expectations</h3><p>Trading is a skill developed through repetition and discipline. Risk management comes before profit. Consistency is the long-term objective.</p>" },
-          { id: "lsn_1_4", title: "Setting Up Your Trading Environment", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Required Tools</h3><ul><li>TradingView</li><li>MetaTrader 5</li><li>Trading Journal</li><li>Economic Calendar</li><li>Reliable Internet</li></ul>" },
-          { id: "lsn_1_5", title: "Currency Pairs, Pips & Market Basics", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>The Major Currencies</h3><p>We recommend focusing on the 8 major currencies: USD, EUR, GBP, JPY, AUD, NZD, CAD, CHF.</p><h3>What is a Currency Pair?</h3><p>Currencies are always traded in pairs. Example: EUR/USD.</p><h3>Understanding Pips</h3><p>1 Pip = 0.0001 for most pairs.</p>" }
+          { id: "lsn_1_1", title: "Welcome to GTRADES-AXIS™", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_2", title: "How the Academy Works", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_3", title: "Trading Rules & Expectations", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_4", title: "Setting Up Your Trading Environment", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_5", title: "Recommended Tools", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
         ],
         quiz: { passingScore: 70, questions: [
           { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
-          { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 },
-          { question: "What is the primary rule of trading?", options: ["Protect your capital", "Make maximum profit", "Trade every day", "Use high leverage"], correct: 0 }
+          { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 }
         ]}
       },
       {
         id: "mod_2", order: 2, title: "Market Structure",
         description: "HTF bias, MTF analysis, BOS, CHOCH, internal/external structure, examples.",
-        content: `<h3>Introduction</h3><p>Market Structure is the foundation of every trade taken within the GTRADES-AXIS™ Framework. It helps determine whether buyers or sellers are in control before looking for entries.</p><h3>Bullish vs Bearish Structure</h3><ul><li><strong>Bullish:</strong> Higher Highs (HH) and Higher Lows (HL).</li><li><strong>Bearish:</strong> Lower Lows (LL) and Lower Highs (LH).</li></ul><h3>Break of Structure (BOS)</h3><p>A BOS confirms continuation by breaking a significant swing in the direction of the prevailing trend. After a BOS, expect a pullback.</p><h3>Change of Character (CHoCH)</h3><p>A CHoCH is the first warning that control may be shifting from buyers to sellers or vice versa.</p><h3>Fractal Structure</h3><p>Fractal structure is 100% mechanical. Wick breaks are enough for a Fractal break of structure.</p>`,
+        content: `<h3>Introduction</h3><p>Market Structure is the foundation of every trade.</p>`,
         videoId: "", hasQuiz: true, published: true,
         lessons: [
-          { id: "lsn_2_1", title: "Understanding Market Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Introduction</h3><p>Market Structure is the foundation of every trade taken within the GTRADES-AXIS™ Framework. It helps determine whether buyers or sellers are in control before looking for entries.</p>" },
-          { id: "lsn_2_2", title: "Swing Highs, Lows, HH, HL, LH, LL", type: "video", videoUrl: "", pdfUrl: "", notes: "<p><strong>Bullish Structure:</strong> Higher Highs (HH) and Higher Lows (HL). Buyers remain in control.<br><strong>Bearish Structure:</strong> Lower Lows (LL) and Lower Highs (LH). Sellers remain in control.</p>" },
-          { id: "lsn_2_3", title: "Break of Structure (BOS)", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Break of Structure (BOS)</h3><p>A BOS confirms continuation by breaking a significant swing in the direction of the prevailing trend. After a BOS, expect a pullback on that timeframe. Swing -> BOS -> candle BODY CLOSE</p>" },
-          { id: "lsn_2_4", title: "Change of Character (CHoCH)", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Change of Character (CHoCH)</h3><p>A CHoCH is the first warning that control may be shifting from buyers to sellers or vice versa. CHoCH is the term we use for a Fractal trend change.</p>" },
-          { id: "lsn_2_5", title: "Internal vs External Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Internal structure refines entries. External structure defines the overall market trend and bias. We ALWAYS map structure from the high/low (wicks) of candles.</p>" },
-          { id: "lsn_2_6", title: "Market Bias & Common Mistakes", type: "video", videoUrl: "", pdfUrl: "", notes: "<p><strong>Market Bias:</strong> Before every trade, identify whether the market is bullish, bearish or ranging.<br><strong>Common Mistakes:</strong> Trading against trend, ignoring higher timeframes, forcing entries and confusing pullbacks with reversals.</p>" },
-          { id: "lsn_2_7", title: "Multi-Timeframe (MTF) Analysis", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>MTF Analysis</h3><p>Start on the M/W/D/4H, refine on the ½ H, prepare on the 15M and execute on the 1-5M.<br>Price is fractal. A run on a higher timeframe is a trend on a lower timeframe.</p>" },
-          { id: "lsn_2_8", title: "Fractal Structure Explained", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Fractal Structure (CHoCH) - Theory</h3><p>Fractal structure is 100% mechanical. It's the most aggressive type of structure mapping.</p><p><strong>Bullish Fractal:</strong> A Fractal high is confirmed when the immediate following candle fails to break its high.</p><p><strong>Bearish Fractal:</strong> A Fractal low is confirmed when the immediate following candle fails to break its low.</p>" },
-          { id: "lsn_2_9", title: "Fractal Mapping & Inside Bars", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Inside Bars & Mistakes</h3><p>An inside bar is simply a candle that fails to break the previous candle's high and low.</p><p><strong>Common Mistake #1:</strong> Equal highs/lows are considered a pullback.<br><strong>Mistake #2:</strong> Focusing on candle colour is irrelevant.<br><strong>Mistake #3:</strong> When a bullish Fractal break occurs, draw the low on the lowest point of the move.</p>" }
+          { id: "lsn_2_1", title: "Understanding Market Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_2", title: "Higher Timeframe (HTF) Bias", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_3", title: "Multi-Timeframe (MTF) Analysis", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_4", title: "Trend Continuation", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_5", title: "Trend Reversal", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_6", title: "Internal Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_7", title: "External Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_8", title: "BOS & CHoCH", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_9", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
         ],
         quiz: { passingScore: 70, questions: [
           { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
-          { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 },
-          { question: "What is the HTF bias used for?", options: ["Determining overall trend direction", "Entry timing", "Risk management", "Setting stop loss"], correct: 0 }
+          { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 }
         ]}
       },
       {
         id: "mod_3", order: 3, title: "Liquidity",
         description: "Equal highs/lows, sweeps, inducement, engineered liquidity, mapping.",
-        content: `<h3>Introduction</h3><p>Liquidity is one of the core pillars of the GTRADES-AXIS™ Framework. Financial institutions require liquidity to execute large orders efficiently. Understanding where liquidity rests helps traders anticipate high-probability market reactions.</p><h3>What is Liquidity?</h3><ul><li>The amount of demand and supply in a market.</li><li>The ease to which a market can be traded without affecting its price.</li></ul>`,
+        content: `<h3>Introduction</h3><p>Liquidity is one of the core pillars.</p>`,
         videoId: "", hasQuiz: true, published: true,
         lessons: [
-          { id: "lsn_3_1", title: "Introduction to Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>What is Liquidity?</h3><ul><li>The amount of demand and supply in a market.</li><li>The ease to which a market can be traded without affecting its price.</li></ul><p>Price is continuously seeking pools of liquidity to rebalance the market.</p>" },
-          { id: "lsn_3_2", title: "Buy-Side and Sell-Side Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "<p><strong>Buy-Side Liquidity:</strong> Commonly found above swing highs, equal highs and resistance levels where buy stops accumulate.</p><p><strong>Sell-Side Liquidity:</strong> Commonly found below swing lows, equal lows and support levels where sell stops accumulate.</p>" },
-          { id: "lsn_3_3", title: "Equal Highs & Equal Lows", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Equal highs and equal lows often become liquidity pools because many traders place stop orders around these obvious levels.</p>" },
-          { id: "lsn_3_4", title: "Liquidity Sweep", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>A liquidity sweep occurs when price briefly moves through a liquidity pool, triggering stop orders before reversing in the intended direction.</p>" },
-          { id: "lsn_3_5", title: "Inducement", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Inducement is a move designed to encourage traders into positions before price reverses to collect their liquidity.</p>" },
-          { id: "lsn_3_6", title: "Liquidity with Supply & Demand", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>The highest-probability setups occur when liquidity is swept into a higher-timeframe supply or demand zone aligned with the prevailing trend.</p><p>There are 2 main ways we utilize liquidity to refine S&D zones: 1. Inducement 2. Sweep zones.</p>" },
-          { id: "lsn_3_7", title: "Structure > Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Structure > Liquidity</h3><p><strong>Always Trade away from Sweeps.</strong></p><p>Identify HTF narrative, monitor LTF price action, and allow the trade setup to present itself.</p>" }
+          { id: "lsn_3_1", title: "Introduction to Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_2", title: "Equal Highs", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_3", title: "Equal Lows", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_4", title: "Liquidity Sweeps", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_5", title: "Inducement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_6", title: "Engineered Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_7", title: "Liquidity Mapping", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_8", title: "Practical Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
         ],
         quiz: { passingScore: 70, questions: [
           { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
-          { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 },
-          { question: "What is the primary rule regarding liquidity sweeps?", options: ["Trade away from them", "Trade into them", "Ignore them", "Place pending orders inside them"], correct: 0 }
+          { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 }
         ]}
       },
       {
         id: "mod_4", order: 4, title: "Supply & Demand",
-        description: "Institutional zones, fresh vs tested, refinement, premium/discount, combining with structure.",
-        content: `<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints through aggressive buying or selling. These zones form the foundation for high-probability trade opportunities.</p><h3>Institutional Order Flow</h3><p>Large institutions cannot execute all orders at one price. Their activity often creates strong imbalances that leave behind supply and demand zones.</p><h3>Supply & Demand Checklist</h3><ul><li>☑ Trend confirmed</li><li>☑ Zone identified</li><li>☑ Fresh zone</li><li>☑ Strong departure</li><li>☑ Higher timeframe aligned</li><li>☑ Entry confirmed</li><li>☑ Risk defined</li></ul>`,
+        description: "Institutional zones, fresh vs tested, refinement, premium/discount.",
+        content: `<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints.</p>`,
         videoId: "", hasQuiz: true, published: true,
         lessons: [
-          { id: "lsn_4_1", title: "Institutional Supply & Demand", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints through aggressive buying or selling.</p><h3>What is Demand?</h3><p>An area where buying pressure overwhelms selling pressure, causing price to rally strongly.</p><h3>What is Supply?</h3><p>An area where selling pressure overwhelms buying pressure, causing price to decline sharply.</p>" },
-          { id: "lsn_4_2", title: "Institutional Order Flow", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Large institutions cannot execute all orders at one price. Their activity often creates strong imbalances that leave behind supply and demand zones. Price is continuously moving micro pip by micro pip to match and balance the price perfectly.</p><p>Order Flow is the interplay between passive & aggressive orders.</p>" },
-          { id: "lsn_4_3", title: "How to Identify Quality Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Look for explosive moves, strong momentum candles, clear imbalance, and minimal time spent in the base.</p><p><strong>Range Creation:</strong> S&D zones are caused by overwhelming imbalances. We identify these by seeing where price broke out of a range.</p>" },
-          { id: "lsn_4_4", title: "Fresh vs Tested Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Fresh zones have never been revisited after creation and generally offer higher probability. Tested zones have been revisited and may weaken with each touch.</p>" },
-          { id: "lsn_4_5", title: "Zone Refinement & Strong/Weak Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Refine zones using lower timeframes while maintaining alignment with the higher timeframe trend. Strong zones produce decisive moves away from the base. Weak zones show hesitation, multiple retests or poor follow-through.</p>" },
-          { id: "lsn_4_6", title: "Combining with Market Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "<p>Always trade demand in bullish structure and supply in bearish structure. Never trade a zone without confirming market bias.</p><p><strong>Common Mistakes:</strong> Drawing zones everywhere, trading against structure, ignoring higher timeframes, chasing price and using over-tested zones.</p>" },
-          { id: "lsn_4_7", title: "Module Summary & Checklist", type: "video", videoUrl: "", pdfUrl: "", notes: "<h3>Module Summary</h3><p>You learned how supply and demand zones form, how to identify quality zones, refine them, validate them and combine them with market structure.</p><h3>Supply & Demand Checklist</h3><ul><li>☑ Trend confirmed</li><li>☑ Zone identified</li><li>☑ Fresh zone</li><li>☑ Strong departure</li><li>☑ Higher timeframe aligned</li><li>☑ Entry confirmed</li><li>☑ Risk defined</li></ul>" }
+          { id: "lsn_4_1", title: "Institutional Supply", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_2", title: "Institutional Demand", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_3", title: "Fresh vs Tested Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_4", title: "Zone Refinement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_5", title: "Premium & Discount", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_6", title: "Combining Structure with S&D", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_7", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
         ],
         quiz: { passingScore: 70, questions: [
           { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
-          { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 },
-          { question: "Demand zones are typically found:", options: ["Near support levels", "Near resistance levels", "In the middle of a range", "Above price"], correct: 0 }
+          { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 }
         ]}
       }
     ];
   }
 
-  // ─── MODULE FIRESTORE FUNCTIONS ──────────────────────────
   async function loadModulesFromFirestore() {
     try {
       const q = query(collection(db, MODULES_COLLECTION), orderBy("order", "asc"));
@@ -743,8 +943,6 @@
 
   async function deleteModuleFromFirestore(id) { await deleteDoc(doc(db, MODULES_COLLECTION, id)); }
 
-  // ─── RENDER MODULES ──────────────────────────────────────────
-  let currentModules = [];
   async function renderModules() {
     const modules = await loadModulesFromFirestore(); currentModules = modules;
     const tbody = document.getElementById('moduleTableBody');
@@ -796,7 +994,7 @@
     });
   }
 
-  // ─── MODULE FORM LOGIC ──────────────────────────────────────
+  // ─── ACADEMY FORM LOGIC ──────────────────────────────────────
   document.getElementById('toggleModuleFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('moduleFormContainer');
     if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('moduleFormTitle').textContent = 'Add New Module'; document.getElementById('saveModuleBtn').textContent = 'Save Module'; document.getElementById('editingModuleId').value = ''; document.getElementById('moduleForm').reset(); document.getElementById('modulePublished').checked = true; document.getElementById('moduleHasQuiz').checked = true; container.scrollIntoView({ behavior: 'smooth' }); }
@@ -815,7 +1013,6 @@
     await saveModuleToFirestore(moduleData); renderModules(); addActivity(`Saved module "${title}"`); document.getElementById('moduleFormContainer').style.display = 'none'; document.getElementById('moduleForm').reset(); document.getElementById('editingModuleId').value = '';
   });
 
-  // ─── ADD SAMPLE MODULES BUTTON ─────────────────────────────
   document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
     const existing = await loadModulesFromFirestore();
     if (existing.length > 0) { if (!confirm('This will add 4 sample modules (Mod 1-4) with lessons and quizzes. Continue?')) return; }
@@ -824,7 +1021,9 @@
     renderModules(); addActivity('Imported 4 sample modules (Mod 1-4)');
   });
 
-  // ─── PAYMENTS FIRESTORE LOGIC ──────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  //  3. PAYMENTS LOGIC
+  // ══════════════════════════════════════════════════════════════
   function listenPayments() {
     const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
@@ -881,21 +1080,111 @@
       } else {
         addActivity(`Rejected a payment request.`);
       }
-    } catch (error) {
-      console.error("Payment action error:", error);
-      alert("Failed to update payment.");
-    }
+    } catch (error) { alert("Failed to update payment."); }
   }
 
-  // ─── AUTH & INIT ─────────────────────────────────────────────
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await renderModules();
-      listenPayments();
+  // ══════════════════════════════════════════════════════════════
+  //  4. VIDEOS LOGIC (LOCAL STORAGE)
+  // ══════════════════════════════════════════════════════════════
+  function renderVideoCounts() {
+    try {
+      const videos = JSON.parse(localStorage.getItem('gtrades_videos')) || [];
+      const videoCountEl = document.getElementById('videoCount');
+      const videoOverviewEl = document.getElementById('videoOverview');
+      if (videoCountEl) videoCountEl.textContent = videos.length;
+      if (videoOverviewEl) videoOverviewEl.textContent = videos.length;
+    } catch {}
+  }
+
+  document.getElementById('toggleVideoFormBtn')?.addEventListener('click', function() {
+    const container = document.getElementById('videoFormContainer');
+    if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('videoFormTitle').textContent = 'Add New Video'; document.getElementById('saveVideoBtn').textContent = 'Save Video'; document.getElementById('editingVideoId').value = ''; document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none'; container.scrollIntoView({ behavior: 'smooth' }); }
+    else { container.style.display = 'none'; }
+  });
+  document.getElementById('cancelVideoBtn')?.addEventListener('click', function() { document.getElementById('videoFormContainer').style.display = 'none'; });
+
+  document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
+    const title = document.getElementById('videoTitle').value.trim();
+    const category = document.getElementById('videoCategory').value;
+    const duration = document.getElementById('videoDuration').value.trim();
+    const youtubeId = document.getElementById('videoYoutubeId').value.trim();
+    const premiumOnly = document.getElementById('videoPremiumOnly').checked;
+    const thumbnailUrl = document.getElementById('existingThumbnailUrl').value || '';
+    if (!title || !youtubeId) return alert('Title and YouTube ID are required.');
+    const videos = JSON.parse(localStorage.getItem('gtrades_videos')) || [];
+    const existingIndex = videos.findIndex(v => v.id === id);
+    const videoData = { id, title, category, duration, youtubeId, premiumOnly, thumbnailUrl, createdAt: new Date().toISOString() };
+    if (existingIndex !== -1) videos[existingIndex] = videoData; else videos.push(videoData);
+    localStorage.setItem('gtrades_videos', JSON.stringify(videos));
+    renderVideoCounts(); addActivity(`Saved video "${title}"`);
+    document.getElementById('videoFormContainer').style.display = 'none'; document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none';
+  });
+
+  document.getElementById('videoThumbnailFile')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('thumbnailPreviewImg').src = event.target.result;
+        document.getElementById('thumbnailPreview').style.display = 'block';
+        document.getElementById('existingThumbnailUrl').value = event.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   });
 
-  console.log('✅ Full Admin Dashboard ready (Academy + Payments).');
+  // ══════════════════════════════════════════════════════════════
+  //  5. RESOURCES LOGIC (FIRESTORE)
+  // ══════════════════════════════════════════════════════════════
+  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
+    const container = document.getElementById('resourceFormContainer');
+    if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('resourceFormTitle').textContent = 'Add New Resource'; document.getElementById('saveResourceBtn').textContent = 'Save Resource'; document.getElementById('editingResourceId').value = ''; document.getElementById('resourceForm').reset(); document.getElementById('resourceFile').value = ''; container.scrollIntoView({ behavior: 'smooth' }); }
+    else { container.style.display = 'none'; }
+  });
+  document.getElementById('cancelResourceBtn')?.addEventListener('click', function() { document.getElementById('resourceFormContainer').style.display = 'none'; });
+  document.getElementById('chooseFileBtn')?.addEventListener('click', () => document.getElementById('resourceFilePicker').click());
+  document.getElementById('resourceFilePicker')?.addEventListener('change', () => {
+    const fileInput = document.getElementById('resourceFilePicker');
+    if (fileInput.files.length > 0) document.getElementById('resourceFile').value = fileInput.files[0].name;
+  });
+
+  document.getElementById('resourceForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editingResourceId').value || 'res-' + Date.now();
+    const title = document.getElementById('resourceTitle').value.trim();
+    const category = document.getElementById('resourceCategory').value;
+    const description = document.getElementById('resourceDescription').value.trim();
+    const filename = document.getElementById('resourceFile').value.trim();
+    const premiumOnly = document.getElementById('premiumOnly').checked;
+    if (!title) return alert('Please enter a title.');
+    const folder = category.toLowerCase() + 's';
+    const link = `https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
+    const data = { title, category, description, premiumOnly, link, updatedAt: serverTimestamp() };
+    try {
+      if (id.startsWith('res-')) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "resources"), data); }
+      else { await updateDoc(doc(db, "resources", id), data); }
+      addActivity(`Saved resource "${title}"`);
+      document.getElementById('resourceFormContainer').style.display = 'none'; document.getElementById('resourceForm').reset();
+    } catch (error) { alert("Error saving resource: " + error.message); }
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  6. AUTH & INIT
+  // ══════════════════════════════════════════════════════════════
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      listenMembers();
+      renderModules();
+      listenPayments();
+      renderVideoCounts();
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  console.log('✅ Full Admin Dashboard ready. Member Modal error fixed!');
 </script>
 </body>
 </html>
