@@ -12,7 +12,7 @@
   <link rel="icon" href="images/favicon.png" />
   <style>
     /* ============================================================
-       FULLY RESPONSIVE – CLEAN, PROFESSIONAL HEADER
+       CLEAN, PROFESSIONAL – WELL SPACED HEADER
     ============================================================ */
     * {
       margin: 0;
@@ -43,7 +43,7 @@
       display: block;
     }
 
-    /* ─── CONTAINER – CENTERED WITH MAX WIDTH ─── */
+    /* ─── CONTAINER – CENTERED ─── */
     .container {
       width: 100%;
       max-width: 1200px;
@@ -51,7 +51,7 @@
       padding: 0 16px;
     }
 
-    /* ─── HEADER – CLEAN, PROFESSIONAL ─── */
+    /* ─── HEADER – WELL SPACED ─── */
     header {
       position: fixed;
       top: 0;
@@ -99,21 +99,22 @@
       -webkit-text-fill-color: #4f7cff;
     }
 
-    /* ─── DESKTOP NAV ─── */
+    /* ─── DESKTOP NAV – WELL SPACED ─── */
     nav {
       display: flex;
       align-items: center;
       flex: 1;
       justify-content: center;
+      gap: 20px;
     }
     nav ul {
       display: flex;
-      gap: 2rem;
+      gap: 28px;
       align-items: center;
     }
     nav a {
       color: #c9d3dd;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 500;
       transition: 0.3s;
       position: relative;
@@ -136,19 +137,59 @@
       color: #fff;
     }
 
-    /* Header buttons – only Login / Dashboard */
+    /* ─── SOCIAL ICONS – CLEAN, WELL SPACED ─── */
+    .nav-social {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .nav-social a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      color: #c9d3dd;
+      transition: 0.3s;
+      font-size: 15px;
+    }
+    .nav-social a:hover {
+      transform: translateY(-2px);
+      color: #fff;
+    }
+    .nav-social .youtube:hover {
+      background: #ff0000;
+      color: #fff;
+    }
+    .nav-social .telegram:hover {
+      background: #229ed9;
+      color: #fff;
+    }
+    .nav-social .whatsapp:hover {
+      background: #25d366;
+      color: #fff;
+    }
+    .nav-social .tiktok:hover {
+      background: #111;
+      color: #fff;
+    }
+
+    /* ─── HEADER BUTTONS ─── */
     .nav-buttons {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-shrink: 0;
-      margin-left: 20px;
+      margin-left: 12px;
     }
     .join-btn {
       padding: 8px 20px;
       border-radius: 40px;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: 0.35s;
       white-space: nowrap;
       border: 2px solid #4f7cff;
@@ -326,8 +367,11 @@
       .menu-toggle {
         display: flex;
       }
+      .nav-social {
+        display: none;
+      }
       .nav-buttons {
-        display: none; /* hide buttons on mobile, they are in overlay */
+        display: none;
       }
     }
     @media (max-width: 480px) {
@@ -695,7 +739,7 @@
       }
     }
 
-    /* Strategy Flow – Compact */
+    /* Strategy Flow */
     .strategy {
       background: #07090d;
     }
@@ -1148,7 +1192,7 @@
         <h2>GTRADES-<span>AXIS™</span></h2>
       </div>
 
-      <!-- Desktop Navigation (centered, no social icons) -->
+      <!-- Desktop Navigation -->
       <nav id="desktopNav">
         <ul>
           <li><a href="#home">Home</a></li>
@@ -1158,20 +1202,30 @@
           <li><a href="#community">Community</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
+
+        <!-- Social Icons -->
+        <div class="nav-social">
+          <a href="https://www.youtube.com/@GtradesAxis" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
+          <a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank" class="telegram"><i class="fab fa-telegram"></i></a>
+          <a href="https://wa.me/254712416214" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://www.tiktok.com/@gtrades_axis" target="_blank" class="tiktok"><i class="fab fa-tiktok"></i></a>
+        </div>
+
+        <!-- Login / Dashboard -->
         <div class="nav-buttons">
           <a href="login.html" class="join-btn" id="loginBtn">Login</a>
           <a href="dashboard.html" class="join-btn dashboard-btn" id="dashboardBtn" style="display:none;">Dashboard</a>
         </div>
       </nav>
 
-      <!-- Hamburger button (visible only on mobile) -->
+      <!-- Hamburger (mobile only) -->
       <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <!-- ===== MOBILE OVERLAY MENU ===== -->
+  <!-- ===== MOBILE OVERLAY ===== -->
   <div id="mobileOverlay" class="mobile-overlay">
     <div class="mobile-overlay-inner">
       <ul class="mobile-nav-list">
@@ -1189,7 +1243,7 @@
     </div>
   </div>
 
-  <!-- ===== HERO (unchanged) ===== -->
+  <!-- ===== HERO ===== -->
   <section class="hero" id="home">
     <div class="container hero-grid">
       <div class="hero-left">
