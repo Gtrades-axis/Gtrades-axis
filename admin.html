@@ -521,12 +521,12 @@
     }
     .manager-form .form-actions .cancel-btn:hover { background: var(--border-color); }
 
-    /* ─── ACADEMY LESSON MANAGER ─── */
-    .lesson-status-toggle {
+    /* ─── ACADEMY MODULE MANAGER ─── */
+    .module-status-toggle {
       cursor: pointer;
       transition: 0.2s;
     }
-    .lesson-status-toggle:hover { opacity: 0.7; }
+    .module-status-toggle:hover { opacity: 0.7; }
 
     /* ===========================
        MEMBER MODAL
@@ -776,7 +776,7 @@
 
   <!-- QUICK ACTIONS -->
   <section class="quick-actions">
-    <button onclick="document.getElementById('academy').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-book-medical"></i> Add Lesson</button>
+    <button onclick="document.getElementById('academy').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-book-medical"></i> Manage Modules</button>
     <button onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-video-plus"></i> Add Video</button>
     <button onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
     <button onclick="location.href='#members'"><i class="fa-solid fa-user-plus"></i> Add Member</button>
@@ -853,76 +853,81 @@
   </div><!-- /dashboard-grid -->
 
   <!-- ==========================================================
-       ACADEMY MANAGER – FIRESTORE + LOCALSTORAGE
+       ACADEMY MANAGER – MODULES WITH LESSONS & QUIZ
   ========================================================== -->
   <section class="manager-section" id="academy">
     <div class="dashboard-card">
       <div class="card-header">
         <div>
-          <h2><i class="fa-solid fa-graduation-cap"></i> Academy Manager</h2>
-          <p>Manage all academy lessons/modules. Published lessons appear in the student portal.</p>
+          <h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2>
+          <p>Manage all academy modules. Published modules appear in the student portal with lessons and quizzes.</p>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button id="toggleLessonFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
-            <i class="fa-solid fa-plus"></i> Add Lesson
+          <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
+            <i class="fa-solid fa-plus"></i> Add Module
           </button>
-          <button id="addSampleLessonsBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;">
-            <i class="fa-solid fa-copy"></i> Add Sample Lessons
+          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;">
+            <i class="fa-solid fa-copy"></i> Add Samples (Mod 1-4)
           </button>
         </div>
       </div>
 
-      <!-- Lesson list -->
-      <div id="lessonListContainer">
+      <!-- Module list -->
+      <div id="moduleListContainer">
         <div class="table-container">
-          <table class="members-table" id="lessonTable">
+          <table class="members-table" id="moduleTable">
             <thead>
               <tr>
                 <th>Module</th>
                 <th>Title</th>
                 <th>Status</th>
-                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="lessonTableBody">
-              <tr><td colspan="5"><div class="empty-card">Loading lessons from Firestore...</div></td></tr>
+            <tbody id="moduleTableBody">
+              <tr><td colspan="4"><div class="empty-card">Loading modules from Firestore...</div></td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Lesson form -->
-      <div id="lessonFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="lessonFormTitle">Add New Lesson</h3>
-        <form id="lessonForm" class="manager-form">
+      <!-- Module form -->
+      <div id="moduleFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
+        <h3 id="moduleFormTitle">Add New Module</h3>
+        <form id="moduleForm" class="manager-form">
           <div>
             <label>Module Number</label>
-            <input type="number" id="lessonModule" placeholder="e.g. 1" required min="1" />
+            <input type="number" id="moduleOrder" placeholder="e.g. 1" required min="1" />
           </div>
           <div>
-            <label>Lesson Title</label>
-            <input type="text" id="lessonTitle" placeholder="e.g. Introduction to Market Structure" required />
+            <label>Module Title</label>
+            <input type="text" id="moduleTitle" placeholder="e.g. Market Structure" required />
+          </div>
+          <div class="full-width">
+            <label>Module Description</label>
+            <textarea id="moduleDescription" placeholder="Short description for the module card..." rows="2"></textarea>
           </div>
           <div class="full-width">
             <label>Full Content (HTML supported)</label>
-            <textarea id="lessonContent" placeholder="Write the full lesson content here. You can use HTML tags like &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, etc." rows="12"></textarea>
-            <small style="color:var(--text-secondary);font-size:0.7rem;">Supports HTML. Use &lt;h3&gt; for subheadings, &lt;p&gt; for paragraphs, &lt;ul&gt; and &lt;li&gt; for lists.</small>
+            <textarea id="moduleContent" placeholder="Write the full module content here. Use &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;." rows="10"></textarea>
           </div>
           <div class="full-width">
             <label>Video ID (optional)</label>
-            <input type="text" id="lessonVideoId" placeholder="dQw4w9WgXcQ" />
-            <small style="color:var(--text-secondary);font-size:0.7rem;">YouTube video ID to embed at the top of the lesson.</small>
+            <input type="text" id="moduleVideoId" placeholder="dQw4w9WgXcQ" />
           </div>
-          <div class="checkbox-group full-width">
-            <input type="checkbox" id="lessonPublished" checked />
-            <label for="lessonPublished">Published (visible to students)</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="moduleHasQuiz" checked />
+            <label for="moduleHasQuiz">Includes Quiz</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="modulePublished" checked />
+            <label for="modulePublished">Published (visible to students)</label>
           </div>
           <div class="form-actions">
-            <button type="submit" class="save-btn" id="saveLessonBtn"><i class="fa-solid fa-floppy-disk"></i> Save Lesson</button>
-            <button type="button" class="cancel-btn" id="cancelLessonBtn">Cancel</button>
+            <button type="submit" class="save-btn" id="saveModuleBtn"><i class="fa-solid fa-floppy-disk"></i> Save Module</button>
+            <button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button>
           </div>
-          <input type="hidden" id="editingLessonId" />
+          <input type="hidden" id="editingModuleId" />
         </form>
       </div>
     </div>
@@ -1143,16 +1148,13 @@
 <script type="module" src="js/admin/videos.js"></script>
 <script type="module">
   import { auth, db } from "./js/firebase.js";
-  import { signOut } from "firebase/auth";
-  import {
-    collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, orderBy
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { signOut, onAuthStateChanged } from "firebase/auth";
+  import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-  // ─── CONSTANTS ───
+  // ─── CONSTANTS ──────────────────────────────────────────────
   const MODULES_COLLECTION = "academy_modules";
-  const LESSONS_STORAGE_KEY = "gtrades_lessons";
 
-  // ─── Logout ───
+  // ─── LOGOUT & UTILS ─────────────────────────────────────────
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     if (confirm("Logout?")) {
       await signOut(auth);
@@ -1160,179 +1162,18 @@
     }
   });
 
-  // ─── Live Date ───
   function updateClock() {
     const el = document.getElementById("liveDate");
     if (el) {
       el.textContent = new Date().toLocaleString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
       });
     }
   }
   updateClock();
   setInterval(updateClock, 1000);
-
-  // ─── Dynamic Year ───
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  // ─── Load from Firestore ───
-  async function loadLessonsFromFirestore() {
-    try {
-      const q = query(collection(db, MODULES_COLLECTION), orderBy("order", "asc"));
-      const snapshot = await getDocs(q);
-      const lessons = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        lessons.push({
-          id: doc.id,
-          module: data.order || 1,
-          title: data.title || "Untitled",
-          content: data.content || "",
-          videoId: data.videoId || "",
-          published: data.published !== false,
-          createdAt: data.createdAt || new Date().toISOString()
-        });
-      });
-      return lessons;
-    } catch (e) {
-      console.warn("Firestore load failed, using localStorage:", e);
-      return loadLessonsFromLocalStorage();
-    }
-  }
-
-  // ─── Load from localStorage (fallback) ───
-  function loadLessonsFromLocalStorage() {
-    try {
-      return JSON.parse(localStorage.getItem(LESSONS_STORAGE_KEY)) || [];
-    } catch {
-      return [];
-    }
-  }
-
-  // ─── Save to Firestore ───
-  async function saveLessonToFirestore(lesson) {
-    const docRef = doc(db, MODULES_COLLECTION, lesson.id);
-    await setDoc(docRef, {
-      order: lesson.module,
-      title: lesson.title,
-      content: lesson.content,
-      videoId: lesson.videoId || "",
-      published: lesson.published !== false,
-      createdAt: lesson.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-  }
-
-  // ─── Delete from Firestore ───
-  async function deleteLessonFromFirestore(id) {
-    await deleteDoc(doc(db, MODULES_COLLECTION, id));
-  }
-
-  // ─── Render lessons ───
-  let currentLessons = [];
-
-  async function renderLessons() {
-    const lessons = await loadLessonsFromFirestore();
-    currentLessons = lessons;
-    const tbody = document.getElementById('lessonTableBody');
-    const countEl = document.getElementById('lessonCount');
-    const pendingEl = document.getElementById('pendingLessons');
-    const overviewEl = document.getElementById('lessonOverview');
-
-    if (countEl) countEl.textContent = lessons.length;
-    if (pendingEl) pendingEl.textContent = lessons.filter(l => !l.published).length;
-    if (overviewEl) overviewEl.textContent = lessons.length;
-
-    if (lessons.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No lessons yet. Click "Add Lesson" to create one.</div></td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = lessons.map((lesson) => `
-      <tr>
-        <td><strong>Module ${lesson.module}</strong></td>
-        <td>${lesson.title}</td>
-        <td>
-          <span class="badge ${lesson.published ? 'published' : 'draft'} lesson-status-toggle" 
-                data-id="${lesson.id}" 
-                title="Click to toggle status">
-            ${lesson.published ? 'Published' : 'Draft'}
-          </span>
-        </td>
-        <td>${new Date(lesson.createdAt).toLocaleDateString()}</td>
-        <td>
-          <button class="manage-btn edit-lesson" data-id="${lesson.id}"><i class="fa-solid fa-pen"></i> Edit</button>
-          <button class="manage-btn delete-lesson" data-id="${lesson.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
-        </td>
-      </tr>
-    `).join('');
-
-    // Toggle status
-    document.querySelectorAll('.lesson-status-toggle').forEach(el => {
-      el.addEventListener('click', async function() {
-        const id = this.dataset.id;
-        const lessons = await loadLessonsFromFirestore();
-        const lesson = lessons.find(l => l.id === id);
-        if (lesson) {
-          lesson.published = !lesson.published;
-          await saveLessonToFirestore(lesson);
-          // Sync localStorage
-          const localLessons = loadLessonsFromLocalStorage();
-          const localIndex = localLessons.findIndex(l => l.id === id);
-          if (localIndex !== -1) {
-            localLessons[localIndex].published = lesson.published;
-            localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(localLessons));
-          }
-          renderLessons();
-          addActivity(`Toggled lesson "${lesson.title}" to ${lesson.published ? 'Published' : 'Draft'}`);
-        }
-      });
-    });
-
-    // Edit
-    document.querySelectorAll('.edit-lesson').forEach(el => {
-      el.addEventListener('click', function() {
-        const id = this.dataset.id;
-        const lesson = currentLessons.find(l => l.id === id);
-        if (lesson) {
-          document.getElementById('editingLessonId').value = id;
-          document.getElementById('lessonModule').value = lesson.module;
-          document.getElementById('lessonTitle').value = lesson.title;
-          document.getElementById('lessonContent').value = lesson.content || '';
-          document.getElementById('lessonVideoId').value = lesson.videoId || '';
-          document.getElementById('lessonPublished').checked = lesson.published !== false;
-          document.getElementById('lessonFormTitle').textContent = 'Edit Lesson';
-          document.getElementById('saveLessonBtn').textContent = 'Update Lesson';
-          document.getElementById('lessonFormContainer').style.display = 'block';
-          document.getElementById('lessonFormContainer').scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    });
-
-    // Delete
-    document.querySelectorAll('.delete-lesson').forEach(el => {
-      el.addEventListener('click', async function() {
-        const id = this.dataset.id;
-        const lesson = currentLessons.find(l => l.id === id);
-        if (confirm(`Delete lesson "${lesson?.title}"?`)) {
-          await deleteLessonFromFirestore(id);
-          // Also remove from localStorage
-          const localLessons = loadLessonsFromLocalStorage();
-          const updated = localLessons.filter(l => l.id !== id);
-          localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(updated));
-          renderLessons();
-          addActivity(`Deleted lesson "${lesson?.title}"`);
-        }
-      });
-    });
-  }
-
-  // ─── Activity feed ───
   function addActivity(text) {
     const feed = document.getElementById('activityFeed');
     if (!feed) return;
@@ -1340,145 +1181,292 @@
     const item = document.createElement('div');
     item.className = 'activity-item';
     item.innerHTML = `
-      <div class="activity-icon gold"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="activity-icon blue"><i class="fa-solid fa-pen-to-square"></i></div>
       <div class="activity-info"><h4>${text}</h4><p>${time}</p></div>
     `;
     feed.prepend(item);
-    while (feed.children.length > 10) {
-      feed.removeChild(feed.lastChild);
+    while (feed.children.length > 10) feed.removeChild(feed.lastChild);
+  }
+
+  // ─── SAMPLE MODULES DATA (MOD 1-4 WITH LESSONS & QUIZ) ──
+  function getSampleModules() {
+    return [
+      {
+        id: "mod_1", order: 1, title: "Introduction",
+        description: "Welcome, academy overview, rules, environment setup, recommended tools.",
+        content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy.</p><p>After completing this module you should understand the academy structure and expectations.</p>`,
+        videoId: "", hasQuiz: true, published: true,
+        lessons: [
+          { id: "lsn_1_1", title: "Welcome to GTRADES-AXIS™", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_2", title: "How the Academy Works", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_3", title: "Trading Rules & Expectations", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_4", title: "Setting Up Your Trading Environment", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_1_5", title: "Recommended Tools", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+        ],
+        quiz: { passingScore: 70, questions: [
+          { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
+          { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 }
+        ]}
+      },
+      {
+        id: "mod_2", order: 2, title: "Market Structure",
+        description: "HTF bias, MTF analysis, BOS, CHOCH, internal/external structure, examples.",
+        content: `<h3>Introduction</h3><p>Market Structure is the foundation of every trade.</p>`,
+        videoId: "", hasQuiz: true, published: true,
+        lessons: [
+          { id: "lsn_2_1", title: "Understanding Market Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_2", title: "Higher Timeframe (HTF) Bias", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_3", title: "Multi-Timeframe (MTF) Analysis", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_4", title: "Trend Continuation", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_5", title: "Trend Reversal", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_6", title: "Internal Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_7", title: "External Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_8", title: "BOS & CHoCH", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_2_9", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+        ],
+        quiz: { passingScore: 70, questions: [
+          { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
+          { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 }
+        ]}
+      },
+      {
+        id: "mod_3", order: 3, title: "Liquidity",
+        description: "Equal highs/lows, sweeps, inducement, engineered liquidity, mapping.",
+        content: `<h3>Introduction</h3><p>Liquidity is one of the core pillars.</p>`,
+        videoId: "", hasQuiz: true, published: true,
+        lessons: [
+          { id: "lsn_3_1", title: "Introduction to Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_2", title: "Equal Highs", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_3", title: "Equal Lows", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_4", title: "Liquidity Sweeps", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_5", title: "Inducement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_6", title: "Engineered Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_7", title: "Liquidity Mapping", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_3_8", title: "Practical Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+        ],
+        quiz: { passingScore: 70, questions: [
+          { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
+          { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 }
+        ]}
+      },
+      {
+        id: "mod_4", order: 4, title: "Supply & Demand",
+        description: "Institutional zones, fresh vs tested, refinement, premium/discount.",
+        content: `<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints.</p>`,
+        videoId: "", hasQuiz: true, published: true,
+        lessons: [
+          { id: "lsn_4_1", title: "Institutional Supply", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_2", title: "Institutional Demand", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_3", title: "Fresh vs Tested Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_4", title: "Zone Refinement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_5", title: "Premium & Discount", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_6", title: "Combining Structure with S&D", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
+          { id: "lsn_4_7", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
+        ],
+        quiz: { passingScore: 70, questions: [
+          { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
+          { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 }
+        ]}
+      }
+    ];
+  }
+
+  // ─── FIRESTORE FUNCTIONS ─────────────────────────────────────
+  async function loadModulesFromFirestore() {
+    try {
+      const q = query(collection(db, MODULES_COLLECTION), orderBy("order", "asc"));
+      const snapshot = await getDocs(q);
+      const modules = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if(!data.lessons) data.lessons = [];
+        if(!data.quiz) data.quiz = { passingScore: 70, questions: [] };
+        modules.push({ id: doc.id, ...data });
+      });
+      return modules;
+    } catch (e) {
+      console.error("Firestore load failed:", e);
+      return [];
     }
   }
 
-  // ─── Form toggle ───
-  document.getElementById('toggleLessonFormBtn')?.addEventListener('click', function() {
-    const container = document.getElementById('lessonFormContainer');
+  async function saveModuleToFirestore(moduleData) {
+    const docRef = doc(db, MODULES_COLLECTION, moduleData.id);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      await updateDoc(docRef, { ...moduleData, updatedAt: new Date().toISOString() });
+    } else {
+      await setDoc(docRef, { ...moduleData, updatedAt: new Date().toISOString() });
+    }
+  }
+
+  async function deleteModuleFromFirestore(id) {
+    await deleteDoc(doc(db, MODULES_COLLECTION, id));
+  }
+
+  // ─── RENDER MODULES ──────────────────────────────────────────
+  let currentModules = [];
+
+  async function renderModules() {
+    const modules = await loadModulesFromFirestore();
+    currentModules = modules;
+    
+    const tbody = document.getElementById('moduleTableBody');
+    const countEl = document.getElementById('lessonCount');
+    const overviewEl = document.getElementById('lessonOverview');
+    const pendingEl = document.getElementById('pendingLessons');
+
+    let totalLessons = 0;
+    let draftLessons = 0;
+    modules.forEach(mod => {
+      totalLessons += (mod.lessons?.length || 0);
+      if (!mod.published) draftLessons += (mod.lessons?.length || 0);
+    });
+
+    if (countEl) countEl.textContent = totalLessons;
+    if (overviewEl) overviewEl.textContent = totalLessons;
+    if (pendingEl) pendingEl.textContent = draftLessons;
+
+    if (modules.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet. Click "Add Samples" to load Mods 1-4 or create one manually!</div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = modules.map((mod) => `
+      <tr>
+        <td><strong>Module ${mod.order}</strong></td>
+        <td>
+          <div><strong>${mod.title}</strong></div>
+          <div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div>
+          <div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'}</div>
+        </td>
+        <td>
+          <span class="badge ${mod.published !== false ? 'published' : 'draft'} module-status-toggle" 
+                data-id="${mod.id}" 
+                title="Click to toggle status">
+            ${mod.published !== false ? 'Published' : 'Draft'}
+          </span>
+        </td>
+        <td>
+          <button class="manage-btn edit-module" data-id="${mod.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+          <button class="manage-btn delete-module" data-id="${mod.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.module-status-toggle').forEach(el => {
+      el.addEventListener('click', async function() {
+        const id = this.dataset.id;
+        const mod = currentModules.find(l => l.id === id);
+        if (mod) {
+          mod.published = !mod.published;
+          await saveModuleToFirestore(mod);
+          renderModules();
+          addActivity(`Toggled module "${mod.title}" to ${mod.published ? 'Published' : 'Draft'}`);
+        }
+      });
+    });
+
+    document.querySelectorAll('.edit-module').forEach(el => {
+      el.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const mod = currentModules.find(l => l.id === id);
+        if (mod) {
+          document.getElementById('editingModuleId').value = id;
+          document.getElementById('moduleOrder').value = mod.order;
+          document.getElementById('moduleTitle').value = mod.title;
+          document.getElementById('moduleDescription').value = mod.description || '';
+          document.getElementById('moduleContent').value = mod.content || '';
+          document.getElementById('moduleVideoId').value = mod.videoId || '';
+          document.getElementById('moduleHasQuiz').checked = mod.hasQuiz !== false;
+          document.getElementById('modulePublished').checked = mod.published !== false;
+          
+          document.getElementById('moduleFormTitle').textContent = 'Edit Module';
+          document.getElementById('saveModuleBtn').textContent = 'Update Module';
+          document.getElementById('moduleFormContainer').style.display = 'block';
+          document.getElementById('moduleFormContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-module').forEach(el => {
+      el.addEventListener('click', async function() {
+        const id = this.dataset.id;
+        const mod = currentModules.find(l => l.id === id);
+        if (confirm(`Delete module "${mod?.title}"?`)) {
+          await deleteModuleFromFirestore(id);
+          renderModules();
+          addActivity(`Deleted module "${mod?.title}"`);
+        }
+      });
+    });
+  }
+
+  // ─── MODULE FORM LOGIC ──────────────────────────────────────
+  document.getElementById('toggleModuleFormBtn')?.addEventListener('click', function() {
+    const container = document.getElementById('moduleFormContainer');
     if (container.style.display === 'none') {
       container.style.display = 'block';
-      document.getElementById('lessonFormTitle').textContent = 'Add New Lesson';
-      document.getElementById('saveLessonBtn').textContent = 'Save Lesson';
-      document.getElementById('editingLessonId').value = '';
-      document.getElementById('lessonForm').reset();
-      document.getElementById('lessonPublished').checked = true;
+      document.getElementById('moduleFormTitle').textContent = 'Add New Module';
+      document.getElementById('saveModuleBtn').textContent = 'Save Module';
+      document.getElementById('editingModuleId').value = '';
+      document.getElementById('moduleForm').reset();
+      document.getElementById('modulePublished').checked = true;
+      document.getElementById('moduleHasQuiz').checked = true;
       container.scrollIntoView({ behavior: 'smooth' });
     } else {
       container.style.display = 'none';
     }
   });
 
-  document.getElementById('cancelLessonBtn')?.addEventListener('click', function() {
-    document.getElementById('lessonFormContainer').style.display = 'none';
-    document.getElementById('lessonForm').reset();
-    document.getElementById('editingLessonId').value = '';
+  document.getElementById('cancelModuleBtn')?.addEventListener('click', function() {
+    document.getElementById('moduleFormContainer').style.display = 'none';
   });
 
-  // ─── Save lesson ───
-  document.getElementById('lessonForm')?.addEventListener('submit', async function(e) {
+  document.getElementById('moduleForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
+    const id = document.getElementById('editingModuleId').value || 'mod-' + Date.now();
+    const order = parseInt(document.getElementById('moduleOrder').value);
+    const title = document.getElementById('moduleTitle').value.trim();
+    const description = document.getElementById('moduleDescription').value.trim();
+    const content = document.getElementById('moduleContent').value;
+    const videoId = document.getElementById('moduleVideoId').value.trim();
+    const hasQuiz = document.getElementById('moduleHasQuiz').checked;
+    const published = document.getElementById('modulePublished').checked;
 
-    const id = document.getElementById('editingLessonId').value || 'mod-' + Date.now();
-    const moduleNum = parseInt(document.getElementById('lessonModule').value);
-    const title = document.getElementById('lessonTitle').value.trim();
-    const content = document.getElementById('lessonContent').value;
-    const videoId = document.getElementById('lessonVideoId').value.trim();
-    const published = document.getElementById('lessonPublished').checked;
+    if (!title || !order) return alert('Please fill in all required fields.');
 
-    if (!title || !moduleNum) {
-      alert('Please fill in all required fields.');
-      return;
-    }
-
-    const lesson = {
-      id: id,
-      module: moduleNum,
-      title: title,
-      content: content,
-      videoId: videoId,
-      published: published,
-      createdAt: new Date().toISOString()
+    const existingMod = currentModules.find(m => m.id === id);
+    const moduleData = {
+      id: id, order: order, title: title, description: description,
+      content: content, videoId: videoId, hasQuiz: hasQuiz, published: published,
+      lessons: existingMod?.lessons || [],
+      quiz: existingMod?.quiz || { passingScore: 70, questions: [] }
     };
 
-    // Save to Firestore
-    await saveLessonToFirestore(lesson);
-
-    // Also save to localStorage for backward compatibility
-    const localLessons = loadLessonsFromLocalStorage();
-    const existingIndex = localLessons.findIndex(l => l.id === id);
-    if (existingIndex !== -1) {
-      localLessons[existingIndex] = lesson;
-    } else {
-      localLessons.push(lesson);
-    }
-    localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(localLessons));
-
-    renderLessons();
-    addActivity(`Saved lesson "${title}"`);
-    document.getElementById('lessonFormContainer').style.display = 'none';
-    document.getElementById('lessonForm').reset();
-    document.getElementById('editingLessonId').value = '';
-    document.getElementById('lessonPublished').checked = true;
+    await saveModuleToFirestore(moduleData);
+    renderModules();
+    addActivity(`Saved module "${title}"`);
+    document.getElementById('moduleFormContainer').style.display = 'none';
+    document.getElementById('moduleForm').reset();
+    document.getElementById('editingModuleId').value = '';
   });
 
-  // ─── Sample lessons ───
-  function getSampleLessons() {
-    return [
-      {
-        id: 'sample-mod1-' + Date.now(),
-        module: 1,
-        title: "INTRODUCTION – Trade with Structure. Execute with Precision.",
-        content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy. This course is designed to guide traders through one complete trading framework from market understanding to disciplined execution.</p><h3>Mission</h3><p>To empower traders through structured education, disciplined execution and professional risk management.</p><h3>Vision</h3><p>To build a respected global trading community recognized for consistency, integrity and continuous learning.</p><h3>Core Values</h3><ul><li>Discipline</li><li>Consistency</li><li>Patience</li><li>Accountability</li><li>Continuous Learning</li><li>Professionalism</li></ul><h3>Learning Path</h3><ol><li>Introduction</li><li>Market Structure</li><li>Supply & Demand</li><li>Liquidity</li><li>Entries</li><li>Trade Management</li><li>Psychology</li></ol><div class="highlight-box"><strong>TRADING IS NOT ABOUT GETTING RICH OVERNIGHT.</strong><br>IT IS ABOUT DEVELOPING A SKILL THAT CAN GENERATE CONSISTENT RESULTS THROUGH DISCIPLINE, PATIENCE, AND STRUCTURED EXECUTION.</div><h3>Module Summary</h3><p>After completing this module you should understand the academy structure, learning expectations and the mindset required before moving into Market Structure.</p>`,
-        videoId: "",
-        published: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'sample-mod2-' + Date.now(),
-        module: 2,
-        title: "MARKET STRUCTURE – BOS, CHoCH & Fractal Analysis",
-        content: `<h3>Introduction</h3><p>Market Structure is the foundation of every trade taken within the GTRADES-AXIS™ Framework.</p><h3>Bullish Structure</h3><p>A bullish trend forms Higher Highs (HH) and Higher Lows (HL). Buyers remain in control.</p><h3>Bearish Structure</h3><p>A bearish trend forms Lower Lows (LL) and Lower Highs (LH). Sellers remain in control.</p><h3>Break of Structure (BOS)</h3><p>A BOS confirms continuation by breaking a significant swing in the direction of the prevailing trend.</p><h3>Change of Character (CHoCH)</h3><p>A CHoCH is the first warning that control may be shifting from buyers to sellers or vice versa.</p><h3>Module Summary</h3><p>You learned how to identify market structure, distinguish trends from reversals, use BOS and CHoCH to confirm direction, and apply fractal structure mapping.</p>`,
-        videoId: "",
-        published: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'sample-mod3-' + Date.now(),
-        module: 3,
-        title: "SUPPLY & DEMAND – Institutional Zones",
-        content: `<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints through aggressive buying or selling.</p><h3>What is Demand?</h3><p>A Demand Zone is an area where buying pressure overwhelms selling pressure, causing price to rally strongly.</p><h3>What is Supply?</h3><p>A Supply Zone is an area where selling pressure overwhelms buying pressure, causing price to decline sharply.</p><h3>Fresh vs Tested Zones</h3><p><strong>Fresh zones</strong> have never been revisited after creation and generally offer higher probability.</p><h3>Supply & Demand Checklist</h3><ul><li>✅ Trend confirmed</li><li>✅ Zone identified</li><li>✅ Fresh zone</li><li>✅ Strong departure</li><li>✅ Higher timeframe aligned</li><li>✅ Entry confirmed</li><li>✅ Risk defined</li></ul><h3>Module Summary</h3><p>You learned how supply and demand zones form, how to identify quality zones, refine them, validate them and combine them with market structure.</p>`,
-        videoId: "",
-        published: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'sample-mod4-' + Date.now(),
-        module: 4,
-        title: "LIQUIDITY – Understanding Institutional Order Flow",
-        content: `<h3>Introduction</h3><p>Liquidity is one of the core pillars of the GTRADES-AXIS™ Framework.</p><h3>What is Liquidity?</h3><ul><li>The amount of demand and supply in a market.</li><li>The ease to which a market can be traded without affecting its price.</li></ul><h3>Buy-Side Liquidity</h3><p>Commonly found above swing highs, equal highs and resistance levels where buy stops accumulate.</p><h3>Sell-Side Liquidity</h3><p>Commonly found below swing lows, equal lows and support levels where sell stops accumulate.</p><h3>Liquidity Sweep</h3><p>A liquidity sweep occurs when price briefly moves through a liquidity pool, triggering stop orders before reversing.</p><h3>Key Rules</h3><ul><li><strong>Structure > Liquidity:</strong> Always trade away from sweeps.</li><li><strong>Follow Money:</strong> Trade in the direction institutional money is flowing.</li></ul><h3>Module Summary</h3><p>You learned what liquidity is, how to identify buy-side and sell-side liquidity, recognize liquidity sweeps and inducement, and combine liquidity with market structure and supply & demand.</p>`,
-        videoId: "",
-        published: true,
-        createdAt: new Date().toISOString()
-      }
-    ];
-  }
-
-  // ─── Add sample lessons ───
-  document.getElementById('addSampleLessonsBtn')?.addEventListener('click', async function() {
-    const existing = await loadLessonsFromFirestore();
+  // ─── ADD SAMPLE MODULES BUTTON ─────────────────────────────
+  document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
+    const existing = await loadModulesFromFirestore();
     if (existing.length > 0) {
-      if (!confirm('This will add 4 sample lessons to your existing lessons. Continue?')) return;
+      if (!confirm('This will add 4 sample modules (Mod 1-4) with lessons and quizzes. Continue?')) return;
     }
-    const samples = getSampleLessons();
-    for (const lesson of samples) {
-      await saveLessonToFirestore(lesson);
-      // Sync localStorage
-      const localLessons = loadLessonsFromLocalStorage();
-      localLessons.push(lesson);
-      localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(localLessons));
+    const samples = getSampleModules();
+    for (const mod of samples) {
+      await saveModuleToFirestore(mod);
     }
-    renderLessons();
-    addActivity('Added 4 sample lessons');
+    renderModules();
+    addActivity('Imported 4 sample modules (Mod 1-4)');
   });
 
-  // ─── Render video counts ───
+  // ─── RENDER VIDEO COUNTS ────────────────────────────────────
   function renderVideoCounts() {
     try {
       const videos = JSON.parse(localStorage.getItem('gtrades_videos')) || [];
@@ -1489,16 +1477,15 @@
     } catch {}
   }
 
-  // ─── Init ───
-  // Wait for auth before loading
+  // ─── AUTH & INIT ─────────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      await renderLessons();
+      await renderModules();
       renderVideoCounts();
     }
   });
 
-  console.log('✅ Admin dashboard ready with Firestore Academy Manager.');
+  console.log('✅ Full Admin Dashboard ready with modular Academy Manager.');
 </script>
 </body>
 </html>
