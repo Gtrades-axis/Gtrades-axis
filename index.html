@@ -620,7 +620,9 @@
   </style>
 </head>
 <body>
-
+<button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+  <i class="fas fa-bars"></i>
+</button>
   <!-- ===== HEADER ===== -->
   <header>
     <div class="container">
@@ -993,5 +995,27 @@
 
     console.log('GTRADES-AXIS™ ready.');
   </script>
+  <script>
+  // ─── Mobile Sidebar Toggle ──────────────────────────────────
+  const toggleBtn = document.getElementById('mobileToggle');
+  const sidebar = document.querySelector('.sidebar');
+  if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      toggleBtn.innerHTML = sidebar.classList.contains('open') ?
+        '<i class="fas fa-times"></i>' :
+        '<i class="fas fa-bars"></i>';
+    });
+    // Close sidebar when clicking outside
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('open') &&
+          !sidebar.contains(e.target) &&
+          !toggleBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+      }
+    });
+  }
+</script>
 </body>
 </html>
