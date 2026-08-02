@@ -1,1658 +1,696 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>Trading Strategy | GTRADES-AXIS™</title>
+  <meta name="description" content="The complete GTRADES-AXIS™ Institutional Trading Framework." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    /* ── Overrides and enhancements ── */
+    :root {
+      --primary: #4f7cff;
+      --primary-dark: #3a5fc9;
+      --primary-light: #7a9eff;
+      --bg-dark: #07090d;
+      --bg-card: #121a29;
+      --bg-card-hover: #1a2538;
+      --border-color: rgba(255, 255, 255, 0.06);
+      --text-primary: #e8edf5;
+      --text-secondary: #9aa4bf;
+      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 20px 50px rgba(79, 124, 255, 0.1);
+      --radius: 16px;
+    }
 
-<meta charset="UTF-8">
+    /* ── Fix glow on "Institutions" ── */
+    .hero h1 span {
+      color: var(--primary);
+      text-shadow: 0 0 8px rgba(79, 124, 255, 0.15), 0 0 20px rgba(79, 124, 255, 0.04);
+    }
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    /* ── Cards with better shadows ── */
+    .card,
+    .academy-card,
+    .flow-box,
+    .testimonial-card,
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-card);
+    }
+    .card:hover,
+    .academy-card:hover,
+    .flow-box:hover,
+    .testimonial-card:hover,
+    .faq-item:hover {
+      transform: translateY(-6px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-hover);
+      background: var(--bg-card-hover);
+    }
 
-<title>Trading Strategy | GTRADES-AXIS™</title>
+    /* ── Glass card (hero) ── */
+    .glass-card {
+      background: rgba(18, 26, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius);
+      padding: clamp(24px, 4vw, 36px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      animation: float 5s ease-in-out infinite;
+    }
+    .glass-card h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      margin-bottom: 18px;
+      color: var(--primary);
+    }
+    .glass-card ul {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .glass-card li {
+      font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .glass-card li::before {
+      content: "✔";
+      color: var(--primary);
+      font-weight: 700;
+    }
 
-<meta name="description"
-content="The complete GTRADES-AXIS™ Institutional Trading Framework.">
+    /* ── Buttons ── */
+    .primary-btn,
+    .secondary-btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 140px;
+    }
+    .primary-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(79, 124, 255, 0.25);
+    }
+    .primary-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(79, 124, 255, 0.35);
+    }
+    .secondary-btn {
+      border: 2px solid var(--primary);
+      color: #fff;
+      background: transparent;
+    }
+    .secondary-btn:hover {
+      background: var(--primary);
+      transform: translateY(-3px);
+    }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    /* ── Section titles ── */
+    .section-title h2 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .section-title p {
+      color: var(--text-secondary);
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      max-width: 700px;
+      margin: 0 auto;
+    }
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    /* ── Strategy flow arrows on mobile ── */
+    .flow-arrow {
+      color: var(--primary);
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 768px) {
+      .flow-arrow {
+        transform: rotate(90deg);
+        margin: 4px 0;
+      }
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+    /* ── Additional spacing for sections ── */
+    .section {
+      padding: 80px 0;
+    }
+    .academy,
+    .strategy,
+    .stats,
+    .testimonials,
+    .faq {
+      padding: 80px 0;
+    }
+    .hero {
+      padding-top: 110px;
+      padding-bottom: 70px;
+    }
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    /* ── Cards with lists (inside .card ul) ── */
+    .card ul {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+      margin-top: 10px;
+    }
+    .card ul li {
+      padding: 4px 0;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card ul li::before {
+      content: "✔";
+      color: var(--primary);
+      font-weight: 700;
+    }
 
-<link rel="stylesheet" href="css/style.css">
-
-<link rel="stylesheet" href="css/animations.css">
-
+    /* ── Responsive tweaks ── */
+    @media (max-width: 767px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+      }
+      .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .primary-btn,
+      .secondary-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .glass-card {
+        max-width: 100%;
+      }
+      .hero {
+        padding-top: 80px;
+        padding-bottom: 40px;
+        min-height: auto;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<!--================ HEADER ================-->
-
-<header>
-
-<div class="container">
-
-<div class="logo">
-
-<img src="images/logo.png" alt="Logo">
-
-<h2>
-
-GTRADES-<span>AXIS™</span>
-
-</h2>
-
-</div>
-
-<nav>
-
-<ul>
-
-<li><a href="index.html">Home</a></li>
-
-<li><a href="academy.html">Academy</a></li>
-
-<li><a href="strategy.html" class="active">Strategy</a></li>
-
-<li><a href="resources.html">Resources</a></li>
-
-<li><a href="contact.html">Contact</a></li>
-
-</ul>
-
-</nav>
-
-<div class="nav-buttons">
-
-<a href="https://www.youtube.com/@Gtrades35"
-target="_blank"
-class="youtube">
-
-<i class="fab fa-youtube"></i>
-
-</a>
-
-<a href="https://t.me/+iywzAr5VaI80Mjhk"
-target="_blank"
-class="telegram">
-
-<i class="fab fa-telegram"></i>
-
-</a>
-
-<a href="https://wa.me/254712416214"
-target="_blank"
-class="whatsapp">
-
-<i class="fab fa-whatsapp"></i>
-
-</a>
-
-<a href="https://www.tiktok.com/@gtrades_axis"
-target="_blank"
-class="tiktok">
-
-<i class="fab fa-tiktok"></i>
-
-</a>
-
-<a href="https://t.me/+iywzAr5VaI80Mjhk"
-class="join-btn"
-target="_blank">
-
-Join Community
-
-</a>
-
-</div>
-
-</div>
-
-</header>
-
-<!--================ HERO ================-->
-
-<section class="hero">
-
-<div class="container hero-grid">
-
-<div>
-
-<span class="subtitle">
-
-THE GTRADES-AXIS™ FRAMEWORK
-
-</span>
-
-<h1>
-
-Trade Like The <span>Institutions</span>
-
-</h1>
-
-<h2>
-
-One Framework. Every Market.
-
-</h2>
-
-<p class="hero-description">
-
-The GTRADES-AXIS Strategy combines Market Structure,
-Liquidity,
-Supply & Demand,
-Execution,
-Risk Management
-and Psychology into one repeatable trading model.
-
-</p>
-
-<div class="hero-buttons">
-
-<a href="#framework" class="primary-btn">
-
-Explore Framework
-
-</a>
-
-<a href="academy.html"
-
-class="secondary-btn">
-
-Join Academy
-
-</a>
-
-</div>
-
-</div>
-
-<div class="glass-card">
-
-<h3>
-
-Strategy Highlights
-
-</h3>
-
-<ul>
-
-<li>✔ Market Structure</li>
-
-<li>✔ BOS & CHoCH</li>
-
-<li>✔ Liquidity Grab</li>
-
-<li>✔ Supply & Demand</li>
-
-<li>✔ Institutional Entries</li>
-
-<li>✔ Session Timing</li>
-
-<li>✔ Risk Management</li>
-
-<li>✔ Trading Psychology</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ FRAMEWORK INTRO ================-->
-
-<section class="section" id="framework">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-The Institutional Framework
-
-</h2>
-
-<p>
-
-Every trade follows the exact same process.
-Consistency comes from repeating one proven model instead of chasing random setups.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-<!--================ STRATEGY PROCESS ================-->
-
-<section class="strategy" id="process">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-The GTRADES-AXIS™ Trading Process
-
-</h2>
-
-<p>
-
-Every professional trade follows this exact sequence.
-
-</p>
-
-</div>
-
-<div class="strategy-flow">
-
-<div class="flow-box">
-
-<div class="flow-number">1</div>
-
-<i class="fas fa-globe fa-2x"></i>
-
-<h3>Higher Timeframe Bias</h3>
-
-<p>
-
-Start with the Daily and 4H charts to identify the overall market direction.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">2</div>
-
-<i class="fas fa-chart-line fa-2x"></i>
-
-<h3>Market Structure</h3>
-
-<p>
-
-Identify Higher Highs, Higher Lows, Lower Highs, Lower Lows, BOS and CHoCH.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">3</div>
-
-<i class="fas fa-water fa-2x"></i>
-
-<h3>Liquidity</h3>
-
-<p>
-
-Locate Buy Side Liquidity, Sell Side Liquidity and possible liquidity sweeps.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">4</div>
-
-<i class="fas fa-layer-group fa-2x"></i>
-
-<h3>Supply & Demand</h3>
-
-<p>
-
-Wait for price to return into a high-quality institutional zone.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ EXECUTION ================-->
-
-<section class="academy">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Trade Execution Framework
-
-</h2>
-
-<p>
-
-Only execute trades after all confirmations align.
-
-</p>
-
-</div>
-
-<div class="academy-grid">
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check-circle"></i>
-
-</div>
-
-<h3>Confirmation</h3>
-
-<p>
-
-Wait for BOS, CHoCH or a valid market structure shift before entering.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-clock"></i>
-
-</div>
-
-<h3>Session Timing</h3>
-
-<p>
-
-Execute during London or New York sessions when liquidity is highest.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-crosshairs"></i>
-
-</div>
-
-<h3>Entry</h3>
-
-<p>
-
-Enter only after confirmation inside a refined Supply or Demand zone.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-shield-alt"></i>
-
-</div>
-
-<h3>Stop Loss</h3>
-
-<p>
-
-Place the stop beyond the protected swing or institutional zone.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-bullseye"></i>
-
-</div>
-
-<h3>Take Profit</h3>
-
-<p>
-
-Target opposing liquidity or the next institutional objective.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-chart-pie"></i>
-
-</div>
-
-<h3>Risk Management</h3>
-
-<p>
-
-Risk a fixed percentage per trade and maintain positive risk-to-reward ratios.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-<!--================ CORE CONCEPTS ================-->
-
-<section class="section">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-The Four Pillars of GTRADES-AXIS™
-
-</h2>
-
-<p>
-
-Every profitable trade is built around these four concepts.
-
-</p>
-
-</div>
-
-<div class="cards">
-
-<!-- BOS -->
-
-<div class="card">
-
-<i class="fas fa-arrow-trend-up fa-3x"></i>
-
-<h3>
-
-Break of Structure (BOS)
-
-</h3>
-
-<p>
-
-A Break of Structure confirms continuation in the current trend.
-
-A bullish BOS occurs when price breaks above the previous Higher High.
-
-A bearish BOS occurs when price breaks below the previous Lower Low.
-
-</p>
-
-</div>
-
-<!-- CHOCH -->
-
-<div class="card">
-
-<i class="fas fa-right-left fa-3x"></i>
-
-<h3>
-
-Change of Character (CHoCH)
-
-</h3>
-
-<p>
-
-CHoCH signals a possible reversal.
-
-It happens when the market fails to continue its current trend and breaks the opposite swing.
-
-Always wait for confirmation before assuming a reversal.
-
-</p>
-
-</div>
-
-<!-- Liquidity -->
-
-<div class="card">
-
-<i class="fas fa-water fa-3x"></i>
-
-<h3>
-
-Liquidity
-
-</h3>
-
-<p>
-
-Institutions target areas where retail traders place stop losses.
-
-These include:
-
-• Equal Highs
-
-• Equal Lows
-
-• Previous Highs
-
-• Previous Lows
-
-• Trendline Liquidity
-
-Liquidity is the fuel that moves price.
-
-</p>
-
-</div>
-
-<!-- Supply -->
-
-<div class="card">
-
-<i class="fas fa-layer-group fa-3x"></i>
-
-<h3>
-
-Supply & Demand
-
-</h3>
-
-<p>
-
-Supply and Demand zones represent institutional buying and selling areas.
-
-Trades are only taken after price returns to these zones and confirms with market structure.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ ENTRY CHECKLIST ================-->
-
-<section class="academy">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Trade Entry Checklist
-
-</h2>
-
-<p>
-
-Every trade must satisfy these conditions before execution.
-
-</p>
-
-</div>
-
-<div class="academy-grid">
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check"></i>
-
-</div>
-
-<h3>
-
-Higher Timeframe Bias
-
-</h3>
-
-<p>
-
-Daily and 4H charts agree with the trade direction.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check"></i>
-
-</div>
-
-<h3>
-
-Market Structure
-
-</h3>
-
-<p>
-
-A confirmed BOS or CHoCH has already formed.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check"></i>
-
-</div>
-
-<h3>
-
-Liquidity Sweep
-
-</h3>
-
-<p>
-
-Price has swept external liquidity before entering.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check"></i>
-
-</div>
-
-<h3>
-
-Supply / Demand
-
-</h3>
-
-<p>
-
-Price reacts from a fresh institutional zone.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check"></i>
-
-</div>
-
-<h3>
-
-Session Timing
-
-</h3>
-
-<p>
-
-Trade is executed during London or New York.
-
-</p>
-
-</div>
-
-<div class="academy-card">
-
-<div class="icon">
-
-<i class="fas fa-check"></i>
-
-</div>
-
-<h3>
-
-Risk Management
-
-</h3>
-
-<p>
-
-Minimum 1:2 Risk-to-Reward with predefined stop loss.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ CONFLUENCE ================-->
-
-<section class="stats">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-High Probability Confluences
-
-</h2>
-
-</div>
-
-<div class="cards">
-
-<div class="card">
-
-<h3>✓ HTF Trend</h3>
-
-</div>
-
-<div class="card">
-
-<h3>✓ BOS / CHoCH</h3>
-
-</div>
-
-<div class="card">
-
-<h3>✓ Liquidity Sweep</h3>
-
-</div>
-
-<div class="card">
-
-<h3>✓ Supply / Demand</h3>
-
-</div>
-
-<div class="card">
-
-<h3>✓ Session Timing</h3>
-
-</div>
-
-<div class="card">
-
-<h3>✓ Risk ≥ 1:2 RR</h3>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-<!--================ DAILY ROUTINE ================-->
-
-<section class="section">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-The GTRADES-AXIS Daily Routine
-
-</h2>
-
-<p>
-
-Consistency comes from following the same routine every trading day.
-
-</p>
-
-</div>
-
-<div class="cards">
-
-<div class="card">
-
-<i class="fas fa-sun fa-3x"></i>
-
-<h3>1. Pre-Market Analysis</h3>
-
-<ul>
-
-<li>✔ Check economic calendar</li>
-
-<li>✔ Mark Daily bias</li>
-
-<li>✔ Mark 4H structure</li>
-
-<li>✔ Draw liquidity levels</li>
-
-<li>✔ Identify Supply & Demand zones</li>
-
-</ul>
-
-</div>
-
-<div class="card">
-
-<i class="fas fa-chart-area fa-3x"></i>
-
-<h3>2. During Session</h3>
-
-<ul>
-
-<li>✔ Wait for London / NY session</li>
-
-<li>✔ Watch liquidity sweep</li>
-
-<li>✔ Wait for BOS / CHoCH</li>
-
-<li>✔ Refine entry</li>
-
-<li>✔ Execute only after confirmation</li>
-
-</ul>
-
-</div>
-
-<div class="card">
-
-<i class="fas fa-book fa-3x"></i>
-
-<h3>3. After Trading</h3>
-
-<ul>
-
-<li>✔ Screenshot trade</li>
-
-<li>✔ Journal entry</li>
-
-<li>✔ Review mistakes</li>
-
-<li>✔ Record emotions</li>
-
-<li>✔ Prepare tomorrow's watchlist</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ EXECUTION CHECKLIST ================-->
-
-<section class="academy">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Professional Entry Checklist
-
-</h2>
-
-<p>
-
-No trade should be executed unless every box is checked.
-
-</p>
-
-</div>
-
-<div class="academy-grid">
-
-<div class="academy-card">
-
-<h3>✅ Higher Timeframe Bias</h3>
-
-<p>Daily & 4H agree.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ BOS / CHoCH</h3>
-
-<p>Market confirms direction.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ Liquidity Taken</h3>
-
-<p>Stops have already been swept.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ Supply / Demand</h3>
-
-<p>Price reacts from institutional zone.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ Session</h3>
-
-<p>London or New York only.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ Confirmation Candle</h3>
-
-<p>Strong rejection or continuation candle.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ Risk</h3>
-
-<p>Maximum 1% risk per trade.</p>
-
-</div>
-
-<div class="academy-card">
-
-<h3>✅ Risk : Reward</h3>
-
-<p>Minimum 1 : 2 RR.</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ TRADE MANAGEMENT ================-->
-
-<section class="strategy">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Trade Management Rules
-
-</h2>
-
-</div>
-
-<div class="strategy-flow">
-
-<div class="flow-box">
-
-<div class="flow-number">1</div>
-
-<h3>Entry</h3>
-
-<p>
-
-Enter only after confirmation.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">2</div>
-
-<h3>Protect Capital</h3>
-
-<p>
-
-Never move Stop Loss further away.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">3</div>
-
-<h3>Break Even</h3>
-
-<p>
-
-Move SL after reaching 1R.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">4</div>
-
-<h3>Partial Profits</h3>
-
-<p>
-
-Secure profits at key liquidity targets.
-
-</p>
-
-</div>
-
-<div class="flow-arrow">
-
-<i class="fas fa-arrow-right"></i>
-
-</div>
-
-<div class="flow-box">
-
-<div class="flow-number">5</div>
-
-<h3>Final Target</h3>
-
-<p>
-
-Exit at opposing liquidity or HTF objective.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ PROP FIRM RULES ================-->
-
-<section class="stats">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Prop Firm Rules
-
-</h2>
-
-<p>
-
-Trade like a professional. Protect capital first.
-
-</p>
-
-</div>
-
-<div class="cards">
-
-<div class="card">
-
-<h3>Maximum Daily Loss</h3>
-
-<p>Never exceed your daily drawdown limit.</p>
-
-</div>
-
-<div class="card">
-
-<h3>Maximum Overall Loss</h3>
-
-<p>Always stay within account limits.</p>
-
-</div>
-
-<div class="card">
-
-<h3>One Setup Only</h3>
-
-<p>Quality over quantity.</p>
-
-</div>
-
-<div class="card">
-
-<h3>No Revenge Trading</h3>
-
-<p>Accept losses and wait for the next setup.</p>
-
-</div>
-
-<div class="card">
-
-<h3>Trade Your Plan</h3>
-
-<p>Never take emotional trades.</p>
-
-</div>
-
-<div class="card">
-
-<h3>Consistency Wins</h3>
-
-<p>Small gains compounded create long-term success.</p>
-
-</div>
-
-</div>
-
-</div>
-<!--================ PERFORMANCE =================-->
-
-<section class="section">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-The GTRADES-AXIS Principles
-
-</h2>
-
-<p>
-
-Professional trading is built on discipline, not prediction.
-
-</p>
-
-</div>
-
-<div class="cards">
-
-<div class="card">
-
-<i class="fas fa-chess-king fa-3x"></i>
-
-<h3>Patience</h3>
-
-<p>
-
-Wait for the market to come to your levels.
-Never chase price.
-
-</p>
-
-</div>
-
-<div class="card">
-
-<i class="fas fa-chart-line fa-3x"></i>
-
-<h3>Consistency</h3>
-
-<p>
-
-Repeat the same process every day.
-Execution creates consistency.
-
-</p>
-
-</div>
-
-<div class="card">
-
-<i class="fas fa-shield-alt fa-3x"></i>
-
-<h3>Capital Protection</h3>
-
-<p>
-
-Your first responsibility is protecting your account.
-
-</p>
-
-</div>
-
-<div class="card">
-
-<i class="fas fa-brain fa-3x"></i>
-
-<h3>Psychology</h3>
-
-<p>
-
-Control emotions.
-Follow your trading plan.
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ CALL TO ACTION =================-->
-
-<section class="cta">
-
-<div class="container">
-
-<h2>
-
-Ready To Master Institutional Trading?
-
-</h2>
-
-<p>
-
-Join the GTRADES-AXIS™ Academy and learn the complete trading framework.
-
-</p>
-
-<div class="hero-buttons">
-
-<a href="academy.html" class="primary-btn">
-
-Join The Academy
-
-</a>
-
-<a href="https://t.me/+iywzAr5VaI80Mjhk"
-
-target="_blank"
-
-class="secondary-btn">
-
-Join Telegram
-
-</a>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ TESTIMONIALS =================-->
-
-<section class="testimonials">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Trader Results
-
-</h2>
-
-</div>
-
-<div class="testimonial-grid">
-
-<div class="testimonial-card">
-
-★★★★★
-
-<p>
-
-"The framework finally gave me confidence to trade without indicators."
-
-</p>
-
-<h4>
-
-— Forex Student
-
-</h4>
-
-</div>
-
-<div class="testimonial-card">
-
-★★★★★
-
-<p>
-
-"My entries became much cleaner after learning liquidity and BOS."
-
-</p>
-
-<h4>
-
-— Community Member
-
-</h4>
-
-</div>
-
-<div class="testimonial-card">
-
-★★★★★
-
-<p>
-
-"The trading checklist alone stopped me from overtrading."
-
-</p>
-
-<h4>
-
-— Academy Student
-
-</h4>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ FAQ =================-->
-
-<section class="faq">
-
-<div class="container">
-
-<div class="section-title">
-
-<h2>
-
-Strategy FAQ
-
-</h2>
-
-</div>
-
-<div class="faq-item">
-
-<h3>
-
-Does this strategy work on all markets?
-
-</h3>
-
-<p>
-
-Yes. It works on Forex, Gold, Indices, Crypto and Stocks because it follows institutional price action.
-
-</p>
-
-</div>
-
-<div class="faq-item">
-
-<h3>
-
-Which timeframe is best?
-
-</h3>
-
-<p>
-
-Use the Daily and 4H for bias, 1H and 15M for setup, and 5M or 1M for execution.
-
-</p>
-
-</div>
-
-<div class="faq-item">
-
-<h3>
-
-How much should I risk?
-
-</h3>
-
-<p>
-
-Risk only 0.5%–1% per trade and never exceed your daily loss limit.
-
-</p>
-
-</div>
-
-<div class="faq-item">
-
-<h3>
-
-Can beginners learn this?
-
-</h3>
-
-<p>
-
-Absolutely. The Academy starts from the fundamentals and builds toward advanced execution.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!--================ FOOTER =================-->
-
-<footer>
-
-<div class="container">
-
-<div class="footer-grid">
-
-<div class="footer-about">
-
-<img src="images/logo.png" alt="Logo" width="70">
-
-<h2>
-
-GTRADES-<span>AXIS™</span>
-
-</h2>
-
-<p>
-
-Trade with Structure.
-Execute with Precision.
-
-</p>
-
-</div>
-
-<div class="footer-links">
-
-<h3>
-
-Quick Links
-
-</h3>
-
-<ul>
-
-<li><a href="index.html">Home</a></li>
-
-<li><a href="academy.html">Academy</a></li>
-
-<li><a href="resources.html">Resources</a></li>
-
-<li><a href="contact.html">Contact</a></li>
-
-</ul>
-
-</div>
-
-<div class="footer-links">
-
-<h3>
-
-Community
-
-</h3>
-
-<ul>
-
-<li><a href="https://www.youtube.com/@Gtrades35" target="_blank">YouTube</a></li>
-
-<li><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank">Telegram</a></li>
-
-<li><a href="https://wa.me/254712416214" target="_blank">WhatsApp</a></li>
-
-<li><a href="https://www.tiktok.com/@gtrades_axis" target="_blank">TikTok</a></li>
-
-</ul>
-
-</div>
-
-<div class="footer-contact">
-
-<h3>
-
-Contact
-
-</h3>
-
-<p>
-
-Nairobi, Kenya
-
-</p>
-
-<p>
-
-WhatsApp:
-+254 712 416 214
-
-</p>
-
-</div>
-
-</div>
-
-<div class="copyright">
-
-<p>
-
-© <span id="year"></span> GTRADES-AXIS™.
-All Rights Reserved.
-
-</p>
-
-</div>
-
-</div>
-
-</footer>
-
-<!--================ SCROLL BUTTON =================-->
-
-<button id="scrollTop">
-
-<i class="fas fa-arrow-up"></i>
-
-</button>
-
-<!--================ LOADER =================-->
-
-<div id="loader">
-
-<div class="loader-logo">
-
-<img src="images/logo.png" alt="Loading">
-
-<h2>
-
-GTRADES-<span>AXIS™</span>
-
-</h2>
-
-</div>
-
-</div>
-
-<script src="js/script.js"></script>
-
-<script src="js/animations.js"></script>
-
+  <!-- ========== LOADER ========== -->
+  <div id="loader">
+    <div class="loader-logo">
+      <img src="images/logo.png" alt="Loading" />
+      <h2>GTRADES-<span>AXIS™</span></h2>
+    </div>
+  </div>
+
+  <!-- ========== HEADER ========== -->
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="images/logo.png" alt="Logo" />
+        <h2>GTRADES-<span>AXIS™</span></h2>
+      </div>
+      <nav id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="academy.html">Academy</a></li>
+          <li><a href="strategy.html" class="active">Strategy</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-buttons">
+          <a href="https://www.youtube.com/@GtradesAxis" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
+          <a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank" class="telegram"><i class="fab fa-telegram"></i></a>
+          <a href="https://wa.me/254712416214" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://www.tiktok.com/@gtrades_axis" target="_blank" class="tiktok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://t.me/+iywzAr5VaI80Mjhk" class="join-btn" target="_blank">Join Community</a>
+        </div>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="subtitle">THE GTRADES-AXIS™ FRAMEWORK</span>
+        <h1>Trade Like The <span>Institutions</span></h1>
+        <h2>One Framework. Every Market.</h2>
+        <p class="hero-description">
+          The GTRADES-AXIS Strategy combines Market Structure, Liquidity, Supply &amp; Demand,
+          Execution, Risk Management and Psychology into one repeatable trading model.
+        </p>
+        <div class="hero-buttons">
+          <a href="#framework" class="primary-btn">Explore Framework</a>
+          <a href="academy.html" class="secondary-btn">Join Academy</a>
+        </div>
+      </div>
+      <div class="glass-card">
+        <h3>Strategy Highlights</h3>
+        <ul>
+          <li>Market Structure</li>
+          <li>BOS &amp; CHoCH</li>
+          <li>Liquidity Grab</li>
+          <li>Supply &amp; Demand</li>
+          <li>Institutional Entries</li>
+          <li>Session Timing</li>
+          <li>Risk Management</li>
+          <li>Trading Psychology</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FRAMEWORK INTRO ========== -->
+  <section class="section" id="framework">
+    <div class="container">
+      <div class="section-title">
+        <h2>The Institutional Framework</h2>
+        <p>Every trade follows the exact same process. Consistency comes from repeating one proven model instead of chasing random setups.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STRATEGY PROCESS ========== -->
+  <section class="strategy" id="process">
+    <div class="container">
+      <div class="section-title">
+        <h2>The GTRADES-AXIS™ Trading Process</h2>
+        <p>Every professional trade follows this exact sequence.</p>
+      </div>
+      <div class="strategy-flow">
+        <div class="flow-box">
+          <div class="flow-number">1</div>
+          <i class="fas fa-globe fa-2x"></i>
+          <h3>Higher Timeframe Bias</h3>
+          <p>Start with the Daily and 4H charts to identify the overall market direction.</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box">
+          <div class="flow-number">2</div>
+          <i class="fas fa-chart-line fa-2x"></i>
+          <h3>Market Structure</h3>
+          <p>Identify Higher Highs, Higher Lows, Lower Highs, Lower Lows, BOS and CHoCH.</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box">
+          <div class="flow-number">3</div>
+          <i class="fas fa-water fa-2x"></i>
+          <h3>Liquidity</h3>
+          <p>Locate Buy Side Liquidity, Sell Side Liquidity and possible liquidity sweeps.</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box">
+          <div class="flow-number">4</div>
+          <i class="fas fa-layer-group fa-2x"></i>
+          <h3>Supply &amp; Demand</h3>
+          <p>Wait for price to return into a high-quality institutional zone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== EXECUTION FRAMEWORK ========== -->
+  <section class="academy">
+    <div class="container">
+      <div class="section-title">
+        <h2>Trade Execution Framework</h2>
+        <p>Only execute trades after all confirmations align.</p>
+      </div>
+      <div class="academy-grid">
+        <div class="academy-card">
+          <div class="icon"><i class="fas fa-check-circle"></i></div>
+          <h3>Confirmation</h3>
+          <p>Wait for BOS, CHoCH or a valid market structure shift before entering.</p>
+        </div>
+        <div class="academy-card">
+          <div class="icon"><i class="fas fa-clock"></i></div>
+          <h3>Session Timing</h3>
+          <p>Execute during London or New York sessions when liquidity is highest.</p>
+        </div>
+        <div class="academy-card">
+          <div class="icon"><i class="fas fa-crosshairs"></i></div>
+          <h3>Entry</h3>
+          <p>Enter only after confirmation inside a refined Supply or Demand zone.</p>
+        </div>
+        <div class="academy-card">
+          <div class="icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Stop Loss</h3>
+          <p>Place the stop beyond the protected swing or institutional zone.</p>
+        </div>
+        <div class="academy-card">
+          <div class="icon"><i class="fas fa-bullseye"></i></div>
+          <h3>Take Profit</h3>
+          <p>Target opposing liquidity or the next institutional objective.</p>
+        </div>
+        <div class="academy-card">
+          <div class="icon"><i class="fas fa-chart-pie"></i></div>
+          <h3>Risk Management</h3>
+          <p>Risk a fixed percentage per trade and maintain positive risk-to-reward ratios.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CORE CONCEPTS (4 PILLARS) ========== -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <h2>The Four Pillars of GTRADES-AXIS™</h2>
+        <p>Every profitable trade is built around these four concepts.</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <i class="fas fa-arrow-trend-up fa-3x"></i>
+          <h3>Break of Structure (BOS)</h3>
+          <p>A Break of Structure confirms continuation in the current trend. A bullish BOS occurs when price breaks above the previous Higher High. A bearish BOS occurs when price breaks below the previous Lower Low.</p>
+        </div>
+        <div class="card">
+          <i class="fas fa-right-left fa-3x"></i>
+          <h3>Change of Character (CHoCH)</h3>
+          <p>CHoCH signals a possible reversal. It happens when the market fails to continue its current trend and breaks the opposite swing. Always wait for confirmation before assuming a reversal.</p>
+        </div>
+        <div class="card">
+          <i class="fas fa-water fa-3x"></i>
+          <h3>Liquidity</h3>
+          <p>Institutions target areas where retail traders place stop losses. These include: Equal Highs, Equal Lows, Previous Highs, Previous Lows, Trendline Liquidity. Liquidity is the fuel that moves price.</p>
+        </div>
+        <div class="card">
+          <i class="fas fa-layer-group fa-3x"></i>
+          <h3>Supply &amp; Demand</h3>
+          <p>Supply and Demand zones represent institutional buying and selling areas. Trades are only taken after price returns to these zones and confirms with market structure.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ENTRY CHECKLIST ========== -->
+  <section class="academy">
+    <div class="container">
+      <div class="section-title">
+        <h2>Trade Entry Checklist</h2>
+        <p>Every trade must satisfy these conditions before execution.</p>
+      </div>
+      <div class="academy-grid">
+        <div class="academy-card"><div class="icon"><i class="fas fa-check"></i></div><h3>Higher Timeframe Bias</h3><p>Daily and 4H charts agree with the trade direction.</p></div>
+        <div class="academy-card"><div class="icon"><i class="fas fa-check"></i></div><h3>Market Structure</h3><p>A confirmed BOS or CHoCH has already formed.</p></div>
+        <div class="academy-card"><div class="icon"><i class="fas fa-check"></i></div><h3>Liquidity Sweep</h3><p>Price has swept external liquidity before entering.</p></div>
+        <div class="academy-card"><div class="icon"><i class="fas fa-check"></i></div><h3>Supply / Demand</h3><p>Price reacts from a fresh institutional zone.</p></div>
+        <div class="academy-card"><div class="icon"><i class="fas fa-check"></i></div><h3>Session Timing</h3><p>Trade is executed during London or New York.</p></div>
+        <div class="academy-card"><div class="icon"><i class="fas fa-check"></i></div><h3>Risk Management</h3><p>Minimum 1:2 Risk-to-Reward with predefined stop loss.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONFLUENCE ========== -->
+  <section class="stats">
+    <div class="container">
+      <div class="section-title"><h2>High Probability Confluences</h2></div>
+      <div class="cards">
+        <div class="card"><h3>✓ HTF Trend</h3></div>
+        <div class="card"><h3>✓ BOS / CHoCH</h3></div>
+        <div class="card"><h3>✓ Liquidity Sweep</h3></div>
+        <div class="card"><h3>✓ Supply / Demand</h3></div>
+        <div class="card"><h3>✓ Session Timing</h3></div>
+        <div class="card"><h3>✓ Risk ≥ 1:2 RR</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DAILY ROUTINE ========== -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <h2>The GTRADES-AXIS Daily Routine</h2>
+        <p>Consistency comes from following the same routine every trading day.</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <i class="fas fa-sun fa-3x"></i>
+          <h3>1. Pre-Market Analysis</h3>
+          <ul>
+            <li>Check economic calendar</li>
+            <li>Mark Daily bias</li>
+            <li>Mark 4H structure</li>
+            <li>Draw liquidity levels</li>
+            <li>Identify Supply &amp; Demand zones</li>
+          </ul>
+        </div>
+        <div class="card">
+          <i class="fas fa-chart-area fa-3x"></i>
+          <h3>2. During Session</h3>
+          <ul>
+            <li>Wait for London / NY session</li>
+            <li>Watch liquidity sweep</li>
+            <li>Wait for BOS / CHoCH</li>
+            <li>Refine entry</li>
+            <li>Execute only after confirmation</li>
+          </ul>
+        </div>
+        <div class="card">
+          <i class="fas fa-book fa-3x"></i>
+          <h3>3. After Trading</h3>
+          <ul>
+            <li>Screenshot trade</li>
+            <li>Journal entry</li>
+            <li>Review mistakes</li>
+            <li>Record emotions</li>
+            <li>Prepare tomorrow's watchlist</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROFESSIONAL ENTRY CHECKLIST ========== -->
+  <section class="academy">
+    <div class="container">
+      <div class="section-title">
+        <h2>Professional Entry Checklist</h2>
+        <p>No trade should be executed unless every box is checked.</p>
+      </div>
+      <div class="academy-grid">
+        <div class="academy-card"><h3>✅ Higher Timeframe Bias</h3><p>Daily &amp; 4H agree.</p></div>
+        <div class="academy-card"><h3>✅ BOS / CHoCH</h3><p>Market confirms direction.</p></div>
+        <div class="academy-card"><h3>✅ Liquidity Taken</h3><p>Stops have already been swept.</p></div>
+        <div class="academy-card"><h3>✅ Supply / Demand</h3><p>Price reacts from institutional zone.</p></div>
+        <div class="academy-card"><h3>✅ Session</h3><p>London or New York only.</p></div>
+        <div class="academy-card"><h3>✅ Confirmation Candle</h3><p>Strong rejection or continuation candle.</p></div>
+        <div class="academy-card"><h3>✅ Risk</h3><p>Maximum 1% risk per trade.</p></div>
+        <div class="academy-card"><h3>✅ Risk : Reward</h3><p>Minimum 1 : 2 RR.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TRADE MANAGEMENT RULES ========== -->
+  <section class="strategy">
+    <div class="container">
+      <div class="section-title">
+        <h2>Trade Management Rules</h2>
+      </div>
+      <div class="strategy-flow">
+        <div class="flow-box"><div class="flow-number">1</div><h3>Entry</h3><p>Enter only after confirmation.</p></div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box"><div class="flow-number">2</div><h3>Protect Capital</h3><p>Never move Stop Loss further away.</p></div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box"><div class="flow-number">3</div><h3>Break Even</h3><p>Move SL after reaching 1R.</p></div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box"><div class="flow-number">4</div><h3>Partial Profits</h3><p>Secure profits at key liquidity targets.</p></div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-box"><div class="flow-number">5</div><h3>Final Target</h3><p>Exit at opposing liquidity or HTF objective.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROP FIRM RULES ========== -->
+  <section class="stats">
+    <div class="container">
+      <div class="section-title">
+        <h2>Prop Firm Rules</h2>
+        <p>Trade like a professional. Protect capital first.</p>
+      </div>
+      <div class="cards">
+        <div class="card"><h3>Maximum Daily Loss</h3><p>Never exceed your daily drawdown limit.</p></div>
+        <div class="card"><h3>Maximum Overall Loss</h3><p>Always stay within account limits.</p></div>
+        <div class="card"><h3>One Setup Only</h3><p>Quality over quantity.</p></div>
+        <div class="card"><h3>No Revenge Trading</h3><p>Accept losses and wait for the next setup.</p></div>
+        <div class="card"><h3>Trade Your Plan</h3><p>Never take emotional trades.</p></div>
+        <div class="card"><h3>Consistency Wins</h3><p>Small gains compounded create long-term success.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRINCIPLES ========== -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <h2>The GTRADES-AXIS Principles</h2>
+        <p>Professional trading is built on discipline, not prediction.</p>
+      </div>
+      <div class="cards">
+        <div class="card"><i class="fas fa-chess-king fa-3x"></i><h3>Patience</h3><p>Wait for the market to come to your levels. Never chase price.</p></div>
+        <div class="card"><i class="fas fa-chart-line fa-3x"></i><h3>Consistency</h3><p>Repeat the same process every day. Execution creates consistency.</p></div>
+        <div class="card"><i class="fas fa-shield-alt fa-3x"></i><h3>Capital Protection</h3><p>Your first responsibility is protecting your account.</p></div>
+        <div class="card"><i class="fas fa-brain fa-3x"></i><h3>Psychology</h3><p>Control emotions. Follow your trading plan.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CALL TO ACTION ========== -->
+  <section class="cta">
+    <div class="container">
+      <h2>Ready To Master Institutional Trading?</h2>
+      <p>Join the GTRADES-AXIS™ Academy and learn the complete trading framework.</p>
+      <div class="hero-buttons">
+        <a href="academy.html" class="primary-btn">Join The Academy</a>
+        <a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank" class="secondary-btn">Join Telegram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TESTIMONIALS ========== -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="section-title"><h2>Trader Results</h2></div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"The framework finally gave me confidence to trade without indicators."</p>
+          <h4>— Forex Student</h4>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"My entries became much cleaner after learning liquidity and BOS."</p>
+          <h4>— Community Member</h4>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"The trading checklist alone stopped me from overtrading."</p>
+          <h4>— Academy Student</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FAQ ========== -->
+  <section class="faq">
+    <div class="container">
+      <div class="section-title"><h2>Strategy FAQ</h2></div>
+      <div class="faq-item">
+        <h3>Does this strategy work on all markets?</h3>
+        <p>Yes. It works on Forex, Gold, Indices, Crypto and Stocks because it follows institutional price action.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Which timeframe is best?</h3>
+        <p>Use the Daily and 4H for bias, 1H and 15M for setup, and 5M or 1M for execution.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How much should I risk?</h3>
+        <p>Risk only 0.5%–1% per trade and never exceed your daily loss limit.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can beginners learn this?</h3>
+        <p>Absolutely. The Academy starts from the fundamentals and builds toward advanced execution.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <img src="images/logo.png" alt="Logo" />
+          <h2>GTRADES-<span>AXIS™</span></h2>
+          <p>Trade with Structure. Execute with Precision.</p>
+        </div>
+        <div class="footer-links">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="academy.html">Academy</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h3>Community</h3>
+          <ul>
+            <li><a href="https://www.youtube.com/@GtradesAxis" target="_blank">YouTube</a></li>
+            <li><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank">Telegram</a></li>
+            <li><a href="https://wa.me/254712416214" target="_blank">WhatsApp</a></li>
+            <li><a href="https://www.tiktok.com/@gtrades_axis" target="_blank">TikTok</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h3>Contact</h3>
+          <p>Nairobi, Kenya</p>
+          <p>WhatsApp: +254 712 416 214</p>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>© <span id="year"></span> GTRADES-AXIS™. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== SCROLL BUTTON ========== -->
+  <button id="scrollTop"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    // Loader
+    window.addEventListener('load', () => {
+      document.getElementById('loader').classList.add('hidden');
+    });
+
+    // Mobile menu
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('mainNav');
+    toggle?.addEventListener('click', () => {
+      toggle.classList.toggle('active');
+      nav.classList.toggle('open');
+    });
+    nav?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        toggle.classList.remove('active');
+        nav.classList.remove('open');
+      });
+    });
+
+    // Scroll to top
+    const scrollBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 300);
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Dynamic year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
-
 </html>
-</section>
