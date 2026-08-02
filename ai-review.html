@@ -38,7 +38,7 @@
       min-height: 100vh;
     }
 
-    /* ─── SIDEBAR – Premium, Attractive ─── */
+    /* ─── SIDEBAR ─── */
     .sidebar {
       width: 260px;
       background: var(--bg-secondary);
@@ -53,7 +53,6 @@
       flex-shrink: 0;
       transition: 0.3s;
     }
-
     .sidebar .logo {
       display: flex;
       align-items: center;
@@ -96,33 +95,37 @@
       letter-spacing: 0.5px;
       -webkit-text-fill-color: var(--text-secondary);
     }
-
-    .sidebar .premium-badge {
+    .sidebar .membership-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(245,166,35,0.05));
-      border: 1px solid rgba(245,166,35,0.2);
       padding: 4px 14px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
-      color: var(--gold);
       margin-bottom: 24px;
       width: fit-content;
+      border: 1px solid transparent;
     }
-    .sidebar .premium-badge i {
-      font-size: 10px;
+    .sidebar .membership-badge.premium {
+      background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(245,166,35,0.05));
+      border-color: rgba(245,166,35,0.2);
+      color: var(--gold);
     }
+    .sidebar .membership-badge.admin {
+      background: rgba(79,124,255,0.12);
+      border-color: rgba(79,124,255,0.2);
+      color: var(--accent-blue);
+    }
+    .sidebar .membership-badge.free {
+      background: rgba(156,39,176,0.08);
+      border-color: rgba(156,39,176,0.1);
+      color: #9c27b0;
+    }
+    .sidebar .membership-badge i { font-size: 10px; }
 
-    .sidebar nav ul {
-      list-style: none;
-      padding: 0;
-      flex: 1;
-    }
-    .sidebar nav ul li {
-      margin: 2px 0;
-    }
+    .sidebar nav ul { list-style: none; padding: 0; flex: 1; }
+    .sidebar nav ul li { margin: 2px 0; }
     .sidebar nav ul li a {
       display: flex;
       align-items: center;
@@ -134,30 +137,17 @@
       font-size: 14px;
       font-weight: 500;
       transition: all 0.25s ease;
-      position: relative;
       border-left: 3px solid transparent;
     }
-    .sidebar nav ul li a i {
-      width: 20px;
-      text-align: center;
-      font-size: 16px;
-      transition: 0.25s;
-    }
-    .sidebar nav ul li a:hover {
-      background: var(--bg-card);
-      color: #fff;
-    }
-    .sidebar nav ul li a:hover i {
-      color: var(--accent-blue);
-    }
+    .sidebar nav ul li a i { width: 20px; text-align: center; font-size: 16px; transition: 0.25s; }
+    .sidebar nav ul li a:hover { background: var(--bg-card); color: #fff; }
+    .sidebar nav ul li a:hover i { color: var(--accent-blue); }
     .sidebar nav ul li.active a {
       background: var(--accent-blue-glow);
       color: var(--accent-blue);
       border-left-color: var(--accent-blue);
     }
-    .sidebar nav ul li.active a i {
-      color: var(--accent-blue);
-    }
+    .sidebar nav ul li.active a i { color: var(--accent-blue); }
 
     .sidebar .logout-btn {
       margin-top: auto;
@@ -181,10 +171,7 @@
       background: rgba(255,71,102,0.18);
       border-color: rgba(255,71,102,0.15);
     }
-    .sidebar .logout-btn i {
-      width: 20px;
-      text-align: center;
-    }
+    .sidebar .logout-btn i { width: 20px; text-align: center; }
 
     /* ── Content ── */
     .content {
@@ -202,29 +189,11 @@
       flex-wrap: wrap;
       gap: 16px;
     }
-    .topbar h1 {
-      font-size: 28px;
-      font-weight: 700;
-    }
-    .topbar h1 i {
-      color: var(--accent-blue);
-      margin-right: 10px;
-    }
-    .topbar p {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-    .topbar a {
-      color: var(--accent-blue);
-      text-decoration: none;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .topbar a:hover {
-      text-decoration: underline;
-    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar h1 i { color: var(--accent-blue); margin-right: 10px; }
+    .topbar p { color: var(--text-secondary); font-size: 14px; }
+    .topbar a { color: var(--accent-blue); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar a:hover { text-decoration: underline; }
     .user-box {
       display: flex;
       align-items: center;
@@ -237,13 +206,8 @@
       background: var(--bg-card);
       border: 2px solid var(--border-color);
     }
-    .user-box h4 {
-      font-size: 16px;
-    }
-    .user-box p {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
+    .user-box h4 { font-size: 16px; }
+    .user-box p { font-size: 12px; color: var(--text-secondary); }
 
     /* ── AI Review styles ── */
     .ai-review-container {
@@ -258,13 +222,7 @@
       padding: 28px;
       margin-bottom: 24px;
     }
-    .upload-section h2 {
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .upload-section h2 { font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
     .upload-section h2 i { color: var(--accent-blue); }
     .upload-grid {
       display: grid;
@@ -282,24 +240,11 @@
       transition: 0.3s;
       position: relative;
     }
-    .upload-box:hover {
-      border-color: var(--accent-blue);
-      background: var(--accent-blue-glow);
-    }
+    .upload-box:hover { border-color: var(--accent-blue); background: var(--accent-blue-glow); }
     .upload-box .icon { font-size: 2.5rem; color: #64748b; margin-bottom: 8px; }
     .upload-box .label { font-size: 0.85rem; color: var(--text-secondary); }
-    .upload-box input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-    .upload-box .preview {
-      margin-top: 10px;
-      max-width: 100%;
-      border-radius: 8px;
-      max-height: 100px;
-    }
+    .upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-box .preview { margin-top: 10px; max-width: 100%; border-radius: 8px; max-height: 100px; }
     .analyze-btn {
       width: 100%;
       padding: 14px;
@@ -312,16 +257,8 @@
       cursor: pointer;
       transition: 0.3s;
     }
-    .analyze-btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(79,124,255,0.3);
-    }
-    .analyze-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .analyze-btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,124,255,0.3); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .results {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -361,14 +298,102 @@
     }
     .suggestions h4 { margin-bottom: 8px; color: var(--text-primary); }
     .suggestions ul { list-style: none; padding: 0; }
-    .suggestions ul li {
-      padding: 6px 0;
-      color: var(--text-secondary);
+    .suggestions ul li { padding: 6px 0; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+    .suggestions ul li i { color: var(--accent-blue); }
+
+    /* ── Lock Overlay ── */
+    #lockOverlay {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    #lockOverlay .lock-icon {
+      font-size: 4rem;
+      color: var(--gold);
+      background: rgba(245,166,35,0.15);
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+    }
+    #lockOverlay h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+    #lockOverlay .subtitle { color: var(--text-secondary); font-size: 1rem; max-width: 500px; margin: 0 auto 32px; line-height: 1.6; }
+    #lockOverlay .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+      text-align: left;
+      margin: 0 auto 36px;
+      max-width: 480px;
+    }
+    #lockOverlay .feature-list .feature-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
     }
-    .suggestions ul li i { color: var(--accent-blue); }
+    #lockOverlay .feature-list .feature-item i { color: var(--green); font-size: 1.1rem; width: 20px; text-align: center; }
+    #lockOverlay .lock-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #lockOverlay .lock-buttons a {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: 0.25s;
+    }
+    #lockOverlay .lock-buttons .btn-upgrade {
+      background: linear-gradient(135deg, var(--gold), #f7c948);
+      color: #0b0d15;
+    }
+    #lockOverlay .lock-buttons .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245,166,35,0.3);
+    }
+    #lockOverlay .lock-buttons .btn-dashboard {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+    #lockOverlay .lock-buttons .btn-dashboard:hover {
+      background: var(--border-color);
+      color: #fff;
+    }
+    .locked-content { display: block; }
+    .locked .locked-content { display: none; }
+    .locked #lockOverlay { display: block; }
+
+    /* ── Loading state ── */
+    #app.loading #lockOverlay,
+    #app.loading .locked-content {
+      display: none !important;
+    }
+    #app.loading {
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #app.loading::after {
+      content: "";
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
@@ -382,52 +407,17 @@
         border-right: none;
         border-bottom: 1px solid var(--border-color);
       }
-      .sidebar .logo {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-        flex: 1;
-      }
-      .sidebar nav {
-        flex: 1 1 100%;
-        order: 3;
-        margin-top: 12px;
-      }
-      .sidebar nav ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-      }
-      .sidebar nav ul li {
-        flex: 1 0 auto;
-      }
-      .sidebar nav ul li a {
-        padding: 8px 14px;
-        font-size: 12px;
-        border-left: none;
-        border-radius: 8px;
-      }
-      .sidebar nav ul li.active a {
-        border-left: none;
-        border-bottom: 2px solid var(--accent-blue);
-      }
-      .sidebar .logout-btn {
-        margin-top: 0;
-        padding: 8px 14px;
-        font-size: 12px;
-      }
-      .sidebar .premium-badge {
-        display: none;
-      }
-      .content {
-        padding: 20px;
-      }
-      .topbar h1 {
-        font-size: 22px;
-      }
-      .upload-grid {
-        grid-template-columns: 1fr;
-      }
+      .sidebar .logo { margin-bottom: 0; padding-bottom: 0; border-bottom: none; flex: 1; }
+      .sidebar nav { flex: 1 1 100%; order: 3; margin-top: 12px; }
+      .sidebar nav ul { display: flex; flex-wrap: wrap; gap: 4px; }
+      .sidebar nav ul li { flex: 1 0 auto; }
+      .sidebar nav ul li a { padding: 8px 14px; font-size: 12px; border-left: none; border-radius: 8px; }
+      .sidebar nav ul li.active a { border-left: none; border-bottom: 2px solid var(--accent-blue); }
+      .sidebar .logout-btn { margin-top: 0; padding: 8px 14px; font-size: 12px; }
+      .sidebar .membership-badge { display: none; }
+      .content { padding: 20px; }
+      .topbar h1 { font-size: 22px; }
+      .upload-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -445,7 +435,10 @@
       </div>
     </div>
 
-    <div class="premium-badge"><i class="fa-solid fa-crown"></i> Premium</div>
+    <!-- Dynamic badge – updated by JS -->
+    <div class="membership-badge" id="membershipBadge">
+      <i class="fa-solid fa-crown"></i> <span id="badgeText">Loading...</span>
+    </div>
 
     <nav>
       <ul>
@@ -496,8 +489,8 @@
         <div class="user-box">
           <img src="images/avatar.png" alt="" />
           <div>
-            <h4>Student</h4>
-            <p>Premium Member</p>
+            <h4 id="userName">Student</h4>
+            <p id="userRole">Member</p>
           </div>
         </div>
       </header>
@@ -562,7 +555,7 @@
 </div>
 
 <!-- ===========================
-     SCRIPTS
+     SCRIPTS (Fixed)
 =========================== -->
 <script type="importmap">
 {
@@ -580,6 +573,13 @@
   import { doc, getDoc } from "firebase/firestore";
   import { logoutUser } from "./js/auth.js";
 
+  // ─── DOM REFS ──────────────────────────────────────────────
+  const app = document.getElementById('app');
+  const membershipBadge = document.getElementById('membershipBadge');
+  const badgeText = document.getElementById('badgeText');
+  const userName = document.getElementById('userName');
+  const userRole = document.getElementById('userRole');
+
   // ─── LOGOUT ──────────────────────────────────────────────
   document.getElementById('logoutBtn')?.addEventListener('click', async () => {
     if (confirm('Logout?')) {
@@ -587,9 +587,22 @@
     }
   });
 
-  // ─── LOCK LOGIC ──────────────────────────────────────────
-  const app = document.getElementById('app');
+  // ─── DETERMINE PREMIUM STATUS (robust) ──────────────────
+  function hasPremiumAccess(userData) {
+    // Check all common field names
+    const fields = ['membership', 'plan', 'subscription', 'premium', 'role'];
+    for (const field of fields) {
+      const val = userData[field];
+      if (typeof val === 'string' && val.toLowerCase() === 'premium') return true;
+      if (field === 'role' && val === 'admin') return true;
+    }
+    // Also check for boolean flags
+    if (userData.isPremium === true) return true;
+    if (userData.premiumAccess === true) return true;
+    return false;
+  }
 
+  // ─── LOCK LOGIC ──────────────────────────────────────────
   function startLock() {
     if (!app) return;
     app.classList.add('loading');
@@ -610,20 +623,33 @@
         }
 
         const data = userDoc.data();
+        console.log('📊 User data:', data); // ← DEBUG: see the actual data
+
+        // Update sidebar badge
         const role = data.role || 'member';
         const membership = data.membership || 'free';
-        const hasPremium = (role === 'admin' || membership === 'premium');
+        const displayRole = role === 'admin' ? 'Admin' : membership.charAt(0).toUpperCase() + membership.slice(1);
+        badgeText.textContent = displayRole;
+        membershipBadge.className = 'membership-badge ' + (role === 'admin' ? 'admin' : membership);
+
+        // Update user box
+        userName.textContent = data.name || 'Trader';
+        userRole.textContent = displayRole;
+
+        // Check premium access (robust)
+        const isPremium = hasPremiumAccess(data);
+        console.log('🔐 Has premium access?', isPremium);
 
         app.classList.remove('loading');
 
-        if (hasPremium) {
+        if (isPremium) {
           app.classList.remove('locked');
           initAIReview();
         } else {
           app.classList.add('locked');
         }
       } catch (error) {
-        console.error(error);
+        console.error('❌ Auth error:', error);
         app.classList.remove('loading');
         app.classList.add('locked');
       }
@@ -632,7 +658,7 @@
 
   // ─── AI REVIEW LOGIC ──────────────────────────────────────
   function initAIReview() {
-    console.log('✅ AI Review unlocked');
+    console.log('✅ AI Review unlocked – initializing...');
 
     // File upload previews
     document.querySelectorAll('.upload-box input[type="file"]').forEach(input => {
@@ -683,8 +709,7 @@
     startLock();
   }
 
-  console.log('✅ AI Review ready.');
+  console.log('✅ AI Review ready (fixed).');
 </script>
-
 </body>
 </html>
