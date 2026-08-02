@@ -715,6 +715,65 @@
     feed.prepend(item);
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
+//  3. PAYMENTS LOGIC (EDITED TO ALLOW RE-APPROVING)
+  // ══════════════════════════════════════════════════════════════
+  function listenPayments() {
+    const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const tbody = document.getElementById('paymentsTableBody');
+      let pending = 0, approved = 0, rejected = 0;
+      if (snapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No payments found.</div></td></tr>`;
+      } else {
+        let html = '';
+        snapshot.forEach(doc => {
+          const p = { id: doc.id, ...doc.data() };
+          if (p.status === 'pending') pending++;
+          else if (p.status === 'approved') approved++;
+          else if (p.status === 'rejected') rejected++;
+          const proofLink = p.proofURL ? `<a href="${p.proofURL}" target="_blank" class="btn-view-proof">View</a>` : '—';
+          html += `
+            <tr>
+              <td><strong>${p.name || '—'}</strong><br><small style="color:#9aa4bf;">${p.email || ''}</small></td>
+              <td>${p.plan || '—'}</td>
+              <td>${p.paymentMethod || '—'}</td>
+              <td>$${p.amount || 0}</td>
+              <td>${proofLink}</td>
+              <td><span class="badge ${p.status || 'pending'}">${(p.status || 'pending').charAt(0).toUpperCase() + (p.status || 'pending').slice(1)}</span></td>
+              <td>
+                <!-- ALWAYS SHOW BUTTONS TO ALLOW RE-APPROVING/RE-REJECTING -->
+                <button class="btn-approve" data-id="${p.id}" data-uid="${p.userId}">Approve</button>
+                <button class="btn-reject" data-id="${p.id}" data-uid="${p.userId}">Reject</button>
+              </td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+        document.getElementById('payPending').textContent = pending;
+        document.getElementById('payApproved').textContent = approved;
+        document.getElementById('payRejected').textContent = rejected;
+      }
+      document.querySelectorAll('.btn-approve').forEach(btn => {
+        btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'approved'));
+      });
+      document.querySelectorAll('.btn-reject').forEach(btn => {
+        btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'rejected'));
+      });
+    });
+  }
+
+  async function handlePayment(paymentId, userId, status) {
+    if (!confirm(`Are you sure you want to ${status} this payment?`)) return;
+    try {
+      await updateDoc(doc(db, "payments", paymentId), { status: status, reviewedAt: serverTimestamp() });
+      if (status === 'approved') {
+        await updateDoc(doc(db, "users", userId), { membership: 'premium', updatedAt: serverTimestamp() });
+        addActivity(`Approved payment and upgraded user to Premium.`);
+      } else {
+        addActivity(`Rejected a payment request.`);
+      }
+    } catch (error) { alert("Failed to update payment."); }
+  }
 
   // ══════════════════════════════════════════════════════════════
   //  1. MEMBERS LOGIC
@@ -944,67 +1003,7 @@
     renderModules(); addActivity('Imported sample modules');
   });
 
-  // ══════════════════════════════════════════════════════════════
-  //  3. PAYMENTS LOGIC (EDITED TO ALLOW RE-APPROVING)
-  // ══════════════════════════════════════════════════════════════
-  function listenPayments() {
-    const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      const tbody = document.getElementById('paymentsTableBody');
-      let pending = 0, approved = 0, rejected = 0;
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No payments found.</div></td></tr>`;
-      } else {
-        let html = '';
-        snapshot.forEach(doc => {
-          const p = { id: doc.id, ...doc.data() };
-          if (p.status === 'pending') pending++;
-          else if (p.status === 'approved') approved++;
-          else if (p.status === 'rejected') rejected++;
-          const proofLink = p.proofURL ? `<a href="${p.proofURL}" target="_blank" class="btn-view-proof">View</a>` : '—';
-          html += `
-            <tr>
-              <td><strong>${p.name || '—'}</strong><br><small style="color:#9aa4bf;">${p.email || ''}</small></td>
-              <td>${p.plan || '—'}</td>
-              <td>${p.paymentMethod || '—'}</td>
-              <td>$${p.amount || 0}</td>
-              <td>${proofLink}</td>
-              <td><span class="badge ${p.status || 'pending'}">${(p.status || 'pending').charAt(0).toUpperCase() + (p.status || 'pending').slice(1)}</span></td>
-              <td>
-                <!-- ALWAYS SHOW BUTTONS TO ALLOW RE-APPROVING/RE-REJECTING -->
-                <button class="btn-approve" data-id="${p.id}" data-uid="${p.userId}">Approve</button>
-                <button class="btn-reject" data-id="${p.id}" data-uid="${p.userId}">Reject</button>
-              </td>
-            </tr>
-          `;
-        });
-        tbody.innerHTML = html;
-        document.getElementById('payPending').textContent = pending;
-        document.getElementById('payApproved').textContent = approved;
-        document.getElementById('payRejected').textContent = rejected;
-      }
-      document.querySelectorAll('.btn-approve').forEach(btn => {
-        btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'approved'));
-      });
-      document.querySelectorAll('.btn-reject').forEach(btn => {
-        btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'rejected'));
-      });
-    });
-  }
-
-  async function handlePayment(paymentId, userId, status) {
-    if (!confirm(`Are you sure you want to ${status} this payment?`)) return;
-    try {
-      await updateDoc(doc(db, "payments", paymentId), { status: status, reviewedAt: serverTimestamp() });
-      if (status === 'approved') {
-        await updateDoc(doc(db, "users", userId), { membership: 'premium', updatedAt: serverTimestamp() });
-        addActivity(`Approved payment and upgraded user to Premium.`);
-      } else {
-        addActivity(`Rejected a payment request.`);
-      }
-    } catch (error) { alert("Failed to update payment."); }
-  }
-
+  
   // ══════════════════════════════════════════════════════════════
   //  4. VIDEOS LOGIC (LOCAL STORAGE + RENDERING)
   // ══════════════════════════════════════════════════════════════
@@ -1231,4 +1230,3 @@
 </script>
 </body>
 </html>
-```
