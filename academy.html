@@ -2,1572 +2,598 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Academy | GTRADES-AXIS™</title>
-  <meta name="description" content="GTRADES-AXIS™ Academy – Learn institutional trading with structured modules." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academy Admin | GTRADES-AXIS™</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link rel="icon" href="images/favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <style>
-    /* ============================================================
-       SAME AS INDEX – SCALED UP, BIG LOGO
-    ============================================================ */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html {
-      scroll-behavior: smooth;
-      overflow-x: hidden;
-    }
+    /* ── Reset & Base ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: #07090d;
-      color: #ffffff;
-      line-height: 1.8;
-      overflow-x: hidden;
-      width: 100%;
+      background: #0b0d15;
+      color: #e8edf5;
+      min-height: 100vh;
     }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    ul {
-      list-style: none;
-    }
-    img {
-      max-width: 100%;
-      display: block;
+    .academy-container {
+      display: flex;
+      min-height: 100vh;
     }
 
-    .container {
-      width: 100%;
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 0 30px;
-    }
-
-    /* ─── HEADER ─── */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 110px;
-      background: rgb(23 43 83 / 92%);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-    }
-    header .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      padding: 0;
-      max-width: 100%;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 18px;
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      background: #131724;
+      border-right: 1px solid #2a3450;
+      padding: 28px 18px;
       flex-shrink: 0;
     }
-    .logo img {
-      width: 90px;
-      height: 90px;
-      object-fit: contain;
-      border-radius: 10px;
-    }
-    .logo h2 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
+    .sidebar .logo h2 {
+      font-size: 18px;
       background: linear-gradient(135deg, #fff 30%, #00d4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .logo h2 span {
-      -webkit-text-fill-color: #4f7cff;
+    .sidebar .logo span { -webkit-text-fill-color: #4f7cff; }
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
     }
-
-    nav {
+    .sidebar nav ul li { margin: 6px 0; }
+    .sidebar nav ul li a {
       display: flex;
       align-items: center;
-      flex: 1;
-      justify-content: center;
-      gap: 30px;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #9aa4bf;
+      text-decoration: none;
+      transition: 0.25s;
+      border-left: 3px solid transparent;
     }
-    nav ul {
-      display: flex;
-      gap: 38px;
-      align-items: center;
-    }
-    nav ul li a {
-      color: #c9d3dd;
-      font-size: 1.15rem;
-      font-weight: 500;
-      transition: 0.3s;
-      position: relative;
-      white-space: nowrap;
-    }
-    nav ul li a::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 0;
-      height: 3px;
-      background: #4f7cff;
-      transition: 0.3s;
-    }
-    nav ul li a:hover::after,
-    nav ul li a.active::after {
-      width: 100%;
-    }
-    nav ul li a:hover,
-    nav ul li a.active {
+    .sidebar nav ul li a:hover {
+      background: #1a1f2f;
       color: #fff;
     }
+    .sidebar nav ul li.active a {
+      background: rgba(79,124,255,0.15);
+      color: #4f7cff;
+      border-left-color: #4f7cff;
+    }
 
-    .nav-social {
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      padding: 30px 40px;
+      background: #0b0d15;
+    }
+
+    /* ── Lock Overlay (for non-admins) ── */
+    #lockOverlay {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    #lockOverlay .lock-icon {
+      font-size: 4rem;
+      color: #ff4766;
+      background: rgba(255, 71, 102, 0.15);
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+    }
+    #lockOverlay h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+    .btn-dashboard {
+      background: #1a1f2f;
+      color: #94a3b8;
+      border: 1px solid #2a3450;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-dashboard:hover { background: #2a3450; color: #fff; }
+
+    #app.loading { display: flex; align-items: center; justify-content: center; min-height: 400px; }
+    #app.loading::after {
+      content: "";
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #4f7cff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #app.loading #lockOverlay, #app.loading .admin-content { display: none !important; }
+    .locked #lockOverlay { display: block; }
+    .locked .admin-content { display: none; }
+
+    /* ── Admin Content ── */
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .admin-header h1 { font-size: 28px; font-weight: 700; }
+    .btn-add {
+      background: #4f7cff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+    .btn-add:hover { background: #3a66e0; }
+
+    .module-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .module-row {
+      background: #131724;
+      border: 1px solid #2a3450;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      transition: 0.25s;
+    }
+    .module-row:hover { border-color: #4f7cff; }
+    .module-info { flex: 1; }
+    .module-info h4 { font-size: 18px; margin-bottom: 4px; }
+    .module-info p { color: #9aa4bf; font-size: 14px; margin-top: 4px; }
+    .module-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .status-badge {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .status-badge.published { background: rgba(0,200,150,0.15); color: #00c897; }
+    .status-badge.draft { background: rgba(255,71,102,0.1); color: #ff4766; }
+    .module-actions { display: flex; gap: 12px; }
+    .btn-icon {
+      background: #1a1f2f;
+      border: 1px solid #2a3450;
+      color: #9aa4bf;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.25s;
+      font-size: 14px;
+    }
+    .btn-icon:hover { background: #2a3450; color: #fff; }
+    .btn-icon.edit:hover { border-color: #4f7cff; color: #4f7cff; }
+    .btn-icon.del:hover { border-color: #ff4766; color: #ff4766; }
+
+    /* ── Edit Lesson Modal ── */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 13, 21, 0.85);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #131724;
+      border: 1px solid #2a3450;
+      border-radius: 16px;
+      max-width: 700px;
+      width: 90%;
+      padding: 30px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    .modal-box h2 { margin-bottom: 20px; font-size: 22px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #9aa4bf;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      background: #0b0d15;
+      border: 1px solid #2a3450;
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #e8edf5;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #4f7cff; }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+    .form-group small {
+      display: block;
+      color: #6b7a93;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .checkbox-group {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-shrink: 0;
     }
-    .nav-social a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      color: #c9d3dd;
-      transition: 0.3s;
-      font-size: 18px;
-    }
-    .nav-social a:hover {
-      transform: translateY(-3px);
-      color: #fff;
-    }
-    .nav-social .youtube:hover {
-      background: #ff0000;
-      color: #fff;
-    }
-    .nav-social .telegram:hover {
-      background: #229ed9;
-      color: #fff;
-    }
-    .nav-social .whatsapp:hover {
-      background: #25d366;
-      color: #fff;
-    }
-    .nav-social .tiktok:hover {
-      background: #111;
-      color: #fff;
-    }
-
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-shrink: 0;
-      margin-left: 16px;
-    }
-    .join-btn {
-      padding: 10px 28px;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: 0.35s;
-      white-space: nowrap;
-      border: 2.5px solid #4f7cff;
-      color: #4f7cff;
-      background: transparent;
-    }
-    .join-btn:hover {
-      background: #4f7cff;
-      color: #fff;
-      box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
-      transform: translateY(-2px);
-    }
-    .dashboard-btn {
-      background: #fff;
-      border-color: #fff;
-      color: #000;
-    }
-    .dashboard-btn:hover {
-      background: #e8e8e8;
-      border-color: #e8e8e8;
-      color: #000;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
-    }
-
-    .menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: transparent;
-      border: none;
+    .checkbox-group input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: #4f7cff;
       cursor: pointer;
-      padding: 4px;
-      margin-left: 14px;
     }
-    .menu-toggle span {
-      display: block;
-      width: 28px;
-      height: 3px;
-      background: #fff;
-      border-radius: 4px;
-      transition: 0.3s;
-    }
-    .menu-toggle.active span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .menu-toggle.active span:nth-child(2) {
-      opacity: 0;
-    }
-    .menu-toggle.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(5px, -5px);
-    }
-
-    /* ─── MOBILE OVERLAY ─── */
-    .mobile-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: rgba(2, 8, 24, 0.96);
-      backdrop-filter: blur(24px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .mobile-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .mobile-overlay-inner {
-      width: 100%;
-      max-width: 420px;
-      padding: 0 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 50px;
-    }
-    .mobile-nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    .mobile-nav-list li {
-      opacity: 0;
-      transform: translateY(24px) scale(0.95);
-      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .mobile-overlay.open .mobile-nav-list li {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-    .mobile-nav-list li:nth-child(1) { transition-delay: 0.05s; }
-    .mobile-nav-list li:nth-child(2) { transition-delay: 0.10s; }
-    .mobile-nav-list li:nth-child(3) { transition-delay: 0.15s; }
-    .mobile-nav-list li:nth-child(4) { transition-delay: 0.20s; }
-    .mobile-nav-list li:nth-child(5) { transition-delay: 0.25s; }
-    .mobile-nav-list li:nth-child(6) { transition-delay: 0.30s; }
-
-    .mobile-link {
-      display: block;
-      font-size: 34px;
-      font-weight: 600;
-      letter-spacing: -0.3px;
-      color: rgba(255, 255, 255, 0.6);
-      transition: color 0.3s;
-    }
-    .mobile-link:hover {
-      color: #fff;
-    }
-
-    .mobile-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      opacity: 0;
-      transform: translateY(24px);
-      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
-    }
-    .mobile-overlay.open .mobile-actions {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .mobile-login,
-    .mobile-dashboard {
-      width: 100%;
-      padding: 16px;
-      text-align: center;
-      border-radius: 18px;
-      font-size: 17px;
-      font-weight: 500;
-      letter-spacing: -0.2px;
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.8);
-      background: transparent;
-      transition: background 0.3s;
-    }
-    .mobile-login:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .mobile-dashboard {
-      background: #fff;
-      color: #000;
-      border: none;
-      font-weight: 600;
-    }
-    .mobile-dashboard:hover {
-      background: #e8e8e8;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
-    }
-
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 1024px) {
-      header {
-        height: 90px;
-        padding: 0 14px;
-      }
-      .logo img {
-        width: 70px;
-        height: 70px;
-      }
-      .logo h2 {
-        font-size: 1.8rem;
-      }
-      nav ul {
-        gap: 22px;
-      }
-      nav ul li a {
-        font-size: 0.95rem;
-      }
-      .nav-social a {
-        width: 34px;
-        height: 34px;
-        font-size: 15px;
-      }
-      .join-btn {
-        padding: 8px 18px;
-        font-size: 0.85rem;
-      }
-    }
-
-    @media (max-width: 992px) {
-      header {
-        height: 76px;
-        padding: 0 12px;
-      }
-      .logo img {
-        width: 52px;
-        height: 52px;
-      }
-      .logo h2 {
-        font-size: 1.3rem;
-      }
-      nav {
-        display: none;
-      }
-      .menu-toggle {
-        display: flex;
-      }
-      .nav-social {
-        display: none;
-      }
-      .nav-buttons {
-        display: none;
-      }
-    }
-    @media (max-width: 480px) {
-      header {
-        height: 64px;
-        padding: 0 10px;
-      }
-      .logo img {
-        width: 40px;
-        height: 40px;
-      }
-      .logo h2 {
-        font-size: 1rem;
-      }
-      .container {
-        padding: 0 14px;
-      }
-    }
-
-    /* ─── PAGE HEADER ─── */
-    .page-header {
-      padding-top: 140px;
-      padding-bottom: 40px;
-      background:
-        radial-gradient(circle at 30% 40%, rgba(79, 124, 255, 0.08), transparent 55%),
-        radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.04), transparent 50%),
-        linear-gradient(180deg, #07090d, #0e1522);
-      text-align: center;
-    }
-    .page-header h1 {
-      font-size: clamp(2.8rem, 6vw, 4.5rem);
-      font-weight: 800;
-      line-height: 1.08;
-      margin-bottom: 8px;
-    }
-    .page-header h1 span {
-      color: #4f7cff;
-    }
-    .page-header .subtitle {
-      display: inline-block;
-      padding: 6px 18px;
-      background: rgba(79, 124, 255, 0.1);
-      border: 1px solid rgba(79, 124, 255, 0.2);
-      border-radius: 40px;
-      color: #4f7cff;
-      font-size: 0.85rem;
-      letter-spacing: 1.5px;
-      margin-bottom: 18px;
-      text-transform: uppercase;
-    }
-    .page-header p {
-      font-size: clamp(1.05rem, 1.5vw, 1.25rem);
-      color: #c9d3dd;
-      max-width: 750px;
-      margin: 0 auto 10px;
-      line-height: 1.8;
-    }
-    .page-header .lesson-count {
-      color: #9aa4bf;
-      font-size: 0.95rem;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 992px) {
-      .page-header {
-        padding-top: 110px;
-        padding-bottom: 30px;
-      }
-    }
-    @media (max-width: 480px) {
-      .page-header {
-        padding-top: 90px;
-        padding-bottom: 20px;
-      }
-      .page-header h1 {
-        font-size: 2.2rem;
-      }
-    }
-
-    /* ─── ACADEMY CONTENT ─── */
-    .academy-content {
-      padding: 30px 0 70px;
-    }
-
-    /* Lesson Grid */
-    .lessons-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-      margin-top: 20px;
-    }
-    .lesson-card {
-      background: #121a29;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 18px;
-      padding: 24px 22px;
-      transition: 0.35s;
-      cursor: pointer;
-      position: relative;
-    }
-    .lesson-card:hover {
-      transform: translateY(-6px);
-      border-color: #4f7cff;
-      box-shadow: 0 20px 50px rgba(79, 124, 255, 0.08);
-    }
-    .lesson-card .module-badge {
-      display: inline-block;
-      padding: 2px 14px;
-      border-radius: 20px;
-      background: rgba(79, 124, 255, 0.15);
-      color: #4f7cff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-    .lesson-card h3 {
-      font-size: clamp(1.1rem, 1.4vw, 1.3rem);
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .lesson-card p {
-      color: #9aa4bf;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .lesson-card .lesson-meta {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 0.75rem;
-      color: #9aa4bf;
-    }
-    .lesson-card .lesson-meta i {
-      color: #4f7cff;
-      width: 16px;
-    }
-    .lesson-card .lesson-meta .has-video {
-      color: #4f7cff;
-      font-weight: 500;
-    }
-    .lesson-card .click-hint {
-      position: absolute;
-      bottom: 14px;
-      right: 18px;
-      color: #4f7cff;
-      font-size: 0.75rem;
-      opacity: 0.5;
-      transition: 0.3s;
-    }
-    .lesson-card:hover .click-hint {
-      opacity: 1;
-    }
-
-    /* ─── LESSON DETAIL VIEW ─── */
-    .lesson-detail {
-      display: none;
-      background: #121a29;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 18px;
-      padding: 36px 40px;
-      margin-top: 30px;
-      animation: fadeIn 0.4s ease;
-    }
-    .lesson-detail.active {
-      display: block;
-    }
-    .lesson-detail .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 40px;
-      color: #c9d3dd;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: 0.3s;
-      cursor: pointer;
-      background: transparent;
-      margin-bottom: 20px;
-    }
-    .lesson-detail .back-btn:hover {
-      border-color: #4f7cff;
-      color: #fff;
-    }
-    .lesson-detail .detail-module {
-      display: inline-block;
-      padding: 4px 16px;
-      border-radius: 20px;
-      background: rgba(79, 124, 255, 0.12);
-      color: #4f7cff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-    .lesson-detail h2 {
-      font-size: clamp(1.6rem, 3vw, 2.4rem);
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-    .lesson-detail .lesson-body {
-      color: #c9d3dd;
-      line-height: 1.9;
-    }
-    .lesson-detail .lesson-body h3 {
+    .checkbox-group label {
+      text-transform: none;
+      font-size: 14px;
       color: #e8edf5;
-      font-size: clamp(1.2rem, 1.6vw, 1.5rem);
+      cursor: pointer;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
       margin-top: 24px;
-      margin-bottom: 10px;
+      padding-top: 16px;
+      border-top: 1px solid #2a3450;
     }
-    .lesson-detail .lesson-body h4 {
-      color: #c9d3dd;
-      font-size: clamp(1rem, 1.3vw, 1.15rem);
-      margin-top: 18px;
-      margin-bottom: 8px;
-    }
-    .lesson-detail .lesson-body p {
-      margin-bottom: 14px;
-    }
-    .lesson-detail .lesson-body ul,
-    .lesson-detail .lesson-body ol {
-      padding-left: 24px;
-      margin-bottom: 14px;
-    }
-    .lesson-detail .lesson-body ul li,
-    .lesson-detail .lesson-body ol li {
-      margin-bottom: 6px;
-    }
-    .lesson-detail .lesson-body ul li::marker {
-      color: #4f7cff;
-    }
-    .lesson-detail .lesson-body .highlight-box {
-      background: rgba(79, 124, 255, 0.06);
-      border-left: 4px solid #4f7cff;
-      padding: 18px 22px;
-      border-radius: 0 12px 12px 0;
-      margin: 20px 0;
-    }
-    .lesson-detail .lesson-body .highlight-box strong {
-      color: #4f7cff;
-    }
-
-    /* Currency table styling */
-    .currency-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 24px;
-      background: #0b0d15;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .currency-table th {
-      background: #1a2538;
-      color: #4f7cff;
-      font-weight: 600;
-      padding: 10px 14px;
-      text-align: left;
-      font-size: 0.8rem;
-    }
-    .currency-table td {
-      padding: 8px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      color: #c9d3dd;
-      font-size: 0.85rem;
-    }
-    .currency-table tr:hover td {
-      background: rgba(79, 124, 255, 0.04);
-    }
-
-    /* Video embed */
-    .video-container {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      overflow: hidden;
-      border-radius: 12px;
-      margin: 20px 0 30px;
-      background: #0b0d15;
-    }
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    .btn-primary {
+      background: #4f7cff;
       border: none;
-    }
-
-    /* ─── EMPTY STATE ─── */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #9aa4bf;
-    }
-    .empty-state i {
-      font-size: 4rem;
-      color: rgba(255, 255, 255, 0.06);
-      display: block;
-      margin-bottom: 20px;
-    }
-    .empty-state h3 {
-      font-size: 1.5rem;
-      color: #e8edf5;
-      margin-bottom: 8px;
-    }
-    .empty-state p {
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    /* ─── ANIMATIONS ─── */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── FOOTER ─── */
-    footer {
-      background: #05070b;
-      padding: 45px 5% 25px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 40px;
-    }
-    .footer-about .footer-logo {
-      width: 90px;
-      height: 90px;
-      object-fit: contain;
-      margin-bottom: 12px;
-    }
-    .footer-about h2 {
-      font-size: clamp(1.8rem, 2.5vw, 2.2rem);
-      margin-bottom: 6px;
-    }
-    .footer-about span {
-      color: #4f7cff;
-    }
-    .footer-about p {
-      color: #bfc8d4;
-      margin-bottom: 6px;
-      line-height: 1.8;
-      font-size: clamp(0.9rem, 1vw, 1rem);
-    }
-    .footer-links h3,
-    .footer-contact h3 {
-      color: #4f7cff;
-      margin-bottom: 14px;
-      font-size: clamp(1.05rem, 1.3vw, 1.2rem);
-    }
-    .footer-links ul {
-      padding: 0;
-    }
-    .footer-links li {
-      margin-bottom: 8px;
-    }
-    .footer-links a {
-      color: #d0d8e4;
-      transition: 0.3s;
-      font-size: clamp(0.9rem, 1vw, 1rem);
-    }
-    .footer-links a:hover {
-      color: #4f7cff;
-      padding-left: 6px;
-    }
-    .footer-contact p {
-      color: #d0d8e4;
-      margin-bottom: 8px;
-      font-size: clamp(0.9rem, 1vw, 1rem);
-    }
-    .footer-contact i {
-      color: #4f7cff;
-      width: 22px;
-    }
-    .copyright {
-      text-align: center;
-      color: #9aa8bb;
-      line-height: 2.2;
-      font-size: clamp(0.8rem, 0.9vw, 0.9rem);
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .copyright strong {
-      color: #4f7cff;
-    }
-    @media (max-width: 768px) {
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 25px;
-      }
-      .footer-about .footer-logo {
-        width: 70px;
-        height: 70px;
-      }
-    }
-    @media (max-width: 480px) {
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        text-align: center;
-      }
-      .footer-about .footer-logo {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 12px;
-      }
-    }
-
-    /* ─── SCROLL TOP ─── */
-    #scrollTopBtn {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      width: 50px;
-      height: 50px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #4f7cff, #7c3aed);
+      padding: 10px 24px;
+      border-radius: 8px;
       color: #fff;
-      font-size: 22px;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
-      transition: 0.35s;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(20px);
-      z-index: 999;
+      transition: 0.25s;
+      flex: 1;
     }
-    #scrollTopBtn.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
+    .btn-primary:hover { background: #3a66e0; }
+    .btn-secondary {
+      background: #1a1f2f;
+      border: 1px solid #2a3450;
+      padding: 10px 24px;
+      border-radius: 8px;
+      color: #9aa4bf;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+      flex: 1;
     }
-    #scrollTopBtn:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 0 50px rgba(79, 124, 255, 0.4);
-    }
+    .btn-secondary:hover { background: #2a3450; color: #fff; }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-14px); }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { padding: 20px; }
+      .module-row { flex-direction: column; align-items: flex-start; }
+      .module-meta { width: 100%; justify-content: space-between; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
-  <header>
-    <div class="container">
-      <div class="logo">
-        <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" />
-        <h2>GTRADES-<span>AXIS™</span></h2>
-      </div>
-
-      <nav id="desktopNav">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="academy.html" class="active">Academy</a></li>
-          <li><a href="strategy.html">Strategy</a></li>
-          <li><a href="resources.html">Resources</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-
-        <div class="nav-social">
-          <a href="https://www.youtube.com/@GtradesAxis" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
-          <a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank" class="telegram"><i class="fab fa-telegram"></i></a>
-          <a href="https://wa.me/254712416214" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-          <a href="https://www.tiktok.com/@gtrades_axis" target="_blank" class="tiktok"><i class="fab fa-tiktok"></i></a>
-        </div>
-
-        <div class="nav-buttons">
-          <a href="login.html" class="join-btn" id="loginBtn">Login</a>
-          <a href="dashboard.html" class="join-btn dashboard-btn" id="dashboardBtn" style="display:none;">Dashboard</a>
-        </div>
-      </nav>
-
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- ===== MOBILE OVERLAY ===== -->
-  <div id="mobileOverlay" class="mobile-overlay">
-    <div class="mobile-overlay-inner">
-      <ul class="mobile-nav-list">
-        <li><a href="index.html" class="mobile-link">Home</a></li>
-        <li><a href="academy.html" class="mobile-link">Academy</a></li>
-        <li><a href="strategy.html" class="mobile-link">Strategy</a></li>
-        <li><a href="resources.html" class="mobile-link">Resources</a></li>
-        <li><a href="contact.html" class="mobile-link">Contact</a></li>
+<div class="academy-container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo"><h2>GTRADES <span>AXIS™</span></h2></div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html"><i class="fas fa-house"></i> Dashboard</a></li>
+        <li class="active"><a href="admin-academy.html"><i class="fas fa-book-open"></i> Academy Admin</a></li>
+        <li><a href="resources.html"><i class="fas fa-folder-open"></i> Resources</a></li>
+        <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+        <li style="margin-top:40px;"><a href="#" id="logoutBtnSidebar" style="color:#ff4766;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
-      <div class="mobile-actions">
-        <a href="login.html" class="mobile-login" id="mobileLoginBtn">Login</a>
-        <a href="dashboard.html" class="mobile-dashboard" id="mobileDashboardBtn" style="display:none;">Dashboard</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="content" id="app">
+    <!-- ADMIN LOCK OVERLAY -->
+    <div id="lockOverlay">
+      <div class="lock-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <h2>Administrator Access Only</h2>
+      <p class="subtitle" style="color:#94a3b8;margin:12px 0 24px;">You do not have permissions to view the Academy Management Panel.</p>
+      <a href="dashboard.html" class="btn-dashboard">Back to Dashboard</a>
+    </div>
+
+    <!-- ADMIN CONTENT -->
+    <div class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h1>Academy Management</h1>
+          <p style="color:#9aa4bf;">Manage modules, lessons, and published content.</p>
+        </div>
+        <button class="btn-add" id="addModuleBtn"><i class="fas fa-plus"></i> Add Module</button>
+      </header>
+
+      <!-- MODULES LIST -->
+      <div id="modulesContainer" class="module-list">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- EDIT LESSON MODAL -->
+    <div class="modal-overlay" id="editLessonModal">
+      <div class="modal-box">
+        <h2>Edit Lesson</h2>
+        
+        <div class="form-group">
+          <label>Module Number</label>
+          <input type="text" id="editModuleNum" value="1" disabled />
+        </div>
+        
+        <div class="form-group">
+          <label>Select Lesson</label>
+          <select id="editLessonSelect"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Lesson Title</label>
+          <input type="text" id="editLessonTitle" placeholder="Introduction to Trading with Structure..." />
+        </div>
+
+        <div class="form-group">
+          <label>Full Content (HTML Supported)</label>
+          <textarea id="editContent" placeholder="<h3>Welcome</h3><p>This course is designed to guide traders...</p>"></textarea>
+          <small>Supports HTML. Use &lt;h3&gt; for subheadings, &lt;p&gt; for paragraphs, &lt;ul&gt; and &lt;li&gt; for lists.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Video ID (Optional)</label>
+          <input type="text" id="editVideoId" placeholder="e.g., dQw4w9WgXcQ" />
+          <small>YouTube video ID to embed at the top of the lesson.</small>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="editPublished" checked />
+          <label for="editPublished">Published (visible to students)</label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-primary" id="updateLessonBtn">Update Lesson</button>
+          <button class="btn-secondary" id="cancelEditBtn">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ===== PAGE HEADER ===== -->
-  <section class="page-header">
-    <div class="container">
-      <span class="subtitle">GTRADES-AXIS™ ACADEMY</span>
-      <h1>Learn to Trade with <span>Structure</span></h1>
-      <p>Professional institutional trading education – from market structure to disciplined execution.</p>
-      <div class="lesson-count" id="lessonCountDisplay">Loading lessons...</div>
-    </div>
-  </section>
+<!-- ===========================
+     SCRIPTS (ES6 Modules)
+=========================== -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+  }
+}
+</script>
 
-  <!-- ===== ACADEMY CONTENT ===== -->
-  <section class="academy-content">
-    <div class="container">
+<script type="module">
+  // ─── IMPORTS ─────────────────────────────────────────────
+  import { auth, db } from "./js/firebase.js"; // Ensure your firebase.js exports auth and db correctly
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { doc, getDoc, collection, getDocs, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-      <!-- Lesson Grid -->
-      <div id="lessonsGrid" class="lessons-grid"></div>
+  // ─── DOM Refs ─────────────────────────────────────────────
+  const app = document.getElementById('app');
+  const modulesContainer = document.getElementById('modulesContainer');
+  const editModal = document.getElementById('editLessonModal');
+  
+  const editModuleNum = document.getElementById('editModuleNum');
+  const editLessonSelect = document.getElementById('editLessonSelect');
+  const editLessonTitle = document.getElementById('editLessonTitle');
+  const editContent = document.getElementById('editContent');
+  const editVideoId = document.getElementById('editVideoId');
+  const editPublished = document.getElementById('editPublished');
+  
+  const updateBtn = document.getElementById('updateLessonBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
 
-      <!-- Lesson Detail View -->
-      <div id="lessonDetail" class="lesson-detail">
-        <button class="back-btn" id="backToGrid"><i class="fa-solid fa-arrow-left"></i> Back to lessons</button>
-        <div id="detailContent"></div>
-      </div>
+  // ─── STATE ──────────────────────────────────────────────────
+  let modulesData = [];
+  let editTarget = { moduleId: null, lessonIndex: null };
 
-      <!-- Empty State (shown if no lessons) -->
-      <div id="emptyState" class="empty-state" style="display:none;">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <h3>No lessons available yet</h3>
-        <p>Check back soon – new lessons are being added regularly.</p>
-      </div>
+  // ─── LOAD DATA ─────────────────────────────────────────────
+  async function loadModules() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "academy_modules"));
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach((doc) => {
+          modulesData.push({ id: doc.id, ...doc.data() });
+        });
+        modulesData.sort((a, b) => (a.order || 0) - (b.order || 0));
+      }
+    } catch (e) {
+      console.error("Error loading modules:", e);
+    }
+    renderModules();
+  }
 
-    </div>
-  </section>
+  // ─── RENDER ────────────────────────────────────────────────
+  function renderModules() {
+    if (!modulesData.length) {
+      modulesContainer.innerHTML = `<div class="module-row" style="justify-content:center;color:#94a3b8;">No modules added yet.</div>`;
+      return;
+    }
 
-  <!-- ===== FOOTER ===== -->
-  <footer id="contact">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-about">
-          <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="footer-logo" />
-          <h2>GTRADES-<span>AXIS™</span></h2>
-          <p>Trade with Structure.<br />Execute with Precision.</p>
-          <p>Professional Smart Money Trading Framework built around Market Structure, Supply &amp; Demand, Liquidity and disciplined execution.</p>
+    let html = '';
+    modulesData.forEach((mod) => {
+      const statusClass = mod.published ? 'published' : 'draft';
+      const statusText = mod.published ? '✅ Published' : '⏳ Draft';
+      const date = mod.updatedAt ? new Date(mod.updatedAt.seconds * 1000).toLocaleDateString() : 'N/A';
+
+      html += `
+        <div class="module-row">
+          <div class="module-info">
+            <h4>Module ${mod.order || '?'}: ${mod.title || 'Untitled'}</h4>
+            <p>${mod.description || 'No description provided.'} (${mod.lessons?.length || 0} lessons)</p>
+          </div>
+          <div class="module-meta">
+            <span class="status-badge ${statusClass}">${statusText}</span>
+            <span style="color:#6b7a93;font-size:14px;">${date}</span>
+            <div class="module-actions">
+              <button class="btn-icon edit" data-module="${mod.id}"><i class="fas fa-edit"></i> Edit</button>
+              <button class="btn-icon del" data-module="${mod.id}"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
         </div>
-        <div class="footer-links">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="academy.html">Academy</a></li>
-            <li><a href="strategy.html">Strategy</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-        <div class="footer-links">
-          <h3>Community</h3>
-          <ul>
-            <li><a href="https://www.youtube.com/@GtradesAxis" target="_blank"><i class="fab fa-youtube"></i> YouTube</a></li>
-            <li><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank"><i class="fab fa-telegram"></i> Telegram</a></li>
-            <li><a href="https://wa.me/254712416214" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></li>
-            <li><a href="https://www.tiktok.com/@gtrades_axis" target="_blank"><i class="fab fa-tiktok"></i> TikTok</a></li>
-          </ul>
-        </div>
-        <div class="footer-contact">
-          <h3>Contact</h3>
-          <p><i class="fab fa-whatsapp"></i> +254 712 416 214</p>
-          <p><i class="fab fa-telegram"></i> Telegram Community</p>
-          <p><i class="fas fa-location-dot"></i> Nairobi, Kenya</p>
-        </div>
-      </div>
-      <hr />
-      <div class="copyright">
-        <p>© <span id="year"></span> GTRADES-AXIS™ | All Rights Reserved</p>
-        <p><strong>@gtrades_axis</strong></p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ===== SCROLL TOP ===== -->
-  <button id="scrollTopBtn" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
-
-  <!-- ===== SCRIPTS ===== -->
-  <script>
-    // ─── Mobile Menu ────────────────────────────────────────────
-    const toggleBtn = document.getElementById('menuToggle');
-    const overlay = document.getElementById('mobileOverlay');
-
-    toggleBtn?.addEventListener('click', () => {
-      toggleBtn.classList.toggle('active');
-      overlay.classList.toggle('open');
+      `;
     });
+    modulesContainer.innerHTML = html;
 
-    overlay?.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        toggleBtn.classList.remove('active');
-        overlay.classList.remove('open');
+    // Attach Edit Listeners
+    document.querySelectorAll('.btn-icon.edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const modId = btn.getAttribute('data-module');
+        openEditModal(modId);
       });
     });
+  }
 
-    // ─── Scroll to Top ──────────────────────────────────────────
-    const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => {
-      scrollBtn.classList.toggle('visible', window.scrollY > 300);
+  // ─── OPEN MODAL ────────────────────────────────────────────
+  function openEditModal(moduleId) {
+    const mod = modulesData.find(m => m.id === moduleId);
+    if (!mod) return;
+
+    editTarget.moduleId = moduleId;
+    editModuleNum.value = mod.order || '1';
+    
+    // Populate Lesson Select dropdown
+    editLessonSelect.innerHTML = '';
+    mod.lessons.forEach((lesson, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = lesson.title || `Lesson ${index + 1}`;
+      editLessonSelect.appendChild(opt);
     });
-    scrollBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
 
-    // ─── Auth Buttons ──────────────────────────────────────────
-    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
-    const loginBtn = document.getElementById('loginBtn');
-    const dashboardBtn = document.getElementById('dashboardBtn');
-    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
-    const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
-
-    if (isLoggedIn) {
-      if (loginBtn) loginBtn.style.display = 'none';
-      if (dashboardBtn) dashboardBtn.style.display = 'inline-flex';
-      if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
-      if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'block';
-    } else {
-      if (loginBtn) loginBtn.style.display = 'inline-flex';
-      if (dashboardBtn) dashboardBtn.style.display = 'none';
-      if (mobileLoginBtn) mobileLoginBtn.style.display = 'block';
-      if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'none';
+    // Load first lesson by default
+    if (mod.lessons.length > 0) {
+      loadLessonData(0);
     }
 
-    // ─── Dynamic Year ──────────────────────────────────────────
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // ─── ACADEMY: Default Lessons (Modules 1–4) ────────────────
-    function getDefaultLessons() {
-      return [
-        {
-          id: "mod1-" + Date.now(),
-          module: 1,
-          title: "INTRODUCTION – Trade with Structure. Execute with Precision.",
-          content: `
-    <h3>Welcome</h3>
-    <p>Welcome to GTRADES-AXIS™ Academy. This course is designed to guide traders through one complete trading framework from market understanding to disciplined execution. The focus is on developing consistent habits rather than chasing quick profits.</p>
-
-    <h3>Mission</h3>
-    <p>To empower traders through structured education, disciplined execution and professional risk management.</p>
-
-    <h3>Vision</h3>
-    <p>To build a respected global trading community recognized for consistency, integrity and continuous learning.</p>
-
-    <h3>Core Values</h3>
-    <ul>
-      <li>Discipline</li>
-      <li>Consistency</li>
-      <li>Patience</li>
-      <li>Accountability</li>
-      <li>Continuous Learning</li>
-      <li>Professionalism</li>
-    </ul>
-
-    <h3>Learning Path</h3>
-    <ol>
-      <li>Introduction</li>
-      <li>Market Structure</li>
-      <li>Supply & Demand</li>
-      <li>Liquidity</li>
-      <li>Entries</li>
-      <li>Trade Management</li>
-      <li>Psychology</li>
-    </ol>
-
-    <h3>How to Use This Course</h3>
-    <p>Study each module in sequence. Take notes, practice on charts, journal your trades and avoid skipping lessons.</p>
-
-    <h3>Required Tools</h3>
-    <ul>
-      <li>TradingView</li>
-      <li>MetaTrader 5</li>
-      <li>Trading Journal</li>
-      <li>Economic Calendar</li>
-      <li>Reliable Internet</li>
-    </ul>
-
-    <h3>Community Rules</h3>
-    <ul>
-      <li>Respect members.</li>
-      <li>No spam.</li>
-      <li>No signal selling.</li>
-      <li>Protect academy material.</li>
-      <li>Focus on learning and professionalism.</li>
-    </ul>
-
-    <h3>Trading Expectations</h3>
-    <p>Trading is a skill developed through repetition and discipline. Risk management comes before profit. Consistency is the long-term objective.</p>
-
-    <div class="highlight-box">
-      <strong>TRADING IS NOT ABOUT GETTING RICH OVERNIGHT.</strong><br>
-      IT IS ABOUT DEVELOPING A SKILL THAT CAN GENERATE CONSISTENT RESULTS THROUGH DISCIPLINE, PATIENCE, AND STRUCTURED EXECUTION.<br><br>
-      AT GTRADES-AXIS™, WE DON'T CHASE THE MARKET.<br>
-      WE TRADE WITH STRUCTURE. EXECUTE WITH PRECISION.
-    </div>
-
-    <h3>Disclaimer</h3>
-    <p>This material is for educational purposes only and does not constitute financial advice. Trading financial markets involves substantial risk.</p>
-
-    <h3>Module Summary</h3>
-    <p>After completing this module you should understand the academy structure, learning expectations and the mindset required before moving into Market Structure.</p>
-
-    <hr>
-
-    <h3>💱 CURRENCY PAIRS, PIPS & MARKET BASICS</h3>
-
-    <h4>The Major Currencies</h4>
-    <p>As a beginner, you do not need to trade every currency in the market. We recommend focusing on the 8 major currencies, as they have the highest trading volume, deepest liquidity, and generally the lowest transaction costs.</p>
-
-    <table class="currency-table">
-      <thead><tr><th>Country</th><th>Currency</th><th>Code</th></tr></thead>
-      <tbody>
-        <tr><td>🇺🇸 United States</td><td>Dollar</td><td>USD</td></tr>
-        <tr><td>🇪🇺 Eurozone</td><td>Euro</td><td>EUR</td></tr>
-        <tr><td>🇬🇧 Great Britain</td><td>Pound</td><td>GBP</td></tr>
-        <tr><td>🇯🇵 Japan</td><td>Yen</td><td>JPY</td></tr>
-        <tr><td>🇦🇺 Australia</td><td>Dollar</td><td>AUD</td></tr>
-        <tr><td>🇳🇿 New Zealand</td><td>Dollar</td><td>NZD</td></tr>
-        <tr><td>🇨🇦 Canada</td><td>Dollar</td><td>CAD</td></tr>
-        <tr><td>🇨🇭 Switzerland</td><td>Franc</td><td>CHF</td></tr>
-      </tbody>
-    </table>
-
-    <h4>Exotic Currencies</h4>
-    <p>Currencies outside the major eight are commonly referred to as exotic currencies. Examples include: Turkish Lira (TRY), South African Rand (ZAR), Mexican Peso (MXN). They often have: Higher spreads, Lower liquidity, Larger price gaps, Increased volatility.</p>
-
-    <h4>What is a Currency Pair?</h4>
-    <p>Currencies are always traded in pairs. When you trade Forex, you are buying one currency while simultaneously selling another.</p>
-    <p><strong>Example:</strong> EUR/USD – EUR = Base Currency, USD = Quote Currency. If EUR/USD is trading at 1.1700, it means: 1 Euro = 1.1700 US Dollars.</p>
-
-    <h4>Buy vs Sell</h4>
-    <p><strong>Buy (Long):</strong> You buy when you expect the base currency to increase in value against the quote currency.</p>
-    <p><strong>Sell (Short):</strong> You sell when you expect the base currency to weaken against the quote currency.</p>
-
-    <h4>Major and Cross Currency Pairs</h4>
-    <p><strong>Major Pairs</strong> always contain the US Dollar (USD): EUR/USD, GBP/USD, AUD/USD, USD/JPY, USD/CAD, USD/CHF, NZD/USD.</p>
-    <p><strong>Cross (Minor) Pairs</strong> do not include the US Dollar: GBP/JPY, EUR/GBP, EUR/JPY, AUD/JPY.</p>
-
-    <h4>The GTRADES-AXIS™ Focus</h4>
-    <p>Our primary trading pairs are: EUR/USD (EU), GBP/USD (GU), GBP/JPY (GJ), USD/JPY (UJ).</p>
-
-    <h4>Understanding Pips</h4>
-    <p>For most currency pairs: 1 Pip = 0.0001. For JPY pairs: 1 Pip = 0.01.</p>
-
-    <h4>💰 HOW MONEY IS MADE IN FOREX</h4>
-
-    <h4>What is a Lot?</h4>
-    <table class="currency-table">
-      <thead><tr><th>Lot Size</th><th>Units</th></tr></thead>
-      <tbody>
-        <tr><td>Standard</td><td>100,000</td></tr>
-        <tr><td>Mini</td><td>10,000</td></tr>
-        <tr><td>Micro</td><td>1,000</td></tr>
-      </tbody>
-    </table>
-
-    <h4>What is Leverage?</h4>
-    <p>Leverage allows traders to control larger positions using a smaller amount of capital.</p>
-
-    <h4>What is Margin?</h4>
-    <p>Margin is the amount of money required to open and maintain a leveraged trade.</p>
-
-    <h4>The Truth About Leverage</h4>
-    <p>Leverage simply magnifies whatever results your strategy already produces. A disciplined trader can use leverage responsibly. An emotional trader can lose an account very quickly.</p>
-
-    <h4>📊 HOW TO ANALYZE THE FOREX MARKET</h4>
-
-    <h4>1. Fundamental Analysis</h4>
-    <p>Studies the economic strength of countries: Interest rates, Inflation, Employment data, GDP growth, Central bank decisions, Retail sales, Manufacturing reports.</p>
-
-    <h4>2. Technical Analysis</h4>
-    <p>Studies price movement on charts. At GTRADES-AXIS™, technical analysis focuses on: Market Structure, Supply & Demand, Liquidity, Price Action, High-Probability Entries, Risk Management.</p>
-
-    <h4>3. Hybrid Analysis</h4>
-    <p>Combines both approaches – fundamentals for broader context, technicals for precise entries.</p>
-
-    <h4>Understanding Market Mechanics</h4>
-    <p>Every movement in the Forex market is driven by Supply and Demand.</p>
-
-    <h4>Candlestick Charts</h4>
-    <p>Each candlestick shows: Opening Price, Highest Price, Lowest Price, Closing Price.</p>
-
-    <h4>Trading Styles</h4>
-    <ul>
-      <li><strong>Scalping:</strong> Holding trades for seconds or minutes.</li>
-      <li><strong>Day Trading:</strong> Opening and closing trades within the same trading day.</li>
-      <li><strong>Swing Trading:</strong> Holding positions for several days or weeks.</li>
-      <li><strong>Position Trading:</strong> Holding trades for months based on long-term trends.</li>
-    </ul>
-
-    <h4>Key Takeaway</h4>
-    <p>The market does not reward those who trade the most. It rewards those who consistently execute a proven strategy with discipline, patience, and effective risk management.</p>
-    <p><strong>Trade with Structure. Execute with Precision.</strong></p>
-          `,
-          videoId: "",
-          published: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: "mod2-" + Date.now(),
-          module: 2,
-          title: "MARKET STRUCTURE – BOS, CHoCH & Fractal Analysis",
-          content: `
-    <h3>Introduction</h3>
-    <p>Market Structure is the foundation of every trade taken within the GTRADES-AXIS™ Framework. It helps determine whether buyers or sellers are in control before looking for entries.</p>
-
-    <h3>Learning Objectives</h3>
-    <ul>
-      <li>Identify trends</li>
-      <li>Recognize HH, HL, LH and LL</li>
-      <li>Understand BOS and CHoCH</li>
-      <li>Determine market bias</li>
-      <li>Apply multi-timeframe analysis</li>
-    </ul>
-
-    <h3>What is Market Structure?</h3>
-    <p>Market Structure is the sequence of price swings that reveals trend direction and control between buyers and sellers.</p>
-
-    <h3>Bullish Structure</h3>
-    <p>A bullish trend forms Higher Highs (HH) and Higher Lows (HL). Buyers remain in control.</p>
-
-    <h3>Bearish Structure</h3>
-    <p>A bearish trend forms Lower Lows (LL) and Lower Highs (LH). Sellers remain in control.</p>
-
-    <h3>Ranging Structure</h3>
-    <p>Price moves sideways between support and resistance. Wait for confirmation before committing capital.</p>
-
-    <h3>Break of Structure (BOS)</h3>
-    <p>A BOS confirms continuation by breaking a significant swing in the direction of the prevailing trend.</p>
-
-    <h3>Change of Character (CHoCH)</h3>
-    <p>A CHoCH is the first warning that control may be shifting from buyers to sellers or vice versa.</p>
-
-    <h3>Internal vs External Structure</h3>
-    <p>Internal structure refines entries. External structure defines the overall market trend and bias.</p>
-
-    <h3>Multi-Timeframe Analysis</h3>
-    <p>Start on the M/W/D/4H, refine on the ½ H, prepare on the 15M and execute on the 1-5M.</p>
-
-    <h3>Structure Mapping</h3>
-    <p>We ALWAYS map structure from the high/low (wicks) of candles.</p>
-    <table class="currency-table">
-      <thead><tr><th>Type</th><th>Break Confirmation</th></tr></thead>
-      <tbody>
-        <tr><td>Swing → BOS</td><td>candle BODY CLOSE</td></tr>
-        <tr><td>Internal → i-BOS</td><td>candle BODY CLOSE</td></tr>
-        <tr><td>Fractal → CHoCH</td><td>wick break</td></tr>
-      </tbody>
-    </table>
-
-    <h3>Fractal Structure (CHoCH) – Theory</h3>
-    <p>Fractal structure is 100% mechanical. Wick breaks are enough for a Fractal break of structure.</p>
-
-    <h4>Bullish Fractal Structure</h4>
-    <ul>
-      <li>A Fractal high is confirmed when the immediate following candle fails to break its high.</li>
-      <li>A Fractal higher low is confirmed once price breaks the identified Fractal high.</li>
-      <li><strong>Rule:</strong> Always map the NEAREST Fractal low to your current price.</li>
-    </ul>
-
-    <h4>Bearish Fractal Structure</h4>
-    <ul>
-      <li>A Fractal low is confirmed when the immediate following candle fails to break its low.</li>
-      <li>A Fractal lower high is confirmed once price breaks the identified Fractal low.</li>
-      <li><strong>Rule:</strong> Always map the NEAREST Fractal high to your current price.</li>
-    </ul>
-
-    <h4>CHoCH (Change of Character)</h4>
-    <ul>
-      <li><strong>Bearish CHoCH:</strong> the first Fractal lower low after a series of Fractal higher lows.</li>
-      <li><strong>Bullish CHoCH:</strong> the first Fractal higher high after a series of Fractal lower highs.</li>
-    </ul>
-
-    <h4>Common Mistakes</h4>
-    <ul>
-      <li><strong>Mistake #1 – Equal highs/lows:</strong> If a candle trades exactly as high as the previous candle's high, this is a Fractal pullback.</li>
-      <li><strong>Mistake #2 – Focusing on candle colour:</strong> The colour is completely irrelevant.</li>
-      <li><strong>Mistake #3 – Drawing the active Fractal high/low through price:</strong> Always adjust to the most recent valid candle.</li>
-    </ul>
-
-    <h3>Inside Bars</h3>
-    <p>An inside bar is a candle that fails to break the previous candle's high and low – it trades inside of it.</p>
-
-    <h3>MTF Market Structure</h3>
-    <p><strong>🔑 A run on a higher timeframe is a trend on a lower timeframe.</strong></p>
-    <ul>
-      <li><strong>HTF</strong> → Narrative: are we trading a continuation or pullback?</li>
-      <li><strong>MTF</strong> → Immediate bias: confirms when HTF continuation is ending</li>
-      <li><strong>LTF</strong> → Execution: confirms MTF turning points</li>
-    </ul>
-
-    <div class="highlight-box">
-      <strong>Key Takeaway:</strong><br>
-      The market does not reward those who trade the most. It rewards those who consistently execute a proven strategy with discipline, patience, and effective risk management.<br><br>
-      <strong>Trade with Structure. Execute with Precision.</strong>
-    </div>
-
-    <h3>Module Summary</h3>
-    <p>You learned how to identify market structure, distinguish trends from reversals, use BOS and CHoCH to confirm direction, apply fractal structure mapping, and combine multi-timeframe analysis for higher probability trading.</p>
-          `,
-          videoId: "",
-          published: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: "mod3-" + Date.now(),
-          module: 3,
-          title: "SUPPLY & DEMAND – Institutional Zones",
-          content: `
-    <h3>Introduction</h3>
-    <p>Supply and Demand zones are areas where institutions leave footprints through aggressive buying or selling. These zones form the foundation for high-probability trade opportunities within the GTRADES-AXIS™ Framework.</p>
-
-    <h3>Learning Objectives</h3>
-    <p>Identify supply and demand zones, distinguish fresh and tested zones, refine zones, validate quality, combine with market structure, and avoid weak setups.</p>
-
-    <h3>Supply & Demand 101</h3>
-    <ul>
-      <li>Demand increases as the price falls.</li>
-      <li>Supply increases as the price rises.</li>
-    </ul>
-
-    <h3>What is Demand?</h3>
-    <p>A Demand Zone is an area where buying pressure overwhelms selling pressure, causing price to rally strongly.</p>
-
-    <h3>What is Supply?</h3>
-    <p>A Supply Zone is an area where selling pressure overwhelms buying pressure, causing price to decline sharply.</p>
-
-    <h3>How to Identify Quality Zones</h3>
-    <p>Look for explosive moves, strong momentum candles, clear imbalance, and minimal time spent in the base.</p>
-
-    <h3>Fresh vs Tested Zones</h3>
-    <p><strong>Fresh zones</strong> have never been revisited after creation and generally offer higher probability. <strong>Tested zones</strong> may weaken with each touch.</p>
-
-    <h3>Zone Refinement</h3>
-    <p>Refine zones using lower timeframes while maintaining alignment with the higher timeframe trend.</p>
-
-    <h3>Combining with Market Structure</h3>
-    <p>Always trade demand in bullish structure and supply in bearish structure.</p>
-
-    <h3>Supply & Demand Checklist</h3>
-    <ul>
-      <li>✅ Trend confirmed</li>
-      <li>✅ Zone identified</li>
-      <li>✅ Fresh zone</li>
-      <li>✅ Strong departure</li>
-      <li>✅ Higher timeframe aligned</li>
-      <li>✅ Entry confirmed</li>
-      <li>✅ Risk defined</li>
-    </ul>
-
-    <h3>Types of Refinements</h3>
-    <ul>
-      <li><strong>Inside bars:</strong> Represents a range created zone on a lower timeframe.</li>
-      <li><strong>STB & BTS wicks:</strong> Represent a pullback on a lower timeframe.</li>
-      <li><strong>Large wicks:</strong> A range or pivot created zone within that wick.</li>
-    </ul>
-
-    <h3>Validating Strong Zones</h3>
-    <ol>
-      <li><strong>Zones that cause a BOS:</strong> The more significant the structure, the more significant the zone.</li>
-      <li><strong>Zones that cause other zones to fail:</strong> Also known as "flips".</li>
-    </ol>
-
-    <h3>Module Summary</h3>
-    <p>You learned how supply and demand zones form, how to identify quality zones, refine them, validate them and combine them with market structure.</p>
-          `,
-          videoId: "",
-          published: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: "mod4-" + Date.now(),
-          module: 4,
-          title: "LIQUIDITY – Understanding Institutional Order Flow",
-          content: `
-    <h3>Introduction</h3>
-    <p>Liquidity is one of the core pillars of the GTRADES-AXIS™ Framework. Financial institutions require liquidity to execute large orders efficiently.</p>
-
-    <h3>Learning Objectives</h3>
-    <p>Understand liquidity, identify buy-side and sell-side liquidity, recognize liquidity sweeps, distinguish inducement from true reversals, and combine liquidity with market structure and supply & demand.</p>
-
-    <h3>What is Liquidity?</h3>
-    <ul>
-      <li>The amount of demand and supply in a market.</li>
-      <li>The ease to which a market can be traded without affecting its price.</li>
-    </ul>
-    <p>Price is continuously seeking pools of liquidity to rebalance the market.</p>
-
-    <h3>Why Liquidity Matters</h3>
-    <p>Markets frequently seek liquidity before making significant directional moves.</p>
-
-    <h3>Buy-Side Liquidity</h3>
-    <p>Commonly found above swing highs, equal highs and resistance levels where buy stops accumulate.</p>
-
-    <h3>Sell-Side Liquidity</h3>
-    <p>Commonly found below swing lows, equal lows and support levels where sell stops accumulate.</p>
-
-    <h3>Liquidity Sweep</h3>
-    <p>A liquidity sweep occurs when price briefly moves through a liquidity pool, triggering stop orders before reversing in the intended direction.</p>
-
-    <h3>Inducement</h3>
-    <p>Inducement is a move designed to encourage traders into positions before price reverses to collect their liquidity.</p>
-
-    <h3>Liquidity with Supply & Demand</h3>
-    <p>The highest-probability setups occur when liquidity is swept into a higher-timeframe supply or demand zone aligned with the prevailing trend.</p>
-
-    <h3>Key Rules</h3>
-    <ul>
-      <li><strong>Structure > Liquidity:</strong> Always trade away from sweeps.</li>
-      <li><strong>Follow Money:</strong> Trade in the direction institutional money is flowing.</li>
-      <li><strong>MTF Structure + S&D + Liquidity:</strong> Combine all three for highest probability.</li>
-    </ul>
-
-    <div class="highlight-box">
-      <strong>Key Takeaway:</strong><br>
-      Liquidity is the fuel that moves price. Understanding where liquidity rests helps you anticipate market reactions and time your entries with precision.<br><br>
-      <strong>Trade with Structure. Execute with Precision.</strong>
-    </div>
-
-    <h3>Module Summary</h3>
-    <p>You learned what liquidity is, how to identify buy-side and sell-side liquidity, recognize liquidity sweeps and inducement, and combine liquidity with market structure and supply & demand.</p>
-          `,
-          videoId: "",
-          published: true,
-          createdAt: new Date().toISOString()
-        }
-      ];
+    editModal.classList.add('active');
+  }
+
+  function loadLessonData(index) {
+    const mod = modulesData.find(m => m.id === editTarget.moduleId);
+    if (!mod || !mod.lessons[index]) return;
+
+    editTarget.lessonIndex = index;
+    const lesson = mod.lessons[index];
+    editLessonTitle.value = lesson.title || '';
+    editContent.value = lesson.content || lesson.notes || ''; // Fallback to notes if content missing
+    editVideoId.value = lesson.videoUrl || '';
+    editPublished.checked = lesson.published !== false; // Default to true
+  }
+
+  // ─── SAVE CHANGES ──────────────────────────────────────────
+  async function saveLesson() {
+    const mod = modulesData.find(m => m.id === editTarget.moduleId);
+    if (!mod || editTarget.lessonIndex === null) return;
+
+    try {
+      // Update local state
+      const lesson = mod.lessons[editTarget.lessonIndex];
+      lesson.title = editLessonTitle.value;
+      lesson.content = editContent.value;
+      lesson.notes = editContent.value; // Keeping notes sync if your app uses it
+      lesson.videoUrl = editVideoId.value;
+      lesson.published = editPublished.checked;
+
+      // Update Firestore
+      const docRef = doc(db, "academy_modules", editTarget.moduleId);
+      await updateDoc(docRef, {
+        lessons: mod.lessons,
+        updatedAt: new Date()
+      });
+
+      // UI Feedback
+      alert('Lesson updated successfully!');
+      editModal.classList.remove('active');
+      renderModules(); // Re-render to reflect changes
+    } catch (e) {
+      console.error("Error updating lesson:", e);
+      alert('Failed to update lesson. Check console for errors.');
+    }
+  }
+
+  // ─── EVENT LISTENERS ──────────────────────────────────────
+  cancelBtn.addEventListener('click', () => editModal.classList.remove('active'));
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) editModal.classList.remove('active');
+  });
+  editLessonSelect.addEventListener('change', (e) => {
+    loadLessonData(parseInt(e.target.value));
+  });
+  updateBtn.addEventListener('click', saveLesson);
+
+  // ─── AUTHENTICATION + LOCK ──────────────────────────────
+  app.classList.add('loading');
+
+  onAuthStateChanged(auth, async (user) => {
+    app.classList.remove('loading');
+    
+    if (!user) {
+      app.classList.add('locked');
+      return;
     }
 
-    // ─── Load lessons from localStorage, or seed defaults ───
-    function loadLessons() {
-      let lessons = [];
-      try {
-        const data = localStorage.getItem('gtrades_lessons');
-        if (data) {
-          lessons = JSON.parse(data);
-        }
-      } catch (e) {
-        console.warn('Error loading lessons:', e);
-      }
-
-      // If no lessons exist, seed defaults
-      if (!lessons || lessons.length === 0) {
-        console.log('📚 Seeding default lessons...');
-        lessons = getDefaultLessons();
-        localStorage.setItem('gtrades_lessons', JSON.stringify(lessons));
-      }
-
-      return lessons;
-    }
-
-    function getPublishedLessons() {
-      return loadLessons().filter(lesson => lesson.published !== false);
-    }
-
-    function renderLessons() {
-      const lessons = getPublishedLessons();
-      const grid = document.getElementById('lessonsGrid');
-      const empty = document.getElementById('emptyState');
-      const countDisplay = document.getElementById('lessonCountDisplay');
-
-      if (countDisplay) {
-        countDisplay.textContent = lessons.length === 0
-          ? 'No lessons available yet'
-          : `${lessons.length} lesson${lessons.length > 1 ? 's' : ''} available`;
-      }
-
-      if (lessons.length === 0) {
-        grid.innerHTML = '';
-        empty.style.display = 'block';
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+        app.classList.add('locked');
         return;
       }
-      empty.style.display = 'none';
 
-      // Sort by module number
-      lessons.sort((a, b) => (a.module || 999) - (b.module || 999));
-
-      grid.innerHTML = lessons.map(lesson => {
-        const hasVideo = lesson.videoId && lesson.videoId.trim().length > 0;
-        const excerpt = lesson.content ? lesson.content.replace(/<[^>]*>/g, '').substring(0, 140) : 'No content yet.';
-        return `
-          <div class="lesson-card" data-id="${lesson.id}">
-            <div class="module-badge">Module ${lesson.module || 1}</div>
-            <h3>${lesson.title}</h3>
-            <p>${excerpt}${excerpt.length >= 140 ? '...' : ''}</p>
-            <div class="lesson-meta">
-              <span><i class="fa-regular fa-calendar"></i> ${new Date(lesson.createdAt).toLocaleDateString()}</span>
-              ${hasVideo ? `<span class="has-video"><i class="fa-solid fa-video"></i> Video included</span>` : ''}
-            </div>
-            <div class="click-hint"><i class="fa-regular fa-circle-play"></i> Open lesson</div>
-          </div>
-        `;
-      }).join('');
-
-      grid.querySelectorAll('.lesson-card').forEach(card => {
-        card.addEventListener('click', function() {
-          const id = this.dataset.id;
-          const lesson = lessons.find(l => l.id === id);
-          if (lesson) openLesson(lesson);
-        });
-      });
+      // Is Admin
+      app.classList.remove('locked');
+      loadModules();
+    } catch (error) {
+      console.error('Auth error:', error);
+      app.classList.add('locked');
     }
+  });
 
-    function openLesson(lesson) {
-      const detail = document.getElementById('lessonDetail');
-      const content = document.getElementById('detailContent');
-      const grid = document.getElementById('lessonsGrid');
-
-      grid.style.display = 'none';
-      detail.classList.add('active');
-
-      let videoHtml = '';
-      if (lesson.videoId && lesson.videoId.trim().length > 0) {
-        videoHtml = `
-          <div class="video-container">
-            <iframe src="https://www.youtube.com/embed/${lesson.videoId.trim()}" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen></iframe>
-          </div>
-        `;
-      }
-
-      content.innerHTML = `
-        <div class="detail-module">Module ${lesson.module || 1}</div>
-        <h2>${lesson.title}</h2>
-        ${videoHtml}
-        <div class="lesson-body">${lesson.content || '<p><em>No content written yet.</em></p>'}</div>
-      `;
-
-      detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // ─── LOGOUT ──────────────────────────────────────────────────
+  document.getElementById('logoutBtnSidebar')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (confirm('Logout?')) {
+      import('./js/auth.js').then(({ logoutUser }) => logoutUser());
     }
+  });
 
-    function closeLesson() {
-      const detail = document.getElementById('lessonDetail');
-      const grid = document.getElementById('lessonsGrid');
-      detail.classList.remove('active');
-      grid.style.display = 'grid';
-    }
+  console.log('✅ Admin Academy ready.');
+</script>
 
-    // ─── Back button ─────────────────────────────────────────────
-    document.getElementById('backToGrid').addEventListener('click', closeLesson);
-
-    // ─── Auto-refresh when localStorage changes ──────────────────
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'gtrades_lessons') {
-        if (document.getElementById('lessonDetail').classList.contains('active')) {
-          closeLesson();
-        }
-        renderLessons();
-      }
-    });
-
-    // ─── Initial render ──────────────────────────────────────────
-    renderLessons();
-
-    console.log('✅ Academy ready. Listening for lesson updates.');
-  </script>
 </body>
 </html>
