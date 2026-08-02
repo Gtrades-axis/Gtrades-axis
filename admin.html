@@ -669,7 +669,7 @@
 
   // ─── GLOBAL VARIABLES ──────────────────────────────────────────
   let allMembers = [];
-  let selectedUser = null; // <--- THIS WAS CAUSING THE CRASH. NOW IT IS DECLARED AT THE TOP.
+  let selectedUser = null;
   let currentModules = [];
 
   // ─── DOM REFS (Members) ──────────────────────────────────────
@@ -775,7 +775,6 @@
       </tr>
     `).join('');
 
-    // Attach Click Listeners to the "Manage" buttons
     document.querySelectorAll('.manage-member-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const user = allMembers.find(m => m.id === btn.dataset.id);
@@ -788,7 +787,7 @@
 
   // ─── MEMBER MODAL LOGIC ──────────────────────────────────────
   function openModal(user) {
-    selectedUser = user; // Defined correctly now
+    selectedUser = user;
     modalName.textContent = user.displayName || user.email || 'Member';
     modalEmail.textContent = user.email || 'N/A';
     modalRole.textContent = (user.role || 'member').toUpperCase();
@@ -807,7 +806,6 @@
   closeModal.addEventListener('click', closeModalFunc);
   memberModal.addEventListener('click', (e) => { if(e.target === memberModal) closeModalFunc(); });
 
-  // ─── MODAL BUTTON ACTIONS ────────────────────────────────────
   async function updateMemberField(field, value) {
     if (!selectedUser) return alert("No user selected.");
     try {
@@ -842,79 +840,10 @@
       {
         id: "mod_1", order: 1, title: "Introduction",
         description: "Welcome, academy overview, rules, environment setup, recommended tools.",
-        content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy. This course is designed to guide traders through one complete trading framework from market understanding to disciplined execution. The focus is on developing consistent habits rather than chasing quick profits.</p><h3>Mission & Vision</h3><p><strong>Mission:</strong> To empower traders through structured education, disciplined execution and professional risk management.<br><strong>Vision:</strong> To build a respected global trading community recognized for consistency, integrity and continuous learning.</p><h3>Core Values</h3><ul><li>Discipline</li><li>Consistency</li><li>Patience</li><li>Accountability</li><li>Continuous Learning</li><li>Professionalism</li></ul><div style="background:#1a1f2f;padding:16px;border-radius:8px;border-left:4px solid var(--gold);margin:16px 0;"><strong>TRADING IS NOT ABOUT GETTING RICH OVERNIGHT.</strong><br>IT IS ABOUT DEVELOPING A SKILL THAT CAN GENERATE CONSISTENT RESULTS THROUGH DISCIPLINE, PATIENCE, AND STRUCTURED EXECUTION.</div>`,
+        content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy...</p>`,
         videoId: "", hasQuiz: true, published: true,
-        lessons: [
-          { id: "lsn_1_1", title: "Welcome to GTRADES-AXIS™", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_1_2", title: "How the Academy Works", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_1_3", title: "Trading Rules & Expectations", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_1_4", title: "Setting Up Your Trading Environment", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_1_5", title: "Recommended Tools", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
-        ],
-        quiz: { passingScore: 70, questions: [
-          { question: "What is the first step in the GTRADES-AXIS™ framework?", options: ["Market Structure", "Liquidity Analysis", "Risk Management", "Psychology"], correct: 0 },
-          { question: "Which tool is recommended for chart analysis?", options: ["TradingView", "MetaTrader", "NinjaTrader", "All of the above"], correct: 3 }
-        ]}
-      },
-      {
-        id: "mod_2", order: 2, title: "Market Structure",
-        description: "HTF bias, MTF analysis, BOS, CHOCH, internal/external structure, examples.",
-        content: `<h3>Introduction</h3><p>Market Structure is the foundation of every trade.</p>`,
-        videoId: "", hasQuiz: true, published: true,
-        lessons: [
-          { id: "lsn_2_1", title: "Understanding Market Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_2", title: "Higher Timeframe (HTF) Bias", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_3", title: "Multi-Timeframe (MTF) Analysis", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_4", title: "Trend Continuation", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_5", title: "Trend Reversal", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_6", title: "Internal Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_7", title: "External Structure", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_8", title: "BOS & CHoCH", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_2_9", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
-        ],
-        quiz: { passingScore: 70, questions: [
-          { question: "What does BOS stand for?", options: ["Break of Structure", "Balance of Supply", "Buy on Sight", "Breach of Support"], correct: 0 },
-          { question: "Which is a sign of trend reversal?", options: ["BOS", "CHoCH", "Liquidity Sweep", "All of the above"], correct: 1 }
-        ]}
-      },
-      {
-        id: "mod_3", order: 3, title: "Liquidity",
-        description: "Equal highs/lows, sweeps, inducement, engineered liquidity, mapping.",
-        content: `<h3>Introduction</h3><p>Liquidity is one of the core pillars.</p>`,
-        videoId: "", hasQuiz: true, published: true,
-        lessons: [
-          { id: "lsn_3_1", title: "Introduction to Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_2", title: "Equal Highs", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_3", title: "Equal Lows", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_4", title: "Liquidity Sweeps", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_5", title: "Inducement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_6", title: "Engineered Liquidity", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_7", title: "Liquidity Mapping", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_3_8", title: "Practical Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
-        ],
-        quiz: { passingScore: 70, questions: [
-          { question: "What is a liquidity sweep?", options: ["Price moves past a swing high/low to grab orders", "Price bounces off support", "Price trends strongly", "Price consolidates"], correct: 0 },
-          { question: "Equal highs and equal lows indicate:", options: ["Liquidity zones", "Support and resistance", "Trend continuation", "Breakout"], correct: 0 }
-        ]}
-      },
-      {
-        id: "mod_4", order: 4, title: "Supply & Demand",
-        description: "Institutional zones, fresh vs tested, refinement, premium/discount.",
-        content: `<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints.</p>`,
-        videoId: "", hasQuiz: true, published: true,
-        lessons: [
-          { id: "lsn_4_1", title: "Institutional Supply", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_4_2", title: "Institutional Demand", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_4_3", title: "Fresh vs Tested Zones", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_4_4", title: "Zone Refinement", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_4_5", title: "Premium & Discount", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_4_6", title: "Combining Structure with S&D", type: "video", videoUrl: "", pdfUrl: "", notes: "" },
-          { id: "lsn_4_7", title: "Practical Chart Examples", type: "video", videoUrl: "", pdfUrl: "", notes: "" }
-        ],
-        quiz: { passingScore: 70, questions: [
-          { question: "What is a fresh zone?", options: ["Untested by price", "Tested multiple times", "Very wide zone", "On a lower timeframe"], correct: 0 },
-          { question: "Supply zones are typically found:", options: ["Near resistance levels", "Near support levels", "In the middle of a range", "Below price"], correct: 0 }
-        ]}
+        lessons: [{ id: "lsn_1_1", title: "Welcome to GTRADES-AXIS™", type: "video", videoUrl: "", pdfUrl: "", notes: "" }],
+        quiz: { passingScore: 70, questions: [{ question: "Q1?", options: ["A", "B", "C", "D"], correct: 0 }] }
       }
     ];
   }
@@ -956,23 +885,18 @@
     if (pendingEl) pendingEl.textContent = draftLessons;
 
     if (modules.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet. Click "Add Samples" to load Mods 1-4 or create one manually!</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = modules.map((mod) => `
       <tr>
         <td><strong>Module ${mod.order}</strong></td>
-        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'}</div></td>
-        <td><span class="badge ${mod.published !== false ? 'published' : 'draft'} module-status-toggle" data-id="${mod.id}" title="Click to toggle status">${mod.published !== false ? 'Published' : 'Draft'}</span></td>
+        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons</div></td>
+        <td><span class="badge ${mod.published !== false ? 'published' : 'draft'}">${mod.published !== false ? 'Published' : 'Draft'}</span></td>
         <td><button class="manage-btn edit-module" data-id="${mod.id}"><i class="fa-solid fa-pen"></i> Edit</button><button class="manage-btn delete-module" data-id="${mod.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button></td>
       </tr>
     `).join('');
-    document.querySelectorAll('.module-status-toggle').forEach(el => {
-      el.addEventListener('click', async function() {
-        const id = this.dataset.id; const mod = currentModules.find(l => l.id === id);
-        if (mod) { mod.published = !mod.published; await saveModuleToFirestore(mod); renderModules(); addActivity(`Toggled module "${mod.title}" to ${mod.published ? 'Published' : 'Draft'}`); }
-      });
-    });
+    
     document.querySelectorAll('.edit-module').forEach(el => {
       el.addEventListener('click', function() {
         const id = this.dataset.id; const mod = currentModules.find(l => l.id === id);
@@ -994,7 +918,6 @@
     });
   }
 
-  // ─── ACADEMY FORM LOGIC ──────────────────────────────────────
   document.getElementById('toggleModuleFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('moduleFormContainer');
     if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('moduleFormTitle').textContent = 'Add New Module'; document.getElementById('saveModuleBtn').textContent = 'Save Module'; document.getElementById('editingModuleId').value = ''; document.getElementById('moduleForm').reset(); document.getElementById('modulePublished').checked = true; document.getElementById('moduleHasQuiz').checked = true; container.scrollIntoView({ behavior: 'smooth' }); }
@@ -1015,10 +938,10 @@
 
   document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
     const existing = await loadModulesFromFirestore();
-    if (existing.length > 0) { if (!confirm('This will add 4 sample modules (Mod 1-4) with lessons and quizzes. Continue?')) return; }
+    if (existing.length > 0) { if (!confirm('This will add sample modules. Continue?')) return; }
     const samples = getSampleModules();
     for (const mod of samples) { await saveModuleToFirestore(mod); }
-    renderModules(); addActivity('Imported 4 sample modules (Mod 1-4)');
+    renderModules(); addActivity('Imported sample modules');
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -1084,60 +1007,179 @@
   }
 
   // ══════════════════════════════════════════════════════════════
-  //  4. VIDEOS LOGIC (LOCAL STORAGE)
+  //  4. VIDEOS LOGIC (LOCAL STORAGE + RENDERING)
   // ══════════════════════════════════════════════════════════════
+  function getVideosFromStorage() {
+    try { return JSON.parse(localStorage.getItem('gtrades_videos')) || []; } catch { return []; }
+  }
+  function saveVideosToStorage(videos) {
+    localStorage.setItem('gtrades_videos', JSON.stringify(videos));
+  }
+
   function renderVideoCounts() {
-    try {
-      const videos = JSON.parse(localStorage.getItem('gtrades_videos')) || [];
-      const videoCountEl = document.getElementById('videoCount');
-      const videoOverviewEl = document.getElementById('videoOverview');
-      if (videoCountEl) videoCountEl.textContent = videos.length;
-      if (videoOverviewEl) videoOverviewEl.textContent = videos.length;
-    } catch {}
+    const videos = getVideosFromStorage();
+    const videoCountEl = document.getElementById('videoCount');
+    const videoOverviewEl = document.getElementById('videoOverview');
+    if (videoCountEl) videoCountEl.textContent = videos.length;
+    if (videoOverviewEl) videoOverviewEl.textContent = videos.length;
+  }
+
+  function renderVideosTable() {
+    const videos = getVideosFromStorage();
+    const tbody = document.getElementById('videoTableBody');
+    if (videos.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = videos.map(v => `
+      <tr>
+        <td>${v.thumbnailUrl ? `<img src="${v.thumbnailUrl}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;">` : '—'}</td>
+        <td>${v.title}</td>
+        <td>${v.category}</td>
+        <td>${v.duration}</td>
+        <td><span class="badge ${v.premiumOnly ? 'premium' : 'free'}">${v.premiumOnly ? 'Premium' : 'Free'}</span></td>
+        <td>
+          <button class="manage-btn edit-video" data-id="${v.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+          <button class="manage-btn delete-video" style="color:var(--red);" data-id="${v.id}"><i class="fa-solid fa-trash"></i> Delete</button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.edit-video').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id; const videos = getVideosFromStorage(); const v = videos.find(item => item.id === id);
+        if (v) {
+          document.getElementById('editingVideoId').value = id; document.getElementById('videoTitle').value = v.title;
+          document.getElementById('videoCategory').value = v.category; document.getElementById('videoDuration').value = v.duration;
+          document.getElementById('videoYoutubeId').value = v.youtubeId; document.getElementById('videoPremiumOnly').checked = v.premiumOnly;
+          document.getElementById('existingThumbnailUrl').value = v.thumbnailUrl || '';
+          if (v.thumbnailUrl) { document.getElementById('thumbnailPreviewImg').src = v.thumbnailUrl; document.getElementById('thumbnailPreview').style.display = 'block'; }
+          document.getElementById('videoFormTitle').textContent = 'Edit Video'; document.getElementById('saveVideoBtn').textContent = 'Update Video';
+          document.getElementById('videoFormContainer').style.display = 'block'; document.getElementById('videoFormContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-video').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        if (confirm('Delete this video permanently?')) {
+          let videos = getVideosFromStorage(); videos = videos.filter(v => v.id !== id);
+          saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity('Deleted a video.');
+        }
+      });
+    });
   }
 
   document.getElementById('toggleVideoFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('videoFormContainer');
-    if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('videoFormTitle').textContent = 'Add New Video'; document.getElementById('saveVideoBtn').textContent = 'Save Video'; document.getElementById('editingVideoId').value = ''; document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none'; container.scrollIntoView({ behavior: 'smooth' }); }
-    else { container.style.display = 'none'; }
+    if (container.style.display === 'none') {
+      container.style.display = 'block'; document.getElementById('videoFormTitle').textContent = 'Add New Video';
+      document.getElementById('saveVideoBtn').textContent = 'Save Video'; document.getElementById('editingVideoId').value = '';
+      document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none'; container.scrollIntoView({ behavior: 'smooth' });
+    } else { container.style.display = 'none'; }
   });
   document.getElementById('cancelVideoBtn')?.addEventListener('click', function() { document.getElementById('videoFormContainer').style.display = 'none'; });
+  document.getElementById('videoThumbnailFile')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) { const reader = new FileReader(); reader.onload = function(event) { document.getElementById('thumbnailPreviewImg').src = event.target.result; document.getElementById('thumbnailPreview').style.display = 'block'; document.getElementById('existingThumbnailUrl').value = event.target.result; }; reader.readAsDataURL(file); }
+  });
 
   document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
-    const title = document.getElementById('videoTitle').value.trim();
-    const category = document.getElementById('videoCategory').value;
-    const duration = document.getElementById('videoDuration').value.trim();
-    const youtubeId = document.getElementById('videoYoutubeId').value.trim();
-    const premiumOnly = document.getElementById('videoPremiumOnly').checked;
-    const thumbnailUrl = document.getElementById('existingThumbnailUrl').value || '';
+    e.preventDefault(); const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
+    const title = document.getElementById('videoTitle').value.trim(); const category = document.getElementById('videoCategory').value;
+    const duration = document.getElementById('videoDuration').value.trim(); const youtubeId = document.getElementById('videoYoutubeId').value.trim();
+    const premiumOnly = document.getElementById('videoPremiumOnly').checked; const thumbnailUrl = document.getElementById('existingThumbnailUrl').value || '';
     if (!title || !youtubeId) return alert('Title and YouTube ID are required.');
-    const videos = JSON.parse(localStorage.getItem('gtrades_videos')) || [];
-    const existingIndex = videos.findIndex(v => v.id === id);
+    const videos = getVideosFromStorage(); const existingIndex = videos.findIndex(v => v.id === id);
     const videoData = { id, title, category, duration, youtubeId, premiumOnly, thumbnailUrl, createdAt: new Date().toISOString() };
     if (existingIndex !== -1) videos[existingIndex] = videoData; else videos.push(videoData);
-    localStorage.setItem('gtrades_videos', JSON.stringify(videos));
-    renderVideoCounts(); addActivity(`Saved video "${title}"`);
+    saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity(`Saved video "${title}"`);
     document.getElementById('videoFormContainer').style.display = 'none'; document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none';
   });
 
-  document.getElementById('videoThumbnailFile')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        document.getElementById('thumbnailPreviewImg').src = event.target.result;
-        document.getElementById('thumbnailPreview').style.display = 'block';
-        document.getElementById('existingThumbnailUrl').value = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+  document.getElementById('addSampleVideosBtn')?.addEventListener('click', function() {
+    const samples = [
+      { id: 'vid-1', title: 'Market Structure Basics', category: 'Market Structure', duration: '12:45', youtubeId: 'dQw4w9WgXcQ', premiumOnly: true, thumbnailUrl: '', createdAt: new Date().toISOString() },
+      { id: 'vid-2', title: 'Supply & Demand Zones', category: 'Supply & Demand', duration: '18:20', youtubeId: 'dQw4w9WgXcQ', premiumOnly: false, thumbnailUrl: '', createdAt: new Date().toISOString() }
+    ];
+    const videos = getVideosFromStorage();
+    samples.forEach(s => { if(!videos.find(v => v.id === s.id)) videos.push(s); });
+    saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity('Added 2 sample videos.');
   });
 
   // ══════════════════════════════════════════════════════════════
-  //  5. RESOURCES LOGIC (FIRESTORE)
+  //  5. RESOURCES LOGIC (FIRESTORE + RENDERING)
   // ══════════════════════════════════════════════════════════════
+  function listenResources() {
+    const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const tbody = document.getElementById('resourceTableBody');
+      const overviewEl = document.getElementById('resourceOverview');
+      const countEl = document.getElementById('resourceCount');
+      
+      if (snapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
+        if (overviewEl) overviewEl.textContent = 0;
+        if (countEl) countEl.textContent = 0;
+        return;
+      }
+
+      let html = '';
+      let resCount = 0;
+      snapshot.forEach(doc => {
+        resCount++;
+        const r = { id: doc.id, ...doc.data() };
+        html += `
+          <tr>
+            <td><strong>${r.title}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
+            <td>${r.category}</td>
+            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span></td>
+            <td>
+              <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+              <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
+                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i> ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
+              </button>
+              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+      if (overviewEl) overviewEl.textContent = resCount;
+      if (countEl) countEl.textContent = resCount;
+
+      document.querySelectorAll('.edit-resource').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.dataset.id; // Add logic to populate form from Firestore doc
+          alert('Edit logic triggered for ID: ' + id);
+        });
+      });
+      document.querySelectorAll('.delete-resource').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.dataset.id;
+          if (confirm('Delete this resource?')) {
+            try { await deleteDoc(doc(db, "resources", id)); addActivity('Deleted a resource.'); } 
+            catch (e) { alert('Error deleting.'); }
+          }
+        });
+      });
+      document.querySelectorAll('.toggle-resource').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.dataset.id;
+          try {
+            const snap = await getDoc(doc(db, "resources", id));
+            if (snap.exists()) {
+              const current = snap.data().premiumOnly || false;
+              await updateDoc(doc(db, "resources", id), { premiumOnly: !current });
+              addActivity(`Toggled resource premium status.`);
+            }
+          } catch (e) { alert('Error updating status.'); }
+        });
+      });
+    });
+  }
+
   document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('resourceFormContainer');
     if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('resourceFormTitle').textContent = 'Add New Resource'; document.getElementById('saveResourceBtn').textContent = 'Save Resource'; document.getElementById('editingResourceId').value = ''; document.getElementById('resourceForm').reset(); document.getElementById('resourceFile').value = ''; container.scrollIntoView({ behavior: 'smooth' }); }
@@ -1163,7 +1205,7 @@
     const link = `https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
     const data = { title, category, description, premiumOnly, link, updatedAt: serverTimestamp() };
     try {
-      if (id.startsWith('res-')) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "resources"), data); }
+      if (!document.getElementById('editingResourceId').value) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "resources"), data); }
       else { await updateDoc(doc(db, "resources", id), data); }
       addActivity(`Saved resource "${title}"`);
       document.getElementById('resourceFormContainer').style.display = 'none'; document.getElementById('resourceForm').reset();
@@ -1178,13 +1220,15 @@
       listenMembers();
       renderModules();
       listenPayments();
+      renderVideosTable();
       renderVideoCounts();
+      listenResources();
     } else {
       window.location.href = "login.html";
     }
   });
 
-  console.log('✅ Full Admin Dashboard ready. Member Modal error fixed!');
+  console.log('✅ Full Admin Dashboard ready. Videos & Resources lists fixed!');
 </script>
 </body>
 </html>
