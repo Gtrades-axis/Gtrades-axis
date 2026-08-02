@@ -853,7 +853,7 @@
   </div><!-- /dashboard-grid -->
 
   <!-- ==========================================================
-       ACADEMY MANAGER
+       ACADEMY MANAGER – FIRESTORE + LOCALSTORAGE
   ========================================================== -->
   <section class="manager-section" id="academy">
     <div class="dashboard-card">
@@ -886,7 +886,7 @@
               </tr>
             </thead>
             <tbody id="lessonTableBody">
-              <tr><td colspan="5"><div class="empty-card">No lessons yet. Click "Add Lesson" to create one.</div></td></tr>
+              <tr><td colspan="5"><div class="empty-card">Loading lessons from Firestore...</div></td></tr>
             </tbody>
           </table>
         </div>
@@ -1142,8 +1142,15 @@
 <script type="module" src="js/admin/resources.js"></script>
 <script type="module" src="js/admin/videos.js"></script>
 <script type="module">
-  import { auth } from "./js/firebase.js";
+  import { auth, db } from "./js/firebase.js";
   import { signOut } from "firebase/auth";
+  import {
+    collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+  // ─── CONSTANTS ───
+  const MODULES_COLLECTION = "academy_modules";
+  const LESSONS_STORAGE_KEY = "gtrades_lessons";
 
   // ─── Logout ───
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
@@ -1173,70 +1180,65 @@
   // ─── Dynamic Year ───
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  // ─── ACADEMY LESSON MANAGER (localStorage) ───
-
-  // Load lessons from localStorage
-  function loadLessons() {
+  // ─── Load from Firestore ───
+  async function loadLessonsFromFirestore() {
     try {
-      return JSON.parse(localStorage.getItem('gtrades_lessons')) || [];
+      const q = query(collection(db, MODULES_COLLECTION), orderBy("order", "asc"));
+      const snapshot = await getDocs(q);
+      const lessons = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        lessons.push({
+          id: doc.id,
+          module: data.order || 1,
+          title: data.title || "Untitled",
+          content: data.content || "",
+          videoId: data.videoId || "",
+          published: data.published !== false,
+          createdAt: data.createdAt || new Date().toISOString()
+        });
+      });
+      return lessons;
+    } catch (e) {
+      console.warn("Firestore load failed, using localStorage:", e);
+      return loadLessonsFromLocalStorage();
+    }
+  }
+
+  // ─── Load from localStorage (fallback) ───
+  function loadLessonsFromLocalStorage() {
+    try {
+      return JSON.parse(localStorage.getItem(LESSONS_STORAGE_KEY)) || [];
     } catch {
       return [];
     }
   }
 
-  function saveLessons(lessons) {
-    localStorage.setItem('gtrades_lessons', JSON.stringify(lessons));
+  // ─── Save to Firestore ───
+  async function saveLessonToFirestore(lesson) {
+    const docRef = doc(db, MODULES_COLLECTION, lesson.id);
+    await setDoc(docRef, {
+      order: lesson.module,
+      title: lesson.title,
+      content: lesson.content,
+      videoId: lesson.videoId || "",
+      published: lesson.published !== false,
+      createdAt: lesson.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
   }
 
-  // Sample lessons
-  function getSampleLessons() {
-    return [
-      {
-        id: Date.now().toString() + '1',
-        module: 1,
-        title: "Introduction to Market Structure",
-        content: `<h3>What is Market Structure?</h3>
-          <p>Market structure is the framework that shows how price moves over time. It reveals who is in control - buyers or sellers.</p>
-          <h3>Higher Highs & Higher Lows</h3>
-          <p>When price makes Higher Highs and Higher Lows, the market is in an uptrend.</p>
-          <h3>Lower Highs & Lower Lows</h3>
-          <p>When price makes Lower Highs and Lower Lows, the market is in a downtrend.</p>`,
-        videoId: "dQw4w9WgXcQ",
-        published: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: Date.now().toString() + '2',
-        module: 2,
-        title: "Understanding BOS & CHoCH",
-        content: `<h3>Break of Structure (BOS)</h3>
-          <p>A BOS confirms the continuation of the current trend.</p>
-          <h3>Change of Character (CHoCH)</h3>
-          <p>A CHoCH signals a potential reversal in the market.</p>`,
-        videoId: "",
-        published: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: Date.now().toString() + '3',
-        module: 3,
-        title: "Liquidity Concepts",
-        content: `<h3>What is Liquidity?</h3>
-          <p>Liquidity refers to areas where stop losses and pending orders are clustered.</p>
-          <h3>Buy Side Liquidity</h3>
-          <p>Areas above previous highs where buy stops are placed.</p>
-          <h3>Sell Side Liquidity</h3>
-          <p>Areas below previous lows where sell stops are placed.</p>`,
-        videoId: "",
-        published: true,
-        createdAt: new Date().toISOString()
-      }
-    ];
+  // ─── Delete from Firestore ───
+  async function deleteLessonFromFirestore(id) {
+    await deleteDoc(doc(db, MODULES_COLLECTION, id));
   }
 
-  // Render lessons table
-  function renderLessons() {
-    const lessons = loadLessons();
+  // ─── Render lessons ───
+  let currentLessons = [];
+
+  async function renderLessons() {
+    const lessons = await loadLessonsFromFirestore();
+    currentLessons = lessons;
     const tbody = document.getElementById('lessonTableBody');
     const countEl = document.getElementById('lessonCount');
     const pendingEl = document.getElementById('pendingLessons');
@@ -1251,7 +1253,7 @@
       return;
     }
 
-    tbody.innerHTML = lessons.map((lesson, index) => `
+    tbody.innerHTML = lessons.map((lesson) => `
       <tr>
         <td><strong>Module ${lesson.module}</strong></td>
         <td>${lesson.title}</td>
@@ -1270,28 +1272,33 @@
       </tr>
     `).join('');
 
-    // Toggle status click
+    // Toggle status
     document.querySelectorAll('.lesson-status-toggle').forEach(el => {
-      el.addEventListener('click', function() {
+      el.addEventListener('click', async function() {
         const id = this.dataset.id;
-        const lessons = loadLessons();
+        const lessons = await loadLessonsFromFirestore();
         const lesson = lessons.find(l => l.id === id);
         if (lesson) {
           lesson.published = !lesson.published;
-          saveLessons(lessons);
+          await saveLessonToFirestore(lesson);
+          // Sync localStorage
+          const localLessons = loadLessonsFromLocalStorage();
+          const localIndex = localLessons.findIndex(l => l.id === id);
+          if (localIndex !== -1) {
+            localLessons[localIndex].published = lesson.published;
+            localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(localLessons));
+          }
           renderLessons();
-          renderVideoCounts();
           addActivity(`Toggled lesson "${lesson.title}" to ${lesson.published ? 'Published' : 'Draft'}`);
         }
       });
     });
 
-    // Edit click
+    // Edit
     document.querySelectorAll('.edit-lesson').forEach(el => {
       el.addEventListener('click', function() {
         const id = this.dataset.id;
-        const lessons = loadLessons();
-        const lesson = lessons.find(l => l.id === id);
+        const lesson = currentLessons.find(l => l.id === id);
         if (lesson) {
           document.getElementById('editingLessonId').value = id;
           document.getElementById('lessonModule').value = lesson.module;
@@ -1307,24 +1314,25 @@
       });
     });
 
-    // Delete click
+    // Delete
     document.querySelectorAll('.delete-lesson').forEach(el => {
-      el.addEventListener('click', function() {
+      el.addEventListener('click', async function() {
         const id = this.dataset.id;
-        const lessons = loadLessons();
-        const lesson = lessons.find(l => l.id === id);
+        const lesson = currentLessons.find(l => l.id === id);
         if (confirm(`Delete lesson "${lesson?.title}"?`)) {
-          const updated = lessons.filter(l => l.id !== id);
-          saveLessons(updated);
+          await deleteLessonFromFirestore(id);
+          // Also remove from localStorage
+          const localLessons = loadLessonsFromLocalStorage();
+          const updated = localLessons.filter(l => l.id !== id);
+          localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(updated));
           renderLessons();
-          renderVideoCounts();
           addActivity(`Deleted lesson "${lesson?.title}"`);
         }
       });
     });
   }
 
-  // Activity feed
+  // ─── Activity feed ───
   function addActivity(text) {
     const feed = document.getElementById('activityFeed');
     if (!feed) return;
@@ -1336,13 +1344,12 @@
       <div class="activity-info"><h4>${text}</h4><p>${time}</p></div>
     `;
     feed.prepend(item);
-    // Keep only last 10
     while (feed.children.length > 10) {
       feed.removeChild(feed.lastChild);
     }
   }
 
-  // Toggle form
+  // ─── Form toggle ───
   document.getElementById('toggleLessonFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('lessonFormContainer');
     if (container.style.display === 'none') {
@@ -1352,7 +1359,7 @@
       document.getElementById('editingLessonId').value = '';
       document.getElementById('lessonForm').reset();
       document.getElementById('lessonPublished').checked = true;
-      document.getElementById('lessonFormContainer').scrollIntoView({ behavior: 'smooth' });
+      container.scrollIntoView({ behavior: 'smooth' });
     } else {
       container.style.display = 'none';
     }
@@ -1364,79 +1371,111 @@
     document.getElementById('editingLessonId').value = '';
   });
 
-  // Save lesson
-  document.getElementById('lessonForm')?.addEventListener('submit', function(e) {
+  // ─── Save lesson ───
+  document.getElementById('lessonForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const id = document.getElementById('editingLessonId').value;
+    const id = document.getElementById('editingLessonId').value || 'mod-' + Date.now();
     const moduleNum = parseInt(document.getElementById('lessonModule').value);
     const title = document.getElementById('lessonTitle').value.trim();
     const content = document.getElementById('lessonContent').value;
     const videoId = document.getElementById('lessonVideoId').value.trim();
     const published = document.getElementById('lessonPublished').checked;
 
-    if (!title) {
-      alert('Please enter a lesson title.');
-      return;
-    }
-    if (!moduleNum || moduleNum < 1) {
-      alert('Please enter a valid module number (1 or higher).');
+    if (!title || !moduleNum) {
+      alert('Please fill in all required fields.');
       return;
     }
 
-    const lessons = loadLessons();
+    const lesson = {
+      id: id,
+      module: moduleNum,
+      title: title,
+      content: content,
+      videoId: videoId,
+      published: published,
+      createdAt: new Date().toISOString()
+    };
 
-    if (id) {
-      // Edit existing
-      const index = lessons.findIndex(l => l.id === id);
-      if (index !== -1) {
-        lessons[index] = {
-          ...lessons[index],
-          module: moduleNum,
-          title: title,
-          content: content,
-          videoId: videoId,
-          published: published
-        };
-        saveLessons(lessons);
-        addActivity(`Updated lesson "${title}"`);
-      }
+    // Save to Firestore
+    await saveLessonToFirestore(lesson);
+
+    // Also save to localStorage for backward compatibility
+    const localLessons = loadLessonsFromLocalStorage();
+    const existingIndex = localLessons.findIndex(l => l.id === id);
+    if (existingIndex !== -1) {
+      localLessons[existingIndex] = lesson;
     } else {
-      // New lesson
-      const newLesson = {
-        id: Date.now().toString(),
-        module: moduleNum,
-        title: title,
-        content: content,
-        videoId: videoId,
-        published: published,
-        createdAt: new Date().toISOString()
-      };
-      lessons.push(newLesson);
-      saveLessons(lessons);
-      addActivity(`Added lesson "${title}"`);
+      localLessons.push(lesson);
     }
+    localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(localLessons));
 
     renderLessons();
-    renderVideoCounts();
+    addActivity(`Saved lesson "${title}"`);
     document.getElementById('lessonFormContainer').style.display = 'none';
     document.getElementById('lessonForm').reset();
     document.getElementById('editingLessonId').value = '';
     document.getElementById('lessonPublished').checked = true;
   });
 
-  // Add sample lessons
-  document.getElementById('addSampleLessonsBtn')?.addEventListener('click', function() {
-    const existing = loadLessons();
+  // ─── Sample lessons ───
+  function getSampleLessons() {
+    return [
+      {
+        id: 'sample-mod1-' + Date.now(),
+        module: 1,
+        title: "INTRODUCTION – Trade with Structure. Execute with Precision.",
+        content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy. This course is designed to guide traders through one complete trading framework from market understanding to disciplined execution.</p><h3>Mission</h3><p>To empower traders through structured education, disciplined execution and professional risk management.</p><h3>Vision</h3><p>To build a respected global trading community recognized for consistency, integrity and continuous learning.</p><h3>Core Values</h3><ul><li>Discipline</li><li>Consistency</li><li>Patience</li><li>Accountability</li><li>Continuous Learning</li><li>Professionalism</li></ul><h3>Learning Path</h3><ol><li>Introduction</li><li>Market Structure</li><li>Supply & Demand</li><li>Liquidity</li><li>Entries</li><li>Trade Management</li><li>Psychology</li></ol><div class="highlight-box"><strong>TRADING IS NOT ABOUT GETTING RICH OVERNIGHT.</strong><br>IT IS ABOUT DEVELOPING A SKILL THAT CAN GENERATE CONSISTENT RESULTS THROUGH DISCIPLINE, PATIENCE, AND STRUCTURED EXECUTION.</div><h3>Module Summary</h3><p>After completing this module you should understand the academy structure, learning expectations and the mindset required before moving into Market Structure.</p>`,
+        videoId: "",
+        published: true,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'sample-mod2-' + Date.now(),
+        module: 2,
+        title: "MARKET STRUCTURE – BOS, CHoCH & Fractal Analysis",
+        content: `<h3>Introduction</h3><p>Market Structure is the foundation of every trade taken within the GTRADES-AXIS™ Framework.</p><h3>Bullish Structure</h3><p>A bullish trend forms Higher Highs (HH) and Higher Lows (HL). Buyers remain in control.</p><h3>Bearish Structure</h3><p>A bearish trend forms Lower Lows (LL) and Lower Highs (LH). Sellers remain in control.</p><h3>Break of Structure (BOS)</h3><p>A BOS confirms continuation by breaking a significant swing in the direction of the prevailing trend.</p><h3>Change of Character (CHoCH)</h3><p>A CHoCH is the first warning that control may be shifting from buyers to sellers or vice versa.</p><h3>Module Summary</h3><p>You learned how to identify market structure, distinguish trends from reversals, use BOS and CHoCH to confirm direction, and apply fractal structure mapping.</p>`,
+        videoId: "",
+        published: true,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'sample-mod3-' + Date.now(),
+        module: 3,
+        title: "SUPPLY & DEMAND – Institutional Zones",
+        content: `<h3>Introduction</h3><p>Supply and Demand zones are areas where institutions leave footprints through aggressive buying or selling.</p><h3>What is Demand?</h3><p>A Demand Zone is an area where buying pressure overwhelms selling pressure, causing price to rally strongly.</p><h3>What is Supply?</h3><p>A Supply Zone is an area where selling pressure overwhelms buying pressure, causing price to decline sharply.</p><h3>Fresh vs Tested Zones</h3><p><strong>Fresh zones</strong> have never been revisited after creation and generally offer higher probability.</p><h3>Supply & Demand Checklist</h3><ul><li>✅ Trend confirmed</li><li>✅ Zone identified</li><li>✅ Fresh zone</li><li>✅ Strong departure</li><li>✅ Higher timeframe aligned</li><li>✅ Entry confirmed</li><li>✅ Risk defined</li></ul><h3>Module Summary</h3><p>You learned how supply and demand zones form, how to identify quality zones, refine them, validate them and combine them with market structure.</p>`,
+        videoId: "",
+        published: true,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'sample-mod4-' + Date.now(),
+        module: 4,
+        title: "LIQUIDITY – Understanding Institutional Order Flow",
+        content: `<h3>Introduction</h3><p>Liquidity is one of the core pillars of the GTRADES-AXIS™ Framework.</p><h3>What is Liquidity?</h3><ul><li>The amount of demand and supply in a market.</li><li>The ease to which a market can be traded without affecting its price.</li></ul><h3>Buy-Side Liquidity</h3><p>Commonly found above swing highs, equal highs and resistance levels where buy stops accumulate.</p><h3>Sell-Side Liquidity</h3><p>Commonly found below swing lows, equal lows and support levels where sell stops accumulate.</p><h3>Liquidity Sweep</h3><p>A liquidity sweep occurs when price briefly moves through a liquidity pool, triggering stop orders before reversing.</p><h3>Key Rules</h3><ul><li><strong>Structure > Liquidity:</strong> Always trade away from sweeps.</li><li><strong>Follow Money:</strong> Trade in the direction institutional money is flowing.</li></ul><h3>Module Summary</h3><p>You learned what liquidity is, how to identify buy-side and sell-side liquidity, recognize liquidity sweeps and inducement, and combine liquidity with market structure and supply & demand.</p>`,
+        videoId: "",
+        published: true,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  // ─── Add sample lessons ───
+  document.getElementById('addSampleLessonsBtn')?.addEventListener('click', async function() {
+    const existing = await loadLessonsFromFirestore();
     if (existing.length > 0) {
-      if (!confirm('This will add 3 sample lessons to your existing lessons. Continue?')) return;
+      if (!confirm('This will add 4 sample lessons to your existing lessons. Continue?')) return;
     }
     const samples = getSampleLessons();
-    const all = [...existing, ...samples];
-    saveLessons(all);
+    for (const lesson of samples) {
+      await saveLessonToFirestore(lesson);
+      // Sync localStorage
+      const localLessons = loadLessonsFromLocalStorage();
+      localLessons.push(lesson);
+      localStorage.setItem(LESSONS_STORAGE_KEY, JSON.stringify(localLessons));
+    }
     renderLessons();
-    renderVideoCounts();
-    addActivity('Added 3 sample lessons');
+    addActivity('Added 4 sample lessons');
   });
 
   // ─── Render video counts ───
@@ -1451,10 +1490,15 @@
   }
 
   // ─── Init ───
-  renderLessons();
-  renderVideoCounts();
+  // Wait for auth before loading
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await renderLessons();
+      renderVideoCounts();
+    }
+  });
 
-  console.log('✅ Admin dashboard ready.');
+  console.log('✅ Admin dashboard ready with Firestore Academy Manager.');
 </script>
 </body>
 </html>
