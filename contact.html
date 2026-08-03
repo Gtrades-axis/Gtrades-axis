@@ -328,6 +328,33 @@
       box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
     }
 
+    /* Form status message */
+    #formStatus {
+      margin-top: 16px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    #formStatus.success {
+      display: block;
+      background: rgba(0, 200, 83, 0.12);
+      color: #00c853;
+      border: 1px solid rgba(0, 200, 83, 0.2);
+    }
+    #formStatus.error {
+      display: block;
+      background: rgba(255, 77, 79, 0.12);
+      color: #ff4d4f;
+      border: 1px solid rgba(255, 77, 79, 0.2);
+    }
+    #formStatus.loading {
+      display: block;
+      background: rgba(79, 124, 255, 0.12);
+      color: #4f7cff;
+      border: 1px solid rgba(79, 124, 255, 0.2);
+    }
+
     /* ----- FOOTER (same as index) ----- */
     footer {
       background: #05070b;
@@ -547,30 +574,41 @@
           </div>
         </div>
 
-        <!-- RIGHT – Contact Form -->
+        <!-- RIGHT – Contact Form (Formspree) -->
         <div class="form-card">
           <h3>Send a Message</h3>
           <p>We’ll get back to you as soon as possible.</p>
-          <form id="contactForm">
+
+          <!-- ✅ Formspree: action points to your form endpoint -->
+          <form
+            id="contactForm"
+            action="https://formspree.io/f/meeyywdb"
+            method="POST"
+          >
             <div class="form-group">
               <label for="name">Your Name</label>
-              <input type="text" id="name" placeholder="John Doe" required />
+              <input type="text" id="name" name="name" placeholder="John Doe" required />
             </div>
             <div class="form-group">
               <label for="email">Email Address</label>
-              <input type="email" id="email" placeholder="john@example.com" required />
+              <input type="email" id="email" name="email" placeholder="john@example.com" required />
             </div>
             <div class="form-group">
               <label for="subject">Subject</label>
-              <input type="text" id="subject" placeholder="Trading inquiry" />
+              <input type="text" id="subject" name="subject" placeholder="Trading inquiry" />
             </div>
             <div class="form-group">
               <label for="message">Message</label>
-              <textarea id="message" placeholder="Tell us how we can help…" required></textarea>
+              <textarea id="message" name="message" placeholder="Tell us how we can help…" required></textarea>
             </div>
-            <button type="submit" class="submit-btn">Send Message</button>
+
+            <!-- Optional: Formspree redirect (user stays on page) -->
+            <input type="hidden" name="_redirect" value="https://gtradesaxis.com/contact.html" />
+
+            <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
           </form>
-          <div id="formStatus" style="margin-top:16px; color:var(--primary);"></div>
+
+          <div id="formStatus"></div>
         </div>
       </div>
     </div>
@@ -581,7 +619,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-about">
-          <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo".footer-logo" />
+          <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="footer-logo" />
           <h2>GTRADES-<span>AXIS™</span></h2>
           <p>Trade with Structure.<br />Execute with Precision.</p>
           <p>Professional Smart Money Trading Framework built around Market Structure, Supply &amp; Demand, Liquidity and disciplined execution.</p>
@@ -634,25 +672,37 @@
       dashboardBtn.style.display = 'none';
     }
 
-    // ─── Contact Form (simple demo) ────────────────────────────
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const status = document.getElementById('formStatus');
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const message = document.getElementById('message').value.trim();
+    // ─── Formspree: show status message ────────────────────────
+    const form = document.getElementById('contactForm');
+    const status = document.getElementById('formStatus');
+    const submitBtn = document.getElementById('submitBtn');
 
-      if (!name || !email || !message) {
-        status.textContent = 'Please fill in all required fields.';
-        status.style.color = '#f87171';
-        return;
-      }
+    form.addEventListener('submit', async function(e) {
+      // We let the form submit natively to Formspree.
+      // But we show a "sending" status before the redirect.
+      status.className = 'loading';
+      status.textContent = '⏳ Sending your message...';
+      status.style.display = 'block';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
 
-      // Simulate sending (replace with your own logic, e.g., Firebase, EmailJS, etc.)
-      status.textContent = '✅ Your message has been sent! We\'ll get back to you soon.';
-      status.style.color = '#4ade80';
-      this.reset();
+      // The form will redirect to the _redirect URL after submission.
+      // If you want to handle the response without redirect, you'd use fetch().
+      // For simplicity, we let Formspree handle the redirect.
     });
+
+    // If the user returns to the page after Formspree redirect,
+    // we can show a success message from the URL parameter.
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        status.className = 'success';
+        status.textContent = '✅ Your message has been sent! We\'ll get back to you soon.';
+        status.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    })();
   </script>
 </body>
 </html>
