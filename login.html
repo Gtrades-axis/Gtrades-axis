@@ -67,7 +67,7 @@
             </form>
 
             <div class="divider"><span class="divider-line"></span><span class="divider-text">secure access</span><span class="divider-line"></span></div>
-            <div class="login-links">Don't have an account? <a href="register.html">Create one</a></div>
+            <div class="login-links">Don't have an account? <a href="/register">Create one</a></div>
             <a class="back-home" href="/"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
         </div>
     </div>
@@ -143,7 +143,7 @@
                 }
 
                 // Send to Student Portal
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
 
             } catch (error) {
                 console.error("Google Login Error:", error);
@@ -164,7 +164,7 @@
             if (!email || !password) return showError("Please enter both email and password.");
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = 'dashboard.html'; // Students Portal
+                window.location.href = '/dashboard'; // Students Portal
             } catch (error) {
                 console.error("Email Login Error:", error);
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {

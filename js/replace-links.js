@@ -2,26 +2,26 @@ const fs = require('fs');
 const path = require('path');
 
 const mapping = {
-  'dashboard.html': '/dashboard',
-  'history.html': '/history',
-  'analytics.html': '/analytics',
-  'journal.html': '/journal',
-  'login.html': '/login',
-  'register.html': '/register',
-  'profile.html': '/profile',
-  'resources.html': '/resources',
-  'admin.html': '/admin',
-  'ai-review.html': '/ai-review',
-  'certificate.html': '/certificate',
-  'lesson.html': '/lesson',
-  'quiz.html': '/quiz',
-  'premium-academy.html': '/academy',
+  '/dashboard': '/dashboard',
+  '/history': '/history',
+  '/analytics': '/analytics',
+  '/journal': '/journal',
+  '/login': '/login',
+  '/register': '/register',
+  '/profile': '/profile',
+  '/resources': '/resources',
+  '/admin': '/admin',
+  '/ai-review': '/ai-review',
+  '/certificate': '/certificate',
+  '/lesson': '/lesson',
+  '/quiz': '/quiz',
+  '/premium-academy': '/academy',
   '/': '/',
-  'contact.html': '/contact',
-  'support.html': '/support',
-  'videos.html': '/videos',
-  'pending.html': '/pending',
-  'access-denied.html': '/access-denied',
+  '/contact': '/contact',
+  '/support': '/support',
+  '/videos': '/videos',
+  '/pending': '/pending',
+  '/access-denied': '/access-denied',
 };
 
 const dir = './';
@@ -55,15 +55,15 @@ walk(dir, (file) => {
       return `${attr}="${newLink}"`;
     });
 
-    // 2. JavaScript string redirects (e.g., location.href = 'dashboard.html')
+    // 2. JavaScript string redirects (e.g., location.href = '/dashboard')
     const jsRegex = new RegExp(`location\\.href\\s*=\\s*["'](?:\.\.\/|\.\/)?${oldLink}["']`, 'g');
     content = content.replace(jsRegex, `location.href = "${newLink}"`);
 
-    // 3. window.location.href = 'dashboard.html'
+    // 3. window.location.href = '/dashboard'
     const winRegex = new RegExp(`window\\.location\\.href\\s*=\\s*["'](?:\.\.\/|\.\/)?${oldLink}["']`, 'g');
     content = content.replace(winRegex, `window.location.href = "${newLink}"`);
 
-    // 4. Assignments like url = 'dashboard.html'
+    // 4. Assignments like url = '/dashboard'
     const assignRegex = new RegExp(`\\b(url|redirect|path)\\s*=\\s*["'](?:\.\.\/|\.\/)?${oldLink}["']`, 'g');
     content = content.replace(assignRegex, (match, varName) => {
       return `${varName} = "${newLink}"`;

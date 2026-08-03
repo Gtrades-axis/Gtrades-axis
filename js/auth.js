@@ -23,10 +23,10 @@ import {
 
 const PUBLIC_PAGES = [
     "/",
-    "login.html",
-    "register.html",
-    "pending.html",
-    "access-denied.html",
+    "/login",
+    "/register",
+    "/pending",
+    "/access-denied",
     "premium.html"
 ];
 
@@ -35,12 +35,12 @@ const PUBLIC_PAGES = [
 // ============================================================
 
 const ADMIN_PAGES = [
-    "admin.html",
+    "/admin",
     "members.html",
     "admin-payments.html",
-    "academy-admin.html",
-    "resources-admin.html",
-    "videos-admin.html"
+    "academy-/admin",
+    "resources-/admin",
+    "videos-/admin"
 ];
 
 // ============================================================
@@ -49,13 +49,13 @@ const ADMIN_PAGES = [
 // ============================================================
 
 const PREMIUM_PAGES = [
-    "premium-academy.html",
-    "journal.html",
-    "resources.html",
-    "videos.html",
-    "analytics.html",
-    "history.html",
-    "ai-review.html"
+    "/premium-academy",
+    "/journal",
+    "/resources",
+    "/videos",
+    "/analytics",
+    "/history",
+    "/ai-review"
 ];
 
 // ============================================================
@@ -75,7 +75,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!PUBLIC_PAGES.includes(currentPage)) {
 
-            window.location.href = "login.html";
+            window.location.href = "/login";
 
         }
 
@@ -96,7 +96,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!snap.exists()) {
 
-            window.location.href = "pending.html";
+            window.location.href = "/pending";
 
             return;
         }
@@ -115,7 +115,7 @@ onAuthStateChanged(auth, async (user) => {
 
         console.error(err);
 
-        window.location.href = "login.html";
+        window.location.href = "/login";
 
         return;
 
@@ -128,9 +128,9 @@ onAuthStateChanged(auth, async (user) => {
     // 🛑 FIXED HERE: Checking 'status' instead of 'active'
     if (userData.status !== 'active') {
 
-        if (currentPage !== "pending.html") {
+        if (currentPage !== "/pending") {
 
-            window.location.href = "pending.html";
+            window.location.href = "/pending";
 
         }
 
@@ -142,17 +142,17 @@ onAuthStateChanged(auth, async (user) => {
     // ========================================================
 
     if (
-        currentPage === "login.html" ||
-        currentPage === "register.html"
+        currentPage === "/login" ||
+        currentPage === "/register"
     ) {
 
         if (userData.role === "admin") {
 
-            window.location.href = "admin.html";
+            window.location.href = "/admin";
 
         } else {
 
-            window.location.href = "dashboard.html";
+            window.location.href = "/dashboard";
 
         }
 
@@ -168,7 +168,7 @@ onAuthStateChanged(auth, async (user) => {
         userData.role !== "admin"
     ) {
 
-        window.location.href = "access-denied.html";
+        window.location.href = "/access-denied";
 
         return;
     }
@@ -242,7 +242,7 @@ export async function logoutUser() {
             "gtrades_user_logged_in"
         );
 
-        window.location.href = "login.html";
+        window.location.href = "/login";
 
     } catch (error) {
 
