@@ -2,7 +2,7 @@ import { auth, db } from "./firebase.js";
 import {
     createUserWithEmailAndPassword,
     updateProfile,
-    sendEmailVerification   // ✅ NEW: import verification function
+    sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import {
     doc,
@@ -38,7 +38,7 @@ if (form) {
 
             // ✅ Send verification email
             await sendEmailVerification(user);
-            alert("✅ Verification email sent! Please check your inbox and click the link.");
+            alert("✅ Verification email sent! Please check your inbox and click the link before logging in.");
 
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
@@ -50,13 +50,14 @@ if (form) {
                 status: "pending",
                 payment: "unpaid",
                 paymentStatus: "none",
-                emailVerified: false,      // ✅ track verification status
+                emailVerified: false,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             });
 
-            // Redirect to a "verify your email" page
-            window.location.href = "verify-email.html";
+            // ⬅️ Redirect to pending page instead of verify-email.html
+            alert("✅ Registration successful!\n\nYour account is pending administrator approval.");
+            window.location.href = "pending.html";
 
         } catch (error) {
             console.error("Registration error:", error);
