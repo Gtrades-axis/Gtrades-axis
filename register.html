@@ -1,207 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Premium Resources | GTRADES-AXIS™</title>
-  <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | GTRADES-AXIS™</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="css/login.css" />
+    <style>
+        /* Quick inline styles – same as login page */
+        .password-group { position: relative; }
+        .password-group input { padding-right: 48px; }
+        .toggle-pw {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: #888;
+            font-size: 1.1rem; padding: 0;
+        }
+        .toggle-pw:hover { color: #333; }
+        
+        .google-btn {
+            width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 30px;
+            background: #fff; font-weight: 500; font-size: 1rem; color: #333;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            cursor: pointer; transition: background 0.2s, box-shadow 0.2s; margin-bottom: 16px;
+        }
+        .google-btn:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .google-btn i { font-size: 1.3rem; }
+        
+        .divider-or {
+            display: flex; align-items: center; gap: 16px; color: #aaa;
+            font-size: 0.85rem; margin: 0 0 20px 0;
+        }
+        .divider-or::before, .divider-or::after {
+            content: ""; flex: 1; height: 1px; background: #ddd;
+        }
 
-  <style>
-    /* ── Existing styles ── */
-    :focus-visible {
-      outline: 2px solid #0ea5e9;
-      outline-offset: 2px;
-      border-radius: 4px;
-    }
-    .skip-to-main {
-      position: absolute;
-      top: -40px;
-      left: 0;
-      background: #0ea5e9;
-      color: #fff;
-      padding: 8px 16px;
-      z-index: 1000;
-      text-decoration: none;
-      border-radius: 0 0 4px 0;
-    }
-    .skip-to-main:focus {
-      top: 0;
-    }
-    .skeleton {
-      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 12px;
-      height: 200px;
-    }
-    @keyframes shimmer {
-      0% {
-        background-position: 200% 0;
-      }
-      100% {
-        background-position: -200% 0;
-      }
-    }
-    .status-message {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #94a3b8;
-      font-size: 0.95rem;
-      display: none;
-    }
-    .status-message.visible {
-      display: block;
-    }
-    .search-wrapper {
-      position: relative;
-      max-width: 400px;
-      width: 100%;
-    }
-    .search-wrapper input {
-      width: 100%;
-      padding-right: 2.5rem;
-    }
-    .search-clear {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 1rem;
-      display: none;
-      padding: 4px;
-      border-radius: 50%;
-      transition: color 0.2s;
-    }
-    .search-clear:hover {
-      color: #fff;
-    }
-    .search-wrapper input:not(:placeholder-shown)~.search-clear {
-      display: block;
-    }
-
-    /* ── Locked resource card ── */
-    .quick-card.locked {
-      opacity: 0.7;
-      border-color: #2a3450;
-      background: #131724;
-      position: relative;
-    }
-    .quick-card.locked .lock-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(11, 13, 21, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .quick-card.locked .lock-overlay i {
-      font-size: 2rem;
-      color: #f5a623;
-    }
-    .quick-card.locked .lock-overlay span {
-      color: #94a3b8;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-    .quick-card.locked .lock-overlay a {
-      color: #0ea5e9;
-      text-decoration: underline;
-      font-size: 0.8rem;
-    }
-  </style>
+        .msg.error {
+            background: rgba(255, 71, 102, 0.15); color: #ff4766;
+            border: 1px solid #ff4766; padding: 10px 14px; border-radius: 8px;
+            margin-bottom: 16px; font-size: 0.85rem;
+        }
+        .msg.success {
+            background: rgba(0, 200, 151, 0.15); color: #00c897;
+            border: 1px solid #00c897; padding: 10px 14px; border-radius: 8px;
+            margin-bottom: 16px; font-size: 0.85rem;
+        }
+    </style>
 </head>
-
 <body>
-  <a href="#main-content" class="skip-to-main">Skip to main content</a>
 
-  <div class="dashboard">
-    <!-- SIDEBAR -->
-    <aside class="sidebar" aria-label="Main navigation">
-      <div class="brand">
-        <img src="images/logo.png" alt="GTRADES-AXIS company logo" />
-        <h2>GTRADES <span>AXIS™</span></h2>
-      </div>
-      <nav aria-label="Primary">
-        <ul class="menu">
-          <li><a href="dashboard.html"><i class="fa-solid fa-house" aria-hidden="true"></i><span>Dashboard</span></a></li>
-          <li class="active"><a href="resources.html" aria-current="page"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><span>Premium Resources</span></a></li>
-          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i><span>Premium Academy</span></a></li>
-          <li><a href="videos.html"><i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>Videos</span></a></li>
-          <li><a href="journal.html"><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Trading Journal</span></a></li>
-          <li><a href="profile.html"><i class="fa-solid fa-user" aria-hidden="true"></i><span>My Profile</span></a></li>
-          <li><a href="support.html"><i class="fa-solid fa-headset" aria-hidden="true"></i><span>Support</span></a></li>
-        </ul>
-      </nav>
-      <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
-    </aside>
+    <div class="login-container">
+        <div class="login-card">
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content" id="main-content">
-      <header class="topbar">
-        <div>
-          <h1 id="page-heading">Premium Resources</h1>
-          <p>Download all premium trading materials.</p>
+            <!-- Logo -->
+            <div class="logo-wrapper">
+                <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="login-logo" draggable="false" />
+            </div>
+
+            <h1>Create <span class="gradient-text">Account</span></h1>
+            <p class="subtitle">Join the GTRADES-AXIS™ Community</p>
+
+            <!-- Error / Success Messages -->
+            <div id="errorMsg" class="msg error" style="display:none;"></div>
+            <div id="successMsg" class="msg success" style="display:none;"></div>
+
+            <!-- Registration Form -->
+            <form id="registerForm">
+                <!-- Full Name -->
+                <div class="input-group">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="displayName" placeholder="Full Name" required />
+                </div>
+
+                <!-- Email -->
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email Address" required />
+                </div>
+
+                <!-- Password -->
+                <div class="input-group password-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password (min 6 chars)" required minlength="6" />
+                    <button type="button" class="toggle-pw" id="togglePassword">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="input-group password-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+                    <button type="button" class="toggle-pw" id="toggleConfirmPassword">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span class="divider-line"></span>
+                <span class="divider-text">secure access</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <div class="login-links">
+                Already have an account? <a href="login.html">Log In</a>
+            </div>
+
+            <a class="back-home" href="index.html">
+                <i class="fa-solid fa-arrow-left"></i> Back to Home
+            </a>
         </div>
-      </header>
+    </div>
 
-      <!-- SEARCH -->
-      <div class="search-box">
-        <div class="search-wrapper">
-          <label for="searchInput" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Search resources</label>
-          <input type="text" id="searchInput" placeholder="Search resources…" aria-label="Search resources" />
-          <button class="search-clear" id="clearSearch" aria-label="Clear search" type="button">
-            <i class="fa-solid fa-times" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+      }
+    }
+    </script>
 
-      <!-- FILTERS -->
-      <div class="resource-filters" role="group" aria-label="Filter by resource type">
-        <button class="filter-btn active" data-category="All" aria-pressed="true">All</button>
-        <button class="filter-btn" data-category="PDF" aria-pressed="false">PDFs</button>
-        <button class="filter-btn" data-category="Indicator" aria-pressed="false">Indicators</button>
-        <button class="filter-btn" data-category="Journal" aria-pressed="false">Journals</button>
-        <button class="filter-btn" data-category="Strategy" aria-pressed="false">Strategies</button>
-        <button class="filter-btn" data-category="Video" aria-pressed="false">Videos</button>
-      </div>
+    <!-- ─── MAIN MODULE SCRIPT ─── -->
+    <script type="module">
+        import { auth, db } from "./js/firebase.js";
+        import { 
+            createUserWithEmailAndPassword, 
+            updateProfile,
+            sendEmailVerification
+        } from "firebase/auth";
+        import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-      <!-- RESOURCE GRID -->
-      <div id="resourcesContainer" class="resource-grid" role="status" aria-live="polite">
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-      </div>
+        // ─── DOM REFS ──────────────────────────────────────────
+        const registerForm = document.getElementById('registerForm');
+        const displayNameInput = document.getElementById('displayName');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
 
-      <div id="noResultsMessage" class="status-message" role="alert">
-        <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; margin-bottom:0.5rem; display:block;"></i>
-        No resources match your search or filter.
-      </div>
+        // ─── TOGGLE PASSWORD VISIBILITY ──────────────────────
+        document.querySelectorAll('.toggle-pw').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                const icon = this.querySelector('i');
+                if (icon) { icon.classList.toggle('fa-eye'); icon.classList.toggle('fa-eye-slash'); }
+            });
+        });
 
-      <!-- FOOTER -->
-      <footer class="dashboard-footer">
-        <div class="footer-left">© 2026 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.</div>
-        <div class="footer-right">Version 1.0</div>
-      </footer>
-    </main>
-  </div>
+        // ─── HELPER: SHOW MESSAGES ────────────────────────────
+        function showError(message) {
+            successMsg.style.display = 'none';
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+        }
+        function showSuccess(message) {
+            errorMsg.style.display = 'none';
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+        }
+        function hideMessages() {
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+        }
 
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/resources.js"></script>
+        // ─── REGISTRATION LOGIC ──────────────────────────────
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideMessages();
+
+            const displayName = displayNameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            const confirmPassword = confirmPasswordInput.value.trim();
+
+            // Validation
+            if (!displayName || !email || !password || !confirmPassword) {
+                return showError("Please fill in all fields.");
+            }
+            if (password !== confirmPassword) {
+                return showError("Passwords do not match.");
+            }
+            if (password.length < 6) {
+                return showError("Password must be at least 6 characters long.");
+            }
+
+            try {
+                // 1. Create Auth User
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Update Profile Display Name
+                await updateProfile(user, { displayName: displayName });
+
+                // 3. Save User Data to Firestore (So they appear in your Admin panel!)
+                await setDoc(doc(db, "users", user.uid), {
+                    uid: user.uid,
+                    displayName: displayName,
+                    email: email,
+                    role: 'member',            // Default role
+                    membership: 'free',        // Default membership
+                    status: 'active',          // Default status
+                    paymentStatus: 'unpaid',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                // 4. Send Verification Email (Optional but recommended)
+                await sendEmailVerification(user);
+                
+                showSuccess("Account created successfully! A verification email has been sent. Redirecting to dashboard...");
+                
+                // 5. Redirect to Dashboard after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2500);
+
+            } catch (error) {
+                console.error("Registration Error:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    showError("This email is already registered. Please log in.");
+                } else if (error.code === 'auth/weak-password') {
+                    showError("Password is too weak.");
+                } else if (error.code === 'auth/invalid-email') {
+                    showError("Invalid email address.");
+                } else {
+                    showError("Registration failed: " + error.message);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
