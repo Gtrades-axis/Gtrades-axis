@@ -120,11 +120,13 @@ onAuthStateChanged(auth, async (user) => {
         return;
 
     }
-        // ========================================================
-    // ACCOUNT NOT APPROVED
+    
+    // ========================================================
+    // ACCOUNT NOT ACTIVE
     // ========================================================
 
-    if (userData.active !== true) {
+    // 🛑 FIXED HERE: Checking 'status' instead of 'active'
+    if (userData.status !== 'active') {
 
         if (currentPage !== "pending.html") {
 
