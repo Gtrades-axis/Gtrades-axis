@@ -10,11 +10,478 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link rel="icon" href="images/favicon.png" />
-  <!-- Include your existing styles here – I've kept them but you can reuse your own -->
   <style>
-    /* (paste your existing styles – same as before) */
-    /* For brevity, I'm omitting the full CSS here; you already have it. */
-    /* Just ensure you keep the same styles as your current contact page. */
+    /* ============================================================
+       CONTACT PAGE – STYLES (mirroring index)
+    ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #07090d;
+      color: #ffffff;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    ul {
+      list-style: none;
+    }
+    img {
+      max-width: 100%;
+      display: block;
+    }
+    .container {
+      width: 92%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    section {
+      padding: 100px 0 80px;
+      position: relative;
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .section-title h2 {
+      font-size: 44px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .section-title p {
+      font-size: 18px;
+      color: #c9d3dd;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* ----- COLOUR VARIABLES (same as index) ----- */
+    :root {
+      --primary: #4f7cff;
+      --primary-dark: #3a5fc9;
+      --primary-light: #7a9eff;
+      --gradient-main: linear-gradient(135deg, #4f7cff, #7c3aed);
+      --gradient-hover: linear-gradient(135deg, #3a5fc9, #6c2bd9);
+      --glow-subtle: 0 0 20px rgba(79, 124, 255, 0.25);
+      --shadow-soft: 0 8px 24px rgba(79, 124, 255, 0.15);
+    }
+
+    /* ----- HEADER (same as index) ----- */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: rgba(7, 9, 13, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+    }
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+    .logo h2 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .logo span {
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(79, 124, 255, 0.3);
+    }
+    nav ul {
+      display: flex;
+      gap: 36px;
+    }
+    nav a {
+      color: #c9d3dd;
+      font-size: 15px;
+      font-weight: 500;
+      transition: 0.3s;
+      position: relative;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: 0.3s;
+    }
+    nav a:hover::after {
+      width: 100%;
+    }
+    nav a:hover {
+      color: #fff;
+    }
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-buttons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #151e2e;
+      color: #fff;
+      transition: 0.3s;
+      font-size: 17px;
+    }
+    .nav-buttons a:hover {
+      transform: translateY(-3px);
+    }
+    .youtube:hover {
+      background: #ff0000;
+    }
+    .telegram:hover {
+      background: #229ed9;
+    }
+    .whatsapp:hover {
+      background: #25d366;
+    }
+    .tiktok:hover {
+      background: #111;
+    }
+    .join-btn {
+      padding: 10px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 14px;
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      transition: 0.35s;
+      margin-left: 6px;
+    }
+    .join-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: var(--glow-subtle);
+      transform: translateY(-2px);
+    }
+    .dashboard-btn {
+      background: #16a34a;
+      border-color: #16a34a;
+      color: #fff;
+    }
+    .dashboard-btn:hover {
+      background: #15803d;
+      border-color: #15803d;
+      box-shadow: 0 0 30px rgba(22, 163, 74, 0.4);
+    }
+
+    /* ----- CONTENT ----- */
+    .contact-wrapper {
+      padding-top: 120px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      margin-top: 40px;
+    }
+    /* Contact info cards */
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .info-card {
+      background: #121a29;
+      border-radius: 16px;
+      padding: 24px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: 0.35s;
+    }
+    .info-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(79, 124, 255, 0.08);
+    }
+    .info-card .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(79, 124, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .info-card .content h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .info-card .content p {
+      color: #c9d3dd;
+      font-size: 15px;
+    }
+    .info-card .content a {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .info-card .content a:hover {
+      text-decoration: underline;
+    }
+
+    /* Contact form */
+    .form-card {
+      background: #121a29;
+      border-radius: 20px;
+      padding: 40px 36px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .form-card h3 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .form-card p {
+      color: #c9d3dd;
+      margin-bottom: 28px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #c9d3dd;
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: #0b1018;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      transition: 0.3s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
+    }
+    .form-group textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+    .submit-btn {
+      padding: 14px 38px;
+      background: var(--gradient-main);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.35s;
+      box-shadow: var(--shadow-soft);
+    }
+    .submit-btn:hover {
+      background: var(--gradient-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 0 30px rgba(79, 124, 255, 0.3);
+    }
+
+    /* Form status message */
+    #formStatus {
+      margin-top: 16px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    #formStatus.success {
+      display: block;
+      background: rgba(0, 200, 83, 0.12);
+      color: #00c853;
+      border: 1px solid rgba(0, 200, 83, 0.2);
+    }
+    #formStatus.error {
+      display: block;
+      background: rgba(255, 77, 79, 0.12);
+      color: #ff4d4f;
+      border: 1px solid rgba(255, 77, 79, 0.2);
+    }
+    #formStatus.loading {
+      display: block;
+      background: rgba(79, 124, 255, 0.12);
+      color: #4f7cff;
+      border: 1px solid rgba(79, 124, 255, 0.2);
+    }
+
+    /* ----- FOOTER (same as index) ----- */
+    footer {
+      background: #05070b;
+      padding: 70px 8% 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 40px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 50px;
+    }
+    .footer-about .footer-logo {
+      width: 60px;
+      margin-bottom: 14px;
+    }
+    .footer-about h2 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .footer-about span {
+      color: var(--primary);
+    }
+    .footer-about p {
+      color: #bfc8d4;
+      margin-bottom: 8px;
+      line-height: 1.8;
+    }
+    .footer-links h3,
+    .footer-contact h3 {
+      color: var(--primary);
+      margin-bottom: 18px;
+      font-size: 18px;
+    }
+    .footer-links ul {
+      padding: 0;
+    }
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    .footer-links a {
+      color: #d0d8e4;
+      transition: 0.3s;
+    }
+    .footer-links a:hover {
+      color: var(--primary);
+      padding-left: 4px;
+    }
+    .footer-contact p {
+      color: #d0d8e4;
+      margin-bottom: 10px;
+    }
+    .footer-contact i {
+      color: var(--primary);
+      width: 22px;
+    }
+    footer hr {
+      margin: 40px 0 20px;
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .copyright {
+      text-align: center;
+      color: #9aa8bb;
+      line-height: 2;
+    }
+    .copyright strong {
+      color: var(--primary);
+      font-size: 17px;
+    }
+
+    /* ----- RESPONSIVE ----- */
+    @media (max-width: 992px) {
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+    }
+    @media (max-width: 768px) {
+      header .container {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+      nav ul {
+        gap: 18px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .logo h2 {
+        font-size: 22px;
+      }
+      .section-title h2 {
+        font-size: 34px;
+      }
+      .contact-wrapper {
+        padding-top: 140px;
+      }
+      .form-card {
+        padding: 28px 20px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .footer-about .footer-logo {
+        margin: 0 auto 14px;
+      }
+      .nav-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .join-btn {
+        padding: 8px 18px;
+        font-size: 13px;
+      }
+    }
+    @media (max-width: 480px) {
+      .info-card {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -56,17 +523,63 @@
       </div>
 
       <div class="contact-grid">
-        <!-- LEFT – Contact Info (unchanged) -->
+        <!-- LEFT – Contact Info -->
         <div class="contact-info">
-          <!-- ... your info cards ... -->
+          <div class="info-card">
+            <div class="icon"><i class="fas fa-phone-alt"></i></div>
+            <div class="content">
+              <h3>Phone</h3>
+              <p><a href="tel:+254712416214">+254 712 416 214</a></p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="icon"><i class="fab fa-whatsapp"></i></div>
+            <div class="content">
+              <h3>WhatsApp</h3>
+              <p><a href="https://wa.me/254712416214" target="_blank">Chat on WhatsApp</a></p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="icon"><i class="fab fa-telegram"></i></div>
+            <div class="content">
+              <h3>Telegram</h3>
+              <p><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank">Join our Telegram Channel</a></p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="icon"><i class="fab fa-tiktok"></i></div>
+            <div class="content">
+              <h3>TikTok</h3>
+              <p><a href="https://www.tiktok.com/@gtrades_axis" target="_blank">Follow @gtrades_axis</a></p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="icon"><i class="fab fa-youtube"></i></div>
+            <div class="content">
+              <h3>YouTube</h3>
+              <p><a href="https://www.youtube.com/@GtradesAxis" target="_blank">Watch free lessons</a></p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="icon"><i class="fas fa-envelope"></i></div>
+            <div class="content">
+              <h3>Email</h3>
+              <p><a href="mailto:gtradesupport@gmail.com">gtradesupport@gmail.com</a></p>
+            </div>
+          </div>
         </div>
 
-        <!-- RIGHT – Contact Form -->
+        <!-- RIGHT – Contact Form (Formspree) -->
         <div class="form-card">
           <h3>Send a Message</h3>
           <p>We’ll get back to you as soon as possible.</p>
 
-          <!-- ✅ CORRECT ENDPOINT: meeyyydb (3 y's) -->
+          <!-- ✅ Formspree: action points to your form endpoint -->
           <form
             id="contactForm"
             action="https://formspree.io/f/meeyywdb"
@@ -89,8 +602,8 @@
               <textarea id="message" name="message" placeholder="Tell us how we can help…" required></textarea>
             </div>
 
-            <!-- Redirect back to contact page with success param -->
-            <input type="hidden" name="_redirect" value="https://gtradesaxis.com/contact.html?success=true" />
+            <!-- Optional: Formspree redirect (user stays on page) -->
+            <input type="hidden" name="_redirect" value="https://gtradesaxis.com/contact.html" />
 
             <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
           </form>
@@ -103,11 +616,51 @@
 
   <!-- ===== FOOTER ===== -->
   <footer>
-    <!-- ... your footer ... -->
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="footer-logo" />
+          <h2>GTRADES-<span>AXIS™</span></h2>
+          <p>Trade with Structure.<br />Execute with Precision.</p>
+          <p>Professional Smart Money Trading Framework built around Market Structure, Supply &amp; Demand, Liquidity and disciplined execution.</p>
+        </div>
+        <div class="footer-links">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#academy">Academy</a></li>
+            <li><a href="index.html#strategy">Strategy</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h3>Community</h3>
+          <ul>
+            <li><a href="https://www.youtube.com/@GtradesAxis" target="_blank"><i class="fab fa-youtube"></i> YouTube</a></li>
+            <li><a href="https://t.me/+iywzAr5VaI80Mjhk" target="_blank"><i class="fab fa-telegram"></i> Telegram</a></li>
+            <li><a href="https://wa.me/254712416214" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a></li>
+            <li><a href="https://www.tiktok.com/@gtrades_axis" target="_blank"><i class="fab fa-tiktok"></i> TikTok</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h3>Contact</h3>
+          <p><i class="fab fa-whatsapp"></i> +254 712 416 214</p>
+          <p><i class="fab fa-telegram"></i> Telegram Community</p>
+          <p><i class="fas fa-location-dot"></i> Nairobi, Kenya</p>
+        </div>
+      </div>
+      <hr />
+      <div class="copyright">
+        <p>© 2026 GTRADES-AXIS™ | All Rights Reserved</p>
+        <p><strong>@gtrades_axis</strong></p>
+      </div>
+    </div>
   </footer>
 
+  <!-- ===== SCRIPTS ===== -->
   <script>
-    // ─── Auth Buttons (same as before) ──────────────────────────
+    // ─── Auth Buttons (same as index) ──────────────────────────
     const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
     const loginBtn = document.getElementById('loginBtn');
     const dashboardBtn = document.getElementById('dashboardBtn');
@@ -119,29 +672,37 @@
       dashboardBtn.style.display = 'none';
     }
 
-    // ─── Form Status ──────────────────────────────────────────
+    // ─── Formspree: show status message ────────────────────────
     const form = document.getElementById('contactForm');
     const status = document.getElementById('formStatus');
     const submitBtn = document.getElementById('submitBtn');
 
-    // Show loading when submitting (the form will redirect)
-    form.addEventListener('submit', function() {
+    form.addEventListener('submit', async function(e) {
+      // We let the form submit natively to Formspree.
+      // But we show a "sending" status before the redirect.
       status.className = 'loading';
       status.textContent = '⏳ Sending your message...';
       status.style.display = 'block';
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';
+
+      // The form will redirect to the _redirect URL after submission.
+      // If you want to handle the response without redirect, you'd use fetch().
+      // For simplicity, we let Formspree handle the redirect.
     });
 
-    // If redirected back with success=true, show success message
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      status.className = 'success';
-      status.textContent = '✅ Your message has been sent! We\'ll get back to you soon.';
-      status.style.display = 'block';
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send Message';
-    }
+    // If the user returns to the page after Formspree redirect,
+    // we can show a success message from the URL parameter.
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        status.className = 'success';
+        status.textContent = '✅ Your message has been sent! We\'ll get back to you soon.';
+        status.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    })();
   </script>
 </body>
 </html>
