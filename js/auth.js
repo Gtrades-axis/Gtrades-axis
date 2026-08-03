@@ -22,7 +22,7 @@ import {
 // ============================================================
 
 const PUBLIC_PAGES = [
-    "index.html",
+    "/",
     "login.html",
     "register.html",
     "pending.html",
@@ -65,7 +65,7 @@ const PREMIUM_PAGES = [
 onAuthStateChanged(auth, async (user) => {
 
     const currentPage =
-        window.location.pathname.split("/").pop() || "index.html";
+        window.location.pathname.split("/").pop() || "/";
 
     // ========================================================
     // USER NOT LOGGED IN

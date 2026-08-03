@@ -16,7 +16,7 @@ const mapping = {
   'lesson.html': '/lesson',
   'quiz.html': '/quiz',
   'premium-academy.html': '/academy',
-  'index.html': '/',
+  '/': '/',
   'contact.html': '/contact',
   'support.html': '/support',
   'videos.html': '/videos',
