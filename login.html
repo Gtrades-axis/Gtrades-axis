@@ -14,7 +14,8 @@
         .password-group input { padding-right: 48px; }
         .toggle-pw {
             position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer; color: #888; font-size: 1.1rem; padding: 0;
+            background: none; border: none; cursor: pointer; color: #888;
+            font-size: 1.1rem; padding: 0;
         }
         .toggle-pw:hover { color: #333; }
         .google-btn {
@@ -25,13 +26,11 @@
         }
         .google-btn:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .google-btn i { font-size: 1.3rem; }
-        
         .divider-or {
             display: flex; align-items: center; gap: 16px; color: #aaa;
             font-size: 0.85rem; margin: 0 0 20px 0;
         }
         .divider-or::before, .divider-or::after { content: ""; flex: 1; height: 1px; background: #ddd; }
-
         .msg.error {
             background: rgba(255, 71, 102, 0.15); color: #ff4766;
             border: 1px solid #ff4766; padding: 10px 14px; border-radius: 8px;
@@ -84,10 +83,11 @@
     </script>
 
     <script type="module">
-        import { auth } from "./js/firebase.js";
+        import { auth, db } from "./js/firebase.js";
         import { 
             signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, sendPasswordResetEmail 
         } from "firebase/auth";
+        import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
         const googleBtn = document.getElementById('googleLoginBtn');
         const loginForm = document.getElementById('loginForm');
@@ -106,20 +106,56 @@
         function showError(message) { errorMsg.textContent = message; errorMsg.style.display = 'block'; }
         function hideError() { errorMsg.style.display = 'none'; }
 
-        // ─── 1. GOOGLE SIGN IN (Redirects to DASHBOARD) ──
+        // ─── 1. GOOGLE SIGN IN (CREATES USER IF NEW) ──────────
         googleBtn.addEventListener('click', async function() {
             hideError();
             const provider = new GoogleAuthProvider();
             try {
-                await signInWithPopup(auth, provider);
-                window.location.href = 'dashboard.html'; // <--- CHANGED HERE
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                console.log("✅ Google Auth User Created:", user.uid);
+
+                // Check if user exists in Firestore. If not, register them!
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    console.log("🆕 New Google User. Creating Firestore Record...");
+                    try {
+                        await setDoc(userRef, {
+                            uid: user.uid,
+                            displayName: user.displayName || user.email || "Google User",
+                            email: user.email,
+                            role: 'member',        // Default role
+                            membership: 'free',    // Default membership
+                            status: 'active',      // Default status
+                            paymentStatus: 'unpaid',
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                        console.log("✅ Firestore User Document Created.");
+                    } catch (firestoreError) {
+                        console.error("❌ FIRESTORE WRITE ERROR:", firestoreError);
+                        return showError("Failed to register Google user in database: " + firestoreError.message);
+                    }
+                } else {
+                    console.log("✅ Existing User Found in Firestore.");
+                }
+
+                // Send to Student Portal
+                window.location.href = 'dashboard.html';
+
             } catch (error) {
                 console.error("Google Login Error:", error);
-                showError("Google Login failed: " + error.message);
+                if (error.code === 'auth/popup-blocked') {
+                    showError("Popup was blocked by your browser. Please allow popups for this site.");
+                } else {
+                    showError("Google Login failed: " + error.message);
+                }
             }
         });
 
-        // ─── 2. EMAIL SIGN IN (Redirects to DASHBOARD) ──
+        // ─── 2. EMAIL SIGN IN ──────────────────────────────────
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             hideError();
@@ -128,7 +164,7 @@
             if (!email || !password) return showError("Please enter both email and password.");
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = 'dashboard.html'; // <--- CHANGED HERE
+                window.location.href = 'dashboard.html'; // Students Portal
             } catch (error) {
                 console.error("Email Login Error:", error);
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
@@ -139,7 +175,7 @@
             }
         });
 
-        // ─── 3. FORGOT PASSWORD ──────────────────────────
+        // ─── 3. FORGOT PASSWORD ──────────────────────────────
         forgotLink.addEventListener('click', async function(e) {
             e.preventDefault();
             const email = emailInput.value.trim();
