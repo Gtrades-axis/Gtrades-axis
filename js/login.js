@@ -1,11 +1,12 @@
 import { auth, db } from "./firebase.js";
 import {
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    sendEmailVerification   // ✅ NEW: import for resending if needed
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import {
     doc,
     getDoc,
-    updateDoc   // ✅ imported updateDoc
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const form = document.getElementById("loginForm");
@@ -20,9 +21,20 @@ if (form) {
         try {
             // 1. Sign in
             const credential = await signInWithEmailAndPassword(auth, email, password);
-            const uid = credential.user.uid;
+            const user = credential.user;
 
-            // 2. Get user document
+            // ✅ 2. Check if email is verified
+            if (!user.emailVerified) {
+                // Resend verification email
+                await sendEmailVerification(user);
+                alert("📧 Please verify your email first. A new verification link has been sent to your inbox.");
+                // Optionally redirect to verify-email page
+                window.location.href = "verify-email.html";
+                return;
+            }
+
+            // 3. Get user document
+            const uid = user.uid;
             const snap = await getDoc(doc(db, "users", uid));
 
             if (!snap.exists()) {
@@ -30,29 +42,28 @@ if (form) {
                 return;
             }
 
-            const user = snap.data();
+            const userData = snap.data();
 
-            // 3. Check approval status
-            if (!user.active) {
+            // 4. Check approval status
+            if (!userData.active) {
                 alert("Your account is awaiting administrator approval.");
                 return;
             }
 
-            // 4. If role is still "pending" but active is true, auto-upgrade to "member"
-            if (user.role === "pending") {
+            // 5. If role is still "pending" but active is true, auto-upgrade to "member"
+            if (userData.role === "pending") {
                 await updateDoc(doc(db, "users", uid), { role: "member" });
-                // (optional) you could also update the local user object, but not needed
             }
 
-            // 5. Set session flag for meta-refresh guard (if any)
+            // 6. Set session flag for meta-refresh guard (if any)
             sessionStorage.setItem('gtrades_user_logged_in', 'true');
 
-            // 6. Role-based redirects
-            if (user.role === "admin") {
+            // 7. Role-based redirects
+            if (userData.role === "admin") {
                 window.location.href = "admin.html";
                 return;
             }
-            if (user.role === "premium") {
+            if (userData.role === "premium") {
                 window.location.href = "dashboard.html";
                 return;
             }

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email | GTRADES-AXIS™</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>📧 Check Your Email</h1>
+            <p>We’ve sent a verification link to your email address.</p>
+            <p>Please click the link in the email to verify your account.</p>
+            <p>After verifying, you can <a href="login.html">log in</a>.</p>
+            <button id="resendBtn" class="btn btn-secondary">Resend Verification Email</button>
+        </div>
+    </div>
+    <script type="module">
+        import { auth } from "./js/firebase.js";
+        import { sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+        document.getElementById('resendBtn').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (user) {
+                await sendEmailVerification(user);
+                alert('Verification email resent!');
+            } else {
+                alert('You need to log in first.');
+            }
+        });
+    </script>
+</body>
+</html>

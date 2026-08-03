@@ -1,7 +1,8 @@
 import { auth, db } from "./firebase.js";
 import {
     createUserWithEmailAndPassword,
-    updateProfile
+    updateProfile,
+    sendEmailVerification   // ✅ NEW: import verification function
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import {
     doc,
@@ -34,31 +35,28 @@ if (form) {
             const user = userCredential.user;
 
             await updateProfile(user, { displayName: name });
-await setDoc(doc(db, "users", user.uid), {
 
-    uid: user.uid,
+            // ✅ Send verification email
+            await sendEmailVerification(user);
+            alert("✅ Verification email sent! Please check your inbox and click the link.");
 
-    name: name,
-    email: email,
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                name: name,
+                email: email,
+                role: "member",
+                membership: "free",
+                active: false,
+                status: "pending",
+                payment: "unpaid",
+                paymentStatus: "none",
+                emailVerified: false,      // ✅ track verification status
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
 
-    role: "member",
-    membership: "free",
-
-    active: false,
-    status: "pending",
-
-    payment: "unpaid",
-
-    paymentStatus: "none",
-
-    createdAt: serverTimestamp(),
-
-    updatedAt: serverTimestamp()
-
-});
-
-            alert("✅ Registration successful!\n\nYour account is pending administrator approval.");
-            window.location.href = "pending.html";
+            // Redirect to a "verify your email" page
+            window.location.href = "verify-email.html";
 
         } catch (error) {
             console.error("Registration error:", error);
