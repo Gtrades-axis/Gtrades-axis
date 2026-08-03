@@ -3,52 +3,38 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | GTRADES-AXIS™</title>
+    <title>Verify Email | GTRADES-AXIS™</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="css/login.css" />
     <style>
-        .password-group { position: relative; }
-        .password-group input { padding-right: 48px; }
-        .toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; font-size: 1.1rem; padding: 0; }
-        .toggle-pw:hover { color: #333; }
-        .google-btn { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 30px; background: #fff; font-weight: 500; font-size: 1rem; color: #333; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 16px; }
-        .google-btn:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .divider-or { display: flex; align-items: center; gap: 16px; color: #aaa; font-size: 0.85rem; margin: 0 0 20px 0; }
-        .divider-or::before, .divider-or::after { content: ""; flex: 1; height: 1px; background: #ddd; }
-        .msg.error { background: rgba(255, 71, 102, 0.15); color: #ff4766; border: 1px solid #ff4766; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; }
+        .verify-container { max-width: 440px; margin: 40px auto; text-align: center; }
+        .verify-container h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        .verify-container h1 span { background: linear-gradient(135deg, #0f8cff, #00c853); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .verify-container p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; }
+        .btn-secondary { background: rgba(255,255,255,0.06); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.08); padding: 12px 24px; border-radius: 12px; font-weight: 500; cursor: pointer; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+        .btn-primary { background: linear-gradient(135deg, #0f8cff, #0077e6); color: #fff; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 500; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,140,255,0.3); }
+        .status { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.9rem; }
+        .status.success { background: rgba(0,200,83,0.12); color: #00c853; }
+        .status.error { background: rgba(255,77,79,0.12); color: #ff4d4f; }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <div class="logo-wrapper"><img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="login-logo" draggable="false" /></div>
-            <h1>Welcome <span class="gradient-text">Back</span></h1>
-            <p class="subtitle">Login to access your Academy Resources</p>
-
-            <button class="google-btn" id="googleLoginBtn">
-                <i class="fa-brands fa-google"></i> Sign in with Google
-            </button>
-
-            <div class="divider-or">or</div>
-            <div id="errorMsg" class="msg error" style="display:none;"></div>
-
-            <form id="loginForm">
-                <div class="input-group"><i class="fa-regular fa-envelope"></i><input type="email" id="email" placeholder="Email Address" required /></div>
-                <div class="input-group password-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" placeholder="Password" required />
-                    <button type="button" class="toggle-pw" id="togglePassword"><i class="fa-regular fa-eye"></i></button>
-                </div>
-                <div class="forgot-row"><a href="#" id="forgotPasswordLink" class="forgot-link">Forgot password?</a></div>
-                <button type="submit" class="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Log In</span></button>
-            </form>
-
-            <div class="divider"><span class="divider-line"></span><span class="divider-text">secure access</span><span class="divider-line"></span></div>
-            <div class="login-links">Don't have an account? <a href="/register">Create one</a></div>
-            <a class="back-home" href="/"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+        <div class="login-card verify-container">
+            <img src="images/imageslogo.png.png" alt="Logo" style="height:60px; margin-bottom:16px;" />
+            <h1>📧 Verify Your <span>Email</span></h1>
+            <p>We've sent a verification link to your email address. Please click the link to verify your account.</p>
+            <p style="font-size:0.85rem; color:#64748b;">After verification, you'll be able to log in once your account is approved.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
+                <button id="resendBtn" class="btn-secondary"><i class="fa-solid fa-rotate"></i> Resend Email</button>
+                <a href="/login" class="btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> Go to Login</a>
+            </div>
+            <div id="statusMsg" class="status" style="display:none;"></div>
         </div>
     </div>
 
@@ -57,79 +43,29 @@
     </script>
 
     <script type="module">
-        import { auth, db } from "./js/firebase.js";
-        import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-        import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+        import { auth } from "./js/firebase.js";
+        import { sendEmailVerification } from "firebase/auth";
 
-        const googleBtn = document.getElementById('googleLoginBtn');
-        const loginForm = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const errorMsg = document.getElementById('errorMsg');
-        const forgotLink = document.getElementById('forgotPasswordLink');
+        const resendBtn = document.getElementById('resendBtn');
+        const statusMsg = document.getElementById('statusMsg');
 
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
-
-        function showError(message) { errorMsg.textContent = message; errorMsg.style.display = 'block'; }
-        function hideError() { errorMsg.style.display = 'none'; }
-
-        // ─── 1. GOOGLE SIGN IN ──────────────────────────────────
-        googleBtn.addEventListener('click', async function() {
-            hideError();
-            const provider = new GoogleAuthProvider();
-            try {
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-
-                if (!userSnap.exists()) {
-                    // ✅ CRITICAL CHANGE: New Google User gets status 'active'
-                    await setDoc(userRef, {
-                        uid: user.uid, displayName: user.displayName || user.email, email: user.email,
-                        role: 'member', membership: 'free', status: 'active', 
-                        paymentStatus: 'unpaid', createdAt: serverTimestamp(), updatedAt: serverTimestamp()
-                    });
-                }
-                window.location.href = '/dashboard'; // Student Portal
-
-            } catch (error) {
-                showError("Google Login failed: " + error.message);
+        resendBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                statusMsg.textContent = '⚠️ You are not logged in. Please log in and try again.';
+                statusMsg.className = 'status error';
+                statusMsg.style.display = 'block';
+                return;
             }
-        });
-
-        // ─── 2. EMAIL SIGN IN ──────────────────────────────────
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); hideError();
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
-            if (!email || !password) return showError("Please enter both email and password.");
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = '/dashboard';
+                await sendEmailVerification(user);
+                statusMsg.textContent = '✅ Verification email resent! Check your inbox.';
+                statusMsg.className = 'status success';
+                statusMsg.style.display = 'block';
             } catch (error) {
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') showError("Invalid email or password.");
-                else showError("Login failed: " + error.message);
-            }
-        });
-
-        // ─── 3. FORGOT PASSWORD ──────────────────────────────
-        forgotLink.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            if (!email) return showError("Please enter your email address first.");
-            if (!confirm(`Send password reset to ${email}?`)) return;
-            try {
-                await sendPasswordResetEmail(auth, email);
-                alert("Password reset email sent!");
-                hideError();
-            } catch (error) {
-                showError("Failed to send reset email: " + error.message);
+                statusMsg.textContent = '❌ Failed to resend: ' + error.message;
+                statusMsg.className = 'status error';
+                statusMsg.style.display = 'block';
             }
         });
     </script>
