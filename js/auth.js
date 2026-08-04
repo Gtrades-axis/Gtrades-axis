@@ -1,7 +1,7 @@
 // ============================================================
 // GTRADES-AXIS™
 // AUTH GUARD (v2)
-// Premium Preview System
+// Premium Preview System & Admin Protection
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -22,7 +22,17 @@ import {
 // ============================================================
 
 const PUBLIC_PAGES = ['/', '/login', '/register', '/pending', '/access-denied', '/premium'];
-const ADMIN_PAGES = ['/admin', '/members', '/admin-payments', '/academy-admin', '/resources-admin', '/videos-admin'];
+
+// 🛡️ SECURE LIST: Covering all variations so members can't slip through
+const ADMIN_PAGES = [
+    '/admin', '/admin/', '/admin.html',
+    '/members', '/members/', '/members.html',
+    '/admin-payments', '/admin-payments/', '/admin-payments.html',
+    '/academy-admin', '/academy-admin/', '/academy-admin.html',
+    '/resources-admin', '/resources-admin/', '/resources-admin.html',
+    '/videos-admin', '/videos-admin/', '/videos-admin.html'
+];
+
 const PREMIUM_PAGES = ['/premium-academy', '/journal', '/resources', '/videos', '/analytics', '/history', '/ai-review'];
 
 // ============================================================
@@ -31,8 +41,10 @@ const PREMIUM_PAGES = ['/premium-academy', '/journal', '/resources', '/videos', 
 
 onAuthStateChanged(auth, async (user) => {
 
-    // Get the actual route path and remove trailing slashes for consistent matching
+    // Get the actual route path
     let currentPath = window.location.pathname;
+
+    // 🛡️ Remove trailing slash for perfect matching (Covers /admin/ and /admin)
     if (currentPath.length > 1 && currentPath.endsWith('/')) {
         currentPath = currentPath.slice(0, -1);
     }
@@ -41,7 +53,7 @@ onAuthStateChanged(auth, async (user) => {
     // USER NOT LOGGED IN
     // ========================================================
     if (!user) {
-        if (!PUBLIC_PAGES.includes(currentPath)) {
+        if (!PUBLIC_PAGES.includes(currentPath) && !ADMIN_PAGES.includes(currentPath)) {
             window.location.href = '/login';
         }
         return;
@@ -76,26 +88,26 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     // ========================================================
-    // LOGIN / REGISTER REDIRECT
+    // 🚨 ADMIN PAGE PROTECTION (THE EXCLUSIVE LOCK)
     // ========================================================
-    if (currentPath === '/login' || currentPath === '/register') {
-        console.log("✅ LOGIN PAGE DETECTED.");
-        console.log("✅ User Role found in Firestore:", userData.role);
-        console.log("✅ Path we are redirecting to:", userData.role === "admin" ? "/admin" : "/dashboard");
-
-        if (userData.role === "admin") {
-            window.location.href = '/admin';
-        } else {
+    if (ADMIN_PAGES.includes(currentPath)) {
+        // If the user is NOT an admin, instantly boot them back to the dashboard
+        if (userData.role !== "admin") {
             window.location.href = '/dashboard';
+            return; 
         }
-        return;
     }
 
     // ========================================================
-    // ADMIN PAGE PROTECTION
+    // LOGIN / REGISTER REDIRECT
     // ========================================================
-    if (ADMIN_PAGES.includes(currentPath) && userData.role !== "admin") {
-        window.location.href = '/access-denied';
+    if (currentPath === '/login' || currentPath === '/register') {
+        console.log("✅ User Role found in Firestore:", userData.role);
+        if (userData.role === "admin") {
+            window.location.href = '/admin'; // Admin automatically goes here
+        } else {
+            window.location.href = '/dashboard'; // Members automatically go here
+        }
         return;
     }
 
@@ -168,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const map = {
                     "auth/user-not-found": "No account found.",
                     "auth/wrong-password": "Incorrect password.",
-                    "auth/invalid-credential": "Incorrect email or password. (Hint: Did you originally sign up with Google? Try Forgot Password.)",
+                    "auth/invalid-credential": "Incorrect email or password.",
                     "auth/too-many-requests": "Too many login attempts. Try again later.",
                     "auth/network-request-failed": "Network error. Check your internet connection."
                 };
