@@ -18,29 +18,29 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ============================================================
-// PUBLIC PAGES
+// PUBLIC PAGES (Static HTML filenames)
 // ============================================================
 
 const PUBLIC_PAGES = [
-    "/",
-    "/login",
-    "/register",
-    "/pending",
-    "/access-denied",
+    "index.html",
+    "login.html",
+    "register.html",
+    "pending.html",
+    "access-denied.html",
     "premium.html"
 ];
 
 // ============================================================
-// ADMIN PAGES
+// ADMIN PAGES (Fixed typos)
 // ============================================================
 
 const ADMIN_PAGES = [
-    "/admin",
+    "admin.html",
     "members.html",
     "admin-payments.html",
-    "academy-/admin",
-    "resources-/admin",
-    "videos-/admin"
+    "academy-admin.html",
+    "resources-admin.html",
+    "videos-admin.html"
 ];
 
 // ============================================================
@@ -49,13 +49,13 @@ const ADMIN_PAGES = [
 // ============================================================
 
 const PREMIUM_PAGES = [
-    "/premium-academy",
-    "/journal",
-    "/resources",
-    "/videos",
-    "/analytics",
-    "/history",
-    "/ai-review"
+    "premium-academy.html",
+    "journal.html",
+    "resources.html",
+    "videos.html",
+    "analytics.html",
+    "history.html",
+    "ai-review.html"
 ];
 
 // ============================================================
@@ -64,8 +64,8 @@ const PREMIUM_PAGES = [
 
 onAuthStateChanged(auth, async (user) => {
 
-    const currentPage =
-        window.location.pathname.split("/").pop() || "/";
+    // Get the actual filename of the current page
+    const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
     // ========================================================
     // USER NOT LOGGED IN
@@ -75,7 +75,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!PUBLIC_PAGES.includes(currentPage)) {
 
-            window.location.href = "/login";
+            window.location.href = "login.html";
 
         }
 
@@ -96,7 +96,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!snap.exists()) {
 
-            window.location.href = "/pending";
+            window.location.href = "pending.html";
 
             return;
         }
@@ -115,7 +115,7 @@ onAuthStateChanged(auth, async (user) => {
 
         console.error(err);
 
-        window.location.href = "/login";
+        window.location.href = "login.html";
 
         return;
 
@@ -125,12 +125,11 @@ onAuthStateChanged(auth, async (user) => {
     // ACCOUNT NOT ACTIVE
     // ========================================================
 
-    // 🛑 FIXED HERE: Checking 'status' instead of 'active'
     if (userData.status !== 'active') {
 
-        if (currentPage !== "/pending") {
+        if (currentPage !== "pending.html") {
 
-            window.location.href = "/pending";
+            window.location.href = "pending.html";
 
         }
 
@@ -142,17 +141,22 @@ onAuthStateChanged(auth, async (user) => {
     // ========================================================
 
     if (
-        currentPage === "/login" ||
-        currentPage === "/register"
+        currentPage === "login.html" ||
+        currentPage === "register.html"
     ) {
+
+        // 🛠️ DEBUG: Check your browser's console to see exactly what is returned
+        console.log("✅ User Role found in Firestore:", userData.role);
 
         if (userData.role === "admin") {
 
-            window.location.href = "/admin";
+            // Redirects to the admin.html file
+            window.location.href = "admin.html";
 
         } else {
 
-            window.location.href = "/dashboard";
+            // Redirects to the student dashboard
+            window.location.href = "dashboard.html";
 
         }
 
@@ -168,7 +172,7 @@ onAuthStateChanged(auth, async (user) => {
         userData.role !== "admin"
     ) {
 
-        window.location.href = "/access-denied";
+        window.location.href = "access-denied.html";
 
         return;
     }
@@ -242,7 +246,7 @@ export async function logoutUser() {
             "gtrades_user_logged_in"
         );
 
-        window.location.href = "/login";
+        window.location.href = "login.html";
 
     } catch (error) {
 
