@@ -9,6 +9,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- ===== IMPORTMAP FOR FIREBASE MODULES ===== -->
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+      }
+    }
+    </script>
 </head>
 <body>
 
@@ -20,12 +31,10 @@
             <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" draggable="false">
             <h2>GTRADES <span>AXIS™</span></h2>
         </div>
-        <ul class="menu">
+        <ul class="menu" id="sidebarMenu">
             <li class="active"><a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
             <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i><span>Premium Resources</span></a></li>
-           <li> <a href="/backtesting-lab.html">
-    <i class="fas fa-flask"></i> Backtesting Lab
-</a>
+            <li><a href="/backtesting-lab.html"><i class="fas fa-flask"></i> Backtesting Lab</a></li>
             <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i><span>Premium Academy</span></a></li>
             <li><a href="videos.html"><i class="fa-solid fa-circle-play"></i><span>Videos</span></a></li>
             <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i><span>Trading Journal</span></a></li>
@@ -127,7 +136,58 @@
     </main>
 </div>
 
-<!-- =========================== SCRIPTS ============================ -->
+<!-- ============================================================
+     JS: IMPORT YOUR ORIGINAL DASHBOARD SCRIPT
+============================================================ -->
 <script type="module" src="js/dashboard.js"></script>
+
+<!-- ============================================================
+     JS: AUTO-ADMIN BUTTON INJECTION
+============================================================ -->
+<script type="module">
+    // ─── IMPORT FIREBASE ──────────────────────────────────────────
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged } from "firebase/auth";
+    import { doc, getDoc } from "firebase/firestore";
+
+    // ─── INJECT ADMIN BUTTON ──────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                // Check if user exists and has the 'admin' role
+                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                    
+                    const sidebarNav = document.querySelector('#sidebarMenu'); // Target the <ul>
+                    if (sidebarNav) {
+                        
+                        // Check if the button already exists so we don't duplicate it on refresh
+                        if (!document.getElementById('adminPanelBtn')) {
+                            
+                            const adminLi = document.createElement('li');
+                            adminLi.id = 'adminPanelBtn';
+                            adminLi.style.marginTop = '24px'; // Add a nice spacing above the button
+                            adminLi.style.borderTop = '1px solid #2a3450'; // Separator line
+                            adminLi.style.paddingTop = '16px';
+                            
+                            adminLi.innerHTML = `
+                                <a href="/admin" style="color: var(--gold); font-weight: bold;">
+                                    <i class="fa-solid fa-shield-halved"></i> <span>Go to Admin Panel</span>
+                                </a>
+                            `;
+                            sidebarNav.appendChild(adminLi);
+                            
+                            console.log("✅ Admin Panel link injected into sidebar.");
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error checking admin status:", err);
+            }
+        }
+    });
+</script>
+
 </body>
 </html>
