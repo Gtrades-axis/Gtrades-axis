@@ -4,6 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GTRADES AXIS™ | Admin</title>
+
+  <!-- 🛡️ ABSOLUTE ADMIN LOCK (Placed here to stop non-admins immediately) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+    }
+  }
+  </script>
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged } from "firebase/auth";
+    import { doc, getDoc } from "firebase/firestore";
+
+    // This runs BEFORE the page loads, instantly blocking anyone who isn't an admin
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          // If user doesn't exist OR role is NOT "admin", immediately redirect to dashboard
+          if (!snap.exists() || snap.data().role !== "admin") {
+            // Clear the screen instantly so they don't see anything
+            document.body.innerHTML = ""; 
+            window.location.href = "/dashboard";
+          }
+        } catch (e) {
+          window.location.href = "/login";
+        }
+      } else {
+        window.location.href = "/login";
+      }
+    });
+  </script>
+  <!-- 🛡️ END OF ABSOLUTE LOCK -->
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -467,7 +504,7 @@
   </div>
 </div>
 
-<!-- ===== SCRIPTS ===== -->
+<!-- ===== MAIN APP SCRIPTS ===== -->
 <script type="importmap">
 {
   "imports": {
@@ -478,7 +515,7 @@
 }
 </script>
 
-<!-- COMPLETE SINGLE MODULE SCRIPT (NO EXTERNAL CONFLICTS) -->
+<!-- COMPLETE SINGLE MODULE SCRIPT -->
 <script type="module">
   import { auth, db } from "./js/firebase.js";
   import { signOut, onAuthStateChanged } from "firebase/auth";
@@ -551,7 +588,6 @@
   }
 
   function updateMemberStats(members) {
-    // ✅ Fixed: Added checks so it won't crash if an element is missing
     const totalEl = document.getElementById('totalMembers');
     const premiumEl = document.getElementById('premiumMembers');
     const premiumOverviewEl = document.getElementById('premiumOverview');
@@ -706,7 +742,6 @@
     let totalLessons = 0, draftLessons = 0;
     modules.forEach(mod => { totalLessons += (mod.lessons?.length || 0); if (!mod.published) draftLessons += (mod.lessons?.length || 0); });
     
-    // ✅ Fixed: Added checks so it won't crash if an element is missing
     if (countEl) countEl.textContent = totalLessons;
     if (overviewEl) overviewEl.textContent = modules.length;
     if (pendingEl) pendingEl.textContent = draftLessons;
@@ -770,10 +805,10 @@
 
   document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
     const existing = await loadModulesFromFirestore();
-    if (existing.length > 0) { if (!confirm('This will add 4 sample modules (Mod 1-4) with lessons and quizzes. Continue?')) return; }
+    if (existing.length > 0) { if (!confirm('This will add sample modules. Continue?')) return; }
     const samples = getSampleModules();
     for (const mod of samples) { await saveModuleToFirestore(mod); }
-    renderModules(); addActivity('Imported 4 sample modules (Mod 1-4)');
+    renderModules(); addActivity('Imported sample modules');
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -784,8 +819,6 @@
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('paymentsTableBody');
       let pending = 0, approved = 0, rejected = 0;
-      
-      // ✅ Fixed: Added checks so it won't crash if stat elements are missing
       const pendingEl = document.getElementById('payPending');
       const approvedEl = document.getElementById('payApproved');
       const rejectedEl = document.getElementById('payRejected');
@@ -858,7 +891,6 @@
     const videos = getVideosFromStorage();
     const videoCountEl = document.getElementById('videoCount');
     const videoOverviewEl = document.getElementById('videoOverview');
-    // ✅ Fixed: Added checks
     if (videoCountEl) videoCountEl.textContent = videos.length;
     if (videoOverviewEl) videoOverviewEl.textContent = videos.length;
   }
