@@ -747,11 +747,3 @@ function(){
 
 
 };
-
-
-
-
-
-console.log(
-"✅ GTRADES-AXIS Dashboard Loaded"
-);
