@@ -309,7 +309,7 @@
           </div>
         </section>
 
-        <!-- RECENT TRADES – SHOWS PENDING + CLOSED (MAX 4 PENDING, THEN CLOSED) -->
+        <!-- RECENT TRADES – SHOWS ONLY PENDING (MAX 4) -->
         <section class="recent-trades-card">
           <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Trades</h2>
           <div id="recentTrades"></div>
@@ -568,20 +568,18 @@
 
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
-      // Auto‑negate profit if result is Loss
+      // ─── AUTO‑NEGATE LOSS ──────────────────────────────────
       let profit = num('profit');
       const result = val('result') || 'Pending';
       if (result === 'Loss' && profit > 0) {
         profit = -profit;
       }
 
-      // Calculate RR from profit / risk if risk > 0
+      // ─── AUTO‑CALCULATE RR FROM PROFIT / RISK ─────────────
       let rr = num('rr');
       const riskPct = num('risk');
       if (riskPct > 0 && profit !== 0) {
-        // If profit is negative (loss), RR becomes negative
         rr = profit / riskPct;
-        // Round to 2 decimals
         rr = Math.round(rr * 100) / 100;
       }
 
@@ -772,33 +770,26 @@
       }
     }
 
-    // ─── RECENT TRADES ── SHOW PENDING + CLOSED (MAX 4 PENDING, THEN CLOSED) ──
+    // ─── RECENT TRADES – ONLY PENDING (MAX 4) ──────────────
     function loadRecentTrades() {
       const container = document.getElementById('recentTrades');
       if (!container) return;
-
-      // First show pending trades (max 4)
       const pendingTrades = trades.filter(t => t.status === 'Pending' || t.result === 'Pending');
-      const closedTrades = trades.filter(t => t.status === 'Closed');
-      const displayTrades = [...pendingTrades.slice(0, 4), ...closedTrades.slice(0, 4 - Math.min(pendingTrades.length, 4))];
+      const displayTrades = pendingTrades.slice(0, 4);
 
       if (displayTrades.length === 0) {
-        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No trades recorded yet.</div>';
+        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No pending trades.</div>';
         return;
       }
 
       container.innerHTML = '';
       displayTrades.forEach(t => {
-        const statusClass = (t.status === 'Pending' || t.result === 'Pending') ? 'pending' : 'closed';
-        const statusLabel = (t.status === 'Pending' || t.result === 'Pending') ? 'Pending' : 'Closed';
         container.innerHTML += `
           <div class="trade-row">
             <div><strong>${t.pair || '?'}</strong><br><span style="font-size:12px; color: var(--text-secondary);">${t.direction || ''}</span></div>
             <div>${t.entryModel || '-'}</div>
-            <div><span class="status ${statusClass}">${statusLabel}</span></div>
-            <div>
-              ${statusLabel === 'Pending' ? `<button onclick="closeTrade('${t.id}')" class="btn">Close</button>` : `<span style="font-size:12px; color:var(--text-secondary);">${t.result}</span>`}
-            </div>
+            <div><span class="status pending">Pending</span></div>
+            <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
           </div>
         `;
       });
@@ -1037,7 +1028,7 @@
       }
     });
 
-   
+    console.log('✅ Journal fully initialized.');
   }
 
   // ─── LOCK LOGIC ────────────────────────────────────────────
@@ -1096,7 +1087,7 @@
     });
   }
 
-
+  console.log('✅ Journal lock script loaded.');
 </script>
 
 </body>

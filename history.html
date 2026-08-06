@@ -128,7 +128,7 @@
 
         .table-wrapper { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; margin-bottom: 28px; }
         .table-scroll { overflow-x: auto; padding: 4px 0; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; } /* increased min-width for new column */
         thead { background: var(--bg-secondary); border-bottom: 2px solid var(--border-color); }
         thead th { padding: 14px 16px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); white-space: nowrap; cursor: pointer; user-select: none; transition: 0.25s; }
         thead th:hover { color: var(--text-primary); }
@@ -313,6 +313,8 @@
                                 <th data-sort="takeProfit">TP <i class="fa-solid fa-sort"></i></th>
                                 <th data-sort="rr">RR <i class="fa-solid fa-sort"></i></th>
                                 <th data-sort="profit">P/L <i class="fa-solid fa-sort"></i></th>
+                                <!-- NEW: Commission column -->
+                                <th data-sort="commission">Comm. <i class="fa-solid fa-sort"></i></th>
                                 <th data-sort="result">Result <i class="fa-solid fa-sort"></i></th>
                                 <th>Chart Links</th>
                                 <th>Actions</th>
@@ -370,10 +372,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', async () => {
 // ─── HISTORY INIT ──────────────────────────────────────────
 function initHistory(userData) {
   console.log('✅ History unlocked – initializing...');
-
-  // ─── PASTE YOUR ENTIRE HISTORY JAVASCRIPT HERE ──────────
-  // (All the code from the <script> tag in your original history.html)
-  // For brevity, I'll include a condensed version – you must copy your full logic.
 
   const STORAGE_KEY = "trades";
   let trades = [];
@@ -433,7 +431,7 @@ function initHistory(userData) {
   function renderTable() {
     const data = filteredTrades;
     if (data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><i class="fa-solid fa-inbox"></i><h3>No trades found</h3><p>Start journaling your trades in the <a href="journal.html" style="color:var(--accent-blue);text-decoration:none;">Trading Journal</a>.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><i class="fa-solid fa-inbox"></i><h3>No trades found</h3><p>Start journaling your trades in the <a href="journal.html" style="color:var(--accent-blue);text-decoration:none;">Trading Journal</a>.</p></div></td></tr>`;
       showingCount.textContent = '0';
       totalCount.textContent = trades.length;
       updateStats();
@@ -443,7 +441,7 @@ function initHistory(userData) {
     sorted.sort((a, b) => {
       let valA = a[sortKey] ?? '';
       let valB = b[sortKey] ?? '';
-      if (['profit','rr','entry','stopLoss','takeProfit'].includes(sortKey)) {
+      if (['profit','rr','entry','stopLoss','takeProfit','commission'].includes(sortKey)) {
         valA = parseFloat(valA) || 0;
         valB = parseFloat(valB) || 0;
       }
@@ -465,6 +463,10 @@ function initHistory(userData) {
       const profitDisplay = profit > 0 ? `+$${profit.toFixed(2)}` : profit < 0 ? `-$${Math.abs(profit).toFixed(2)}` : '$0.00';
       const resultClass = t.result?.toLowerCase() === 'win' ? 'win' : t.result?.toLowerCase() === 'loss' ? 'loss' : 'breakeven';
       const directionClass = t.direction?.toLowerCase() === 'buy' ? 'buy' : 'sell';
+
+      // Commission display
+      const commission = parseFloat(t.commission) || 0;
+      const commissionDisplay = commission !== 0 ? `$${commission.toFixed(2)}` : '—';
 
       let chartLinksHtml = '';
       const links = [
@@ -494,6 +496,7 @@ function initHistory(userData) {
           <td>${t.takeProfit ?? '—'}</td>
           <td>${t.rr ? t.rr.toFixed(1) : '—'}</td>
           <td class="trade-profit ${profitClass}">${profitDisplay}</td>
+          <td>${commissionDisplay}</td> <!-- NEW -->
           <td><span class="badge-result ${resultClass}">${t.result || '—'}</span></td>
           <td><div class="chart-links">${chartLinksHtml}</div></td>
           <td>
@@ -701,12 +704,12 @@ function initHistory(userData) {
 
   function exportCSV() {
     if (filteredTrades.length === 0) { alert('No trades to export.'); return; }
-    const headers = ['Date','Pair','Direction','Entry','Stop Loss','Take Profit','RR','Profit','Result','Notes'];
+    const headers = ['Date','Pair','Direction','Entry','Stop Loss','Take Profit','RR','Profit','Commission','Result','Notes'];
     const rows = filteredTrades.map(t => [
       t.date || '', t.pair || '', t.direction || '',
       t.entry ?? '', t.stopLoss ?? '', t.takeProfit ?? '',
-      t.rr ?? '', t.profit ?? '', t.result || '',
-      (t.notes || '').replace(/,/g, ';')
+      t.rr ?? '', t.profit ?? '', t.commission ?? '',
+      t.result || '', (t.notes || '').replace(/,/g, ';')
     ]);
     let csv = headers.join(',') + '\n';
     rows.forEach(row => csv += row.join(',') + '\n');
