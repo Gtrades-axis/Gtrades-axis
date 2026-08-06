@@ -309,7 +309,7 @@
           </div>
         </section>
 
-        <!-- RECENT TRADES – NOW SHOWS ONLY PENDING, MAX 4 -->
+        <!-- RECENT TRADES – SHOWS PENDING + CLOSED (MAX 4 PENDING, THEN CLOSED) -->
         <section class="recent-trades-card">
           <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Trades</h2>
           <div id="recentTrades"></div>
@@ -564,13 +564,28 @@
         el.addEventListener('change', computeRR);
       }
     });
-    // Run once to set initial value
     setTimeout(computeRR, 10);
 
     // ─── BUILD TRADE OBJECT ──────────────────────────────────
     function buildTradeFromForm(isUpdate) {
-      const resultVal = val('result') || 'Pending';
-      const statusVal = resultVal === 'Pending' ? 'Pending' : 'Closed';
+      // Auto‑negate profit if result is Loss
+      let profit = num('profit');
+      const result = val('result') || 'Pending';
+      if (result === 'Loss' && profit > 0) {
+        profit = -profit;
+      }
+
+      // Calculate RR from profit / risk if risk > 0
+      let rr = num('rr');
+      const riskPct = num('risk');
+      if (riskPct > 0 && profit !== 0) {
+        // If profit is negative (loss), RR becomes negative
+        rr = profit / riskPct;
+        // Round to 2 decimals
+        rr = Math.round(rr * 100) / 100;
+      }
+
+      const statusVal = result === 'Pending' ? 'Pending' : 'Closed';
 
       const trade = {
         id: isUpdate && editingTrade ? editingTrade.id : Date.now() + '_' + Math.random().toString(36).slice(2, 8),
@@ -613,11 +628,11 @@
         entry: num('entry'),
         stopLoss: num('stopLoss'),
         takeProfit: num('takeProfit'),
-        risk: num('risk'),
-        rr: num('rr'),
-        profit: num('profit'),
+        risk: riskPct,
+        rr: rr,
+        profit: profit,
         commission: num('commission'),
-        result: resultVal,
+        result: result,
         confidence: val('confidence'),
         emotion: val('emotion'),
         discipline: val('discipline'),
@@ -645,7 +660,6 @@
       console.log('💾 SaveTrade triggered!');
 
       const form = e.target;
-      // Use editingTrade to determine if we are updating
       const isUpdate = editingTrade !== null;
       console.log('Is update mode?', isUpdate);
 
@@ -665,7 +679,6 @@
         }
         saveTrades();
         alert('✅ Trade updated!');
-        // Reset update mode
         editingTrade = null;
         const submitBtn = document.querySelector('#saveTradeBtn');
         if (submitBtn) {
@@ -757,61 +770,41 @@
         const p = netProfit;
         profitEl.className = p > 0 ? 'value-positive' : p < 0 ? 'value-negative' : 'value-neutral';
       }
-      calculatePerformance(all);
     }
 
-    function calculatePerformance(tradesArray) {
-      if (tradesArray.length === 0) {
-        setText('bestPair', '-');
-        setText('worstPair', '-');
-        setText('bestSession', '-');
-        setText('winStreak', '0');
-        return;
-      }
-      const pairStats = {};
-      const sessionStats = {};
-      tradesArray.forEach(t => {
-        const pair = t.pair || '?';
-        const session = t.session || '?';
-        const profit = parseFloat(t.profit) || 0;
-        pairStats[pair] = (pairStats[pair] || 0) + profit;
-        sessionStats[session] = (sessionStats[session] || 0) + profit;
-      });
-      let bestPair = Object.keys(pairStats).sort((a, b) => pairStats[b] - pairStats[a])[0] || '-';
-      let worstPair = Object.keys(pairStats).sort((a, b) => pairStats[a] - pairStats[b])[0] || '-';
-      let bestSession = Object.keys(sessionStats).sort((a, b) => sessionStats[b] - sessionStats[a])[0] || '-';
-      setText('bestPair', bestPair);
-      setText('worstPair', worstPair);
-      setText('bestSession', bestSession);
-    }
-
-    // ─── RECENT TRADES ── SHOW ONLY PENDING, MAX 4 ──────────
+    // ─── RECENT TRADES ── SHOW PENDING + CLOSED (MAX 4 PENDING, THEN CLOSED) ──
     function loadRecentTrades() {
       const container = document.getElementById('recentTrades');
       if (!container) return;
 
-      // Filter trades that are pending
+      // First show pending trades (max 4)
       const pendingTrades = trades.filter(t => t.status === 'Pending' || t.result === 'Pending');
-      const displayTrades = pendingTrades.slice(0, 4); // limit to 4
+      const closedTrades = trades.filter(t => t.status === 'Closed');
+      const displayTrades = [...pendingTrades.slice(0, 4), ...closedTrades.slice(0, 4 - Math.min(pendingTrades.length, 4))];
 
       if (displayTrades.length === 0) {
-        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No pending trades.</div>';
+        container.innerHTML = '<div style="padding: 12px 0; color: var(--text-secondary);">No trades recorded yet.</div>';
         return;
       }
+
       container.innerHTML = '';
       displayTrades.forEach(t => {
+        const statusClass = (t.status === 'Pending' || t.result === 'Pending') ? 'pending' : 'closed';
+        const statusLabel = (t.status === 'Pending' || t.result === 'Pending') ? 'Pending' : 'Closed';
         container.innerHTML += `
           <div class="trade-row">
             <div><strong>${t.pair || '?'}</strong><br><span style="font-size:12px; color: var(--text-secondary);">${t.direction || ''}</span></div>
             <div>${t.entryModel || '-'}</div>
-            <div><span class="status pending">Pending</span></div>
-            <div><button onclick="closeTrade('${t.id}')" class="btn">Close</button></div>
+            <div><span class="status ${statusClass}">${statusLabel}</span></div>
+            <div>
+              ${statusLabel === 'Pending' ? `<button onclick="closeTrade('${t.id}')" class="btn">Close</button>` : `<span style="font-size:12px; color:var(--text-secondary);">${t.result}</span>`}
+            </div>
           </div>
         `;
       });
     }
 
-    // ─── CLOSE TRADE – SIMPLIFIED ──────────────────────────
+    // ─── CLOSE TRADE – AUTO‑NEGATES LOSS ──────────────────
     window.closeTrade = function(id) {
       const trade = trades.find(t => t.id === id);
       if (!trade) return;
@@ -821,19 +814,30 @@
         return;
       }
 
-      // Only ask for: Outcome, Profit/Loss, Commission
       const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
       if (!outcome) return;
 
-      const profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
+      let profit = parseFloat(prompt("Profit/Loss ($)", 0)) || 0;
       const commission = parseFloat(prompt("Commission ($)", 0)) || 0;
+
+      // ─── AUTO‑NEGATE LOSS ──────────────────────────────────
+      if (outcome.toLowerCase() === 'loss' && profit > 0) {
+        profit = -profit;
+      }
 
       trade.status = 'Closed';
       trade.closed = new Date().toISOString();
       trade.result = outcome;
       trade.profit = profit;
       trade.commission = commission;
-      // Keep the planned RR
+
+      // Re‑calculate RR based on profit / risk
+      const risk = trade.risk || 1;
+      if (risk > 0 && profit !== 0) {
+        trade.rr = Math.round((profit / risk) * 100) / 100;
+      } else {
+        trade.rr = 0;
+      }
 
       saveTrades();
       refreshUI();
@@ -847,8 +851,8 @@
         RESULT      : ${trade.result}
         PROFIT      : $${trade.profit}
         RR          : ${trade.rr}
-        LESSON      : ${trade.reviewNote?.lesson || '-'}
-        IMPROVEMENT : ${trade.reviewNote?.improvement || '-'}
+        LESSON      : ${trade.lessonLearned || '-'}
+        IMPROVEMENT : ${trade.improvementPlan || '-'}
       `);
     }
 
@@ -1033,7 +1037,7 @@
       }
     });
 
-    console.log('✅ Journal fully initialized.');
+   
   }
 
   // ─── LOCK LOGIC ────────────────────────────────────────────
@@ -1092,7 +1096,7 @@
     });
   }
 
-  console.log('✅ Journal lock script loaded.');
+
 </script>
 
 </body>
