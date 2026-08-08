@@ -1,365 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Premium Resources | GTRADES-AXIS™</title>
-  <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <meta name="description" content="GTRADES-AXIS™ premium trading resources, strategies, journals and indicators.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
   <style>
-    /* ── Existing global styles (keep) ── */
-    :focus-visible {
-      outline: 2px solid #0ea5e9;
-      outline-offset: 2px;
-      border-radius: 4px;
-    }
-    .skip-to-main {
-      position: absolute;
-      top: -40px;
-      left: 0;
-      background: #0ea5e9;
-      color: #fff;
-      padding: 8px 16px;
-      z-index: 1000;
-      text-decoration: none;
-      border-radius: 0 0 4px 0;
-    }
-    .skip-to-main:focus {
-      top: 0;
-    }
-    .skeleton {
-      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 12px;
-      height: 200px;
-    }
-    @keyframes shimmer {
-      0% {
-        background-position: 200% 0;
-      }
-      100% {
-        background-position: -200% 0;
-      }
-    }
-    .status-message {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #94a3b8;
-      font-size: 0.95rem;
-      display: none;
-    }
-    .status-message.visible {
-      display: block;
-    }
-    .search-wrapper {
-      position: relative;
-      max-width: 400px;
-      width: 100%;
-    }
-    .search-wrapper input {
-      width: 100%;
-      padding-right: 2.5rem;
-    }
-    .search-clear {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 1rem;
-      display: none;
-      padding: 4px;
-      border-radius: 50%;
-      transition: color 0.2s;
-    }
-    .search-clear:hover {
-      color: #fff;
-    }
-    .search-wrapper input:not(:placeholder-shown)~.search-clear {
-      display: block;
+    :root{
+      --bg:#080b13;
+      --panel:#101521;
+      --panel2:#141a29;
+      --border:#263149;
+      --text:#f4f7ff;
+      --muted:#8f9bb3;
+      --blue:#4f7cff;
+      --blue2:#2f5df5;
+      --cyan:#00d4ff;
+      --green:#00c897;
+      --gold:#f5b942;
+      --red:#ff4766;
+      --shadow:0 18px 50px rgba(0,0,0,.28);
     }
 
-    /* ── Enhanced Resource Card Styles ── */
-    .resource-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 24px;
-      margin-top: 24px;
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:Poppins,sans-serif;
+      background:
+        radial-gradient(circle at 80% 0%,rgba(79,124,255,.10),transparent 30%),
+        radial-gradient(circle at 20% 100%,rgba(0,212,255,.05),transparent 28%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    a{text-decoration:none;color:inherit}
+
+    .app{display:flex;min-height:100vh}
+
+    /* SIDEBAR */
+    .sidebar{
+      width:260px;
+      min-height:100vh;
+      position:fixed;
+      left:0;
+      top:0;
+      bottom:0;
+      z-index:100;
+      background:rgba(13,18,31,.96);
+      border-right:1px solid var(--border);
+      padding:25px 16px 18px;
+      display:flex;
+      flex-direction:column;
+      backdrop-filter:blur(16px);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:0 9px 26px;
+    }
+    .brand-mark{
+      width:39px;height:39px;
+      border-radius:10px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--blue),var(--cyan));
+      box-shadow:0 8px 25px rgba(79,124,255,.25);
+      font-weight:800;
+      color:white;
+      font-size:14px;
+    }
+    .brand-name{font-size:17px;font-weight:800;letter-spacing:-.4px}
+    .brand-name span{color:var(--blue)}
+
+    .nav-title{
+      color:#56627a;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      padding:0 13px 10px;
+    }
+    .menu{list-style:none}
+    .menu li{margin:5px 0}
+    .menu a{
+      display:flex;
+      align-items:center;
+      gap:13px;
+      min-height:47px;
+      padding:11px 13px;
+      border-radius:11px;
+      color:#9ba7bd;
+      font-size:13px;
+      font-weight:500;
+      transition:.2s ease;
+      border:1px solid transparent;
+    }
+    .menu a i{width:20px;text-align:center;font-size:15px}
+    .menu a:hover{
+      color:white;
+      background:#171e2d;
+      border-color:#222d43;
+    }
+    .menu li.active a{
+      color:white;
+      background:linear-gradient(90deg,rgba(79,124,255,.22),rgba(79,124,255,.08));
+      border-color:rgba(79,124,255,.30);
+      box-shadow:inset 3px 0 0 var(--blue);
+    }
+    .logout{
+      margin-top:auto;
+      width:100%;
+      border:1px solid rgba(255,71,102,.18);
+      background:rgba(255,71,102,.08);
+      color:#ff6380;
+      border-radius:10px;
+      padding:12px;
+      font-weight:600;
+      transition:.2s;
+    }
+    .logout:hover{background:rgba(255,71,102,.14)}
+
+    /* MAIN */
+    .main{
+      margin-left:260px;
+      width:calc(100% - 260px);
+      padding:34px 42px 30px;
+    }
+    .topbar{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:25px;
+      margin-bottom:27px;
+    }
+    .eyebrow{
+      color:var(--blue);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1.6px;
+      font-weight:700;
+      margin-bottom:7px;
+    }
+    h1{
+      font-size:31px;
+      line-height:1.15;
+      letter-spacing:-.7px;
+      margin-bottom:8px;
+    }
+    .subtitle{color:var(--muted);font-size:13px}
+    .member-chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 13px;
+      border-radius:30px;
+      border:1px solid rgba(0,200,151,.18);
+      background:rgba(0,200,151,.07);
+      color:#63ddb9;
+      font-size:11px;
+      font-weight:600;
+      white-space:nowrap;
     }
 
-    .quick-card {
-      background: var(--bg-card, #1a1f2f);
-      border: 1px solid var(--border-color, #2a3450);
-      border-radius: 16px;
-      padding: 24px 20px;
-      transition: all 0.25s ease;
-      position: relative;
-      display: flex;
-      flex-direction: column;
+    .toolbar{
+      background:rgba(16,21,33,.78);
+      border:1px solid var(--border);
+      border-radius:15px;
+      padding:14px;
+      margin-bottom:23px;
+      box-shadow:var(--shadow);
     }
-    .quick-card:hover {
-      border-color: var(--accent-blue, #4f7cff);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    .search-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .search{
+      position:relative;
+      flex:1;
+    }
+    .search i{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      color:#68748d;
+      font-size:13px;
+    }
+    .search input{
+      width:100%;
+      height:45px;
+      border:1px solid var(--border);
+      background:#0b101b;
+      color:white;
+      border-radius:10px;
+      padding:0 15px 0 40px;
+      outline:none;
+      transition:.2s;
+      font-size:12px;
+    }
+    .search input:focus{
+      border-color:rgba(79,124,255,.7);
+      box-shadow:0 0 0 3px rgba(79,124,255,.09);
+    }
+    .refresh{
+      width:45px;height:45px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#151c2b;
+      color:#9eabc1;
+    }
+    .refresh:hover{color:white;border-color:#3b4a69}
+
+    .filters{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:12px;
+    }
+    .filter{
+      border:1px solid var(--border);
+      background:#151c2b;
+      color:#8f9bb3;
+      padding:8px 13px;
+      border-radius:22px;
+      font-size:11px;
+      transition:.2s;
+    }
+    .filter:hover{color:white;border-color:#3a4969}
+    .filter.active{
+      color:white;
+      border-color:var(--blue);
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      box-shadow:0 6px 18px rgba(79,124,255,.2);
     }
 
-    .quick-card .quick-icon {
-      font-size: 2.2rem;
-      color: var(--accent-blue, #4f7cff);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* CARDS */
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
     }
-    .quick-card .quick-icon .lock-icon {
-      font-size: 1rem;
-      color: #f5a623;
-      background: rgba(245, 166, 35, 0.15);
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-      margin-left: auto;
+    .section-head h2{font-size:16px}
+    .count{font-size:11px;color:#68758d}
+
+    .resource-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(255px,1fr));
+      gap:17px;
+    }
+    .card{
+      background:linear-gradient(180deg,#121827,#0f1420);
+      border:1px solid var(--border);
+      border-radius:15px;
+      overflow:hidden;
+      position:relative;
+      transition:.22s ease;
+      box-shadow:0 10px 35px rgba(0,0,0,.16);
+    }
+    .card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(79,124,255,.55);
+      box-shadow:0 16px 45px rgba(0,0,0,.28);
+    }
+    .card-media{
+      height:145px;
+      position:relative;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 30% 20%,rgba(79,124,255,.22),transparent 35%),
+        linear-gradient(135deg,#151e33,#0a0f19);
+      border-bottom:1px solid var(--border);
+    }
+    .card-media img{
+      width:100%;height:100%;object-fit:cover;
+      display:block;
+    }
+    .media-icon{
+      width:61px;height:61px;
+      border-radius:17px;
+      display:grid;place-items:center;
+      font-size:24px;
+      color:#8eb0ff;
+      background:rgba(79,124,255,.12);
+      border:1px solid rgba(79,124,255,.25);
+    }
+    .type-badge{
+      position:absolute;
+      left:11px;top:11px;
+      padding:5px 8px;
+      border-radius:6px;
+      background:rgba(5,8,14,.78);
+      border:1px solid rgba(255,255,255,.10);
+      color:#b9c4d8;
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      backdrop-filter:blur(8px);
+    }
+    .access-badge{
+      position:absolute;
+      right:11px;top:11px;
+      padding:5px 8px;
+      border-radius:6px;
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+    }
+    .premium{
+      color:#f6c85f;
+      background:rgba(245,185,66,.13);
+      border:1px solid rgba(245,185,66,.2);
+    }
+    .free{
+      color:#58dcb8;
+      background:rgba(0,200,151,.11);
+      border:1px solid rgba(0,200,151,.18);
+    }
+    .card-body{padding:15px}
+    .category{
+      color:#6e83b0;
+      font-size:9px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      margin-bottom:6px;
+    }
+    .title{
+      color:#f2f5fb;
+      font-size:14px;
+      font-weight:650;
+      line-height:1.45;
+      min-height:40px;
+      margin-bottom:6px;
+    }
+    .description{
+      color:#7f8ba1;
+      font-size:10.5px;
+      line-height:1.55;
+      min-height:33px;
+      margin-bottom:13px;
+    }
+    .card-footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .meta{
+      color:#66738b;
+      font-size:9px;
+    }
+    .action{
+      border:1px solid rgba(79,124,255,.3);
+      background:rgba(79,124,255,.10);
+      color:#8dacff;
+      padding:8px 11px;
+      border-radius:8px;
+      font-size:10px;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition:.2s;
+    }
+    .action:hover{
+      background:var(--blue);
+      color:white;
+      border-color:var(--blue);
+    }
+    .action.disabled{
+      opacity:.45;
+      pointer-events:none;
     }
 
-    .quick-card h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-primary, #e8edf5);
-      margin-bottom: 6px;
+    .empty,.loading,.error{
+      grid-column:1/-1;
+      border:1px dashed #2c3850;
+      border-radius:14px;
+      padding:55px 20px;
+      text-align:center;
+      color:#758199;
+      background:rgba(16,21,33,.45);
+    }
+    .empty i,.loading i,.error i{
+      display:block;
+      font-size:28px;
+      margin-bottom:12px;
+      color:#52617c;
+    }
+    .error i{color:var(--red)}
+
+    /* MODAL */
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:500;
+      background:rgba(0,0,0,.82);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:25px;
+      backdrop-filter:blur(7px);
+    }
+    .modal.open{display:flex}
+    .modal-box{
+      width:min(950px,100%);
+      background:#0d121d;
+      border:1px solid #2b3852;
+      border-radius:15px;
+      overflow:hidden;
+      box-shadow:0 30px 100px rgba(0,0,0,.55);
+    }
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:13px 16px;
+      border-bottom:1px solid var(--border);
+    }
+    .modal-title{font-size:13px;font-weight:600}
+    .close{
+      border:0;background:transparent;color:#8d99b0;font-size:22px;
+      width:32px;height:32px;border-radius:7px;
+    }
+    .close:hover{background:#1b2231;color:white}
+    .viewer{
+      background:#000;
+      aspect-ratio:16/9;
+    }
+    .viewer iframe,.viewer video{width:100%;height:100%;border:0;display:block}
+
+    footer{
+      margin-top:34px;
+      padding:17px 0 5px;
+      border-top:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      color:#58657c;
+      font-size:10px;
     }
 
-    .quick-card p {
-      font-size: 14px;
-      color: var(--text-secondary, #9aa4bf);
-      line-height: 1.5;
-      flex: 1;
-      margin-bottom: 16px;
+    @media(max-width:850px){
+      .sidebar{width:76px;padding:20px 9px}
+      .brand{justify-content:center;padding:0 0 22px}
+      .brand-name,.nav-title,.menu a span{display:none}
+      .menu a{justify-content:center;padding:12px}
+      .logout{font-size:0}
+      .logout i{font-size:15px}
+      .main{margin-left:76px;width:calc(100% - 76px);padding:25px 20px}
     }
-
-    .quick-card .resource-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .quick-card .resource-meta .badge {
-      display: inline-block;
-      padding: 2px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge-category {
-      background: rgba(79, 124, 255, 0.12);
-      color: var(--accent-blue, #4f7cff);
-    }
-    .badge-free {
-      background: rgba(0, 200, 151, 0.12);
-      color: var(--green, #00c897);
-    }
-    .badge-premium {
-      background: rgba(245, 166, 35, 0.12);
-      color: var(--gold, #f5a623);
-    }
-
-    .quick-card .resource-download {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: var(--accent-blue, #4f7cff);
-      color: #fff;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 14px;
-      text-decoration: none;
-      transition: 0.25s;
-      margin-top: auto;
-      width: 100%;
-      border: none;
-      cursor: pointer;
-    }
-    .quick-card .resource-download:hover {
-      background: #3a66e0;
-      transform: translateY(-2px);
-    }
-
-    /* ── Locked card overlay ── */
-    .quick-card.locked {
-      opacity: 0.85;
-      border-color: #2a3450;
-      background: #131724;
-      position: relative;
-    }
-    .quick-card.locked .lock-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(11, 13, 21, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      flex-direction: column;
-      gap: 8px;
-      backdrop-filter: blur(2px);
-    }
-    .quick-card.locked .lock-overlay i {
-      font-size: 2.5rem;
-      color: #f5a623;
-    }
-    .quick-card.locked .lock-overlay span {
-      color: #e8edf5;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-    .quick-card.locked .lock-overlay small {
-      color: #94a3b8;
-      font-size: 0.75rem;
-    }
-    .quick-card.locked .resource-download {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-
-    /* ── Loading card ── */
-    .loading-card {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-secondary, #9aa4bf);
-    }
-    .loading-card i {
-      font-size: 2rem;
-      margin-bottom: 12px;
-      display: block;
-      color: var(--accent-blue, #4f7cff);
-    }
-    .loading-card h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    /* ── Responsive tweaks ── */
-    @media (max-width: 640px) {
-      .resource-grid {
-        grid-template-columns: 1fr;
-      }
-      .quick-card {
-        padding: 18px 16px;
-      }
-      .search-wrapper {
-        max-width: 100%;
-      }
+    @media(max-width:580px){
+      .main{padding:20px 13px}
+      .topbar{align-items:flex-start}
+      h1{font-size:25px}
+      .member-chip{display:none}
+      .search-row{gap:7px}
+      .resource-grid{grid-template-columns:1fr}
+      footer{gap:10px;flex-direction:column}
     }
   </style>
 </head>
 
 <body>
-  <a href="#main-content" class="skip-to-main">Skip to main content</a>
+<div class="app">
 
-  <div class="dashboard">
-    <!-- SIDEBAR -->
-    <aside class="sidebar" aria-label="Main navigation">
-      <div class="brand">
-        <img src="images/logo.png" alt="GTRADES-AXIS company logo" />
-        <h2>GTRADES <span>AXIS™</span></h2>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">GA</div>
+      <div class="brand-name">GTRADES <span>AXIS™</span></div>
+    </div>
+
+    <div class="nav-title">Member Portal</div>
+
+    <ul class="menu">
+      <li><a href="/dashboard"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
+      <li class="active"><a href="/resources"><i class="fa-solid fa-folder-open"></i><span>Premium Resources</span></a></li>
+      <li><a href="/premium-academy"><i class="fa-solid fa-graduation-cap"></i><span>Premium Academy</span></a></li>
+      <li><a href="/videos"><i class="fa-solid fa-circle-play"></i><span>Videos</span></a></li>
+      <li><a href="/journal"><i class="fa-solid fa-chart-line"></i><span>Trading Journal</span></a></li>
+      <li><a href="/profile"><i class="fa-solid fa-user"></i><span>My Profile</span></a></li>
+      <li><a href="/support"><i class="fa-solid fa-headset"></i><span>Support</span></a></li>
+    </ul>
+
+    <button class="logout" id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">GTRADES-AXIS™ LIBRARY</div>
+        <h1>Premium Resources</h1>
+        <p class="subtitle">Your trading tools, strategies, journals and learning materials.</p>
       </div>
-      <nav aria-label="Primary">
-        <ul class="menu">
-          <li><a href="dashboard.html"><i class="fa-solid fa-house" aria-hidden="true"></i><span>Dashboard</span></a></li>
-          <li class="active"><a href="resources.html" aria-current="page"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><span>Premium Resources</span></a></li>
-          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i><span>Premium Academy</span></a></li>
-          <li><a href="videos.html"><i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>Videos</span></a></li>
-          <li><a href="journal.html"><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Trading Journal</span></a></li>
-          <li><a href="profile.html"><i class="fa-solid fa-user" aria-hidden="true"></i><span>My Profile</span></a></li>
-          <li><a href="support.html"><i class="fa-solid fa-headset" aria-hidden="true"></i><span>Support</span></a></li>
-        </ul>
-      </nav>
-      <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
-    </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content" id="main-content">
-      <header class="topbar">
-        <div>
-          <h1 id="page-heading">Premium Resources</h1>
-          <p>Download all premium trading materials.</p>
+      <div class="member-chip" id="accessChip">
+        <i class="fa-solid fa-shield-check"></i>
+        Member Access
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="search-row">
+        <div class="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="search" placeholder="Search resources..." autocomplete="off">
         </div>
-      </header>
-
-      <!-- SEARCH -->
-      <div class="search-box">
-        <div class="search-wrapper">
-          <label for="searchInput" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Search resources</label>
-          <input type="text" id="searchInput" placeholder="Search resources…" aria-label="Search resources" />
-          <button class="search-clear" id="clearSearch" aria-label="Clear search" type="button">
-            <i class="fa-solid fa-times" aria-hidden="true"></i>
-          </button>
-        </div>
+        <button class="refresh" id="refreshBtn" title="Refresh resources">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
       </div>
 
-      <!-- FILTERS -->
-      <div class="resource-filters" role="group" aria-label="Filter by resource type">
-        <button class="filter-btn active" data-category="All" aria-pressed="true">All</button>
-        <button class="filter-btn" data-category="PDF" aria-pressed="false">PDFs</button>
-        <button class="filter-btn" data-category="Indicator" aria-pressed="false">Indicators</button>
-        <button class="filter-btn" data-category="Journal" aria-pressed="false">Journals</button>
-        <button class="filter-btn" data-category="Strategy" aria-pressed="false">Strategies</button>
-        <button class="filter-btn" data-category="Video" aria-pressed="false">Videos</button>
+      <div class="filters" id="filters">
+        <button class="filter active" data-category="All">All</button>
+        <button class="filter" data-category="PDFs">PDFs</button>
+        <button class="filter" data-category="Indicators">Indicators</button>
+        <button class="filter" data-category="Journals">Journals</button>
+        <button class="filter" data-category="Strategies">Strategies</button>
+        <button class="filter" data-category="Videos">Videos</button>
       </div>
+    </section>
 
-      <!-- RESOURCE GRID -->
-      <div id="resourcesContainer" class="resource-grid" role="status" aria-live="polite">
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
-        <div class="skeleton" style="height:180px;"></div>
+    <div class="section-head">
+      <h2>Resource Library</h2>
+      <div class="count" id="resourceCount">Loading...</div>
+    </div>
+
+    <section class="resource-grid" id="resourceGrid">
+      <div class="loading">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        Loading your resources...
       </div>
+    </section>
 
-      <div id="noResultsMessage" class="status-message" role="alert">
-        <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; margin-bottom:0.5rem; display:block;"></i>
-        No resources match your search or filter.
-      </div>
+    <footer>
+      <div>© 2026 GTRADES-AXIS™ · Trade with Structure. Execute with Precision.</div>
+      <div>Cloudflare R2 · Version 2.0</div>
+    </footer>
+  </main>
+</div>
 
-      <!-- FOOTER -->
-      <footer class="dashboard-footer">
-        <div class="footer-left">© 2026 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.</div>
-        <div class="footer-right">Version 1.0</div>
-      </footer>
-    </main>
+<div class="modal" id="viewerModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Video</div>
+      <button class="close" id="closeModal">&times;</button>
+    </div>
+    <div class="viewer" id="viewer"></div>
   </div>
+</div>
 
-  <script type="module" src="js/auth.js"></script>
+<script type="module">
+  import { auth, db, functions } from "./js/firebase.js";
+  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import {
+    collection, getDocs, query, orderBy, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
 
-  <!-- Firebase Import Map -->
-<script type="importmap">
-{
-  "imports": {
-    "firebase/app": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
-    "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
+  const grid = document.getElementById("resourceGrid");
+  const searchInput = document.getElementById("searchInput");
+  const filters = document.querySelectorAll(".filter");
+  const count = document.getElementById("resourceCount");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const accessChip = document.getElementById("accessChip");
+
+  const modal = document.getElementById("viewerModal");
+  const viewer = document.getElementById("viewer");
+  const modalTitle = document.getElementById("modalTitle");
+  const closeModal = document.getElementById("closeModal");
+
+  let resources = [];
+  let activeCategory = "All";
+  let premiumAccess = false;
+
+  const esc = (value) => String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+  function normalizeCategory(value) {
+    const v = String(value || "").toLowerCase();
+    if (v.includes("pdf")) return "PDFs";
+    if (v.includes("indicator")) return "Indicators";
+    if (v.includes("journal")) return "Journals";
+    if (v.includes("strateg")) return "Strategies";
+    if (v.includes("video")) return "Videos";
+    return value || "Other";
   }
-}
-</script>
 
-<!-- Resources Application -->
-<script type="module" src="./js/resources.js"></script>
+  function iconFor(resource) {
+    const type = String(resource.type || resource.fileType || resource.category || "").toLowerCase();
+    if (type.includes("video")) return "fa-circle-play";
+    if (type.includes("pdf")) return "fa-file-pdf";
+    if (type.includes("indicator")) return "fa-chart-line";
+    if (type.includes("journal") || type.includes("xlsx") || type.includes("excel")) return "fa-table";
+    if (type.includes("strategy")) return "fa-bullseye";
+    return "fa-file-lines";
+  }
+
+  async function getR2Url(key, download = false) {
+    if (!key) return null;
+    try {
+      const callable = httpsCallable(functions, "getR2DownloadUrl");
+      const result = await callable({ key, download });
+      return result?.data?.url || null;
+    } catch (error) {
+      console.error("R2 URL error:", error);
+      return null;
+    }
+  }
+
+  function isVideo(resource) {
+    const type = String(resource.type || resource.fileType || resource.category || "").toLowerCase();
+    return !!resource.youtubeId || type.includes("video") || String(resource.mimeType || "").startsWith("video/");
+  }
+
+  async function openResource(resource) {
+    const premiumOnly = resource.premiumOnly === true;
+    if (premiumOnly && !premiumAccess) {
+      alert("This resource is available to Premium members.");
+      return;
+    }
+
+    if (isVideo(resource)) {
+      modalTitle.textContent = resource.title || "Video";
+      viewer.innerHTML = '<div style="height:100%;display:grid;place-items:center;color:#758199">Loading video...</div>';
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+
+      if (resource.youtubeId) {
+        const id = encodeURIComponent(resource.youtubeId);
+        viewer.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        return;
+      }
+
+      const key = resource.key || resource.r2Key || resource.storageKey || resource.videoKey || resource.fileKey;
+      const url = await getR2Url(key);
+      if (!url) {
+        viewer.innerHTML = '<div style="height:100%;display:grid;place-items:center;color:#ff7188">Unable to load this video.</div>';
+        return;
+      }
+
+      viewer.innerHTML = `<video controls autoplay playsinline src="${url}"></video>`;
+      return;
+    }
+
+    const key = resource.key || resource.r2Key || resource.storageKey || resource.fileKey;
+    if (!key) {
+      alert("This resource does not have a storage file attached yet.");
+      return;
+    }
+
+    const url = await getR2Url(key, true);
+    if (!url) {
+      alert("Unable to generate the download link. Please try again.");
+      return;
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  function render() {
+    const keyword = searchInput.value.trim().toLowerCase();
+
+    let filtered = resources.filter(r => {
+      const category = normalizeCategory(r.category || r.type);
+      const matchesCategory = activeCategory === "All" || category === activeCategory;
+      const text = `${r.title || ""} ${r.description || ""} ${r.category || ""}`.toLowerCase();
+      return matchesCategory && (!keyword || text.includes(keyword));
+    });
+
+    count.textContent = `${filtered.length} resource${filtered.length === 1 ? "" : "s"}`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `
+        <div class="empty">
+          <i class="fa-regular fa-folder-open"></i>
+          <strong>No resources found</strong>
+          <div style="margin-top:6px">Try another search or category.</div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = "";
+
+    filtered.forEach(resource => {
+      const premiumOnly = resource.premiumOnly === true;
+      const canUse = !premiumOnly || premiumAccess;
+      const category = normalizeCategory(resource.category || resource.type);
+      const title = resource.title || "Untitled Resource";
+      const description = resource.description || "Premium trading resource.";
+      const thumb = resource.thumbnailUrl || resource.thumbnail || resource.imageUrl;
+
+      const card = document.createElement("article");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="card-media">
+          ${thumb ? `<img src="${esc(thumb)}" alt="${esc(title)}">` : `<div class="media-icon"><i class="fa-solid ${iconFor(resource)}"></i></div>`}
+          <span class="type-badge">${esc(category)}</span>
+          <span class="access-badge ${premiumOnly ? "premium" : "free"}">
+            ${premiumOnly ? "Premium" : "Free"}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="category">${esc(category)}</div>
+          <div class="title">${esc(title)}</div>
+          <div class="description">${esc(description)}</div>
+
+          <div class="card-footer">
+            <span class="meta">
+              ${isVideo(resource) ? '<i class="fa-solid fa-play"></i> Video' : '<i class="fa-solid fa-cloud-arrow-down"></i> R2 Storage'}
+            </span>
+            <button class="action ${canUse ? "" : "disabled"}">
+              <i class="fa-solid ${isVideo(resource) ? "fa-play" : "fa-download"}"></i>
+              ${isVideo(resource) ? "Open Video" : "Download"}
+            </button>
+          </div>
+        </div>
+      `;
+
+      const action = card.querySelector(".action");
+      if (canUse) action.addEventListener("click", () => openResource(resource));
+
+      grid.appendChild(card);
+    });
+  }
+
+  async function loadResources() {
+    grid.innerHTML = `
+      <div class="loading">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        Loading your resources...
+      </div>`;
+
+    try {
+      const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+
+      resources = [];
+      snap.forEach(item => resources.push({ id: item.id, ...item.data() }));
+
+      render();
+    } catch (error) {
+      console.error("Resource load error:", error);
+
+      // Fallback without orderBy, useful when some older documents lack createdAt.
+      try {
+        const snap = await getDocs(collection(db, "resources"));
+        resources = [];
+        snap.forEach(item => resources.push({ id: item.id, ...item.data() }));
+        resources.sort((a,b) => {
+          const ta = a.createdAt?.seconds || 0;
+          const tb = b.createdAt?.seconds || 0;
+          return tb - ta;
+        });
+        render();
+      } catch (secondError) {
+        console.error(secondError);
+        count.textContent = "Unable to load";
+        grid.innerHTML = `
+          <div class="error">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <strong>Could not load resources</strong>
+            <div style="margin-top:7px;font-size:11px">Refresh the page and try again.</div>
+          </div>`;
+      }
+    }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+
+      if (snap.exists()) {
+        const data = snap.data();
+        premiumAccess = data.role === "admin" || data.membership === "premium";
+      }
+
+      accessChip.innerHTML = premiumAccess
+        ? '<i class="fa-solid fa-shield-check"></i> Premium Access'
+        : '<i class="fa-solid fa-user-check"></i> Member Access';
+
+      await loadResources();
+    } catch (error) {
+      console.error(error);
+      await loadResources();
+    }
+  });
+
+  searchInput.addEventListener("input", render);
+
+  filters.forEach(btn => {
+    btn.addEventListener("click", () => {
+      filters.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeCategory = btn.dataset.category;
+      render();
+    });
+  });
+
+  refreshBtn.addEventListener("click", async () => {
+    refreshBtn.disabled = true;
+    refreshBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+    await loadResources();
+    refreshBtn.disabled = false;
+    refreshBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/login";
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  function closeViewer() {
+    viewer.innerHTML = "";
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  closeModal.addEventListener("click", closeViewer);
+  modal.addEventListener("click", e => {
+    if (e.target === modal) closeViewer();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeViewer();
+  });
+</script>
 </body>
 </html>
