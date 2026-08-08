@@ -1,5 +1,5 @@
-// ─── YOUR WORKER URL ──────────────────────────────────────
-const WORKER_URL = "https://throbbing-frost-a2r2-presigned9.davidthuku574.workers.dev";
+// ─── USE YOUR ACTUAL WORKER URL ──────────────────────────
+const WORKER_URL = "https://r2-uploader.davidthuku574.workers.dev"; // Replace with your actual URL
 
 export async function uploadToR2(file, key) {
   if (!file) throw new Error("No file provided.");
@@ -12,10 +12,8 @@ export async function uploadToR2(file, key) {
   const data = await response.json();
 
   if (!data.url) {
-    throw new Error("Failed to get upload URL from Worker: " + (data.error || "unknown error"));
+    throw new Error("Failed to get upload URL: " + (data.error || "unknown error"));
   }
-
-  console.log("Got upload URL, uploading file...");
 
   const uploadResponse = await fetch(data.url, {
     method: 'PUT',
