@@ -1,0 +1,34 @@
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const functions = getFunctions(app);
+
+window.uploadVideo = async function() {
+  const input = document.getElementById('videoInput');
+  const file = input.files[0];
+  if (!file) return alert('Select a file!');
+
+  const key = `academy/${Date.now()}_${file.name}`;
+  const getUrl = httpsCallable('getR2UploadUrl');
+  const result = await getUrl({ key, contentType: file.type });
+  
+  const res = await fetch(result.data.url, {
+    method: 'PUT',
+    body: file,
+    headers: { 'Content-Type': file.type }
+  });
+
+  if (res.ok) {
+    alert('✅ Uploaded!');
+  } else {
+    alert('❌ Failed');
+  }
+};
