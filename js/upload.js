@@ -1,15 +1,21 @@
-// ─── YOUR CLOUDFLARE WORKER URL ──────────────────────────────
+// ─── YOUR WORKER URL ──────────────────────────────────────
 const WORKER_URL = "https://throbbing-frost-a2r2-presigned9.davidthuku574.workers.dev";
 
-/**
- * Upload a file to Cloudflare R2 using a pre‑signed URL
- */
 export async function uploadToR2(file, key) {
   if (!file) throw new Error("No file provided.");
+  if (!key) throw new Error("No file key provided.");
 
-  const response = await fetch(`${WORKER_URL}?key=${encodeURIComponent(key)}&action=upload`);
+  const workerUrl = `${WORKER_URL}?key=${encodeURIComponent(key)}&action=upload`;
+  console.log("Calling Worker:", workerUrl);
+
+  const response = await fetch(workerUrl);
   const data = await response.json();
-  if (!data.url) throw new Error("Failed to get upload URL from Worker");
+
+  if (!data.url) {
+    throw new Error("Failed to get upload URL from Worker: " + (data.error || "unknown error"));
+  }
+
+  console.log("Got upload URL, uploading file...");
 
   const uploadResponse = await fetch(data.url, {
     method: 'PUT',
@@ -24,14 +30,15 @@ export async function uploadToR2(file, key) {
   return key;
 }
 
-/**
- * Get a pre‑signed download URL for a file from R2
- */
 export async function getDownloadUrl(key) {
   if (!key) throw new Error("No file key provided.");
 
-  const response = await fetch(`${WORKER_URL}?key=${encodeURIComponent(key)}&action=download`);
+  const workerUrl = `${WORKER_URL}?key=${encodeURIComponent(key)}&action=download`;
+  const response = await fetch(workerUrl);
   const data = await response.json();
-  if (!data.url) throw new Error("Failed to get download URL from Worker");
+
+  if (!data.url) {
+    throw new Error("Failed to get download URL: " + (data.error || "unknown error"));
+  }
   return data.url;
 }
