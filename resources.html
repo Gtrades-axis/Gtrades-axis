@@ -346,6 +346,20 @@
   </div>
 
   <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/resources.js"></script>
+
+  <!-- Firebase Import Map -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
+    "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
+  }
+}
+</script>
+
+<!-- Resources Application -->
+<script type="module" src="./js/resources.js"></script>
 </body>
 </html>
