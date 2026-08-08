@@ -1,28 +1,47 @@
-import { httpsCallable } from "firebase/functions";
-import { functions } from "./firebase.js";
+// ─── YOUR CLOUDFLARE WORKER URL ──────────────────────────────
+const WORKER_URL = "https://throbbing-frost-a2r2-presigned9.davidthuku574.workers.dev";
 
 /**
- * Uploads a file to Cloudflare R2 using a pre‑signed URL.
- * @param {File} file - The file to upload.
- * @param {string} key - The path in R2 (e.g., "resources/PDF/myfile.pdf").
- * @returns {Promise<string>} - The file key (path) that was uploaded.
+ * Upload a file to Cloudflare R2 using a pre‑signed URL
  */
 export async function uploadToR2(file, key) {
   if (!file) throw new Error("No file provided.");
 
-  const getUploadUrl = httpsCallable(functions, 'getR2UploadUrl');
-  const result = await getUploadUrl({ key, contentType: file.type });
-  const uploadUrl = result.data.url;
+  // 1. Get pre‑signed upload URL from Worker
+  const response = await fetch(`${WORKER_URL}?key=${encodeURIComponent(key)}&action=upload`);
+  const data = await response.json();
+  const uploadUrl = data.url;
 
-  const response = await fetch(uploadUrl, {
+  if (!uploadUrl) {
+    throw new Error("Failed to get upload URL from Worker");
+  }
+
+  // 2. Upload file directly to R2
+  const uploadResponse = await fetch(uploadUrl, {
     method: 'PUT',
     body: file,
     headers: { 'Content-Type': file.type }
   });
 
-  if (!response.ok) {
-    throw new Error(`Upload failed (${response.status}): ${response.statusText}`);
+  if (!uploadResponse.ok) {
+    throw new Error(`Upload failed (${uploadResponse.status})`);
   }
 
   return key;
+}
+
+/**
+ * Download a file from Cloudflare R2 using a pre‑signed URL
+ */
+export async function getDownloadUrl(key) {
+  if (!key) throw new Error("No file key provided.");
+
+  const response = await fetch(`${WORKER_URL}?key=${encodeURIComponent(key)}&action=download`);
+  const data = await response.json();
+  
+  if (!data.url) {
+    throw new Error("Failed to get download URL from Worker");
+  }
+
+  return data.url;
 }

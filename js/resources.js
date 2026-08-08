@@ -1,8 +1,5 @@
-// ============================================================
-// GTRADES-AXIS™ – RESOURCES PAGE (CLOUDFLARE R2 INTEGRATED)
-// ============================================================
-
-import { auth, db, functions } from "./firebase.js";
+import { auth, db } from "./firebase.js";
+import { getDownloadUrl } from "./upload.js";
 import {
   onAuthStateChanged,
   signOut
@@ -15,7 +12,6 @@ import {
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import { httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
 
 /* ==========================================
    ELEMENTS
@@ -33,20 +29,18 @@ let userMembership = "free";
 let hasPremiumAccess = false;
 
 /* ==========================================
-   DOWNLOAD HELPER (R2)
+   DOWNLOAD HELPER (R2 via Worker)
 ========================================== */
 async function downloadR2File(key) {
   if (!key) {
-    alert("No file key found for this resource.");
+    alert('No file key found.');
     return;
   }
   try {
-    const getDownloadUrl = httpsCallable(functions, "getR2DownloadUrl");
-    const result = await getDownloadUrl({ key });
-    window.open(result.data.url, "_blank");
+    const url = await getDownloadUrl(key);
+    window.open(url, '_blank');
   } catch (error) {
-    console.error("R2 download error:", error);
-    alert("Failed to get download link: " + error.message);
+    alert('Failed to get download link: ' + error.message);
   }
 }
 
@@ -111,7 +105,7 @@ async function loadResources() {
 }
 
 /* ==========================================
-   RENDER RESOURCES (R2 + Legacy fallback)
+   RENDER RESOURCES
 ========================================== */
 function renderResources() {
   if (!container) return;

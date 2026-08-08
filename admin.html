@@ -11,8 +11,7 @@
     "imports": {
       "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
       "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
-      "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
     }
   }
   </script>
@@ -382,7 +381,7 @@
     </div>
   </section>
 
-  <!-- ========================================================== VIDEO MANAGER (FIRESTORE + R2) -->
+  <!-- ========================================================== VIDEO MANAGER (FIRESTORE + R2 THUMBNAILS) -->
   <section class="manager-section" id="videos">
     <div class="dashboard-card">
       <div class="card-header"><div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Manage all premium videos (thumbnails stored in R2).</p></div>
@@ -461,22 +460,20 @@
   "imports": {
     "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
     "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
-    "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
   }
 }
 </script>
 
 <script type="module">
   // ─── IMPORTS ──────────────────────────────────────────────────────────────
-  import { auth, db, functions } from "./js/firebase.js";
+  import { auth, db } from "./js/firebase.js";
   import { signOut, onAuthStateChanged } from "firebase/auth";
   import { 
     collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, 
     onSnapshot, serverTimestamp, addDoc 
   } from "firebase/firestore";
-  import { httpsCallable } from "firebase/functions";
-  import { uploadToR2 } from "./js/upload.js";
+  import { uploadToR2 } from "./js/upload.js"; // R2 upload helper
 
   // ─── GLOBALS ──────────────────────────────────────────────────────────────
   let allMembers = [];
@@ -527,20 +524,11 @@
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
 
-  // ─── GENERIC R2 DOWNLOAD ──────────────────────────────────────────────────
-  async function downloadR2File(key) {
-    if (!key) return alert('No file key found.');
-    try {
-      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
-      const result = await getDownloadUrl({ key });
-      window.open(result.data.url, '_blank');
-    } catch (error) {
-      alert('Failed to get download link: ' + error.message);
-    }
-  }
+  // ─── GENERIC R2 DOWNLOAD (for admin preview) ──────────────────────────
+  // Not needed in admin, but we keep it for future use.
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  1. MEMBERS (unchanged)
+  //  1. MEMBERS
   // ═══════════════════════════════════════════════════════════════════════════
   function listenMembers() {
     const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
@@ -764,7 +752,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  3. PAYMENTS (unchanged)
+  //  3. PAYMENTS
   // ═══════════════════════════════════════════════════════════════════════════
   function listenPayments() {
     const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
@@ -849,8 +837,9 @@
       let thumbHtml = '—';
       if (v.thumbnailKey) {
         try {
-          const url = await getThumbnailUrl(v.thumbnailKey);
-          if (url) thumbHtml = `<img src="${url}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" />`;
+          // We can't display the thumbnail in admin without a download function,
+          // but we can show a placeholder or a note.
+          thumbHtml = `<span style="color:var(--text-secondary);font-size:0.7rem;">📸 Uploaded</span>`;
         } catch (e) { /* ignore */ }
       }
       html += `
@@ -892,15 +881,6 @@
         }
       });
     });
-  }
-
-  async function getThumbnailUrl(key) {
-    if (!key) return null;
-    try {
-      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
-      const result = await getDownloadUrl({ key });
-      return result.data.url;
-    } catch (e) { console.error("Failed to get thumbnail URL:", e); return null; }
   }
 
   document.getElementById('toggleVideoFormBtn')?.addEventListener('click', function() {
@@ -1002,8 +982,20 @@
       tbody.innerHTML = html;
       if (overviewEl) overviewEl.textContent = resCount;
 
+      // Download button in admin – just uses the same worker
       document.querySelectorAll('.download-resource-btn').forEach(btn => {
-        btn.addEventListener('click', function() { downloadR2File(this.dataset.key); });
+        btn.addEventListener('click', async function() {
+          const key = this.dataset.key;
+          if (!key) return alert('No key');
+          // Use the same worker to get download URL (import from upload.js)
+          try {
+            const { getDownloadUrl } = await import('./js/upload.js');
+            const url = await getDownloadUrl(key);
+            window.open(url, '_blank');
+          } catch (error) {
+            alert('Download failed: ' + error.message);
+          }
+        });
       });
 
       document.querySelectorAll('.edit-resource').forEach(btn => {
@@ -1124,7 +1116,7 @@
     }
   });
 
-  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Private) integrated!');
+  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Worker) integrated!');
 </script>
 </body>
 </html>
