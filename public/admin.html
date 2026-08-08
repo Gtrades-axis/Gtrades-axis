@@ -342,22 +342,23 @@
         <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules.</p></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
-          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples (Mod 1-4)</button>
+          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples</button>
         </div>
       </div>
-      <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules from Firestore...</div></td></tr></tbody></table></div></div>
+      <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules...</div></td></tr></tbody></table></div></div>
       <div id="moduleFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
         <h3 id="moduleFormTitle">Add New Module</h3>
         <form id="moduleForm" class="manager-form">
           <div><label>Module Number</label><input type="number" id="moduleOrder" placeholder="e.g. 1" required min="1" /></div>
           <div><label>Module Title</label><input type="text" id="moduleTitle" placeholder="e.g. Market Structure" required /></div>
-          <div class="full-width"><label>Module Description</label><textarea id="moduleDescription" placeholder="Short description for the module card..." rows="2"></textarea></div>
-          <div class="full-width"><label>Full Content (HTML supported)</label><textarea id="moduleContent" placeholder="Write the full module content here. Use &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;." rows="10"></textarea></div>
-          <div class="full-width"><label>Video ID (optional)</label><input type="text" id="moduleVideoId" placeholder="dQw4w9WgXcQ" /></div>
-          <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label for="moduleHasQuiz">Includes Quiz</label></div>
-          <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label for="modulePublished">Published (visible to students)</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveModuleBtn"><i class="fa-solid fa-floppy-disk"></i> Save Module</button><button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button></div>
+          <div class="full-width"><label>Description</label><textarea id="moduleDescription" rows="2"></textarea></div>
+          <div class="full-width"><label>Content (HTML)</label><textarea id="moduleContent" rows="10"></textarea></div>
+          <div class="full-width"><label>Module File (PDF/Video)</label><div class="file-picker"><input type="file" id="moduleFilePicker" accept=".pdf,.mp4,.mov,.avi" /><div class="file-name" id="moduleFileName">No file chosen</div></div></div>
+          <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label>Has Quiz</label></div>
+          <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label>Published</label></div>
+          <div class="form-actions"><button type="submit" class="save-btn" id="saveModuleBtn">Save Module</button><button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button></div>
           <input type="hidden" id="editingModuleId" />
+          <input type="hidden" id="existingModuleFileKey" />
         </form>
       </div>
     </div>
@@ -366,9 +367,7 @@
   <!-- ========================================================== PAYMENTS MANAGER -->
   <section class="manager-section" id="payments">
     <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2><p>Approve or reject membership payment requests.</p></div>
-      </div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
       <div class="payments-stats">
         <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
         <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
@@ -383,61 +382,48 @@
     </div>
   </section>
 
-  <!-- ========================================================== VIDEO MANAGER -->
+  <!-- ========================================================== VIDEO MANAGER (FIRESTORE + R2) -->
   <section class="manager-section" id="videos">
     <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Manage all premium videos.</p></div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Manage all premium videos (thumbnails stored in R2).</p></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Video</button>
-          <button id="addSampleVideosBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Sample Videos</button>
         </div>
       </div>
       <div id="videoListContainer"><div class="table-container"><table class="members-table" id="videoTable"><thead><tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody id="videoTableBody"><tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr></tbody></table></div></div>
       <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
         <h3 id="videoFormTitle">Add New Video</h3>
         <form id="videoForm" class="manager-form">
-          <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required /></div>
-          <div><label>Category</label><select id="videoCategory" required><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
+          <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" required /></div>
+          <div><label>Category</label><select id="videoCategory"><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
           <div><label>Duration</label><input type="text" id="videoDuration" placeholder="e.g. 12:45" required /></div>
-          <div class="full-width"><label>YouTube Video ID</label><input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required /></div>
-          <div class="full-width"><label>Thumbnail Image</label>
-            <div class="file-picker">
-              <input type="file" id="videoThumbnailFile" accept="image/*" />
-              <div class="file-name" id="thumbnailFileName">No file chosen</div>
-              <div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;">
-                <img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" />
-              </div>
-            </div>
-          </div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label for="videoPremiumOnly">Premium Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
+          <div class="full-width"><label>YouTube Video ID</label><input type="text" id="videoYoutubeId" required /></div>
+          <div class="full-width"><label>Thumbnail Image</label><div class="file-picker"><input type="file" id="videoThumbnailFile" accept="image/*" /><div class="file-name" id="thumbnailFileName">No file chosen</div><div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div></div></div>
+          <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
+          <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn">Save Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
           <input type="hidden" id="editingVideoId" />
-          <input type="hidden" id="existingThumbnailKey" /> <!-- Store R2 key instead of URL -->
+          <input type="hidden" id="existingThumbnailKey" />
         </form>
       </div>
     </div>
   </section>
 
-  <!-- ========================================================== RESOURCE MANAGER -->
+  <!-- ========================================================== RESOURCE MANAGER (R2) -->
   <section class="manager-section" id="resources">
     <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage all premium resources.</p></div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage all premium resources (files stored in R2).</p></div>
         <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Resource</button>
       </div>
       <div id="resourceListContainer"><div class="table-container"><table class="members-table" id="resourceTable"><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody></table></div></div>
       <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
         <h3 id="resourceFormTitle">Add New Resource</h3>
         <form id="resourceForm" class="manager-form">
-          <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" placeholder="Resource Title" required /></div>
-          <div><label>Category</label><select id="resourceCategory" required><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option></select></div>
-          <div class="full-width"><label>Description</label><textarea id="resourceDescription" placeholder="Description"></textarea></div>
-          <div class="file-picker full-width">
-            <label>Upload File</label>
-            <input type="file" id="resourceFilePicker" accept="*/*" />
-            <div class="file-name" id="resourceFileName">No file chosen</div>
-          </div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label for="premiumOnly">Premium Members Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn"><i class="fa-solid fa-floppy-disk"></i> Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
+          <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
+          <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option></select></div>
+          <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
+          <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
+          <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
+          <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
           <input type="hidden" id="editingResourceId" />
         </form>
       </div>
@@ -460,11 +446,11 @@
       <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
     </div>
     <div class="modal-actions">
-      <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-circle-check"></i> Approve</button>
-      <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
-      <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-user-shield"></i> Admin</button>
-      <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
-      <button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+      <button id="approveBtn" class="approve-btn">Approve</button>
+      <button id="premiumBtn" class="premium-btn">Premium</button>
+      <button id="adminBtn" class="admin-btn">Admin</button>
+      <button id="suspendBtn" class="suspend-btn">Suspend</button>
+      <button id="deleteBtn" class="delete-btn">Delete</button>
     </div>
   </div>
 </div>
@@ -496,6 +482,7 @@
   let allMembers = [];
   let selectedUser = null;
   let currentModules = [];
+  let videos = [];
 
   // ─── DOM REFS ─────────────────────────────────────────────────────────────
   const membersTableBody = document.getElementById('membersTable');
@@ -540,8 +527,20 @@
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
 
+  // ─── GENERIC R2 DOWNLOAD ──────────────────────────────────────────────────
+  async function downloadR2File(key) {
+    if (!key) return alert('No file key found.');
+    try {
+      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
+      const result = await getDownloadUrl({ key });
+      window.open(result.data.url, '_blank');
+    } catch (error) {
+      alert('Failed to get download link: ' + error.message);
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
-  //  1. MEMBERS
+  //  1. MEMBERS (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
   function listenMembers() {
     const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
@@ -642,12 +641,12 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  2. ACADEMY MODULES
+  //  2. ACADEMY MODULES (with R2 file upload)
   // ═══════════════════════════════════════════════════════════════════════════
   const MODULES_COLLECTION = "academy_modules";
   function getSampleModules() {
     return [
-      { id: "mod_1", order: 1, title: "Introduction", description: "Welcome, academy overview, rules, environment setup, recommended tools.", content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy...</p>`, videoId: "", hasQuiz: true, published: true, lessons: [{ id: "lsn_1_1", title: "Welcome", type: "video", videoUrl: "", pdfUrl: "", notes: "" }], quiz: { passingScore: 70, questions: [{ question: "Q1?", options: ["A", "B", "C", "D"], correct: 0 }] } }
+      { id: "mod_1", order: 1, title: "Introduction", description: "Welcome to GTRADES-AXIS™ Academy.", content: "<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy...</p>", hasQuiz: true, published: true, lessons: [], quiz: { passingScore: 70, questions: [] } }
     ];
   }
 
@@ -687,13 +686,13 @@
     if (overviewEl) overviewEl.textContent = modules.length;
     if (pendingEl) pendingEl.textContent = draftLessons;
     if (modules.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet. Click "Add Samples" to load Mods 1-4 or create one manually!</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = modules.map((mod) => `
       <tr>
         <td><strong>Module ${mod.order}</strong></td>
-        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'}</div></td>
+        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'} ${mod.moduleFileKey ? '📎' : ''}</div></td>
         <td><span class="badge ${mod.published !== false ? 'published' : 'draft'} module-status-toggle" data-id="${mod.id}" title="Click to toggle status">${mod.published !== false ? 'Published' : 'Draft'}</span></td>
         <td><button class="manage-btn edit-module" data-id="${mod.id}"><i class="fa-solid fa-pen"></i> Edit</button><button class="manage-btn delete-module" data-id="${mod.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button></td>
       </tr>
@@ -710,8 +709,10 @@
         if (mod) {
           document.getElementById('editingModuleId').value = id; document.getElementById('moduleOrder').value = mod.order;
           document.getElementById('moduleTitle').value = mod.title; document.getElementById('moduleDescription').value = mod.description || '';
-          document.getElementById('moduleContent').value = mod.content || ''; document.getElementById('moduleVideoId').value = mod.videoId || '';
+          document.getElementById('moduleContent').value = mod.content || '';
           document.getElementById('moduleHasQuiz').checked = mod.hasQuiz !== false; document.getElementById('modulePublished').checked = mod.published !== false;
+          document.getElementById('existingModuleFileKey').value = mod.moduleFileKey || '';
+          document.getElementById('moduleFileName').textContent = mod.moduleFileKey ? 'File attached' : 'No file chosen';
           document.getElementById('moduleFormTitle').textContent = 'Edit Module'; document.getElementById('saveModuleBtn').textContent = 'Update Module';
           document.getElementById('moduleFormContainer').style.display = 'block'; document.getElementById('moduleFormContainer').scrollIntoView({ behavior: 'smooth' });
         }
@@ -736,11 +737,23 @@
     const id = document.getElementById('editingModuleId').value || 'mod-' + Date.now();
     const order = parseInt(document.getElementById('moduleOrder').value); const title = document.getElementById('moduleTitle').value.trim();
     const description = document.getElementById('moduleDescription').value.trim(); const content = document.getElementById('moduleContent').value;
-    const videoId = document.getElementById('moduleVideoId').value.trim(); const hasQuiz = document.getElementById('moduleHasQuiz').checked; const published = document.getElementById('modulePublished').checked;
+    const hasQuiz = document.getElementById('moduleHasQuiz').checked; const published = document.getElementById('modulePublished').checked;
+    const file = document.getElementById('moduleFilePicker').files[0];
+    let moduleFileKey = document.getElementById('existingModuleFileKey').value || null;
+
     if (!title || !order) return alert('Please fill in all required fields.');
-    const existingMod = currentModules.find(m => m.id === id);
-    const moduleData = { id: id, order: order, title: title, description: description, content: content, videoId: videoId, hasQuiz: hasQuiz, published: published, lessons: existingMod?.lessons || [], quiz: existingMod?.quiz || { passingScore: 70, questions: [] } };
-    await saveModuleToFirestore(moduleData); renderModules(); addActivity(`Saved module "${title}"`); document.getElementById('moduleFormContainer').style.display = 'none'; document.getElementById('moduleForm').reset(); document.getElementById('editingModuleId').value = '';
+
+    try {
+      if (file) {
+        const key = `modules/${id}/${Date.now()}_${file.name}`;
+        moduleFileKey = await uploadToR2(file, key);
+        document.getElementById('moduleFileName').textContent = 'Uploaded: ' + file.name;
+      }
+
+      const existingMod = currentModules.find(m => m.id === id);
+      const moduleData = { id, order, title, description, content, hasQuiz, published, moduleFileKey, lessons: existingMod?.lessons || [], quiz: existingMod?.quiz || { passingScore: 70, questions: [] } };
+      await saveModuleToFirestore(moduleData); renderModules(); addActivity(`Saved module "${title}"`); document.getElementById('moduleFormContainer').style.display = 'none'; document.getElementById('moduleForm').reset(); document.getElementById('editingModuleId').value = '';
+    } catch (error) { alert('Error saving module: ' + error.message); }
   });
   document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
     const existing = await loadModulesFromFirestore();
@@ -751,7 +764,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  3. PAYMENTS
+  //  3. PAYMENTS (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
   function listenPayments() {
     const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
@@ -811,43 +824,26 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  4. VIDEOS (LocalStorage with R2 keys)
+  //  4. VIDEOS (FIRESTORE + R2 thumbnails)
   // ═══════════════════════════════════════════════════════════════════════════
-  function getVideosFromStorage() {
-    try { return JSON.parse(localStorage.getItem('gtrades_videos')) || []; } catch { return []; }
-  }
-  function saveVideosToStorage(videos) {
-    localStorage.setItem('gtrades_videos', JSON.stringify(videos));
-  }
-
-  // Helper to get a temporary download URL for a thumbnail
-  async function getThumbnailUrl(key) {
-    if (!key) return null;
-    try {
-      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
-      const result = await getDownloadUrl({ key });
-      return result.data.url;
-    } catch (e) {
-      console.error("Failed to get thumbnail URL:", e);
-      return null;
-    }
-  }
-
-  function renderVideoCounts() {
-    const videos = getVideosFromStorage();
-    document.getElementById('videoCount').textContent = videos.length;
-    document.getElementById('videoOverview').textContent = videos.length;
+  function listenVideos() {
+    const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
+    onSnapshot(q, async (snapshot) => {
+      videos = [];
+      snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+      document.getElementById('videoCount').textContent = videos.length;
+      document.getElementById('videoOverview').textContent = videos.length;
+      await renderVideosTable();
+    });
   }
 
   async function renderVideosTable() {
-    const videos = getVideosFromStorage();
     const tbody = document.getElementById('videoTableBody');
     if (videos.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr>`;
       return;
     }
 
-    // Generate thumbnails dynamically
     let html = '';
     for (const v of videos) {
       let thumbHtml = '—';
@@ -872,16 +868,15 @@
       `;
     }
     tbody.innerHTML = html;
-    // Attach event listeners...
+
     document.querySelectorAll('.edit-video').forEach(btn => {
       btn.addEventListener('click', function() {
-        const id = this.dataset.id; const videos = getVideosFromStorage(); const v = videos.find(item => item.id === id);
+        const v = videos.find(item => item.id === this.dataset.id);
         if (v) {
-          document.getElementById('editingVideoId').value = id; document.getElementById('videoTitle').value = v.title;
+          document.getElementById('editingVideoId').value = v.id; document.getElementById('videoTitle').value = v.title;
           document.getElementById('videoCategory').value = v.category; document.getElementById('videoDuration').value = v.duration;
           document.getElementById('videoYoutubeId').value = v.youtubeId; document.getElementById('videoPremiumOnly').checked = v.premiumOnly;
           document.getElementById('existingThumbnailKey').value = v.thumbnailKey || '';
-          // Show preview if we have a key (we'll load it later if needed)
           document.getElementById('thumbnailPreview').style.display = 'none';
           document.getElementById('videoFormTitle').textContent = 'Edit Video'; document.getElementById('saveVideoBtn').textContent = 'Update Video';
           document.getElementById('videoFormContainer').style.display = 'block'; document.getElementById('videoFormContainer').scrollIntoView({ behavior: 'smooth' });
@@ -889,14 +884,23 @@
       });
     });
     document.querySelectorAll('.delete-video').forEach(btn => {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', async function() {
         const id = this.dataset.id;
         if (confirm('Delete this video permanently?')) {
-          let videos = getVideosFromStorage(); videos = videos.filter(v => v.id !== id);
-          saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity('Deleted a video.');
+          try { await deleteDoc(doc(db, "videos", id)); addActivity('Deleted a video.'); } 
+          catch (e) { alert('Error deleting video.'); }
         }
       });
     });
+  }
+
+  async function getThumbnailUrl(key) {
+    if (!key) return null;
+    try {
+      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
+      const result = await getDownloadUrl({ key });
+      return result.data.url;
+    } catch (e) { console.error("Failed to get thumbnail URL:", e); return null; }
   }
 
   document.getElementById('toggleVideoFormBtn')?.addEventListener('click', function() {
@@ -925,7 +929,6 @@
     }
   });
 
-  // ─── VIDEO FORM SUBMIT (WITH R2 UPLOAD) ──────────────────────────────────
   document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
@@ -942,24 +945,15 @@
     try {
       let thumbnailKey = existingThumbKey;
       if (thumbFile) {
-        // Upload thumbnail to R2
         const key = `thumbnails/${Date.now()}_${thumbFile.name}`;
-        thumbnailKey = await uploadToR2(thumbFile, key); // uploadToR2 returns the key
+        thumbnailKey = await uploadToR2(thumbFile, key);
         document.getElementById('thumbnailPreview').style.display = 'none';
       }
 
-      const videos = getVideosFromStorage();
-      const existingIndex = videos.findIndex(v => v.id === id);
-      const videoData = {
-        id, title, category, duration, youtubeId, premiumOnly, 
-        thumbnailKey, // store the R2 key, not the URL
-        createdAt: (existingIndex !== -1 && videos[existingIndex].createdAt) ? videos[existingIndex].createdAt : new Date().toISOString()
-      };
-      if (existingIndex !== -1) videos[existingIndex] = videoData;
-      else videos.push(videoData);
-      saveVideosToStorage(videos);
-      renderVideosTable();
-      renderVideoCounts();
+      const data = { title, category, duration, youtubeId, premiumOnly, thumbnailKey, updatedAt: serverTimestamp() };
+      if (!document.getElementById('editingVideoId').value) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "videos"), data); }
+      else { await updateDoc(doc(db, "videos", id), data); }
+
       addActivity(`Saved video "${title}"`);
       document.getElementById('videoFormContainer').style.display = 'none';
       document.getElementById('videoForm').reset();
@@ -970,31 +964,8 @@
     }
   });
 
-  document.getElementById('addSampleVideosBtn')?.addEventListener('click', function() {
-    const samples = [
-      { id: 'vid-1', title: 'Market Structure Basics', category: 'Market Structure', duration: '12:45', youtubeId: 'dQw4w9WgXcQ', premiumOnly: true, thumbnailKey: '', createdAt: new Date().toISOString() },
-      { id: 'vid-2', title: 'Supply & Demand Zones', category: 'Supply & Demand', duration: '18:20', youtubeId: 'dQw4w9WgXcQ', premiumOnly: false, thumbnailKey: '', createdAt: new Date().toISOString() }
-    ];
-    const videos = getVideosFromStorage();
-    samples.forEach(s => { if(!videos.find(v => v.id === s.id)) videos.push(s); });
-    saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity('Added 2 sample videos.');
-  });
-
-  // ─── GENERIC DOWNLOAD HANDLER FOR RESOURCES ─────────────────────────────
-  async function downloadResource(key) {
-    if (!key) return alert('No file key found.');
-    try {
-      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
-      const result = await getDownloadUrl({ key });
-      const url = result.data.url;
-      window.open(url, '_blank');
-    } catch (error) {
-      alert('Failed to get download link: ' + error.message);
-    }
-  }
-
   // ═══════════════════════════════════════════════════════════════════════════
-  //  5. RESOURCES (FIRESTORE + R2 KEYS)
+  //  5. RESOURCES (FIRESTORE + R2)
   // ═══════════════════════════════════════════════════════════════════════════
   function listenResources() {
     const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
@@ -1012,7 +983,7 @@
         const r = { id: doc.id, ...doc.data() };
         const downloadBtn = r.fileKey 
           ? `<button class="btn-view-proof download-resource-btn" data-key="${r.fileKey}">Download</button>` 
-          : '—';
+          : (r.link ? `<a href="${r.link}" target="_blank" class="btn-view-proof">Legacy</a>` : '—');
         html += `
           <tr>
             <td><strong>${r.title}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
@@ -1031,12 +1002,8 @@
       tbody.innerHTML = html;
       if (overviewEl) overviewEl.textContent = resCount;
 
-      // Attach download listeners
       document.querySelectorAll('.download-resource-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const key = this.dataset.key;
-          downloadResource(key);
-        });
+        btn.addEventListener('click', function() { downloadR2File(this.dataset.key); });
       });
 
       document.querySelectorAll('.edit-resource').forEach(btn => {
@@ -1051,7 +1018,7 @@
               document.getElementById('resourceCategory').value = data.category || 'PDF';
               document.getElementById('resourceDescription').value = data.description || '';
               document.getElementById('premiumOnly').checked = data.premiumOnly || false;
-              document.getElementById('resourceFileName').textContent = data.fileKey ? 'File uploaded (key: ' + data.fileKey.substring(0, 20) + '...)' : 'No file';
+              document.getElementById('resourceFileName').textContent = data.fileKey ? 'File uploaded' : 'No file';
               document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
               document.getElementById('saveResourceBtn').textContent = 'Update Resource';
               document.getElementById('resourceFormContainer').style.display = 'block';
@@ -1086,7 +1053,6 @@
     });
   }
 
-  // ─── RESOURCE FORM SUBMIT (WITH R2 UPLOAD) ──────────────────────────────
   document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('resourceFormContainer');
     if (container.style.display === 'none') {
@@ -1102,13 +1068,8 @@
   document.getElementById('cancelResourceBtn')?.addEventListener('click', function() {
     document.getElementById('resourceFormContainer').style.display = 'none';
   });
-
   document.getElementById('resourceFilePicker')?.addEventListener('change', function() {
-    if (this.files.length > 0) {
-      document.getElementById('resourceFileName').textContent = this.files[0].name;
-    } else {
-      document.getElementById('resourceFileName').textContent = 'No file chosen';
-    }
+    document.getElementById('resourceFileName').textContent = this.files.length > 0 ? this.files[0].name : 'No file chosen';
   });
 
   document.getElementById('resourceForm')?.addEventListener('submit', async function(e) {
@@ -1121,42 +1082,27 @@
     const file = document.getElementById('resourceFilePicker').files[0];
 
     if (!title) return alert('Please enter a title.');
-
     try {
       let fileKey = null;
-
-      // If editing and no new file, keep existing key
       if (document.getElementById('editingResourceId').value && !file) {
         const snap = await getDoc(doc(db, "resources", id));
-        if (snap.exists()) {
-          fileKey = snap.data().fileKey || null;
-        }
+        if (snap.exists()) fileKey = snap.data().fileKey || null;
       }
-
-      // If a new file is selected, upload to R2
       if (file) {
         const key = `resources/${category}/${Date.now()}_${file.name}`;
-        fileKey = await uploadToR2(file, key); // returns the key
+        fileKey = await uploadToR2(file, key);
       }
-
       if (!fileKey && !document.getElementById('editingResourceId').value) {
         return alert('Please choose a file to upload.');
       }
-
       const data = { title, category, description, premiumOnly, fileKey, updatedAt: serverTimestamp() };
-
-      if (!document.getElementById('editingResourceId').value) {
-        data.createdAt = serverTimestamp();
-        await addDoc(collection(db, "resources"), data);
-      } else {
-        await updateDoc(doc(db, "resources", id), data);
-      }
-
+      if (!document.getElementById('editingResourceId').value) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "resources"), data); }
+      else { await updateDoc(doc(db, "resources", id), data); }
       addActivity(`Saved resource "${title}"`);
       document.getElementById('resourceFormContainer').style.display = 'none';
       document.getElementById('resourceForm').reset();
       document.getElementById('resourceFileName').textContent = 'No file chosen';
-      alert('✅ Resource uploaded to Cloudflare R2 successfully!');
+      alert('✅ Resource uploaded to Cloudflare R2!');
     } catch (error) {
       alert("Error saving resource: " + error.message);
       console.error(error);
@@ -1171,8 +1117,7 @@
       listenMembers();
       renderModules();
       listenPayments();
-      renderVideosTable();
-      renderVideoCounts();
+      listenVideos();
       listenResources();
     } else {
       window.location.href = "/login";
