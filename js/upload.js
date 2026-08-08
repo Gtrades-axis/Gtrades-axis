@@ -1,42 +1,225 @@
-// ─── YOUR WORKER URL ──────────────────────────────────────
-const WORKER_URL = "https://r2-uploader.davidthuku574.workers.dev";
+// ============================================================
+// GTRADES-AXIS™
+// CLOUDFLARE R2 STORAGE
+// js/upload.js
+// ============================================================
 
-export async function uploadToR2(file, key) {
-  if (!file) throw new Error("No file provided.");
-  if (!key) throw new Error("No file key provided.");
+const WORKER_URL =
+  "https://r2-uploader.davidthuku574.workers.dev";
 
-  const workerUrl = `${WORKER_URL}?key=${encodeURIComponent(key)}&action=upload`;
-  console.log("Calling Worker:", workerUrl);
 
-  const response = await fetch(workerUrl);
-  const data = await response.json();
+// ============================================================
+// GET WORKER URL
+// ============================================================
 
-  if (!data.url) {
-    throw new Error("Failed to get upload URL: " + (data.error || "unknown error"));
+async function getWorkerURL(
+  key,
+  action
+) {
+
+  if (!key) {
+
+    throw new Error(
+      "No file key provided."
+    );
+
   }
 
-  const uploadResponse = await fetch(data.url, {
-    method: 'PUT',
-    body: file,
-    headers: { 'Content-Type': file.type }
-  });
 
-  if (!uploadResponse.ok) {
-    throw new Error(`Upload failed (${uploadResponse.status})`);
+  const url =
+    new URL(WORKER_URL);
+
+
+  url.searchParams.set(
+    "key",
+    key
+  );
+
+
+  url.searchParams.set(
+    "action",
+    action
+  );
+
+
+  const response =
+    await fetch(
+      url.toString(),
+      {
+        method: "GET",
+        headers: {
+          "Accept":
+            "application/json"
+        },
+        cache: "no-store"
+      }
+    );
+
+
+  let data;
+
+
+  try {
+
+    data =
+      await response.json();
+
+  } catch {
+
+    throw new Error(
+      "Cloudflare Worker returned an invalid response."
+    );
+
   }
 
-  return key;
+
+  if (
+    !response.ok ||
+    !data.url
+  ) {
+
+    throw new Error(
+      data.error ||
+      `Worker error (${response.status})`
+    );
+
+  }
+
+
+  return data.url;
+
 }
 
-export async function getDownloadUrl(key) {
-  if (!key) throw new Error("No file key provided.");
 
-  const workerUrl = `${WORKER_URL}?key=${encodeURIComponent(key)}&action=download`;
-  const response = await fetch(workerUrl);
-  const data = await response.json();
+// ============================================================
+// UPLOAD TO R2
+// ============================================================
 
-  if (!data.url) {
-    throw new Error("Failed to get download URL: " + (data.error || "unknown error"));
+export async function uploadToR2(
+  file,
+  key
+) {
+
+  if (!file) {
+
+    throw new Error(
+      "No file provided."
+    );
+
   }
-  return data.url;
+
+
+  if (!key) {
+
+    throw new Error(
+      "No file key provided."
+    );
+
+  }
+
+
+  console.log(
+    "Preparing R2 upload:",
+    key
+  );
+
+
+  // Get Worker upload URL
+  const uploadURL =
+    await getWorkerURL(
+      key,
+      "upload"
+    );
+
+
+  console.log(
+    "Uploading file to R2..."
+  );
+
+
+  const response =
+    await fetch(
+      uploadURL,
+      {
+        method: "PUT",
+
+        body: file,
+
+        headers: {
+          "Content-Type":
+            file.type ||
+            "application/octet-stream"
+        }
+      }
+    );
+
+
+  if (!response.ok) {
+
+    let message =
+      `Upload failed (${response.status})`;
+
+    try {
+
+      const data =
+        await response.json();
+
+      if (data.error) {
+        message =
+          data.error;
+      }
+
+    } catch {
+      // Nothing
+    }
+
+
+    throw new Error(message);
+
+  }
+
+
+  console.log(
+    "✅ R2 upload successful:",
+    key
+  );
+
+
+  return key;
+
+}
+
+
+// ============================================================
+// GET DOWNLOAD URL
+// ============================================================
+
+export async function getDownloadUrl(
+  key
+) {
+
+  if (!key) {
+
+    throw new Error(
+      "No file key provided."
+    );
+
+  }
+
+
+  const url =
+    await getWorkerURL(
+      key,
+      "download"
+    );
+
+
+  console.log(
+    "✅ R2 download URL:",
+    url
+  );
+
+
+  return url;
+
 }

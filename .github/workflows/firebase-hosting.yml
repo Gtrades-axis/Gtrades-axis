@@ -1,0 +1,24 @@
+name: Deploy GTRADES-AXIS to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v4
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --project gtrades-axis
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

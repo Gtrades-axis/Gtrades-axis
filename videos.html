@@ -1,284 +1,722 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Videos | GTRADES-AXIS™</title>
+
+  <meta
+    name="description"
+    content="GTRADES-AXIS™ premium trading videos, market breakdowns and trading tutorials."
+  />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  />
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Poppins', sans-serif; background: #0b0d15; color: #e8edf5; min-height: 100vh; }
-
-    .dashboard { display: flex; min-height: 100vh; }
-
-    .sidebar {
-      width: 260px; background: #131724; border-right: 1px solid #2a3450;
-      padding: 28px 18px; flex-shrink: 0;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .sidebar .brand h2 {
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0b0d15;
+      color: #e8edf5;
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      width: 260px;
+      background: #131724;
+      border-right: 1px solid #2a3450;
+      padding: 28px 18px;
+      flex-shrink: 0;
+    }
+
+    .brand h2 {
       font-size: 18px;
-      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      background: linear-gradient(
+        135deg,
+        #ffffff 30%,
+        #00d4ff
+      );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .sidebar .brand span { -webkit-text-fill-color: #4f7cff; }
-
-    .sidebar .menu { list-style: none; margin-top: 30px; }
-    .sidebar .menu li { margin: 6px 0; }
-
-    .sidebar .menu li a {
-      display: flex; align-items: center; gap: 14px; padding: 10px 14px;
-      border-radius: 8px; color: #9aa4bf; text-decoration: none;
-      transition: .25s; border-left: 3px solid transparent;
+    .brand span {
+      -webkit-text-fill-color: #4f7cff;
     }
 
-    .sidebar .menu li a:hover { background: #1a1f2f; color: #fff; }
+    .menu {
+      list-style: none;
+      margin-top: 30px;
+    }
 
-    .sidebar .menu li.active a {
-      background: rgba(79,124,255,.15); color: #4f7cff;
+    .menu li {
+      margin: 6px 0;
+    }
+
+    .menu li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #9aa4bf;
+      text-decoration: none;
+      transition: 0.25s;
+      border-left: 3px solid transparent;
+    }
+
+    .menu li a:hover {
+      background: #1a1f2f;
+      color: #ffffff;
+    }
+
+    .menu li.active a {
+      background: rgba(79, 124, 255, 0.15);
+      color: #4f7cff;
       border-left-color: #4f7cff;
     }
 
-    .sidebar #logoutBtn {
-      margin-top: 40px; width: 100%; padding: 10px; border: none;
-      border-radius: 8px; background: rgba(255,71,102,.08);
-      color: #ff4766; font-weight: 600; cursor: pointer;
+    #logoutBtn {
+      margin-top: 40px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 71, 102, 0.08);
+      color: #ff4766;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .main-content { flex: 1; padding: 30px 40px; }
+    #logoutBtn:hover {
+      background: rgba(255, 71, 102, 0.16);
+    }
+
+    /* MAIN */
+
+    .main-content {
+      flex: 1;
+      padding: 30px 40px;
+      min-width: 0;
+    }
 
     .topbar {
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
-    .topbar h1 { font-size: 28px; font-weight: 700; }
-    .topbar p { color: #9aa4bf; }
+    .topbar h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .topbar p {
+      color: #9aa4bf;
+      margin-top: 4px;
+    }
+
+    /* LOCK */
 
     #lockOverlay {
-      display: none; text-align: center; padding: 60px 20px;
-      max-width: 700px; margin: 0 auto;
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      max-width: 700px;
+      margin: 0 auto;
     }
 
     #lockOverlay .lock-icon {
-      font-size: 4rem; color: #f5a623; background: rgba(245,166,35,.15);
-      width: 100px; height: 100px; line-height: 100px; border-radius: 50%;
+      font-size: 4rem;
+      color: #f5a623;
+      background: rgba(245, 166, 35, 0.15);
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      border-radius: 50%;
       margin: 0 auto 24px;
     }
 
-    #lockOverlay h2 { font-size: 2rem; font-weight: 700; }
+    #lockOverlay h2 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
 
-    .locked #lockOverlay { display: block; }
-    .locked .locked-content { display: none; }
+    #lockOverlay p {
+      color: #94a3b8;
+      margin: 12px 0 24px;
+    }
+
+    .lock-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .upgrade-btn,
+    .dashboard-btn {
+      padding: 12px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .upgrade-btn {
+      background: linear-gradient(
+        135deg,
+        #f5a623,
+        #f7c948
+      );
+      color: #0b0d15;
+    }
+
+    .dashboard-btn {
+      background: #1a1f2f;
+      color: #94a3b8;
+      border: 1px solid #2a3450;
+    }
+
+    .locked #lockOverlay {
+      display: block;
+    }
+
+    .locked .locked-content {
+      display: none;
+    }
+
+    /* LOADING */
 
     #app.loading {
-      display: flex; align-items: center; justify-content: center; min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
     }
 
     #app.loading::after {
-      content: ""; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.1);
-      border-top-color: #4f7cff; border-radius: 50%;
-      animation: spin .8s linear infinite;
+      content: "";
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #4f7cff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-    .search-wrapper { position: relative; max-width: 400px; width: 100%; }
+    /* SEARCH */
+
+    .search-wrapper {
+      position: relative;
+      max-width: 400px;
+      width: 100%;
+    }
 
     .search-wrapper input {
-      width: 100%; padding: 10px 14px; background: #1a1f2f;
-      border: 1px solid #2a3450; border-radius: 8px; color: #fff;
+      width: 100%;
+      padding: 12px 14px;
+      background: #1a1f2f;
+      border: 1px solid #2a3450;
+      border-radius: 8px;
+      color: #ffffff;
       outline: none;
+      font-family: inherit;
     }
 
-    .search-wrapper input:focus { border-color: #4f7cff; }
+    .search-wrapper input:focus {
+      border-color: #4f7cff;
+    }
+
+    /* FILTERS */
 
     .resource-filters {
-      display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
     }
 
     .filter-btn {
-      background: #1a1f2f; border: 1px solid #2a3450; color: #9aa4bf;
-      padding: 6px 16px; border-radius: 20px; cursor: pointer; transition: .2s;
+      background: #1a1f2f;
+      border: 1px solid #2a3450;
+      color: #9aa4bf;
+      padding: 7px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
     }
 
-    .filter-btn:hover { background: #2a3450; color: #fff; }
-    .filter-btn.active { background: #4f7cff; border-color: #4f7cff; color: #fff; }
+    .filter-btn:hover {
+      background: #2a3450;
+      color: #ffffff;
+    }
+
+    .filter-btn.active {
+      background: #4f7cff;
+      border-color: #4f7cff;
+      color: #ffffff;
+    }
+
+    /* GRID */
 
     .resource-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px; margin-top: 20px;
+      display: grid;
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(240px, 1fr)
+        );
+      gap: 20px;
+      margin-top: 20px;
     }
+
+    /* VIDEO CARD */
 
     .video-card {
-      background: #131724; border: 1px solid #2a3450; border-radius: 12px;
-      overflow: hidden; transition: .25s; cursor: pointer; position: relative;
+      background: #131724;
+      border: 1px solid #2a3450;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: 0.25s;
+      cursor: pointer;
+      position: relative;
     }
 
-    .video-card:hover { border-color: #4f7cff; transform: translateY(-4px); }
-    .video-card.locked { opacity: .7; cursor: default; }
+    .video-card:hover {
+      border-color: #4f7cff;
+      transform: translateY(-4px);
+    }
+
+    .video-card.locked {
+      opacity: 0.7;
+      cursor: default;
+    }
 
     .video-thumb {
-      position: relative; background: #0f172a; aspect-ratio: 16/9;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; color: #64748b; overflow: hidden;
+      position: relative;
+      background: #0f172a;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #64748b;
+      overflow: hidden;
     }
 
     .video-thumb img {
-      width: 100%; height: 100%; object-fit: cover;
-      position: absolute; inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
     }
 
     .video-duration {
-      position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.8);
-      color: #fff; padding: 2px 8px; border-radius: 4px; font-size: .75rem; z-index: 2;
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.8);
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      z-index: 3;
+    }
+
+    .play-icon {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: rgba(79,124,255,0.95);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      opacity: 0;
+      transition: 0.25s;
+    }
+
+    .video-card:hover .play-icon {
+      opacity: 1;
     }
 
     .lock-overlay {
-      position: absolute; inset: 0; background: rgba(11,13,21,.7);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 6px; backdrop-filter: blur(2px); z-index: 5;
+      position: absolute;
+      inset: 0;
+      background: rgba(11,13,21,0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      backdrop-filter: blur(2px);
+      z-index: 5;
     }
 
-    .lock-overlay i { font-size: 2.5rem; color: #f5a623; }
+    .lock-overlay i {
+      font-size: 2.5rem;
+      color: #f5a623;
+    }
 
-    .video-info { padding: 16px; }
-    .video-title { font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
+    .video-info {
+      padding: 16px;
+    }
+
+    .video-title {
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
     .video-meta {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: .85rem; color: #94a3b8; gap: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: #94a3b8;
     }
 
     .badge {
-      padding: 2px 10px; border-radius: 20px; font-size: .7rem;
-      font-weight: 600; text-transform: uppercase;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
-    .badge-free { background: rgba(0,200,151,.15); color: #00c897; }
-    .badge-premium { background: rgba(245,166,35,.15); color: #f5a623; }
+    .badge-free {
+      background: rgba(0,200,151,0.15);
+      color: #00c897;
+    }
+
+    .badge-premium {
+      background: rgba(245,166,35,0.15);
+      color: #f5a623;
+    }
+
+    /* MODAL */
 
     .video-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,.9);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000; visibility: hidden; opacity: 0; transition: .3s;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.25s;
       padding: 20px;
     }
 
-    .video-modal.active { visibility: visible; opacity: 1; }
-
-    .modal-content {
-      position: relative; width: min(100%, 1000px); background: #000;
-      border: 1px solid #2a3450; border-radius: 12px; overflow: visible;
+    .video-modal.active {
+      visibility: visible;
+      opacity: 1;
     }
 
-    .modal-content video {
-      display: block; width: 100%; max-height: 80vh;
-      background: #000; border-radius: 12px;
+    .modal-content {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+      border-radius: 12px;
+      overflow: visible;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+    }
+
+    #r2VideoPlayer {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000000;
+      border-radius: 12px;
     }
 
     .modal-close {
-      position: absolute; top: -46px; right: 0; background: transparent;
-      border: none; color: #fff; font-size: 2rem; cursor: pointer; z-index: 2;
+      position: absolute;
+      top: -46px;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      background: rgba(19,23,36,0.95);
+      border: 1px solid #2a3450;
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 20;
     }
 
-    .video-error {
-      display: none; padding: 40px 20px; text-align: center; color: #ff8799;
+    .modal-close:hover {
+      background: #4f7cff;
     }
 
-    .video-error.visible { display: block; }
-
-    .dashboard-footer {
-      margin-top: 40px; padding-top: 16px; border-top: 1px solid #2a3450;
-      display: flex; justify-content: space-between; font-size: .8rem; color: #64748b;
-    }
+    /* STATUS */
 
     .status-message {
-      text-align: center; padding: 2rem; color: #94a3b8; display: none;
+      text-align: center;
+      padding: 2rem;
+      color: #94a3b8;
+      display: none;
       grid-column: 1 / -1;
     }
 
-    .status-message.visible { display: block; }
+    .status-message.visible {
+      display: block;
+    }
+
+    /* FOOTER */
+
+    .dashboard-footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #2a3450;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    /* MOBILE */
 
     @media (max-width: 800px) {
-      .sidebar { width: 220px; }
-      .main-content { padding: 24px 20px; }
+
+      .dashboard {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 16px;
+      }
+
+      .menu {
+        display: grid;
+        grid-template-columns:
+          repeat(2, 1fr);
+        gap: 5px;
+        margin-top: 18px;
+      }
+
+      .menu li {
+        margin: 0;
+      }
+
+      #logoutBtn {
+        margin-top: 18px;
+      }
+
+      .main-content {
+        padding: 22px 16px;
+      }
+
+      .topbar h1 {
+        font-size: 24px;
+      }
+
+      .modal-content {
+        width: 100%;
+      }
+
     }
 
-    @media (max-width: 650px) {
-      .dashboard { display: block; }
-      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #2a3450; }
-      .sidebar .menu { display: flex; overflow-x: auto; gap: 6px; margin-top: 20px; }
-      .sidebar .menu li { flex-shrink: 0; }
-      .sidebar #logoutBtn { margin-top: 20px; }
-      .main-content { padding: 20px 14px; }
-
-    }
-    .video-card:hover { border-color: #4f7cff; transform: translateY(-4px); }
-    .video-card.locked { opacity: 0.7; cursor: default; }
-    .video-thumb { position: relative; background: #0f172a; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #64748b; overflow: hidden; }
-    .video-thumb img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-    .video-duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; z-index: 2; }
-    .lock-overlay { position: absolute; inset: 0; background: rgba(11,13,21,0.7); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; backdrop-filter: blur(2px); z-index: 5; }
-    .lock-overlay i { font-size: 2.5rem; color: #f5a623; }
-    .video-info { padding: 16px; }
-    .video-title { font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
-    .video-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #94a3b8; }
-    .badge { padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
-    .badge-free { background: rgba(0,200,151,0.15); color: #00c897; }
-    .badge-premium { background: rgba(245,166,35,0.15); color: #f5a623; }
-    .video-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.3s; }
-    .video-modal.active { visibility: visible; opacity: 1; }
-    .modal-content { position: relative; width: 90%; max-width: 900px; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
-    .modal-content iframe { width: 100%; height: 100%; border: none; }
-    .modal-close { position: absolute; top: -40px; right: 0; background: transparent; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
-    .dashboard-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #2a3450; display: flex; justify-content: space-between; font-size: 0.8rem; color: #64748b; }
-    .status-message { text-align: center; padding: 2rem; color: #94a3b8; display: none; }
-    .status-message.visible { display: block; }
   </style>
 </head>
+
 <body>
+
 <div class="dashboard" id="app">
+
+  <!-- SIDEBAR -->
+
   <aside class="sidebar">
-    <div class="brand"><h2>GTRADES <span>AXIS™</span></h2></div>
+
+    <div class="brand">
+      <h2>
+        GTRADES
+        <span>AXIS™</span>
+      </h2>
+    </div>
+
     <ul class="menu">
-      <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-      <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i> Premium Resources</a></li>
-      <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Premium Academy</a></li>
-      <li class="active"><a href="videos.html"><i class="fa-solid fa-circle-play"></i> Videos</a></li>
-      <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i> Trading Journal</a></li>
-      <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
-      <li><a href="support.html"><i class="fa-solid fa-headset"></i> Support</a></li>
+
+      <li>
+        <a href="dashboard.html">
+          <i class="fa-solid fa-house"></i>
+          Dashboard
+        </a>
+      </li>
+
+      <li>
+        <a href="resources.html">
+          <i class="fa-solid fa-folder-open"></i>
+          Premium Resources
+        </a>
+      </li>
+
+      <li>
+        <a href="premium-academy.html">
+          <i class="fa-solid fa-graduation-cap"></i>
+          Premium Academy
+        </a>
+      </li>
+
+      <li class="active">
+        <a href="videos.html">
+          <i class="fa-solid fa-circle-play"></i>
+          Videos
+        </a>
+      </li>
+
+      <li>
+        <a href="journal.html">
+          <i class="fa-solid fa-chart-line"></i>
+          Trading Journal
+        </a>
+      </li>
+
+      <li>
+        <a href="profile.html">
+          <i class="fa-solid fa-user"></i>
+          My Profile
+        </a>
+      </li>
+
+      <li>
+        <a href="support.html">
+          <i class="fa-solid fa-headset"></i>
+          Support
+        </a>
+      </li>
+
     </ul>
-    <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+    <button id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Logout
+    </button>
+
   </aside>
 
 
+  <!-- MAIN -->
   <main class="main-content">
+
+    <!-- PREMIUM LOCK -->
+
     <div id="lockOverlay">
-      <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
-      <h2>Premium Members Only</h2>
-      <p style="color:#94a3b8;margin:12px 0 24px;">Upgrade to unlock all premium videos.</p>
-      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-        <a href="upgrade.html" style="background:linear-gradient(135deg,#f5a623,#f7c948);color:#0b0d15;padding:12px 32px;border-radius:8px;font-weight:600;text-decoration:none;">Upgrade</a>
-        <a href="dashboard.html" style="background:#1a1f2f;color:#94a3b8;border:1px solid #2a3450;padding:12px 32px;border-radius:8px;text-decoration:none;">Dashboard</a>
+
+      <div class="lock-icon">
+        <i class="fa-solid fa-lock"></i>
       </div>
+
+      <h2>
+        Premium Members Only
+      </h2>
+
+      <p>
+        Upgrade to unlock all premium videos.
+      </p>
+
+      <div class="lock-actions">
+
+        <a
+          href="upgrade.html"
+          class="upgrade-btn"
+        >
+          Upgrade
+        </a>
+
+        <a
+          href="dashboard.html"
+          class="dashboard-btn"
+        >
+          Dashboard
+        </a>
+
+      </div>
+
     </div>
 
+
+    <!-- CONTENT -->
+
     <div class="locked-content">
+
       <header class="topbar">
         <div>
-          <h1>Videos</h1>
-          <p>Watch premium trading tutorials & market breakdowns.</p>
+
+          <h1>
+            Videos
+          </h1>
+
+          <p>
+            Watch premium trading tutorials & market breakdowns.
+          </p>
+
         </div>
+
       </header>
 
+
+      <!-- SEARCH -->
+
       <div class="search-wrapper">
-        <input type="text" id="searchInput" placeholder="Search videos…" />
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search videos..."
+          autocomplete="off"
+        />
+
       </div>
 
       <div class="resource-filters">
@@ -289,302 +727,1059 @@
         <button class="filter-btn" data-category="Entries">Entries</button>
         <button class="filter-btn" data-category="Psychology">Psychology</button>
       </div>
+      </div>
 
-      <div id="videosContainer" class="resource-grid"></div>
-      <div id="noResultsMessage" class="status-message">No videos match your search.</div>
+
+      <!-- FILTERS -->
+
+      <div class="resource-filters">
+
+        <button
+          class="filter-btn active"
+          data-category="All"
+        >
+          All
+        </button>
+
+        <button
+          class="filter-btn"
+          data-category="Market Structure"
+        >
+          Market Structure
+        </button>
+
+        <button
+          class="filter-btn"
+          data-category="Supply & Demand"
+        >
+          Supply & Demand
+        </button>
+
+        <button
+          class="filter-btn"
+          data-category="Liquidity"
+        >
+          Liquidity
+        </button>
+
+        <button
+          class="filter-btn"
+          data-category="Entries"
+        >
+          Entries
+        </button>
+
+        <button
+          class="filter-btn"
+          data-category="Psychology"
+        >
+          Psychology
+        </button>
+
+      </div>
+
+
+      <!-- VIDEO GRID -->
+
+      <div
+        id="videosContainer"
+        class="resource-grid"
+      ></div>
+
+
+      <div
+        id="noResultsMessage"
+        class="status-message"
+      >
+        No videos match your search.
+      </div>
+
+
+      <!-- FOOTER -->
 
       <footer class="dashboard-footer">
         <div>© 2026 GTRADES-AXIS™</div>
         <div>Version 2.0 • Cloudflare R2</div>
       </footer>
+
     </div>
+
   </main>
+
 </div>
 
-<div class="video-modal" id="videoModal">
+
+<!-- VIDEO MODAL -->
+
+<div
+  class="video-modal"
+  id="videoModal"
+>
+
   <div class="modal-content">
-    <button class="modal-close" id="closeModal" aria-label="Close">&times;</button>
-    <video id="videoPlayer" controls playsinline preload="metadata"></video>
+    <button
+      class="modal-close"
+      id="closeModal"
+      aria-label="Close video"
+    >
+      &times;
+    </button>
+
+    <video
+      id="r2VideoPlayer"
+      controls
+      playsinline
+      preload="metadata"
+    ></video>
+
     <div id="videoError" class="video-error">
       <i class="fa-solid fa-circle-exclamation"></i>
       <p style="margin-top:10px;">Unable to load this video.</p>
       <small>Please try again or contact support.</small>
     </div>
   </div>
+
 </div>
 
 
+<!-- FIREBASE IMPORT MAP -->
 <script type="importmap">
 {
   "imports": {
-    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/app": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
     "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
     "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
     "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
-
   }
 }
 </script>
 
+
+<!-- VIDEOS APPLICATION -->
+
 <script type="module">
-  import { auth, db } from "./js/firebase.js";
-  import { onAuthStateChanged, signOut } from "firebase/auth";
-  import { collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
-  import { getDownloadUrl } from "./js/upload.js";
+  import {
+    auth,
+    db
+  } from "./js/firebase.js";
+
+  import {
+    onAuthStateChanged,
+    signOut
+  } from "firebase/auth";
+
+  import {
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    doc,
+    getDoc
+  } from "firebase/firestore";
+
+  import {
+    getDownloadUrl
+  } from "./js/upload.js";
 
 
-  const container = document.getElementById("videosContainer");
-  const searchInput = document.getElementById("searchInput");
-  const filterBtns = document.querySelectorAll(".filter-btn");
-  const modal = document.getElementById("videoModal");
-  const videoPlayer = document.getElementById("videoPlayer");
-  const closeModal = document.getElementById("closeModal");
-  const videoError = document.getElementById("videoError");
-  const noResults = document.getElementById("noResultsMessage");
-  const app = document.getElementById("app");
+  /* ==========================================================
+     ELEMENTS
+  ========================================================== */
+
+  const app =
+    document.getElementById("app");
+
+  const container =
+    document.getElementById("videosContainer");
+
+  const searchInput =
+    document.getElementById("searchInput");
+
+  const filterBtns =
+    document.querySelectorAll(".filter-btn");
+
+  const modal =
+    document.getElementById("videoModal");
+
+  const videoPlayer =
+    document.getElementById("r2VideoPlayer");
+
+  const closeModal =
+    document.getElementById("closeModal");
+
+  const noResults =
+    document.getElementById("noResultsMessage");
+
+  const logoutBtn =
+    document.getElementById("logoutBtn");
+
+
+  /* ==========================================================
+     STATE
+  ========================================================== */
 
   let videos = [];
+
   let activeCategory = "All";
+
   let hasPremiumAccess = false;
+
 
   app.classList.add("loading");
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
 
-    try {
-      const userSnap = await getDoc(doc(db, "users", user.uid));
+  /* ==========================================================
+     AUTHENTICATION
+  ========================================================== */
 
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        hasPremiumAccess =
-          data.role === "admin" ||
-          data.membership === "premium";
-      }
+  onAuthStateChanged(
+    auth,
+    async (user) => {
 
-      app.classList.remove("loading");
+      if (!user) {
 
-      if (!hasPremiumAccess) {
-        app.classList.add("locked");
+        window.location.href =
+          "login.html";
+
         return;
       }
 
-      app.classList.remove("locked");
-      await loadVideos();
 
-    } catch (error) {
-      console.error("Video access error:", error);
-      app.classList.remove("loading");
-      app.classList.add("locked");
+      try {
+
+        const userSnap =
+          await getDoc(
+            doc(
+              db,
+              "users",
+              user.uid
+            )
+          );
+
+
+        if (!userSnap.exists()) {
+
+          app.classList.remove(
+            "loading"
+          );
+
+          showError(
+            "Your account information could not be found."
+          );
+
+          return;
+        }
+
+
+        const userData =
+          userSnap.data();
+
+
+        hasPremiumAccess =
+          userData.role === "admin" ||
+          userData.membership === "premium";
+
+
+        app.classList.remove(
+          "loading"
+        );
+
+
+        if (!hasPremiumAccess) {
+
+          app.classList.add(
+            "locked"
+          );
+
+          return;
+        }
+
+
+        app.classList.remove(
+          "locked"
+        );
+
+
+        await loadVideos();
+
+
+      } catch (error) {
+
+        console.error(
+          "AUTH ERROR:",
+          error
+        );
+
+
+        app.classList.remove(
+          "loading"
+        );
+
+
+        showError(
+          "Unable to load your account. Please refresh the page."
+        );
+
+      }
+
     }
-  });
+  );
 
-  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-    if (!confirm("Logout?")) return;
-    await signOut(auth);
-    window.location.href = "login.html";
 
-  });
+  /* ==========================================================
+     LOGOUT
+  ========================================================== */
+
+  logoutBtn?.addEventListener(
+    "click",
+    async () => {
+
+      if (
+        !confirm(
+          "Logout?"
+        )
+      ) return;
+
+
+      try {
+
+        await signOut(auth);
+
+        window.location.href =
+          "login.html";
+
+      } catch (error) {
+
+        console.error(
+          "Logout error:",
+          error
+        );
+
+        alert(
+          "Unable to logout."
+        );
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================================
+     LOAD VIDEOS
+  ========================================================== */
 
   async function loadVideos() {
-    videos = [];
+
+    container.innerHTML = `
+
+      <div
+        style="
+          grid-column:1/-1;
+          text-align:center;
+          padding:50px;
+          color:#94a3b8;
+        "
+      >
+
+        <i
+          class="fa-solid fa-spinner fa-spin"
+          style="
+            font-size:2rem;
+            margin-bottom:15px;
+          "
+        ></i>
+
+        <p>
+          Loading videos...
+        </p>
+
+      </div>
+
+    `;
+
 
     try {
-      const q = query(
-        collection(db, "videos"),
-        orderBy("createdAt", "desc")
+
+      const videosQuery =
+        query(
+          collection(
+            db,
+            "videos"
+          ),
+          orderBy(
+            "createdAt",
+            "desc"
+          )
+        );
+
+
+      const snapshot =
+        await getDocs(
+          videosQuery
+        );
+
+
+      videos = [];
+
+
+      snapshot.forEach(
+        (videoDoc) => {
+
+          videos.push({
+            id: videoDoc.id,
+            ...videoDoc.data()
+          });
+
+        }
       );
 
-      const snapshot = await getDocs(q);
 
-      snapshot.forEach((videoDoc) => {
-        videos.push({
-          id: videoDoc.id,
-          ...videoDoc.data()
-        });
-      });
+      console.log(
+        "GTRADES-AXIS videos:",
+        videos
+      );
+
 
       await renderVideos();
 
+
     } catch (error) {
-      console.error("Error loading videos:", error);
-      container.innerHTML =
-        '<div class="status-message visible">Error loading videos.</div>';
+
+      console.error(
+        "VIDEO LOAD ERROR:",
+        error
+      );
+
+
+      showError(
+        "Error loading videos. Check Firestore permissions."
+      );
+
     }
+
+  }
   }
 
-  async function getThumbnailUrl(key) {
-    if (!key) return null;
 
-    try {
-      return await getDownloadUrl(key);
-    } catch (error) {
-      console.warn("Thumbnail unavailable:", key, error);
-      return null;
-    }
-  }
+  /* ==========================================================
+     RENDER VIDEOS
+  ========================================================== */
 
   async function renderVideos() {
+
     container.innerHTML = "";
 
-    let filtered = [...videos];
+    let filtered =
+      [...videos];
 
-    if (activeCategory !== "All") {
-      filtered = filtered.filter(
-        (video) => video.category === activeCategory
-      );
+
+    /* CATEGORY */
+
+    if (
+      activeCategory !== "All"
+    ) {
+
+      filtered =
+        filtered.filter(
+          video =>
+            video.category ===
+            activeCategory
+        );
+
     }
 
-    const keyword = searchInput.value.toLowerCase().trim();
+    const keyword = (searchInput?.value || "").toLowerCase().trim();
 
     if (keyword) {
-      filtered = filtered.filter((video) =>
+      filtered = filtered.filter(video =>
         String(video.title || "").toLowerCase().includes(keyword)
       );
     }
 
     if (!filtered.length) {
-      noResults.classList.add("visible");
+      noResults?.classList.add("visible");
       return;
     }
 
-    noResults.classList.remove("visible");
+    noResults?.classList.remove("visible");
+    }
 
-    for (const video of filtered) {
-      const isPremiumOnly = video.premiumOnly === true;
-      const canAccess = !isPremiumOnly || hasPremiumAccess;
 
-      const card = document.createElement("div");
-      card.className = `video-card${canAccess ? "" : " locked"}`;
+    /* SEARCH */
 
-      let thumbHtml = '<span><i class="fa-solid fa-video"></i></span>';
+    const keyword =
+      (
+        searchInput?.value ||
+        ""
+      )
+      .toLowerCase()
+      .trim();
 
-      if (video.thumbnailKey) {
-        const thumbnailUrl = await getThumbnailUrl(video.thumbnailKey);
 
-        if (thumbnailUrl) {
-          thumbHtml =
-            `<img src="${escapeHtml(thumbnailUrl)}" alt="Video thumbnail" loading="lazy">`;
-        }
-      }
+    if (keyword) {
 
-      card.innerHTML = `
-        <div class="video-thumb">
-          ${thumbHtml}
-          <span class="video-duration">${escapeHtml(video.duration || "—")}</span>
+      filtered =
+        filtered.filter(
+          video => {
 
-          ${
-            !canAccess
-              ? `
-                <div class="lock-overlay">
-                  <i class="fa-solid fa-lock"></i>
-                  <span>Premium Only</span>
-                </div>
-              `
-              : ""
+            const title =
+              String(
+                video.title ||
+                ""
+              ).toLowerCase();
+
+
+            const description =
+              String(
+                video.description ||
+                ""
+              ).toLowerCase();
+
+
+            return (
+              title.includes(
+                keyword
+              ) ||
+              description.includes(
+                keyword
+              )
+            );
+
           }
-        </div>
+        );
 
-        <div class="video-info">
-          <div class="video-title">${escapeHtml(video.title || "Untitled Video")}</div>
+    }
 
-          <div class="video-meta">
-            <span>${escapeHtml(video.category || "General")}</span>
-            <span class="badge ${isPremiumOnly ? "badge-premium" : "badge-free"}">
-              ${isPremiumOnly ? "Premium" : "Free"}
-            </span>
-          </div>
-        </div>
+
+    /* EMPTY */
+
+    if (
+      filtered.length === 0
+    ) {
+
+      noResults.classList.add(
+        "visible"
+      );
+
+      return;
+
+    }
+
+
+    noResults.classList.remove(
+      "visible"
+    );
+
+
+    /* CARDS */
+
+    for (
+      const video of filtered
+    ) {
+
+      const card =
+        await createVideoCard(
+          video
+        );
+
+
+      container.appendChild(
+        card
+      );
+
+    }
+
+  }
+
+  /* ==========================================================
+     CREATE VIDEO CARD
+  ========================================================== */
+
+  async function createVideoCard(
+    video
+  ) {
+
+    const card =
+      document.createElement(
+        "div"
+      );
+
+
+    const premiumOnly =
+      video.premiumOnly === true;
+
+
+    const canAccess =
+      !premiumOnly ||
+      hasPremiumAccess;
+
+
+    card.className =
+      `video-card${
+        canAccess
+          ? ""
+          : " locked"
+      }`;
+
+
+    const title =
+      video.title ||
+      "Untitled Video";
+
+
+    const category =
+      video.category ||
+      "General";
+
+
+    const duration =
+      video.duration ||
+      "—";
+
+
+    /* R2 THUMBNAIL */
+
+    let thumbnailHTML =
+      `
+        <span>
+          📹
+        </span>
       `;
 
-      if (canAccess) {
-        card.addEventListener("click", () => openVideo(video));
-      }
 
-      container.appendChild(card);
-    }
-  }
-
-  async function openVideo(video) {
-    if (!video.videoKey) {
-      console.error("This video has no videoKey:", video);
-      alert("This video file is not available yet.");
-      return;
-    }
-
-    videoError.classList.remove("visible");
-    videoPlayer.style.display = "block";
-    videoPlayer.pause();
-    videoPlayer.removeAttribute("src");
-    videoPlayer.load();
-
-    modal.classList.add("active");
-    document.body.style.overflow = "hidden";
-
-    try {
-      const signedUrl = await getDownloadUrl(video.videoKey);
-
-      videoPlayer.src = signedUrl;
-      videoPlayer.load();
+    if (
+      video.thumbnailKey
+    ) {
 
       try {
-        await videoPlayer.play();
-      } catch {
-        // Browser may require the user to press Play.
+
+        const thumbnailURL =
+          await getDownloadUrl(
+            video.thumbnailKey
+          );
+
+
+        thumbnailHTML =
+          `
+            <img
+              src="${escapeHTML(
+                thumbnailURL
+              )}"
+              alt="${escapeHTML(
+                title
+              )}"
+            />
+          `;
+
+      } catch (error) {
+
+        console.warn(
+          "Thumbnail unavailable:",
+          error
+        );
+
       }
 
-    } catch (error) {
-      console.error("R2 video playback error:", error);
-      videoPlayer.style.display = "none";
-      videoError.classList.add("visible");
     }
+
+
+    card.innerHTML = `
+
+      <div class="video-thumb">
+
+        ${thumbnailHTML}
+
+        ${
+          canAccess
+            ? `
+              <div class="play-icon">
+                <i class="fa-solid fa-play"></i>
+              </div>
+            `
+            : ""
+        }
+
+
+        <span class="video-duration">
+          ${escapeHTML(
+            duration
+          )}
+        </span>
+
+
+        ${
+          !canAccess
+            ? `
+              <div class="lock-overlay">
+
+                <i class="fa-solid fa-lock"></i>
+
+                <span>
+                  Premium Only
+                </span>
+
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+
+
+      <div class="video-info">
+
+        <div class="video-title">
+
+          ${escapeHTML(
+            title
+          )}
+
+        </div>
+
+
+        <div class="video-meta">
+
+          <span>
+            ${escapeHTML(
+              category
+            )}
+          </span>
+
+
+          <span
+            class="badge ${
+              premiumOnly
+                ? "badge-premium"
+                : "badge-free"
+            }"
+          >
+
+            ${
+              premiumOnly
+                ? "Premium"
+                : "Free"
+            }
+
+          </span>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    /* CLICK */
+
+    if (canAccess) {
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          openVideo(
+            video
+          );
+
+        }
+      );
+
+    }
+
+
+    return card;
+
   }
+
+
+  /* ==========================================================
+     OPEN R2 VIDEO
+  ========================================================== */
+
+  async function openVideo(
+    video
+  ) {
+
+    const videoKey =
+      video.videoKey ||
+      video.fileKey ||
+      "";
+
+
+    if (!videoKey) {
+
+      console.error(
+        "Missing videoKey:",
+        video
+      );
+
+
+      alert(
+        "This video does not have an R2 file attached yet."
+      );
+
+
+      return;
+
+    }
+
+
+    try {
+
+      console.log(
+        "Getting R2 video URL:",
+        videoKey
+      );
+
+
+      const signedURL =
+        await getDownloadUrl(
+          videoKey
+        );
+
+
+      console.log(
+        "R2 video URL received."
+      );
+
+
+      videoPlayer.src =
+        signedURL;
+
+
+      modal.classList.add(
+        "active"
+      );
+
+
+      document.body.style.overflow =
+        "hidden";
+
+
+      videoPlayer.load();
+
+
+      try {
+
+        await videoPlayer.play();
+
+      } catch (playError) {
+
+        console.log(
+          "Autoplay blocked. User can press play."
+        );
+
+      }
+
+
+    } catch (error) {
+
+      console.error(
+        "R2 VIDEO ERROR:",
+        error
+      );
+
+
+      alert(
+        "Unable to play this video.\n\n" +
+        error.message
+      );
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     CLOSE VIDEO
+  ========================================================== */
 
   function closeVideo() {
+
     videoPlayer.pause();
-    videoPlayer.removeAttribute("src");
+
+    videoPlayer.removeAttribute(
+      "src"
+    );
+
     videoPlayer.load();
 
-    modal.classList.remove("active");
-    document.body.style.overflow = "";
-    videoError.classList.remove("visible");
-    videoPlayer.style.display = "block";
+
+    modal.classList.remove(
+      "active"
+    );
+
+
+    document.body.style.overflow =
+      "";
+
   }
 
-  closeModal?.addEventListener("click", closeVideo);
 
-  modal?.addEventListener("click", (event) => {
-    if (event.target === modal) closeVideo();
-  });
+  closeModal?.addEventListener(
+    "click",
+    closeVideo
+  );
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && modal.classList.contains("active")) {
-      closeVideo();
+
+  modal?.addEventListener(
+    "click",
+    (event) => {
+
+      if (
+        event.target === modal
+      ) {
+
+        closeVideo();
+
+      }
+
     }
-  });
+  );
 
-  searchInput?.addEventListener("input", renderVideos);
 
-  filterBtns.forEach((button) => {
-    button.addEventListener("click", () => {
-      filterBtns.forEach((btn) => btn.classList.remove("active"));
-      button.classList.add("active");
+  document.addEventListener(
+    "keydown",
+    (event) => {
 
-      activeCategory = button.dataset.category || "All";
+      if (
+        event.key === "Escape"
+      ) {
+
+        closeVideo();
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================================
+     SEARCH
+  ========================================================== */
+
+  searchInput?.addEventListener(
+    "input",
+    () => {
+
       renderVideos();
-    });
-  });
 
-  function escapeHtml(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    }
+  );
+
+
+  /* ==========================================================
+     FILTERS
+  ========================================================== */
+
+  filterBtns.forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          filterBtns.forEach(
+            btn =>
+              btn.classList.remove(
+                "active"
+              )
+          );
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          activeCategory =
+            button.dataset.category ||
+            "All";
+
+
+          renderVideos();
+
+        }
+      );
+
+    }
+  );
+
+
+  /* ==========================================================
+     ERROR
+  ========================================================== */
+
+  function showError(
+    message
+  ) {
+
+    container.innerHTML = `
+
+      <div
+        style="
+          grid-column:1/-1;
+          text-align:center;
+          padding:50px 20px;
+          color:#ff8799;
+        "
+      >
+
+        <i
+          class="fa-solid fa-circle-exclamation"
+          style="
+            font-size:2.5rem;
+            margin-bottom:15px;
+          "
+        ></i>
+
+
+        <p>
+          ${escapeHTML(
+            message
+          )}
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* ==========================================================
+     ESCAPE HTML
+  ========================================================== */
+
+  function escapeHTML(
+    value
+  ) {
+
+    return String(
+      value
+    )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
   }
 </script>
 
