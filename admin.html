@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GTRADES AXIS™ | Admin</title>
 
-  <!-- 🛡️ ABSOLUTE ADMIN LOCK (Placed here to stop non-admins immediately) -->
+  <!-- 🛡️ ABSOLUTE ADMIN LOCK -->
   <script type="importmap">
   {
     "imports": {
       "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
       "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
+      "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
     }
   }
   </script>
@@ -20,15 +21,12 @@
     import { onAuthStateChanged } from "firebase/auth";
     import { doc, getDoc } from "firebase/firestore";
 
-    // This runs BEFORE the page loads, instantly blocking anyone who isn't an admin
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const snap = await getDoc(doc(db, "users", user.uid));
-          // If user doesn't exist OR role is NOT "admin", immediately redirect to dashboard
           if (!snap.exists() || snap.data().role !== "admin") {
-            // Clear the screen instantly so they don't see anything
-            document.body.innerHTML = ""; 
+            document.body.innerHTML = "";
             window.location.href = "/dashboard";
           }
         } catch (e) {
@@ -39,14 +37,11 @@
       }
     });
   </script>
-  <!-- 🛡️ END OF ABSOLUTE LOCK -->
+  <!-- 🛡️ END LOCK -->
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    /* ===========================
-       RESET & BASE
-    =========================== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -73,14 +68,10 @@
     }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
-
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-primary); }
     ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
 
-    /* ===========================
-       SIDEBAR
-    =========================== */
     .sidebar {
       width: var(--sidebar-width);
       min-height: 100vh;
@@ -96,19 +87,9 @@
       flex-shrink: 0;
       z-index: 100;
     }
-    .sidebar .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 36px;
-    }
+    .sidebar .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
     .sidebar .logo img { width: 42px; height: 42px; object-fit: contain; border-radius: 10px; background: #0f1628; padding: 4px; }
-    .sidebar .logo h2 {
-      font-size: 1.125rem;
-      background: linear-gradient(135deg, #fff 30%, #00d4ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    .sidebar .logo h2 { font-size: 1.125rem; background: linear-gradient(135deg, #fff 30%, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .sidebar .logo h2 span { -webkit-text-fill-color: var(--accent-blue); }
     .sidebar nav { flex: 1; }
     .sidebar nav ul { list-style: none; padding: 0; }
@@ -118,11 +99,7 @@
       color: var(--text-secondary); transition: 0.2s; font-size: 0.875rem; font-weight: 500; border-left: 3px solid transparent;
     }
     .sidebar nav ul li a:hover { background: var(--bg-card); color: #fff; }
-    .sidebar nav ul li.active a {
-      background: rgba(79,124,255,0.12);
-      color: var(--accent-blue);
-      border-left-color: var(--accent-blue);
-    }
+    .sidebar nav ul li.active a { background: rgba(79,124,255,0.12); color: var(--accent-blue); border-left-color: var(--accent-blue); }
     .sidebar nav ul li a i { width: 20px; text-align: center; }
     .sidebar .logout-btn {
       margin-top: auto;
@@ -143,9 +120,6 @@
     }
     .sidebar .logout-btn:hover { background: rgba(255,71,102,0.18); }
 
-    /* ===========================
-       MAIN
-    =========================== */
     .admin-main { flex: 1; padding: 28px 36px 40px; max-width: 1440px; margin: 0 auto; width: 100%; }
     .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
     .admin-header h1 { font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, #fff 30%, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -153,9 +127,6 @@
     .admin-header .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     #liveDate { color: var(--text-secondary); font-size: 0.875rem; padding: 6px 18px; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); }
 
-    /* ===========================
-       STATS
-    =========================== */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; margin-bottom: 28px; }
     .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px 22px; display: flex; align-items: center; gap: 16px; transition: 0.25s; }
     .stat-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
@@ -168,17 +139,11 @@
     .stat-card div h2 { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
     .stat-card div p { color: var(--text-secondary); font-size: 0.8rem; margin-top: 2px; }
 
-    /* ===========================
-       QUICK ACTIONS
-    =========================== */
     .quick-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
     .quick-actions button { padding: 10px 22px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); color: var(--text-primary); font-weight: 500; font-size: 0.875rem; transition: 0.25s; display: inline-flex; align-items: center; gap: 8px; }
     .quick-actions button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
     .quick-actions button i { color: var(--accent-blue); }
 
-    /* ===========================
-       DASHBOARD GRID
-    =========================== */
     .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 28px; }
     .dashboard-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 22px 24px; }
     .dashboard-card h2 { font-size: 1.125rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
@@ -233,9 +198,6 @@
     .activity-item h4 { font-size: 0.875rem; }
     .activity-item p { font-size: 0.75rem; color: var(--text-secondary); }
 
-    /* ===========================
-       MANAGER SECTIONS
-    =========================== */
     .manager-section { margin-top: 24px; }
     .manager-section .dashboard-card { margin-bottom: 24px; }
 
@@ -255,9 +217,6 @@
     .module-status-toggle { cursor: pointer; transition: 0.2s; }
     .module-status-toggle:hover { opacity: 0.7; }
 
-    /* ===========================
-       PAYMENTS TABLE
-    =========================== */
     .payments-stats { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
     .payments-stats .p-stat { background: var(--bg-primary); padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); font-size: 0.8rem; }
     .p-stat span { font-weight: 700; }
@@ -269,12 +228,9 @@
     .btn-approve:hover { background: var(--green); color: #fff; }
     .btn-reject { background: rgba(255,71,102,0.12); color: var(--red); border: none; padding: 4px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
     .btn-reject:hover { background: var(--red); color: #fff; }
-    .btn-view-proof { background: rgba(79,124,255,0.12); color: var(--accent-blue); padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; }
+    .btn-view-proof { background: rgba(79,124,255,0.12); color: var(--accent-blue); padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; border: none; cursor: pointer; }
     .btn-view-proof:hover { background: var(--accent-blue); color: #fff; }
 
-    /* ===========================
-       MEMBER MODAL
-    =========================== */
     .member-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
     .member-modal.active { display: flex; }
     .member-modal-content { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); max-width: 520px; width: 92%; padding: 30px 26px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
@@ -306,9 +262,6 @@
     .delete-btn { background: rgba(255,71,102,0.12); color: var(--red); }
     .delete-btn:hover { background: var(--red); color: #fff; }
 
-    /* ===========================
-       RESPONSIVE
-    =========================== */
     @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } }
     @media (max-width: 992px) { .sidebar { width: 200px; padding: 20px 14px; } .admin-main { padding: 20px 24px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) {
@@ -318,13 +271,20 @@
       .right-panel { grid-template-columns: 1fr; } .manager-form { grid-template-columns: 1fr; }
     }
     .admin-footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
+    
+    .file-picker { display: flex; flex-direction: column; gap: 6px; }
+    .file-picker input[type="file"] { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; color: #fff; }
+    .file-picker .file-name { color: var(--text-secondary); font-size: 0.8rem; }
+    .recent-member { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+    .recent-member .member-info h4 { font-size: 0.875rem; }
+    .recent-member .member-info p { font-size: 0.75rem; color: var(--text-secondary); }
   </style>
 </head>
 <body>
 
 <!-- ===== SIDEBAR ===== -->
 <aside class="sidebar">
-  <div class="logo"><img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" /><h2>GTRADES <span>AXIS™</span></h2></div>
+  <div class="logo"><img src="images/imageslogo.png.png" alt="Logo" /><h2>GTRADES <span>AXIS™</span></h2></div>
   <nav>
     <ul>
       <li class="active"><a href="#dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
@@ -375,44 +335,39 @@
     </div>
   </div>
 
-  <!-- ==========================================================
-       ACADEMY MANAGER
-  ========================================================== -->
+  <!-- ========================================================== ACADEMY MANAGER -->
   <section class="manager-section" id="academy">
     <div class="dashboard-card">
       <div class="card-header">
         <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules.</p></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
-          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples (Mod 1-4)</button>
+          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples</button>
         </div>
       </div>
-      <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules from Firestore...</div></td></tr></tbody></table></div></div>
+      <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules...</div></td></tr></tbody></table></div></div>
       <div id="moduleFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
         <h3 id="moduleFormTitle">Add New Module</h3>
         <form id="moduleForm" class="manager-form">
           <div><label>Module Number</label><input type="number" id="moduleOrder" placeholder="e.g. 1" required min="1" /></div>
           <div><label>Module Title</label><input type="text" id="moduleTitle" placeholder="e.g. Market Structure" required /></div>
-          <div class="full-width"><label>Module Description</label><textarea id="moduleDescription" placeholder="Short description for the module card..." rows="2"></textarea></div>
-          <div class="full-width"><label>Full Content (HTML supported)</label><textarea id="moduleContent" placeholder="Write the full module content here. Use &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;." rows="10"></textarea></div>
-          <div class="full-width"><label>Video ID (optional)</label><input type="text" id="moduleVideoId" placeholder="dQw4w9WgXcQ" /></div>
-          <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label for="moduleHasQuiz">Includes Quiz</label></div>
-          <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label for="modulePublished">Published (visible to students)</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveModuleBtn"><i class="fa-solid fa-floppy-disk"></i> Save Module</button><button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button></div>
+          <div class="full-width"><label>Description</label><textarea id="moduleDescription" rows="2"></textarea></div>
+          <div class="full-width"><label>Content (HTML)</label><textarea id="moduleContent" rows="10"></textarea></div>
+          <div class="full-width"><label>Module File (PDF/Video)</label><div class="file-picker"><input type="file" id="moduleFilePicker" accept=".pdf,.mp4,.mov,.avi" /><div class="file-name" id="moduleFileName">No file chosen</div></div></div>
+          <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label>Has Quiz</label></div>
+          <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label>Published</label></div>
+          <div class="form-actions"><button type="submit" class="save-btn" id="saveModuleBtn">Save Module</button><button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button></div>
           <input type="hidden" id="editingModuleId" />
+          <input type="hidden" id="existingModuleFileKey" />
         </form>
       </div>
     </div>
   </section>
 
-  <!-- ==========================================================
-       PAYMENTS MANAGER
-  ========================================================== -->
+  <!-- ========================================================== PAYMENTS MANAGER -->
   <section class="manager-section" id="payments">
     <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2><p>Approve or reject membership payment requests.</p></div>
-      </div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
       <div class="payments-stats">
         <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
         <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
@@ -427,52 +382,48 @@
     </div>
   </section>
 
-  <!-- ==========================================================
-       VIDEO MANAGER
-  ========================================================== -->
+  <!-- ========================================================== VIDEO MANAGER (FIRESTORE + R2) -->
   <section class="manager-section" id="videos">
     <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Manage all premium videos.</p></div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Manage all premium videos (thumbnails stored in R2).</p></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Video</button>
-          <button id="addSampleVideosBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Sample Videos</button>
         </div>
       </div>
       <div id="videoListContainer"><div class="table-container"><table class="members-table" id="videoTable"><thead><tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody id="videoTableBody"><tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr></tbody></table></div></div>
       <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
         <h3 id="videoFormTitle">Add New Video</h3>
         <form id="videoForm" class="manager-form">
-          <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required /></div>
-          <div><label>Category</label><select id="videoCategory" required><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
+          <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" required /></div>
+          <div><label>Category</label><select id="videoCategory"><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
           <div><label>Duration</label><input type="text" id="videoDuration" placeholder="e.g. 12:45" required /></div>
-          <div class="full-width"><label>YouTube Video ID</label><input type="text" id="videoYoutubeId" placeholder="dQw4w9WgXcQ" required /></div>
-          <div class="full-width"><label>Thumbnail Image</label><div class="file-picker"><input type="file" id="videoThumbnailFile" accept="image/*" /><div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div></div></div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label for="videoPremiumOnly">Premium Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-floppy-disk"></i> Save Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
-          <input type="hidden" id="editingVideoId" /><input type="hidden" id="existingThumbnailUrl" />
+          <div class="full-width"><label>YouTube Video ID</label><input type="text" id="videoYoutubeId" required /></div>
+          <div class="full-width"><label>Thumbnail Image</label><div class="file-picker"><input type="file" id="videoThumbnailFile" accept="image/*" /><div class="file-name" id="thumbnailFileName">No file chosen</div><div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div></div></div>
+          <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
+          <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn">Save Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
+          <input type="hidden" id="editingVideoId" />
+          <input type="hidden" id="existingThumbnailKey" />
         </form>
       </div>
     </div>
   </section>
 
-  <!-- ==========================================================
-       RESOURCE MANAGER
-  ========================================================== -->
+  <!-- ========================================================== RESOURCE MANAGER (R2) -->
   <section class="manager-section" id="resources">
     <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage all premium resources.</p></div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage all premium resources (files stored in R2).</p></div>
         <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Resource</button>
       </div>
       <div id="resourceListContainer"><div class="table-container"><table class="members-table" id="resourceTable"><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody></table></div></div>
       <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
         <h3 id="resourceFormTitle">Add New Resource</h3>
         <form id="resourceForm" class="manager-form">
-          <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" placeholder="Resource Title" required /></div>
-          <div><label>Category</label><select id="resourceCategory" required><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option></select></div>
-          <div class="full-width"><label>Description</label><textarea id="resourceDescription" placeholder="Description"></textarea></div>
-          <div class="file-picker full-width"><input type="file" id="resourceFilePicker" hidden /><input type="text" id="resourceFile" readonly placeholder="Choose a file" /><button type="button" id="chooseFileBtn">📁 Choose File</button></div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label for="premiumOnly">Premium Members Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn"><i class="fa-solid fa-floppy-disk"></i> Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
+          <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
+          <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option></select></div>
+          <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
+          <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
+          <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
+          <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
           <input type="hidden" id="editingResourceId" />
         </form>
       </div>
@@ -495,41 +446,45 @@
       <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
     </div>
     <div class="modal-actions">
-      <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-circle-check"></i> Approve</button>
-      <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
-      <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-user-shield"></i> Admin</button>
-      <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
-      <button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+      <button id="approveBtn" class="approve-btn">Approve</button>
+      <button id="premiumBtn" class="premium-btn">Premium</button>
+      <button id="adminBtn" class="admin-btn">Admin</button>
+      <button id="suspendBtn" class="suspend-btn">Suspend</button>
+      <button id="deleteBtn" class="delete-btn">Delete</button>
     </div>
   </div>
 </div>
 
-<!-- ===== MAIN APP SCRIPTS ===== -->
+<!-- ========================================================== SCRIPTS -->
 <script type="importmap">
 {
   "imports": {
     "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
     "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
+    "firebase/functions": "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
   }
 }
 </script>
 
-<!-- COMPLETE SINGLE MODULE SCRIPT -->
 <script type="module">
-  import { auth, db } from "./js/firebase.js";
+  // ─── IMPORTS ──────────────────────────────────────────────────────────────
+  import { auth, db, functions } from "./js/firebase.js";
   import { signOut, onAuthStateChanged } from "firebase/auth";
   import { 
     collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, 
     onSnapshot, serverTimestamp, addDoc 
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  } from "firebase/firestore";
+  import { httpsCallable } from "firebase/functions";
+  import { uploadToR2 } from "./js/upload.js";
 
-  // ─── GLOBAL VARIABLES ──────────────────────────────────────────
+  // ─── GLOBALS ──────────────────────────────────────────────────────────────
   let allMembers = [];
   let selectedUser = null;
   let currentModules = [];
+  let videos = [];
 
-  // ─── DOM REFS (Members) ──────────────────────────────────────
+  // ─── DOM REFS ─────────────────────────────────────────────────────────────
   const membersTableBody = document.getElementById('membersTable');
   const memberSearch = document.getElementById('memberSearch');
   const memberModal = document.getElementById('memberModal');
@@ -547,7 +502,7 @@
   const modalSuspendBtn = document.getElementById('suspendBtn');
   const modalDeleteBtn = document.getElementById('deleteBtn');
 
-  // ─── LOGOUT & DATE ─────────────────────────────────────────────
+  // ─── LOGOUT & CLOCK ──────────────────────────────────────────────────────
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     if (confirm("Logout?")) { await signOut(auth); window.location.href = "/login"; }
   });
@@ -561,7 +516,6 @@
   updateClock(); setInterval(updateClock, 1000);
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  // ─── ACTIVITY FEED ────────────────────────────────────────────
   function addActivity(text) {
     const feed = document.getElementById('activityFeed');
     if (!feed) return;
@@ -573,9 +527,21 @@
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  1. MEMBERS LOGIC
-  // ══════════════════════════════════════════════════════════════
+  // ─── GENERIC R2 DOWNLOAD ──────────────────────────────────────────────────
+  async function downloadR2File(key) {
+    if (!key) return alert('No file key found.');
+    try {
+      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
+      const result = await getDownloadUrl({ key });
+      window.open(result.data.url, '_blank');
+    } catch (error) {
+      alert('Failed to get download link: ' + error.message);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  1. MEMBERS (unchanged)
+  // ═══════════════════════════════════════════════════════════════════════════
   function listenMembers() {
     const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
@@ -590,11 +556,8 @@
   function updateMemberStats(members) {
     const totalEl = document.getElementById('totalMembers');
     const premiumEl = document.getElementById('premiumMembers');
-    const premiumOverviewEl = document.getElementById('premiumOverview');
-
     if (totalEl) totalEl.textContent = members.length;
     if (premiumEl) premiumEl.textContent = members.filter(m => m.membership === 'premium').length;
-    if (premiumOverviewEl) premiumOverviewEl.textContent = members.filter(m => m.membership === 'premium').length;
   }
 
   function renderRecentMembers(members) {
@@ -615,12 +578,10 @@
       (m.email || '').toLowerCase().includes(searchTerm) || 
       (m.displayName || '').toLowerCase().includes(searchTerm)
     );
-
     if (filtered.length === 0) {
       membersTableBody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No members found.</div></td></tr>`;
       return;
     }
-
     membersTableBody.innerHTML = filtered.map(m => `
       <tr>
         <td>
@@ -635,7 +596,6 @@
         <td><button class="manage-btn manage-member-btn" data-id="${m.id}">Manage</button></td>
       </tr>
     `).join('');
-
     document.querySelectorAll('.manage-member-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const user = allMembers.find(m => m.id === btn.dataset.id);
@@ -643,10 +603,8 @@
       });
     });
   }
-
   memberSearch.addEventListener('input', () => renderMembersTable(allMembers));
 
-  // ─── MEMBER MODAL LOGIC ──────────────────────────────────────
   function openModal(user) {
     selectedUser = user;
     modalName.textContent = user.displayName || user.email || 'Member';
@@ -659,11 +617,7 @@
     memberModal.classList.add('active');
   }
 
-  function closeModalFunc() {
-    selectedUser = null;
-    memberModal.classList.remove('active');
-  }
-
+  function closeModalFunc() { selectedUser = null; memberModal.classList.remove('active'); }
   closeModal.addEventListener('click', closeModalFunc);
   memberModal.addEventListener('click', (e) => { if(e.target === memberModal) closeModalFunc(); });
 
@@ -675,37 +629,24 @@
       closeModalFunc();
     } catch (e) { alert("Error updating member: " + e.message); }
   }
-
   modalApproveBtn.addEventListener('click', () => updateMemberField('status', 'active'));
   modalPremiumBtn.addEventListener('click', () => updateMemberField('membership', 'premium'));
   modalAdminBtn.addEventListener('click', () => updateMemberField('role', 'admin'));
   modalSuspendBtn.addEventListener('click', () => updateMemberField('status', 'suspended'));
-
   modalDeleteBtn.addEventListener('click', async () => {
     if (!selectedUser) return;
     if (!confirm(`Permanently delete ${selectedUser.email}? This cannot be undone!`)) return;
-    try {
-      await deleteDoc(doc(db, "users", selectedUser.id));
-      addActivity(`Deleted member ${selectedUser.email}`);
-      closeModalFunc();
-    } catch (e) { alert("Error deleting member: " + e.message); }
+    try { await deleteDoc(doc(db, "users", selectedUser.id)); addActivity(`Deleted member ${selectedUser.email}`); closeModalFunc(); } 
+    catch (e) { alert("Error deleting member: " + e.message); }
   });
 
-  // ══════════════════════════════════════════════════════════════
-  //  2. ACADEMY MODULES
-  // ══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  2. ACADEMY MODULES (with R2 file upload)
+  // ═══════════════════════════════════════════════════════════════════════════
   const MODULES_COLLECTION = "academy_modules";
-
   function getSampleModules() {
     return [
-      {
-        id: "mod_1", order: 1, title: "Introduction",
-        description: "Welcome, academy overview, rules, environment setup, recommended tools.",
-        content: `<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy...</p>`,
-        videoId: "", hasQuiz: true, published: true,
-        lessons: [{ id: "lsn_1_1", title: "Welcome to GTRADES-AXIS™", type: "video", videoUrl: "", pdfUrl: "", notes: "" }],
-        quiz: { passingScore: 70, questions: [{ question: "Q1?", options: ["A", "B", "C", "D"], correct: 0 }] }
-      }
+      { id: "mod_1", order: 1, title: "Introduction", description: "Welcome to GTRADES-AXIS™ Academy.", content: "<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy...</p>", hasQuiz: true, published: true, lessons: [], quiz: { passingScore: 70, questions: [] } }
     ];
   }
 
@@ -721,7 +662,7 @@
         modules.push({ id: doc.id, ...data });
       });
       return modules;
-    } catch (e) { console.error("Firestore load failed:", e); return []; }
+    } catch (e) { console.error(e); return []; }
   }
 
   async function saveModuleToFirestore(moduleData) {
@@ -741,19 +682,17 @@
     const pendingEl = document.getElementById('pendingLessons');
     let totalLessons = 0, draftLessons = 0;
     modules.forEach(mod => { totalLessons += (mod.lessons?.length || 0); if (!mod.published) draftLessons += (mod.lessons?.length || 0); });
-    
     if (countEl) countEl.textContent = totalLessons;
     if (overviewEl) overviewEl.textContent = modules.length;
     if (pendingEl) pendingEl.textContent = draftLessons;
-
     if (modules.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet. Click "Add Samples" to load Mods 1-4 or create one manually!</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = modules.map((mod) => `
       <tr>
         <td><strong>Module ${mod.order}</strong></td>
-        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'}</div></td>
+        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'} ${mod.moduleFileKey ? '📎' : ''}</div></td>
         <td><span class="badge ${mod.published !== false ? 'published' : 'draft'} module-status-toggle" data-id="${mod.id}" title="Click to toggle status">${mod.published !== false ? 'Published' : 'Draft'}</span></td>
         <td><button class="manage-btn edit-module" data-id="${mod.id}"><i class="fa-solid fa-pen"></i> Edit</button><button class="manage-btn delete-module" data-id="${mod.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button></td>
       </tr>
@@ -770,8 +709,10 @@
         if (mod) {
           document.getElementById('editingModuleId').value = id; document.getElementById('moduleOrder').value = mod.order;
           document.getElementById('moduleTitle').value = mod.title; document.getElementById('moduleDescription').value = mod.description || '';
-          document.getElementById('moduleContent').value = mod.content || ''; document.getElementById('moduleVideoId').value = mod.videoId || '';
+          document.getElementById('moduleContent').value = mod.content || '';
           document.getElementById('moduleHasQuiz').checked = mod.hasQuiz !== false; document.getElementById('modulePublished').checked = mod.published !== false;
+          document.getElementById('existingModuleFileKey').value = mod.moduleFileKey || '';
+          document.getElementById('moduleFileName').textContent = mod.moduleFileKey ? 'File attached' : 'No file chosen';
           document.getElementById('moduleFormTitle').textContent = 'Edit Module'; document.getElementById('saveModuleBtn').textContent = 'Update Module';
           document.getElementById('moduleFormContainer').style.display = 'block'; document.getElementById('moduleFormContainer').scrollIntoView({ behavior: 'smooth' });
         }
@@ -796,13 +737,24 @@
     const id = document.getElementById('editingModuleId').value || 'mod-' + Date.now();
     const order = parseInt(document.getElementById('moduleOrder').value); const title = document.getElementById('moduleTitle').value.trim();
     const description = document.getElementById('moduleDescription').value.trim(); const content = document.getElementById('moduleContent').value;
-    const videoId = document.getElementById('moduleVideoId').value.trim(); const hasQuiz = document.getElementById('moduleHasQuiz').checked; const published = document.getElementById('modulePublished').checked;
-    if (!title || !order) return alert('Please fill in all required fields.');
-    const existingMod = currentModules.find(m => m.id === id);
-    const moduleData = { id: id, order: order, title: title, description: description, content: content, videoId: videoId, hasQuiz: hasQuiz, published: published, lessons: existingMod?.lessons || [], quiz: existingMod?.quiz || { passingScore: 70, questions: [] } };
-    await saveModuleToFirestore(moduleData); renderModules(); addActivity(`Saved module "${title}"`); document.getElementById('moduleFormContainer').style.display = 'none'; document.getElementById('moduleForm').reset(); document.getElementById('editingModuleId').value = '';
-  });
+    const hasQuiz = document.getElementById('moduleHasQuiz').checked; const published = document.getElementById('modulePublished').checked;
+    const file = document.getElementById('moduleFilePicker').files[0];
+    let moduleFileKey = document.getElementById('existingModuleFileKey').value || null;
 
+    if (!title || !order) return alert('Please fill in all required fields.');
+
+    try {
+      if (file) {
+        const key = `modules/${id}/${Date.now()}_${file.name}`;
+        moduleFileKey = await uploadToR2(file, key);
+        document.getElementById('moduleFileName').textContent = 'Uploaded: ' + file.name;
+      }
+
+      const existingMod = currentModules.find(m => m.id === id);
+      const moduleData = { id, order, title, description, content, hasQuiz, published, moduleFileKey, lessons: existingMod?.lessons || [], quiz: existingMod?.quiz || { passingScore: 70, questions: [] } };
+      await saveModuleToFirestore(moduleData); renderModules(); addActivity(`Saved module "${title}"`); document.getElementById('moduleFormContainer').style.display = 'none'; document.getElementById('moduleForm').reset(); document.getElementById('editingModuleId').value = '';
+    } catch (error) { alert('Error saving module: ' + error.message); }
+  });
   document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
     const existing = await loadModulesFromFirestore();
     if (existing.length > 0) { if (!confirm('This will add sample modules. Continue?')) return; }
@@ -811,18 +763,14 @@
     renderModules(); addActivity('Imported sample modules');
   });
 
-  // ══════════════════════════════════════════════════════════════
-  //  3. PAYMENTS LOGIC
-  // ══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  3. PAYMENTS (unchanged)
+  // ═══════════════════════════════════════════════════════════════════════════
   function listenPayments() {
     const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('paymentsTableBody');
       let pending = 0, approved = 0, rejected = 0;
-      const pendingEl = document.getElementById('payPending');
-      const approvedEl = document.getElementById('payApproved');
-      const rejectedEl = document.getElementById('payRejected');
-
       if (snapshot.empty) {
         tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No payments found.</div></td></tr>`;
       } else {
@@ -851,10 +799,10 @@
           `;
         });
         tbody.innerHTML = html;
-        if (pendingEl) pendingEl.textContent = pending;
-        if (approvedEl) approvedEl.textContent = approved;
-        if (rejectedEl) rejectedEl.textContent = rejected;
       }
+      document.getElementById('payPending').textContent = pending;
+      document.getElementById('payApproved').textContent = approved;
+      document.getElementById('payRejected').textContent = rejected;
       document.querySelectorAll('.btn-approve').forEach(btn => {
         btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'approved'));
       });
@@ -871,75 +819,88 @@
       if (status === 'approved') {
         await updateDoc(doc(db, "users", userId), { membership: 'premium', updatedAt: serverTimestamp() });
         addActivity(`Approved payment and upgraded user to Premium.`);
-      } else {
-        addActivity(`Rejected a payment request.`);
-      }
+      } else { addActivity(`Rejected a payment request.`); }
     } catch (error) { alert("Failed to update payment."); }
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  4. VIDEOS LOGIC (LOCAL STORAGE + RENDERING)
-  // ══════════════════════════════════════════════════════════════
-  function getVideosFromStorage() {
-    try { return JSON.parse(localStorage.getItem('gtrades_videos')) || []; } catch { return []; }
-  }
-  function saveVideosToStorage(videos) {
-    localStorage.setItem('gtrades_videos', JSON.stringify(videos));
-  }
-
-  function renderVideoCounts() {
-    const videos = getVideosFromStorage();
-    const videoCountEl = document.getElementById('videoCount');
-    const videoOverviewEl = document.getElementById('videoOverview');
-    if (videoCountEl) videoCountEl.textContent = videos.length;
-    if (videoOverviewEl) videoOverviewEl.textContent = videos.length;
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  4. VIDEOS (FIRESTORE + R2 thumbnails)
+  // ═══════════════════════════════════════════════════════════════════════════
+  function listenVideos() {
+    const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
+    onSnapshot(q, async (snapshot) => {
+      videos = [];
+      snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+      document.getElementById('videoCount').textContent = videos.length;
+      document.getElementById('videoOverview').textContent = videos.length;
+      await renderVideosTable();
+    });
   }
 
-  function renderVideosTable() {
-    const videos = getVideosFromStorage();
+  async function renderVideosTable() {
     const tbody = document.getElementById('videoTableBody');
     if (videos.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">No videos yet.</div></td></tr>`;
       return;
     }
-    tbody.innerHTML = videos.map(v => `
-      <tr>
-        <td>${v.thumbnailUrl ? `<img src="${v.thumbnailUrl}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;">` : '—'}</td>
-        <td>${v.title}</td>
-        <td>${v.category}</td>
-        <td>${v.duration}</td>
-        <td><span class="badge ${v.premiumOnly ? 'premium' : 'free'}">${v.premiumOnly ? 'Premium' : 'Free'}</span></td>
-        <td>
-          <button class="manage-btn edit-video" data-id="${v.id}"><i class="fa-solid fa-pen"></i> Edit</button>
-          <button class="manage-btn delete-video" style="color:var(--red);" data-id="${v.id}"><i class="fa-solid fa-trash"></i> Delete</button>
-        </td>
-      </tr>
-    `).join('');
+
+    let html = '';
+    for (const v of videos) {
+      let thumbHtml = '—';
+      if (v.thumbnailKey) {
+        try {
+          const url = await getThumbnailUrl(v.thumbnailKey);
+          if (url) thumbHtml = `<img src="${url}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" />`;
+        } catch (e) { /* ignore */ }
+      }
+      html += `
+        <tr>
+          <td>${thumbHtml}</td>
+          <td>${v.title}</td>
+          <td>${v.category}</td>
+          <td>${v.duration}</td>
+          <td><span class="badge ${v.premiumOnly ? 'premium' : 'free'}">${v.premiumOnly ? 'Premium' : 'Free'}</span></td>
+          <td>
+            <button class="manage-btn edit-video" data-id="${v.id}"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="manage-btn delete-video" style="color:var(--red);" data-id="${v.id}"><i class="fa-solid fa-trash"></i> Delete</button>
+          </td>
+        </tr>
+      `;
+    }
+    tbody.innerHTML = html;
 
     document.querySelectorAll('.edit-video').forEach(btn => {
       btn.addEventListener('click', function() {
-        const id = this.dataset.id; const videos = getVideosFromStorage(); const v = videos.find(item => item.id === id);
+        const v = videos.find(item => item.id === this.dataset.id);
         if (v) {
-          document.getElementById('editingVideoId').value = id; document.getElementById('videoTitle').value = v.title;
+          document.getElementById('editingVideoId').value = v.id; document.getElementById('videoTitle').value = v.title;
           document.getElementById('videoCategory').value = v.category; document.getElementById('videoDuration').value = v.duration;
           document.getElementById('videoYoutubeId').value = v.youtubeId; document.getElementById('videoPremiumOnly').checked = v.premiumOnly;
-          document.getElementById('existingThumbnailUrl').value = v.thumbnailUrl || '';
-          if (v.thumbnailUrl) { document.getElementById('thumbnailPreviewImg').src = v.thumbnailUrl; document.getElementById('thumbnailPreview').style.display = 'block'; }
+          document.getElementById('existingThumbnailKey').value = v.thumbnailKey || '';
+          document.getElementById('thumbnailPreview').style.display = 'none';
           document.getElementById('videoFormTitle').textContent = 'Edit Video'; document.getElementById('saveVideoBtn').textContent = 'Update Video';
           document.getElementById('videoFormContainer').style.display = 'block'; document.getElementById('videoFormContainer').scrollIntoView({ behavior: 'smooth' });
         }
       });
     });
-
     document.querySelectorAll('.delete-video').forEach(btn => {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', async function() {
         const id = this.dataset.id;
         if (confirm('Delete this video permanently?')) {
-          let videos = getVideosFromStorage(); videos = videos.filter(v => v.id !== id);
-          saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity('Deleted a video.');
+          try { await deleteDoc(doc(db, "videos", id)); addActivity('Deleted a video.'); } 
+          catch (e) { alert('Error deleting video.'); }
         }
       });
     });
+  }
+
+  async function getThumbnailUrl(key) {
+    if (!key) return null;
+    try {
+      const getDownloadUrl = httpsCallable(functions, 'getR2DownloadUrl');
+      const result = await getDownloadUrl({ key });
+      return result.data.url;
+    } catch (e) { console.error("Failed to get thumbnail URL:", e); return null; }
   }
 
   document.getElementById('toggleVideoFormBtn')?.addEventListener('click', function() {
@@ -947,65 +908,87 @@
     if (container.style.display === 'none') {
       container.style.display = 'block'; document.getElementById('videoFormTitle').textContent = 'Add New Video';
       document.getElementById('saveVideoBtn').textContent = 'Save Video'; document.getElementById('editingVideoId').value = '';
-      document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none'; container.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none';
+      document.getElementById('existingThumbnailKey').value = '';
+      document.getElementById('thumbnailFileName').textContent = 'No file chosen';
+      container.scrollIntoView({ behavior: 'smooth' });
     } else { container.style.display = 'none'; }
   });
   document.getElementById('cancelVideoBtn')?.addEventListener('click', function() { document.getElementById('videoFormContainer').style.display = 'none'; });
   document.getElementById('videoThumbnailFile')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    if (file) { const reader = new FileReader(); reader.onload = function(event) { document.getElementById('thumbnailPreviewImg').src = event.target.result; document.getElementById('thumbnailPreview').style.display = 'block'; document.getElementById('existingThumbnailUrl').value = event.target.result; }; reader.readAsDataURL(file); }
+    if (file) {
+      document.getElementById('thumbnailFileName').textContent = file.name;
+      const reader = new FileReader(); reader.onload = function(event) { 
+        document.getElementById('thumbnailPreviewImg').src = event.target.result; 
+        document.getElementById('thumbnailPreview').style.display = 'block'; 
+      }; reader.readAsDataURL(file);
+    } else {
+      document.getElementById('thumbnailFileName').textContent = 'No file chosen';
+      document.getElementById('thumbnailPreview').style.display = 'none';
+    }
   });
 
   document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault(); const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
-    const title = document.getElementById('videoTitle').value.trim(); const category = document.getElementById('videoCategory').value;
-    const duration = document.getElementById('videoDuration').value.trim(); const youtubeId = document.getElementById('videoYoutubeId').value.trim();
-    const premiumOnly = document.getElementById('videoPremiumOnly').checked; const thumbnailUrl = document.getElementById('existingThumbnailUrl').value || '';
+    e.preventDefault();
+    const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
+    const title = document.getElementById('videoTitle').value.trim();
+    const category = document.getElementById('videoCategory').value;
+    const duration = document.getElementById('videoDuration').value.trim();
+    const youtubeId = document.getElementById('videoYoutubeId').value.trim();
+    const premiumOnly = document.getElementById('videoPremiumOnly').checked;
+    const thumbFile = document.getElementById('videoThumbnailFile').files[0];
+    const existingThumbKey = document.getElementById('existingThumbnailKey').value;
+
     if (!title || !youtubeId) return alert('Title and YouTube ID are required.');
-    const videos = getVideosFromStorage(); const existingIndex = videos.findIndex(v => v.id === id);
-    const videoData = { id, title, category, duration, youtubeId, premiumOnly, thumbnailUrl, createdAt: new Date().toISOString() };
-    if (existingIndex !== -1) videos[existingIndex] = videoData; else videos.push(videoData);
-    saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity(`Saved video "${title}"`);
-    document.getElementById('videoFormContainer').style.display = 'none'; document.getElementById('videoForm').reset(); document.getElementById('thumbnailPreview').style.display = 'none';
+
+    try {
+      let thumbnailKey = existingThumbKey;
+      if (thumbFile) {
+        const key = `thumbnails/${Date.now()}_${thumbFile.name}`;
+        thumbnailKey = await uploadToR2(thumbFile, key);
+        document.getElementById('thumbnailPreview').style.display = 'none';
+      }
+
+      const data = { title, category, duration, youtubeId, premiumOnly, thumbnailKey, updatedAt: serverTimestamp() };
+      if (!document.getElementById('editingVideoId').value) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "videos"), data); }
+      else { await updateDoc(doc(db, "videos", id), data); }
+
+      addActivity(`Saved video "${title}"`);
+      document.getElementById('videoFormContainer').style.display = 'none';
+      document.getElementById('videoForm').reset();
+      alert('✅ Video saved!');
+    } catch (error) {
+      alert('Error saving video: ' + error.message);
+      console.error(error);
+    }
   });
 
-  document.getElementById('addSampleVideosBtn')?.addEventListener('click', function() {
-    const samples = [
-      { id: 'vid-1', title: 'Market Structure Basics', category: 'Market Structure', duration: '12:45', youtubeId: 'dQw4w9WgXcQ', premiumOnly: true, thumbnailUrl: '', createdAt: new Date().toISOString() },
-      { id: 'vid-2', title: 'Supply & Demand Zones', category: 'Supply & Demand', duration: '18:20', youtubeId: 'dQw4w9WgXcQ', premiumOnly: false, thumbnailUrl: '', createdAt: new Date().toISOString() }
-    ];
-    const videos = getVideosFromStorage();
-    samples.forEach(s => { if(!videos.find(v => v.id === s.id)) videos.push(s); });
-    saveVideosToStorage(videos); renderVideosTable(); renderVideoCounts(); addActivity('Added 2 sample videos.');
-  });
-
-  // ══════════════════════════════════════════════════════════════
-  //  5. RESOURCES LOGIC (FIRESTORE + RENDERING)
-  // ══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  5. RESOURCES (FIRESTORE + R2)
+  // ═══════════════════════════════════════════════════════════════════════════
   function listenResources() {
     const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('resourceTableBody');
       const overviewEl = document.getElementById('resourceOverview');
-      const countEl = document.getElementById('resourceCount');
-      
       if (snapshot.empty) {
         tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
         if (overviewEl) overviewEl.textContent = 0;
-        if (countEl) countEl.textContent = 0;
         return;
       }
-
-      let html = '';
-      let resCount = 0;
+      let html = '', resCount = 0;
       snapshot.forEach(doc => {
         resCount++;
         const r = { id: doc.id, ...doc.data() };
+        const downloadBtn = r.fileKey 
+          ? `<button class="btn-view-proof download-resource-btn" data-key="${r.fileKey}">Download</button>` 
+          : (r.link ? `<a href="${r.link}" target="_blank" class="btn-view-proof">Legacy</a>` : '—');
         html += `
           <tr>
             <td><strong>${r.title}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
             <td>${r.category}</td>
-            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span></td>
+            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span> ${downloadBtn}</td>
             <td>
               <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
               <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
@@ -1018,14 +1001,33 @@
       });
       tbody.innerHTML = html;
       if (overviewEl) overviewEl.textContent = resCount;
-      if (countEl) countEl.textContent = resCount;
+
+      document.querySelectorAll('.download-resource-btn').forEach(btn => {
+        btn.addEventListener('click', function() { downloadR2File(this.dataset.key); });
+      });
 
       document.querySelectorAll('.edit-resource').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const id = this.dataset.id; 
-          alert('Edit logic triggered for ID: ' + id);
+        btn.addEventListener('click', async function() {
+          const id = this.dataset.id;
+          try {
+            const snap = await getDoc(doc(db, "resources", id));
+            if (snap.exists()) {
+              const data = snap.data();
+              document.getElementById('editingResourceId').value = id;
+              document.getElementById('resourceTitle').value = data.title || '';
+              document.getElementById('resourceCategory').value = data.category || 'PDF';
+              document.getElementById('resourceDescription').value = data.description || '';
+              document.getElementById('premiumOnly').checked = data.premiumOnly || false;
+              document.getElementById('resourceFileName').textContent = data.fileKey ? 'File uploaded' : 'No file';
+              document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
+              document.getElementById('saveResourceBtn').textContent = 'Update Resource';
+              document.getElementById('resourceFormContainer').style.display = 'block';
+              document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
+            }
+          } catch (e) { alert('Error loading resource'); }
         });
       });
+
       document.querySelectorAll('.delete-resource').forEach(btn => {
         btn.addEventListener('click', async function() {
           const id = this.dataset.id;
@@ -1053,14 +1055,21 @@
 
   document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
     const container = document.getElementById('resourceFormContainer');
-    if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('resourceFormTitle').textContent = 'Add New Resource'; document.getElementById('saveResourceBtn').textContent = 'Save Resource'; document.getElementById('editingResourceId').value = ''; document.getElementById('resourceForm').reset(); document.getElementById('resourceFile').value = ''; container.scrollIntoView({ behavior: 'smooth' }); }
-    else { container.style.display = 'none'; }
+    if (container.style.display === 'none') {
+      container.style.display = 'block';
+      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
+      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
+      document.getElementById('editingResourceId').value = '';
+      document.getElementById('resourceForm').reset();
+      document.getElementById('resourceFileName').textContent = 'No file chosen';
+      container.scrollIntoView({ behavior: 'smooth' });
+    } else { container.style.display = 'none'; }
   });
-  document.getElementById('cancelResourceBtn')?.addEventListener('click', function() { document.getElementById('resourceFormContainer').style.display = 'none'; });
-  document.getElementById('chooseFileBtn')?.addEventListener('click', () => document.getElementById('resourceFilePicker').click());
-  document.getElementById('resourceFilePicker')?.addEventListener('change', () => {
-    const fileInput = document.getElementById('resourceFilePicker');
-    if (fileInput.files.length > 0) document.getElementById('resourceFile').value = fileInput.files[0].name;
+  document.getElementById('cancelResourceBtn')?.addEventListener('click', function() {
+    document.getElementById('resourceFormContainer').style.display = 'none';
+  });
+  document.getElementById('resourceFilePicker')?.addEventListener('change', function() {
+    document.getElementById('resourceFileName').textContent = this.files.length > 0 ? this.files[0].name : 'No file chosen';
   });
 
   document.getElementById('resourceForm')?.addEventListener('submit', async function(e) {
@@ -1069,37 +1078,53 @@
     const title = document.getElementById('resourceTitle').value.trim();
     const category = document.getElementById('resourceCategory').value;
     const description = document.getElementById('resourceDescription').value.trim();
-    const filename = document.getElementById('resourceFile').value.trim();
     const premiumOnly = document.getElementById('premiumOnly').checked;
+    const file = document.getElementById('resourceFilePicker').files[0];
+
     if (!title) return alert('Please enter a title.');
-    const folder = category.toLowerCase() + 's';
-    const link = `https://gtrades-axis.github.io/Gtrades-axis/resources/${folder}/${filename}`;
-    const data = { title, category, description, premiumOnly, link, updatedAt: serverTimestamp() };
     try {
+      let fileKey = null;
+      if (document.getElementById('editingResourceId').value && !file) {
+        const snap = await getDoc(doc(db, "resources", id));
+        if (snap.exists()) fileKey = snap.data().fileKey || null;
+      }
+      if (file) {
+        const key = `resources/${category}/${Date.now()}_${file.name}`;
+        fileKey = await uploadToR2(file, key);
+      }
+      if (!fileKey && !document.getElementById('editingResourceId').value) {
+        return alert('Please choose a file to upload.');
+      }
+      const data = { title, category, description, premiumOnly, fileKey, updatedAt: serverTimestamp() };
       if (!document.getElementById('editingResourceId').value) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "resources"), data); }
       else { await updateDoc(doc(db, "resources", id), data); }
       addActivity(`Saved resource "${title}"`);
-      document.getElementById('resourceFormContainer').style.display = 'none'; document.getElementById('resourceForm').reset();
-    } catch (error) { alert("Error saving resource: " + error.message); }
+      document.getElementById('resourceFormContainer').style.display = 'none';
+      document.getElementById('resourceForm').reset();
+      document.getElementById('resourceFileName').textContent = 'No file chosen';
+      alert('✅ Resource uploaded to Cloudflare R2!');
+    } catch (error) {
+      alert("Error saving resource: " + error.message);
+      console.error(error);
+    }
   });
 
-  // ══════════════════════════════════════════════════════════════
-  //  6. AUTH & INIT
-  // ══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  6. INIT
+  // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       listenMembers();
       renderModules();
       listenPayments();
-      renderVideosTable();
-      renderVideoCounts();
+      listenVideos();
       listenResources();
     } else {
       window.location.href = "/login";
     }
   });
 
-  console.log('✅ Full Admin Dashboard ready. Console errors fixed.');
+  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Private) integrated!');
 </script>
 </body>
 </html>

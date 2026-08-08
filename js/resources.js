@@ -1,4 +1,8 @@
-import { auth, db } from "./firebase.js";
+// ============================================================
+// GTRADES-AXIS™ – RESOURCES PAGE (CLOUDFLARE R2 INTEGRATED)
+// ============================================================
+
+import { auth, db, functions } from "./firebase.js";
 import {
   onAuthStateChanged,
   signOut
@@ -11,6 +15,7 @@ import {
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
 
 /* ==========================================
    ELEMENTS
@@ -28,6 +33,24 @@ let userMembership = "free";
 let hasPremiumAccess = false;
 
 /* ==========================================
+   DOWNLOAD HELPER (R2)
+========================================== */
+async function downloadR2File(key) {
+  if (!key) {
+    alert("No file key found for this resource.");
+    return;
+  }
+  try {
+    const getDownloadUrl = httpsCallable(functions, "getR2DownloadUrl");
+    const result = await getDownloadUrl({ key });
+    window.open(result.data.url, "_blank");
+  } catch (error) {
+    console.error("R2 download error:", error);
+    alert("Failed to get download link: " + error.message);
+  }
+}
+
+/* ==========================================
    AUTH
 ========================================== */
 onAuthStateChanged(auth, async (user) => {
@@ -37,7 +60,6 @@ onAuthStateChanged(auth, async (user) => {
   }
   currentUser = user;
 
-  // Fetch user data to check membership/role
   try {
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
@@ -51,7 +73,6 @@ onAuthStateChanged(auth, async (user) => {
     console.error("Error fetching user data:", e);
   }
 
-  // Load resources after user data is ready
   await loadResources();
 });
 
@@ -90,20 +111,16 @@ async function loadResources() {
 }
 
 /* ==========================================
-   RENDER RESOURCES
+   RENDER RESOURCES (R2 + Legacy fallback)
 ========================================== */
 function renderResources() {
   if (!container) return;
   container.innerHTML = "";
 
   let filtered = resources;
-
-  // Category filter
   if (currentCategory !== "All") {
     filtered = filtered.filter(resource => resource.category === currentCategory);
   }
-
-  // Search filter
   const keyword = searchInput.value.toLowerCase().trim();
   if (keyword !== "") {
     filtered = filtered.filter(resource =>
@@ -112,73 +129,84 @@ function renderResources() {
     );
   }
 
-  // No results
   if (filtered.length === 0) {
     container.innerHTML = `<div class="loading-card"><h3>No resources found.</h3></div>`;
     return;
   }
 
-  // Render each card
   filtered.forEach(resource => {
     const isPremiumOnly = resource.premiumOnly === true;
     const canAccess = !isPremiumOnly || hasPremiumAccess;
 
-    let cardHtml = "";
+    let downloadHtml = "";
+    const fileKey = resource.fileKey;      // R2 key (new)
+    const legacyLink = resource.link;      // old Firebase Storage URL
 
     if (canAccess) {
-      // Full card with download button
-      cardHtml = `
-        <div class="quick-card">
-          <div class="quick-icon"><i class="fa-solid fa-folder-open"></i></div>
-          <h3>${resource.title}</h3>
-          <p>${resource.description || "Premium Trading Resource"}</p>
-          <div style="margin:15px 0;">
-            <span class="member-badge">${resource.category}</span>
-            ${isPremiumOnly ? `<span class="member-badge" style="background:#e74c3c;margin-left:8px;">Premium</span>` : `<span class="member-badge" style="background:#18b663;margin-left:8px;">Free</span>`}
-          </div>
-          <a href="${resource.link}" target="_blank" class="resource-download">
+      if (fileKey) {
+        downloadHtml = `
+          <button class="resource-download r2-download-btn" data-key="${fileKey}" style="background:#4f7cff;border:none;padding:10px 20px;border-radius:8px;color:#fff;font-weight:600;cursor:pointer;margin-top:10px;width:100%;">
+            <i class="fa-solid fa-download"></i> Download
+          </button>
+        `;
+      } else if (legacyLink) {
+        downloadHtml = `
+          <a href="${legacyLink}" target="_blank" class="resource-download" style="display:inline-block;margin-top:10px;background:#4f7cff;padding:10px 20px;border-radius:8px;color:#fff;font-weight:600;text-decoration:none;width:100%;text-align:center;">
             <i class="fa-solid fa-download"></i> Download
           </a>
-        </div>
-      `;
+        `;
+      } else {
+        downloadHtml = `<div style="color:#94a3b8;margin-top:10px;">No file attached</div>`;
+      }
     } else {
-      // Locked card – no download button
-      cardHtml = `
-        <div class="quick-card locked">
-          <div class="quick-icon"><i class="fa-solid fa-lock"></i></div>
-          <h3>${resource.title}</h3>
-          <p>${resource.description || "Premium Resource"}</p>
-          <div style="margin:15px 0;">
-            <span class="member-badge">${resource.category}</span>
-            <span class="member-badge" style="background:#e74c3c;margin-left:8px;">Premium</span>
-          </div>
-          <div style="color:#94a3b8; font-size:0.9rem; margin-top:8px;">
-            <i class="fa-solid fa-crown"></i> Upgrade to access
-          </div>
-          <div class="lock-overlay">
-            <i class="fa-solid fa-lock"></i>
-            <span>Premium Only</span>
-          </div>
+      downloadHtml = `
+        <div style="color:#94a3b8;font-size:0.9rem;margin-top:10px;">
+          <i class="fa-solid fa-crown"></i> Upgrade to access
         </div>
       `;
     }
 
-    container.innerHTML += cardHtml;
+    const card = document.createElement("div");
+    card.className = "quick-card" + (canAccess ? "" : " locked");
+    if (!canAccess) {
+      card.style.position = "relative";
+      card.style.overflow = "hidden";
+    }
+
+    card.innerHTML = `
+      <div class="quick-icon"><i class="fa-solid fa-folder-open"></i></div>
+      <h3>${resource.title}</h3>
+      <p>${resource.description || "Premium Trading Resource"}</p>
+      <div style="margin:15px 0;">
+        <span class="member-badge">${resource.category}</span>
+        ${isPremiumOnly ? `<span class="member-badge" style="background:#e74c3c;margin-left:8px;">Premium</span>` : `<span class="member-badge" style="background:#18b663;margin-left:8px;">Free</span>`}
+      </div>
+      ${downloadHtml}
+      ${!canAccess ? `
+        <div class="lock-overlay" style="position:absolute;inset:0;background:rgba(11,13,21,0.7);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;backdrop-filter:blur(2px);z-index:5;">
+          <i class="fa-solid fa-lock" style="font-size:2rem;color:#f5a623;"></i>
+          <span style="color:#e8edf5;font-weight:500;">Premium Only</span>
+        </div>
+      ` : ''}
+    `;
+
+    container.appendChild(card);
+  });
+
+  container.querySelectorAll(".r2-download-btn").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+      e.preventDefault();
+      downloadR2File(this.dataset.key);
+    });
   });
 }
 
 /* ==========================================
-   SEARCH
+   SEARCH & FILTERS
 ========================================== */
 if (searchInput) {
-  searchInput.addEventListener("input", () => {
-    renderResources();
-  });
+  searchInput.addEventListener("input", renderResources);
 }
-
-/* ==========================================
-   CATEGORY FILTERS
-========================================== */
 filterButtons.forEach(button => {
   button.addEventListener("click", () => {
     document.querySelector(".filter-btn.active")?.classList.remove("active");
@@ -188,58 +216,9 @@ filterButtons.forEach(button => {
   });
 });
 
-/* ==========================================
-   AUTO REFRESH
-========================================== */
-setInterval(async () => {
-  try {
-    await loadResources();
-  } catch (e) {
-    console.error("Auto Refresh Failed:", e);
-  }
-}, 60000);
-
-/* ==========================================
-   LOADING STATE
-========================================== */
-function showLoading() {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="loading-card">
-      <i class="fa-solid fa-spinner fa-spin"></i>
-      <h3>Loading Premium Resources...</h3>
-    </div>
-  `;
-}
-
-function showError(message = "Failed to load resources.") {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="loading-card">
-      <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;color:#e74c3c;"></i>
-      <h3>${message}</h3>
-    </div>
-  `;
-}
-
-/* ==========================================
-   INITIAL LOAD
-========================================== */
-// loadResources is called inside onAuthStateChanged after user data is fetched.
-
-/* ==========================================
-   PAGE VISIBILITY REFRESH
-========================================== */
+setInterval(async () => { try { await loadResources(); } catch (e) {} }, 60000);
 document.addEventListener("visibilitychange", async () => {
-  if (!document.hidden) {
-    try {
-      await loadResources();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+  if (!document.hidden) { try { await loadResources(); } catch (e) {} }
 });
 
-console.log("======================================");
-console.log("GTRADES-AXIS™ Premium Resources Loaded");
-console.log("======================================");
+console.log("✅ GTRADES-AXIS™ Resources (R2) Loaded");
