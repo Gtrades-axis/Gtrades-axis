@@ -1,6 +1,7 @@
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 
+// ─── Your Firebase config (copy from your project) ───
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -11,24 +12,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const functions = getFunctions(app);
 
-window.uploadVideo = async function() {
-  const input = document.getElementById('videoInput');
-  const file = input.files[0];
-  if (!file) return alert('Select a file!');
-
-  const key = `academy/${Date.now()}_${file.name}`;
+/**
+ * Upload a file to Cloudflare R2 using a presigned URL.
+ * @param {File} file - The file to upload.
+ * @param {string} key - The path in R2 (e.g., "resources/MyPDF.pdf").
+ * @returns {Promise<string>} - The public URL of the uploaded file.
+ */
+export async function uploadToR2(file, key) {
   const getUrl = httpsCallable('getR2UploadUrl');
   const result = await getUrl({ key, contentType: file.type });
-  
-  const res = await fetch(result.data.url, {
+  const uploadUrl = result.data.url;
+
+  const res = await fetch(uploadUrl, {
     method: 'PUT',
     body: file,
     headers: { 'Content-Type': file.type }
   });
 
-  if (res.ok) {
-    alert('✅ Uploaded!');
-  } else {
-    alert('❌ Failed');
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
   }
-};
+
+  // ─── Public URL (replace with your actual bucket public endpoint) ───
+  // Go to Cloudflare R2 → your bucket → Settings → Public Access → copy the URL
+  const publicUrl = `https://pub-<YOUR_BUCKET_ID>.r2.dev/${key}`;
+  return publicUrl;
+}
