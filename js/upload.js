@@ -7,17 +7,11 @@ const WORKER_URL = "https://throbbing-frost-a2r2-presigned9.davidthuku574.worker
 export async function uploadToR2(file, key) {
   if (!file) throw new Error("No file provided.");
 
-  // 1. Get pre‑signed upload URL from Worker
   const response = await fetch(`${WORKER_URL}?key=${encodeURIComponent(key)}&action=upload`);
   const data = await response.json();
-  const uploadUrl = data.url;
+  if (!data.url) throw new Error("Failed to get upload URL from Worker");
 
-  if (!uploadUrl) {
-    throw new Error("Failed to get upload URL from Worker");
-  }
-
-  // 2. Upload file directly to R2
-  const uploadResponse = await fetch(uploadUrl, {
+  const uploadResponse = await fetch(data.url, {
     method: 'PUT',
     body: file,
     headers: { 'Content-Type': file.type }
@@ -31,17 +25,13 @@ export async function uploadToR2(file, key) {
 }
 
 /**
- * Download a file from Cloudflare R2 using a pre‑signed URL
+ * Get a pre‑signed download URL for a file from R2
  */
 export async function getDownloadUrl(key) {
   if (!key) throw new Error("No file key provided.");
 
   const response = await fetch(`${WORKER_URL}?key=${encodeURIComponent(key)}&action=download`);
   const data = await response.json();
-  
-  if (!data.url) {
-    throw new Error("Failed to get download URL from Worker");
-  }
-
+  if (!data.url) throw new Error("Failed to get download URL from Worker");
   return data.url;
 }
