@@ -284,6 +284,21 @@
 
     .video-preview { margin-top: 10px; max-width: 300px; }
     .video-preview video { width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
+    /* VIDEO UPLOAD FEEDBACK */
+    .upload-status { display:none; margin-top:14px; padding:14px 16px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-primary); }
+    .upload-status.show { display:block; }
+    .upload-status-row { display:flex; align-items:center; gap:10px; font-size:.82rem; font-weight:600; }
+    .upload-status-row i { color:var(--accent-blue); }
+    .upload-status.success { border-color:rgba(0,200,151,.45); background:rgba(0,200,151,.08); }
+    .upload-status.success .upload-status-row i { color:var(--green); }
+    .upload-status.error { border-color:rgba(255,71,102,.45); background:rgba(255,71,102,.08); }
+    .upload-status.error .upload-status-row i { color:var(--red); }
+    .upload-status-detail { margin-top:5px; color:var(--text-secondary); font-size:.72rem; word-break:break-word; }
+    .upload-progress { width:100%; height:6px; margin-top:10px; overflow:hidden; border-radius:20px; background:#0b0d15; }
+    .upload-progress-bar { width:35%; height:100%; border-radius:20px; background:var(--accent-blue); animation:uploadPulse 1.2s ease-in-out infinite; }
+    .upload-status.success .upload-progress, .upload-status.error .upload-progress { display:none; }
+    @keyframes uploadPulse { 0%{transform:translateX(-120%)} 50%{transform:translateX(180%)} 100%{transform:translateX(350%)} }
+    .save-btn.uploading { opacity:.75; cursor:wait; }
   </style>
 </head>
 <body>
@@ -419,6 +434,11 @@
           </div>
           <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
           <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-upload"></i> Upload Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
+          <div id="videoUploadStatus" class="upload-status" aria-live="polite">
+            <div class="upload-status-row"><i id="videoUploadStatusIcon" class="fa-solid fa-cloud-arrow-up"></i><span id="videoUploadStatusText">Ready to upload.</span></div>
+            <div id="videoUploadStatusDetail" class="upload-status-detail"></div>
+            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+          </div>
           <input type="hidden" id="editingVideoId" />
           <input type="hidden" id="existingVideoKey" />
           <input type="hidden" id="existingThumbnailKey" />
@@ -967,61 +987,114 @@
     }
   });
 
+  // VIDEO UPLOAD FEEDBACK
+  const videoUploadStatus = document.getElementById('videoUploadStatus');
+  const videoUploadStatusIcon = document.getElementById('videoUploadStatusIcon');
+  const videoUploadStatusText = document.getElementById('videoUploadStatusText');
+  const videoUploadStatusDetail = document.getElementById('videoUploadStatusDetail');
+  const saveVideoBtn = document.getElementById('saveVideoBtn');
+  let videoUploadTimer = null;
+  let videoUploadStartedAt = 0;
+
+  function setVideoUploadStatus(type, text, detail='') {
+    if (!videoUploadStatus) return;
+    videoUploadStatus.className = 'upload-status show' + (type === 'success' ? ' success' : type === 'error' ? ' error' : '');
+    if (videoUploadStatusIcon) videoUploadStatusIcon.className = type === 'success' ? 'fa-solid fa-circle-check' : type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-cloud-arrow-up';
+    if (videoUploadStatusText) videoUploadStatusText.textContent = text;
+    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = detail;
+  }
+  function clearVideoUploadStatus() {
+    if (videoUploadTimer) clearInterval(videoUploadTimer);
+    videoUploadTimer = null;
+    if (videoUploadStatus) videoUploadStatus.className = 'upload-status';
+    if (videoUploadStatusText) videoUploadStatusText.textContent = 'Ready to upload.';
+    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = '';
+  }
+  function formatElapsed(ms) {
+    const s=Math.max(0,Math.floor(ms/1000)), m=Math.floor(s/60), sec=s%60;
+    return m ? `${m}m ${String(sec).padStart(2,'0')}s` : `${sec}s`;
+  }
+  function startVideoUploadProgress(message, detail) {
+    videoUploadStartedAt=Date.now();
+    setVideoUploadStatus('working',message,detail);
+    if (videoUploadTimer) clearInterval(videoUploadTimer);
+    videoUploadTimer=setInterval(()=>{
+      if (videoUploadStatusDetail) videoUploadStatusDetail.textContent=`${detail} • Elapsed ${formatElapsed(Date.now()-videoUploadStartedAt)}`;
+    },1000);
+  }
+  function stopVideoUploadProgress() { if(videoUploadTimer) clearInterval(videoUploadTimer); videoUploadTimer=null; }
+
   document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const id = document.getElementById('editingVideoId').value || 'vid-' + Date.now();
-    const title = document.getElementById('videoTitle').value.trim();
-    const category = document.getElementById('videoCategory').value;
-    const duration = document.getElementById('videoDuration').value.trim();
-    const premiumOnly = document.getElementById('videoPremiumOnly').checked;
-    const videoFile = document.getElementById('videoFilePicker').files[0];
-    const thumbFile = document.getElementById('videoThumbnailFile').files[0];
-    const existingVideoKey = document.getElementById('existingVideoKey').value;
-    const existingThumbKey = document.getElementById('existingThumbnailKey').value;
+    if (saveVideoBtn?.disabled) return;
 
-    if (!title) return alert('Please enter a video title.');
-    if (!videoFile && !existingVideoKey) {
-      return alert('Please select a video file to upload.');
-    }
+    const id=document.getElementById('editingVideoId').value || 'vid-'+Date.now();
+    const title=document.getElementById('videoTitle').value.trim();
+    const category=document.getElementById('videoCategory').value;
+    const duration=document.getElementById('videoDuration').value.trim();
+    const premiumOnly=document.getElementById('videoPremiumOnly').checked;
+    const videoFile=document.getElementById('videoFilePicker').files[0];
+    const thumbFile=document.getElementById('videoThumbnailFile').files[0];
+    const existingVideoKey=document.getElementById('existingVideoKey').value;
+    const existingThumbKey=document.getElementById('existingThumbnailKey').value;
+    const isEditing=Boolean(document.getElementById('editingVideoId').value);
+
+    if(!title){ setVideoUploadStatus('error','Video title is required.','Enter a title and try again.'); return; }
+    if(!videoFile && !existingVideoKey){ setVideoUploadStatus('error','No video file selected.','Choose a video file before uploading.'); return; }
 
     try {
-      let videoKey = existingVideoKey;
-      let thumbnailKey = existingThumbKey;
+      if(saveVideoBtn){ saveVideoBtn.disabled=true; saveVideoBtn.classList.add('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Uploading...'; }
+      let videoKey=existingVideoKey;
+      let thumbnailKey=existingThumbKey;
 
-      if (videoFile) {
-        const ext = videoFile.name.split('.').pop();
-        videoKey = `videos/${Date.now()}_${title.replace(/\s/g, '_')}.${ext}`;
-        await uploadToR2(videoFile, videoKey);
-        document.getElementById('videoFileName').textContent = '✅ Uploaded: ' + videoFile.name;
+      if(videoFile){
+        const ext=(videoFile.name.split('.').pop()||'mp4').toLowerCase();
+        const safeTitle=title.replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'video';
+        videoKey=`videos/${Date.now()}_${safeTitle}.${ext}`;
+        const sizeMB=(videoFile.size/(1024*1024)).toFixed(1);
+        startVideoUploadProgress('Uploading video to Cloudflare R2...',`${videoFile.name} • ${sizeMB} MB`);
+        await uploadToR2(videoFile,videoKey);
+        document.getElementById('videoFileName').textContent='✅ Uploaded: '+videoFile.name;
+        setVideoUploadStatus('working','Video upload complete.','Preparing video record in Firestore...');
       }
 
-      if (thumbFile) {
-        const thumbKey = `thumbnails/${Date.now()}_${thumbFile.name}`;
-        thumbnailKey = await uploadToR2(thumbFile, thumbKey);
-        document.getElementById('thumbnailFileName').textContent = '✅ Uploaded: ' + thumbFile.name;
-        document.getElementById('thumbnailPreview').style.display = 'none';
+      if(thumbFile){
+        const sizeMB=(thumbFile.size/(1024*1024)).toFixed(1);
+        startVideoUploadProgress('Uploading thumbnail to Cloudflare R2...',`${thumbFile.name} • ${sizeMB} MB`);
+        thumbnailKey=await uploadToR2(thumbFile,`thumbnails/${Date.now()}_${thumbFile.name}`);
+        document.getElementById('thumbnailFileName').textContent='✅ Uploaded: '+thumbFile.name;
+        document.getElementById('thumbnailPreview').style.display='none';
       }
 
-      const data = { title, category, duration, premiumOnly, videoKey, thumbnailKey, updatedAt: serverTimestamp() };
-      if (!document.getElementById('editingVideoId').value) { 
-        data.createdAt = serverTimestamp(); 
-        await addDoc(collection(db, "videos"), data);
-      } else { 
-        await updateDoc(doc(db, "videos", id), data);
-      }
+      stopVideoUploadProgress();
+      setVideoUploadStatus('working','Saving video information...','Writing the video record to Firestore.');
+      const data={title,category,duration,premiumOnly,videoKey,thumbnailKey,updatedAt:serverTimestamp()};
+      if(!isEditing){ data.createdAt=serverTimestamp(); await addDoc(collection(db,'videos'),data); }
+      else { await updateDoc(doc(db,'videos',id),data); }
 
-      addActivity(`Saved video "${title}"`);
-      document.getElementById('videoFormContainer').style.display = 'none';
+      stopVideoUploadProgress();
+      setVideoUploadStatus('success',isEditing?'✅ Video updated successfully!':'✅ Video uploaded successfully!',`Cloudflare R2 + Firestore saved. Completed in ${formatElapsed(Date.now()-videoUploadStartedAt)}.`);
+      addActivity(isEditing?`Updated video "${title}"`:`Uploaded video "${title}"`);
       document.getElementById('videoForm').reset();
-      document.getElementById('videoPreview').style.display = 'none';
-      alert('✅ Video uploaded to Cloudflare R2!');
-    } catch (error) {
-      alert('Error saving video: ' + error.message);
-      console.error(error);
+      document.getElementById('videoPreview').style.display='none';
+      document.getElementById('thumbnailPreview').style.display='none';
+      document.getElementById('videoFileName').textContent='No file chosen';
+      document.getElementById('thumbnailFileName').textContent='No file chosen';
+      document.getElementById('editingVideoId').value='';
+      document.getElementById('existingVideoKey').value='';
+      document.getElementById('existingThumbnailKey').value='';
+      document.getElementById('videoFormTitle').textContent='Upload Video File';
+      setTimeout(()=>{ document.getElementById('videoFormContainer').style.display='none'; clearVideoUploadStatus(); },1800);
+    } catch(error) {
+      stopVideoUploadProgress();
+      console.error('VIDEO UPLOAD ERROR:',error);
+      setVideoUploadStatus('error','❌ Video upload failed.',error?.message||'Unknown error. Check the browser console.');
+      addActivity(`Video upload failed: ${title||'Untitled video'}`);
+    } finally {
+      if(saveVideoBtn){ saveVideoBtn.disabled=false; saveVideoBtn.classList.remove('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-upload"></i> Upload Video'; }
     }
   });
 
-  // ═══════════════════════════════════════════════════════════════════════════
   //  5. RESOURCES (Full)
   // ═══════════════════════════════════════════════════════════════════════════
   function listenResources() {
