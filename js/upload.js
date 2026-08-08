@@ -1,5 +1,5 @@
-// ─── USE YOUR ACTUAL WORKER URL ──────────────────────────
-const WORKER_URL = "https://r2-uploader.davidthuku574.workers.dev"; // Replace with your actual URL
+// ─── YOUR WORKER URL ──────────────────────────────────────
+const WORKER_URL = "https://r2-uploader.davidthuku574.workers.dev";
 
 export async function uploadToR2(file, key) {
   if (!file) throw new Error("No file provided.");
