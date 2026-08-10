@@ -1,628 +1,2293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Videos | GTRADES-AXIS™</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>Premium Video Library | GTRADES-AXIS™</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet"
+  <meta
+    name="description"
+    content="GTRADES-AXIS™ Premium Private Video Library"
   >
 
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
   >
 
   <style>
 
+    /* ======================================================
+       RESET
+    ====================================================== */
+
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      font-family: Poppins, sans-serif;
-      background: #080b12;
-      color: #edf2f7;
-      min-height: 100vh;
+      margin: 0;
+
+      background:
+        radial-gradient(
+          circle at top,
+          rgba(37, 99, 235, 0.14),
+          transparent 38%
+        ),
+        #020617;
+
+      color: #f8fafc;
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
     }
+
 
     /* ======================================================
-       LAYOUT
+       APP
     ====================================================== */
 
-    .page {
-      min-height: 100vh;
+    #app {
+      width: min(1400px, 94%);
+      margin: auto;
+
+      padding:
+        45px 0 70px;
+    }
+
+
+    /* ======================================================
+       HEADER
+    ====================================================== */
+
+    .library-header {
       display: flex;
-    }
 
-    .sidebar {
-      width: 250px;
-      background: #111621;
-      border-right: 1px solid #273149;
-      padding: 25px 16px;
-      flex-shrink: 0;
-    }
+      justify-content: space-between;
 
-    .logo {
-      padding: 5px 12px 25px;
-      font-size: 19px;
-      font-weight: 800;
-    }
-
-    .logo span {
-      color: #4f7cff;
-    }
-
-    .nav {
-      list-style: none;
-    }
-
-    .nav li {
-      margin-bottom: 6px;
-    }
-
-    .nav a {
-      display: flex;
       align-items: center;
-      gap: 13px;
-      padding: 11px 13px;
-      color: #9ca8bd;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: .2s;
+
+      gap: 30px;
+
+      margin-bottom: 35px;
     }
 
-    .nav a:hover,
-    .nav .active a {
-      color: #fff;
-      background: rgba(79,124,255,.14);
+    .eyebrow {
+      color: #3b82f6;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+      letter-spacing: 2px;
     }
 
-    .nav .active a {
-      border-left: 3px solid #4f7cff;
+    .header-text h1 {
+      margin: 8px 0;
+
+      font-size:
+        clamp(30px, 5vw, 48px);
+
+      line-height: 1.1;
     }
 
-    #logoutBtn {
-      width: 100%;
-      margin-top: 35px;
-      padding: 11px;
-      border: 1px solid rgba(255,71,102,.25);
-      background: rgba(255,71,102,.08);
-      color: #ff6b81;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
+    .header-text p {
+      margin: 0;
+
+      color: #94a3b8;
+
+      font-size: 16px;
     }
+
+    .membership-status {
+      display: flex;
+
+      align-items: center;
+
+      padding:
+        11px 17px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.1);
+
+      border-radius: 999px;
+
+      background:
+        rgba(15,23,42,.8);
+
+      color: #cbd5e1;
+
+      white-space: nowrap;
+
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+
+      margin-right: 9px;
+
+      border-radius: 50%;
+
+      background: #f59e0b;
+    }
+
 
     /* ======================================================
-       MAIN
+       SEARCH
     ====================================================== */
 
-    .main {
-      flex: 1;
-      padding: 35px;
-      min-width: 0;
-    }
-
-    .header {
+    .toolbar {
       margin-bottom: 25px;
     }
 
-    .header h1 {
-      font-size: 30px;
-      margin-bottom: 5px;
+    .search-box {
+      position: relative;
+
+      width:
+        min(650px, 100%);
     }
 
-    .header p {
-      color: #8e9bb2;
+    .search-box i {
+      position: absolute;
+
+      left: 17px;
+
+      top: 50%;
+
+      transform:
+        translateY(-50%);
+
+      color: #64748b;
     }
 
-    /* ======================================================
-       CONTROLS
-    ====================================================== */
-
-    .controls {
-      margin-bottom: 25px;
-    }
-
-    .search {
+    .search-box input {
       width: 100%;
-      max-width: 450px;
-      padding: 13px 15px;
-      border-radius: 9px;
-      border: 1px solid #29344d;
-      background: #121824;
+
+      padding:
+        15px
+        18px
+        15px
+        48px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.09);
+
+      border-radius: 13px;
+
+      background: #0f172a;
+
       color: white;
+
       outline: none;
-      margin-bottom: 15px;
+
+      font-size: 15px;
     }
 
-    .search:focus {
-      border-color: #4f7cff;
+    .search-box input:focus {
+      border-color: #2563eb;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.12);
     }
+
+    .search-box input::placeholder {
+      color: #64748b;
+    }
+
+
+    /* ======================================================
+       FEATURED VIDEO
+    ====================================================== */
+
+    .featured-video {
+      overflow: hidden;
+
+      margin-bottom: 35px;
+
+      border:
+        1px solid
+        rgba(59,130,246,.18);
+
+      border-radius: 20px;
+
+      background: #0b1220;
+
+      box-shadow:
+        0 20px 60px
+        rgba(0,0,0,.25);
+    }
+
+    .player-wrapper {
+      position: relative;
+
+      width: 100%;
+
+      aspect-ratio: 16 / 9;
+
+      min-height: 300px;
+
+      background: #000;
+    }
+
+    #r2VideoPlayer {
+      display: none;
+
+      width: 100%;
+
+      height: 100%;
+
+      background: #000;
+
+      object-fit: contain;
+    }
+
+    .player-placeholder {
+      position: absolute;
+
+      inset: 0;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      padding: 30px;
+
+      text-align: center;
+
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(37,99,235,.13),
+          transparent 55%
+        );
+    }
+
+    .big-play {
+      width: 78px;
+      height: 78px;
+
+      display: grid;
+
+      place-items: center;
+
+      margin-bottom: 20px;
+
+      border-radius: 50%;
+
+      background: #2563eb;
+
+      color: white;
+
+      font-size: 25px;
+
+      box-shadow:
+        0 10px 35px
+        rgba(37,99,235,.35);
+    }
+
+    .player-placeholder h2 {
+      margin:
+        0 0 8px;
+
+      font-size: 24px;
+    }
+
+    .player-placeholder p {
+      margin: 0;
+
+      color: #94a3b8;
+    }
+
+
+    /* ======================================================
+       FEATURED INFO
+    ====================================================== */
+
+    .featured-info {
+      padding:
+        25px 28px 28px;
+    }
+
+    .featured-label {
+      color: #3b82f6;
+
+      font-size: 11px;
+
+      font-weight: 800;
+
+      letter-spacing: 2px;
+    }
+
+    .featured-info h2 {
+      margin:
+        8px 0;
+
+      font-size: 24px;
+    }
+
+    .featured-info p {
+      margin: 0;
+
+      color: #94a3b8;
+
+      line-height: 1.6;
+    }
+
+
+    /* ======================================================
+       FILTERS
+    ====================================================== */
 
     .filters {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+
+      gap: 10px;
+
+      margin-bottom: 30px;
+
+      overflow-x: auto;
+
+      padding-bottom: 5px;
     }
 
     .filter-btn {
-      padding: 8px 15px;
-      border-radius: 20px;
-      border: 1px solid #29344d;
-      background: #121824;
-      color: #9ca8bd;
+      flex-shrink: 0;
+
+      padding:
+        10px 17px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.08);
+
+      border-radius: 999px;
+
+      background: #0f172a;
+
+      color: #94a3b8;
+
       cursor: pointer;
+
+      transition:
+        .2s;
+    }
+
+    .filter-btn:hover {
+      color: white;
+
+      border-color:
+        rgba(59,130,246,.35);
     }
 
     .filter-btn.active {
-      background: #4f7cff;
-      border-color: #4f7cff;
+      background: #2563eb;
+
       color: white;
+
+      border-color: #2563eb;
     }
+
+
+    /* ======================================================
+       SECTION
+    ====================================================== */
+
+    .section-heading {
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: end;
+
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      color: #64748b;
+
+      font-size: 11px;
+
+      font-weight: 800;
+
+      letter-spacing: 1.5px;
+    }
+
+    .section-heading h2 {
+      margin:
+        5px 0 0;
+
+      font-size: 28px;
+    }
+
+    .video-count {
+      color: #64748b;
+
+      font-size: 14px;
+    }
+
 
     /* ======================================================
        VIDEO GRID
     ====================================================== */
 
-    .video-grid {
+    .videos-grid {
       display: grid;
+
       grid-template-columns:
-        repeat(auto-fill, minmax(270px, 1fr));
+        repeat(
+          auto-fill,
+          minmax(260px,1fr)
+        );
+
       gap: 20px;
     }
 
+
+    /* ======================================================
+       LOADING CARD
+    ====================================================== */
+
+    .loading-card {
+      grid-column: 1 / -1;
+
+      min-height: 180px;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      gap: 18px;
+
+      padding: 30px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.08);
+
+      border-radius: 17px;
+
+      background: #0b1220;
+    }
+
+    .loading-icon {
+      width: 58px;
+      height: 58px;
+
+      display: grid;
+
+      place-items: center;
+
+      flex-shrink: 0;
+
+      border-radius: 50%;
+
+      background:
+        rgba(37,99,235,.14);
+
+      color: #3b82f6;
+    }
+
+    .loading-card strong {
+      display: block;
+
+      margin-bottom: 5px;
+    }
+
+    .loading-card p {
+      margin: 0;
+
+      color: #64748b;
+    }
+
+
+    /* ======================================================
+       VIDEO CARD
+    ====================================================== */
+
     .video-card {
-      background: #111621;
-      border: 1px solid #273149;
-      border-radius: 12px;
       overflow: hidden;
+
+      border:
+        1px solid
+        rgba(255,255,255,.07);
+
+      border-radius: 16px;
+
+      background: #0b1220;
+
       cursor: pointer;
-      transition: .2s;
+
+      transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
     }
 
     .video-card:hover {
-      transform: translateY(-3px);
-      border-color: #4f7cff;
+      transform:
+        translateY(-4px);
+
+      border-color:
+        rgba(59,130,246,.35);
+
+      box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.3);
     }
 
-    .video-card.locked {
-      cursor: not-allowed;
-      opacity: .65;
-    }
-
-    .thumbnail {
+    .video-thumb {
       position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #0d131e;
+
       display: flex;
-      align-items: center;
+
       justify-content: center;
+
+      align-items: center;
+
+      height: 160px;
+
       overflow: hidden;
+
+      background: #020617;
     }
 
-    .thumbnail img {
-      position: absolute;
-      inset: 0;
+    .video-thumb img {
       width: 100%;
       height: 100%;
+
       object-fit: cover;
     }
 
-    .play-icon {
-      font-size: 45px;
-      color: #4f7cff;
+    .video-thumb-placeholder {
+      color: #475569;
+
+      font-size: 42px;
     }
 
-    .duration {
+    .video-duration {
       position: absolute;
-      right: 8px;
-      bottom: 8px;
-      background: rgba(0,0,0,.8);
-      padding: 3px 7px;
-      border-radius: 4px;
-      font-size: 12px;
-      z-index: 2;
+
+      right: 10px;
+      bottom: 10px;
+
+      padding:
+        4px 7px;
+
+      border-radius: 5px;
+
+      background:
+        rgba(0,0,0,.75);
+
+      color: white;
+
+      font-size: 11px;
     }
 
-    .lock {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,.72);
+    .video-info {
+      padding: 17px;
+    }
+
+    .video-title {
+      min-height: 45px;
+
+      font-size: 16px;
+
+      font-weight: 700;
+
+      line-height: 1.4;
+    }
+
+    .video-meta {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 3;
-    }
 
-    .lock i {
-      color: #f5a623;
-      font-size: 32px;
-    }
-
-    .info {
-      padding: 15px;
-    }
-
-    .title {
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .meta {
-      display: flex;
       justify-content: space-between;
-      color: #8e9bb2;
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin-top: 12px;
+
+      color: #64748b;
+
       font-size: 12px;
     }
 
     .badge {
-      padding: 3px 8px;
-      border-radius: 15px;
+      padding:
+        4px 8px;
+
+      border-radius: 999px;
+
       font-size: 10px;
+
+      font-weight: 800;
+    }
+
+    .badge-premium {
+      background:
+        rgba(37,99,235,.14);
+
+      color: #60a5fa;
+    }
+
+    .badge-free {
+      background:
+        rgba(34,197,94,.12);
+
+      color: #4ade80;
+    }
+
+
+    /* ======================================================
+       LOCK
+    ====================================================== */
+
+    .video-card.locked {
+      cursor: not-allowed;
+
+      opacity: .65;
+    }
+
+    .lock-overlay {
+      position: absolute;
+
+      inset: 0;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      gap: 8px;
+
+      background:
+        rgba(2,6,23,.72);
+
+      color: white;
+    }
+
+    .lock-overlay i {
+      font-size: 26px;
+    }
+
+    .lock-overlay span {
+      font-size: 12px;
+
       font-weight: 700;
     }
 
-    .premium {
-      color: #f5a623;
-      background: rgba(245,166,35,.12);
-    }
-
-    .free {
-      color: #00c897;
-      background: rgba(0,200,151,.12);
-    }
 
     /* ======================================================
-       STATUS
+       NO RESULTS
     ====================================================== */
 
-    .status {
-      text-align: center;
-      padding: 60px 20px;
-      color: #8e9bb2;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #273149;
-      border-top-color: #4f7cff;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: auto;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ======================================================
-       MODAL
-    ====================================================== */
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.92);
+    .no-results {
       display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 9999;
+
+      padding:
+        60px 20px;
+
+      text-align: center;
+
+      color: #64748b;
     }
 
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-box {
-      width: 100%;
-      max-width: 1050px;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    #videoPlayer {
+    .no-results.visible {
       display: block;
-      width: 100%;
-      max-height: 80vh;
-      background: #000;
     }
 
-    .close {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      z-index: 5;
-      width: 40px;
-      height: 40px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(0,0,0,.75);
-      color: white;
-      font-size: 25px;
-      cursor: pointer;
+    .no-results i {
+      margin-bottom: 15px;
+
+      font-size: 38px;
     }
+
+
+    /* ======================================================
+       FOOTER
+    ====================================================== */
+
+    .private-footer {
+      padding:
+        30px 20px 45px;
+
+      text-align: center;
+
+      color: #64748b;
+
+      font-size: 13px;
+    }
+
 
     /* ======================================================
        MOBILE
     ====================================================== */
 
-    @media (max-width: 750px) {
+    @media (max-width:750px) {
 
-      .page {
-        display: block;
+      #app {
+        width: 92%;
+
+        padding-top: 30px;
       }
 
-      .sidebar {
+      .library-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+      }
+
+      .membership-status {
         width: 100%;
+
+        justify-content: center;
       }
 
-      .main {
-        padding: 20px 15px;
+      .player-wrapper {
+        min-height: 220px;
       }
 
-      .video-grid {
+      .videos-grid {
         grid-template-columns: 1fr;
+      }
+
+      .section-heading {
+        align-items: flex-start;
+
+        flex-direction: column;
       }
 
     }
 
   </style>
+
 </head>
+
 
 <body>
 
-<div class="page">
 
-  <!-- =====================================================
-       SIDEBAR
-  ====================================================== -->
+  <!-- ====================================================
+       MAIN APP
+  ===================================================== -->
 
-  <aside class="sidebar">
+  <main id="app">
 
-    <div class="logo">
-      GTRADES <span>AXIS™</span>
-    </div>
 
-    <ul class="nav">
+    <!-- ==================================================
+         HEADER
+    =================================================== -->
 
-      <li>
-        <a href="/dashboard">
-          <i class="fa-solid fa-house"></i>
-          Dashboard
-        </a>
-      </li>
+    <header class="library-header">
 
-      <li>
-        <a href="/resources">
-          <i class="fa-solid fa-folder"></i>
-          Premium Resources
-        </a>
-      </li>
+      <div class="header-text">
 
-      <li>
-        <a href="/premium-academy">
-          <i class="fa-solid fa-graduation-cap"></i>
-          Premium Academy
-        </a>
-      </li>
+        <div class="eyebrow">
+          GTRADES-AXIS™ PREMIUM ACADEMY
+        </div>
 
-      <li class="active">
-        <a href="/videos">
-          <i class="fa-solid fa-circle-play"></i>
-          Videos
-        </a>
-      </li>
+        <h1>
+          Private Video Library
+        </h1>
 
-      <li>
-        <a href="/journal">
-          <i class="fa-solid fa-chart-line"></i>
-          Trading Journal
-        </a>
-      </li>
+        <p>
+          Access your trading lessons,
+          market analysis and premium training.
+        </p>
 
-      <li>
-        <a href="/profile">
-          <i class="fa-solid fa-user"></i>
-          My Profile
-        </a>
-      </li>
+      </div>
 
-      <li>
-        <a href="/support">
-          <i class="fa-solid fa-headset"></i>
-          Support
-        </a>
-      </li>
 
-    </ul>
+      <div
+        id="membershipStatus"
+        class="membership-status"
+      >
 
-    <button id="logoutBtn">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      Logout
-    </button>
+        <span class="status-dot"></span>
 
-  </aside>
+        Checking access...
 
-  <!-- =====================================================
-       MAIN
-  ====================================================== -->
-
-  <main class="main">
-
-    <header class="header">
-
-      <h1>Trading Videos</h1>
-
-      <p>
-        Premium trading tutorials and market breakdowns.
-      </p>
+      </div>
 
     </header>
 
-    <!-- ===================================================
-         CONTROLS
-    ==================================================== -->
 
-    <section class="controls">
+    <!-- ==================================================
+         SEARCH
+    =================================================== -->
 
-      <input
-        id="searchInput"
-        class="search"
-        type="search"
-        placeholder="Search videos..."
+    <section class="toolbar">
+
+      <div class="search-box">
+
+        <i
+          class="fa-solid fa-magnifying-glass"
+        ></i>
+
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search videos..."
+          autocomplete="off"
+        >
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         FEATURED VIDEO
+    =================================================== -->
+
+    <section class="featured-video">
+
+      <div class="player-wrapper">
+
+        <video
+          id="r2VideoPlayer"
+          controls
+          playsinline
+          preload="metadata"
+        >
+          Your browser does not support
+          HTML5 video.
+        </video>
+
+
+        <div
+          id="playerPlaceholder"
+          class="player-placeholder"
+        >
+
+          <div class="big-play">
+
+            <i class="fa-solid fa-play"></i>
+
+          </div>
+
+          <h2>
+            GTRADES-AXIS™ Video Academy
+          </h2>
+
+          <p>
+            Select a lesson below to begin watching.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="featured-info">
+
+        <span class="featured-label">
+          PREMIUM TRAINING
+        </span>
+
+        <h2 id="currentVideoTitle">
+          Select a video to begin
+        </h2>
+
+        <p id="currentVideoDescription">
+          Your premium trading lessons
+          will appear here.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         FILTERS
+    =================================================== -->
+
+    <section class="filters">
+
+      <button
+        class="filter-btn active"
+        data-category="All"
+      >
+        All
+      </button>
+
+      <button
+        class="filter-btn"
+        data-category="Market Structure"
+      >
+        Market Structure
+      </button>
+
+      <button
+        class="filter-btn"
+        data-category="Supply & Demand"
+      >
+        Supply & Demand
+      </button>
+
+      <button
+        class="filter-btn"
+        data-category="Entries"
+      >
+        Entries
+      </button>
+
+      <button
+        class="filter-btn"
+        data-category="Risk Management"
+      >
+        Risk Management
+      </button>
+
+      <button
+        class="filter-btn"
+        data-category="Psychology"
+      >
+        Psychology
+      </button>
+
+    </section>
+
+
+    <!-- ==================================================
+         VIDEO LIBRARY
+    =================================================== -->
+
+    <section>
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-label">
+            ACADEMY CONTENT
+          </span>
+
+          <h2>
+            Video Lessons
+          </h2>
+
+        </div>
+
+
+        <span
+          id="videoCount"
+          class="video-count"
+        >
+          Preparing...
+        </span>
+
+      </div>
+
+
+      <div
+        id="videosContainer"
+        class="videos-grid"
       >
 
-      <div class="filters">
+        <div class="loading-card">
 
-        <button
-          class="filter-btn active"
-          data-category="All"
-        >
-          All
-        </button>
+          <div class="loading-icon">
 
-        <button
-          class="filter-btn"
-          data-category="Market Structure"
-        >
-          Market Structure
-        </button>
+            <i
+              class="fa-solid fa-play"
+            ></i>
 
-        <button
-          class="filter-btn"
-          data-category="Supply & Demand"
-        >
-          Supply &amp; Demand
-        </button>
+          </div>
 
-        <button
-          class="filter-btn"
-          data-category="Liquidity"
-        >
-          Liquidity
-        </button>
+          <div>
 
-        <button
-          class="filter-btn"
-          data-category="Entries"
-        >
-          Entries
-        </button>
+            <strong>
+              Preparing your video library
+            </strong>
 
-        <button
-          class="filter-btn"
-          data-category="Psychology"
-        >
-          Psychology
-        </button>
+            <p>
+              Your lessons will appear here shortly.
+            </p>
+
+          </div>
+
+        </div>
 
       </div>
 
-    </section>
 
-    <!-- ===================================================
-         VIDEOS
-    ==================================================== -->
+      <div
+        id="noResultsMessage"
+        class="no-results"
+      >
 
-    <section
-      id="videosContainer"
-      class="video-grid"
-    >
+        <i
+          class="fa-solid fa-video-slash"
+        ></i>
 
-      <div class="status">
-        <div class="spinner"></div>
-        <p style="margin-top:15px;">
-          Loading videos...
+        <h3>
+          No videos found
+        </h3>
+
+        <p>
+          Try another search or category.
         </p>
+
       </div>
 
     </section>
 
-    <div
-      id="noResultsMessage"
-      class="status"
-      style="display:none;"
-    >
-      No videos found.
-    </div>
 
   </main>
 
-</div>
 
-<!-- =======================================================
-     VIDEO MODAL
-======================================================== -->
+  <!-- ====================================================
+       FOOTER
+  ===================================================== -->
 
-<div
-  id="videoModal"
-  class="modal"
->
+  <footer class="private-footer">
 
-  <div class="modal-box">
+    © 2026 GTRADES-AXIS™
+    • Private Video Library
 
-    <button
-      id="closeModal"
-      class="close"
-      aria-label="Close video"
-    >
-      &times;
-    </button>
+  </footer>
 
-    <video
-      id="videoPlayer"
-      controls
-      playsinline
-      preload="metadata"
-    ></video>
 
-  </div>
+  <!-- ====================================================
+       JAVASCRIPT
+  ===================================================== -->
 
-</div>
+  <script type="module">
 
-<!-- =======================================================
-     FIREBASE IMPORT MAP
-======================================================== -->
+    /* =====================================================
+       FIREBASE
+    ===================================================== */
 
-<script type="importmap">
-{
-  "imports": {
-    "firebase/auth":
-      "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    import {
+      auth,
+      db
+    } from "./js/firebase.js";
 
-    "firebase/firestore":
-      "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-  }
-}
-</script>
 
-<!-- =======================================================
-     VIDEO SCRIPT
-======================================================== -->
+    import {
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-<script
-  type="module"
-  src="./js/videos.js"
-></script>
+
+    import {
+      collection,
+      getDocs,
+      query,
+      orderBy,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+
+    /* =====================================================
+       CLOUDFLARE R2
+    ===================================================== */
+
+    const R2_WORKER =
+      "https://r2-uploader.davidthuku574.workers.dev";
+
+
+    /* =====================================================
+       ELEMENTS
+    ===================================================== */
+
+    const container =
+      document.getElementById(
+        "videosContainer"
+      );
+
+    const searchInput =
+      document.getElementById(
+        "searchInput"
+      );
+
+    const filterButtons =
+      document.querySelectorAll(
+        ".filter-btn"
+      );
+
+    const noResults =
+      document.getElementById(
+        "noResultsMessage"
+      );
+
+    const membershipStatus =
+      document.getElementById(
+        "membershipStatus"
+      );
+
+    const videoCount =
+      document.getElementById(
+        "videoCount"
+      );
+
+    const player =
+      document.getElementById(
+        "r2VideoPlayer"
+      );
+
+    const playerPlaceholder =
+      document.getElementById(
+        "playerPlaceholder"
+      );
+
+    const currentVideoTitle =
+      document.getElementById(
+        "currentVideoTitle"
+      );
+
+    const currentVideoDescription =
+      document.getElementById(
+        "currentVideoDescription"
+      );
+
+
+    /* =====================================================
+       STATE
+    ===================================================== */
+
+    let videos = [];
+
+    let activeCategory = "All";
+
+    let hasPremiumAccess = false;
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHTML(value) {
+
+      return String(value ?? "")
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
+
+    }
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    function setStatus(
+      text,
+      type = "loading"
+    ) {
+
+      let color =
+        "#f59e0b";
+
+
+      if (type === "success") {
+
+        color =
+          "#22c55e";
+
+      }
+
+
+      if (type === "error") {
+
+        color =
+          "#ef4444";
+
+      }
+
+
+      membershipStatus.innerHTML = `
+
+        <span
+          class="status-dot"
+          style="background:${color}"
+        ></span>
+
+        ${escapeHTML(text)}
+
+      `;
+
+    }
+
+
+    /* =====================================================
+       AUTH
+    ===================================================== */
+
+    onAuthStateChanged(
+      auth,
+      async (user) => {
+
+        console.log(
+          "Auth state:",
+          user
+        );
+
+
+        if (!user) {
+
+          setStatus(
+            "Login required",
+            "error"
+          );
+
+
+          container.innerHTML = `
+
+            <div class="loading-card">
+
+              <div class="loading-icon">
+
+                <i
+                  class="fa-solid fa-lock"
+                ></i>
+
+              </div>
+
+              <div>
+
+                <strong>
+                  Please log in
+                </strong>
+
+                <p>
+                  Sign in to access
+                  your video library.
+                </p>
+
+              </div>
+
+            </div>
+
+          `;
+
+
+          setTimeout(
+            () => {
+
+              window.location.href =
+                "login.html";
+
+            },
+            1200
+          );
+
+
+          return;
+
+        }
+
+
+        try {
+
+          /* ============================================
+             GET USER
+          ============================================ */
+
+          const userRef =
+            doc(
+              db,
+              "users",
+              user.uid
+            );
+
+
+          const userSnap =
+            await getDoc(
+              userRef
+            );
+
+
+          if (!userSnap.exists()) {
+
+            setStatus(
+              "Account not found",
+              "error"
+            );
+
+
+            showError(
+              "Your account information could not be found."
+            );
+
+
+            return;
+
+          }
+
+
+          const userData =
+            userSnap.data();
+
+
+          console.log(
+            "User data:",
+            userData
+          );
+
+
+          /* ============================================
+             MEMBERSHIP
+          ============================================ */
+
+          hasPremiumAccess =
+            userData.role === "admin" ||
+            userData.membership === "premium";
+
+
+          console.log(
+            "Premium:",
+            hasPremiumAccess
+          );
+
+
+          if (
+            hasPremiumAccess
+          ) {
+
+            setStatus(
+              "Premium Access",
+              "success"
+            );
+
+
+            await loadVideos();
+
+
+          } else {
+
+            setStatus(
+              "Premium Required",
+              "error"
+            );
+
+
+            showLocked();
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            "AUTH ERROR:",
+            error
+          );
+
+
+          setStatus(
+            "Connection error",
+            "error"
+          );
+
+
+          showError(
+            "Unable to verify your membership."
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       LOAD VIDEOS
+    ===================================================== */
+
+    async function loadVideos() {
+
+      container.innerHTML = `
+
+        <div class="loading-card">
+
+          <div class="loading-icon">
+
+            <i
+              class="fa-solid fa-spinner fa-spin"
+            ></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Loading video lessons...
+            </strong>
+
+            <p>
+              Connecting to GTRADES-AXIS™.
+            </p>
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      try {
+
+        let snapshot;
+
+
+        /* ================================================
+           ORDERED QUERY
+        ================================================ */
+
+        try {
+
+          const q =
+            query(
+              collection(
+                db,
+                "videos"
+              ),
+              orderBy(
+                "createdAt",
+                "desc"
+              )
+            );
+
+
+          snapshot =
+            await getDocs(q);
+
+
+        } catch (error) {
+
+          console.warn(
+            "Order query failed.",
+            error
+          );
+
+
+          snapshot =
+            await getDocs(
+              collection(
+                db,
+                "videos"
+              )
+            );
+
+        }
+
+
+        videos = [];
+
+
+        snapshot.forEach(
+          (videoDoc) => {
+
+            videos.push({
+
+              id:
+                videoDoc.id,
+
+              ...videoDoc.data()
+
+            });
+
+          }
+        );
+
+
+        console.log(
+          "VIDEOS:",
+          videos
+        );
+
+
+        videoCount.textContent =
+          `${videos.length} lesson${
+            videos.length === 1
+              ? ""
+              : "s"
+          }`;
+
+
+        await renderVideos();
+
+
+      } catch (error) {
+
+        console.error(
+          "LOAD VIDEOS ERROR:",
+          error
+        );
+
+
+        showError(
+          "Unable to load your videos."
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    async function renderVideos() {
+
+      container.innerHTML = "";
+
+
+      noResults.style.display =
+        "none";
+
+
+      let filtered =
+        [...videos];
+
+
+      /* ================================================
+         CATEGORY
+      ================================================ */
+
+      if (
+        activeCategory !==
+        "All"
+      ) {
+
+        filtered =
+          filtered.filter(
+            (video) => {
+
+              return String(
+                video.category ||
+                "General"
+              )
+                .toLowerCase()
+                .trim() ===
+              String(
+                activeCategory
+              )
+                .toLowerCase()
+                .trim();
+
+            }
+          );
+
+      }
+
+
+      /* ================================================
+         SEARCH
+      ================================================ */
+
+      const keyword =
+        searchInput.value
+          .toLowerCase()
+          .trim();
+
+
+      if (keyword) {
+
+        filtered =
+          filtered.filter(
+            (video) => {
+
+              const title =
+                String(
+                  video.title ||
+                  ""
+                )
+                  .toLowerCase();
+
+
+              const description =
+                String(
+                  video.description ||
+                  ""
+                )
+                  .toLowerCase();
+
+
+              const category =
+                String(
+                  video.category ||
+                  ""
+                )
+                  .toLowerCase();
+
+
+              return (
+                title.includes(
+                  keyword
+                ) ||
+
+                description.includes(
+                  keyword
+                ) ||
+
+                category.includes(
+                  keyword
+                )
+              );
+
+            }
+          );
+
+      }
+
+
+      /* ================================================
+         NONE
+      ================================================ */
+
+      if (
+        filtered.length ===
+        0
+      ) {
+
+        noResults.style.display =
+          "block";
+
+        return;
+
+      }
+
+
+      /* ================================================
+         CARDS
+      ================================================ */
+
+      for (
+        const video of filtered
+      ) {
+
+        const card =
+          createVideoCard(
+            video
+          );
+
+
+        container.appendChild(
+          card
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CREATE CARD
+    ===================================================== */
+
+    function createVideoCard(
+      video
+    ) {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      const title =
+        video.title ||
+        "Untitled Video";
+
+
+      const category =
+        video.category ||
+        "General";
+
+
+      const duration =
+        video.duration ||
+        "Video";
+
+
+      const premiumOnly =
+        video.premiumOnly === true;
+
+
+      const canAccess =
+        !premiumOnly ||
+        hasPremiumAccess;
+
+
+      const thumbnail =
+        video.thumbnailURL ||
+        video.thumbnailUrl ||
+        "";
+
+
+      let thumbnailHTML = `
+
+        <div
+          class="video-thumb-placeholder"
+        >
+
+          <i
+            class="fa-solid fa-circle-play"
+          ></i>
+
+        </div>
+
+      `;
+
+
+      if (thumbnail) {
+
+        thumbnailHTML = `
+
+          <img
+            src="${escapeHTML(
+              thumbnail
+            )}"
+            alt="${escapeHTML(
+              title
+            )}"
+            loading="lazy"
+          >
+
+        `;
+
+      }
+
+
+      card.className =
+        canAccess
+          ? "video-card"
+          : "video-card locked";
+
+
+      card.innerHTML = `
+
+        <div class="video-thumb">
+
+          ${thumbnailHTML}
+
+          <span class="video-duration">
+
+            ${escapeHTML(
+              duration
+            )}
+
+          </span>
+
+
+          ${
+            !canAccess
+              ? `
+
+                <div class="lock-overlay">
+
+                  <i
+                    class="fa-solid fa-lock"
+                  ></i>
+
+                  <span>
+                    Premium Only
+                  </span>
+
+                </div>
+
+              `
+              : ""
+          }
+
+        </div>
+
+
+        <div class="video-info">
+
+          <div class="video-title">
+
+            ${escapeHTML(
+              title
+            )}
+
+          </div>
+
+
+          <div class="video-meta">
+
+            <span>
+              ${escapeHTML(
+                category
+              )}
+            </span>
+
+
+            <span
+              class="badge ${
+                premiumOnly
+                  ? "badge-premium"
+                  : "badge-free"
+              }"
+            >
+
+              ${
+                premiumOnly
+                  ? "Premium"
+                  : "Free"
+              }
+
+            </span>
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      if (canAccess) {
+
+        card.addEventListener(
+          "click",
+          () => {
+
+            playVideo(
+              video
+            );
+
+          }
+        );
+
+      }
+
+
+      return card;
+
+    }
+
+
+    /* =====================================================
+       GET R2 URL
+    ===================================================== */
+
+    async function getR2FileURL(
+      key
+    ) {
+
+      if (!key) {
+
+        throw new Error(
+          "This video has no R2 file key."
+        );
+
+      }
+
+
+      const url =
+        new URL(
+          R2_WORKER
+        );
+
+
+      url.searchParams.set(
+        "key",
+        key
+      );
+
+
+      url.searchParams.set(
+        "action",
+        "file"
+      );
+
+
+      console.log(
+        "R2 REQUEST:",
+        url.toString()
+      );
+
+
+      const response =
+        await fetch(
+          url.toString(),
+          {
+            method: "GET",
+
+            headers: {
+              Accept:
+                "application/json"
+            },
+
+            cache:
+              "no-store"
+          }
+        );
+
+
+      let data;
+
+
+      try {
+
+        data =
+          await response.json();
+
+      } catch {
+
+        throw new Error(
+          "Cloudflare Worker did not return JSON."
+        );
+
+      }
+
+
+      console.log(
+        "R2 RESPONSE:",
+        data
+      );
+
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          data.error ||
+          `Worker error ${response.status}`
+        );
+
+      }
+
+
+      if (
+        !data.url
+      ) {
+
+        throw new Error(
+          "Worker did not return a video URL."
+        );
+
+      }
+
+
+      return data.url;
+
+    }
+
+
+    /* =====================================================
+       PLAY VIDEO
+    ===================================================== */
+
+    async function playVideo(
+      video
+    ) {
+
+      const key =
+        video.videoKey ||
+        video.fileKey ||
+        video.r2Key ||
+        video.storageKey ||
+        video.r2Path ||
+        "";
+
+
+      console.log(
+        "VIDEO RECORD:",
+        video
+      );
+
+
+      console.log(
+        "VIDEO KEY:",
+        key
+      );
+
+
+      if (!key) {
+
+        alert(
+          "This video does not have an R2 video key."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        currentVideoTitle.textContent =
+          video.title ||
+          "GTRADES-AXIS™ Video";
+
+
+        currentVideoDescription.textContent =
+          video.description ||
+          "Premium GTRADES-AXIS™ training";
+
+
+        const videoURL =
+          await getR2FileURL(
+            key
+          );
+
+
+        console.log(
+          "VIDEO URL:",
+          videoURL
+        );
+
+
+        player.pause();
+
+
+        player.src =
+          videoURL;
+
+
+        player.style.display =
+          "block";
+
+
+        playerPlaceholder.style.display =
+          "none";
+
+
+        player.load();
+
+
+        player.play()
+          .catch(
+            () => {
+
+              console.log(
+                "Autoplay blocked."
+              );
+
+            }
+          );
+
+
+        document
+          .querySelector(
+            ".featured-video"
+          )
+          ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+
+      } catch (error) {
+
+        console.error(
+          "VIDEO PLAY ERROR:",
+          error
+        );
+
+
+        alert(
+          "Unable to play video.\n\n" +
+          error.message
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    searchInput.addEventListener(
+      "input",
+      () => {
+
+        renderVideos();
+
+      }
+    );
+
+
+    /* =====================================================
+       FILTERS
+    ===================================================== */
+
+    filterButtons.forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            filterButtons.forEach(
+              (btn) => {
+
+                btn.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+            button.classList.add(
+              "active"
+            );
+
+
+            activeCategory =
+              button.dataset.category ||
+              "All";
+
+
+            renderVideos();
+
+          }
+        );
+
+      }
+    );
+
+
+    /* =====================================================
+       LOCKED
+    ===================================================== */
+
+    function showLocked() {
+
+      videoCount.textContent =
+        "Premium access required";
+
+
+      container.innerHTML = `
+
+        <div class="loading-card">
+
+          <div
+            class="loading-icon"
+            style="color:#f59e0b"
+          >
+
+            <i
+              class="fa-solid fa-lock"
+            ></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Premium Members Only
+            </strong>
+
+            <p>
+              Upgrade your membership
+              to access premium lessons.
+            </p>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    function showError(
+      message
+    ) {
+
+      videoCount.textContent =
+        "Unavailable";
+
+
+      container.innerHTML = `
+
+        <div class="loading-card">
+
+          <div
+            class="loading-icon"
+            style="color:#ef4444"
+          >
+
+            <i
+              class="fa-solid fa-circle-exclamation"
+            ></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Video library unavailable
+            </strong>
+
+            <p>
+              ${escapeHTML(
+                message
+              )}
+            </p>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }
+
+  </script>
 
 </body>
 </html>
