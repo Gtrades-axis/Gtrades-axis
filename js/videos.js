@@ -48,113 +48,104 @@ let activeCategory = "All";
 let hasPremiumAccess = false;
 
 // ============================================================
-// AUTHENTICATION
+// // ============================================================
+// AUTHENTICATION + ACCESS
 // ============================================================
 
 onAuthStateChanged(auth, async (user) => {
 
-  console.log(
-    "GTRADES-AXIS: Auth state:",
-    user ? user.uid : "NOT LOGGED IN"
-  );
+  console.log("GTRADES-AXIS: Auth state:", user ? user.uid : "NO USER");
 
   if (!user) {
-
     window.location.href = "login.html";
-
     return;
   }
 
   try {
 
-    // --------------------------------------------------------
-    // GET USER DOCUMENT
-    // --------------------------------------------------------
+    console.log("GTRADES-AXIS: Checking user document...");
 
-    const userRef =
-      doc(db, "users", user.uid);
-
-    const userSnap =
-      await getDoc(userRef);
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
 
-      console.error(
-        "User document does not exist."
-      );
-
-      hideLoading();
+      console.error("GTRADES-AXIS: User document not found.");
 
       showError(
         "Your account information could not be found."
       );
 
+      app?.classList.remove("loading");
+
       return;
     }
 
-    const userData =
-      userSnap.data();
+    const userData = userSnap.data();
 
     console.log(
-      "GTRADES-AXIS USER:",
+      "GTRADES-AXIS: User data:",
       userData
     );
 
-    // --------------------------------------------------------
-    // ADMIN = PREMIUM ACCESS
-    // --------------------------------------------------------
-
-    const isAdmin =
-      userData.role === "admin";
-
-    const isPremium =
-      userData.membership === "premium";
+    // ========================================================
+    // ADMIN OR PREMIUM MEMBER
+    // ========================================================
 
     hasPremiumAccess =
-      isAdmin || isPremium;
+      userData.role === "admin" ||
+      userData.membership === "premium";
 
     console.log(
-      "ADMIN:",
-      isAdmin
-    );
-
-    console.log(
-      "PREMIUM:",
-      isPremium
-    );
-
-    console.log(
-      "VIDEO ACCESS:",
+      "GTRADES-AXIS: Access:",
       hasPremiumAccess
     );
 
-    // --------------------------------------------------------
-    // IMPORTANT
-    // NEVER LOCK THE WHOLE PAGE HERE
-    // --------------------------------------------------------
+    // ========================================================
+    // NO PREMIUM ACCESS
+    // ========================================================
 
-    hideLoading();
+    if (!hasPremiumAccess) {
+
+      app?.classList.remove("loading");
+
+      app?.classList.add("locked");
+
+      showError(
+        "Premium membership is required to access the video library."
+      );
+
+      return;
+    }
+
+    // ========================================================
+    // ACCESS GRANTED
+    // ========================================================
+
+    console.log(
+      "GTRADES-AXIS: Premium/Admin access granted."
+    );
 
     app?.classList.remove("loading");
     app?.classList.remove("locked");
 
-    // --------------------------------------------------------
+    // ========================================================
     // LOAD VIDEOS
-    // --------------------------------------------------------
+    // ========================================================
 
     await loadVideos();
 
   } catch (error) {
 
     console.error(
-      "VIDEO AUTH ERROR:",
+      "GTRADES-AXIS AUTH ERROR:",
       error
     );
 
-    hideLoading();
+    app?.classList.remove("loading");
 
     showError(
-      "Unable to verify your account. Please refresh the page."
+      "Unable to verify your membership. Please refresh the page."
     );
   }
 
