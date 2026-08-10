@@ -16,74 +16,81 @@ const ALLOWED_ORIGINS = [
 // ============================================================
 
 function getCorsHeaders(request) {
+  const origin = request.headers.get("Origin") || "";
 
-  const origin =
-    request.headers.get("Origin") || "";
-
-  const allowed =
-    ALLOWED_ORIGINS.includes(origin)
-      ? origin
-      : "https://gtradesaxis.com";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : "https://gtradesaxis.com";
 
   return {
-    "Access-Control-Allow-Origin": allowed,
-    "Access-Control-Allow-Methods":
-      "GET, HEAD, PUT, OPTIONS",
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, HEAD, PUT, OPTIONS",
     "Access-Control-Allow-Headers":
       "Content-Type, Authorization, Range",
     "Access-Control-Expose-Headers":
       "Content-Length, Content-Range, Accept-Ranges, Content-Type, ETag",
-    "Access-Control-Max-Age":
-      "86400"
+    "Access-Control-Max-Age": "86400"
   };
 }
 
 // ============================================================
-// JSON RESPONSE
+// JSON
 // ============================================================
 
-function json(
-  data,
-  status = 200,
-  request
-) {
-
-  return new Response(
-    JSON.stringify(data),
-    {
-      status,
-      headers: {
-        "Content-Type":
-          "application/json; charset=utf-8",
-        ...getCorsHeaders(request)
-      }
+function json(data, status, request) {
+  return new Response(JSON.stringify(data), {
+    status: status || 200,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      ...getCorsHeaders(request)
     }
-  );
-
+  });
 }
 
 // ============================================================
-// TEXT RESPONSE
+// CONTENT TYPE
 // ============================================================
 
-function text(
-  message,
-  status = 200,
-  request
-) {
+function getContentType(key) {
+  const extension =
+    key.split(".").pop()?.toLowerCase() || "";
 
-  return new Response(
-    message,
-    {
-      status,
-      headers: {
-        "Content-Type":
-          "text/plain; charset=utf-8",
-        ...getCorsHeaders(request)
-      }
-    }
+  const types = {
+    mp4: "video/mp4",
+    webm: "video/webm",
+    mov: "video/quicktime",
+    m4v: "video/x-m4v",
+
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    webp: "image/webp",
+    gif: "image/gif",
+
+    pdf: "application/pdf",
+
+    txt: "text/plain",
+    csv: "text/csv",
+    json: "application/json",
+
+    zip: "application/zip",
+
+    doc: "application/msword",
+
+    docx:
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+    xls:
+      "application/vnd.ms-excel",
+
+    xlsx:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  };
+
+  return (
+    types[extension] ||
+    "application/octet-stream"
   );
-
 }
 
 // ============================================================
@@ -92,85 +99,40 @@ function text(
 
 export default {
 
-  async fetch(
-    request,
-    env
-  ) {
+  async fetch(request, env) {
 
-    const cors =
-      getCorsHeaders(request);
+    const cors = getCorsHeaders(request);
 
     // ========================================================
     // OPTIONS
     // ========================================================
 
-    if (
-      request.method ===
-      "OPTIONS"
-    ) {
-
-      return new Response(
-        null,
-        {
-          status: 204,
-          headers: cors
-        }
-      );
-
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: cors
+      });
     }
 
     // ========================================================
     // URL
     // ========================================================
 
-    const url =
-      new URL(request.url);
+    const url = new URL(request.url);
 
-    const pathname =
-      url.pathname;
-
-    const action =
-      url.searchParams.get(
-        "action"
-      );
+    const pathname = url.pathname;
 
     const key =
-      url.searchParams.get(
-        "key"
-      );
+      url.searchParams.get("key");
+
+    const action =
+      url.searchParams.get("action");
 
     // ========================================================
-    // HEALTH CHECK
+    // CHECK R2
     // ========================================================
 
-    if (
-      pathname === "/" &&
-      !key &&
-      !action
-    ) {
-
-      return json(
-        {
-          success: true,
-          worker:
-            "GTRADES-AXIS R2 Worker",
-          status:
-            "online"
-        },
-        200,
-        request
-      );
-
-    }
-
-    // ========================================================
-    // REQUIRE R2
-    // ========================================================
-
-    if (
-      !env.GTRADES_ASSETS
-    ) {
-
+    if (!env.GTRADES_ASSETS) {
       return json(
         {
           success: false,
@@ -180,61 +142,98 @@ export default {
         500,
         request
       );
-
     }
 
+    const bucket =
+      env.GTRADES_ASSETS;
+
     // ========================================================
-    // FILE KEY
+    // HEALTH CHECK
     // ========================================================
 
     if (
-      key
+      pathname === "/" &&
+      !key &&
+      !action &&
+      request.method === "GET"
+    ) {
+      return json(
+        {
+          success: true,
+          service:
+            "GTRADES-AXIS R2 Worker",
+          status:
+            "online"
+        },
+        200,
+        request
+      );
+    }
+
+    // ========================================================
+    // UPLOAD
+    //
+    // Supports:
+    //
+    // PUT /upload?key=...
+    // PUT /?key=...&action=upload
+    // ========================================================
+
+    if (
+      request.method === "PUT" &&
+      (
+        pathname === "/upload" ||
+        pathname === "/" ||
+        action === "upload"
+      )
     ) {
 
-      // ======================================================
-      // FILE / DOWNLOAD / PREVIEW
-      // ======================================================
+      return handleUpload(
+        request,
+        bucket,
+        key,
+        cors
+      );
+    }
 
-      if (
-        action === "file" ||
-        action === "download" ||
-        action === "preview" ||
-        (
-          !action &&
-          (
-            request.method === "GET" ||
-            request.method === "HEAD"
-          )
-        )
-      ) {
+    // ========================================================
+    // FILE READ
+    //
+    // GET /?key=...&action=file
+    // GET /?key=...&action=preview
+    // GET /?key=...
+    // ========================================================
 
-        return handleFile(
-          request,
-          env.GTRADES_ASSETS,
-          key,
-          cors
-        );
+    if (
+      key &&
+      (
+        request.method === "GET" ||
+        request.method === "HEAD"
+      )
+    ) {
 
-      }
+      return handleFile(
+        request,
+        bucket,
+        key,
+        cors
+      );
+    }
 
-      // ======================================================
-      // UPLOAD
-      // ======================================================
+    // ========================================================
+    // MISSING KEY
+    // ========================================================
 
-      if (
-        action === "upload" ||
-        request.method === "PUT"
-      ) {
-
-        return handleUpload(
-          request,
-          env.GTRADES_ASSETS,
-          key,
-          cors
-        );
-
-      }
-
+    if (!key) {
+      return json(
+        {
+          success: false,
+          error:
+            "Missing R2 object key."
+        },
+        400,
+        request
+      );
     }
 
     // ========================================================
@@ -246,22 +245,181 @@ export default {
         success: false,
         error:
           "Route not found.",
+        pathname,
+        method:
+          request.method,
+        key,
         availableRoutes: [
           "GET /?key=FILE_KEY&action=file",
           "HEAD /?key=FILE_KEY&action=file",
-          "PUT /?key=FILE_KEY&action=upload"
+          "PUT /upload?key=FILE_KEY"
         ]
       },
       404,
       request
     );
-
   }
-
 };
 
 // ============================================================
-// R2 FILE HANDLER
+// UPLOAD
+// ============================================================
+
+async function handleUpload(
+  request,
+  bucket,
+  key,
+  cors
+) {
+
+  try {
+
+    // --------------------------------------------------------
+    // KEY REQUIRED
+    // --------------------------------------------------------
+
+    if (!key) {
+      return json(
+        {
+          success: false,
+          error:
+            "Missing file key."
+        },
+        400,
+        request
+      );
+    }
+
+    // --------------------------------------------------------
+    // BODY REQUIRED
+    // --------------------------------------------------------
+
+    if (!request.body) {
+      return json(
+        {
+          success: false,
+          error:
+            "Upload body is empty."
+        },
+        400,
+        request
+      );
+    }
+
+    // --------------------------------------------------------
+    // CONTENT TYPE
+    // --------------------------------------------------------
+
+    const contentType =
+      request.headers.get(
+        "Content-Type"
+      ) ||
+      getContentType(key);
+
+    console.log(
+      "R2 UPLOAD START:",
+      key
+    );
+
+    // --------------------------------------------------------
+    // PUT TO R2
+    // --------------------------------------------------------
+
+    await bucket.put(
+      key,
+      request.body,
+      {
+        httpMetadata: {
+          contentType
+        }
+      }
+    );
+
+    console.log(
+      "R2 UPLOAD COMPLETE:",
+      key
+    );
+
+    // --------------------------------------------------------
+    // VERIFY OBJECT EXISTS
+    // --------------------------------------------------------
+
+    const verification =
+      await bucket.head(key);
+
+    if (!verification) {
+
+      console.error(
+        "R2 VERIFICATION FAILED:",
+        key
+      );
+
+      return json(
+        {
+          success: false,
+          error:
+            "Upload completed but the file could not be verified in R2.",
+          key
+        },
+        500,
+        request
+      );
+    }
+
+    // --------------------------------------------------------
+    // PLAYBACK URL
+    // --------------------------------------------------------
+
+    const playbackURL =
+      `${urlForWorker(request)}/?key=${encodeURIComponent(
+        key
+      )}&action=file`;
+
+    // --------------------------------------------------------
+    // SUCCESS
+    // --------------------------------------------------------
+
+    return json(
+      {
+        success: true,
+        message:
+          "Upload complete.",
+        key,
+        size:
+          verification.size,
+        etag:
+          verification.etag,
+        contentType,
+        url:
+          playbackURL
+      },
+      200,
+      request
+    );
+
+  } catch (error) {
+
+    console.error(
+      "R2 UPLOAD ERROR:",
+      error
+    );
+
+    return json(
+      {
+        success: false,
+        error:
+          error?.message ||
+          "Upload failed.",
+        key
+      },
+      500,
+      request
+    );
+  }
+}
+
+// ============================================================
+// FILE HANDLER
 // ============================================================
 
 async function handleFile(
@@ -273,9 +431,14 @@ async function handleFile(
 
   try {
 
-    // ========================================================
-    // GET RANGE
-    // ========================================================
+    console.log(
+      "R2 FILE REQUEST:",
+      key
+    );
+
+    // --------------------------------------------------------
+    // RANGE
+    // --------------------------------------------------------
 
     const rangeHeader =
       request.headers.get(
@@ -284,18 +447,14 @@ async function handleFile(
 
     let range = undefined;
 
-    if (
-      rangeHeader
-    ) {
+    if (rangeHeader) {
 
       const match =
         rangeHeader.match(
           /bytes=(\d*)-(\d*)/
         );
 
-      if (
-        match
-      ) {
+      if (match) {
 
         const startText =
           match[1];
@@ -322,25 +481,22 @@ async function handleFile(
           };
 
           if (
-            end !== undefined
+            end !== undefined &&
+            end >= start
           ) {
 
             range.length =
               end -
               start +
               1;
-
           }
-
         }
-
       }
-
     }
 
-    // ========================================================
-    // R2 GET
-    // ========================================================
+    // --------------------------------------------------------
+    // GET OBJECT
+    // --------------------------------------------------------
 
     const object =
       await bucket.get(
@@ -350,13 +506,16 @@ async function handleFile(
           : undefined
       );
 
-    // ========================================================
-    // FILE NOT FOUND
-    // ========================================================
+    // --------------------------------------------------------
+    // NOT FOUND
+    // --------------------------------------------------------
 
-    if (
-      !object
-    ) {
+    if (!object) {
+
+      console.error(
+        "R2 FILE NOT FOUND:",
+        key
+      );
 
       return json(
         {
@@ -368,65 +527,56 @@ async function handleFile(
         404,
         request
       );
-
     }
 
-    // ========================================================
+    // --------------------------------------------------------
     // CONTENT TYPE
-    // ========================================================
+    // --------------------------------------------------------
 
-    let contentType =
-      object.httpMetadata
-        ?.contentType;
+    const contentType =
+      object.httpMetadata?.contentType ||
+      getContentType(key);
 
-    if (
-      !contentType
-    ) {
+    // --------------------------------------------------------
+    // RESPONSE HEADERS
+    // --------------------------------------------------------
 
-      contentType =
-        getContentType(
-          key
-        );
+    const headers = {
+      ...cors,
 
+      "Content-Type":
+        contentType,
+
+      "Accept-Ranges":
+        "bytes",
+
+      "Cache-Control":
+        "public, max-age=3600"
+    };
+
+    // --------------------------------------------------------
+    // ETAG
+    // --------------------------------------------------------
+
+    if (object.etag) {
+      headers.ETag =
+        object.etag;
     }
 
-    // ========================================================
-    // HEAD REQUEST
-    // ========================================================
+    // --------------------------------------------------------
+    // HEAD
+    // --------------------------------------------------------
 
     if (
-      request.method ===
-      "HEAD"
+      request.method === "HEAD"
     ) {
 
-      const headers = {
-
-        ...cors,
-
-        "Content-Type":
-          contentType,
-
-        "Content-Length":
-          String(
-            object.size
-          ),
-
-        "Accept-Ranges":
-          "bytes",
-
-        "Cache-Control":
-          "public, max-age=3600"
-
-      };
-
-      if (
-        object.httpEtag
-      ) {
-
-        headers.ETag =
-          object.httpEtag;
-
-      }
+      headers[
+        "Content-Length"
+      ] =
+        String(
+          object.size
+        );
 
       return new Response(
         null,
@@ -438,34 +588,14 @@ async function handleFile(
           headers
         }
       );
-
     }
 
-    // ========================================================
-    // NORMAL / RANGE RESPONSE
-    // ========================================================
-
-    const headers = {
-
-      ...cors,
-
-      "Content-Type":
-        contentType,
-
-      "Accept-Ranges":
-        "bytes",
-
-      "Cache-Control":
-        "public, max-age=3600"
-
-    };
-
-    // ========================================================
+    // --------------------------------------------------------
     // RANGE RESPONSE
-    // ========================================================
+    // --------------------------------------------------------
 
     if (
-      rangeHeader &&
+      range &&
       object.range
     ) {
 
@@ -473,7 +603,8 @@ async function handleFile(
         object.range.offset;
 
       const length =
-        object.range.length;
+        object.range.length ||
+        object.size;
 
       const end =
         offset +
@@ -490,15 +621,6 @@ async function handleFile(
       ] =
         String(length);
 
-      if (
-        object.httpEtag
-      ) {
-
-        headers.ETag =
-          object.httpEtag;
-
-      }
-
       return new Response(
         object.body,
         {
@@ -506,12 +628,11 @@ async function handleFile(
           headers
         }
       );
-
     }
 
-    // ========================================================
+    // --------------------------------------------------------
     // FULL FILE
-    // ========================================================
+    // --------------------------------------------------------
 
     headers[
       "Content-Length"
@@ -519,15 +640,6 @@ async function handleFile(
       String(
         object.size
       );
-
-    if (
-      object.httpEtag
-    ) {
-
-      headers.ETag =
-        object.httpEtag;
-
-    }
 
     return new Response(
       object.body,
@@ -548,192 +660,23 @@ async function handleFile(
       {
         success: false,
         error:
-          error.message ||
-          "Unable to read R2 file."
-      },
-      500,
-      request
-    );
-
-  }
-
-}
-
-// ============================================================
-// R2 UPLOAD HANDLER
-// ============================================================
-
-async function handleUpload(
-  request,
-  bucket,
-  key,
-  cors
-) {
-
-  try {
-
-    if (
-      !key
-    ) {
-
-      return json(
-        {
-          success: false,
-          error:
-            "Missing file key."
-        },
-        400,
-        request
-      );
-
-    }
-
-    const body =
-      request.body;
-
-    if (
-      !body
-    ) {
-
-      return json(
-        {
-          success: false,
-          error:
-            "Upload body is empty."
-        },
-        400,
-        request
-      );
-
-    }
-
-    const contentType =
-      request.headers.get(
-        "Content-Type"
-      ) ||
-      getContentType(
+          error?.message ||
+          "Unable to read R2 file.",
         key
-      );
-
-    await bucket.put(
-      key,
-      body,
-      {
-        httpMetadata: {
-          contentType
-        }
-      }
-    );
-
-    return json(
-      {
-        success: true,
-        message:
-          "Upload complete.",
-        key,
-        contentType
-      },
-      200,
-      request
-    );
-
-  } catch (error) {
-
-    console.error(
-      "R2 UPLOAD ERROR:",
-      error
-    );
-
-    return json(
-      {
-        success: false,
-        error:
-          error.message ||
-          "Upload failed."
       },
       500,
       request
     );
-
   }
-
 }
 
 // ============================================================
-// CONTENT TYPE
+// WORKER BASE URL
 // ============================================================
 
-function getContentType(
-  key
-) {
+function urlForWorker(request) {
+  const url =
+    new URL(request.url);
 
-  const extension =
-    key
-      .split(".")
-      .pop()
-      ?.toLowerCase();
-
-  const types = {
-
-    mp4:
-      "video/mp4",
-
-    webm:
-      "video/webm",
-
-    mov:
-      "video/quicktime",
-
-    m4v:
-      "video/x-m4v",
-
-    pdf:
-      "application/pdf",
-
-    png:
-      "image/png",
-
-    jpg:
-      "image/jpeg",
-
-    jpeg:
-      "image/jpeg",
-
-    webp:
-      "image/webp",
-
-    gif:
-      "image/gif",
-
-    txt:
-      "text/plain",
-
-    csv:
-      "text/csv",
-
-    json:
-      "application/json",
-
-    zip:
-      "application/zip",
-
-    doc:
-      "application/msword",
-
-    docx:
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-
-    xls:
-      "application/vnd.ms-excel",
-
-    xlsx:
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-
-  };
-
-  return (
-    types[extension] ||
-    "application/octet-stream"
-  );
-
+  return `${url.protocol}//${url.host}`;
 }
