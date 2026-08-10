@@ -1,99 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    Video Academy | GTRADES-AXIS™
-  </title>
-
-  <meta
-    name="description"
-    content="GTRADES-AXIS™ Private Video Academy"
-  >
-
-  <!-- ======================================================
-       FONT AWESOME
-  ======================================================= -->
+  <title>Video Academy | GTRADES-AXIS™</title>
 
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
   >
 
-
-  <!-- ======================================================
-       CSS
-  ======================================================= -->
-
   <style>
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-
     body {
       background: #05070b;
-      color: #ffffff;
-      font-family:
-        Inter,
-        Arial,
-        Helvetica,
-        sans-serif;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
       min-height: 100vh;
     }
 
-
     button,
     input {
-      font-family: inherit;
+      font: inherit;
     }
-
-
-    /* =====================================================
-       HEADER
-    ====================================================== */
 
     .topbar {
-      width: 100%;
       border-bottom: 1px solid #18202d;
-      background: rgba(5, 7, 11, 0.96);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(14px);
+      background: #070a10;
     }
-
 
     .topbar-inner {
       max-width: 1400px;
       margin: auto;
-      min-height: 74px;
+      min-height: 72px;
       padding: 0 24px;
 
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
     }
-
 
     .brand {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-
 
     .brand-icon {
       width: 42px;
@@ -105,2318 +62,1452 @@
       justify-content: center;
 
       background: #0b1220;
-      border: 1px solid #1d4ed8;
-
+      border: 1px solid #2563eb;
       color: #3b82f6;
-      font-size: 19px;
     }
 
-
-    .brand-text strong {
+    .brand strong {
       display: block;
       font-size: 15px;
       letter-spacing: .7px;
     }
 
-
-    .brand-text span {
+    .brand span {
       display: block;
-      margin-top: 3px;
       color: #64748b;
       font-size: 11px;
+      margin-top: 3px;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-
     .logout-btn {
-      border: 1px solid #263244;
       background: #0b1018;
       color: #cbd5e1;
-
+      border: 1px solid #263244;
+      border-radius: 9px;
       padding: 10px 15px;
-      border-radius: 10px;
-
       cursor: pointer;
-      transition: .2s;
     }
-
 
     .logout-btn:hover {
-      border-color: #3b82f6;
-      color: #ffffff;
+      border-color: #2563eb;
+      color: white;
     }
-
-
-    /* =====================================================
-       PAGE
-    ====================================================== */
 
     .page {
       max-width: 1400px;
       margin: auto;
-      padding: 35px 24px 70px;
+      padding: 35px 24px 60px;
     }
-
-
-    .hero {
-      margin-bottom: 30px;
-    }
-
 
     .eyebrow {
       color: #3b82f6;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: bold;
       letter-spacing: 2px;
+      text-transform: uppercase;
       margin-bottom: 10px;
     }
 
+    .hero {
+      margin-bottom: 28px;
+    }
 
     .hero h1 {
       font-size: clamp(30px, 5vw, 48px);
-      line-height: 1.05;
       margin-bottom: 12px;
     }
 
-
     .hero p {
-      max-width: 720px;
       color: #94a3b8;
+      max-width: 700px;
       line-height: 1.7;
     }
 
-
-    /* =====================================================
-       FILTERS
-    ====================================================== */
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 30px;
-    }
-
-
-    .filter-btn {
-      border: 1px solid #202a3a;
-      background: #0a0f17;
-      color: #94a3b8;
-
-      padding: 9px 15px;
-      border-radius: 999px;
-
-      cursor: pointer;
-      transition: .2s;
-    }
-
-
-    .filter-btn:hover,
-    .filter-btn.active {
-      background: #0d2a5c;
-      border-color: #2563eb;
-      color: #ffffff;
-    }
-
-
-    /* =====================================================
-       SEARCH
-    ====================================================== */
-
-    .search-box {
+    .search {
       position: relative;
-      margin-bottom: 30px;
+      margin-bottom: 18px;
     }
 
-
-    .search-box i {
+    .search i {
       position: absolute;
-      left: 17px;
+      left: 16px;
       top: 50%;
       transform: translateY(-50%);
       color: #64748b;
     }
 
-
     #searchInput {
       width: 100%;
-
       background: #090e16;
       border: 1px solid #202a3a;
-      border-radius: 14px;
-
-      color: #ffffff;
-
-      padding: 15px 18px 15px 47px;
-
+      border-radius: 12px;
+      padding: 15px 18px 15px 45px;
+      color: white;
       outline: none;
-      font-size: 14px;
-
-      transition: .2s;
     }
-
 
     #searchInput:focus {
       border-color: #2563eb;
-      box-shadow:
-        0 0 0 3px
-        rgba(37, 99, 235, .12);
     }
 
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-bottom: 30px;
+    }
 
-    /* =====================================================
-       PLAYER SECTION
-    ====================================================== */
+    .filter-btn {
+      background: #090e16;
+      color: #94a3b8;
+      border: 1px solid #202a3a;
+      border-radius: 999px;
+      padding: 9px 15px;
+      cursor: pointer;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: #0d2a5c;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    /* PLAYER */
 
     .player-section {
       background: #090d14;
       border: 1px solid #1b2534;
-      border-radius: 20px;
-
+      border-radius: 18px;
       overflow: hidden;
-
-      margin-bottom: 38px;
-
-      box-shadow:
-        0 20px 60px
-        rgba(0, 0, 0, .28);
+      margin-bottom: 40px;
     }
 
-
     .player-header {
-      padding: 17px 20px;
+      padding: 16px 20px;
       border-bottom: 1px solid #18212e;
 
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
-
 
     .player-label {
       color: #64748b;
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.7px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
     }
-
 
     .player-status {
       color: #22c55e;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 10px;
     }
 
-
-    .player-status i {
-      font-size: 7px;
-    }
-
-
-    .video-player-wrapper {
+    .player-wrapper {
       width: 100%;
-      min-height: 420px;
-
       background: #000;
-
       position: relative;
+      min-height: 420px;
 
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
 
     #r2VideoPlayer {
       display: none;
-
       width: 100%;
-      height: auto;
-
-      max-height: 72vh;
-
+      max-height: 75vh;
       background: #000;
     }
 
-
-    .player-placeholder {
-      min-height: 420px;
+    #playerPlaceholder {
       width: 100%;
+      min-height: 420px;
 
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
 
       text-align: center;
-
-      color: #64748b;
       padding: 30px;
+      color: #64748b;
     }
 
-
-    .player-placeholder i {
-      font-size: 58px;
-      color: #1d4ed8;
-      margin-bottom: 20px;
+    #playerPlaceholder i {
+      color: #2563eb;
+      font-size: 55px;
+      margin-bottom: 18px;
     }
 
-
-    .player-placeholder h3 {
+    #playerPlaceholder h3 {
       color: #e2e8f0;
-      font-size: 20px;
       margin-bottom: 8px;
     }
-
-
-    .player-placeholder p {
-      color: #64748b;
-      font-size: 14px;
-    }
-
 
     .now-playing {
-      padding: 22px 24px 25px;
+      padding: 22px 24px;
     }
-
 
     .now-playing-label {
-      font-size: 10px;
       color: #3b82f6;
-      font-weight: 700;
-      letter-spacing: 1.7px;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1.6px;
       margin-bottom: 8px;
     }
-
 
     #currentVideoTitle {
       font-size: 24px;
       margin-bottom: 7px;
     }
 
-
     #currentVideoDescription {
       color: #64748b;
       font-size: 14px;
     }
 
+    /* CONTENT */
 
-    /* =====================================================
-       CONTENT HEADER
-    ====================================================== */
-
-    .content-heading {
+    .content-head {
       display: flex;
       justify-content: space-between;
       align-items: end;
-      gap: 20px;
       margin-bottom: 18px;
     }
 
-
-    .content-heading h2 {
-      font-size: 22px;
+    .content-head h2 {
+      font-size: 23px;
     }
-
 
     #videoCount {
       color: #64748b;
       font-size: 13px;
     }
 
-
-    /* =====================================================
-       VIDEO GRID
-    ====================================================== */
-
     #videosContainer {
       display: grid;
-
-      grid-template-columns:
-        repeat(
-          auto-fill,
-          minmax(260px, 1fr)
-        );
-
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 18px;
     }
 
-
-    /* =====================================================
-       VIDEO CARD
-    ====================================================== */
-
     .video-card {
       background: #090e16;
-
       border: 1px solid #1b2534;
-      border-radius: 16px;
-
+      border-radius: 15px;
       overflow: hidden;
-
       cursor: pointer;
-
-      transition:
-        transform .2s,
-        border-color .2s,
-        box-shadow .2s;
+      transition: .2s;
     }
-
 
     .video-card:hover {
-      transform: translateY(-4px);
-
+      transform: translateY(-3px);
       border-color: #2563eb;
-
-      box-shadow:
-        0 16px 35px
-        rgba(0, 0, 0, .3);
     }
-
 
     .video-thumb {
       height: 160px;
-
       position: relative;
 
       background:
         radial-gradient(
-          circle at 50% 30%,
-          #102c59,
-          #05070b 65%
+          circle at center,
+          #102b58,
+          #05070b 70%
         );
 
       display: flex;
       align-items: center;
       justify-content: center;
-
-      overflow: hidden;
     }
 
-
-    .video-thumb::after {
-      content: "";
-
-      position: absolute;
-      inset: 0;
-
-      background:
-        linear-gradient(
-          180deg,
-          transparent,
-          rgba(0,0,0,.45)
-        );
-    }
-
-
-    .video-thumb-placeholder {
-      position: relative;
-      z-index: 2;
-
+    .play-icon {
       width: 62px;
       height: 62px;
-
       border-radius: 50%;
 
       display: flex;
       align-items: center;
       justify-content: center;
 
-      background: rgba(37,99,235,.16);
-      border: 1px solid rgba(59,130,246,.45);
-
       color: #60a5fa;
-      font-size: 27px;
+      background: rgba(37,99,235,.15);
+      border: 1px solid rgba(59,130,246,.5);
 
-      transition: .2s;
+      font-size: 25px;
     }
-
-
-    .video-card:hover
-    .video-thumb-placeholder {
-      transform: scale(1.08);
-      background: rgba(37,99,235,.25);
-    }
-
 
     .video-duration {
       position: absolute;
-      z-index: 3;
-
       right: 10px;
       bottom: 9px;
 
-      background: rgba(0,0,0,.75);
-
-      border-radius: 6px;
+      background: rgba(0,0,0,.8);
+      color: #cbd5e1;
 
       padding: 4px 7px;
-
-      color: #cbd5e1;
+      border-radius: 5px;
       font-size: 10px;
     }
 
-
     .video-info {
-      padding: 16px;
+      padding: 15px;
     }
-
 
     .video-title {
-      color: #f8fafc;
-
-      font-weight: 700;
-
       font-size: 15px;
-
+      font-weight: bold;
       line-height: 1.4;
-
-      margin-bottom: 11px;
+      margin-bottom: 10px;
     }
-
 
     .video-meta {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-
+      align-items: center;
       color: #64748b;
-
       font-size: 12px;
     }
 
-
     .badge {
-      border-radius: 999px;
       padding: 4px 8px;
+      border-radius: 999px;
       font-size: 9px;
-      font-weight: 700;
+      font-weight: bold;
       text-transform: uppercase;
-      letter-spacing: .5px;
     }
 
-
-    .badge-free {
-      background: rgba(34,197,94,.1);
+    .free {
       color: #4ade80;
+      background: rgba(34,197,94,.1);
     }
 
-
-    .badge-premium {
+    .premium {
+      color: #fbbf24;
       background: rgba(245,158,11,.1);
-      color: #fbbf24;
     }
 
-
-    /* =====================================================
-       LOCKED
-    ====================================================== */
-
-    .video-card.locked {
-      cursor: not-allowed;
-    }
-
-
-    .video-card.locked:hover {
-      transform: none;
-      border-color: #1b2534;
-    }
-
-
-    .lock-overlay {
-      position: absolute;
-      z-index: 5;
-
-      inset: 0;
-
-      background:
-        rgba(0,0,0,.68);
-
-      display: flex;
-      flex-direction: column;
-
-      align-items: center;
-      justify-content: center;
-
-      gap: 8px;
-
-      color: #fbbf24;
-    }
-
-
-    .lock-overlay i {
-      font-size: 23px;
-    }
-
-
-    .lock-overlay span {
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-
-    /* =====================================================
-       STATES
-    ====================================================== */
-
-    .video-loading-state,
-    .video-empty-state {
+    .state {
       grid-column: 1 / -1;
-
       min-height: 220px;
 
       display: flex;
       flex-direction: column;
-
-      align-items: center;
       justify-content: center;
+      align-items: center;
 
       text-align: center;
-
-      padding: 40px;
+      color: #64748b;
     }
 
-
-    .video-loading-state i,
-    .video-empty-state i {
-      font-size: 34px;
-      color: #3b82f6;
-      margin-bottom: 18px;
+    .state i {
+      font-size: 35px;
+      color: #2563eb;
+      margin-bottom: 15px;
     }
 
-
-    .video-loading-state h3,
-    .video-empty-state h2 {
+    .state h2 {
       color: #e2e8f0;
       margin-bottom: 8px;
     }
 
-
-    .video-loading-state p,
-    .video-empty-state p {
-      color: #64748b;
-      font-size: 14px;
-    }
-
-
-    .video-empty-state.error i {
-      color: #ef4444;
-    }
-
-
-    /* =====================================================
-       FOOTER
-    ====================================================== */
-
     footer {
-      max-width: 1400px;
-      margin: auto;
-
-      padding:
-        25px 24px
-        45px;
-
       border-top: 1px solid #151d29;
-
-      color: #475569;
-
-      font-size: 12px;
-
       text-align: center;
+      padding: 25px;
+      color: #475569;
+      font-size: 12px;
     }
 
-
-    /* =====================================================
-       MOBILE
-    ====================================================== */
-
-    @media (
-      max-width: 700px
-    ) {
-
+    @media (max-width: 700px) {
       .page {
-        padding:
-          25px 15px
-          50px;
+        padding: 25px 15px 50px;
       }
-
 
       .topbar-inner {
-        padding:
-          0 15px;
+        padding: 0 15px;
       }
 
-
-      .hero h1 {
-        font-size: 32px;
-      }
-
-
-      .video-player-wrapper,
-      .player-placeholder {
+      .player-wrapper,
+      #playerPlaceholder {
         min-height: 240px;
       }
 
-
       #videosContainer {
-        grid-template-columns:
-          1fr;
+        grid-template-columns: 1fr;
       }
-
-
-      .video-thumb {
-        height: 190px;
-      }
-
-
-      .content-heading {
-        align-items: start;
-        flex-direction: column;
-        gap: 7px;
-      }
-
     }
-
   </style>
-
 </head>
-
 
 <body>
 
+<header class="topbar">
+  <div class="topbar-inner">
 
-  <!-- ======================================================
-       HEADER
-  ======================================================= -->
+    <div class="brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
 
-  <header class="topbar">
+      <div>
+        <strong>GTRADES-AXIS™</strong>
+        <span>Trading Academy</span>
+      </div>
+    </div>
 
-    <div class="topbar-inner">
+    <button
+      id="logoutBtn"
+      class="logout-btn"
+    >
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Logout
+    </button>
 
-      <div class="brand">
+  </div>
+</header>
 
-        <div class="brand-icon">
-          <i class="fa-solid fa-chart-line"></i>
+
+<main class="page">
+
+  <section class="hero">
+
+    <div class="eyebrow">
+      VIDEO ACADEMY
+    </div>
+
+    <h1>
+      Private Video Library
+    </h1>
+
+    <p>
+      Watch your GTRADES-AXIS™ trading lessons,
+      market analysis and academy training.
+    </p>
+
+  </section>
+
+
+  <div class="search">
+
+    <i class="fa-solid fa-magnifying-glass"></i>
+
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search videos..."
+      autocomplete="off"
+    >
+
+  </div>
+
+
+  <div class="filters">
+
+    <button
+      class="filter-btn active"
+      data-category="All"
+    >
+      All
+    </button>
+
+    <button
+      class="filter-btn"
+      data-category="Market Structure"
+    >
+      Market Structure
+    </button>
+
+    <button
+      class="filter-btn"
+      data-category="Supply & Demand"
+    >
+      Supply & Demand
+    </button>
+
+    <button
+      class="filter-btn"
+      data-category="Entries"
+    >
+      Entries
+    </button>
+
+    <button
+      class="filter-btn"
+      data-category="Risk Management"
+    >
+      Risk Management
+    </button>
+
+    <button
+      class="filter-btn"
+      data-category="Psychology"
+    >
+      Psychology
+    </button>
+
+  </div>
+
+
+  <!-- ====================================================
+       VIDEO PLAYER
+  ===================================================== -->
+
+  <section class="player-section">
+
+    <div class="player-header">
+
+      <span class="player-label">
+        YOUR VIDEO PLAYER
+      </span>
+
+      <span class="player-status">
+        ● SECURE PLAYER
+      </span>
+
+    </div>
+
+
+    <div class="player-wrapper">
+
+      <video
+        id="r2VideoPlayer"
+        controls
+        playsinline
+        preload="metadata"
+      ></video>
+
+
+      <div id="playerPlaceholder">
+
+        <i class="fa-solid fa-circle-play"></i>
+
+        <h3>
+          Select a video
+        </h3>
+
+        <p>
+          Select a lesson below to start watching.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="now-playing">
+
+      <div class="now-playing-label">
+        NOW PLAYING
+      </div>
+
+      <h2 id="currentVideoTitle">
+        Select a video
+      </h2>
+
+      <p id="currentVideoDescription">
+        GTRADES-AXIS™ trading lesson
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <div class="content-head">
+
+    <div>
+
+      <div class="eyebrow">
+        YOUR CONTENT
+      </div>
+
+      <h2>
+        Video Lessons
+      </h2>
+
+    </div>
+
+    <span id="videoCount">
+      Loading...
+    </span>
+
+  </div>
+
+
+  <div id="videosContainer">
+
+    <div class="state">
+
+      <i class="fa-solid fa-spinner fa-spin"></i>
+
+      <h2>
+        Loading videos...
+      </h2>
+
+      <p>
+        Please wait.
+      </p>
+
+    </div>
+
+  </div>
+
+</main>
+
+
+<footer>
+  © 2026 GTRADES-AXIS™
+  <br>
+  Private Video Library • Academy Training
+</footer>
+
+
+<script type="module">
+
+  /* ======================================================
+     FIREBASE
+  ======================================================= */
+
+  import {
+    initializeApp
+  } from
+  "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+
+
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from
+  "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    doc,
+    getDoc
+  } from
+  "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+  const firebaseConfig = {
+
+    apiKey:
+      "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+
+    authDomain:
+      "gtrades-axis.firebaseapp.com",
+
+    projectId:
+      "gtrades-axis",
+
+    storageBucket:
+      "gtrades-axis.firebasestorage.app",
+
+    messagingSenderId:
+      "111456545888",
+
+    appId:
+      "1:111456545888:web:f0526c142d7ea5e22fe705"
+
+  };
+
+
+  const firebaseApp =
+    initializeApp(firebaseConfig);
+
+
+  const auth =
+    getAuth(firebaseApp);
+
+
+  const db =
+    getFirestore(firebaseApp);
+
+
+  /* ======================================================
+     CLOUDFLARE
+  ======================================================= */
+
+  const R2_WORKER =
+    "https://r2-uploader.davidthuku574.workers.dev";
+
+
+  /* ======================================================
+     ELEMENTS
+  ======================================================= */
+
+  const container =
+    document.getElementById(
+      "videosContainer"
+    );
+
+  const searchInput =
+    document.getElementById(
+      "searchInput"
+    );
+
+  const player =
+    document.getElementById(
+      "r2VideoPlayer"
+    );
+
+  const placeholder =
+    document.getElementById(
+      "playerPlaceholder"
+    );
+
+  const currentTitle =
+    document.getElementById(
+      "currentVideoTitle"
+    );
+
+  const currentDescription =
+    document.getElementById(
+      "currentVideoDescription"
+    );
+
+  const videoCount =
+    document.getElementById(
+      "videoCount"
+    );
+
+  const logoutBtn =
+    document.getElementById(
+      "logoutBtn"
+    );
+
+
+  const filterButtons =
+    document.querySelectorAll(
+      ".filter-btn"
+    );
+
+
+  /* ======================================================
+     STATE
+  ======================================================= */
+
+  let videos = [];
+
+  let activeCategory = "All";
+
+  let hasPremiumAccess = false;
+
+
+  /* ======================================================
+     ESCAPE
+  ======================================================= */
+
+  function escapeHTML(value) {
+
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  }
+
+
+  /* ======================================================
+     AUTH
+  ======================================================= */
+
+  onAuthStateChanged(
+    auth,
+    async (user) => {
+
+      if (!user) {
+
+        window.location.href =
+          "login.html";
+
+        return;
+
+      }
+
+
+      console.log(
+        "Logged in:",
+        user.email
+      );
+
+
+      try {
+
+        const userRef =
+          doc(
+            db,
+            "users",
+            user.uid
+          );
+
+
+        const userSnap =
+          await getDoc(userRef);
+
+
+        if (
+          userSnap.exists()
+        ) {
+
+          const userData =
+            userSnap.data();
+
+
+          hasPremiumAccess =
+            userData.role === "admin" ||
+            userData.membership === "premium";
+
+        }
+
+
+      } catch (error) {
+
+        console.warn(
+          "Membership check failed:",
+          error
+        );
+
+      }
+
+
+      await loadVideos();
+
+    }
+  );
+
+
+  /* ======================================================
+     LOAD FIRESTORE VIDEOS
+  ======================================================= */
+
+  async function loadVideos() {
+
+    try {
+
+      let snapshot;
+
+
+      try {
+
+        const q =
+          query(
+            collection(
+              db,
+              "videos"
+            ),
+            orderBy(
+              "createdAt",
+              "desc"
+            )
+          );
+
+
+        snapshot =
+          await getDocs(q);
+
+
+      } catch {
+
+        snapshot =
+          await getDocs(
+            collection(
+              db,
+              "videos"
+            )
+          );
+
+      }
+
+
+      videos = [];
+
+
+      snapshot.forEach(
+        (videoDoc) => {
+
+          videos.push({
+
+            id:
+              videoDoc.id,
+
+            ...videoDoc.data()
+
+          });
+
+        }
+      );
+
+
+      console.log(
+        "Videos:",
+        videos
+      );
+
+
+      videoCount.textContent =
+        `${videos.length} ${
+          videos.length === 1
+            ? "lesson"
+            : "lessons"
+        }`;
+
+
+      renderVideos();
+
+
+    } catch (error) {
+
+      console.error(
+        "Firestore error:",
+        error
+      );
+
+
+      container.innerHTML = `
+
+        <div class="state">
+
+          <i class="fa-solid fa-circle-exclamation"></i>
+
+          <h2>
+            Unable to load videos
+          </h2>
+
+          <p>
+            ${escapeHTML(error.message)}
+          </p>
+
         </div>
 
-        <div class="brand-text">
+      `;
 
-          <strong>
-            GTRADES-AXIS™
-          </strong>
+    }
+
+  }
+
+
+  /* ======================================================
+     RENDER
+  ======================================================= */
+
+  function renderVideos() {
+
+    container.innerHTML = "";
+
+
+    let filtered =
+      [...videos];
+
+
+    if (
+      activeCategory !== "All"
+    ) {
+
+      filtered =
+        filtered.filter(
+          (video) => {
+
+            return String(
+              video.category ||
+              "General"
+            )
+              .toLowerCase()
+              .trim() ===
+            activeCategory
+              .toLowerCase()
+              .trim();
+
+          }
+        );
+
+    }
+
+
+    const keyword =
+      searchInput.value
+        .toLowerCase()
+        .trim();
+
+
+    if (keyword) {
+
+      filtered =
+        filtered.filter(
+          (video) => {
+
+            const title =
+              String(
+                video.title || ""
+              )
+                .toLowerCase();
+
+
+            const category =
+              String(
+                video.category || ""
+              )
+                .toLowerCase();
+
+
+            return (
+              title.includes(keyword) ||
+              category.includes(keyword)
+            );
+
+          }
+        );
+
+    }
+
+
+    if (
+      filtered.length === 0
+    ) {
+
+      container.innerHTML = `
+
+        <div class="state">
+
+          <i class="fa-solid fa-video-slash"></i>
+
+          <h2>
+            No videos available
+          </h2>
+
+          <p>
+            No lessons match your search.
+          </p>
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+
+    filtered.forEach(
+      (video) => {
+
+        container.appendChild(
+          createCard(video)
+        );
+
+      }
+    );
+
+  }
+
+
+  /* ======================================================
+     CARD
+  ======================================================= */
+
+  function createCard(video) {
+
+    const card =
+      document.createElement(
+        "article"
+      );
+
+
+    const title =
+      video.title ||
+      "Untitled Video";
+
+
+    const category =
+      video.category ||
+      "General";
+
+
+    const premium =
+      video.premiumOnly === true;
+
+
+    const allowed =
+      !premium ||
+      hasPremiumAccess;
+
+
+    card.className =
+      "video-card";
+
+
+    card.innerHTML = `
+
+      <div class="video-thumb">
+
+        <div class="play-icon">
+
+          <i class="fa-solid fa-play"></i>
+
+        </div>
+
+
+        <span class="video-duration">
+
+          ${
+            escapeHTML(
+              video.duration || "Video"
+            )
+          }
+
+        </span>
+
+      </div>
+
+
+      <div class="video-info">
+
+        <div class="video-title">
+
+          ${escapeHTML(title)}
+
+        </div>
+
+
+        <div class="video-meta">
 
           <span>
-            Trading Academy
+            ${escapeHTML(category)}
+          </span>
+
+
+          <span
+            class="badge ${
+              premium
+                ? "premium"
+                : "free"
+            }"
+          >
+
+            ${
+              premium
+                ? "Premium"
+                : "Free"
+            }
+
           </span>
 
         </div>
 
       </div>
 
+    `;
 
-      <button
-        id="logoutBtn"
-        class="logout-btn"
-        type="button"
-      >
 
-        <i class="fa-solid fa-right-from-bracket"></i>
+    card.addEventListener(
+      "click",
+      () => {
 
-        Logout
+        if (
+          premium &&
+          !hasPremiumAccess
+        ) {
 
-      </button>
-
-    </div>
-
-  </header>
-
-
-
-  <!-- ======================================================
-       MAIN
-  ======================================================= -->
-
-  <main
-    id="app"
-    class="page"
-  >
-
-
-    <!-- ====================================================
-         HERO
-    ===================================================== -->
-
-    <section class="hero">
-
-      <div class="eyebrow">
-        VIDEO ACADEMY
-      </div>
-
-      <h1>
-        Private Video Library
-      </h1>
-
-      <p>
-        Watch your GTRADES-AXIS™ trading lessons,
-        market analysis and academy training.
-      </p>
-
-    </section>
-
-
-
-    <!-- ====================================================
-         SEARCH
-    ===================================================== -->
-
-    <div class="search-box">
-
-      <i class="fa-solid fa-magnifying-glass"></i>
-
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Search videos..."
-        autocomplete="off"
-      >
-
-    </div>
-
-
-
-    <!-- ====================================================
-         FILTERS
-    ===================================================== -->
-
-    <div class="toolbar">
-
-      <button
-        class="filter-btn active"
-        data-category="All"
-        type="button"
-      >
-        All
-      </button>
-
-
-      <button
-        class="filter-btn"
-        data-category="Market Structure"
-        type="button"
-      >
-        Market Structure
-      </button>
-
-
-      <button
-        class="filter-btn"
-        data-category="Supply & Demand"
-        type="button"
-      >
-        Supply & Demand
-      </button>
-
-
-      <button
-        class="filter-btn"
-        data-category="Entries"
-        type="button"
-      >
-        Entries
-      </button>
-
-
-      <button
-        class="filter-btn"
-        data-category="Risk Management"
-        type="button"
-      >
-        Risk Management
-      </button>
-
-
-      <button
-        class="filter-btn"
-        data-category="Psychology"
-        type="button"
-      >
-        Psychology
-      </button>
-
-    </div>
-
-
-
-    <!-- ====================================================
-         VIDEO PLAYER
-    ===================================================== -->
-
-    <section class="player-section">
-
-      <div class="player-header">
-
-        <span class="player-label">
-          YOUR VIDEO PLAYER
-        </span>
-
-
-        <span class="player-status">
-
-          <i class="fa-solid fa-circle"></i>
-
-          SECURE PLAYER
-
-        </span>
-
-      </div>
-
-
-      <div
-        class="video-player-wrapper"
-      >
-
-        <video
-          id="r2VideoPlayer"
-          controls
-          playsinline
-          preload="metadata"
-          controlsList="nodownload"
-        ></video>
-
-
-        <div
-          id="playerPlaceholder"
-          class="player-placeholder"
-        >
-
-          <i class="fa-solid fa-circle-play"></i>
-
-          <h3>
-            Select a video
-          </h3>
-
-          <p>
-            Select a lesson below to start watching.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="now-playing">
-
-        <div class="now-playing-label">
-          NOW PLAYING
-        </div>
-
-
-        <h2 id="currentVideoTitle">
-          Select a video
-        </h2>
-
-
-        <p id="currentVideoDescription">
-          GTRADES-AXIS™ trading lesson
-        </p>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- ====================================================
-         CONTENT HEADING
-    ===================================================== -->
-
-    <div class="content-heading">
-
-      <div>
-
-        <div class="eyebrow">
-          YOUR CONTENT
-        </div>
-
-        <h2>
-          Video Lessons
-        </h2>
-
-      </div>
-
-
-      <span id="videoCount">
-        Loading...
-      </span>
-
-    </div>
-
-
-
-    <!-- ====================================================
-         VIDEOS
-    ===================================================== -->
-
-    <div id="videosContainer">
-
-      <div class="video-loading-state">
-
-        <i
-          class="fa-solid fa-spinner fa-spin"
-        ></i>
-
-        <h3>
-          Loading videos...
-        </h3>
-
-        <p>
-          Loading the GTRADES-AXIS™ video library.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <!-- ====================================================
-         NO RESULTS
-    ===================================================== -->
-
-    <div
-      id="noResultsMessage"
-      style="display:none"
-    ></div>
-
-
-  </main>
-
-
-
-  <!-- ======================================================
-       FOOTER
-  ======================================================= -->
-
-  <footer>
-
-    © 2026 GTRADES-AXIS™
-    <br>
-
-    Private Video Library •
-
-    Academy Training
-
-  </footer>
-
-
-
-  <!-- ======================================================
-       FIREBASE + VIDEO SYSTEM
-  ======================================================= -->
-
-  <script type="module">
-
-    /* ======================================================
-       FIREBASE IMPORTS
-    ======================================================= */
-
-    import {
-      initializeApp
-    } from
-      "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-
-
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from
-      "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-
-    import {
-      getFirestore,
-      collection,
-      getDocs,
-      query,
-      orderBy,
-      doc,
-      getDoc
-    } from
-      "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-    /* ======================================================
-       FIREBASE CONFIG
-    ======================================================= */
-
-    const firebaseConfig = {
-
-      apiKey:
-        "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
-
-      authDomain:
-        "gtrades-axis.firebaseapp.com",
-
-      projectId:
-        "gtrades-axis",
-
-      storageBucket:
-        "gtrades-axis.firebasestorage.app",
-
-      messagingSenderId:
-        "111456545888",
-
-      appId:
-        "1:111456545888:web:f0526c142d7ea5e22fe705"
-
-    };
-
-
-
-    /* ======================================================
-       INITIALIZE FIREBASE
-    ======================================================= */
-
-    const firebaseApp =
-      initializeApp(
-        firebaseConfig
-      );
-
-
-    const auth =
-      getAuth(
-        firebaseApp
-      );
-
-
-    const db =
-      getFirestore(
-        firebaseApp
-      );
-
-
-
-    /* ======================================================
-       CLOUDFLARE R2 WORKER
-    ======================================================= */
-
-    const R2_WORKER =
-      "https://r2-uploader.davidthuku574.workers.dev";
-
-
-
-    /* ======================================================
-       ELEMENTS
-    ======================================================= */
-
-    const container =
-      document.getElementById(
-        "videosContainer"
-      );
-
-
-    const searchInput =
-      document.getElementById(
-        "searchInput"
-      );
-
-
-    const filterButtons =
-      document.querySelectorAll(
-        ".filter-btn"
-      );
-
-
-    const noResults =
-      document.getElementById(
-        "noResultsMessage"
-      );
-
-
-    const logoutBtn =
-      document.getElementById(
-        "logoutBtn"
-      );
-
-
-    const player =
-      document.getElementById(
-        "r2VideoPlayer"
-      );
-
-
-    const playerPlaceholder =
-      document.getElementById(
-        "playerPlaceholder"
-      );
-
-
-    const currentVideoTitle =
-      document.getElementById(
-        "currentVideoTitle"
-      );
-
-
-    const currentVideoDescription =
-      document.getElementById(
-        "currentVideoDescription"
-      );
-
-
-    const videoCount =
-      document.getElementById(
-        "videoCount"
-      );
-
-
-
-    /* ======================================================
-       STATE
-    ======================================================= */
-
-    let videos = [];
-
-    let activeCategory = "All";
-
-    let hasPremiumAccess = false;
-
-
-
-    /* ======================================================
-       LOG
-    ======================================================= */
-
-    console.log(
-      "=========================================="
-    );
-
-    console.log(
-      "GTRADES-AXIS™ STUDENT VIDEO PORTAL"
-    );
-
-    console.log(
-      "=========================================="
-    );
-
-
-
-    /* ======================================================
-       ESCAPE HTML
-    ======================================================= */
-
-    function escapeHTML(
-      value
-    ) {
-
-      return String(
-        value ?? ""
-      )
-        .replaceAll(
-          "&",
-          "&amp;"
-        )
-        .replaceAll(
-          "<",
-          "&lt;"
-        )
-        .replaceAll(
-          ">",
-          "&gt;"
-        )
-        .replaceAll(
-          '"',
-          "&quot;"
-        )
-        .replaceAll(
-          "'",
-          "&#039;"
-        );
-
-    }
-
-
-
-    /* ======================================================
-       AUTH
-    ======================================================= */
-
-    onAuthStateChanged(
-      auth,
-      async (
-        user
-      ) => {
-
-        console.log(
-          "AUTH STATE:",
-          user
-        );
-
-
-        if (!user) {
-
-          container.innerHTML = `
-
-            <div class="video-empty-state">
-
-              <i class="fa-solid fa-lock"></i>
-
-              <h2>
-                Login Required
-              </h2>
-
-              <p>
-                Please log in to access the video library.
-              </p>
-
-            </div>
-
-          `;
-
-
-          videoCount.textContent =
-            "Login required";
-
+          alert(
+            "Premium membership is required to watch this video."
+          );
 
           return;
 
         }
 
 
-
-        console.log(
-          "USER:",
-          user.email
-        );
-
-
-
-        /* ==================================================
-           USER MEMBERSHIP
-        =================================================== */
-
-        try {
-
-          const userRef =
-            doc(
-              db,
-              "users",
-              user.uid
-            );
-
-
-          const userSnap =
-            await getDoc(
-              userRef
-            );
-
-
-          if (
-            userSnap.exists()
-          ) {
-
-            const userData =
-              userSnap.data();
-
-
-            console.log(
-              "USER DATA:",
-              userData
-            );
-
-
-            hasPremiumAccess =
-              userData.role === "admin" ||
-              userData.membership === "premium";
-
-          }
-
-        } catch (
-          membershipError
-        ) {
-
-          console.warn(
-            "Membership check failed:",
-            membershipError
-          );
-
-
-          hasPremiumAccess =
-            false;
-
-        }
-
-
-
-        /* ==================================================
-           LOAD VIDEOS
-        =================================================== */
-
-        await loadVideos();
+        openVideo(video);
 
       }
     );
 
 
+    return card;
 
-    /* ======================================================
-       LOAD VIDEOS
-    ======================================================= */
-
-    async function loadVideos() {
-
-      container.innerHTML = `
-
-        <div class="video-loading-state">
-
-          <i
-            class="fa-solid fa-spinner fa-spin"
-          ></i>
-
-          <h3>
-            Loading videos...
-          </h3>
-
-          <p>
-            Loading your GTRADES-AXIS™ lessons.
-          </p>
-
-        </div>
-
-      `;
+  }
 
 
-      console.log(
-        "Reading Firestore: videos"
+  /* ======================================================
+     OPEN VIDEO
+  ======================================================= */
+
+  function openVideo(video) {
+
+    const key =
+      video.videoKey ||
+      video.fileKey ||
+      video.r2Key ||
+      video.storageKey ||
+      "";
+
+
+    if (!key) {
+
+      alert(
+        "This video has no R2 video key."
+      );
+
+      return;
+
+    }
+
+
+    console.log(
+      "R2 KEY:",
+      key
+    );
+
+
+    /* ====================================================
+       BUILD DIRECT WORKER URL
+    ===================================================== */
+
+    const videoURL =
+      new URL(
+        R2_WORKER
       );
 
 
-      try {
-
-        let snapshot;
-
-
-        /* ==================================================
-           ORDERED QUERY
-        =================================================== */
-
-        try {
-
-          const videosQuery =
-            query(
-              collection(
-                db,
-                "videos"
-              ),
-              orderBy(
-                "createdAt",
-                "desc"
-              )
-            );
+    videoURL.searchParams.set(
+      "key",
+      key
+    );
 
 
-          snapshot =
-            await getDocs(
-              videosQuery
-            );
+    videoURL.searchParams.set(
+      "action",
+      "file"
+    );
 
 
-        } catch (
-          orderError
-        ) {
-
-          console.warn(
-            "Ordered query failed.",
-            orderError
-          );
+    const src =
+      videoURL.toString();
 
 
-          snapshot =
-            await getDocs(
-              collection(
-                db,
-                "videos"
-              )
-            );
-
-        }
+    console.log(
+      "VIDEO SOURCE:",
+      src
+    );
 
 
+    /* ====================================================
+       PLAYER
+    ===================================================== */
 
-        /* ==================================================
-           READ
-        =================================================== */
-
-        videos = [];
-
-
-        snapshot.forEach(
-          (
-            videoDoc
-          ) => {
-
-            const data =
-              videoDoc.data();
+    player.pause();
 
 
-            console.log(
-              "VIDEO:",
-              videoDoc.id,
-              data
-            );
+    player.removeAttribute(
+      "src"
+    );
 
 
-            videos.push({
-
-              id:
-                videoDoc.id,
-
-              ...data
-
-            });
-
-          }
-        );
+    player.load();
 
 
+    player.src =
+      src;
+
+
+    player.style.display =
+      "block";
+
+
+    placeholder.style.display =
+      "none";
+
+
+    currentTitle.textContent =
+      video.title ||
+      "GTRADES-AXIS™ Video";
+
+
+    currentDescription.textContent =
+      video.description ||
+      "GTRADES-AXIS™ trading lesson";
+
+
+    player.load();
+
+
+    /* ====================================================
+       EVENTS
+    ===================================================== */
+
+    player.onloadedmetadata =
+      () => {
 
         console.log(
-          "VIDEOS FOUND:",
-          videos.length
+          "VIDEO METADATA:",
+          player.duration
         );
 
-
-        videoCount.textContent =
-          `${videos.length} ${
-            videos.length === 1
-              ? "lesson"
-              : "lessons"
-          }`;
+      };
 
 
-        renderVideos();
+    player.oncanplay =
+      () => {
+
+        console.log(
+          "VIDEO CAN PLAY"
+        );
+
+      };
 
 
-      } catch (
-        error
-      ) {
+    player.onerror =
+      () => {
 
         console.error(
-          "FIRESTORE VIDEO ERROR:",
-          error
+          "VIDEO ERROR:",
+          player.error
         );
 
 
-        videoCount.textContent =
-          "Error";
+        currentDescription.textContent =
+          "Unable to play the video. Check the R2 response headers.";
 
+      };
 
-        container.innerHTML = `
 
-          <div
-            class="video-empty-state error"
-          >
+    /* ====================================================
+       AUTOPLAY
+    ===================================================== */
 
-            <i
-              class="fa-solid fa-circle-exclamation"
-            ></i>
+    player.play()
+      .then(
+        () => {
 
-            <h2>
-              Unable to load videos
-            </h2>
-
-            <p>
-              ${escapeHTML(
-                error.message
-              )}
-            </p>
-
-          </div>
-
-        `;
-
-      }
-
-    }
-
-
-
-    /* ======================================================
-       RENDER
-    ======================================================= */
-
-    function renderVideos() {
-
-      container.innerHTML = "";
-
-
-      let filtered =
-        [...videos];
-
-
-
-      /* ====================================================
-         CATEGORY
-      ===================================================== */
-
-      if (
-        activeCategory !==
-        "All"
-      ) {
-
-        filtered =
-          filtered.filter(
-            (
-              video
-            ) => {
-
-              return String(
-                video.category ||
-                "General"
-              )
-                .toLowerCase()
-                .trim() ===
-
-                String(
-                  activeCategory
-                )
-                  .toLowerCase()
-                  .trim();
-
-            }
-          );
-
-      }
-
-
-
-      /* ====================================================
-         SEARCH
-      ===================================================== */
-
-      const keyword =
-        searchInput.value
-          .toLowerCase()
-          .trim();
-
-
-      if (
-        keyword
-      ) {
-
-        filtered =
-          filtered.filter(
-            (
-              video
-            ) => {
-
-              const title =
-                String(
-                  video.title ||
-                  ""
-                )
-                  .toLowerCase();
-
-
-              const description =
-                String(
-                  video.description ||
-                  ""
-                )
-                  .toLowerCase();
-
-
-              const category =
-                String(
-                  video.category ||
-                  ""
-                )
-                  .toLowerCase();
-
-
-              return (
-
-                title.includes(
-                  keyword
-                ) ||
-
-                description.includes(
-                  keyword
-                ) ||
-
-                category.includes(
-                  keyword
-                )
-
-              );
-
-            }
-          );
-
-      }
-
-
-
-      /* ====================================================
-         EMPTY
-      ===================================================== */
-
-      if (
-        filtered.length ===
-        0
-      ) {
-
-        noResults.style.display =
-          "block";
-
-
-        container.innerHTML = `
-
-          <div class="video-empty-state">
-
-            <i
-              class="fa-solid fa-video-slash"
-            ></i>
-
-            <h2>
-              No videos available
-            </h2>
-
-            <p>
-              ${
-                videos.length === 0
-                  ? "No lessons have been added yet."
-                  : "No videos match your search."
-              }
-            </p>
-
-          </div>
-
-        `;
-
-
-        return;
-
-      }
-
-
-      noResults.style.display =
-        "none";
-
-
-
-      /* ====================================================
-         CARDS
-      ===================================================== */
-
-      filtered.forEach(
-        (
-          video
-        ) => {
-
-          container.appendChild(
-            createVideoCard(
-              video
-            )
+          console.log(
+            "VIDEO PLAYING"
           );
 
         }
-      );
-
-    }
-
-
-
-    /* ======================================================
-       CARD
-    ======================================================= */
-
-    function createVideoCard(
-      video
-    ) {
-
-      const card =
-        document.createElement(
-          "article"
-        );
-
-
-      const premiumOnly =
-        video.premiumOnly === true;
-
-
-      const canAccess =
-        !premiumOnly ||
-        hasPremiumAccess;
-
-
-      const title =
-        video.title ||
-        "Untitled Video";
-
-
-      const category =
-        video.category ||
-        "General";
-
-
-      const duration =
-        video.duration ||
-        "Video";
-
-
-
-      card.className =
-        `video-card${
-          canAccess
-            ? ""
-            : " locked"
-        }`;
-
-
-
-      card.innerHTML = `
-
-        <div class="video-thumb">
-
-          <div
-            class="video-thumb-placeholder"
-          >
-
-            <i
-              class="fa-solid fa-circle-play"
-            ></i>
-
-          </div>
-
-
-          <span
-            class="video-duration"
-          >
-            ${escapeHTML(
-              duration
-            )}
-          </span>
-
-
-          ${
-            !canAccess
-              ? `
-
-                <div
-                  class="lock-overlay"
-                >
-
-                  <i
-                    class="fa-solid fa-lock"
-                  ></i>
-
-                  <span>
-                    Premium Only
-                  </span>
-
-                </div>
-
-              `
-              : ""
-          }
-
-        </div>
-
-
-        <div class="video-info">
-
-          <div class="video-title">
-
-            ${escapeHTML(
-              title
-            )}
-
-          </div>
-
-
-          <div class="video-meta">
-
-            <span>
-              ${escapeHTML(
-                category
-              )}
-            </span>
-
-
-            <span
-              class="badge ${
-                premiumOnly
-                  ? "badge-premium"
-                  : "badge-free"
-              }"
-            >
-
-              ${
-                premiumOnly
-                  ? "Premium"
-                  : "Free"
-              }
-
-            </span>
-
-          </div>
-
-        </div>
-
-      `;
-
-
-
-      /* ==================================================
-         CLICK
-      =================================================== */
-
-      if (
-        canAccess
-      ) {
-
-        card.addEventListener(
-          "click",
-          () => {
-
-            openVideo(
-              video
-            );
-
-          }
-        );
-
-      }
-
-
-      return card;
-
-    }
-
-
-
-    /* ======================================================
-       OPEN VIDEO
-    ======================================================= */
-
-    async function openVideo(
-      video
-    ) {
-
-      console.log(
-        "OPENING:",
-        video
-      );
-
-
-      /* ==================================================
-         PREMIUM
-      =================================================== */
-
-      if (
-        video.premiumOnly === true &&
-        !hasPremiumAccess
-      ) {
-
-        alert(
-          "Premium membership is required to watch this video."
-        );
-
-
-        return;
-
-      }
-
-
-
-      /* ==================================================
-         KEY
-      =================================================== */
-
-      const videoKey =
-        video.videoKey ||
-        video.fileKey ||
-        video.r2Key ||
-        video.storageKey ||
-        "";
-
-
-      console.log(
-        "VIDEO KEY:",
-        videoKey
-      );
-
-
-      if (
-        !videoKey
-      ) {
-
-        alert(
-          "This video does not have an R2 video key."
-        );
-
-
-        return;
-
-      }
-
-
-
-      /* ==================================================
-         PLAYER LOADING
-      =================================================== */
-
-      currentVideoTitle.textContent =
-        "Opening video...";
-
-
-      currentVideoDescription.textContent =
-        "Connecting to GTRADES-AXIS™ video storage...";
-
-
-
-      try {
-
-        /* ================================================
-           R2 WORKER
-        ================================================= */
-
-        const workerURL =
-          new URL(
-            R2_WORKER
-          );
-
-
-        workerURL.searchParams.set(
-          "key",
-          videoKey
-        );
-
-
-        workerURL.searchParams.set(
-          "action",
-          "file"
-        );
-
-
-        console.log(
-          "R2 REQUEST:",
-          workerURL.toString()
-        );
-
-
-
-        /* ================================================
-           FETCH
-        ================================================= */
-
-        const response =
-          await fetch(
-            workerURL.toString(),
-            {
-              method:
-                "GET",
-
-              cache:
-                "no-store"
-            }
-          );
-
-
-        console.log(
-          "R2 STATUS:",
-          response.status
-        );
-
-
-        let data;
-
-
-        try {
-
-          data =
-            await response.json();
-
-        } catch {
-
-          throw new Error(
-            "The Cloudflare Worker did not return valid JSON."
-          );
-
-        }
-
-
-        console.log(
-          "R2 RESPONSE:",
-          data
-        );
-
-
-        if (
-          !response.ok ||
-          !data.url
-        ) {
-
-          throw new Error(
-            data.error ||
-            `Cloudflare Worker error (${response.status})`
-          );
-
-        }
-
-
-
-        /* ================================================
-           UPDATE PLAYER
-        ================================================= */
-
-        player.pause();
-
-
-        player.removeAttribute(
-          "src"
-        );
-
-
-        player.load();
-
-
-        player.src =
-          data.url;
-
-
-        player.style.display =
-          "block";
-
-
-        playerPlaceholder.style.display =
-          "none";
-
-
-        currentVideoTitle.textContent =
-          video.title ||
-          "GTRADES-AXIS™ Video";
-
-
-        currentVideoDescription.textContent =
-          video.description ||
-          "GTRADES-AXIS™ trading lesson.";
-
-
-        player.load();
-
-
-
-        /* ================================================
-           PLAYER EVENTS
-        ================================================= */
-
-        player.onerror =
-          () => {
-
-            console.error(
-              "HTML VIDEO PLAYER ERROR:",
-              player.error
-            );
-
-            currentVideoDescription.textContent =
-              "The video could not be played by your browser.";
-
-          };
-
-
-        player.onloadedmetadata =
-          () => {
-
-            console.log(
-              "VIDEO METADATA LOADED"
-            );
-
-          };
-
-
-        player.oncanplay =
-          () => {
-
-            console.log(
-              "VIDEO CAN PLAY"
-            );
-
-          };
-
-
-
-        /* ================================================
-           PLAY
-        ================================================= */
-
-        try {
-
-          await player.play();
-
-        } catch (
-          autoplayError
-        ) {
+      )
+      .catch(
+        () => {
 
           console.log(
             "Autoplay blocked. Press Play."
           );
 
         }
+      );
 
 
+    /* ====================================================
+       SCROLL
+    ===================================================== */
 
-        /* ================================================
-           SCROLL
-        ================================================= */
+    document
+      .querySelector(
+        ".player-section"
+      )
+      .scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
 
-        document
-          .querySelector(
-            ".player-section"
-          )
-          ?.scrollIntoView({
-            behavior:
-              "smooth",
-            block:
-              "start"
-          });
+  }
 
 
-      } catch (
-        error
-      ) {
+  /* ======================================================
+     SEARCH
+  ======================================================= */
+
+  searchInput.addEventListener(
+    "input",
+    renderVideos
+  );
+
+
+  /* ======================================================
+     FILTER
+  ======================================================= */
+
+  filterButtons.forEach(
+    (button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          filterButtons.forEach(
+            (btn) =>
+              btn.classList.remove(
+                "active"
+              )
+          );
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          activeCategory =
+            button.dataset.category ||
+            "All";
+
+
+          renderVideos();
+
+        }
+      );
+
+    }
+  );
+
+
+  /* ======================================================
+     LOGOUT
+  ======================================================= */
+
+  logoutBtn.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await signOut(
+          auth
+        );
+
+
+        window.location.href =
+          "login.html";
+
+
+      } catch (error) {
 
         console.error(
-          "VIDEO PLAYBACK ERROR:",
           error
         );
 
 
-        currentVideoTitle.textContent =
-          "Unable to open video";
-
-
-        currentVideoDescription.textContent =
-          error.message;
-
-
         alert(
-          "Unable to play this video.\n\n" +
-          error.message
+          "Unable to logout."
         );
 
       }
 
     }
+  );
 
-
-
-    /* ======================================================
-       SEARCH
-    ======================================================= */
-
-    searchInput.addEventListener(
-      "input",
-      () => {
-
-        renderVideos();
-
-      }
-    );
-
-
-
-    /* ======================================================
-       FILTERS
-    ======================================================= */
-
-    filterButtons.forEach(
-      (
-        button
-      ) => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            filterButtons.forEach(
-              (
-                btn
-              ) => {
-
-                btn.classList.remove(
-                  "active"
-                );
-
-              }
-            );
-
-
-            button.classList.add(
-              "active"
-            );
-
-
-            activeCategory =
-              button.dataset.category ||
-              "All";
-
-
-            renderVideos();
-
-          }
-        );
-
-      }
-    );
-
-
-
-    /* ======================================================
-       LOGOUT
-    ======================================================= */
-
-    logoutBtn.addEventListener(
-      "click",
-      async () => {
-
-        try {
-
-          await signOut(
-            auth
-          );
-
-
-          window.location.href =
-            "login.html";
-
-
-        } catch (
-          error
-        ) {
-
-          console.error(
-            error
-          );
-
-
-          alert(
-            "Unable to logout."
-          );
-
-        }
-
-      }
-    );
-
-  </script>
+</script>
 
 </body>
-
 </html>
