@@ -1,20 +1,13 @@
 import { db, auth } from "../firebase.js";
 import {
   collection,
-  addDoc,
   getDocs,
-  deleteDoc,
+  addDoc,
   updateDoc,
+  deleteDoc,
   doc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
-
+  serverTimestamp
+} from "firebase/firestore";
 /* =====================================
    SAMPLE VIDEOS DATA (with placeholder images)
 ===================================== */
@@ -48,7 +41,7 @@ const thumbnailPreview = document.getElementById("thumbnailPreview");
 const thumbnailPreviewImg = document.getElementById("thumbnailPreviewImg");
 const existingThumbnailUrl = document.getElementById("existingThumbnailUrl");
 
-const storage = getStorage();
+
 let videos = [];
 let editingId = null;
 
@@ -269,12 +262,43 @@ async function deleteVideo(id) {
 /* =====================================
    UPLOAD THUMBNAIL TO STORAGE
 ===================================== */
-async function uploadThumbnail(file, userId) {
-  const storageRef = ref(storage, `thumbnails/${userId}/${Date.now()}_${file.name}`);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
-}
+const R2_WORKER_URL =
+  "https://gtrades-video-api.davidthuku574.workers.dev";
 
+async function uploadThumbnail(file, userId) {
+  if (!file) {
+    throw new Error("No thumbnail selected.");
+  }
+
+  const safeName = file.name
+    .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+  const key =
+    `thumbnails/${userId}/${Date.now()}_${safeName}`;
+
+  const uploadUrl =
+    `${R2_WORKER_URL}/upload` +
+    `?key=${encodeURIComponent(key)}` +
+    `&contentType=${encodeURIComponent(file.type || "image/jpeg")}`;
+
+  const response = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type || "image/jpeg"
+    },
+    body: file
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(
+      result.error || "Thumbnail upload failed."
+    );
+  }
+
+  return result.url;
+}
 /* =====================================
    SAVE VIDEO (Add or Update)
 ===================================== */
@@ -284,7 +308,6 @@ videoForm?.addEventListener("submit", async (e) => {
   const title = document.getElementById("videoTitle").value.trim();
   const category = document.getElementById("videoCategory").value;
   const duration = document.getElementById("videoDuration").value.trim();
-  const youtubeId = document.getElementById("videoYoutubeId").value.trim();
   const premiumOnly = document.getElementById("videoPremiumOnly").checked;
   const editingId = document.getElementById("editingVideoId").value;
   const existingThumb = document.getElementById("existingThumbnailUrl").value;
