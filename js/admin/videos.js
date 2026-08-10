@@ -1,5 +1,6 @@
 // ============================================================
-// GTRADES-AXIS™ — ADMIN VIDEO MANAGER
+// GTRADES-AXIS™
+// ADMIN VIDEO MANAGER
 // js/admin-videos.js
 // ============================================================
 
@@ -19,12 +20,14 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
+
 // ============================================================
 // CONFIG
 // ============================================================
 
 const R2_WORKER_URL =
   "https://r2-uploader.davidthuku574.workers.dev";
+
 
 // ============================================================
 // DOM
@@ -63,11 +66,6 @@ const thumbnailPreview =
 const thumbnailPreviewImg =
   document.getElementById("thumbnailPreviewImg");
 
-const existingThumbnailUrl =
-  document.getElementById("existingThumbnailUrl");
-
-const existingVideoKey =
-  document.getElementById("existingVideoKey");
 
 // ============================================================
 // STATE
@@ -76,7 +74,7 @@ const existingVideoKey =
 let videos = [];
 let editingId = null;
 let currentUser = null;
-let previewBlobUrl = null;
+
 
 // ============================================================
 // AUTH
@@ -86,16 +84,10 @@ onAuthStateChanged(auth, user => {
   currentUser = user;
 });
 
-// ============================================================
-// HELPERS
-// ============================================================
 
-function encodeKey(key) {
-  return String(key)
-    .split("/")
-    .map(part => encodeURIComponent(part))
-    .join("/");
-}
+// ============================================================
+// ESCAPE HTML
+// ============================================================
 
 function escapeHTML(value) {
   return String(value ?? "")
@@ -106,8 +98,9 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
+
 // ============================================================
-// R2 UPLOAD
+// UPLOAD TO R2
 // ============================================================
 
 async function uploadToR2(file, folder) {
@@ -117,7 +110,9 @@ async function uploadToR2(file, folder) {
   }
 
   if (!currentUser) {
-    throw new Error("Admin session not ready.");
+    throw new Error(
+      "Admin session is not ready. Please wait and try again."
+    );
   }
 
   const safeName =
@@ -139,6 +134,9 @@ async function uploadToR2(file, folder) {
   const token =
     await currentUser.getIdToken(true);
 
+  console.log("Uploading to R2:");
+  console.log("Key:", key);
+
   const response =
     await fetch(uploadURL, {
       method: "PUT",
@@ -148,7 +146,7 @@ async function uploadToR2(file, folder) {
           file.type ||
           "application/octet-stream",
 
-        Authorization:
+        "Authorization":
           `Bearer ${token}`
       },
 
@@ -161,10 +159,11 @@ async function uploadToR2(file, folder) {
   let result = {};
 
   try {
-    result = JSON.parse(text);
+    result =
+      JSON.parse(text);
   } catch {
     throw new Error(
-      "Invalid response from R2 Worker: " +
+      "Invalid response from R2 Worker:\n" +
       text
     );
   }
@@ -176,15 +175,20 @@ async function uploadToR2(file, folder) {
     );
   }
 
-  return {
-    key:
-      result.key || key,
+  console.log(
+    "R2 upload successful:",
+    result
+  );
 
+  return {
+    key: result.key,
     url:
-      result.url ||
-      `${R2_WORKER_URL}/?key=${encodeURIComponent(key)}&action=file`
+      `${R2_WORKER_URL}/?key=` +
+      encodeURIComponent(result.key) +
+      "&action=file"
   };
 }
+
 
 // ============================================================
 // THUMBNAIL PREVIEW
@@ -198,12 +202,12 @@ thumbnailFileInput?.addEventListener(
       thumbnailFileInput.files?.[0];
 
     if (!file) {
-      thumbnailPreview.style.display = "none";
+      thumbnailPreview.style.display =
+        "none";
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-
       alert(
         "Please select a valid image."
       );
@@ -215,18 +219,20 @@ thumbnailFileInput?.addEventListener(
     const reader =
       new FileReader();
 
-    reader.onload = event => {
+    reader.onload =
+      event => {
 
-      thumbnailPreviewImg.src =
-        event.target.result;
+        thumbnailPreviewImg.src =
+          event.target.result;
 
-      thumbnailPreview.style.display =
-        "block";
-    };
+        thumbnailPreview.style.display =
+          "block";
+      };
 
     reader.readAsDataURL(file);
   }
 );
+
 
 // ============================================================
 // VIDEO VALIDATION
@@ -241,10 +247,21 @@ videoFileInput?.addEventListener(
 
     if (!file) return;
 
-    if (!file.type.startsWith("video/")) {
+    const allowed =
+      [
+        "video/mp4",
+        "video/webm",
+        "video/quicktime",
+        "video/x-matroska"
+      ];
+
+    if (
+      !allowed.includes(file.type) &&
+      !file.name.toLowerCase().endsWith(".mkv")
+    ) {
 
       alert(
-        "Please select a valid video file."
+        "Please select MP4, WEBM, MOV or MKV."
       );
 
       videoFileInput.value = "";
@@ -264,6 +281,7 @@ videoFileInput?.addEventListener(
     }
   }
 );
+
 
 // ============================================================
 // LOAD VIDEOS
@@ -329,6 +347,7 @@ async function loadVideos() {
   }
 }
 
+
 // ============================================================
 // RENDER
 // ============================================================
@@ -357,14 +376,15 @@ function renderVideos() {
     const tr =
       document.createElement("tr");
 
+    const videoKey =
+      video.videoKey ||
+      video.fileKey ||
+      video.r2Key ||
+      video.storageKey ||
+      "";
+
     const hasVideo =
-      Boolean(
-        video.videoKey ||
-        video.fileKey ||
-        video.r2Key ||
-        video.storageKey ||
-        video.youtubeId
-      );
+      Boolean(videoKey);
 
     const thumbnail =
       video.thumbnailKey
@@ -373,29 +393,24 @@ function renderVideos() {
           )}&action=file`
         : video.thumbnail || "";
 
-    const thumbHTML =
-      thumbnail
-        ? `
-          <img
-            src="${escapeHTML(thumbnail)}"
-            style="
-              width:70px;
-              height:40px;
-              object-fit:cover;
-              border-radius:6px;
-            "
-          >
-        `
-        : `
-          <span style="font-size:1.5rem">
-            📹
-          </span>
-        `;
-
     tr.innerHTML = `
 
       <td>
-        ${thumbHTML}
+        ${
+          thumbnail
+            ? `
+              <img
+                src="${escapeHTML(thumbnail)}"
+                style="
+                  width:70px;
+                  height:40px;
+                  object-fit:cover;
+                  border-radius:6px;
+                "
+              >
+            `
+            : "📹"
+        }
       </td>
 
       <td>
@@ -406,31 +421,19 @@ function renderVideos() {
           )}
         </strong>
 
-        ${
-          hasVideo
-            ? `
-              <small
-                style="
-                  display:block;
-                  color:#00c897;
-                  margin-top:4px;
-                "
-              >
-                ✓ Video attached
-              </small>
-            `
-            : `
-              <small
-                style="
-                  display:block;
-                  color:#ff4766;
-                  margin-top:4px;
-                "
-              >
-                ⚠ No video file
-              </small>
-            `
-        }
+        <small
+          style="
+            display:block;
+            color:${hasVideo ? "#00c897" : "#ff4766"};
+            margin-top:4px;
+          "
+        >
+          ${
+            hasVideo
+              ? "✓ Video attached"
+              : "⚠ No video file"
+          }
+        </small>
 
       </td>
 
@@ -466,67 +469,52 @@ function renderVideos() {
 
       <td>
 
-        <div
-          style="
-            display:flex;
-            gap:6px;
-            flex-wrap:wrap;
-          "
+        ${
+          hasVideo
+            ? `
+              <button
+                class="manage-btn preview-video"
+                data-id="${video.id}"
+              >
+                ▶ Preview
+              </button>
+            `
+            : ""
+        }
+
+        <button
+          class="manage-btn edit-video"
+          data-id="${video.id}"
         >
+          ✎ Edit
+        </button>
 
+        <button
+          class="manage-btn toggle-video-premium"
+          data-id="${video.id}"
+        >
           ${
-            hasVideo
-              ? `
-                <button
-                  class="manage-btn preview-video"
-                  data-id="${video.id}"
-                  style="
-                    color:#00c897;
-                    border-color:#00c897;
-                  "
-                >
-                  <i class="fa-solid fa-play"></i>
-                  Preview
-                </button>
-              `
-              : ""
+            video.premiumOnly
+              ? "Make Free"
+              : "Make Premium"
           }
+        </button>
 
-          <button
-            class="manage-btn edit-video"
-            data-id="${video.id}"
-          >
-            <i class="fa-solid fa-pen"></i>
-            Edit
-          </button>
-
-          <button
-            class="manage-btn toggle-video-premium"
-            data-id="${video.id}"
-          >
-            <i class="fa-solid fa-lock"></i>
-            ${
-              video.premiumOnly
-                ? "Make Free"
-                : "Make Premium"
-            }
-          </button>
-
-          <button
-            class="manage-btn delete-video"
-            data-id="${video.id}"
-          >
-            <i class="fa-solid fa-trash"></i>
-            Delete
-          </button>
-
-        </div>
+        <button
+          class="manage-btn delete-video"
+          data-id="${video.id}"
+        >
+          🗑 Delete
+        </button>
 
       </td>
     `;
 
     videoListBody.appendChild(tr);
   });
+
+
+  // Preview
 
   document
     .querySelectorAll(".preview-video")
@@ -551,33 +539,46 @@ function renderVideos() {
       );
     });
 
+
+  // Edit
+
   document
     .querySelectorAll(".edit-video")
     .forEach(button => {
 
       button.addEventListener(
         "click",
-        () =>
+        () => {
           editVideo(
             button.dataset.id
-          )
+          );
+        }
       );
 
     });
 
+
+  // Premium
+
   document
-    .querySelectorAll(".toggle-video-premium")
+    .querySelectorAll(
+      ".toggle-video-premium"
+    )
     .forEach(button => {
 
       button.addEventListener(
         "click",
-        () =>
+        () => {
           toggleVideoPremium(
             button.dataset.id
-          )
+          );
+        }
       );
 
     });
+
+
+  // Delete
 
   document
     .querySelectorAll(".delete-video")
@@ -585,123 +586,19 @@ function renderVideos() {
 
       button.addEventListener(
         "click",
-        () =>
+        () => {
           deleteVideo(
             button.dataset.id
-          )
+          );
+        }
       );
 
     });
 }
 
-// ============================================================
-// CREATE PREVIEW MODAL
-// ============================================================
-
-function createPreviewModal() {
-
-  let modal =
-    document.getElementById(
-      "gtradesAdminVideoPreview"
-    );
-
-  if (modal) {
-    return modal;
-  }
-
-  modal =
-    document.createElement("div");
-
-  modal.id =
-    "gtradesAdminVideoPreview";
-
-  modal.style.cssText = `
-    position:fixed;
-    inset:0;
-    z-index:999999;
-    background:rgba(0,0,0,.88);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-  `;
-
-  modal.innerHTML = `
-
-    <div
-      style="
-        width:min(1000px,95vw);
-        background:#080d16;
-        border:1px solid #1d9bf0;
-        border-radius:14px;
-        padding:18px;
-        position:relative;
-      "
-    >
-
-      <button
-        id="closeGtradesAdminPreview"
-        style="
-          position:absolute;
-          top:10px;
-          right:10px;
-          z-index:5;
-          width:38px;
-          height:38px;
-          border:0;
-          border-radius:50%;
-          background:#ff4766;
-          color:white;
-          cursor:pointer;
-          font-size:18px;
-        "
-      >
-        ×
-      </button>
-
-      <video
-        id="gtradesAdminPreviewPlayer"
-        controls
-        playsinline
-        preload="metadata"
-        style="
-          width:100%;
-          max-height:80vh;
-          background:#000;
-          border-radius:8px;
-        "
-      ></video>
-
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  document
-    .getElementById(
-      "closeGtradesAdminPreview"
-    )
-    .addEventListener(
-      "click",
-      closePreview
-    );
-
-  modal.addEventListener(
-    "click",
-    event => {
-
-      if (event.target === modal) {
-        closePreview();
-      }
-
-    }
-  );
-
-  return modal;
-}
 
 // ============================================================
-// ADMIN VIDEO PREVIEW
+// PREVIEW
 // ============================================================
 
 async function previewVideo(video) {
@@ -714,165 +611,107 @@ async function previewVideo(video) {
     "";
 
   if (!videoKey) {
-
     alert(
       "This video has no R2 file attached."
     );
-
     return;
   }
 
-  if (!auth.currentUser) {
+  const user =
+    auth.currentUser;
 
+  if (!user) {
     alert(
-      "Admin session expired. Login again."
+      "Admin session expired."
     );
-
     return;
   }
 
   try {
 
     const token =
-      await auth.currentUser.getIdToken(true);
-
-    const modal =
-      createPreviewModal();
-
-    const player =
-      document.getElementById(
-        "gtradesAdminPreviewPlayer"
-      );
-
-    modal.style.display =
-      "flex";
-
-    player.pause();
-
-    player.removeAttribute("src");
-
-    player.load();
-
-    if (previewBlobUrl) {
-
-      URL.revokeObjectURL(
-        previewBlobUrl
-      );
-
-      previewBlobUrl = null;
-    }
-
-    player.poster =
-      video.thumbnail || "";
+      await user.getIdToken(true);
 
     const response =
       await fetch(
-        `${R2_WORKER_URL}/?key=${encodeURIComponent(
-          videoKey
-        )}&action=file`,
+        `${R2_WORKER_URL}/?key=` +
+        `${encodeURIComponent(videoKey)}` +
+        `&action=file`,
         {
-          method: "GET",
-
           headers: {
             Authorization:
               `Bearer ${token}`
-          },
-
-          cache: "no-store"
+          }
         }
       );
 
     if (!response.ok) {
 
-      const error =
+      const data =
         await response
           .json()
           .catch(() => ({}));
 
       throw new Error(
-        error.error ||
-        `Video request failed (${response.status})`
+        data.error ||
+        `Video failed (${response.status})`
       );
     }
 
     const blob =
       await response.blob();
 
-    previewBlobUrl =
+    const blobURL =
       URL.createObjectURL(blob);
 
+    const player =
+      document.createElement("video");
+
+    player.controls = true;
+    player.autoplay = true;
+    player.playsInline = true;
+
+    player.style.cssText =
+      `
+        position:fixed;
+        inset:5%;
+        width:90%;
+        height:90%;
+        object-fit:contain;
+        background:#000;
+        z-index:999999;
+      `;
+
     player.src =
-      previewBlobUrl;
+      blobURL;
 
-    player.load();
+    document.body.appendChild(
+      player
+    );
 
-    await player.play().catch(() => {});
+    player.addEventListener(
+      "ended",
+      () => {
+        URL.revokeObjectURL(
+          blobURL
+        );
+        player.remove();
+      }
+    );
 
   } catch (error) {
 
     console.error(
-      "ADMIN VIDEO PREVIEW ERROR:",
+      "VIDEO PREVIEW ERROR:",
       error
     );
 
-    closePreview();
-
     alert(
-      "Error playing video: " +
       error.message
     );
   }
 }
 
-// ============================================================
-// CLOSE PREVIEW
-// ============================================================
-
-function closePreview() {
-
-  const modal =
-    document.getElementById(
-      "gtradesAdminVideoPreview"
-    );
-
-  const player =
-    document.getElementById(
-      "gtradesAdminPreviewPlayer"
-    );
-
-  if (player) {
-
-    player.pause();
-
-    player.removeAttribute("src");
-
-    player.load();
-  }
-
-  if (previewBlobUrl) {
-
-    URL.revokeObjectURL(
-      previewBlobUrl
-    );
-
-    previewBlobUrl = null;
-  }
-
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if (event.key === "Escape") {
-      closePreview();
-    }
-
-  }
-);
 
 // ============================================================
 // EDIT
@@ -887,10 +726,12 @@ function editVideo(id) {
 
   if (!video) return;
 
-  editingId = id;
+  editingId =
+    id;
 
   if (editingIdInput) {
-    editingIdInput.value = id;
+    editingIdInput.value =
+      id;
   }
 
   document.getElementById(
@@ -909,86 +750,29 @@ function editVideo(id) {
   ).value =
     video.duration || "";
 
-  const youtubeInput =
-    document.getElementById(
-      "videoYoutubeId"
-    );
-
-  if (youtubeInput) {
-    youtubeInput.value =
-      video.youtubeId || "";
-  }
-
-  const premiumInput =
-    document.getElementById(
-      "videoPremiumOnly"
-    );
-
-  if (premiumInput) {
-    premiumInput.checked =
-      video.premiumOnly === true;
-  }
-
-  const descriptionInput =
+  const description =
     document.getElementById(
       "videoDescription"
     );
 
-  if (descriptionInput) {
-    descriptionInput.value =
+  if (description) {
+    description.value =
       video.description || "";
   }
 
-  if (existingThumbnailUrl) {
-    existingThumbnailUrl.value =
-      video.thumbnail || "";
-  }
+  const premium =
+    document.getElementById(
+      "videoPremiumOnly"
+    );
 
-  if (existingVideoKey) {
-    existingVideoKey.value =
-      video.videoKey ||
-      video.fileKey ||
-      "";
-  }
-
-  const thumbnailURL =
-    video.thumbnailKey
-      ? `${R2_WORKER_URL}/?key=${encodeURIComponent(
-          video.thumbnailKey
-        )}&action=file`
-      : video.thumbnail || "";
-
-  if (
-    thumbnailURL &&
-    thumbnailPreview &&
-    thumbnailPreviewImg
-  ) {
-
-    thumbnailPreviewImg.src =
-      thumbnailURL;
-
-    thumbnailPreview.style.display =
-      "block";
-
-  } else if (thumbnailPreview) {
-
-    thumbnailPreview.style.display =
-      "none";
+  if (premium) {
+    premium.checked =
+      video.premiumOnly === true;
   }
 
   if (formTitle) {
     formTitle.textContent =
       "Edit Video";
-  }
-
-  const saveButton =
-    document.getElementById(
-      "saveVideoBtn"
-    );
-
-  if (saveButton) {
-    saveButton.textContent =
-      "Update Video";
   }
 
   if (formContainer) {
@@ -1002,6 +786,7 @@ function editVideo(id) {
     behavior: "smooth"
   });
 }
+
 
 // ============================================================
 // PREMIUM
@@ -1031,32 +816,24 @@ async function toggleVideoPremium(id) {
     return;
   }
 
-  try {
+  await updateDoc(
+    doc(
+      db,
+      "videos",
+      id
+    ),
+    {
+      premiumOnly:
+        newStatus,
 
-    await updateDoc(
-      doc(db, "videos", id),
-      {
-        premiumOnly:
-          newStatus,
+      updatedAt:
+        serverTimestamp()
+    }
+  );
 
-        updatedAt:
-          serverTimestamp()
-      }
-    );
-
-    await loadVideos();
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    alert(
-      error.message
-    );
-  }
+  await loadVideos();
 }
+
 
 // ============================================================
 // DELETE
@@ -1079,29 +856,17 @@ async function deleteVideo(id) {
     return;
   }
 
-  try {
+  await deleteDoc(
+    doc(
+      db,
+      "videos",
+      id
+    )
+  );
 
-    await deleteDoc(
-      doc(
-        db,
-        "videos",
-        id
-      )
-    );
-
-    await loadVideos();
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    alert(
-      error.message
-    );
-  }
+  await loadVideos();
 }
+
 
 // ============================================================
 // RESET
@@ -1115,15 +880,8 @@ function resetForm() {
     null;
 
   if (editingIdInput) {
-    editingIdInput.value = "";
-  }
-
-  if (existingThumbnailUrl) {
-    existingThumbnailUrl.value = "";
-  }
-
-  if (existingVideoKey) {
-    existingVideoKey.value = "";
+    editingIdInput.value =
+      "";
   }
 
   if (thumbnailPreview) {
@@ -1132,19 +890,28 @@ function resetForm() {
   }
 }
 
+
 // ============================================================
-// TOGGLE
+// TOGGLE FORM
 // ============================================================
 
 toggleFormBtn?.addEventListener(
   "click",
   () => {
 
-    const hidden =
-      formContainer.style.display ===
+    const visible =
+      formContainer.style.display !==
       "none";
 
-    if (hidden) {
+    if (visible) {
+
+      formContainer.style.display =
+        "none";
+
+      toggleFormBtn.innerHTML =
+        "＋ Add Video";
+
+    } else {
 
       resetForm();
 
@@ -1157,19 +924,11 @@ toggleFormBtn?.addEventListener(
       }
 
       toggleFormBtn.innerHTML =
-        '<i class="fa-solid fa-xmark"></i> Cancel';
-
-    } else {
-
-      formContainer.style.display =
-        "none";
-
-      toggleFormBtn.innerHTML =
-        '<i class="fa-solid fa-plus"></i> Add Video';
+        "✕ Cancel";
     }
-
   }
 );
+
 
 // ============================================================
 // CANCEL
@@ -1185,9 +944,10 @@ cancelBtn?.addEventListener(
       "none";
 
     toggleFormBtn.innerHTML =
-      '<i class="fa-solid fa-plus"></i> Add Video';
+      "＋ Add Video";
   }
 );
+
 
 // ============================================================
 // SAVE VIDEO
@@ -1216,14 +976,6 @@ videoForm?.addEventListener(
         .value
         .trim();
 
-    const youtubeId =
-      document
-        .getElementById(
-          "videoYoutubeId"
-        )
-        ?.value
-        .trim() || "";
-
     const premiumOnly =
       document
         .getElementById(
@@ -1243,13 +995,13 @@ videoForm?.addEventListener(
       editingIdInput?.value ||
       "";
 
-    const thumbnailFile =
-      thumbnailFileInput
+    const videoFile =
+      videoFileInput
         ?.files?.[0] ||
       null;
 
-    const videoFile =
-      videoFileInput
+    const thumbnailFile =
+      thumbnailFileInput
         ?.files?.[0] ||
       null;
 
@@ -1268,12 +1020,11 @@ videoForm?.addEventListener(
 
     if (
       !editing &&
-      !videoFile &&
-      !youtubeId
+      !videoFile
     ) {
 
       alert(
-        "Please select a video file or enter a YouTube ID."
+        "Please select a video file."
       );
 
       return;
@@ -1288,9 +1039,6 @@ videoForm?.addEventListener(
 
     let videoKey =
       existing?.videoKey ||
-      existing?.fileKey ||
-      existing?.r2Key ||
-      existing?.storageKey ||
       "";
 
     let thumbnailKey =
@@ -1306,46 +1054,59 @@ videoForm?.addEventListener(
         "saveVideoBtn"
       );
 
-    const originalText =
-      saveButton?.textContent ||
-      "Save Video";
-
     try {
 
       if (saveButton) {
-        saveButton.disabled = true;
+        saveButton.disabled =
+          true;
+
         saveButton.textContent =
           "Uploading...";
       }
 
+      // ------------------------------------------------------
+      // VIDEO
+      // ------------------------------------------------------
+
       if (videoFile) {
 
-        const uploadedVideo =
+        const uploaded =
           await uploadToR2(
             videoFile,
             "videos"
           );
 
         videoKey =
-          uploadedVideo.key;
+          uploaded.key;
+
+        console.log(
+          "VIDEO KEY SAVED:",
+          videoKey
+        );
       }
+
+      // ------------------------------------------------------
+      // THUMBNAIL
+      // ------------------------------------------------------
 
       if (thumbnailFile) {
 
-        const uploadedThumbnail =
+        const uploaded =
           await uploadToR2(
             thumbnailFile,
             "thumbnails"
           );
 
         thumbnailKey =
-          uploadedThumbnail.key;
+          uploaded.key;
 
         thumbnail =
-          `${R2_WORKER_URL}/?key=${encodeURIComponent(
-            thumbnailKey
-          )}&action=file`;
+          uploaded.url;
       }
+
+      // ------------------------------------------------------
+      // FIRESTORE
+      // ------------------------------------------------------
 
       const data = {
 
@@ -1369,11 +1130,6 @@ videoForm?.addEventListener(
           serverTimestamp()
       };
 
-      if (youtubeId) {
-        data.youtubeId =
-          youtubeId;
-      }
-
       if (editing) {
 
         await updateDoc(
@@ -1395,7 +1151,10 @@ videoForm?.addEventListener(
           serverTimestamp();
 
         await addDoc(
-          collection(db, "videos"),
+          collection(
+            db,
+            "videos"
+          ),
           data
         );
 
@@ -1412,7 +1171,7 @@ videoForm?.addEventListener(
         "none";
 
       toggleFormBtn.innerHTML =
-        '<i class="fa-solid fa-plus"></i> Add Video';
+        "＋ Add Video";
 
     } catch (error) {
 
@@ -1422,7 +1181,7 @@ videoForm?.addEventListener(
       );
 
       alert(
-        "Error saving video:\n\n" +
+        "Video upload failed:\n\n" +
         error.message
       );
 
@@ -1434,11 +1193,12 @@ videoForm?.addEventListener(
           false;
 
         saveButton.textContent =
-          originalText;
+          "Upload Video";
       }
     }
   }
 );
+
 
 // ============================================================
 // INIT
