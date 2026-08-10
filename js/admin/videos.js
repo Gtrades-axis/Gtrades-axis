@@ -1,6 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™
-// ADMIN VIDEO MANAGER
+// GTRADES-AXIS™ — ADMIN VIDEO MANAGER
 // js/admin-videos.js
 // ============================================================
 
@@ -20,7 +19,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-
 // ============================================================
 // CONFIG
 // ============================================================
@@ -28,6 +26,14 @@ import {
 const R2_WORKER_URL =
   "https://r2-uploader.davidthuku574.workers.dev";
 
+// ============================================================
+// STATE
+// ============================================================
+
+let videos = [];
+let editingId = null;
+let currentUser = null;
+let previewBlobUrl = null;
 
 // ============================================================
 // DOM
@@ -66,15 +72,11 @@ const thumbnailPreview =
 const thumbnailPreviewImg =
   document.getElementById("thumbnailPreviewImg");
 
+const existingThumbnailUrl =
+  document.getElementById("existingThumbnailUrl");
 
-// ============================================================
-// STATE
-// ============================================================
-
-let videos = [];
-let editingId = null;
-let currentUser = null;
-
+const existingVideoKey =
+  document.getElementById("existingVideoKey");
 
 // ============================================================
 // AUTH
@@ -82,11 +84,15 @@ let currentUser = null;
 
 onAuthStateChanged(auth, user => {
   currentUser = user;
+
+  console.log(
+    "ADMIN AUTH:",
+    user ? user.email : "Not logged in"
+  );
 });
 
-
 // ============================================================
-// ESCAPE HTML
+// HELPERS
 // ============================================================
 
 function escapeHTML(value) {
@@ -98,6 +104,22 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
+// ============================================================
+// BUILD R2 FILE URL
+// ============================================================
+
+function getR2Url(key) {
+
+  if (!key) {
+    return "";
+  }
+
+  return (
+    `${R2_WORKER_URL}/?key=` +
+    `${encodeURIComponent(key)}` +
+    `&action=file`
+  );
+}
 
 // ============================================================
 // UPLOAD TO R2
@@ -111,18 +133,34 @@ async function uploadToR2(file, folder) {
 
   if (!currentUser) {
     throw new Error(
-      "Admin session is not ready. Please wait and try again."
+      "Admin session is not ready. Please wait a moment and try again."
     );
   }
 
+  // ----------------------------------------------------------
+  // Clean filename
+  // ----------------------------------------------------------
+
+  const originalName =
+    file.name || "file";
+
   const safeName =
-    file.name.replace(
-      /[^a-zA-Z0-9._-]/g,
-      "_"
-    );
+    originalName
+      .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+  // ----------------------------------------------------------
+  // IMPORTANT:
+  // The key stored in R2 is exactly this key.
+  // Do NOT add gtrades-assets/ to it.
+  // ----------------------------------------------------------
 
   const key =
-    `${folder}/${currentUser.uid}/${Date.now()}_${safeName}`;
+    `${folder}/${Date.now()}_${safeName}`;
+
+  console.log(
+    "R2 UPLOAD KEY:",
+    key
+  );
 
   const uploadURL =
     `${R2_WORKER_URL}/upload` +
@@ -131,11 +169,16 @@ async function uploadToR2(file, folder) {
       file.type || "application/octet-stream"
     )}`;
 
+  // ----------------------------------------------------------
+  // Firebase authentication token
+  // ----------------------------------------------------------
+
   const token =
     await currentUser.getIdToken(true);
 
-  console.log("Uploading to R2:");
-  console.log("Key:", key);
+  // ----------------------------------------------------------
+  // Upload
+  // ----------------------------------------------------------
 
   const response =
     await fetch(uploadURL, {
@@ -153,42 +196,66 @@ async function uploadToR2(file, folder) {
       body: file
     });
 
-  const text =
+  const responseText =
     await response.text();
+
+  console.log(
+    "R2 UPLOAD RESPONSE:",
+    response.status,
+    responseText
+  );
 
   let result = {};
 
   try {
     result =
-      JSON.parse(text);
+      JSON.parse(responseText);
   } catch {
     throw new Error(
-      "Invalid response from R2 Worker:\n" +
-      text
+      "R2 Worker returned an invalid response:\n\n" +
+      responseText
     );
   }
 
-  if (!response.ok || !result.success) {
+  if (!response.ok) {
+
     throw new Error(
       result.error ||
-      "R2 upload failed."
+      result.message ||
+      `R2 upload failed (${response.status})`
     );
   }
 
+  if (
+    result.success !== true &&
+    !result.key
+  ) {
+
+    throw new Error(
+      result.error ||
+      "R2 upload failed. No object key was returned."
+    );
+  }
+
+  // ----------------------------------------------------------
+  // CRITICAL:
+  // Use the key returned by the Worker.
+  // If Worker doesn't return one, use our exact generated key.
+  // ----------------------------------------------------------
+
+  const finalKey =
+    result.key || key;
+
   console.log(
-    "R2 upload successful:",
-    result
+    "FINAL R2 KEY:",
+    finalKey
   );
 
   return {
-    key: result.key,
-    url:
-      `${R2_WORKER_URL}/?key=` +
-      encodeURIComponent(result.key) +
-      "&action=file"
+    key: finalKey,
+    url: getR2Url(finalKey)
   };
 }
-
 
 // ============================================================
 // THUMBNAIL PREVIEW
@@ -202,17 +269,23 @@ thumbnailFileInput?.addEventListener(
       thumbnailFileInput.files?.[0];
 
     if (!file) {
-      thumbnailPreview.style.display =
-        "none";
+
+      if (thumbnailPreview) {
+        thumbnailPreview.style.display =
+          "none";
+      }
+
       return;
     }
 
     if (!file.type.startsWith("image/")) {
+
       alert(
         "Please select a valid image."
       );
 
       thumbnailFileInput.value = "";
+
       return;
     }
 
@@ -222,17 +295,22 @@ thumbnailFileInput?.addEventListener(
     reader.onload =
       event => {
 
-        thumbnailPreviewImg.src =
-          event.target.result;
+        if (thumbnailPreviewImg) {
 
-        thumbnailPreview.style.display =
-          "block";
+          thumbnailPreviewImg.src =
+            event.target.result;
+        }
+
+        if (thumbnailPreview) {
+
+          thumbnailPreview.style.display =
+            "block";
+        }
       };
 
     reader.readAsDataURL(file);
   }
 );
-
 
 // ============================================================
 // VIDEO VALIDATION
@@ -245,26 +323,34 @@ videoFileInput?.addEventListener(
     const file =
       videoFileInput.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
-    const allowed =
-      [
-        "video/mp4",
-        "video/webm",
-        "video/quicktime",
-        "video/x-matroska"
-      ];
+    // --------------------------------------------------------
+    // Some browsers don't correctly report MKV as video/*
+    // so allow common video extensions as well.
+    // --------------------------------------------------------
 
-    if (
-      !allowed.includes(file.type) &&
-      !file.name.toLowerCase().endsWith(".mkv")
-    ) {
+    const fileName =
+      file.name.toLowerCase();
+
+    const validVideo =
+      file.type.startsWith("video/") ||
+      fileName.endsWith(".mp4") ||
+      fileName.endsWith(".mov") ||
+      fileName.endsWith(".avi") ||
+      fileName.endsWith(".webm") ||
+      fileName.endsWith(".mkv");
+
+    if (!validVideo) {
 
       alert(
-        "Please select MP4, WEBM, MOV or MKV."
+        "Please select a valid video file."
       );
 
       videoFileInput.value = "";
+
       return;
     }
 
@@ -278,10 +364,18 @@ videoFileInput?.addEventListener(
       );
 
       videoFileInput.value = "";
+
+      return;
     }
+
+    console.log(
+      "VIDEO SELECTED:",
+      file.name,
+      file.size,
+      file.type
+    );
   }
 );
-
 
 // ============================================================
 // LOAD VIDEOS
@@ -289,7 +383,9 @@ videoFileInput?.addEventListener(
 
 async function loadVideos() {
 
-  if (!videoListBody) return;
+  if (!videoListBody) {
+    return;
+  }
 
   videoListBody.innerHTML = `
     <tr>
@@ -303,30 +399,42 @@ async function loadVideos() {
 
     const snapshot =
       await getDocs(
-        collection(db, "videos")
+        collection(
+          db,
+          "videos"
+        )
       );
 
     videos = [];
 
-    snapshot.forEach(videoDoc => {
+    snapshot.forEach(
+      videoDoc => {
 
-      videos.push({
-        id: videoDoc.id,
-        ...videoDoc.data()
-      });
+        videos.push({
+          id: videoDoc.id,
+          ...videoDoc.data()
+        });
 
-    });
+      }
+    );
 
-    videos.sort((a, b) => {
+    videos.sort(
+      (a, b) => {
 
-      const aTime =
-        a.createdAt?.seconds || 0;
+        const aTime =
+          a.createdAt?.seconds || 0;
 
-      const bTime =
-        b.createdAt?.seconds || 0;
+        const bTime =
+          b.createdAt?.seconds || 0;
 
-      return bTime - aTime;
-    });
+        return bTime - aTime;
+      }
+    );
+
+    console.log(
+      "VIDEOS LOADED:",
+      videos
+    );
 
     renderVideos();
 
@@ -347,14 +455,15 @@ async function loadVideos() {
   }
 }
 
-
 // ============================================================
 // RENDER
 // ============================================================
 
 function renderVideos() {
 
-  if (!videoListBody) return;
+  if (!videoListBody) {
+    return;
+  }
 
   videoListBody.innerHTML = "";
 
@@ -388,64 +497,89 @@ function renderVideos() {
 
     const thumbnail =
       video.thumbnailKey
-        ? `${R2_WORKER_URL}/?key=${encodeURIComponent(
+        ? getR2Url(
             video.thumbnailKey
-          )}&action=file`
+          )
         : video.thumbnail || "";
+
+    const thumbHTML =
+      thumbnail
+        ? `
+          <img
+            src="${escapeHTML(thumbnail)}"
+            style="
+              width:70px;
+              height:40px;
+              object-fit:cover;
+              border-radius:6px;
+            "
+          >
+        `
+        : `
+          <span
+            style="
+              font-size:1.5rem;
+            "
+          >
+            📹
+          </span>
+        `;
 
     tr.innerHTML = `
 
       <td>
-        ${
-          thumbnail
-            ? `
-              <img
-                src="${escapeHTML(thumbnail)}"
-                style="
-                  width:70px;
-                  height:40px;
-                  object-fit:cover;
-                  border-radius:6px;
-                "
-              >
-            `
-            : "📹"
-        }
+        ${thumbHTML}
       </td>
 
       <td>
 
         <strong>
           ${escapeHTML(
-            video.title || "Untitled"
+            video.title ||
+            "Untitled"
           )}
         </strong>
 
-        <small
-          style="
-            display:block;
-            color:${hasVideo ? "#00c897" : "#ff4766"};
-            margin-top:4px;
-          "
-        >
-          ${
-            hasVideo
-              ? "✓ Video attached"
-              : "⚠ No video file"
-          }
-        </small>
+        ${
+          hasVideo
+            ? `
+              <small
+                style="
+                  display:block;
+                  color:#00c897;
+                  margin-top:4px;
+                  word-break:break-all;
+                "
+              >
+                ✓ Video attached
+              </small>
+            `
+            : `
+              <small
+                style="
+                  display:block;
+                  color:#ff4766;
+                  margin-top:4px;
+                "
+              >
+                ⚠ No video file
+              </small>
+            `
+        }
 
       </td>
 
       <td>
         ${escapeHTML(
-          video.category || "General"
+          video.category ||
+          "General"
         )}
       </td>
 
       <td>
         ${escapeHTML(
-          video.duration || "—"
+          video.duration ||
+          "—"
         )}
       </td>
 
@@ -469,43 +603,61 @@ function renderVideos() {
 
       <td>
 
-        ${
-          hasVideo
-            ? `
-              <button
-                class="manage-btn preview-video"
-                data-id="${video.id}"
-              >
-                ▶ Preview
-              </button>
-            `
-            : ""
-        }
-
-        <button
-          class="manage-btn edit-video"
-          data-id="${video.id}"
+        <div
+          style="
+            display:flex;
+            gap:6px;
+            flex-wrap:wrap;
+          "
         >
-          ✎ Edit
-        </button>
 
-        <button
-          class="manage-btn toggle-video-premium"
-          data-id="${video.id}"
-        >
           ${
-            video.premiumOnly
-              ? "Make Free"
-              : "Make Premium"
+            hasVideo
+              ? `
+                <button
+                  class="manage-btn preview-video"
+                  data-id="${video.id}"
+                  style="
+                    color:#00c897;
+                    border-color:#00c897;
+                  "
+                >
+                  <i class="fa-solid fa-play"></i>
+                  Preview
+                </button>
+              `
+              : ""
           }
-        </button>
 
-        <button
-          class="manage-btn delete-video"
-          data-id="${video.id}"
-        >
-          🗑 Delete
-        </button>
+          <button
+            class="manage-btn edit-video"
+            data-id="${video.id}"
+          >
+            <i class="fa-solid fa-pen"></i>
+            Edit
+          </button>
+
+          <button
+            class="manage-btn toggle-video-premium"
+            data-id="${video.id}"
+          >
+            <i class="fa-solid fa-lock"></i>
+            ${
+              video.premiumOnly
+                ? "Make Free"
+                : "Make Premium"
+            }
+          </button>
+
+          <button
+            class="manage-btn delete-video"
+            data-id="${video.id}"
+          >
+            <i class="fa-solid fa-trash"></i>
+            Delete
+          </button>
+
+        </div>
 
       </td>
     `;
@@ -513,8 +665,9 @@ function renderVideos() {
     videoListBody.appendChild(tr);
   });
 
-
-  // Preview
+  // ----------------------------------------------------------
+  // PREVIEW
+  // ----------------------------------------------------------
 
   document
     .querySelectorAll(".preview-video")
@@ -537,10 +690,12 @@ function renderVideos() {
 
         }
       );
+
     });
 
-
-  // Edit
+  // ----------------------------------------------------------
+  // EDIT
+  // ----------------------------------------------------------
 
   document
     .querySelectorAll(".edit-video")
@@ -548,17 +703,17 @@ function renderVideos() {
 
       button.addEventListener(
         "click",
-        () => {
+        () =>
           editVideo(
             button.dataset.id
-          );
-        }
+          )
       );
 
     });
 
-
-  // Premium
+  // ----------------------------------------------------------
+  // PREMIUM
+  // ----------------------------------------------------------
 
   document
     .querySelectorAll(
@@ -568,17 +723,17 @@ function renderVideos() {
 
       button.addEventListener(
         "click",
-        () => {
+        () =>
           toggleVideoPremium(
             button.dataset.id
-          );
-        }
+          )
       );
 
     });
 
-
-  // Delete
+  // ----------------------------------------------------------
+  // DELETE
+  // ----------------------------------------------------------
 
   document
     .querySelectorAll(".delete-video")
@@ -586,19 +741,126 @@ function renderVideos() {
 
       button.addEventListener(
         "click",
-        () => {
+        () =>
           deleteVideo(
             button.dataset.id
-          );
-        }
+          )
       );
 
     });
 }
 
+// ============================================================
+// PREVIEW MODAL
+// ============================================================
+
+function createPreviewModal() {
+
+  let modal =
+    document.getElementById(
+      "gtradesAdminVideoPreview"
+    );
+
+  if (modal) {
+    return modal;
+  }
+
+  modal =
+    document.createElement("div");
+
+  modal.id =
+    "gtradesAdminVideoPreview";
+
+  modal.style.cssText = `
+    position:fixed;
+    inset:0;
+    z-index:999999;
+    background:rgba(0,0,0,.88);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  `;
+
+  modal.innerHTML = `
+
+    <div
+      style="
+        width:min(1000px,95vw);
+        background:#080d16;
+        border:1px solid #1d9bf0;
+        border-radius:14px;
+        padding:18px;
+        position:relative;
+      "
+    >
+
+      <button
+        id="closeGtradesAdminPreview"
+        style="
+          position:absolute;
+          top:10px;
+          right:10px;
+          z-index:5;
+          width:38px;
+          height:38px;
+          border:0;
+          border-radius:50%;
+          background:#ff4766;
+          color:white;
+          cursor:pointer;
+          font-size:18px;
+        "
+      >
+        ×
+      </button>
+
+      <video
+        id="gtradesAdminPreviewPlayer"
+        controls
+        playsinline
+        preload="metadata"
+        style="
+          width:100%;
+          max-height:80vh;
+          background:#000;
+          border-radius:8px;
+        "
+      ></video>
+
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document
+    .getElementById(
+      "closeGtradesAdminPreview"
+    )
+    ?.addEventListener(
+      "click",
+      closePreview
+    );
+
+  modal.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target ===
+        modal
+      ) {
+        closePreview();
+      }
+
+    }
+  );
+
+  return modal;
+}
 
 // ============================================================
-// PREVIEW
+// ADMIN PREVIEW
 // ============================================================
 
 async function previewVideo(video) {
@@ -611,107 +873,185 @@ async function previewVideo(video) {
     "";
 
   if (!videoKey) {
+
     alert(
       "This video has no R2 file attached."
     );
+
     return;
   }
 
-  const user =
-    auth.currentUser;
+  if (!auth.currentUser) {
 
-  if (!user) {
     alert(
-      "Admin session expired."
+      "Admin session expired. Login again."
     );
+
     return;
   }
+
+  console.log(
+    "PREVIEW R2 KEY:",
+    videoKey
+  );
 
   try {
 
     const token =
-      await user.getIdToken(true);
+      await auth.currentUser.getIdToken(true);
+
+    const modal =
+      createPreviewModal();
+
+    const player =
+      document.getElementById(
+        "gtradesAdminPreviewPlayer"
+      );
+
+    modal.style.display =
+      "flex";
+
+    player.pause();
+
+    player.removeAttribute(
+      "src"
+    );
+
+    player.load();
+
+    if (previewBlobUrl) {
+
+      URL.revokeObjectURL(
+        previewBlobUrl
+      );
+
+      previewBlobUrl = null;
+    }
 
     const response =
       await fetch(
-        `${R2_WORKER_URL}/?key=` +
-        `${encodeURIComponent(videoKey)}` +
-        `&action=file`,
+        getR2Url(videoKey),
         {
+          method: "GET",
+
           headers: {
             Authorization:
               `Bearer ${token}`
-          }
+          },
+
+          cache:
+            "no-store"
         }
       );
 
     if (!response.ok) {
 
-      const data =
+      const error =
         await response
           .json()
-          .catch(() => ({}));
+          .catch(
+            () => ({})
+          );
 
       throw new Error(
-        data.error ||
-        `Video failed (${response.status})`
+        error.error ||
+        `Video request failed (${response.status})`
       );
     }
 
     const blob =
       await response.blob();
 
-    const blobURL =
+    previewBlobUrl =
       URL.createObjectURL(blob);
 
-    const player =
-      document.createElement("video");
-
-    player.controls = true;
-    player.autoplay = true;
-    player.playsInline = true;
-
-    player.style.cssText =
-      `
-        position:fixed;
-        inset:5%;
-        width:90%;
-        height:90%;
-        object-fit:contain;
-        background:#000;
-        z-index:999999;
-      `;
-
     player.src =
-      blobURL;
+      previewBlobUrl;
 
-    document.body.appendChild(
-      player
-    );
+    player.load();
 
-    player.addEventListener(
-      "ended",
-      () => {
-        URL.revokeObjectURL(
-          blobURL
-        );
-        player.remove();
-      }
-    );
+    await player
+      .play()
+      .catch(
+        () => {}
+      );
 
   } catch (error) {
 
     console.error(
-      "VIDEO PREVIEW ERROR:",
+      "ADMIN VIDEO PREVIEW ERROR:",
       error
     );
 
+    closePreview();
+
     alert(
+      "Error playing video:\n\n" +
       error.message
     );
   }
 }
 
+// ============================================================
+// CLOSE PREVIEW
+// ============================================================
+
+function closePreview() {
+
+  const modal =
+    document.getElementById(
+      "gtradesAdminVideoPreview"
+    );
+
+  const player =
+    document.getElementById(
+      "gtradesAdminPreviewPlayer"
+    );
+
+  if (player) {
+
+    player.pause();
+
+    player.removeAttribute(
+      "src"
+    );
+
+    player.load();
+  }
+
+  if (previewBlobUrl) {
+
+    URL.revokeObjectURL(
+      previewBlobUrl
+    );
+
+    previewBlobUrl =
+      null;
+  }
+
+  if (modal) {
+    modal.style.display =
+      "none";
+  }
+}
+
+// ============================================================
+// ESC CLOSE
+// ============================================================
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key ===
+      "Escape"
+    ) {
+      closePreview();
+    }
+
+  }
+);
 
 // ============================================================
 // EDIT
@@ -724,7 +1064,9 @@ function editVideo(id) {
       v => v.id === id
     );
 
-  if (!video) return;
+  if (!video) {
+    return;
+  }
 
   editingId =
     id;
@@ -734,40 +1076,107 @@ function editVideo(id) {
       id;
   }
 
-  document.getElementById(
-    "videoTitle"
-  ).value =
-    video.title || "";
-
-  document.getElementById(
-    "videoCategory"
-  ).value =
-    video.category ||
-    "Market Structure";
-
-  document.getElementById(
-    "videoDuration"
-  ).value =
-    video.duration || "";
-
-  const description =
+  const titleInput =
     document.getElementById(
-      "videoDescription"
+      "videoTitle"
     );
 
-  if (description) {
-    description.value =
-      video.description || "";
-  }
+  const categoryInput =
+    document.getElementById(
+      "videoCategory"
+    );
 
-  const premium =
+  const durationInput =
+    document.getElementById(
+      "videoDuration"
+    );
+
+  const youtubeInput =
+    document.getElementById(
+      "videoYoutubeId"
+    );
+
+  const premiumInput =
     document.getElementById(
       "videoPremiumOnly"
     );
 
-  if (premium) {
-    premium.checked =
+  const descriptionInput =
+    document.getElementById(
+      "videoDescription"
+    );
+
+  if (titleInput) {
+    titleInput.value =
+      video.title || "";
+  }
+
+  if (categoryInput) {
+    categoryInput.value =
+      video.category ||
+      "Market Structure";
+  }
+
+  if (durationInput) {
+    durationInput.value =
+      video.duration || "";
+  }
+
+  if (youtubeInput) {
+    youtubeInput.value =
+      video.youtubeId || "";
+  }
+
+  if (premiumInput) {
+    premiumInput.checked =
       video.premiumOnly === true;
+  }
+
+  if (descriptionInput) {
+    descriptionInput.value =
+      video.description || "";
+  }
+
+  if (existingThumbnailUrl) {
+    existingThumbnailUrl.value =
+      video.thumbnail || "";
+  }
+
+  if (existingVideoKey) {
+
+    existingVideoKey.value =
+      video.videoKey ||
+      video.fileKey ||
+      video.r2Key ||
+      video.storageKey ||
+      "";
+  }
+
+  const thumbnailURL =
+    video.thumbnailKey
+      ? getR2Url(
+          video.thumbnailKey
+        )
+      : video.thumbnail || "";
+
+  if (
+    thumbnailURL &&
+    thumbnailPreview &&
+    thumbnailPreviewImg
+  ) {
+
+    thumbnailPreviewImg.src =
+      thumbnailURL;
+
+    thumbnailPreview.style.display =
+      "block";
+
+  } else if (
+    thumbnailPreview
+  ) {
+
+    thumbnailPreview.style.display =
+      "none";
   }
 
   if (formTitle) {
@@ -775,21 +1184,33 @@ function editVideo(id) {
       "Edit Video";
   }
 
-  if (formContainer) {
-    formContainer.style.display =
-      "block";
+  const saveButton =
+    document.getElementById(
+      "saveVideoBtn"
+    );
+
+  if (saveButton) {
+    saveButton.textContent =
+      "Update Video";
   }
 
-  window.scrollTo({
-    top:
-      formContainer?.offsetTop || 0,
-    behavior: "smooth"
-  });
+  if (formContainer) {
+
+    formContainer.style.display =
+      "block";
+
+    window.scrollTo({
+      top:
+        formContainer.offsetTop ||
+        0,
+      behavior:
+        "smooth"
+    });
+  }
 }
 
-
 // ============================================================
-// PREMIUM
+// TOGGLE PREMIUM
 // ============================================================
 
 async function toggleVideoPremium(id) {
@@ -799,7 +1220,9 @@ async function toggleVideoPremium(id) {
       v => v.id === id
     );
 
-  if (!video) return;
+  if (!video) {
+    return;
+  }
 
   const newStatus =
     !video.premiumOnly;
@@ -816,24 +1239,37 @@ async function toggleVideoPremium(id) {
     return;
   }
 
-  await updateDoc(
-    doc(
-      db,
-      "videos",
-      id
-    ),
-    {
-      premiumOnly:
-        newStatus,
+  try {
 
-      updatedAt:
-        serverTimestamp()
-    }
-  );
+    await updateDoc(
+      doc(
+        db,
+        "videos",
+        id
+      ),
+      {
+        premiumOnly:
+          newStatus,
 
-  await loadVideos();
+        updatedAt:
+          serverTimestamp()
+      }
+    );
+
+    await loadVideos();
+
+  } catch (error) {
+
+    console.error(
+      "PREMIUM UPDATE ERROR:",
+      error
+    );
+
+    alert(
+      error.message
+    );
+  }
 }
-
 
 // ============================================================
 // DELETE
@@ -846,7 +1282,9 @@ async function deleteVideo(id) {
       v => v.id === id
     );
 
-  if (!video) return;
+  if (!video) {
+    return;
+  }
 
   if (
     !confirm(
@@ -856,20 +1294,33 @@ async function deleteVideo(id) {
     return;
   }
 
-  await deleteDoc(
-    doc(
-      db,
-      "videos",
-      id
-    )
-  );
+  try {
 
-  await loadVideos();
+    await deleteDoc(
+      doc(
+        db,
+        "videos",
+        id
+      )
+    );
+
+    await loadVideos();
+
+  } catch (error) {
+
+    console.error(
+      "DELETE VIDEO ERROR:",
+      error
+    );
+
+    alert(
+      error.message
+    );
+  }
 }
 
-
 // ============================================================
-// RESET
+// RESET FORM
 // ============================================================
 
 function resetForm() {
@@ -884,12 +1335,26 @@ function resetForm() {
       "";
   }
 
+  if (existingThumbnailUrl) {
+    existingThumbnailUrl.value =
+      "";
+  }
+
+  if (existingVideoKey) {
+    existingVideoKey.value =
+      "";
+  }
+
   if (thumbnailPreview) {
     thumbnailPreview.style.display =
       "none";
   }
-}
 
+  if (thumbnailPreviewImg) {
+    thumbnailPreviewImg.src =
+      "";
+  }
+}
 
 // ============================================================
 // TOGGLE FORM
@@ -899,19 +1364,11 @@ toggleFormBtn?.addEventListener(
   "click",
   () => {
 
-    const visible =
-      formContainer.style.display !==
+    const hidden =
+      formContainer.style.display ===
       "none";
 
-    if (visible) {
-
-      formContainer.style.display =
-        "none";
-
-      toggleFormBtn.innerHTML =
-        "＋ Add Video";
-
-    } else {
+    if (hidden) {
 
       resetForm();
 
@@ -924,11 +1381,18 @@ toggleFormBtn?.addEventListener(
       }
 
       toggleFormBtn.innerHTML =
-        "✕ Cancel";
+        '<i class="fa-solid fa-xmark"></i> Cancel';
+
+    } else {
+
+      formContainer.style.display =
+        "none";
+
+      toggleFormBtn.innerHTML =
+        '<i class="fa-solid fa-plus"></i> Add Video';
     }
   }
 );
-
 
 // ============================================================
 // CANCEL
@@ -940,14 +1404,18 @@ cancelBtn?.addEventListener(
 
     resetForm();
 
-    formContainer.style.display =
-      "none";
+    if (formContainer) {
+      formContainer.style.display =
+        "none";
+    }
 
-    toggleFormBtn.innerHTML =
-      "＋ Add Video";
+    if (toggleFormBtn) {
+      toggleFormBtn.innerHTML =
+        '<i class="fa-solid fa-plus"></i> Add Video';
+    }
+
   }
 );
-
 
 // ============================================================
 // SAVE VIDEO
@@ -961,20 +1429,34 @@ videoForm?.addEventListener(
 
     const title =
       document
-        .getElementById("videoTitle")
-        .value
-        .trim();
+        .getElementById(
+          "videoTitle"
+        )
+        ?.value
+        .trim() || "";
 
     const category =
       document
-        .getElementById("videoCategory")
-        .value;
+        .getElementById(
+          "videoCategory"
+        )
+        ?.value || "";
 
     const duration =
       document
-        .getElementById("videoDuration")
-        .value
-        .trim();
+        .getElementById(
+          "videoDuration"
+        )
+        ?.value
+        .trim() || "";
+
+    const youtubeId =
+      document
+        .getElementById(
+          "videoYoutubeId"
+        )
+        ?.value
+        .trim() || "";
 
     const premiumOnly =
       document
@@ -995,15 +1477,19 @@ videoForm?.addEventListener(
       editingIdInput?.value ||
       "";
 
+    const thumbnailFile =
+      thumbnailFileInput
+        ?.files?.[0] ||
+      null;
+
     const videoFile =
       videoFileInput
         ?.files?.[0] ||
       null;
 
-    const thumbnailFile =
-      thumbnailFileInput
-        ?.files?.[0] ||
-      null;
+    // --------------------------------------------------------
+    // VALIDATION
+    // --------------------------------------------------------
 
     if (
       !title ||
@@ -1020,25 +1506,39 @@ videoForm?.addEventListener(
 
     if (
       !editing &&
-      !videoFile
+      !videoFile &&
+      !youtubeId
     ) {
 
       alert(
-        "Please select a video file."
+        "Please select a video file or enter a YouTube ID."
       );
 
       return;
     }
 
+    // --------------------------------------------------------
+    // Existing document
+    // --------------------------------------------------------
+
     const existing =
       editing
         ? videos.find(
-            v => v.id === editing
+            v =>
+              v.id ===
+              editing
           )
         : null;
 
+    // --------------------------------------------------------
+    // Preserve existing keys
+    // --------------------------------------------------------
+
     let videoKey =
       existing?.videoKey ||
+      existing?.fileKey ||
+      existing?.r2Key ||
+      existing?.storageKey ||
       "";
 
     let thumbnailKey =
@@ -1049,14 +1549,23 @@ videoForm?.addEventListener(
       existing?.thumbnail ||
       "";
 
+    // --------------------------------------------------------
+    // SAVE BUTTON
+    // --------------------------------------------------------
+
     const saveButton =
       document.getElementById(
         "saveVideoBtn"
       );
 
+    const originalText =
+      saveButton?.textContent ||
+      "Save Video";
+
     try {
 
       if (saveButton) {
+
         saveButton.disabled =
           true;
 
@@ -1065,19 +1574,26 @@ videoForm?.addEventListener(
       }
 
       // ------------------------------------------------------
-      // VIDEO
+      // VIDEO UPLOAD
       // ------------------------------------------------------
 
       if (videoFile) {
 
-        const uploaded =
+        console.log(
+          "STARTING VIDEO UPLOAD:",
+          videoFile.name
+        );
+
+        const uploadedVideo =
           await uploadToR2(
             videoFile,
             "videos"
           );
 
+        // IMPORTANT:
+        // Exact key returned from R2 Worker.
         videoKey =
-          uploaded.key;
+          uploadedVideo.key;
 
         console.log(
           "VIDEO KEY SAVED:",
@@ -1086,26 +1602,31 @@ videoForm?.addEventListener(
       }
 
       // ------------------------------------------------------
-      // THUMBNAIL
+      // THUMBNAIL UPLOAD
       // ------------------------------------------------------
 
       if (thumbnailFile) {
 
-        const uploaded =
+        const uploadedThumbnail =
           await uploadToR2(
             thumbnailFile,
             "thumbnails"
           );
 
         thumbnailKey =
-          uploaded.key;
+          uploadedThumbnail.key;
 
         thumbnail =
-          uploaded.url;
+          uploadedThumbnail.url;
+
+        console.log(
+          "THUMBNAIL KEY:",
+          thumbnailKey
+        );
       }
 
       // ------------------------------------------------------
-      // FIRESTORE
+      // FIRESTORE DATA
       // ------------------------------------------------------
 
       const data = {
@@ -1120,15 +1641,49 @@ videoForm?.addEventListener(
 
         premiumOnly,
 
+        // EXACT R2 OBJECT KEY
         videoKey,
 
+        // EXACT THUMBNAIL KEY
         thumbnailKey,
 
+        // Public Worker URL
         thumbnail,
 
         updatedAt:
           serverTimestamp()
       };
+
+      // ------------------------------------------------------
+      // YOUTUBE
+      // ------------------------------------------------------
+
+      if (youtubeId) {
+
+        data.youtubeId =
+          youtubeId;
+
+      } else if (
+        editing &&
+        existing?.youtubeId
+      ) {
+
+        data.youtubeId =
+          existing.youtubeId;
+      }
+
+      // ------------------------------------------------------
+      // IMPORTANT DEBUG
+      // ------------------------------------------------------
+
+      console.log(
+        "FIRESTORE VIDEO DATA:",
+        data
+      );
+
+      // ------------------------------------------------------
+      // UPDATE
+      // ------------------------------------------------------
 
       if (editing) {
 
@@ -1145,17 +1700,29 @@ videoForm?.addEventListener(
           "Video updated successfully."
         );
 
-      } else {
+      }
+
+      // ------------------------------------------------------
+      // CREATE
+      // ------------------------------------------------------
+
+      else {
 
         data.createdAt =
           serverTimestamp();
 
-        await addDoc(
-          collection(
-            db,
-            "videos"
-          ),
-          data
+        const newDoc =
+          await addDoc(
+            collection(
+              db,
+              "videos"
+            ),
+            data
+          );
+
+        console.log(
+          "NEW VIDEO FIRESTORE ID:",
+          newDoc.id
         );
 
         alert(
@@ -1163,15 +1730,23 @@ videoForm?.addEventListener(
         );
       }
 
+      // ------------------------------------------------------
+      // RELOAD
+      // ------------------------------------------------------
+
       await loadVideos();
 
       resetForm();
 
-      formContainer.style.display =
-        "none";
+      if (formContainer) {
+        formContainer.style.display =
+          "none";
+      }
 
-      toggleFormBtn.innerHTML =
-        "＋ Add Video";
+      if (toggleFormBtn) {
+        toggleFormBtn.innerHTML =
+          '<i class="fa-solid fa-plus"></i> Add Video';
+      }
 
     } catch (error) {
 
@@ -1181,7 +1756,7 @@ videoForm?.addEventListener(
       );
 
       alert(
-        "Video upload failed:\n\n" +
+        "Error saving video:\n\n" +
         error.message
       );
 
@@ -1193,12 +1768,11 @@ videoForm?.addEventListener(
           false;
 
         saveButton.textContent =
-          "Upload Video";
+          originalText;
       }
     }
   }
 );
-
 
 // ============================================================
 // INIT
@@ -1207,7 +1781,7 @@ videoForm?.addEventListener(
 loadVideos();
 
 console.log(
-  "GTRADES-AXIS Admin Video Manager loaded."
+  "GTRADES-AXIS™ Admin Video Manager loaded."
 );
 
 console.log(
