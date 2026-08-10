@@ -3,68 +3,594 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Videos | GTRADES-AXIS™</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+  rel="stylesheet"
+>
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:Poppins,sans-serif;background:#0b0d15;color:#e8edf5;min-height:100vh}.dashboard{display:flex;min-height:100vh}.sidebar{width:260px;background:#131724;border-right:1px solid #2a3450;padding:28px 18px;flex-shrink:0}.brand h2{font-size:18px}.brand span{color:#4f7cff}.menu{list-style:none;margin-top:30px}.menu li{margin:6px 0}.menu a{display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:8px;color:#9aa4bf;text-decoration:none;border-left:3px solid transparent}.menu a:hover{background:#1a1f2f;color:#fff}.menu li.active a{background:rgba(79,124,255,.15);color:#4f7cff;border-left-color:#4f7cff}#logoutBtn{margin-top:40px;width:100%;padding:10px;border:0;border-radius:8px;background:rgba(255,71,102,.08);color:#ff4766;font-weight:600;cursor:pointer}.main-content{flex:1;padding:30px 40px}.topbar{margin-bottom:24px}.topbar h1{font-size:28px}.topbar p{color:#9aa4bf}.search-wrapper{max-width:420px;margin-bottom:16px}.search-wrapper input{width:100%;padding:12px 14px;background:#1a1f2f;border:1px solid #2a3450;border-radius:8px;color:#fff;outline:0}.resource-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}.filter-btn{background:#1a1f2f;border:1px solid #2a3450;color:#9aa4bf;padding:8px 16px;border-radius:20px;cursor:pointer}.filter-btn.active{background:#4f7cff;border-color:#4f7cff;color:#fff}.resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}.video-card{background:#131724;border:1px solid #2a3450;border-radius:12px;overflow:hidden;transition:.25s;cursor:pointer}.video-card:hover{border-color:#4f7cff;transform:translateY(-3px)}.video-card.locked{opacity:.7;cursor:not-allowed}.video-thumb{position:relative;background:#0f172a;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:2rem;overflow:hidden}.video-thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.video-duration{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.8);color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;z-index:2}.lock-overlay{position:absolute;inset:0;background:rgba(11,13,21,.72);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;z-index:5}.lock-overlay i{font-size:2rem;color:#f5a623}.video-info{padding:16px}.video-title{font-weight:600;color:#f1f5f9;margin-bottom:8px}.video-meta{display:flex;justify-content:space-between;font-size:.8rem;color:#94a3b8}.badge{padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;text-transform:uppercase}.badge-free{background:rgba(0,200,151,.15);color:#00c897}.badge-premium{background:rgba(245,166,35,.15);color:#f5a623}.status-message{text-align:center;padding:40px;color:#94a3b8}.status-message.error{color:#ff6b81}.loading{display:flex;justify-content:center;align-items:center;min-height:300px}.spinner{width:42px;height:42px;border:3px solid rgba(255,255,255,.1);border-top-color:#4f7cff;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.access-message{display:none;text-align:center;max-width:650px;margin:80px auto;padding:45px 25px;background:#131724;border:1px solid #2a3450;border-radius:14px}.access-message.show{display:block}.access-message i{font-size:50px;color:#f5a623;margin-bottom:20px}.access-message p{color:#94a3b8;margin:10px 0 25px}.upgrade-btn{display:inline-block;background:linear-gradient(135deg,#f5a623,#f7c948);color:#0b0d15;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none}.video-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:1000;visibility:hidden;opacity:0;transition:.2s}.video-modal.active{visibility:visible;opacity:1}.modal-content{position:relative;width:92%;max-width:1000px;background:#000;border-radius:12px;overflow:hidden}.modal-content video,.modal-content iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#000}.modal-close{position:absolute;top:8px;right:10px;z-index:10;width:38px;height:38px;border:0;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:25px;cursor:pointer}.dashboard-footer{margin-top:40px;padding-top:16px;border-top:1px solid #2a3450;display:flex;justify-content:space-between;font-size:.8rem;color:#64748b}@media(max-width:700px){.dashboard{display:block}.sidebar{width:100%}.main-content{padding:25px 15px}}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Poppins,sans-serif;
+  background:#0b0d15;
+  color:#e8edf5;
+  min-height:100vh;
+}
+
+.dashboard{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:260px;
+  background:#131724;
+  border-right:1px solid #2a3450;
+  padding:28px 18px;
+  flex-shrink:0;
+}
+
+.brand h2{
+  font-size:18px;
+}
+
+.brand span{
+  color:#4f7cff;
+}
+
+.menu{
+  list-style:none;
+  margin-top:30px;
+}
+
+.menu li{
+  margin:6px 0;
+}
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 14px;
+  border-radius:8px;
+  color:#9aa4bf;
+  text-decoration:none;
+  border-left:3px solid transparent;
+}
+
+.menu a:hover{
+  background:#1a1f2f;
+  color:#fff;
+}
+
+.menu li.active a{
+  background:rgba(79,124,255,.15);
+  color:#4f7cff;
+  border-left-color:#4f7cff;
+}
+
+#logoutBtn{
+  margin-top:40px;
+  width:100%;
+  padding:10px;
+  border:0;
+  border-radius:8px;
+  background:rgba(255,71,102,.08);
+  color:#ff4766;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.main-content{
+  flex:1;
+  padding:30px 40px;
+}
+
+.topbar{
+  margin-bottom:24px;
+}
+
+.topbar h1{
+  font-size:28px;
+}
+
+.topbar p{
+  color:#9aa4bf;
+}
+
+.search-wrapper{
+  max-width:420px;
+  margin-bottom:16px;
+}
+
+.search-wrapper input{
+  width:100%;
+  padding:12px 14px;
+  background:#1a1f2f;
+  border:1px solid #2a3450;
+  border-radius:8px;
+  color:#fff;
+  outline:none;
+}
+
+.resource-filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.filter-btn{
+  background:#1a1f2f;
+  border:1px solid #2a3450;
+  color:#9aa4bf;
+  padding:8px 16px;
+  border-radius:20px;
+  cursor:pointer;
+}
+
+.filter-btn.active{
+  background:#4f7cff;
+  border-color:#4f7cff;
+  color:#fff;
+}
+
+.resource-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;
+}
+
+.video-card{
+  background:#131724;
+  border:1px solid #2a3450;
+  border-radius:12px;
+  overflow:hidden;
+  transition:.25s;
+  cursor:pointer;
+}
+
+.video-card:hover{
+  border-color:#4f7cff;
+  transform:translateY(-3px);
+}
+
+.video-card.locked{
+  opacity:.65;
+  cursor:not-allowed;
+}
+
+.video-thumb{
+  position:relative;
+  background:#0f172a;
+  aspect-ratio:16/9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#64748b;
+  font-size:2rem;
+  overflow:hidden;
+}
+
+.video-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  position:absolute;
+  inset:0;
+}
+
+.video-duration{
+  position:absolute;
+  bottom:8px;
+  right:8px;
+  background:rgba(0,0,0,.8);
+  color:#fff;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:.75rem;
+  z-index:2;
+}
+
+.lock-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(11,13,21,.78);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:7px;
+  z-index:5;
+}
+
+.lock-overlay i{
+  font-size:2rem;
+  color:#f5a623;
+}
+
+.video-info{
+  padding:16px;
+}
+
+.video-title{
+  font-weight:600;
+  color:#f1f5f9;
+  margin-bottom:8px;
+}
+
+.video-meta{
+  display:flex;
+  justify-content:space-between;
+  font-size:.8rem;
+  color:#94a3b8;
+}
+
+.badge{
+  padding:3px 9px;
+  border-radius:20px;
+  font-size:.68rem;
+  font-weight:600;
+  text-transform:uppercase;
+}
+
+.badge-free{
+  background:rgba(0,200,151,.15);
+  color:#00c897;
+}
+
+.badge-premium{
+  background:rgba(245,166,35,.15);
+  color:#f5a623;
+}
+
+.status-message{
+  grid-column:1/-1;
+  text-align:center;
+  padding:50px;
+  color:#94a3b8;
+}
+
+.video-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  visibility:hidden;
+  opacity:0;
+  transition:.2s;
+}
+
+.video-modal.active{
+  visibility:visible;
+  opacity:1;
+}
+
+.modal-content{
+  position:relative;
+  width:92%;
+  max-width:1100px;
+  background:#000;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.modal-content video{
+  display:block;
+  width:100%;
+  aspect-ratio:16/9;
+  background:#000;
+}
+
+.modal-close{
+  position:absolute;
+  top:8px;
+  right:10px;
+  z-index:10;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.7);
+  color:#fff;
+  font-size:25px;
+  cursor:pointer;
+}
+
+.access-message{
+  display:none;
+  text-align:center;
+  max-width:650px;
+  margin:80px auto;
+  padding:45px 25px;
+  background:#131724;
+  border:1px solid #2a3450;
+  border-radius:14px;
+}
+
+.access-message.show{
+  display:block;
+}
+
+.access-message i{
+  font-size:50px;
+  color:#f5a623;
+  margin-bottom:20px;
+}
+
+.access-message p{
+  color:#94a3b8;
+  margin:10px 0 25px;
+}
+
+.upgrade-btn{
+  display:inline-block;
+  background:linear-gradient(135deg,#f5a623,#f7c948);
+  color:#0b0d15;
+  padding:12px 28px;
+  border-radius:8px;
+  font-weight:700;
+  text-decoration:none;
+}
+
+.dashboard-footer{
+  margin-top:40px;
+  padding-top:16px;
+  border-top:1px solid #2a3450;
+  display:flex;
+  justify-content:space-between;
+  font-size:.8rem;
+  color:#64748b;
+}
+
+@media(max-width:700px){
+
+  .dashboard{
+    display:block;
+  }
+
+  .sidebar{
+    width:100%;
+  }
+
+  .main-content{
+    padding:25px 15px;
+  }
+
+}
+
 </style>
 </head>
+
 <body>
+
 <div class="dashboard">
+
 <aside class="sidebar">
-<div class="brand"><h2>GTRADES <span>AXIS™</span></h2></div>
+
+<div class="brand">
+  <h2>GTRADES <span>AXIS™</span></h2>
+</div>
+
 <ul class="menu">
-<li><a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-<li><a href="/resources"><i class="fa-solid fa-folder-open"></i> Premium Resources</a></li>
-<li><a href="/premium-academy"><i class="fa-solid fa-graduation-cap"></i> Premium Academy</a></li>
-<li class="active"><a href="/videos"><i class="fa-solid fa-circle-play"></i> Videos</a></li>
-<li><a href="/journal"><i class="fa-solid fa-chart-line"></i> Trading Journal</a></li>
-<li><a href="/profile"><i class="fa-solid fa-user"></i> My Profile</a></li>
-<li><a href="/support"><i class="fa-solid fa-headset"></i> Support</a></li>
+
+<li>
+<a href="/dashboard">
+<i class="fa-solid fa-house"></i>
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="/resources">
+<i class="fa-solid fa-folder-open"></i>
+Premium Resources
+</a>
+</li>
+
+<li>
+<a href="/premium-academy">
+<i class="fa-solid fa-graduation-cap"></i>
+Premium Academy
+</a>
+</li>
+
+<li class="active">
+<a href="/videos">
+<i class="fa-solid fa-circle-play"></i>
+Videos
+</a>
+</li>
+
+<li>
+<a href="/journal">
+<i class="fa-solid fa-chart-line"></i>
+Trading Journal
+</a>
+</li>
+
+<li>
+<a href="/profile">
+<i class="fa-solid fa-user"></i>
+My Profile
+</a>
+</li>
+
+<li>
+<a href="/support">
+<i class="fa-solid fa-headset"></i>
+Support
+</a>
+</li>
+
 </ul>
-<button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+<button id="logoutBtn">
+<i class="fa-solid fa-right-from-bracket"></i>
+Logout
+</button>
+
 </aside>
+
+
 <main class="main-content">
-<div id="loadingView" class="loading"><div class="spinner"></div></div>
-<section id="accessView" class="access-message"><i class="fa-solid fa-lock"></i><h2>Premium Members Only</h2><p>Upgrade your membership to access the GTRADES-AXIS™ video library.</p><a class="upgrade-btn" href="/upgrade">Upgrade Membership</a></section>
-<section id="contentView" style="display:none">
-<header class="topbar"><h1>Videos</h1><p>Watch premium trading tutorials &amp; market breakdowns.</p></header>
-<div class="search-wrapper"><input id="searchInput" type="text" placeholder="Search videos..."></div>
-<div class="resource-filters">
-<button class="filter-btn active" data-category="All">All</button>
-<button class="filter-btn" data-category="Market Structure">Market Structure</button>
-<button class="filter-btn" data-category="Supply & Demand">Supply &amp; Demand</button>
-<button class="filter-btn" data-category="Liquidity">Liquidity</button>
-<button class="filter-btn" data-category="Entries">Entries</button>
-<button class="filter-btn" data-category="Psychology">Psychology</button>
-</div>
-<div id="videosContainer" class="resource-grid"></div>
-<div id="noResultsMessage" class="status-message" style="display:none">No videos match your search.</div>
-<div id="errorMessage" class="status-message error" style="display:none"></div>
-<footer class="dashboard-footer"><span>© 2026 GTRADES-AXIS™</span><span>Version 2.0 • Cloudflare R2</span></footer>
+
+<section id="loadingView" class="status-message">
+<i class="fa-solid fa-spinner fa-spin"></i>
+<p>Checking membership...</p>
 </section>
-</main>
+
+
+<section id="accessView" class="access-message">
+
+<i class="fa-solid fa-lock"></i>
+
+<h2>Premium Members Only</h2>
+
+<p>
+Upgrade your membership to access the
+GTRADES-AXIS™ video library.
+</p>
+
+<a class="upgrade-btn" href="/upgrade">
+Upgrade Membership
+</a>
+
+</section>
+
+
+<section id="contentView" style="display:none">
+
+<header class="topbar">
+
+<h1>Video Library</h1>
+
+<p>
+Premium trading tutorials, lessons and market breakdowns.
+</p>
+
+</header>
+
+
+<div class="search-wrapper">
+
+<input
+id="searchInput"
+type="text"
+placeholder="Search videos..."
+autocomplete="off"
+>
+
 </div>
-<div class="video-modal" id="videoModal"><div class="modal-content"><button class="modal-close" id="closeModal">&times;</button><video id="r2Video" controls playsinline style="display:none"></video><iframe id="youtubeFrame" src="" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="display:none"></iframe></div></div>
-<script type="importmap">{"imports":{"firebase/auth":"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js","firebase/firestore":"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js","firebase/functions":"https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"}}</script>
-<script type="module">
-import {auth,db,functions} from "./js/firebase.js";
-import {onAuthStateChanged,signOut} from "firebase/auth";
-import {collection,getDocs,query,orderBy,doc,getDoc} from "firebase/firestore";
-import {httpsCallable} from "firebase/functions";
-const loading=document.getElementById("loadingView"),access=document.getElementById("accessView"),content=document.getElementById("contentView"),container=document.getElementById("videosContainer"),search=document.getElementById("searchInput"),none=document.getElementById("noResultsMessage"),errorBox=document.getElementById("errorMessage"),modal=document.getElementById("videoModal"),player=document.getElementById("r2Video"),youtube=document.getElementById("youtubeFrame"),filters=document.querySelectorAll(".filter-btn");
-let videos=[],category="All",premium=false;
-const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-async function r2(key){if(!key)return null;try{const fn=httpsCallable(functions,"getR2DownloadUrl");const res=await fn({key});return res?.data?.url||null}catch(e){console.error("R2 URL error",e);return null}}
-async function load(){container.innerHTML='<div class="status-message">Loading videos...</div>';try{let snap;try{snap=await getDocs(query(collection(db,"videos"),orderBy("createdAt","desc")))}catch(e){snap=await getDocs(collection(db,"videos"))}videos=[];snap.forEach(x=>videos.push({id:x.id,...x.data()}));render()}catch(e){console.error(e);container.innerHTML="";errorBox.textContent="Unable to load videos. Please refresh the page.";errorBox.style.display="block"}}
-async function render(){container.innerHTML="";none.style.display="none";const key=search.value.toLowerCase().trim();const list=videos.filter(v=>(category==="All"||String(v.category||"General")==category)&&(!key||String(v.title||"").toLowerCase().includes(key)));if(!list.length){none.style.display="block";return}for(const v of list){const only=v.premiumOnly===true,can=!only||premium;let thumb='<i class="fa-solid fa-circle-play"></i>';const tk=v.thumbnailKey||v.thumbnail||"";if(tk){const u=/^https?:\/\//i.test(tk)?tk:await r2(tk);if(u)thumb='<img src="'+esc(u)+'" alt="Video thumbnail" loading="lazy">'}const card=document.createElement("div");card.className="video-card"+(can?"":" locked");card.innerHTML='<div class="video-thumb">'+thumb+'<span class="video-duration">'+esc(v.duration||"—")+'</span>'+(can?"":'<div class="lock-overlay"><i class="fa-solid fa-lock"></i><span>Premium Only</span></div>')+'</div><div class="video-info"><div class="video-title">'+esc(v.title||"Untitled Video")+'</div><div class="video-meta"><span>'+esc(v.category||"General")+'</span><span class="badge '+(only?"badge-premium":"badge-free")+'">'+(only?"Premium":"Free")+'</span></div></div>';if(can)card.onclick=()=>open(v);container.appendChild(card)}}
-async function open(v){close();const key=v.videoKey||v.fileKey||v.r2Key||v.storageKey||"",direct=v.videoUrl||v.url||"",yt=v.youtubeId||"";if(key||direct){const u=direct||await r2(key);if(!u){alert("The video file could not be opened.");return}player.src=u;player.style.display="block";modal.classList.add("active");document.body.style.overflow="hidden";try{await player.play()}catch(e){}return}if(yt){youtube.src="https://www.youtube.com/embed/"+encodeURIComponent(yt)+"?autoplay=1&rel=0";youtube.style.display="block";modal.classList.add("active");document.body.style.overflow="hidden";return}alert("This video has no valid video file.")}
-function close(){player.pause();player.removeAttribute("src");player.load();youtube.src="";player.style.display="none";youtube.style.display="none";modal.classList.remove("active");document.body.style.overflow=""}
-onAuthStateChanged(auth,async user=>{if(!user){location.href="/login";return}try{const s=await getDoc(doc(db,"users",user.uid));if(!s.exists()){loading.style.display="none";access.classList.add("show");return}const d=s.data();premium=d.role==="admin"||d.membership==="premium";loading.style.display="none";if(!premium){access.classList.add("show");return}content.style.display="block";await load()}catch(e){console.error(e);loading.style.display="none";errorBox.textContent="Unable to verify your account.";errorBox.style.display="block"}});
-search.oninput=render;filters.forEach(b=>b.onclick=()=>{filters.forEach(x=>x.classList.remove("active"));b.classList.add("active");category=b.dataset.category;render()});document.getElementById("closeModal").onclick=close;modal.onclick=e=>{if(e.target===modal)close()};document.onkeydown=e=>{if(e.key==="Escape")close()};document.getElementById("logoutBtn").onclick=async()=>{await signOut(auth);location.href="/login"};
+
+
+<div class="resource-filters">
+
+<button class="filter-btn active" data-category="All">
+All
+</button>
+
+<button class="filter-btn" data-category="Market Structure">
+Market Structure
+</button>
+
+<button class="filter-btn" data-category="Supply & Demand">
+Supply & Demand
+</button>
+
+<button class="filter-btn" data-category="Liquidity">
+Liquidity
+</button>
+
+<button class="filter-btn" data-category="Entries">
+Entries
+</button>
+
+<button class="filter-btn" data-category="Psychology">
+Psychology
+</button>
+
+</div>
+
+
+<div id="videosContainer" class="resource-grid"></div>
+
+</section>
+
+
+<footer class="dashboard-footer">
+
+<span>
+© 2026 GTRADES-AXIS™
+</span>
+
+<span>
+Private Video Library • Cloudflare R2
+</span>
+
+</footer>
+
+</main>
+
+</div>
+
+
+<div class="video-modal" id="videoModal">
+
+<div class="modal-content">
+
+<button class="modal-close" id="closeModal">
+&times;
+</button>
+
+<video
+id="r2VideoPlayer"
+controls
+playsinline
+preload="metadata"
+></video>
+
+</div>
+
+</div>
+
+
+<script type="importmap">
+{
+  "imports":{
+    "firebase/auth":
+      "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+
+    "firebase/firestore":
+      "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
+
+    "firebase/functions":
+      "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js"
+  }
+}
 </script>
+
+<script type="module" src="./js/videos.js"></script>
+
 </body>
 </html>
