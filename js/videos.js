@@ -1,21 +1,16 @@
 // ============================================================
-// GTRADES-AXIS™
+// GTRADES-AXIS™ — PREMIUM VIDEOS
 // js/videos.js
 //
-// MEMBER VIDEO LIBRARY
-//
-// FIRESTORE:
-// stores video metadata + R2 keys
-//
-// R2:
-// stores actual video files
-//
-// SECURITY:
-// video URL is generated server-side only after
-// Firebase Auth + membership verification.
+// FLOW:
+// ADMIN → uploads video to Cloudflare R2
+// FIRESTORE → stores video metadata + videoKey
+// MEMBER → authenticated + premium/admin
+// MEMBER → requests temporary R2 download URL
+// VIDEO → plays through HTML5 video player
 // ============================================================
 
-import { auth, db, functions } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import {
   onAuthStateChanged,
@@ -32,22 +27,16 @@ import {
 } from "firebase/firestore";
 
 import {
-  httpsCallable
-} from "firebase/functions";
+  getDownloadUrl
+} from "./upload.js";
 
 
 // ============================================================
-// DOM
+// ELEMENTS
 // ============================================================
 
-const loadingView =
-  document.getElementById("loadingView");
-
-const accessView =
-  document.getElementById("accessView");
-
-const contentView =
-  document.getElementById("contentView");
+const app =
+  document.getElementById("app");
 
 const container =
   document.getElementById("videosContainer");
@@ -58,17 +47,17 @@ const searchInput =
 const filterButtons =
   document.querySelectorAll(".filter-btn");
 
+const noResults =
+  document.getElementById("noResultsMessage");
+
 const logoutBtn =
   document.getElementById("logoutBtn");
 
 const modal =
   document.getElementById("videoModal");
 
-const closeModalBtn =
+const closeModal =
   document.getElementById("closeModal");
-
-const videoPlayer =
-  document.getElementById("r2VideoPlayer");
 
 
 // ============================================================
@@ -83,120 +72,160 @@ let hasPremiumAccess = false;
 
 
 // ============================================================
-// HELPERS
+// AUTHENTICATION
 // ============================================================
 
-function escapeHTML(value) {
+onAuthStateChanged(
+  auth,
+  async (user) => {
 
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    // --------------------------------------------------------
+    // NOT LOGGED IN
+    // --------------------------------------------------------
 
-}
+    if (!user) {
 
-
-// ============================================================
-// AUTH
-// ============================================================
-
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) {
-
-    window.location.href = "/login";
-
-    return;
-  }
-
-
-  try {
-
-    const userRef =
-      doc(db, "users", user.uid);
-
-    const userSnap =
-      await getDoc(userRef);
-
-
-    if (!userSnap.exists()) {
-
-      showAccess();
+      window.location.href =
+        "login.html";
 
       return;
     }
 
 
-    const userData =
-      userSnap.data();
+    // --------------------------------------------------------
+    // CHECK USER
+    // --------------------------------------------------------
+
+    try {
+
+      const userRef =
+        doc(
+          db,
+          "users",
+          user.uid
+        );
+
+      const userSnap =
+        await getDoc(userRef);
 
 
-    hasPremiumAccess =
-      userData.role === "admin" ||
-      userData.membership === "premium";
+      if (!userSnap.exists()) {
+
+        showError(
+          "Your account information could not be found."
+        );
+
+        return;
+      }
 
 
-    if (!hasPremiumAccess) {
+      const userData =
+        userSnap.data();
 
-      showAccess();
+
+      // ------------------------------------------------------
+      // PREMIUM ACCESS
+      // ------------------------------------------------------
+
+      hasPremiumAccess =
+        userData.role === "admin" ||
+        userData.membership === "premium";
+
+
+      app?.classList.remove(
+        "loading"
+      );
+
+
+      // ------------------------------------------------------
+      // NON-PREMIUM
+      // ------------------------------------------------------
+
+      if (!hasPremiumAccess) {
+
+        app?.classList.add(
+          "locked"
+        );
+
+        return;
+      }
+
+
+      // ------------------------------------------------------
+      // PREMIUM / ADMIN
+      // ------------------------------------------------------
+
+      app?.classList.remove(
+        "locked"
+      );
+
+
+      await loadVideos();
+
+    } catch (error) {
+
+      console.error(
+        "VIDEO AUTH ERROR:",
+        error
+      );
+
+
+      app?.classList.remove(
+        "loading"
+      );
+
+
+      showError(
+        "Unable to verify your account. Please refresh."
+      );
+
+    }
+
+  }
+);
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+logoutBtn?.addEventListener(
+  "click",
+  async () => {
+
+    if (
+      !confirm(
+        "Logout?"
+      )
+    ) {
 
       return;
     }
 
 
-    loadingView.style.display =
-      "none";
+    try {
 
-    accessView.classList.remove(
-      "show"
-    );
+      await signOut(auth);
 
-    contentView.style.display =
-      "block";
+      window.location.href =
+        "login.html";
 
+    } catch (error) {
 
-    await loadVideos();
-
-  } catch (error) {
-
-    console.error(
-      "VIDEO AUTH ERROR:",
-      error
-    );
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
 
 
-    loadingView.style.display =
-      "none";
+      alert(
+        "Unable to logout."
+      );
 
-
-    showError(
-      "Unable to verify your membership."
-    );
+    }
 
   }
-
-});
-
-
-// ============================================================
-// ACCESS DENIED
-// ============================================================
-
-function showAccess() {
-
-  loadingView.style.display =
-    "none";
-
-  contentView.style.display =
-    "none";
-
-  accessView.classList.add(
-    "show"
-  );
-
-}
+);
 
 
 // ============================================================
@@ -205,11 +234,40 @@ function showAccess() {
 
 async function loadVideos() {
 
+  if (!container) {
+
+    return;
+  }
+
+
+  // ----------------------------------------------------------
+  // LOADING
+  // ----------------------------------------------------------
+
   container.innerHTML = `
-    <div class="status-message">
-      <i class="fa-solid fa-spinner fa-spin"></i>
-      <p>Loading video library...</p>
+
+    <div
+      class="status-message"
+      style="
+        grid-column:1/-1;
+        text-align:center;
+      "
+    >
+
+      <i
+        class="fa-solid fa-spinner fa-spin"
+        style="
+          font-size:2rem;
+          margin-bottom:12px;
+        "
+      ></i>
+
+      <p>
+        Loading videos...
+      </p>
+
     </div>
+
   `;
 
 
@@ -218,23 +276,37 @@ async function loadVideos() {
     let snapshot;
 
 
+    // --------------------------------------------------------
+    // TRY SORTED QUERY
+    // --------------------------------------------------------
+
     try {
 
       const videosQuery =
         query(
-          collection(db, "videos"),
+          collection(
+            db,
+            "videos"
+          ),
           orderBy(
             "createdAt",
             "desc"
           )
         );
 
+
       snapshot =
         await getDocs(
           videosQuery
         );
 
-    } catch {
+    } catch (queryError) {
+
+      console.warn(
+        "Ordered video query failed. Loading normally.",
+        queryError
+      );
+
 
       snapshot =
         await getDocs(
@@ -255,7 +327,8 @@ async function loadVideos() {
 
         videos.push({
 
-          id: videoDoc.id,
+          id:
+            videoDoc.id,
 
           ...videoDoc.data()
 
@@ -265,18 +338,24 @@ async function loadVideos() {
     );
 
 
-    renderVideos();
+    console.log(
+      "GTRADES-AXIS videos loaded:",
+      videos.length
+    );
+
+
+    await renderVideos();
 
   } catch (error) {
 
     console.error(
-      "VIDEO LOAD ERROR:",
+      "VIDEO FIRESTORE ERROR:",
       error
     );
 
 
     showError(
-      "Unable to load videos."
+      "Unable to load videos. Please refresh the page."
     );
 
   }
@@ -285,13 +364,36 @@ async function loadVideos() {
 
 
 // ============================================================
-// RENDER
+// RENDER VIDEOS
 // ============================================================
 
-function renderVideos() {
+async function renderVideos() {
+
+  if (!container) {
+
+    return;
+  }
+
 
   container.innerHTML = "";
 
+
+  noResults?.classList.remove(
+    "visible"
+  );
+
+
+  if (noResults) {
+
+    noResults.style.display =
+      "none";
+
+  }
+
+
+  // ----------------------------------------------------------
+  // SEARCH KEYWORD
+  // ----------------------------------------------------------
 
   const keyword =
     searchInput?.value
@@ -299,96 +401,119 @@ function renderVideos() {
       .trim() || "";
 
 
+  // ----------------------------------------------------------
+  // FILTER
+  // ----------------------------------------------------------
+
   let filtered =
-    [...videos];
+    videos.filter(
+      (video) => {
 
-
-  // CATEGORY
-
-  if (
-    activeCategory !== "All"
-  ) {
-
-    filtered =
-      filtered.filter(
-        (video) =>
+        const videoCategory =
           String(
-            video.category || ""
-          ).toLowerCase() ===
-          activeCategory.toLowerCase()
-      );
-
-  }
-
-
-  // SEARCH
-
-  if (keyword) {
-
-    filtered =
-      filtered.filter(
-        (video) => {
-
-          const title =
-            String(
-              video.title || ""
-            ).toLowerCase();
-
-
-          const description =
-            String(
-              video.description || ""
-            ).toLowerCase();
-
-
-          return (
-            title.includes(keyword) ||
-            description.includes(keyword)
+            video.category ||
+            "General"
           );
 
-        }
+
+        const categoryMatches =
+          activeCategory === "All" ||
+          videoCategory.toLowerCase() ===
+            activeCategory.toLowerCase();
+
+
+        const title =
+          String(
+            video.title ||
+            ""
+          ).toLowerCase();
+
+
+        const description =
+          String(
+            video.description ||
+            ""
+          ).toLowerCase();
+
+
+        const searchMatches =
+          !keyword ||
+          title.includes(keyword) ||
+          description.includes(keyword);
+
+
+        return (
+          categoryMatches &&
+          searchMatches
+        );
+
+      }
+    );
+
+
+  // ----------------------------------------------------------
+  // NO RESULTS
+  // ----------------------------------------------------------
+
+  if (
+    filtered.length === 0
+  ) {
+
+    if (noResults) {
+
+      noResults.style.display =
+        "block";
+
+      noResults.classList.add(
+        "visible"
       );
 
-  }
-
-
-  if (!filtered.length) {
-
-    container.innerHTML = `
-      <div class="status-message">
-        No videos match your search.
-      </div>
-    `;
+    }
 
     return;
   }
 
 
-  filtered.forEach(
-    (video) => {
+  // ----------------------------------------------------------
+  // CREATE CARDS
+  // ----------------------------------------------------------
 
-      const card =
-        createVideoCard(video);
+  for (
+    const video of filtered
+  ) {
 
-      container.appendChild(
-        card
+    const card =
+      await createVideoCard(
+        video
       );
 
-    }
-  );
+
+    container.appendChild(
+      card
+    );
+
+  }
 
 }
 
 
 // ============================================================
-// CREATE CARD
+// CREATE VIDEO CARD
 // ============================================================
 
-function createVideoCard(video) {
+async function createVideoCard(
+  video
+) {
 
   const card =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
+
+  // ----------------------------------------------------------
+  // ACCESS
+  // ----------------------------------------------------------
 
   const premiumOnly =
     video.premiumOnly === true;
@@ -408,6 +533,10 @@ function createVideoCard(video) {
     );
 
 
+  // ----------------------------------------------------------
+  // DATA
+  // ----------------------------------------------------------
+
   const title =
     video.title ||
     "Untitled Video";
@@ -423,57 +552,137 @@ function createVideoCard(video) {
     "—";
 
 
-  let thumbnail =
-    `<i class="fa-solid fa-circle-play"></i>`;
+  // ----------------------------------------------------------
+  // IMPORTANT:
+  // FIRESTORE STORES THE R2 KEY
+  //
+  // Example:
+  // videos/1786376346686_Market_straucture.mp4
+  // ----------------------------------------------------------
+
+  const videoKey =
+    video.videoKey ||
+    video.fileKey ||
+    video.r2Key ||
+    video.storageKey ||
+    "";
 
 
-  const thumbnailUrl =
-    video.thumbnailUrl ||
-    video.thumbnail ||
+  // ----------------------------------------------------------
+  // THUMBNAIL
+  // ----------------------------------------------------------
+
+  let thumbnailHTML = `
+
+    <i
+      class="fa-solid fa-circle-play"
+      style="
+        font-size:2.5rem;
+      "
+    ></i>
+
+  `;
+
+
+  const thumbnailKey =
+    video.thumbnailKey ||
     "";
 
 
   if (
-    thumbnailUrl &&
-    /^https?:\/\//i.test(
-      thumbnailUrl
-    )
+    thumbnailKey
   ) {
 
-    thumbnail =
-      `
-      <img
-        src="${escapeHTML(thumbnailUrl)}"
-        alt="${escapeHTML(title)}"
-        loading="lazy"
-      >
-      `;
+    try {
+
+      let thumbnailURL;
+
+
+      // Already a complete URL
+      if (
+        /^https?:\/\//i.test(
+          thumbnailKey
+        )
+      ) {
+
+        thumbnailURL =
+          thumbnailKey;
+
+      } else {
+
+        thumbnailURL =
+          await getDownloadUrl(
+            thumbnailKey
+          );
+
+      }
+
+
+      if (
+        thumbnailURL
+      ) {
+
+        thumbnailHTML = `
+
+          <img
+            src="${escapeHTML(
+              thumbnailURL
+            )}"
+            alt="${escapeHTML(
+              title
+            )}"
+            loading="lazy"
+          />
+
+        `;
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Thumbnail unavailable:",
+        error
+      );
+
+    }
 
   }
 
+
+  // ----------------------------------------------------------
+  // CARD HTML
+  // ----------------------------------------------------------
 
   card.innerHTML = `
 
     <div class="video-thumb">
 
-      ${thumbnail}
+      ${thumbnailHTML}
 
       <span class="video-duration">
-        ${escapeHTML(duration)}
+        ${escapeHTML(
+          duration
+        )}
       </span>
+
 
       ${
         !canAccess
           ? `
+
             <div class="lock-overlay">
 
-              <i class="fa-solid fa-lock"></i>
+              <i
+                class="fa-solid fa-lock"
+              ></i>
 
               <span>
                 Premium Only
               </span>
 
             </div>
+
           `
           : ""
       }
@@ -484,14 +693,20 @@ function createVideoCard(video) {
     <div class="video-info">
 
       <div class="video-title">
-        ${escapeHTML(title)}
+
+        ${escapeHTML(
+          title
+        )}
+
       </div>
 
 
       <div class="video-meta">
 
         <span>
-          ${escapeHTML(category)}
+          ${escapeHTML(
+            category
+          )}
         </span>
 
 
@@ -518,14 +733,21 @@ function createVideoCard(video) {
   `;
 
 
-  if (canAccess) {
+  // ----------------------------------------------------------
+  // CLICK ONLY IF ACCESSIBLE
+  // ----------------------------------------------------------
+
+  if (
+    canAccess
+  ) {
 
     card.addEventListener(
       "click",
-      () => {
+      async () => {
 
-        openVideo(
-          video
+        await openVideo(
+          video,
+          videoKey
         );
 
       }
@@ -535,34 +757,54 @@ function createVideoCard(video) {
 
 
   return card;
-
 }
 
 
 // ============================================================
-// SECURE VIDEO ACCESS
-//
-// IMPORTANT:
-//
-// We do NOT expose the R2 object directly.
-//
-// The Firebase Callable Function:
-//
-// 1. verifies Firebase authentication
-// 2. loads users/{uid}
-// 3. checks membership
-// 4. checks video permission
-// 5. creates temporary signed R2 URL
-//
+// OPEN VIDEO
 // ============================================================
 
-async function openVideo(video) {
+async function openVideo(
+  video,
+  videoKey
+) {
 
-  if (!video?.id) {
+  // ----------------------------------------------------------
+  // CHECK KEY
+  // ----------------------------------------------------------
+
+  if (
+    !videoKey
+  ) {
+
+    console.error(
+      "Missing videoKey:",
+      video
+    );
+
 
     alert(
-      "Invalid video."
+      "This video does not have an R2 file attached yet."
     );
+
+
+    return;
+  }
+
+
+  // ----------------------------------------------------------
+  // CHECK PREMIUM AGAIN
+  // ----------------------------------------------------------
+
+  if (
+    video.premiumOnly === true &&
+    !hasPremiumAccess
+  ) {
+
+    alert(
+      "Premium membership is required to watch this video."
+    );
+
 
     return;
   }
@@ -570,81 +812,59 @@ async function openVideo(video) {
 
   try {
 
-    showPlayerLoading();
-
-
-    const getVideoUrl =
-      httpsCallable(
-        functions,
-        "getVideoDownloadUrl"
-      );
-
-
-    const result =
-      await getVideoUrl({
-
-        videoId:
-          video.id
-
-      });
-
-
-    const url =
-      result?.data?.url;
-
-
-    if (!url) {
-
-      throw new Error(
-        "No secure video URL was returned."
-      );
-
-    }
-
-
-    videoPlayer.src =
-      url;
-
-
-    modal.classList.add(
-      "active"
+    console.log(
+      "Requesting R2 URL for:",
+      videoKey
     );
 
 
-    document.body.style.overflow =
-      "hidden";
+    // --------------------------------------------------------
+    // GET TEMPORARY R2 URL
+    // --------------------------------------------------------
+
+    const signedURL =
+      await getDownloadUrl(
+        videoKey
+      );
 
 
-    videoPlayer.load();
+    if (
+      !signedURL
+    ) {
 
-
-    try {
-
-      await videoPlayer.play();
-
-    } catch (error) {
-
-      console.warn(
-        "Autoplay blocked:",
-        error
+      throw new Error(
+        "No download URL was returned."
       );
 
     }
+
+
+    console.log(
+      "R2 signed URL received."
+    );
+
+
+    // --------------------------------------------------------
+    // OPEN PLAYER
+    // --------------------------------------------------------
+
+    openVideoModal(
+      signedURL,
+      video.title ||
+        "GTRADES-AXIS Video"
+    );
 
   } catch (error) {
 
     console.error(
-      "SECURE VIDEO ERROR:",
+      "R2 VIDEO ERROR:",
       error
     );
 
 
-    closeVideo();
-
-
     alert(
-      error?.message ||
-      "You are not authorized to access this video."
+      "Unable to play this video.\n\n" +
+      error.message
     );
 
   }
@@ -653,37 +873,259 @@ async function openVideo(video) {
 
 
 // ============================================================
-// PLAYER LOADING
+// VIDEO MODAL
 // ============================================================
 
-function showPlayerLoading() {
+function openVideoModal(
+  url,
+  title
+) {
 
-  modal.classList.add(
-    "active"
+  if (!modal) {
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  // ----------------------------------------------------------
+  // FIND PLAYER
+  // ----------------------------------------------------------
+
+  let videoPlayer =
+    document.getElementById(
+      "r2VideoPlayer"
+    );
+
+
+  // ----------------------------------------------------------
+  // CREATE PLAYER IF MISSING
+  // ----------------------------------------------------------
+
+  if (
+    !videoPlayer
+  ) {
+
+    videoPlayer =
+      document.createElement(
+        "video"
+      );
+
+
+    videoPlayer.id =
+      "r2VideoPlayer";
+
+
+    videoPlayer.controls =
+      true;
+
+
+    videoPlayer.playsInline =
+      true;
+
+
+    videoPlayer.preload =
+      "metadata";
+
+
+    const modalContent =
+      modal.querySelector(
+        ".modal-content"
+      );
+
+
+    if (!modalContent) {
+
+      throw new Error(
+        "Video modal content was not found."
+      );
+
+    }
+
+
+    modalContent.appendChild(
+      videoPlayer
+    );
+
+  }
+
+
+  // ----------------------------------------------------------
+  // HIDE OTHER PLAYERS
+  // ----------------------------------------------------------
+
+  const iframe =
+    document.getElementById(
+      "videoFrame"
+    );
+
+
+  if (
+    iframe
+  ) {
+
+    iframe.style.display =
+      "none";
+
+  }
+
+
+  const youtubeFrame =
+    document.getElementById(
+      "youtubeFrame"
+    );
+
+
+  if (
+    youtubeFrame
+  ) {
+
+    youtubeFrame.style.display =
+      "none";
+
+    youtubeFrame.src =
+      "";
+
+  }
+
+
+  // ----------------------------------------------------------
+  // STYLE PLAYER
+  // ----------------------------------------------------------
+
+  videoPlayer.style.display =
+    "block";
+
+
+  videoPlayer.style.width =
+    "100%";
+
+
+  videoPlayer.style.height =
+    "100%";
+
+
+  videoPlayer.style.objectFit =
+    "contain";
+
+
+  // ----------------------------------------------------------
+  // ACCESSIBILITY
+  // ----------------------------------------------------------
+
+  videoPlayer.setAttribute(
+    "aria-label",
+    title
   );
 
-  document.body.style.overflow =
-    "hidden";
 
-}
-
-
-// ============================================================
-// CLOSE
-// ============================================================
-
-function closeVideo() {
+  // ----------------------------------------------------------
+  // LOAD VIDEO
+  // ----------------------------------------------------------
 
   videoPlayer.pause();
+
 
   videoPlayer.removeAttribute(
     "src"
   );
 
+
   videoPlayer.load();
 
 
-  modal.classList.remove(
+  videoPlayer.src =
+    url;
+
+
+  // ----------------------------------------------------------
+  // SHOW MODAL
+  // ----------------------------------------------------------
+
+  modal.classList.add(
+    "active"
+  );
+
+
+  document.body.style.overflow =
+    "hidden";
+
+
+  videoPlayer.load();
+
+
+  // ----------------------------------------------------------
+  // PLAY
+  // ----------------------------------------------------------
+
+  videoPlayer.play()
+    .catch(
+      (error) => {
+
+        console.warn(
+          "Autoplay blocked:",
+          error
+        );
+
+      }
+    );
+
+}
+
+
+// ============================================================
+// CLOSE VIDEO
+// ============================================================
+
+function closeVideo() {
+
+  const videoPlayer =
+    document.getElementById(
+      "r2VideoPlayer"
+    );
+
+
+  if (
+    videoPlayer
+  ) {
+
+    videoPlayer.pause();
+
+
+    videoPlayer.removeAttribute(
+      "src"
+    );
+
+
+    videoPlayer.load();
+
+  }
+
+
+  const youtubeFrame =
+    document.getElementById(
+      "youtubeFrame"
+    );
+
+
+  if (
+    youtubeFrame
+  ) {
+
+    youtubeFrame.src =
+      "";
+
+    youtubeFrame.style.display =
+      "none";
+
+  }
+
+
+  modal?.classList.remove(
     "active"
   );
 
@@ -694,11 +1136,19 @@ function closeVideo() {
 }
 
 
-closeModalBtn?.addEventListener(
+// ============================================================
+// CLOSE BUTTON
+// ============================================================
+
+closeModal?.addEventListener(
   "click",
   closeVideo
 );
 
+
+// ============================================================
+// CLICK OUTSIDE MODAL
+// ============================================================
 
 modal?.addEventListener(
   "click",
@@ -715,6 +1165,10 @@ modal?.addEventListener(
   }
 );
 
+
+// ============================================================
+// ESC KEY
+// ============================================================
 
 document.addEventListener(
   "keydown",
@@ -738,12 +1192,16 @@ document.addEventListener(
 
 searchInput?.addEventListener(
   "input",
-  renderVideos
+  () => {
+
+    renderVideos();
+
+  }
 );
 
 
 // ============================================================
-// FILTERS
+// CATEGORY FILTERS
 // ============================================================
 
 filterButtons.forEach(
@@ -754,10 +1212,13 @@ filterButtons.forEach(
       () => {
 
         filterButtons.forEach(
-          (btn) =>
+          (btn) => {
+
             btn.classList.remove(
               "active"
-            )
+            );
+
+          }
         );
 
 
@@ -781,64 +1242,43 @@ filterButtons.forEach(
 
 
 // ============================================================
-// LOGOUT
-// ============================================================
-
-logoutBtn?.addEventListener(
-  "click",
-  async () => {
-
-    if (
-      !confirm(
-        "Logout of GTRADES-AXIS™?"
-      )
-    ) {
-
-      return;
-    }
-
-
-    try {
-
-      await signOut(auth);
-
-      window.location.href =
-        "/login";
-
-    } catch (error) {
-
-      console.error(
-        "LOGOUT ERROR:",
-        error
-      );
-
-      alert(
-        "Unable to logout."
-      );
-
-    }
-
-  }
-);
-
-
-// ============================================================
 // ERROR
 // ============================================================
 
-function showError(message) {
+function showError(
+  message
+) {
+
+  if (!container) {
+
+    return;
+  }
+
 
   container.innerHTML = `
 
-    <div class="status-message">
+    <div
+      style="
+        grid-column:1/-1;
+        text-align:center;
+        padding:50px 20px;
+        color:#ff8799;
+      "
+    >
 
       <i
         class="fa-solid fa-circle-exclamation"
-        style="font-size:2rem;color:#ff4766;"
+        style="
+          font-size:2.5rem;
+          margin-bottom:15px;
+        "
       ></i>
 
+
       <p>
-        ${escapeHTML(message)}
+        ${escapeHTML(
+          message
+        )}
       </p>
 
     </div>
@@ -846,3 +1286,52 @@ function showError(message) {
   `;
 
 }
+
+
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+
+function escapeHTML(
+  value
+) {
+
+  return String(
+    value ?? ""
+  )
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+// ============================================================
+// READY
+// ============================================================
+
+console.log(
+  "✅ GTRADES-AXIS™ Premium Videos loaded."
+);
