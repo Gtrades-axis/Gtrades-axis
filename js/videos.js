@@ -69,11 +69,6 @@ const closeModalButton =
     "closeModal"
   );
 
-const player =
-  document.getElementById(
-    "r2VideoPlayer"
-  );
-
 // ============================================================
 // STATE
 // ============================================================
@@ -90,43 +85,26 @@ let currentVideoURL =
   null;
 
 // ============================================================
-// ESCAPE HTML
+// ESCAPE
 // ============================================================
 
 function escapeHTML(value) {
 
-  return String(
-    value ?? ""
-  )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 // ============================================================
-// AUTH STATE
+// AUTH
 // ============================================================
 
 onAuthStateChanged(
   auth,
-  async (user) => {
+  async user => {
 
     if (!user) {
 
@@ -138,11 +116,9 @@ onAuthStateChanged(
 
     try {
 
-      if (app) {
-        app.classList.remove(
-          "loading"
-        );
-      }
+      app?.classList.remove(
+        "loading"
+      );
 
       const userRef =
         doc(
@@ -152,13 +128,9 @@ onAuthStateChanged(
         );
 
       const userSnap =
-        await getDoc(
-          userRef
-        );
+        await getDoc(userRef);
 
-      if (
-        !userSnap.exists()
-      ) {
+      if (!userSnap.exists()) {
 
         showError(
           "Your account information could not be found."
@@ -171,19 +143,8 @@ onAuthStateChanged(
         userSnap.data();
 
       hasPremiumAccess =
-        userData.role ===
-          "admin" ||
-        userData.membership ===
-          "premium";
-
-      if (
-        !hasPremiumAccess
-      ) {
-
-        showLocked();
-
-        return;
-      }
+        userData.role === "admin" ||
+        userData.membership === "premium";
 
       await loadVideos();
 
@@ -202,14 +163,12 @@ onAuthStateChanged(
 );
 
 // ============================================================
-// LOAD VIDEOS
+// LOAD
 // ============================================================
 
 async function loadVideos() {
 
-  if (!container) {
-    return;
-  }
+  if (!container) return;
 
   container.innerHTML = `
     <div
@@ -261,14 +220,13 @@ async function loadVideos() {
     videos = [];
 
     snapshot.forEach(
-      (videoDoc) => {
+      videoDoc => {
 
         videos.push({
-          id:
-            videoDoc.id,
-
+          id: videoDoc.id,
           ...videoDoc.data()
         });
+
       }
     );
 
@@ -291,11 +249,9 @@ async function loadVideos() {
 // RENDER
 // ============================================================
 
-async function renderVideos() {
+function renderVideos() {
 
-  if (!container) {
-    return;
-  }
+  if (!container) return;
 
   container.innerHTML = "";
 
@@ -313,16 +269,14 @@ async function renderVideos() {
 
     filtered =
       filtered.filter(
-        (video) =>
+        video =>
           String(
             video.category ||
-              "General"
+            "General"
           )
             .toLowerCase()
             .trim() ===
-          String(
-            activeCategory
-          )
+          activeCategory
             .toLowerCase()
             .trim()
       );
@@ -337,48 +291,35 @@ async function renderVideos() {
 
     filtered =
       filtered.filter(
-        (video) => {
+        video => {
 
           const title =
             String(
-              video.title ||
-                ""
+              video.title || ""
             ).toLowerCase();
 
           const description =
             String(
-              video.description ||
-                ""
+              video.description || ""
             ).toLowerCase();
 
           const category =
             String(
-              video.category ||
-                ""
+              video.category || ""
             ).toLowerCase();
 
           return (
-            title.includes(
-              keyword
-            ) ||
-            description.includes(
-              keyword
-            ) ||
-            category.includes(
-              keyword
-            )
+            title.includes(keyword) ||
+            description.includes(keyword) ||
+            category.includes(keyword)
           );
         }
       );
   }
 
-  if (
-    filtered.length ===
-    0
-  ) {
+  if (!filtered.length) {
 
     if (noResults) {
-
       noResults.style.display =
         "block";
 
@@ -391,7 +332,6 @@ async function renderVideos() {
   }
 
   if (noResults) {
-
     noResults.style.display =
       "none";
 
@@ -400,28 +340,20 @@ async function renderVideos() {
     );
   }
 
-  for (
-    const video of filtered
-  ) {
-
-    const card =
-      createVideoCard(
-        video
-      );
+  filtered.forEach(video => {
 
     container.appendChild(
-      card
+      createVideoCard(video)
     );
-  }
+
+  });
 }
 
 // ============================================================
 // CARD
 // ============================================================
 
-function createVideoCard(
-  video
-) {
+function createVideoCard(video) {
 
   const card =
     document.createElement(
@@ -429,8 +361,7 @@ function createVideoCard(
     );
 
   const premiumOnly =
-    video.premiumOnly ===
-    true;
+    video.premiumOnly === true;
 
   const canAccess =
     !premiumOnly ||
@@ -455,28 +386,51 @@ function createVideoCard(
     video.duration ||
     "—";
 
+  const thumbnail =
+    video.thumbnailKey
+      ? `${R2_WORKER}/?key=${encodeURIComponent(
+          video.thumbnailKey
+        )}&action=file`
+      : video.thumbnail ||
+        "";
+
   card.innerHTML = `
 
     <div class="video-thumb">
 
-      <div
-        style="
-          width:100%;
-          height:100%;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          background:#080d16;
-        "
-      >
-        <i
-          class="fa-solid fa-circle-play"
-          style="
-            font-size:3rem;
-            color:#1d9bf0;
-          "
-        ></i>
-      </div>
+      ${
+        thumbnail
+          ? `
+            <img
+              src="${escapeHTML(thumbnail)}"
+              style="
+                width:100%;
+                height:100%;
+                object-fit:cover;
+              "
+            >
+          `
+          : `
+            <div
+              style="
+                width:100%;
+                height:100%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                background:#080d16;
+              "
+            >
+              <i
+                class="fa-solid fa-circle-play"
+                style="
+                  font-size:3rem;
+                  color:#1d9bf0;
+                "
+              ></i>
+            </div>
+          `
+      }
 
       <span class="video-duration">
         ${escapeHTML(duration)}
@@ -486,8 +440,13 @@ function createVideoCard(
         !canAccess
           ? `
             <div class="lock-overlay">
+
               <i class="fa-solid fa-lock"></i>
-              <span>Premium Only</span>
+
+              <span>
+                Premium Only
+              </span>
+
             </div>
           `
           : ""
@@ -530,9 +489,7 @@ function createVideoCard(
 
     card.addEventListener(
       "click",
-      () => {
-        openVideo(video);
-      }
+      () => openVideo(video)
     );
   }
 
@@ -543,13 +500,10 @@ function createVideoCard(
 // OPEN VIDEO
 // ============================================================
 
-async function openVideo(
-  video
-) {
+async function openVideo(video) {
 
   if (
-    video.premiumOnly ===
-      true &&
+    video.premiumOnly === true &&
     !hasPremiumAccess
   ) {
 
@@ -576,89 +530,21 @@ async function openVideo(
     return;
   }
 
+  const user =
+    auth.currentUser;
+
+  if (!user) {
+
+    window.location.href =
+      "login.html";
+
+    return;
+  }
+
   try {
 
-    const user =
-      auth.currentUser;
-
-    if (!user) {
-
-      window.location.href =
-        "login.html";
-
-      return;
-    }
-
-    // ========================================================
-    // GET FRESH FIREBASE ID TOKEN
-    // ========================================================
-
     const token =
-      await user.getIdToken(
-        true
-      );
-
-    // ========================================================
-    // TEST AUTHENTICATED R2 REQUEST
-    // ========================================================
-
-    const response =
-      await fetch(
-        `${R2_WORKER}/?key=${encodeURIComponent(
-          videoKey
-        )}&action=file`,
-        {
-          method: "GET",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-
-            Range:
-              "bytes=0-0"
-          },
-
-          cache:
-            "no-store"
-        }
-      );
-
-    if (
-      !response.ok &&
-      response.status !==
-        206
-    ) {
-
-      const errorData =
-        await response
-          .json()
-          .catch(
-            () => ({})
-          );
-
-      throw new Error(
-        errorData.error ||
-        `Video access denied (${response.status})`
-      );
-    }
-
-    // ========================================================
-    // CLOSE TEST RESPONSE
-    // ========================================================
-
-    await response
-      .body
-      ?.cancel();
-
-    // ========================================================
-    // CREATE AUTHENTICATED VIDEO URL
-    //
-    // HTML5 <video> cannot reliably attach an Authorization
-    // header to its native src request.
-    //
-    // Therefore use a MediaSource-compatible authenticated
-    // stream loader below.
-    // ========================================================
+      await user.getIdToken(true);
 
     await playAuthenticatedVideo(
       videoKey,
@@ -682,7 +568,7 @@ async function openVideo(
 }
 
 // ============================================================
-// AUTHENTICATED VIDEO PLAYER
+// PLAYER
 // ============================================================
 
 async function playAuthenticatedVideo(
@@ -746,6 +632,7 @@ async function playAuthenticatedVideo(
       );
 
     if (!modalContent) {
+
       throw new Error(
         "Video modal content not found."
       );
@@ -764,19 +651,6 @@ async function playAuthenticatedVideo(
     title
   );
 
-  const oldURL =
-    currentVideoURL;
-
-  if (oldURL) {
-
-    URL.revokeObjectURL(
-      oldURL
-    );
-
-    currentVideoURL =
-      null;
-  }
-
   videoPlayer.pause();
 
   videoPlayer.removeAttribute(
@@ -785,11 +659,15 @@ async function playAuthenticatedVideo(
 
   videoPlayer.load();
 
-  // ==========================================================
-  // IMPORTANT
-  //
-  // Use a Blob from the authenticated Worker response.
-  // ==========================================================
+  if (currentVideoURL) {
+
+    URL.revokeObjectURL(
+      currentVideoURL
+    );
+
+    currentVideoURL =
+      null;
+  }
 
   const response =
     await fetch(
@@ -820,7 +698,7 @@ async function playAuthenticatedVideo(
 
     throw new Error(
       errorData.error ||
-      "Video authorization failed."
+      `Video authorization failed (${response.status})`
     );
   }
 
@@ -840,10 +718,9 @@ async function playAuthenticatedVideo(
 
   videoPlayer.load();
 
-  videoPlayer.play()
-    .catch(
-      () => {}
-    );
+  await videoPlayer
+    .play()
+    .catch(() => {});
 }
 
 // ============================================================
@@ -896,9 +773,7 @@ logoutBtn?.addEventListener(
 
     try {
 
-      await signOut(
-        auth
-      );
+      await signOut(auth);
 
       window.location.href =
         "login.html";
@@ -932,7 +807,7 @@ closeModalButton?.addEventListener(
 
 modal?.addEventListener(
   "click",
-  (event) => {
+  event => {
 
     if (
       event.target ===
@@ -950,7 +825,7 @@ modal?.addEventListener(
 
 document.addEventListener(
   "keydown",
-  (event) => {
+  event => {
 
     if (
       event.key ===
@@ -972,23 +847,21 @@ searchInput?.addEventListener(
 );
 
 // ============================================================
-// FILTERS
+// FILTER
 // ============================================================
 
 filterButtons.forEach(
-  (button) => {
+  button => {
 
     button.addEventListener(
       "click",
       () => {
 
         filterButtons.forEach(
-          (btn) => {
-
+          btn =>
             btn.classList.remove(
               "active"
-            );
-          }
+            )
         );
 
         button.classList.add(
@@ -1006,63 +879,12 @@ filterButtons.forEach(
 );
 
 // ============================================================
-// LOCKED
-// ============================================================
-
-function showLocked() {
-
-  if (!container) {
-    return;
-  }
-
-  container.innerHTML = `
-
-    <div
-      style="
-        grid-column:1/-1;
-        text-align:center;
-        padding:70px 20px;
-      "
-    >
-
-      <i
-        class="fa-solid fa-lock"
-        style="
-          font-size:3rem;
-          color:#f5a623;
-          margin-bottom:20px;
-        "
-      ></i>
-
-      <h2>
-        Premium Members Only
-      </h2>
-
-      <p
-        style="
-          color:#94a3b8;
-          margin-top:10px;
-        "
-      >
-        Upgrade your membership
-        to access premium videos.
-      </p>
-
-    </div>
-  `;
-}
-
-// ============================================================
 // ERROR
 // ============================================================
 
-function showError(
-  message
-) {
+function showError(message) {
 
-  if (!container) {
-    return;
-  }
+  if (!container) return;
 
   container.innerHTML = `
 
@@ -1090,3 +912,12 @@ function showError(
     </div>
   `;
 }
+
+console.log(
+  "GTRADES-AXIS™ Student Video Academy loaded."
+);
+
+console.log(
+  "R2 Worker:",
+  R2_WORKER
+);
