@@ -1,859 +1,796 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Resources | GTRADES-AXIS™</title>
-  <meta name="description" content="GTRADES-AXIS™ premium trading resources, strategies, journals and indicators.">
+<!-- =========================================================
+GTRADES-AXIS™
+PREMIUM RESOURCES PORTAL
+resources.html
+========================================================= -->
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Premium Resources | GTRADES-AXIS™
+  </title>
+
+  <meta
+    name="description"
+    content="GTRADES-AXIS™ Premium Trading Resources"
+  >
+
+  <link
+    rel="icon"
+    href="/images/favicon.png"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  >
 
   <style>
-    :root{
-      --bg:#080b13;
-      --panel:#101521;
-      --panel2:#141a29;
-      --border:#263149;
-      --text:#f4f7ff;
-      --muted:#8f9bb3;
-      --blue:#4f7cff;
-      --blue2:#2f5df5;
-      --cyan:#00d4ff;
-      --green:#00c897;
-      --gold:#f5b942;
-      --red:#ff4766;
-      --shadow:0 18px 50px rgba(0,0,0,.28);
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{
-      font-family:Poppins,sans-serif;
-      background:
-        radial-gradient(circle at 80% 0%,rgba(79,124,255,.10),transparent 30%),
-        radial-gradient(circle at 20% 100%,rgba(0,212,255,.05),transparent 28%),
-        var(--bg);
-      color:var(--text);
-      min-height:100vh;
-    }
-    button,input{font:inherit}
-    button{cursor:pointer}
-    a{text-decoration:none;color:inherit}
-
-    .app{display:flex;min-height:100vh}
-
-    /* SIDEBAR */
-    .sidebar{
-      width:260px;
-      min-height:100vh;
-      position:fixed;
-      left:0;
-      top:0;
-      bottom:0;
-      z-index:100;
-      background:rgba(13,18,31,.96);
-      border-right:1px solid var(--border);
-      padding:25px 16px 18px;
-      display:flex;
-      flex-direction:column;
-      backdrop-filter:blur(16px);
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:11px;
-      padding:0 9px 26px;
-    }
-    .brand-mark{
-      width:39px;height:39px;
-      border-radius:10px;
-      display:grid;place-items:center;
-      background:linear-gradient(135deg,var(--blue),var(--cyan));
-      box-shadow:0 8px 25px rgba(79,124,255,.25);
-      font-weight:800;
-      color:white;
-      font-size:14px;
-    }
-    .brand-name{font-size:17px;font-weight:800;letter-spacing:-.4px}
-    .brand-name span{color:var(--blue)}
-
-    .nav-title{
-      color:#56627a;
-      font-size:10px;
-      font-weight:700;
-      letter-spacing:1.5px;
-      text-transform:uppercase;
-      padding:0 13px 10px;
-    }
-    .menu{list-style:none}
-    .menu li{margin:5px 0}
-    .menu a{
-      display:flex;
-      align-items:center;
-      gap:13px;
-      min-height:47px;
-      padding:11px 13px;
-      border-radius:11px;
-      color:#9ba7bd;
-      font-size:13px;
-      font-weight:500;
-      transition:.2s ease;
-      border:1px solid transparent;
-    }
-    .menu a i{width:20px;text-align:center;font-size:15px}
-    .menu a:hover{
-      color:white;
-      background:#171e2d;
-      border-color:#222d43;
-    }
-    .menu li.active a{
-      color:white;
-      background:linear-gradient(90deg,rgba(79,124,255,.22),rgba(79,124,255,.08));
-      border-color:rgba(79,124,255,.30);
-      box-shadow:inset 3px 0 0 var(--blue);
-    }
-    .logout{
-      margin-top:auto;
-      width:100%;
-      border:1px solid rgba(255,71,102,.18);
-      background:rgba(255,71,102,.08);
-      color:#ff6380;
-      border-radius:10px;
-      padding:12px;
-      font-weight:600;
-      transition:.2s;
-    }
-    .logout:hover{background:rgba(255,71,102,.14)}
-
-    /* MAIN */
-    .main{
-      margin-left:260px;
-      width:calc(100% - 260px);
-      padding:34px 42px 30px;
-    }
-    .topbar{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:25px;
-      margin-bottom:27px;
-    }
-    .eyebrow{
-      color:var(--blue);
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:1.6px;
-      font-weight:700;
-      margin-bottom:7px;
-    }
-    h1{
-      font-size:31px;
-      line-height:1.15;
-      letter-spacing:-.7px;
-      margin-bottom:8px;
-    }
-    .subtitle{color:var(--muted);font-size:13px}
-    .member-chip{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 13px;
-      border-radius:30px;
-      border:1px solid rgba(0,200,151,.18);
-      background:rgba(0,200,151,.07);
-      color:#63ddb9;
-      font-size:11px;
-      font-weight:600;
-      white-space:nowrap;
+    body {
+      min-height: 100vh;
+      background: #05080d;
+      color: #f8fafc;
+      font-family:
+        Inter,
+        Arial,
+        sans-serif;
     }
 
-    .toolbar{
-      background:rgba(16,21,33,.78);
-      border:1px solid var(--border);
-      border-radius:15px;
-      padding:14px;
-      margin-bottom:23px;
-      box-shadow:var(--shadow);
-    }
-    .search-row{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .search{
-      position:relative;
-      flex:1;
-    }
-    .search i{
-      position:absolute;
-      left:14px;
-      top:50%;
-      transform:translateY(-50%);
-      color:#68748d;
-      font-size:13px;
-    }
-    .search input{
-      width:100%;
-      height:45px;
-      border:1px solid var(--border);
-      background:#0b101b;
-      color:white;
-      border-radius:10px;
-      padding:0 15px 0 40px;
-      outline:none;
-      transition:.2s;
-      font-size:12px;
-    }
-    .search input:focus{
-      border-color:rgba(79,124,255,.7);
-      box-shadow:0 0 0 3px rgba(79,124,255,.09);
-    }
-    .refresh{
-      width:45px;height:45px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      background:#151c2b;
-      color:#9eabc1;
-    }
-    .refresh:hover{color:white;border-color:#3b4a69}
-
-    .filters{
-      display:flex;
-      flex-wrap:wrap;
-      gap:7px;
-      margin-top:12px;
-    }
-    .filter{
-      border:1px solid var(--border);
-      background:#151c2b;
-      color:#8f9bb3;
-      padding:8px 13px;
-      border-radius:22px;
-      font-size:11px;
-      transition:.2s;
-    }
-    .filter:hover{color:white;border-color:#3a4969}
-    .filter.active{
-      color:white;
-      border-color:var(--blue);
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      box-shadow:0 6px 18px rgba(79,124,255,.2);
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
-    /* CARDS */
-    .section-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:14px;
-    }
-    .section-head h2{font-size:16px}
-    .count{font-size:11px;color:#68758d}
+    /* =====================================================
+       SIDEBAR
+       ===================================================== */
 
-    .resource-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(255px,1fr));
-      gap:17px;
-    }
-    .card{
-      background:linear-gradient(180deg,#121827,#0f1420);
-      border:1px solid var(--border);
-      border-radius:15px;
-      overflow:hidden;
-      position:relative;
-      transition:.22s ease;
-      box-shadow:0 10px 35px rgba(0,0,0,.16);
-    }
-    .card:hover{
-      transform:translateY(-4px);
-      border-color:rgba(79,124,255,.55);
-      box-shadow:0 16px 45px rgba(0,0,0,.28);
-    }
-    .card-media{
-      height:145px;
-      position:relative;
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      background:
-        radial-gradient(circle at 30% 20%,rgba(79,124,255,.22),transparent 35%),
-        linear-gradient(135deg,#151e33,#0a0f19);
-      border-bottom:1px solid var(--border);
-    }
-    .card-media img{
-      width:100%;height:100%;object-fit:cover;
-      display:block;
-    }
-    .media-icon{
-      width:61px;height:61px;
-      border-radius:17px;
-      display:grid;place-items:center;
-      font-size:24px;
-      color:#8eb0ff;
-      background:rgba(79,124,255,.12);
-      border:1px solid rgba(79,124,255,.25);
-    }
-    .type-badge{
-      position:absolute;
-      left:11px;top:11px;
-      padding:5px 8px;
-      border-radius:6px;
-      background:rgba(5,8,14,.78);
-      border:1px solid rgba(255,255,255,.10);
-      color:#b9c4d8;
-      font-size:9px;
-      font-weight:700;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-      backdrop-filter:blur(8px);
-    }
-    .access-badge{
-      position:absolute;
-      right:11px;top:11px;
-      padding:5px 8px;
-      border-radius:6px;
-      font-size:9px;
-      font-weight:700;
-      letter-spacing:.5px;
-      text-transform:uppercase;
-    }
-    .premium{
-      color:#f6c85f;
-      background:rgba(245,185,66,.13);
-      border:1px solid rgba(245,185,66,.2);
-    }
-    .free{
-      color:#58dcb8;
-      background:rgba(0,200,151,.11);
-      border:1px solid rgba(0,200,151,.18);
-    }
-    .card-body{padding:15px}
-    .category{
-      color:#6e83b0;
-      font-size:9px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      margin-bottom:6px;
-    }
-    .title{
-      color:#f2f5fb;
-      font-size:14px;
-      font-weight:650;
-      line-height:1.45;
-      min-height:40px;
-      margin-bottom:6px;
-    }
-    .description{
-      color:#7f8ba1;
-      font-size:10.5px;
-      line-height:1.55;
-      min-height:33px;
-      margin-bottom:13px;
-    }
-    .card-footer{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-    }
-    .meta{
-      color:#66738b;
-      font-size:9px;
-    }
-    .action{
-      border:1px solid rgba(79,124,255,.3);
-      background:rgba(79,124,255,.10);
-      color:#8dacff;
-      padding:8px 11px;
-      border-radius:8px;
-      font-size:10px;
-      font-weight:600;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      transition:.2s;
-    }
-    .action:hover{
-      background:var(--blue);
-      color:white;
-      border-color:var(--blue);
-    }
-    .action.disabled{
-      opacity:.45;
-      pointer-events:none;
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 250px;
+      background: #080c13;
+      border-right: 1px solid #172033;
+      padding: 28px 16px;
+      z-index: 20;
     }
 
-    .empty,.loading,.error{
-      grid-column:1/-1;
-      border:1px dashed #2c3850;
-      border-radius:14px;
-      padding:55px 20px;
-      text-align:center;
-      color:#758199;
-      background:rgba(16,21,33,.45);
-    }
-    .empty i,.loading i,.error i{
-      display:block;
-      font-size:28px;
-      margin-bottom:12px;
-      color:#52617c;
-    }
-    .error i{color:var(--red)}
-
-    /* MODAL */
-    .modal{
-      position:fixed;
-      inset:0;
-      z-index:500;
-      background:rgba(0,0,0,.82);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:25px;
-      backdrop-filter:blur(7px);
-    }
-    .modal.open{display:flex}
-    .modal-box{
-      width:min(950px,100%);
-      background:#0d121d;
-      border:1px solid #2b3852;
-      border-radius:15px;
-      overflow:hidden;
-      box-shadow:0 30px 100px rgba(0,0,0,.55);
-    }
-    .modal-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:13px 16px;
-      border-bottom:1px solid var(--border);
-    }
-    .modal-title{font-size:13px;font-weight:600}
-    .close{
-      border:0;background:transparent;color:#8d99b0;font-size:22px;
-      width:32px;height:32px;border-radius:7px;
-    }
-    .close:hover{background:#1b2231;color:white}
-    .viewer{
-      background:#000;
-      aspect-ratio:16/9;
-    }
-    .viewer iframe,.viewer video{width:100%;height:100%;border:0;display:block}
-
-    footer{
-      margin-top:34px;
-      padding:17px 0 5px;
-      border-top:1px solid var(--border);
-      display:flex;
-      justify-content:space-between;
-      color:#58657c;
-      font-size:10px;
+    .brand {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      margin-bottom: 35px;
     }
 
-    @media(max-width:850px){
-      .sidebar{width:76px;padding:20px 9px}
-      .brand{justify-content:center;padding:0 0 22px}
-      .brand-name,.nav-title,.menu a span{display:none}
-      .menu a{justify-content:center;padding:12px}
-      .logout{font-size:0}
-      .logout i{font-size:15px}
-      .main{margin-left:76px;width:calc(100% - 76px);padding:25px 20px}
+    .brand span {
+      color: #2196f3;
     }
-    @media(max-width:580px){
-      .main{padding:20px 13px}
-      .topbar{align-items:flex-start}
-      h1{font-size:25px}
-      .member-chip{display:none}
-      .search-row{gap:7px}
-      .resource-grid{grid-template-columns:1fr}
-      footer{gap:10px;flex-direction:column}
+
+    .nav-title {
+      color: #64748b;
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin: 0 12px 12px;
     }
+
+    .menu {
+      list-style: none;
+    }
+
+    .menu li {
+      margin-bottom: 5px;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 13px 14px;
+      border-radius: 10px;
+      color: #94a3b8;
+      transition: .2s;
+    }
+
+    .menu a:hover,
+    .menu li.active a {
+      background: #101a2a;
+      color: #fff;
+    }
+
+    .menu li.active a {
+      border-left: 3px solid #2196f3;
+    }
+
+    .menu i {
+      width: 18px;
+      text-align: center;
+    }
+
+    .logout {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 25px;
+      border: 1px solid #263244;
+      background: #0d131e;
+      color: #cbd5e1;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .logout:hover {
+      background: #151d2b;
+      color: #fff;
+    }
+
+    /* =====================================================
+       MAIN
+       ===================================================== */
+
+    .main {
+      margin-left: 250px;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 26px 35px;
+      border-bottom: 1px solid #172033;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 8, 13, .94);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+    }
+
+    .page-title {
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .page-subtitle {
+      margin-top: 5px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .member-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #101827;
+      border: 1px solid #26344b;
+      padding: 9px 14px;
+      border-radius: 30px;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .member-chip.premium {
+      color: #60a5fa;
+      border-color: #1d4ed8;
+    }
+
+    /* =====================================================
+       CONTENT
+       ===================================================== */
+
+    .content {
+      padding: 35px;
+    }
+
+    .toolbar {
+      margin-bottom: 30px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .search {
+      flex: 1;
+      position: relative;
+    }
+
+    .search i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+    }
+
+    .search input {
+      width: 100%;
+      background: #0a101a;
+      border: 1px solid #1b2739;
+      color: #fff;
+      border-radius: 11px;
+      padding: 14px 16px 14px 45px;
+      outline: none;
+    }
+
+    .search input:focus {
+      border-color: #2563eb;
+    }
+
+    .refresh {
+      width: 48px;
+      border: 1px solid #1b2739;
+      background: #0a101a;
+      color: #94a3b8;
+      border-radius: 11px;
+      cursor: pointer;
+    }
+
+    .refresh:hover {
+      color: #fff;
+      border-color: #2563eb;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter {
+      border: 1px solid #1b2739;
+      background: #0a101a;
+      color: #94a3b8;
+      padding: 9px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .filter:hover,
+    .filter.active {
+      color: #fff;
+      background: #15243b;
+      border-color: #2563eb;
+    }
+
+    /* =====================================================
+       SECTION
+       ===================================================== */
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      font-size: 20px;
+    }
+
+    .count {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    /* =====================================================
+       GRID
+       ===================================================== */
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    .resource-card {
+      background: #0a101a;
+      border: 1px solid #182438;
+      border-radius: 15px;
+      padding: 20px;
+      min-height: 270px;
+      display: flex;
+      flex-direction: column;
+      transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-3px);
+      border-color: #2563eb;
+      box-shadow:
+        0 12px 40px rgba(0,0,0,.3);
+    }
+
+    .resource-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 13px;
+      background: #101d32;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #60a5fa;
+      font-size: 22px;
+      margin-bottom: 18px;
+    }
+
+    .resource-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .resource-category {
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-weight: 800;
+    }
+
+    .resource-badge {
+      font-size: 10px;
+      padding: 5px 8px;
+      border-radius: 20px;
+      font-weight: 800;
+    }
+
+    .resource-badge.free {
+      color: #4ade80;
+      background: rgba(34,197,94,.1);
+    }
+
+    .resource-badge.premium {
+      color: #60a5fa;
+      background: rgba(37,99,235,.13);
+    }
+
+    .resource-body h3 {
+      font-size: 18px;
+      margin-bottom: 9px;
+    }
+
+    .resource-body p {
+      color: #94a3b8;
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .resource-storage {
+      margin-top: 15px;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .resource-storage i {
+      margin-right: 5px;
+    }
+
+    .resource-storage.unavailable {
+      color: #f87171;
+    }
+
+    .resource-action {
+      margin-top: auto;
+      padding-top: 20px;
+    }
+
+    .download-btn {
+      width: 100%;
+      border: 0;
+      background: #2563eb;
+      color: white;
+      padding: 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .download-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .download-btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .locked-btn {
+      background: #172033;
+      color: #94a3b8;
+    }
+
+    /* =====================================================
+       STATES
+       ===================================================== */
+
+    .loading,
+    .empty-state,
+    .error-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 70px 20px;
+      color: #64748b;
+    }
+
+    .loading i,
+    .empty-state i,
+    .error-state i {
+      font-size: 35px;
+      margin-bottom: 15px;
+    }
+
+    .empty-state h3,
+    .error-state h3 {
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .error-state {
+      color: #f87171;
+    }
+
+    .error-state button {
+      margin-top: 20px;
+      padding: 10px 16px;
+      background: #172033;
+      border: 1px solid #26344b;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    footer {
+      margin-top: 50px;
+      padding: 25px 35px;
+      border-top: 1px solid #172033;
+      color: #475569;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 800px) {
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 18px;
+      }
+
+      .menu {
+        display: grid;
+        grid-template-columns:
+          repeat(2, 1fr);
+        gap: 5px;
+      }
+
+      .logout {
+        position: static;
+        width: 100%;
+        margin-top: 12px;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      header {
+        padding: 20px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .member-chip {
+        display: none;
+      }
+
+      .resource-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .menu a {
+        font-size: 13px;
+      }
+    }
+
   </style>
+
 </head>
 
 <body>
-<div class="app">
+
+  <!-- =====================================================
+       SIDEBAR
+       ===================================================== -->
 
   <aside class="sidebar">
+
     <div class="brand">
-      <div class="brand-mark">GA</div>
-      <div class="brand-name">GTRADES <span>AXIS™</span></div>
+      GTRADES<span>-AXIS™</span>
     </div>
 
-    <div class="nav-title">Member Portal</div>
+    <div class="nav-title">
+      Member Portal
+    </div>
 
     <ul class="menu">
-      <li><a href="/dashboard"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
-      <li class="active"><a href="/resources"><i class="fa-solid fa-folder-open"></i><span>Premium Resources</span></a></li>
-      <li><a href="/premium-academy"><i class="fa-solid fa-graduation-cap"></i><span>Premium Academy</span></a></li>
-      <li><a href="/videos"><i class="fa-solid fa-circle-play"></i><span>Videos</span></a></li>
-      <li><a href="/journal"><i class="fa-solid fa-chart-line"></i><span>Trading Journal</span></a></li>
-      <li><a href="/profile"><i class="fa-solid fa-user"></i><span>My Profile</span></a></li>
-      <li><a href="/support"><i class="fa-solid fa-headset"></i><span>Support</span></a></li>
+
+      <li>
+        <a href="/dashboard">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <li class="active">
+        <a href="/resources">
+          <i class="fa-solid fa-folder-open"></i>
+          <span>Premium Resources</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/premium-academy">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>Premium Academy</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/videos">
+          <i class="fa-solid fa-circle-play"></i>
+          <span>Videos</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/journal">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Trading Journal</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/profile">
+          <i class="fa-solid fa-user"></i>
+          <span>My Profile</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/support">
+          <i class="fa-solid fa-headset"></i>
+          <span>Support</span>
+        </a>
+      </li>
+
     </ul>
 
-    <button class="logout" id="logoutBtn">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    <button
+      class="logout"
+      id="logoutBtn"
+    >
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Logout
     </button>
+
   </aside>
 
+  <!-- =====================================================
+       MAIN
+       ===================================================== -->
+
   <main class="main">
-    <header class="topbar">
+
+    <header>
+
       <div>
-        <div class="eyebrow">GTRADES-AXIS™ LIBRARY</div>
-        <h1>Premium Resources</h1>
-        <p class="subtitle">Your trading tools, strategies, journals and learning materials.</p>
+
+        <div class="page-title">
+          GTRADES-AXIS™ LIBRARY
+        </div>
+
+        <div class="page-subtitle">
+          Your trading tools, strategies, journals and learning materials.
+        </div>
+
       </div>
 
-      <div class="member-chip" id="accessChip">
+      <div
+        class="member-chip"
+        id="accessChip"
+      >
         <i class="fa-solid fa-shield-check"></i>
         Member Access
       </div>
+
     </header>
 
-    <section class="toolbar">
-      <div class="search-row">
-        <div class="search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input id="searchInput" type="search" placeholder="Search resources..." autocomplete="off">
+    <div class="content">
+
+      <!-- =================================================
+           TOOLBAR
+           ================================================= -->
+
+      <section class="toolbar">
+
+        <div class="search-row">
+
+          <div class="search">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Search resources..."
+              autocomplete="off"
+            >
+
+          </div>
+
+          <button
+            class="refresh"
+            id="refreshBtn"
+            title="Refresh resources"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+
         </div>
-        <button class="refresh" id="refreshBtn" title="Refresh resources">
-          <i class="fa-solid fa-rotate-right"></i>
-        </button>
+
+        <div
+          class="filters"
+          id="filters"
+        >
+
+          <button
+            class="filter active"
+            data-category="All"
+          >
+            All
+          </button>
+
+          <button
+            class="filter"
+            data-category="PDFs"
+          >
+            PDFs
+          </button>
+
+          <button
+            class="filter"
+            data-category="Indicators"
+          >
+            Indicators
+          </button>
+
+          <button
+            class="filter"
+            data-category="Journals"
+          >
+            Journals
+          </button>
+
+          <button
+            class="filter"
+            data-category="Strategies"
+          >
+            Strategies
+          </button>
+
+          <button
+            class="filter"
+            data-category="Videos"
+          >
+            Videos
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- =================================================
+           SECTION
+           ================================================= -->
+
+      <div class="section-head">
+
+        <h2>
+          Resource Library
+        </h2>
+
+        <div
+          class="count"
+          id="resourceCount"
+        >
+          Loading...
+        </div>
+
       </div>
 
-      <div class="filters" id="filters">
-        <button class="filter active" data-category="All">All</button>
-        <button class="filter" data-category="PDFs">PDFs</button>
-        <button class="filter" data-category="Indicators">Indicators</button>
-        <button class="filter" data-category="Journals">Journals</button>
-        <button class="filter" data-category="Strategies">Strategies</button>
-        <button class="filter" data-category="Videos">Videos</button>
-      </div>
-    </section>
+      <!-- =================================================
+           RESOURCES
+           ================================================= -->
 
-    <div class="section-head">
-      <h2>Resource Library</h2>
-      <div class="count" id="resourceCount">Loading...</div>
+      <section
+        class="resource-grid"
+        id="resourceGrid"
+      >
+
+        <div class="loading">
+
+          <i
+            class="fa-solid fa-circle-notch fa-spin"
+          ></i>
+
+          <div>
+            Loading your resources...
+          </div>
+
+        </div>
+
+      </section>
+
     </div>
-
-    <section class="resource-grid" id="resourceGrid">
-      <div class="loading">
-        <i class="fa-solid fa-circle-notch fa-spin"></i>
-        Loading your resources...
-      </div>
-    </section>
 
     <footer>
-      <div>© 2026 GTRADES-AXIS™ · Trade with Structure. Execute with Precision.</div>
-      
+      © 2026 GTRADES-AXIS™ · Trade with Structure. Execute with Precision.
     </footer>
+
   </main>
-</div>
 
-<div class="modal" id="viewerModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title" id="modalTitle">Video</div>
-      <button class="close" id="closeModal">&times;</button>
-    </div>
-    <div class="viewer" id="viewer"></div>
-  </div>
-</div>
+  <!-- =====================================================
+       FIREBASE
+       ===================================================== -->
 
-<script type="module">
-  import { auth, db, functions } from "./js/firebase.js";
-  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import {
-    collection, getDocs, query, orderBy, doc, getDoc
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-  import { httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
+  <script
+    type="module"
+    src="/js/resources.js"
+  ></script>
 
-  const grid = document.getElementById("resourceGrid");
-  const searchInput = document.getElementById("searchInput");
-  const filters = document.querySelectorAll(".filter");
-  const count = document.getElementById("resourceCount");
-  const refreshBtn = document.getElementById("refreshBtn");
-  const accessChip = document.getElementById("accessChip");
-
-  const modal = document.getElementById("viewerModal");
-  const viewer = document.getElementById("viewer");
-  const modalTitle = document.getElementById("modalTitle");
-  const closeModal = document.getElementById("closeModal");
-
-  let resources = [];
-  let activeCategory = "All";
-  let premiumAccess = false;
-
-  const esc = (value) => String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-  function normalizeCategory(value) {
-    const v = String(value || "").toLowerCase();
-    if (v.includes("pdf")) return "PDFs";
-    if (v.includes("indicator")) return "Indicators";
-    if (v.includes("journal")) return "Journals";
-    if (v.includes("strateg")) return "Strategies";
-    if (v.includes("video")) return "Videos";
-    return value || "Other";
-  }
-
-  function iconFor(resource) {
-    const type = String(resource.type || resource.fileType || resource.category || "").toLowerCase();
-    if (type.includes("video")) return "fa-circle-play";
-    if (type.includes("pdf")) return "fa-file-pdf";
-    if (type.includes("indicator")) return "fa-chart-line";
-    if (type.includes("journal") || type.includes("xlsx") || type.includes("excel")) return "fa-table";
-    if (type.includes("strategy")) return "fa-bullseye";
-    return "fa-file-lines";
-  }
-
-  async function getR2Url(key, download = false) {
-    if (!key) return null;
-    try {
-      const callable = httpsCallable(functions, "getR2DownloadUrl");
-      const result = await callable({ key, download });
-      return result?.data?.url || null;
-    } catch (error) {
-      console.error("R2 URL error:", error);
-      return null;
-    }
-  }
-
-  function isVideo(resource) {
-    const type = String(resource.type || resource.fileType || resource.category || "").toLowerCase();
-    return !!resource.youtubeId || type.includes("video") || String(resource.mimeType || "").startsWith("video/");
-  }
-
-  async function openResource(resource) {
-    const premiumOnly = resource.premiumOnly === true;
-    if (premiumOnly && !premiumAccess) {
-      alert("This resource is available to Premium members.");
-      return;
-    }
-
-    if (isVideo(resource)) {
-      modalTitle.textContent = resource.title || "Video";
-      viewer.innerHTML = '<div style="height:100%;display:grid;place-items:center;color:#758199">Loading video...</div>';
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
-
-      if (resource.youtubeId) {
-        const id = encodeURIComponent(resource.youtubeId);
-        viewer.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-        return;
-      }
-
-      const key = resource.key || resource.r2Key || resource.storageKey || resource.videoKey || resource.fileKey;
-      const url = await getR2Url(key);
-      if (!url) {
-        viewer.innerHTML = '<div style="height:100%;display:grid;place-items:center;color:#ff7188">Unable to load this video.</div>';
-        return;
-      }
-
-      viewer.innerHTML = `<video controls autoplay playsinline src="${url}"></video>`;
-      return;
-    }
-
-    const key = resource.key || resource.r2Key || resource.storageKey || resource.fileKey;
-    if (!key) {
-      alert("This resource does not have a storage file attached yet.");
-      return;
-    }
-
-    const url = await getR2Url(key, true);
-    if (!url) {
-      alert("Unable to generate the download link. Please try again.");
-      return;
-    }
-
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-
-  function render() {
-    const keyword = searchInput.value.trim().toLowerCase();
-
-    let filtered = resources.filter(r => {
-      const category = normalizeCategory(r.category || r.type);
-      const matchesCategory = activeCategory === "All" || category === activeCategory;
-      const text = `${r.title || ""} ${r.description || ""} ${r.category || ""}`.toLowerCase();
-      return matchesCategory && (!keyword || text.includes(keyword));
-    });
-
-    count.textContent = `${filtered.length} resource${filtered.length === 1 ? "" : "s"}`;
-
-    if (!filtered.length) {
-      grid.innerHTML = `
-        <div class="empty">
-          <i class="fa-regular fa-folder-open"></i>
-          <strong>No resources found</strong>
-          <div style="margin-top:6px">Try another search or category.</div>
-        </div>`;
-      return;
-    }
-
-    grid.innerHTML = "";
-
-    filtered.forEach(resource => {
-      const premiumOnly = resource.premiumOnly === true;
-      const canUse = !premiumOnly || premiumAccess;
-      const category = normalizeCategory(resource.category || resource.type);
-      const title = resource.title || "Untitled Resource";
-      const description = resource.description || "Premium trading resource.";
-      const thumb = resource.thumbnailUrl || resource.thumbnail || resource.imageUrl;
-
-      const card = document.createElement("article");
-      card.className = "card";
-
-      card.innerHTML = `
-        <div class="card-media">
-          ${thumb ? `<img src="${esc(thumb)}" alt="${esc(title)}">` : `<div class="media-icon"><i class="fa-solid ${iconFor(resource)}"></i></div>`}
-          <span class="type-badge">${esc(category)}</span>
-          <span class="access-badge ${premiumOnly ? "premium" : "free"}">
-            ${premiumOnly ? "Premium" : "Free"}
-          </span>
-        </div>
-
-        <div class="card-body">
-          <div class="category">${esc(category)}</div>
-          <div class="title">${esc(title)}</div>
-          <div class="description">${esc(description)}</div>
-
-          <div class="card-footer">
-            <span class="meta">
-              ${isVideo(resource) ? '<i class="fa-solid fa-play"></i> Video' : '<i class="fa-solid fa-cloud-arrow-down"></i> R2 Storage'}
-            </span>
-            <button class="action ${canUse ? "" : "disabled"}">
-              <i class="fa-solid ${isVideo(resource) ? "fa-play" : "fa-download"}"></i>
-              ${isVideo(resource) ? "Open Video" : "Download"}
-            </button>
-          </div>
-        </div>
-      `;
-
-      const action = card.querySelector(".action");
-      if (canUse) action.addEventListener("click", () => openResource(resource));
-
-      grid.appendChild(card);
-    });
-  }
-
-  async function loadResources() {
-    grid.innerHTML = `
-      <div class="loading">
-        <i class="fa-solid fa-circle-notch fa-spin"></i>
-        Loading your resources...
-      </div>`;
-
-    try {
-      const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-
-      resources = [];
-      snap.forEach(item => resources.push({ id: item.id, ...item.data() }));
-
-      render();
-    } catch (error) {
-      console.error("Resource load error:", error);
-
-      // Fallback without orderBy, useful when some older documents lack createdAt.
-      try {
-        const snap = await getDocs(collection(db, "resources"));
-        resources = [];
-        snap.forEach(item => resources.push({ id: item.id, ...item.data() }));
-        resources.sort((a,b) => {
-          const ta = a.createdAt?.seconds || 0;
-          const tb = b.createdAt?.seconds || 0;
-          return tb - ta;
-        });
-        render();
-      } catch (secondError) {
-        console.error(secondError);
-        count.textContent = "Unable to load";
-        grid.innerHTML = `
-          <div class="error">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <strong>Could not load resources</strong>
-            <div style="margin-top:7px;font-size:11px">Refresh the page and try again.</div>
-          </div>`;
-      }
-    }
-  }
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "/login";
-      return;
-    }
-
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid));
-
-      if (snap.exists()) {
-        const data = snap.data();
-        premiumAccess = data.role === "admin" || data.membership === "premium";
-      }
-
-      accessChip.innerHTML = premiumAccess
-        ? '<i class="fa-solid fa-shield-check"></i> Premium Access'
-        : '<i class="fa-solid fa-user-check"></i> Member Access';
-
-      await loadResources();
-    } catch (error) {
-      console.error(error);
-      await loadResources();
-    }
-  });
-
-  searchInput.addEventListener("input", render);
-
-  filters.forEach(btn => {
-    btn.addEventListener("click", () => {
-      filters.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeCategory = btn.dataset.category;
-      render();
-    });
-  });
-
-  refreshBtn.addEventListener("click", async () => {
-    refreshBtn.disabled = true;
-    refreshBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-    await loadResources();
-    refreshBtn.disabled = false;
-    refreshBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
-  });
-
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      window.location.href = "/login";
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
-  function closeViewer() {
-    viewer.innerHTML = "";
-    modal.classList.remove("open");
-    document.body.style.overflow = "";
-  }
-
-  closeModal.addEventListener("click", closeViewer);
-  modal.addEventListener("click", e => {
-    if (e.target === modal) closeViewer();
-  });
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") closeViewer();
-  });
-</script>
 </body>
+
 </html>
