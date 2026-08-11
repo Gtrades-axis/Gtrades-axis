@@ -1,219 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>GTRADES AXIS™ | Admin Videos</title>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "firebase/app": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-    }
-  }
-  </script>
+<meta charset="UTF-8">
 
-  <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:#090d16;
-      color:#fff;
-      font-family:Arial,sans-serif;
-    }
-    .wrap{
-      max-width:1000px;
-      margin:40px auto;
-      padding:20px;
-    }
-    .card{
-      background:#111827;
-      border:1px solid #26324a;
-      border-radius:14px;
-      padding:25px;
-    }
-    h1{margin-top:0}
-    label{
-      display:block;
-      margin:18px 0 7px;
-      color:#9fb0ce;
-      font-size:13px;
-    }
-    input,select{
-      width:100%;
-      padding:14px;
-      border-radius:8px;
-      border:1px solid #33415c;
-      background:#080c14;
-      color:#fff;
-      outline:none;
-    }
-    input:focus,select:focus{
-      border-color:#4d78ff;
-    }
-    button{
-      width:100%;
-      margin-top:20px;
-      padding:15px;
-      border:0;
-      border-radius:9px;
-      background:#4d78ff;
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer;
-    }
-    button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-    #preview{
-      display:none;
-      width:100%;
-      max-width:620px;
-      margin-top:15px;
-      border-radius:10px;
-      background:#000;
-    }
-    #progressBox{
-      display:none;
-      margin-top:20px;
-      padding:18px;
-      border-radius:10px;
-      background:#080c14;
-      border:1px solid #26324a;
-    }
-    .track{
-      height:12px;
-      background:#1b2435;
-      border-radius:20px;
-      overflow:hidden;
-    }
-    #bar{
-      width:0%;
-      height:100%;
-      background:#4d78ff;
-      transition:width .15s linear;
-    }
-    #percent{
-      margin-top:8px;
-      text-align:right;
-      font-size:13px;
-    }
-    #status{
-      margin-top:15px;
-      padding:13px;
-      border-radius:8px;
-      display:none;
-    }
-    .success{
-      display:block!important;
-      background:#0c2b1b;
-      border:1px solid #1e8a50;
-      color:#8dffba;
-    }
-    .error{
-      display:block!important;
-      background:#32141b;
-      border:1px solid #a52d46;
-      color:#ff9caf;
-    }
-  </style>
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0"
+>
+
+<title>GTRADES AXIS™ | Admin Videos</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#090d16;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+
+.wrap{
+  max-width:1000px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.card{
+  background:#111827;
+  border:1px solid #26324a;
+  border-radius:14px;
+  padding:25px;
+}
+
+h1{
+  margin-top:0;
+}
+
+label{
+  display:block;
+  margin:18px 0 7px;
+  color:#9fb0ce;
+  font-size:13px;
+}
+
+input,
+select{
+  width:100%;
+  padding:14px;
+  border-radius:8px;
+  border:1px solid #33415c;
+  background:#080c14;
+  color:#fff;
+  outline:none;
+}
+
+input:focus,
+select:focus{
+  border-color:#4d78ff;
+}
+
+button{
+  width:100%;
+  margin-top:20px;
+  padding:15px;
+  border:0;
+  border-radius:9px;
+  background:#4d78ff;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+#preview{
+  display:none;
+  width:100%;
+  max-width:720px;
+  margin-top:15px;
+  border-radius:10px;
+  background:#000;
+}
+
+#progressBox{
+  display:none;
+  margin-top:20px;
+  padding:18px;
+  border-radius:10px;
+  background:#080c14;
+  border:1px solid #26324a;
+}
+
+.track{
+  height:12px;
+  background:#1b2435;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:12px;
+}
+
+#bar{
+  width:0%;
+  height:100%;
+  background:#4d78ff;
+  transition:width .15s linear;
+}
+
+#percent{
+  margin-top:8px;
+  text-align:right;
+  font-size:13px;
+}
+
+#status{
+  margin-top:15px;
+  padding:13px;
+  border-radius:8px;
+  display:none;
+}
+
+.success{
+  display:block!important;
+  background:#0c2b1b;
+  border:1px solid #1e8a50;
+  color:#8dffba;
+}
+
+.error{
+  display:block!important;
+  background:#32141b;
+  border:1px solid #a52d46;
+  color:#ff9caf;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <div class="wrap">
 
-  <div class="card">
+<div class="card">
 
-    <h1>Upload Video</h1>
+<h1>Upload Video</h1>
 
-    <form id="videoUploadForm">
+<form id="videoUploadForm">
 
-      <label>VIDEO TITLE</label>
-      <input
-        id="videoTitle"
-        type="text"
-        required
-        placeholder="Enter video title"
-      >
+<label>VIDEO TITLE</label>
 
-      <label>CATEGORY</label>
-      <select id="videoCategory" required>
-        <option value="Market Structure">Market Structure</option>
-        <option value="Liquidity">Liquidity</option>
-        <option value="Supply & Demand">Supply & Demand</option>
-        <option value="Trade Entries">Trade Entries</option>
-        <option value="Risk Management">Risk Management</option>
-        <option value="Trading Psychology">Trading Psychology</option>
-        <option value="Other">Other</option>
-      </select>
+<input
+  id="videoTitle"
+  type="text"
+  required
+  placeholder="Enter video title"
+>
 
-      <label>DURATION</label>
-      <input
-        id="videoDuration"
-        type="text"
-        placeholder="e.g. 12:45"
-      >
+<label>CATEGORY</label>
 
-      <label>VIDEO FILE</label>
-      <input
-        id="videoFile"
-        type="file"
-        accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
-        required
-      >
+<select
+  id="videoCategory"
+  required
+>
 
-      <video
-        id="preview"
-        controls
-        playsinline
-        preload="metadata"
-      ></video>
+<option value="Market Structure">
+Market Structure
+</option>
 
-      <label>THUMBNAIL</label>
-      <input
-        id="videoThumbnail"
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-      >
+<option value="Liquidity">
+Liquidity
+</option>
 
-      <label>
-        <input
-          id="premiumOnly"
-          type="checkbox"
-          style="width:auto;margin-right:8px"
-        >
-        Premium Only
-      </label>
+<option value="Supply & Demand">
+Supply & Demand
+</option>
 
-      <button id="uploadVideoBtn" type="submit">
-        ☁ Upload Video
-      </button>
+<option value="Trade Entries">
+Trade Entries
+</option>
 
-      <div id="progressBox">
-        <div id="progressText">
-          Preparing upload...
-        </div>
+<option value="Risk Management">
+Risk Management
+</option>
 
-        <div class="track">
-          <div id="bar"></div>
-        </div>
+<option value="Trading Psychology">
+Trading Psychology
+</option>
 
-        <div id="percent">0%</div>
-      </div>
+<option value="Other">
+Other
+</option>
 
-      <div id="status"></div>
+</select>
 
-    </form>
+<label>DURATION</label>
 
-  </div>
+<input
+  id="videoDuration"
+  type="text"
+  placeholder="e.g. 12:45"
+>
+
+<label>VIDEO FILE</label>
+
+<input
+  id="videoFile"
+  type="file"
+  accept="video/*"
+  required
+>
+
+<video
+  id="preview"
+  controls
+  playsinline
+  preload="metadata"
+></video>
+
+<label>THUMBNAIL</label>
+
+<input
+  id="videoThumbnail"
+  type="file"
+  accept="image/png,image/jpeg,image/webp"
+>
+
+<label>
+
+<input
+  id="premiumOnly"
+  type="checkbox"
+  style="width:auto;margin-right:8px"
+>
+
+Premium Only
+
+</label>
+
+<button
+  id="uploadVideoBtn"
+  type="submit"
+>
+☁ Upload Video
+</button>
+
+<div id="progressBox">
+
+<div id="progressText">
+Preparing upload...
+</div>
+
+<div class="track">
+<div id="bar"></div>
+</div>
+
+<div id="percent">
+0%
+</div>
+
+</div>
+
+<div id="status"></div>
+
+</form>
+
+</div>
 
 </div>
 
 <script type="module" src="/js/admin-videos.js"></script>
 
 </body>
+
 </html>
