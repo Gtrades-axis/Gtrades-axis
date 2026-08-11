@@ -1,166 +1,172 @@
 // ============================================================
 // GTRADES-AXIS™
-// CLOUDFLARE R2 STORAGE
+// CLOUDFLARE R2 UPLOAD / DOWNLOAD HELPER
 // js/upload.js
 // ============================================================
 
-const WORKER_URL =
-  "https://r2-uploader.davidthuku574.workers.dev";
+const WORKER_URL = "https://r2-uploader.davidthuku574.workers.dev";
 
-// ============================================================
-// GET WORKER URL
-// ============================================================
-
-async function getWorkerURL(key, action) {
-
-  if (!key) {
-    throw new Error("No file key provided.");
+function cleanKey(key) {
+  if (typeof key !== "string") {
+    throw new Error("Invalid R2 file key.");
   }
 
-  const url = new URL(WORKER_URL);
+  const cleaned = key.trim().replace(/^\/+/, "");
 
-  url.searchParams.set("key", key);
-  url.searchParams.set("action", action);
-
-  const response = await fetch(
-    url.toString(),
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json"
-      },
-      cache: "no-store"
-    }
-  );
-
-  let data;
-
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error(
-      "Cloudflare Worker returned an invalid response."
-    );
+  if (!cleaned) {
+    throw new Error("Invalid R2 file key.");
   }
 
-  if (!response.ok || !data.url) {
-    throw new Error(
-      data.error ||
-      `Worker error (${response.status})`
-    );
-  }
-
-  return data.url;
+  return cleaned;
 }
 
-// ============================================================
-// UPLOAD TO R2
-// ============================================================
-
-export async function uploadToR2(file, key) {
-
-  if (!file) {
-    throw new Error("No file provided.");
+// ------------------------------------------------------------
+// UPLOAD
+// ------------------------------------------------------------
+// Uses the SAME Worker already used by the admin video uploader.
+// No Firebase Storage is used here.
+// ------------------------------------------------------------
+export async function uploadToR2(file, key, onProgress) {
+  if (!(file instanceof File) && !(file instanceof Blob)) {
+    throw new Error("Invalid file provided.");
   }
 
-  if (!key) {
-    throw new Error("No file key provided.");
-  }
+  const safeKey = cleanKey(key);
 
-  console.log(
-    "Preparing R2 upload:",
-    key
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("key", safeKey);
+  formData.append("type", "resource");
+  formData.append(
+    "contentType",
+    file.type || "application/octet-stream"
   );
 
-  const uploadURL =
-    await getWorkerURL(
-      key,
-      "upload"
-    );
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
 
-  console.log(
-    "Uploading file to R2..."
-  );
+    xhr.open("POST", `${WORKER_URL}/upload`, true);
+    xhr.timeout = 0;
 
-  const response =
-    await fetch(
-      uploadURL,
-      {
-        method: "PUT",
-
-        body: file,
-
-        headers: {
-          "Content-Type":
-            file.type ||
-            "application/octet-stream"
-        }
+    xhr.upload.addEventListener("progress", (event) => {
+      if (
+        event.lengthComputable &&
+        typeof onProgress === "function"
+      ) {
+        const percent = Math.round(
+          (event.loaded / event.total) * 100
+        );
+        onProgress(percent);
       }
-    );
+    });
 
-  if (!response.ok) {
+    xhr.onload = () => {
+      const responseText = xhr.responseText || "";
 
-    let message =
-      `Upload failed (${response.status})`;
+      if (xhr.status < 200 || xhr.status >= 300) {
+        let message = responseText;
 
-    try {
+        try {
+          const data = JSON.parse(responseText);
+          message =
+            data.error ||
+            data.message ||
+            `HTTP ${xhr.status}`;
+        } catch (_) {}
 
-      const data =
-        await response.json();
-
-      if (data.error) {
-        message =
-          data.error;
+        reject(
+          new Error(
+            `Cloudflare R2 upload failed (${xhr.status}): ${message}`
+          )
+        );
+        return;
       }
 
-    } catch {
-      // Nothing
-    }
+      let data;
 
-    throw new Error(message);
-  }
+      try {
+        data = JSON.parse(responseText);
+      } catch (_) {
+        reject(
+          new Error(
+            "Cloudflare Worker returned invalid JSON."
+          )
+        );
+        return;
+      }
 
-  console.log(
-    "R2 upload successful:",
-    key
-  );
+      if (!data.success) {
+        reject(
+          new Error(
+            data.error ||
+            data.message ||
+            "Cloudflare R2 upload failed."
+          )
+        );
+        return;
+      }
 
-  return key;
+      const returnedKey =
+        data.key ||
+        data.fileKey ||
+        safeKey;
+
+      resolve(returnedKey);
+    };
+
+    xhr.onerror = () => {
+      reject(
+        new Error(
+          "Network/CORS error while uploading to Cloudflare R2."
+        )
+      );
+    };
+
+    xhr.onabort = () => {
+      reject(new Error("Upload was cancelled."));
+    };
+
+    xhr.ontimeout = () => {
+      reject(new Error("Upload timed out."));
+    };
+
+    xhr.send(formData);
+  });
 }
 
-// ============================================================
-// GET VIDEO / FILE URL
-// ============================================================
-
+// ------------------------------------------------------------
+// DOWNLOAD / PREVIEW URL
+// ------------------------------------------------------------
+// The Worker serves the actual R2 object from /file?key=...
+// ------------------------------------------------------------
 export async function getDownloadUrl(key) {
+  const safeKey = cleanKey(key);
 
-  if (!key) {
-    throw new Error(
-      "No file key provided."
-    );
-  }
+  return (
+    `${WORKER_URL}/file?key=` +
+    encodeURIComponent(safeKey)
+  );
+}
 
-  /*
-   * IMPORTANT:
-   *
-   * The working admin preview uses:
-   *
-   * action=file
-   *
-   * Therefore premium videos must use
-   * the same Worker action.
-   */
+// ------------------------------------------------------------
+// OPEN R2 FILE
+// ------------------------------------------------------------
+export async function openR2File(
+  key,
+  target = "_blank"
+) {
+  const url = await getDownloadUrl(key);
 
-  const url =
-    await getWorkerURL(
-      key,
-      "file"
-    );
-
-  console.log(
-    "R2 file URL:",
-    url
+  window.open(
+    url,
+    target,
+    "noopener,noreferrer"
   );
 
   return url;
+}
+
+// Optional compatibility helper for older code.
+export async function getWorkerFileUrl(key) {
+  return await getDownloadUrl(key);
 }
