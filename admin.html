@@ -462,7 +462,7 @@
           <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option></select></div>
           <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
           <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
-          <div id="resourceUploadProgress" style="display:none;margin:14px 0;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
+          <div id="resourceUploadProgress" style="display:none;grid-column:1/-1;margin:6px 0 4px;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;">
             <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#94a3b8;font-size:13px;">
               <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
             </div>
@@ -1104,17 +1104,31 @@
     }
   });
 
-  // ═══════════════════════════════════════════════════════════════════════════
   //  5. RESOURCES — CLOUDFLARE R2 + FIRESTORE (FIXED)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // IMPORTANT: Resource uploads use a dedicated uploader here so this page
-  // does NOT depend on the old upload.js implementation for resources.
+  // Uses the SAME Cloudflare R2 Worker already used by the working upload system.
+  // This resource section does not touch Firebase Storage.
   const RESOURCE_R2_WORKER = "https://r2-uploader.davidthuku574.workers.dev";
 
-  function resourceUploadToR2(file, key, onProgress) {
-    if (!file) return Promise.reject(new Error('No file selected.'));
-    if (!key) return Promise.reject(new Error('No R2 object key provided.'));
+  function setResourceUploadProgress(percent, message, show = true) {
+    const box = document.getElementById('resourceUploadProgress');
+    const bar = document.getElementById('resourceUploadProgressBar');
+    const text = document.getElementById('resourceUploadProgressText');
+    if (box) box.style.display = show ? 'block' : 'none';
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, Number(percent) || 0))}%`;
+    if (text) text.textContent = message || 'Preparing upload...';
+  }
+
+  function resetResourceUploadUI() {
+    setResourceUploadProgress(0, 'Preparing upload...', false);
+    const name = document.getElementById('resourceFileName');
+    if (name) name.textContent = 'No file chosen';
+  }
+
+  async function uploadResourceToR2(file, key, onProgress) {
+    if (!file) throw new Error('No file selected.');
+    if (!key) throw new Error('No R2 object key provided.');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -1126,7 +1140,7 @@
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${RESOURCE_R2_WORKER}/upload`, true);
 
-      xhr.upload.addEventListener('progress', (event) => {
+      xhr.upload.addEventListener('progress', event => {
         if (event.lengthComputable && typeof onProgress === 'function') {
           onProgress(Math.round((event.loaded / event.total) * 100));
         }
@@ -1141,8 +1155,8 @@
         let result;
         try {
           result = JSON.parse(xhr.responseText || '{}');
-        } catch (_) {
-          reject(new Error('Cloudflare Worker returned an invalid JSON response.'));
+        } catch (e) {
+          reject(new Error('Cloudflare Worker returned invalid JSON.'));
           return;
         }
 
@@ -1151,45 +1165,18 @@
           return;
         }
 
-        const returnedKey = result.key || result.fileKey || key;
-        resolve(returnedKey);
+        resolve(result.key || result.fileKey || key);
       };
 
       xhr.onerror = () => reject(new Error('Network/CORS error while uploading to Cloudflare R2.'));
       xhr.onabort = () => reject(new Error('Upload was cancelled.'));
       xhr.ontimeout = () => reject(new Error('Upload timed out.'));
-      xhr.timeout = 0;
       xhr.send(formData);
     });
   }
 
-  function resetResourceForm() {
-    const form = document.getElementById('resourceForm');
-    if (form) form.reset();
-    const ids = ['editingResourceId'];
-    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    const fileName = document.getElementById('resourceFileName');
-    if (fileName) fileName.textContent = 'No file chosen';
-    const progress = document.getElementById('resourceUploadProgress');
-    const bar = document.getElementById('resourceUploadProgressBar');
-    const text = document.getElementById('resourceUploadProgressText');
-    if (progress) progress.style.display = 'none';
-    if (bar) bar.style.width = '0%';
-    if (text) text.textContent = 'Preparing upload...';
-  }
-
-  function setResourceUploadProgress(percent, message) {
-    const progress = document.getElementById('resourceUploadProgress');
-    const bar = document.getElementById('resourceUploadProgressBar');
-    const text = document.getElementById('resourceUploadProgressText');
-    if (progress) progress.style.display = 'block';
-    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
-    if (text) text.textContent = message || `Uploading ${percent}%...`;
-  }
-
   function listenResources() {
-    const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'));
-
+    const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('resourceTableBody');
       const overviewEl = document.getElementById('resourceOverview');
@@ -1197,63 +1184,47 @@
 
       if (snapshot.empty) {
         tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
-        if (overviewEl) overviewEl.textContent = '0';
+        if (overviewEl) overviewEl.textContent = 0;
         return;
       }
 
       let html = '';
       let count = 0;
 
-      snapshot.forEach(resourceDoc => {
+      snapshot.forEach(item => {
         count++;
-        const r = { id: resourceDoc.id, ...resourceDoc.data() };
+        const r = { id: item.id, ...item.data() };
         const key = r.fileKey || r.resourceKey || r.r2Key || '';
-        const safeTitle = String(r.title || 'Untitled Resource');
-        const safeDescription = String(r.description || '');
-        const safeCategory = String(r.category || 'PDF');
+        const downloadBtn = key
+          ? `<button class="btn-view-proof download-resource-btn" data-key="${encodeURIComponent(key)}">Download</button>`
+          : (r.link ? `<a href="${r.link}" target="_blank" class="btn-view-proof">Legacy</a>` : '—');
 
         html += `
           <tr>
+            <td><strong>${r.title || 'Untitled Resource'}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
+            <td>${r.category || 'PDF'}</td>
+            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span> ${downloadBtn}</td>
             <td>
-              <strong>${safeTitle}</strong><br>
-              <small style="color:#9aa4bf;">${safeDescription}</small>
-            </td>
-            <td>${safeCategory}</td>
-            <td>
-              <span class="badge ${r.premiumOnly ? 'premium' : 'free'}">
-                ${r.premiumOnly ? 'Premium' : 'Free'}
-              </span>
-              ${key ? `<button class="btn-view-proof download-resource-btn" data-key="${key}">Download</button>` : ' — '}
-            </td>
-            <td>
-              <button class="manage-btn edit-resource" data-id="${r.id}">
-                <i class="fa-solid fa-pen"></i> Edit
-              </button>
+              <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
               <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
-                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i>
-                ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
+                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i> ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
               </button>
-              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);">
-                <i class="fa-solid fa-trash"></i> Delete
-              </button>
+              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
             </td>
-          </tr>
-        `;
+          </tr>`;
       });
 
       tbody.innerHTML = html;
-      if (overviewEl) overviewEl.textContent = String(count);
+      if (overviewEl) overviewEl.textContent = count;
 
       document.querySelectorAll('.download-resource-btn').forEach(btn => {
         btn.addEventListener('click', async function () {
-          const key = this.dataset.key;
-          if (!key) return alert('This resource has no R2 file key.');
+          const key = decodeURIComponent(this.dataset.key || '');
+          if (!key) return alert('No R2 file key found.');
           try {
             const url = await getDownloadUrl(key);
-            if (!url) throw new Error('No download URL was returned.');
             window.open(url, '_blank', 'noopener,noreferrer');
           } catch (error) {
-            console.error('RESOURCE DOWNLOAD ERROR:', error);
             alert('Download failed: ' + error.message);
           }
         });
@@ -1264,23 +1235,20 @@
           const id = this.dataset.id;
           try {
             const snap = await getDoc(doc(db, 'resources', id));
-            if (!snap.exists()) return alert('Resource no longer exists.');
-
+            if (!snap.exists()) return alert('Resource not found.');
             const data = snap.data();
             document.getElementById('editingResourceId').value = id;
             document.getElementById('resourceTitle').value = data.title || '';
             document.getElementById('resourceCategory').value = data.category || 'PDF';
             document.getElementById('resourceDescription').value = data.description || '';
             document.getElementById('premiumOnly').checked = data.premiumOnly === true;
-            document.getElementById('resourceFileName').textContent =
-              data.fileKey || data.resourceKey || data.r2Key ? 'Existing file saved — choose a new file only if replacing it.' : 'No file chosen';
+            document.getElementById('resourceFileName').textContent = data.fileKey || data.resourceKey || data.r2Key ? 'File uploaded — choose a new file only if replacing it' : 'No file chosen';
             document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
             document.getElementById('saveResourceBtn').textContent = 'Update Resource';
             document.getElementById('resourceFormContainer').style.display = 'block';
             document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
-          } catch (error) {
-            console.error('RESOURCE EDIT ERROR:', error);
-            alert('Error loading resource: ' + error.message);
+          } catch (e) {
+            alert('Error loading resource: ' + e.message);
           }
         });
       });
@@ -1288,13 +1256,12 @@
       document.querySelectorAll('.delete-resource').forEach(btn => {
         btn.addEventListener('click', async function () {
           const id = this.dataset.id;
-          if (!confirm('Delete this resource record?')) return;
+          if (!confirm('Delete this resource permanently?')) return;
           try {
             await deleteDoc(doc(db, 'resources', id));
             addActivity('Deleted a resource.');
-          } catch (error) {
-            console.error('RESOURCE DELETE ERROR:', error);
-            alert('Error deleting resource: ' + error.message);
+          } catch (e) {
+            alert('Error deleting resource: ' + e.message);
           }
         });
       });
@@ -1310,15 +1277,14 @@
               premiumOnly: !current,
               updatedAt: serverTimestamp()
             });
-            addActivity(`Changed resource access to ${!current ? 'Premium' : 'Free'}.`);
-          } catch (error) {
-            console.error('RESOURCE STATUS ERROR:', error);
-            alert('Error updating status: ' + error.message);
+            addActivity('Toggled resource premium status.');
+          } catch (e) {
+            alert('Error updating status: ' + e.message);
           }
         });
       });
-    }, (error) => {
-      console.error('RESOURCE LISTENER ERROR:', error);
+    }, error => {
+      console.error('RESOURCES LISTEN ERROR:', error);
       const tbody = document.getElementById('resourceTableBody');
       if (tbody) tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">Unable to load resources: ${error.message}</div></td></tr>`;
     });
@@ -1328,12 +1294,13 @@
     const container = document.getElementById('resourceFormContainer');
     if (!container) return;
 
-    if (container.style.display === 'none' || !container.style.display) {
+    if (container.style.display === 'none') {
       container.style.display = 'block';
       document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
       document.getElementById('saveResourceBtn').textContent = 'Save Resource';
-      resetResourceForm();
-      container.style.display = 'block';
+      document.getElementById('editingResourceId').value = '';
+      document.getElementById('resourceForm').reset();
+      resetResourceUploadUI();
       container.scrollIntoView({ behavior: 'smooth' });
     } else {
       container.style.display = 'none';
@@ -1342,18 +1309,19 @@
 
   document.getElementById('cancelResourceBtn')?.addEventListener('click', function () {
     document.getElementById('resourceFormContainer').style.display = 'none';
-    resetResourceForm();
+    resetResourceUploadUI();
   });
 
   document.getElementById('resourceFilePicker')?.addEventListener('change', function () {
     const file = this.files?.[0];
-    const fileNameEl = document.getElementById('resourceFileName');
+    const name = document.getElementById('resourceFileName');
+    if (!name) return;
     if (!file) {
-      if (fileNameEl) fileNameEl.textContent = 'No file chosen';
+      name.textContent = 'No file chosen';
       return;
     }
     const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-    if (fileNameEl) fileNameEl.textContent = `${file.name} — ${sizeMB} MB`;
+    name.textContent = `${file.name} — ${sizeMB} MB`;
   });
 
   document.getElementById('resourceForm')?.addEventListener('submit', async function (e) {
@@ -1362,14 +1330,13 @@
     const form = this;
     if (form.dataset.uploading === 'true') return;
 
-    const saveButton = document.getElementById('saveResourceBtn');
-    const filePicker = document.getElementById('resourceFilePicker');
     const editingId = document.getElementById('editingResourceId').value.trim();
     const title = document.getElementById('resourceTitle').value.trim();
     const category = document.getElementById('resourceCategory').value || 'PDF';
     const description = document.getElementById('resourceDescription').value.trim();
     const premiumOnly = document.getElementById('premiumOnly').checked;
-    const file = filePicker?.files?.[0] || null;
+    const file = document.getElementById('resourceFilePicker').files?.[0] || null;
+    const saveButton = document.getElementById('saveResourceBtn');
 
     if (!title) return alert('Please enter a resource title.');
     if (!editingId && !file) return alert('Please choose a file to upload.');
@@ -1377,22 +1344,20 @@
     form.dataset.uploading = 'true';
     if (saveButton) {
       saveButton.disabled = true;
-      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (editingId ? 'Updating...' : 'Uploading...');
     }
 
     try {
       let fileKey = null;
       let oldData = null;
 
-      // Editing: keep the existing R2 key when no new file was selected.
       if (editingId) {
-        const existingSnap = await getDoc(doc(db, 'resources', editingId));
-        if (!existingSnap.exists()) throw new Error('Resource no longer exists.');
-        oldData = existingSnap.data();
+        const snap = await getDoc(doc(db, 'resources', editingId));
+        if (!snap.exists()) throw new Error('Resource no longer exists.');
+        oldData = snap.data();
         fileKey = oldData.fileKey || oldData.resourceKey || oldData.r2Key || null;
       }
 
-      // New file: upload FIRST, then write Firestore.
       if (file) {
         const originalName = file.name || 'resource';
         const safeName = originalName
@@ -1404,8 +1369,7 @@
         const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
 
         setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);
-
-        fileKey = await resourceUploadToR2(file, key, (percent) => {
+        fileKey = await uploadResourceToR2(file, key, percent => {
           setResourceUploadProgress(percent, `Uploading ${percent}% — ${originalName}`);
         });
 
@@ -1413,9 +1377,7 @@
         setResourceUploadProgress(100, 'Upload complete — saving resource information...');
       }
 
-      if (!fileKey) {
-        throw new Error('No R2 file key is available for this resource.');
-      }
+      if (!fileKey) throw new Error('No R2 file key is available for this resource.');
 
       const data = {
         title,
@@ -1435,18 +1397,19 @@
         addActivity(`Updated resource "${title}"`);
       } else {
         data.createdAt = serverTimestamp();
-        const created = await addDoc(collection(db, 'resources'), data);
-        console.log('RESOURCE CREATED:', created.id, data);
+        await addDoc(collection(db, 'resources'), data);
         addActivity(`Uploaded resource "${title}"`);
       }
 
       setResourceUploadProgress(100, '100% — Resource saved successfully.');
       alert(editingId ? '✅ Resource updated successfully!' : '✅ Resource uploaded to Cloudflare R2 successfully!');
 
-      setTimeout(() => {
-        document.getElementById('resourceFormContainer').style.display = 'none';
-        resetResourceForm();
-      }, 700);
+      document.getElementById('resourceFormContainer').style.display = 'none';
+      document.getElementById('resourceForm').reset();
+      document.getElementById('editingResourceId').value = '';
+      resetResourceUploadUI();
+      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
+      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
 
     } catch (error) {
       console.error('RESOURCE UPLOAD ERROR:', error);
