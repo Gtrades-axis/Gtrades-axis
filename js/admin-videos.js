@@ -1,8 +1,13 @@
+// ============================================================
+// GTRADES-AXIS™
+// ADMIN VIDEO UPLOADER
+// Cloudflare R2 + Firebase Firestore
+// ============================================================
+
 import {
   getAuth,
   onAuthStateChanged
-} from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
   getFirestore,
@@ -11,11 +16,9 @@ import {
   collection,
   addDoc,
   serverTimestamp
-} from
-"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 import { app } from "./firebase.js";
-
 
 // ============================================================
 // CONFIG
@@ -24,7 +27,6 @@ import { app } from "./firebase.js";
 const WORKER_URL =
   "https://r2-uploader.davidthuku574.workers.dev";
 
-
 // ============================================================
 // FIREBASE
 // ============================================================
@@ -32,13 +34,11 @@ const WORKER_URL =
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-
 // ============================================================
 // ELEMENTS
 // ============================================================
 
-const form =
-  document.getElementById("videoUploadForm");
+const form = document.getElementById("videoUploadForm");
 
 const titleInput =
   document.getElementById("videoTitle");
@@ -79,13 +79,28 @@ const percent =
 const status =
   document.getElementById("status");
 
-
 // ============================================================
 // STATE
 // ============================================================
 
 let uploadLocked = false;
+let previewObjectURL = null;
 
+// ============================================================
+// BASIC ELEMENT CHECK
+// ============================================================
+
+if (!form) {
+  console.error(
+    "GTRADES-AXIS: videoUploadForm was not found."
+  );
+}
+
+if (!videoInput) {
+  console.error(
+    "GTRADES-AXIS: videoFile input was not found."
+  );
+}
 
 // ============================================================
 // ADMIN AUTH
@@ -94,7 +109,7 @@ let uploadLocked = false;
 onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
-    location.href = "/login.html";
+    window.location.href = "/login.html";
     return;
   }
 
@@ -107,7 +122,14 @@ onAuthStateChanged(auth, async (user) => {
       await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      location.href = "/login.html";
+
+      console.error(
+        "Admin user document does not exist."
+      );
+
+      window.location.href =
+        "/login.html";
+
       return;
     }
 
@@ -115,365 +137,507 @@ onAuthStateChanged(auth, async (user) => {
       userSnap.data();
 
     if (data.role !== "admin") {
-      location.href = "/dashboard.html";
+
+      console.warn(
+        "Unauthorized user attempted to access admin uploader."
+      );
+
+      window.location.href =
+        "/dashboard.html";
+
       return;
     }
 
+    console.log(
+      "GTRADES-AXIS Admin authenticated:",
+      user.email
+    );
+
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Admin authentication error:",
+      error
+    );
 
-    location.href = "/login.html";
+    window.location.href =
+      "/login.html";
   }
 
 });
 
-
 // ============================================================
-// LOCAL PREVIEW
-// ============================================================
-
-videoInput.addEventListener(
-  "change",
-  () => {
-
-    const file =
-      videoInput.files[0];
-
-    if (!file) {
-
-      preview.removeAttribute("src");
-      preview.style.display = "none";
-
-      return;
-    }
-
-    if (!file.type.startsWith("video/")) {
-
-      videoInput.value = "";
-
-      showError(
-        "Please select a valid video file."
-      );
-
-      return;
-    }
-
-    const oldURL =
-      preview.dataset.objectUrl;
-
-    if (oldURL) {
-      URL.revokeObjectURL(oldURL);
-    }
-
-    const objectURL =
-      URL.createObjectURL(file);
-
-    preview.dataset.objectUrl =
-      objectURL;
-
-    preview.src =
-      objectURL;
-
-    preview.style.display =
-      "block";
-
-  }
-);
-
-
-// ============================================================
-// FORM
+// VIDEO PREVIEW
 // ============================================================
 
-form.addEventListener(
-  "submit",
-  async (event) => {
+if (videoInput && preview) {
 
-    event.preventDefault();
-    event.stopPropagation();
+  videoInput.addEventListener(
+    "change",
+    () => {
 
-    if (uploadLocked) {
-      return;
-    }
+      clearStatus();
 
-    const video =
-      videoInput.files[0];
+      const file =
+        videoInput.files?.[0];
 
-    if (!video) {
+      if (!file) {
 
-      showError(
-        "Select a video first."
-      );
+        removePreview();
 
-      return;
-    }
-
-    if (!video.type.startsWith("video/")) {
-
-      showError(
-        "Invalid video file."
-      );
-
-      return;
-    }
-
-    if (!titleInput.value.trim()) {
-
-      showError(
-        "Enter a video title."
-      );
-
-      return;
-    }
-
-    // ========================================================
-    // HARD LOCK
-    // ========================================================
-
-    uploadLocked = true;
-
-    uploadButton.disabled = true;
-
-    uploadButton.textContent =
-      "Uploading...";
-
-    status.className = "";
-    status.style.display = "none";
-
-    progressBox.style.display =
-      "block";
-
-    updateProgress(
-      0,
-      "Preparing upload..."
-    );
-
-
-    try {
-
-      // ======================================================
-      // GENERATE UNIQUE FILE NAME
-      // ======================================================
-
-      const extension =
-        getExtension(video.name);
-
-      const safeTitle =
-        titleInput.value
-          .trim()
-          .replace(/[^a-zA-Z0-9-_ ]/g, "")
-          .replace(/\s+/g, "-")
-          .toLowerCase();
-
-      const videoKey =
-        `videos/${Date.now()}-${safeTitle || "video"}${extension}`;
-
-
-      // ======================================================
-      // UPLOAD VIDEO DIRECTLY TO WORKER
-      // ======================================================
-
-      updateProgress(
-        2,
-        "Uploading video..."
-      );
-
-      const videoResult =
-        await uploadFile(
-          video,
-          videoKey,
-          "video"
-        );
-
-
-      // ======================================================
-      // THUMBNAIL
-      // ======================================================
-
-      let thumbnailKey = "";
-      let thumbnailURL = "";
-
-      if (
-        thumbnailInput.files &&
-        thumbnailInput.files.length
-      ) {
-
-        const thumbnail =
-          thumbnailInput.files[0];
-
-        const thumbExtension =
-          getExtension(
-            thumbnail.name
-          );
-
-        thumbnailKey =
-          `thumbnails/${Date.now()}-${safeTitle || "thumbnail"}${thumbExtension}`;
-
-        updateProgress(
-          92,
-          "Uploading thumbnail..."
-        );
-
-        const thumbResult =
-          await uploadFile(
-            thumbnail,
-            thumbnailKey,
-            "thumbnail"
-          );
-
-        thumbnailURL =
-          thumbResult.url || "";
+        return;
       }
 
+      if (!file.type.startsWith("video/")) {
+
+        videoInput.value = "";
+
+        removePreview();
+
+        showError(
+          "Please select a valid video file."
+        );
+
+        return;
+      }
+
+      if (previewObjectURL) {
+
+        URL.revokeObjectURL(
+          previewObjectURL
+        );
+      }
+
+      previewObjectURL =
+        URL.createObjectURL(file);
+
+      preview.src =
+        previewObjectURL;
+
+      preview.dataset.objectUrl =
+        previewObjectURL;
+
+      preview.style.display =
+        "block";
+
+      preview.load();
+
+    }
+  );
+}
+
+// ============================================================
+// FORM SUBMIT
+// ============================================================
+
+if (form) {
+
+  form.addEventListener(
+    "submit",
+    async (event) => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (uploadLocked) {
+        return;
+      }
+
+      clearStatus();
+
+      // ------------------------------------------------------
+      // GET FILE
+      // ------------------------------------------------------
+
+      const video =
+        videoInput?.files?.[0];
+
+      if (!video) {
+
+        showError(
+          "Please select a video first."
+        );
+
+        return;
+      }
+
+      // ------------------------------------------------------
+      // VALIDATE VIDEO
+      // ------------------------------------------------------
+
+      if (!video.type.startsWith("video/")) {
+
+        showError(
+          "The selected file is not a valid video."
+        );
+
+        return;
+      }
+
+      // ------------------------------------------------------
+      // TITLE
+      // ------------------------------------------------------
+
+      const title =
+        titleInput?.value.trim();
+
+      if (!title) {
+
+        showError(
+          "Please enter a video title."
+        );
+
+        titleInput?.focus();
+
+        return;
+      }
+
+      // ------------------------------------------------------
+      // CATEGORY
+      // ------------------------------------------------------
+
+      const category =
+        categoryInput?.value || "";
+
+      // ------------------------------------------------------
+      // DURATION
+      // ------------------------------------------------------
+
+      const duration =
+        durationInput?.value.trim() || "";
+
+      // ------------------------------------------------------
+      // PREMIUM
+      // ------------------------------------------------------
+
+      const premiumOnly =
+        premiumInput?.checked === true;
 
       // ======================================================
-      // VIDEO URL
+      // HARD LOCK
       // ======================================================
 
-      const videoURL =
-        videoResult.url ||
-        `${WORKER_URL}/file?key=${encodeURIComponent(videoKey)}`;
+      uploadLocked = true;
 
-
-      // ======================================================
-      // SAVE FIRESTORE METADATA
-      // ======================================================
-
-      updateProgress(
-        97,
-        "Saving video information..."
-      );
-
-      await addDoc(
-        collection(db, "videos"),
-        {
-          title:
-            titleInput.value.trim(),
-
-          category:
-            categoryInput.value,
-
-          duration:
-            durationInput.value.trim(),
-
-          premiumOnly:
-            premiumInput.checked,
-
-          videoUrl:
-            videoURL,
-
-          url:
-            videoURL,
-
-          videoURL:
-            videoURL,
-
-          videoKey:
-            videoKey,
-
-          thumbnail:
-            thumbnailURL,
-
-          thumbnailUrl:
-            thumbnailURL,
-
-          thumbnailKey:
-            thumbnailKey,
-
-          fileName:
-            video.name,
-
-          fileSize:
-            video.size,
-
-          contentType:
-            video.type,
-
-          createdAt:
-            serverTimestamp(),
-
-          active:
-            true,
-
-          published:
-            true
-        }
-      );
-
-
-      // ======================================================
-      // COMPLETE
-      // ======================================================
-
-      updateProgress(
-        100,
-        "Upload complete!"
-      );
-
-      showSuccess(
-        "Video uploaded successfully."
-      );
-
-      uploadButton.textContent =
-        "✓ Uploaded";
-
-      // ======================================================
-      // RESET AFTER SUCCESS
-      // ======================================================
-
-      setTimeout(() => {
-
-        form.reset();
-
-        preview.removeAttribute("src");
-        preview.style.display =
-          "none";
-
-        progressBox.style.display =
-          "none";
+      if (uploadButton) {
 
         uploadButton.disabled =
-          false;
+          true;
 
         uploadButton.textContent =
-          "☁ Upload Video";
+          "Uploading...";
+      }
+
+      if (progressBox) {
+
+        progressBox.style.display =
+          "block";
+      }
+
+      updateProgress(
+        0,
+        "Preparing upload..."
+      );
+
+      try {
+
+        // ====================================================
+        // SAFE FILE NAME
+        // ====================================================
+
+        const safeTitle =
+          makeSafeFileName(title);
+
+        const timestamp =
+          Date.now();
+
+        // ====================================================
+        // VIDEO KEY
+        // ====================================================
+
+        const extension =
+          getExtension(video.name);
+
+        const videoKey =
+          `videos/${timestamp}-${safeTitle}${extension}`;
+
+        console.log(
+          "Uploading video:",
+          videoKey
+        );
+
+        // ====================================================
+        // UPLOAD VIDEO
+        // ====================================================
+
+        updateProgress(
+          1,
+          "Connecting to Cloudflare..."
+        );
+
+        const videoResult =
+          await uploadFile(
+            video,
+            videoKey,
+            "video"
+          );
+
+        console.log(
+          "Video upload response:",
+          videoResult
+        );
+
+        if (
+          !videoResult ||
+          videoResult.success !== true
+        ) {
+
+          throw new Error(
+            videoResult?.error ||
+            "Cloudflare did not confirm the video upload."
+          );
+        }
+
+        // ====================================================
+        // VIDEO URL
+        // ====================================================
+
+        const videoURL =
+          extractURL(
+            videoResult,
+            videoKey
+          );
+
+        if (!videoURL) {
+
+          throw new Error(
+            "Video uploaded to R2, but no video URL was returned."
+          );
+        }
+
+        // ====================================================
+        // THUMBNAIL
+        // ====================================================
+
+        let thumbnailKey = "";
+        let thumbnailURL = "";
+
+        const thumbnail =
+          thumbnailInput?.files?.[0];
+
+        if (thumbnail) {
+
+          if (
+            !thumbnail.type.startsWith("image/")
+          ) {
+
+            throw new Error(
+              "The thumbnail must be an image."
+            );
+          }
+
+          const thumbExtension =
+            getExtension(
+              thumbnail.name
+            );
+
+          thumbnailKey =
+            `thumbnails/${timestamp}-${safeTitle}${thumbExtension}`;
+
+          updateProgress(
+            91,
+            "Uploading thumbnail..."
+          );
+
+          const thumbnailResult =
+            await uploadFile(
+              thumbnail,
+              thumbnailKey,
+              "thumbnail"
+            );
+
+          console.log(
+            "Thumbnail upload response:",
+            thumbnailResult
+          );
+
+          if (
+            !thumbnailResult ||
+            thumbnailResult.success !== true
+          ) {
+
+            throw new Error(
+              thumbnailResult?.error ||
+              "Thumbnail upload failed."
+            );
+          }
+
+          thumbnailURL =
+            extractURL(
+              thumbnailResult,
+              thumbnailKey
+            );
+        }
+
+        // ====================================================
+        // FIRESTORE
+        // ====================================================
+
+        updateProgress(
+          97,
+          "Saving video information..."
+        );
+
+        const videoDocument = {
+
+          // -----------------------------------------------
+          // BASIC INFORMATION
+          // -----------------------------------------------
+
+          title: title,
+
+          category: category,
+
+          duration: duration,
+
+          premiumOnly: premiumOnly,
+
+          // -----------------------------------------------
+          // VIDEO
+          // -----------------------------------------------
+
+          videoUrl: videoURL,
+
+          videoKey: videoKey,
+
+          // -----------------------------------------------
+          // THUMBNAIL
+          // -----------------------------------------------
+
+          thumbnail: thumbnailURL,
+
+          thumbnailKey: thumbnailKey,
+
+          // -----------------------------------------------
+          // ORIGINAL FILE
+          // -----------------------------------------------
+
+          fileName: video.name,
+
+          fileSize: video.size,
+
+          contentType: video.type,
+
+          // -----------------------------------------------
+          // STATUS
+          // -----------------------------------------------
+
+          active: true,
+
+          published: true,
+
+          // -----------------------------------------------
+          // TIMESTAMP
+          // -----------------------------------------------
+
+          createdAt:
+            serverTimestamp()
+
+        };
+
+        const videoDocRef =
+          await addDoc(
+            collection(db, "videos"),
+            videoDocument
+          );
+
+        console.log(
+          "Firestore video created:",
+          videoDocRef.id
+        );
+
+        // ====================================================
+        // COMPLETE
+        // ====================================================
+
+        updateProgress(
+          100,
+          "Upload complete!"
+        );
+
+        showSuccess(
+          "Video uploaded successfully."
+        );
+
+        if (uploadButton) {
+
+          uploadButton.textContent =
+            "✓ Uploaded";
+        }
+
+        // ====================================================
+        // RESET
+        // ====================================================
+
+        setTimeout(
+          () => {
+
+            form.reset();
+
+            removePreview();
+
+            if (progressBox) {
+
+              progressBox.style.display =
+                "none";
+            }
+
+            if (uploadButton) {
+
+              uploadButton.disabled =
+                false;
+
+              uploadButton.textContent =
+                "☁ Upload Video";
+            }
+
+            uploadLocked =
+              false;
+
+          },
+          1800
+        );
+
+      } catch (error) {
+
+        console.error(
+          "GTRADES-AXIS VIDEO UPLOAD ERROR:",
+          error
+        );
+
+        showError(
+          getReadableError(error)
+        );
+
+        if (uploadButton) {
+
+          uploadButton.disabled =
+            false;
+
+          uploadButton.textContent =
+            "☁ Upload Video";
+        }
 
         uploadLocked =
           false;
-
-      }, 1800);
-
-
-    } catch (error) {
-
-      console.error(
-        "GTRADES VIDEO ERROR:",
-        error
-      );
-
-      showError(
-        error.message ||
-        "Video upload failed."
-      );
-
-      uploadButton.disabled =
-        false;
-
-      uploadButton.textContent =
-        "☁ Upload Video";
-
-      uploadLocked =
-        false;
+      }
 
     }
-
-  }
-);
-
+  );
+}
 
 // ============================================================
-// UPLOAD FILE
+// CLOUDflare R2 UPLOAD
 // ============================================================
 
 function uploadFile(
@@ -483,7 +647,7 @@ function uploadFile(
 ) {
 
   return new Promise(
-    async (resolve, reject) => {
+    (resolve, reject) => {
 
       try {
 
@@ -508,54 +672,73 @@ function uploadFile(
 
         formData.append(
           "contentType",
-          file.type
+          file.type ||
+          "application/octet-stream"
         );
-
 
         const xhr =
           new XMLHttpRequest();
 
+        const uploadURL =
+          `${WORKER_URL}/upload`;
+
+        console.log(
+          "POST:",
+          uploadURL
+        );
+
         xhr.open(
           "POST",
-          `${WORKER_URL}/upload`,
+          uploadURL,
           true
         );
 
-
-        // ====================================================
+        // ----------------------------------------------------
         // PROGRESS
-        // ====================================================
+        // ----------------------------------------------------
 
         xhr.upload.onprogress =
           (event) => {
 
-            if (!event.lengthComputable)
+            if (
+              !event.lengthComputable
+            ) {
               return;
+            }
 
-            const raw =
+            const ratio =
               event.loaded /
               event.total;
 
-            let start = 2;
-            let end = type === "video"
-              ? 90
-              : 96;
+            let start;
+            let end;
 
-            const value =
+            if (type === "video") {
+
+              start = 2;
+              end = 90;
+
+            } else {
+
+              start = 91;
+              end = 96;
+            }
+
+            const progress =
               Math.round(
                 start +
-                raw *
+                ratio *
                 (end - start)
               );
 
-            const loaded =
+            const loadedMB =
               (
                 event.loaded /
                 1024 /
                 1024
               ).toFixed(1);
 
-            const total =
+            const totalMB =
               (
                 event.total /
                 1024 /
@@ -563,19 +746,28 @@ function uploadFile(
               ).toFixed(1);
 
             updateProgress(
-              value,
-              `Uploading ${loaded} MB / ${total} MB`
+              progress,
+              `Uploading ${loadedMB} MB / ${totalMB} MB`
             );
 
           };
 
-
-        // ====================================================
-        // SUCCESS
-        // ====================================================
+        // ----------------------------------------------------
+        // RESPONSE
+        // ----------------------------------------------------
 
         xhr.onload =
           () => {
+
+            console.log(
+              "Cloudflare status:",
+              xhr.status
+            );
+
+            console.log(
+              "Cloudflare response:",
+              xhr.responseText
+            );
 
             if (
               xhr.status < 200 ||
@@ -584,7 +776,7 @@ function uploadFile(
 
               reject(
                 new Error(
-                  `Cloudflare upload failed (${xhr.status}): ${xhr.responseText}`
+                  `Cloudflare upload failed (${xhr.status}). ${cleanResponse(xhr.responseText)}`
                 )
               );
 
@@ -600,23 +792,26 @@ function uploadFile(
                   xhr.responseText
                 );
 
-            } catch {
+            } catch (error) {
 
               reject(
                 new Error(
-                  "Cloudflare returned an invalid response."
+                  "Cloudflare returned an invalid JSON response."
                 )
               );
 
               return;
             }
 
-            if (!response.success) {
+            if (
+              response.success !== true
+            ) {
 
               reject(
                 new Error(
                   response.error ||
-                  "R2 upload failed."
+                  response.message ||
+                  "Cloudflare rejected the upload."
                 )
               );
 
@@ -627,36 +822,61 @@ function uploadFile(
 
           };
 
-
-        // ====================================================
+        // ----------------------------------------------------
         // NETWORK ERROR
-        // ====================================================
+        // ----------------------------------------------------
 
         xhr.onerror =
           () => {
 
             reject(
               new Error(
-                "Network error while uploading to Cloudflare."
+                "Network error. The browser could not connect to the Cloudflare Worker."
               )
             );
 
           };
 
+        // ----------------------------------------------------
+        // TIMEOUT
+        // ----------------------------------------------------
+
+        xhr.timeout =
+          30 * 60 * 1000;
+
+        xhr.ontimeout =
+          () => {
+
+            reject(
+              new Error(
+                "The upload timed out."
+              )
+            );
+
+          };
+
+        // ----------------------------------------------------
+        // ABORT
+        // ----------------------------------------------------
 
         xhr.onabort =
           () => {
 
             reject(
               new Error(
-                "Upload was cancelled."
+                "The upload was cancelled."
               )
             );
 
           };
 
+        // ----------------------------------------------------
+        // SEND
+        // ----------------------------------------------------
 
-        xhr.send(formData);
+        xhr.send(
+          formData
+        );
 
       } catch (error) {
 
@@ -668,6 +888,165 @@ function uploadFile(
   );
 }
 
+// ============================================================
+// EXTRACT URL
+// ============================================================
+
+function extractURL(
+  response,
+  key
+) {
+
+  const possibleURLs = [
+
+    response.url,
+
+    response.publicUrl,
+
+    response.publicURL,
+
+    response.videoUrl,
+
+    response.videoURL,
+
+    response.thumbnailUrl,
+
+    response.thumbnailURL,
+
+    response.fileUrl,
+
+    response.fileURL,
+
+    response.result?.url,
+
+    response.result?.publicUrl,
+
+    response.data?.url
+
+  ];
+
+  for (
+    const value of possibleURLs
+  ) {
+
+    if (
+      typeof value === "string" &&
+      value.trim()
+    ) {
+
+      return value.trim();
+
+    }
+
+  }
+
+  // ----------------------------------------------------------
+  // FALLBACK
+  // ----------------------------------------------------------
+
+  return `${WORKER_URL}/file?key=${encodeURIComponent(key)}`;
+}
+
+// ============================================================
+// SAFE FILE NAME
+// ============================================================
+
+function makeSafeFileName(
+  title
+) {
+
+  return title
+
+    .normalize("NFKD")
+
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+
+    .replace(
+      /[^a-zA-Z0-9-_ ]/g,
+      ""
+    )
+
+    .trim()
+
+    .replace(
+      /\s+/g,
+      "-"
+    )
+
+    .replace(
+      /-+/g,
+      "-"
+    )
+
+    .toLowerCase()
+
+    .substring(
+      0,
+      100
+    ) || "video";
+}
+
+// ============================================================
+// EXTENSION
+// ============================================================
+
+function getExtension(
+  filename
+) {
+
+  if (
+    !filename ||
+    !filename.includes(".")
+  ) {
+
+    return ".mp4";
+  }
+
+  return filename
+    .substring(
+      filename.lastIndexOf(".")
+    )
+    .toLowerCase();
+}
+
+// ============================================================
+// PREVIEW
+// ============================================================
+
+function removePreview() {
+
+  if (previewObjectURL) {
+
+    URL.revokeObjectURL(
+      previewObjectURL
+    );
+
+    previewObjectURL =
+      null;
+  }
+
+  if (!preview) {
+    return;
+  }
+
+  preview.pause();
+
+  preview.removeAttribute(
+    "src"
+  );
+
+  preview.removeAttribute(
+    "data-object-url"
+  );
+
+  preview.load();
+
+  preview.style.display =
+    "none";
+}
 
 // ============================================================
 // PROGRESS
@@ -683,29 +1062,40 @@ function updateProgress(
       0,
       Math.min(
         100,
-        value
+        Math.round(value)
       )
     );
 
-  bar.style.width =
-    `${safeValue}%`;
+  if (bar) {
 
-  percent.textContent =
-    `${safeValue}%`;
+    bar.style.width =
+      `${safeValue}%`;
+  }
 
-  progressText.textContent =
-    message;
+  if (percent) {
 
+    percent.textContent =
+      `${safeValue}%`;
+  }
+
+  if (progressText) {
+
+    progressText.textContent =
+      message;
+  }
 }
 
-
 // ============================================================
-// STATUS
+// SUCCESS
 // ============================================================
 
 function showSuccess(
   message
 ) {
+
+  if (!status) {
+    return;
+  }
 
   status.className =
     "success";
@@ -713,12 +1103,24 @@ function showSuccess(
   status.textContent =
     `✓ ${message}`;
 
+  status.style.display =
+    "block";
 }
 
+// ============================================================
+// ERROR
+// ============================================================
 
 function showError(
   message
 ) {
+
+  if (!status) {
+
+    alert(message);
+
+    return;
+  }
 
   status.className =
     "error";
@@ -726,26 +1128,113 @@ function showError(
   status.textContent =
     `❌ ${message}`;
 
+  status.style.display =
+    "block";
 }
 
-
 // ============================================================
-// EXTENSION
+// CLEAR STATUS
 // ============================================================
 
-function getExtension(
-  filename
-) {
+function clearStatus() {
 
-  const index =
-    filename.lastIndexOf(".");
-
-  if (index === -1) {
-    return ".mp4";
+  if (!status) {
+    return;
   }
 
-  return filename
-    .substring(index)
-    .toLowerCase();
+  status.className = "";
 
+  status.textContent = "";
+
+  status.style.display =
+    "none";
+}
+
+// ============================================================
+// RESPONSE CLEANUP
+// ============================================================
+
+function cleanResponse(
+  text
+) {
+
+  if (!text) {
+    return "";
+  }
+
+  try {
+
+    const json =
+      JSON.parse(text);
+
+    return (
+      json.error ||
+      json.message ||
+      JSON.stringify(json)
+    );
+
+  } catch {
+
+    return text
+      .substring(0, 300);
+  }
+}
+
+// ============================================================
+// READABLE ERROR
+// ============================================================
+
+function getReadableError(
+  error
+) {
+
+  if (!error) {
+
+    return "Video upload failed.";
+  }
+
+  const message =
+    error.message ||
+    String(error);
+
+  if (
+    message.includes("Failed to fetch")
+  ) {
+
+    return (
+      "Could not connect to Cloudflare. " +
+      "Check the Worker and CORS configuration."
+    );
+  }
+
+  if (
+    message.includes("403")
+  ) {
+
+    return (
+      "Cloudflare rejected the upload (403). " +
+      "Check the Worker permissions."
+    );
+  }
+
+  if (
+    message.includes("404")
+  ) {
+
+    return (
+      "Cloudflare upload endpoint was not found (404). " +
+      "The Worker /upload route may be incorrect."
+    );
+  }
+
+  if (
+    message.includes("413")
+  ) {
+
+    return (
+      "The video is too large for the current upload configuration."
+    );
+  }
+
+  return message;
 }
