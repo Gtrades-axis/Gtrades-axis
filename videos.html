@@ -1,16 +1,21 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
 
   <title>Video Academy | GTRADES-AXIS™</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -19,7 +24,10 @@
       margin: 0;
       background: #05070b;
       color: #fff;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
     }
 
     header {
@@ -58,9 +66,12 @@
     .hero p {
       color: #94a3b8;
       margin-top: 10px;
+      line-height: 1.6;
     }
 
-    /* FILTERS */
+    /* ======================================================
+       FILTERS
+    ====================================================== */
 
     .filters {
       display: flex;
@@ -76,6 +87,7 @@
       padding: 10px 16px;
       border-radius: 8px;
       cursor: pointer;
+      transition: 0.2s ease;
     }
 
     .filter-btn:hover,
@@ -85,7 +97,9 @@
       color: white;
     }
 
-    /* PLAYER */
+    /* ======================================================
+       PLAYER
+    ====================================================== */
 
     .player-panel {
       background: #090d14;
@@ -121,6 +135,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     #r2VideoPlayer {
@@ -128,6 +143,7 @@
       width: 100%;
       height: auto;
       max-height: 75vh;
+      min-height: 320px;
       background: #000;
     }
 
@@ -136,13 +152,16 @@
       color: #94a3b8;
       padding: 70px 20px;
       text-align: center;
+      line-height: 1.6;
     }
 
     #playerMessage.show {
       display: block;
     }
 
-    /* VIDEO GRID */
+    /* ======================================================
+       VIDEO GRID
+    ====================================================== */
 
     .section-title {
       font-size: 22px;
@@ -152,7 +171,10 @@
     #videosContainer {
       display: grid;
       grid-template-columns:
-        repeat(auto-fill, minmax(250px, 1fr));
+        repeat(
+          auto-fill,
+          minmax(250px, 1fr)
+        );
       gap: 20px;
     }
 
@@ -170,17 +192,42 @@
       border-color: #2196f3;
     }
 
+    .video-card.locked {
+      opacity: 0.85;
+    }
+
     .video-thumb {
       height: 150px;
-      background: #101722;
+      background:
+        linear-gradient(
+          135deg,
+          #101722,
+          #070a10
+        );
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     .play-icon {
       font-size: 46px;
       color: #2196f3;
+    }
+
+    .lock-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.75);
+      color: #f5c451;
+      font-size: 14px;
     }
 
     .video-info {
@@ -190,11 +237,13 @@
     .video-title {
       font-weight: 700;
       line-height: 1.4;
+      min-height: 40px;
     }
 
     .video-meta {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 10px;
       margin-top: 10px;
       color: #8d9aae;
@@ -205,6 +254,7 @@
       padding: 4px 8px;
       border-radius: 5px;
       font-size: 11px;
+      white-space: nowrap;
     }
 
     .badge-free {
@@ -231,7 +281,12 @@
       padding: 50px;
     }
 
+    /* ======================================================
+       MOBILE
+    ====================================================== */
+
     @media (max-width: 600px) {
+
       .hero h1 {
         font-size: 26px;
       }
@@ -240,924 +295,1269 @@
         min-height: 220px;
       }
 
+      #r2VideoPlayer {
+        min-height: 220px;
+      }
+
       #videosContainer {
         grid-template-columns: 1fr;
       }
+
+      .filters {
+        gap: 7px;
+      }
+
+      .filter-btn {
+        padding: 9px 12px;
+        font-size: 13px;
+      }
+
     }
+
   </style>
+
 </head>
 
 <body>
 
-<header>
+  <!-- ======================================================
+       HEADER
+  ======================================================= -->
 
-  <div class="brand">
-    GTRADES-<span>AXIS™</span>
-  </div>
+  <header>
 
-  <div class="subtitle">
-    Trading Academy
-  </div>
+```
+<div class="brand">
+  GTRADES-<span>AXIS™</span>
+</div>
 
-</header>
+<div class="subtitle">
+  Trading Academy
+</div>
+```
 
+  </header>
 
-<main>
+  <!-- ======================================================
+       MAIN
+  ======================================================= -->
 
-  <section class="hero">
+  <main>
 
-    <h1>
-      Private Video Library
-    </h1>
+```
+<!-- HERO -->
 
-    <p>
-      Watch your GTRADES-AXIS™ trading lessons,
-      market analysis and academy training.
-    </p>
+<section class="hero">
 
-  </section>
+  <h1>
+    Private Video Library
+  </h1>
 
+  <p>
+    Watch your GTRADES-AXIS™ trading lessons,
+    market analysis and academy training.
+  </p>
 
-  <!-- FILTERS -->
-
-  <div class="filters">
-
-    <button
-      class="filter-btn active"
-      data-category="All"
-    >
-      All
-    </button>
-
-    <button
-      class="filter-btn"
-      data-category="Market Structure"
-    >
-      Market Structure
-    </button>
-
-    <button
-      class="filter-btn"
-      data-category="Supply & Demand"
-    >
-      Supply & Demand
-    </button>
-
-    <button
-      class="filter-btn"
-      data-category="Entries"
-    >
-      Entries
-    </button>
-
-    <button
-      class="filter-btn"
-      data-category="Risk Management"
-    >
-      Risk Management
-    </button>
-
-    <button
-      class="filter-btn"
-      data-category="Psychology"
-    >
-      Psychology
-    </button>
-
-  </div>
+</section>
 
 
-  <!-- ==========================================
-       PLAYER
-  =========================================== -->
+<!-- ====================================================
+     FILTERS
+===================================================== -->
 
-  <section class="player-panel">
+<div class="filters">
 
-    <div class="player-header">
+  <button
+    class="filter-btn active"
+    data-category="All"
+    type="button"
+  >
+    All
+  </button>
 
-      <div class="player-label">
-        Now Playing
-      </div>
+  <button
+    class="filter-btn"
+    data-category="Market Structure"
+    type="button"
+  >
+    Market Structure
+  </button>
 
-      <div id="nowPlayingTitle">
-        Loading video...
-      </div>
+  <button
+    class="filter-btn"
+    data-category="Supply & Demand"
+    type="button"
+  >
+    Supply & Demand
+  </button>
 
+  <button
+    class="filter-btn"
+    data-category="Entries"
+    type="button"
+  >
+    Entries
+  </button>
+
+  <button
+    class="filter-btn"
+    data-category="Risk Management"
+    type="button"
+  >
+    Risk Management
+  </button>
+
+  <button
+    class="filter-btn"
+    data-category="Psychology"
+    type="button"
+  >
+    Psychology
+  </button>
+
+</div>
+
+
+<!-- ====================================================
+     PLAYER
+===================================================== -->
+
+<section class="player-panel">
+
+  <div class="player-header">
+
+    <div class="player-label">
+      Now Playing
     </div>
 
-
-    <div class="player-wrapper">
-
-      <video
-        id="r2VideoPlayer"
-        controls
-        playsinline
-        preload="metadata"
-      ></video>
-
-      <div id="playerMessage">
-        Loading video...
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- ==========================================
-       VIDEO LESSONS
-  =========================================== -->
-
-  <h2 class="section-title">
-    Video Lessons
-  </h2>
-
-  <div id="videosContainer">
-
-    <div class="status">
-      Loading videos...
+    <div id="nowPlayingTitle">
+      Select a video
     </div>
 
   </div>
 
-  <div id="noResultsMessage">
-    No videos found.
+
+  <div class="player-wrapper">
+
+    <video
+      id="r2VideoPlayer"
+      controls
+      playsinline
+      preload="metadata"
+    ></video>
+
+    <div id="playerMessage">
+      Loading video...
+    </div>
+
   </div>
 
-</main>
+</section>
 
 
-<script type="module">
+<!-- ====================================================
+     VIDEO LESSONS
+===================================================== -->
 
-/* ============================================================
-   FIREBASE
-============================================================ */
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  orderBy
-}
-from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+<h2 class="section-title">
+  Video Lessons
+</h2>
 
 
-/* ============================================================
-   FIREBASE CONFIG
-============================================================ */
+<div id="videosContainer">
 
-const firebaseConfig = {
+  <div class="status">
+    Loading videos...
+  </div>
 
-  apiKey:
-    "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
-
-  authDomain:
-    "gtrades-axis.firebaseapp.com",
-
-  projectId:
-    "gtrades-axis",
-
-  storageBucket:
-    "gtrades-axis.firebasestorage.app",
-
-  messagingSenderId:
-    "111456545888",
-
-  appId:
-    "1:111456545888:web:f0526c142d7ea5e22fe705"
-
-};
+</div>
 
 
-/* ============================================================
-   INITIALIZE FIREBASE
-============================================================ */
+<div id="noResultsMessage">
+  No videos found.
+</div>
+```
 
-const firebaseApp =
-  initializeApp(firebaseConfig);
+  </main>
 
-const auth =
-  getAuth(firebaseApp);
+  <!-- ======================================================
+       JAVASCRIPT
+  ======================================================= -->
 
-const db =
-  getFirestore(firebaseApp);
+  <script type="module">
 
+    // ========================================================
+    // FIREBASE IMPORTS
+    // ========================================================
 
-/* ============================================================
-   CLOUDFLARE R2 WORKER
-============================================================ */
-
-const R2_WORKER =
-  "https://r2-uploader.davidthuku574.workers.dev";
-
-
-/* ============================================================
-   ELEMENTS
-============================================================ */
-
-const player =
-  document.getElementById(
-    "r2VideoPlayer"
-  );
-
-const playerMessage =
-  document.getElementById(
-    "playerMessage"
-  );
-
-const nowPlayingTitle =
-  document.getElementById(
-    "nowPlayingTitle"
-  );
-
-const videosContainer =
-  document.getElementById(
-    "videosContainer"
-  );
-
-const noResults =
-  document.getElementById(
-    "noResultsMessage"
-  );
-
-const filterButtons =
-  document.querySelectorAll(
-    ".filter-btn"
-  );
-
-
-/* ============================================================
-   STATE
-============================================================ */
-
-let videos = [];
-
-let activeCategory =
-  "All";
-
-
-/* ============================================================
-   R2 URL
-============================================================ */
-
-function buildR2URL(
-  videoKey
-) {
-
-  if (!videoKey) {
-
-    throw new Error(
-      "This video does not have a videoKey."
-    );
-
-  }
-
-  const url =
-    new URL(
-      R2_WORKER
-    );
-
-  url.searchParams.set(
-    "key",
-    videoKey
-  );
-
-  url.searchParams.set(
-    "action",
-    "file"
-  );
-
-  return url.toString();
-
-}
-
-
-/* ============================================================
-   LOAD VIDEOS
-============================================================ */
-
-async function loadVideos() {
-
-  console.log(
-    "Loading videos..."
-  );
-
-  videosContainer.innerHTML =
-    `
-      <div class="status">
-        Loading videos...
-      </div>
-    `;
-
-
-  try {
-
-    let snapshot;
-
-
-    /* ---------------------------------------------
-       Try ordered query
-    --------------------------------------------- */
-
-    try {
-
-      const videosQuery =
-        query(
-          collection(
-            db,
-            "videos"
-          ),
-          orderBy(
-            "createdAt",
-            "desc"
-          )
-        );
-
-
-      snapshot =
-        await getDocs(
-          videosQuery
-        );
-
+    import {
+      initializeApp
     }
+    from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 
-    catch (
-      error
-    ) {
 
-      console.warn(
-        "Ordered query failed. Loading collection normally.",
-        error
+    import {
+      getAuth,
+      onAuthStateChanged
+    }
+    from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy
+    }
+    from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+    // ========================================================
+    // FIREBASE CONFIG
+    // ========================================================
+
+    const firebaseConfig = {
+
+      apiKey:
+        "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+
+      authDomain:
+        "gtrades-axis.firebaseapp.com",
+
+      projectId:
+        "gtrades-axis",
+
+      storageBucket:
+        "gtrades-axis.firebasestorage.app",
+
+      messagingSenderId:
+        "111456545888",
+
+      appId:
+        "1:111456545888:web:f0526c142d7ea5e22fe705"
+
+    };
+
+
+    // ========================================================
+    // INITIALIZE FIREBASE
+    // ========================================================
+
+    const firebaseApp =
+      initializeApp(
+        firebaseConfig
       );
 
 
-      snapshot =
-        await getDocs(
-          collection(
-            db,
-            "videos"
-          )
-        );
+    const auth =
+      getAuth(
+        firebaseApp
+      );
+
+
+    const db =
+      getFirestore(
+        firebaseApp
+      );
+
+
+    // ========================================================
+    // CLOUDFLARE R2 WORKER
+    // ========================================================
+
+    const R2_WORKER =
+      "https://r2-uploader.davidthuku574.workers.dev";
+
+
+    // ========================================================
+    // DOM ELEMENTS
+    // ========================================================
+
+    const player =
+      document.getElementById(
+        "r2VideoPlayer"
+      );
+
+
+    const playerMessage =
+      document.getElementById(
+        "playerMessage"
+      );
+
+
+    const nowPlayingTitle =
+      document.getElementById(
+        "nowPlayingTitle"
+      );
+
+
+    const videosContainer =
+      document.getElementById(
+        "videosContainer"
+      );
+
+
+    const noResults =
+      document.getElementById(
+        "noResultsMessage"
+      );
+
+
+    const filterButtons =
+      document.querySelectorAll(
+        ".filter-btn"
+      );
+
+
+    // ========================================================
+    // STATE
+    // ========================================================
+
+    let videos = [];
+
+    let activeCategory =
+      "All";
+
+    let currentUser =
+      null;
+
+
+    // ========================================================
+    // GET VIDEO KEY
+    // ========================================================
+
+    function getVideoKey(video) {
+
+      return (
+
+        video.videoKey ||
+
+        video.fileKey ||
+
+        video.r2Key ||
+
+        video.storageKey ||
+
+        video.resourceKey ||
+
+        ""
+
+      );
 
     }
 
 
-    /* ---------------------------------------------
-       Convert Firestore documents
-    --------------------------------------------- */
+    // ========================================================
+    // BUILD R2 URL
+    //
+    // IMPORTANT:
+    // The Worker uses:
+    //
+    // /file?key=...
+    //
+    // ========================================================
 
-    videos = [];
+    function buildR2URL(videoKey) {
 
+      if (!videoKey) {
 
-    snapshot.forEach(
-      docSnap => {
-
-        const data =
-          docSnap.data();
-
-
-        console.log(
-          "VIDEO DOCUMENT:",
-          docSnap.id,
-          data
+        throw new Error(
+          "This video does not have a videoKey."
         );
 
-
-        videos.push({
-
-          id:
-            docSnap.id,
-
-          ...data
-
-        });
-
       }
-    );
 
 
-    console.log(
-      "TOTAL VIDEOS:",
-      videos.length
-    );
+      const url =
+        `${R2_WORKER}/file?key=` +
+        encodeURIComponent(
+          videoKey
+        );
 
-
-    /* ---------------------------------------------
-       Render
-    --------------------------------------------- */
-
-    renderVideos();
-
-
-    /* ---------------------------------------------
-       Automatically play first video
-    --------------------------------------------- */
-
-    if (
-      videos.length > 0
-    ) {
 
       console.log(
-        "Opening first video:",
-        videos[0]
+        "GTRADES-AXIS™ R2 VIDEO URL:",
+        url
       );
 
 
-      openVideo(
-        videos[0]
-      );
-
-    }
-
-    else {
-
-      videosContainer.innerHTML =
-        `
-          <div class="status">
-            No videos available yet.
-          </div>
-        `;
+      return url;
 
     }
 
 
-  }
+    // ========================================================
+    // LOAD VIDEOS
+    // ========================================================
 
-  catch (
-    error
-  ) {
+    async function loadVideos() {
 
-    console.error(
-      "FIRESTORE VIDEO ERROR:",
-      error
-    );
+      console.log(
+        "===================================="
+      );
+
+      console.log(
+        "GTRADES-AXIS™ VIDEO LIBRARY"
+      );
+
+      console.log(
+        "Loading videos from Firestore..."
+      );
+
+      console.log(
+        "===================================="
+      );
 
 
-    videosContainer.innerHTML =
-      `
+      videosContainer.innerHTML = `
+
         <div class="status">
-          Unable to load videos.
+          Loading videos...
         </div>
+
       `;
 
-  }
 
-}
+      try {
 
-
-/* ============================================================
-   RENDER VIDEOS
-============================================================ */
-
-function renderVideos() {
-
-  videosContainer.innerHTML = "";
-
-  noResults.style.display =
-    "none";
+        let snapshot;
 
 
-  let filtered =
-    [...videos];
+        // ====================================================
+        // ORDERED QUERY
+        // ====================================================
+
+        try {
+
+          const videosQuery =
+            query(
+              collection(
+                db,
+                "videos"
+              ),
+
+              orderBy(
+                "createdAt",
+                "desc"
+              )
+            );
 
 
-  if (
-    activeCategory !==
-    "All"
-  ) {
+          snapshot =
+            await getDocs(
+              videosQuery
+            );
 
-    filtered =
-      filtered.filter(
-        video => {
 
-          return String(
-            video.category ||
-            "General"
-          )
-            .toLowerCase()
-            .trim()
-            ===
-            activeCategory
-              .toLowerCase()
-              .trim();
+        } catch (orderError) {
+
+          console.warn(
+            "createdAt ordering failed. Loading normally.",
+            orderError
+          );
+
+
+          snapshot =
+            await getDocs(
+              collection(
+                db,
+                "videos"
+              )
+            );
 
         }
-      );
 
-  }
 
+        // ====================================================
+        // BUILD VIDEO ARRAY
+        // ====================================================
 
-  if (
-    filtered.length === 0
-  ) {
+        videos = [];
 
-    noResults.style.display =
-      "block";
 
-    return;
+        snapshot.forEach(
+          docSnap => {
 
-  }
+            const data =
+              docSnap.data();
 
 
-  filtered.forEach(
-    video => {
+            const video = {
 
-      const card =
-        createVideoCard(
-          video
-        );
+              id:
+                docSnap.id,
 
+              ...data
 
-      videosContainer.appendChild(
-        card
-      );
+            };
 
-    }
-  );
 
-}
+            console.log(
+              "VIDEO DOCUMENT:",
+              video
+            );
 
 
-/* ============================================================
-   CREATE VIDEO CARD
-============================================================ */
-
-function createVideoCard(
-  video
-) {
-
-  const card =
-    document.createElement(
-      "div"
-    );
-
-
-  card.className =
-    "video-card";
-
-
-  const title =
-    video.title ||
-    "Untitled Video";
-
-
-  const category =
-    video.category ||
-    "General";
-
-
-  const premium =
-    video.premiumOnly === true;
-
-
-  card.innerHTML =
-    `
-
-      <div class="video-thumb">
-
-        <div class="play-icon">
-          ▶
-        </div>
-
-      </div>
-
-
-      <div class="video-info">
-
-        <div class="video-title">
-          ${escapeHTML(title)}
-        </div>
-
-
-        <div class="video-meta">
-
-          <span>
-            ${escapeHTML(category)}
-          </span>
-
-
-          <span
-            class="badge ${
-              premium
-                ? "badge-premium"
-                : "badge-free"
-            }"
-          >
-
-            ${
-              premium
-                ? "Premium"
-                : "Free"
-            }
-
-          </span>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-  card.addEventListener(
-    "click",
-    () => {
-
-      openVideo(
-        video
-      );
-
-    }
-  );
-
-
-  return card;
-
-}
-
-
-/* ============================================================
-   OPEN VIDEO
-============================================================ */
-
-function openVideo(
-  video
-) {
-
-  console.log(
-    "OPEN VIDEO:",
-    video
-  );
-
-
-  const videoKey =
-    video.videoKey ||
-    video.fileKey ||
-    video.r2Key ||
-    video.storageKey ||
-    "";
-
-
-  if (!videoKey) {
-
-    console.error(
-      "MISSING VIDEO KEY:",
-      video
-    );
-
-
-    showPlayerError(
-      "This video has no R2 file attached."
-    );
-
-
-    return;
-
-  }
-
-
-  const videoURL =
-    buildR2URL(
-      videoKey
-    );
-
-
-  console.log(
-    "R2 VIDEO URL:",
-    videoURL
-  );
-
-
-  nowPlayingTitle.textContent =
-    video.title ||
-    "GTRADES-AXIS™ Video";
-
-
-  playerMessage.classList.remove(
-    "show"
-  );
-
-
-  /* ---------------------------------------------
-     Stop previous video
-  --------------------------------------------- */
-
-  player.pause();
-
-
-  player.removeAttribute(
-    "src"
-  );
-
-
-  player.load();
-
-
-  /* ---------------------------------------------
-     Set R2 video
-  --------------------------------------------- */
-
-  player.src =
-    videoURL;
-
-
-  player.load();
-
-
-  /* ---------------------------------------------
-     Scroll to player
-  --------------------------------------------- */
-
-  document
-    .querySelector(
-      ".player-panel"
-    )
-    .scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-
-  /* ---------------------------------------------
-     Try autoplay
-  --------------------------------------------- */
-
-  player.play()
-    .catch(
-      error => {
-
-        console.log(
-          "Autoplay blocked. Press Play.",
-          error
-        );
-
-      }
-    );
-
-}
-
-
-/* ============================================================
-   PLAYER ERROR
-============================================================ */
-
-function showPlayerError(
-  message
-) {
-
-  player.pause();
-
-
-  player.removeAttribute(
-    "src"
-  );
-
-
-  player.load();
-
-
-  playerMessage.textContent =
-    message;
-
-
-  playerMessage.classList.add(
-    "show"
-  );
-
-}
-
-
-/* ============================================================
-   HTML ESCAPE
-============================================================ */
-
-function escapeHTML(
-  value
-) {
-
-  return String(
-    value ?? ""
-  )
-
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
-}
-
-
-/* ============================================================
-   FILTERS
-============================================================ */
-
-filterButtons.forEach(
-  button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        filterButtons.forEach(
-          btn => {
-
-            btn.classList.remove(
-              "active"
+            videos.push(
+              video
             );
 
           }
         );
 
 
-        button.classList.add(
-          "active"
+        // ====================================================
+        // LOCAL SORT
+        // ====================================================
+
+        videos.sort(
+          (a, b) => {
+
+            const aTime =
+              a.createdAt?.seconds ||
+              a.updatedAt?.seconds ||
+              0;
+
+
+            const bTime =
+              b.createdAt?.seconds ||
+              b.updatedAt?.seconds ||
+              0;
+
+
+            return (
+              bTime -
+              aTime
+            );
+
+          }
         );
 
 
-        activeCategory =
-          button.dataset.category ||
-          "All";
+        // ====================================================
+        // DEBUG VIDEO KEYS
+        // ====================================================
 
+        videos.forEach(
+          video => {
+
+            console.log(
+              "VIDEO:",
+              video.title
+            );
+
+            console.log(
+              "VIDEO KEY:",
+              getVideoKey(video)
+            );
+
+            console.log(
+              "PREMIUM:",
+              video.premiumOnly
+            );
+
+          }
+        );
+
+
+        console.log(
+          "TOTAL VIDEOS:",
+          videos.length
+        );
+
+
+        // ====================================================
+        // RENDER
+        // ====================================================
 
         renderVideos();
 
+
+        // ====================================================
+        // FIRST VIDEO
+        // ====================================================
+
+        if (
+          videos.length > 0
+        ) {
+
+          openVideo(
+            videos[0]
+          );
+
+        } else {
+
+          videosContainer.innerHTML = `
+
+            <div class="status">
+              No videos available yet.
+            </div>
+
+          `;
+
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          "FIRESTORE VIDEO ERROR:",
+          error
+        );
+
+
+        videosContainer.innerHTML = `
+
+          <div class="status">
+            Unable to load videos.
+          </div>
+
+        `;
+
       }
-    );
-
-  }
-);
-
-
-/* ============================================================
-   AUTHENTICATION
-============================================================ */
-
-onAuthStateChanged(
-  auth,
-  user => {
-
-    console.log(
-      "AUTH STATE:",
-      user
-    );
-
-
-    if (!user) {
-
-      window.location.href =
-        "login.html";
-
-      return;
 
     }
 
 
-    /*
-     * IMPORTANT:
-     *
-     * We do NOT wait for a separate
-     * membership screen here.
-     *
-     * The Firestore videos collection
-     * is loaded immediately.
-     */
+    // ========================================================
+    // RENDER VIDEOS
+    // ========================================================
 
-    loadVideos();
+    function renderVideos() {
 
-  }
-);
+      videosContainer.innerHTML =
+        "";
 
-</script>
+
+      noResults.style.display =
+        "none";
+
+
+      let filtered =
+        [...videos];
+
+
+      // ======================================================
+      // CATEGORY FILTER
+      // ======================================================
+
+      if (
+        activeCategory !==
+        "All"
+      ) {
+
+        filtered =
+          filtered.filter(
+            video => {
+
+              const category =
+                String(
+                  video.category ||
+                  "General"
+                )
+                .toLowerCase()
+                .trim();
+
+
+              return (
+                category ===
+                activeCategory
+                  .toLowerCase()
+                  .trim()
+              );
+
+            }
+          );
+
+      }
+
+
+      // ======================================================
+      // NO RESULTS
+      // ======================================================
+
+      if (
+        filtered.length === 0
+      ) {
+
+        noResults.style.display =
+          "block";
+
+        return;
+
+      }
+
+
+      // ======================================================
+      // CREATE CARDS
+      // ======================================================
+
+      filtered.forEach(
+        video => {
+
+          videosContainer.appendChild(
+            createVideoCard(
+              video
+            )
+          );
+
+        }
+      );
+
+    }
+
+
+    // ========================================================
+    // CREATE VIDEO CARD
+    // ========================================================
+
+    function createVideoCard(
+      video
+    ) {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "video-card";
+
+
+      const title =
+        video.title ||
+        "Untitled Video";
+
+
+      const category =
+        video.category ||
+        "General";
+
+
+      const premium =
+        video.premiumOnly === true;
+
+
+      const videoKey =
+        getVideoKey(
+          video
+        );
+
+
+      card.innerHTML = `
+
+        <div class="video-thumb">
+
+          <div class="play-icon">
+            ▶
+          </div>
+
+          ${
+            premium
+              ? `
+                <div class="lock-icon">
+                  🔒
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+
+
+        <div class="video-info">
+
+          <div class="video-title">
+            ${escapeHTML(title)}
+          </div>
+
+
+          <div class="video-meta">
+
+            <span>
+              ${escapeHTML(category)}
+            </span>
+
+
+            <span
+              class="badge ${
+                premium
+                  ? "badge-premium"
+                  : "badge-free"
+              }"
+            >
+
+              ${
+                premium
+                  ? "Premium"
+                  : "Free"
+              }
+
+            </span>
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      if (
+        premium
+      ) {
+
+        card.classList.add(
+          "locked"
+        );
+
+      }
+
+
+      // ======================================================
+      // CLICK
+      // ======================================================
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          openVideo(
+            video
+          );
+
+        }
+      );
+
+
+      return card;
+
+    }
+
+
+    // ========================================================
+    // OPEN VIDEO
+    // ========================================================
+
+    function openVideo(
+      video
+    ) {
+
+      console.log(
+        "===================================="
+      );
+
+      console.log(
+        "OPEN VIDEO:",
+        video.title
+      );
+
+      console.log(
+        "VIDEO DOCUMENT:",
+        video
+      );
+
+
+      // ======================================================
+      // GET KEY
+      // ======================================================
+
+      const videoKey =
+        getVideoKey(
+          video
+        );
+
+
+      if (!videoKey) {
+
+        console.error(
+          "MISSING VIDEO KEY:",
+          video
+        );
+
+
+        showPlayerError(
+          "This video has no R2 file attached."
+        );
+
+
+        return;
+
+      }
+
+
+      // ======================================================
+      // PREMIUM
+      //
+      // We don't block premium videos here based only
+      // on Firebase Auth because your existing site can
+      // have membership logic handled elsewhere.
+      //
+      // The important part is that the video key exists
+      // and R2 serves the file.
+      // ======================================================
+
+      const premiumOnly =
+        video.premiumOnly === true;
+
+
+      if (
+        premiumOnly &&
+        !currentUser
+      ) {
+
+        showPlayerError(
+          "Please log in to watch this premium video."
+        );
+
+
+        return;
+
+      }
+
+
+      // ======================================================
+      // BUILD R2 URL
+      // ======================================================
+
+      let videoURL;
+
+
+      try {
+
+        videoURL =
+          buildR2URL(
+            videoKey
+          );
+
+      } catch (error) {
+
+        console.error(
+          "R2 URL ERROR:",
+          error
+        );
+
+
+        showPlayerError(
+          error.message
+        );
+
+
+        return;
+
+      }
+
+
+      // ======================================================
+      // TITLE
+      // ======================================================
+
+      nowPlayingTitle.textContent =
+        video.title ||
+        "GTRADES-AXIS™ Video";
+
+
+      // ======================================================
+      // HIDE MESSAGE
+      // ======================================================
+
+      playerMessage.classList.remove(
+        "show"
+      );
+
+
+      // ======================================================
+      // STOP CURRENT VIDEO
+      // ======================================================
+
+      player.pause();
+
+
+      player.removeAttribute(
+        "src"
+      );
+
+
+      player.load();
+
+
+      // ======================================================
+      // SET R2 VIDEO
+      // ======================================================
+
+      player.src =
+        videoURL;
+
+
+      // ======================================================
+      // LOAD
+      // ======================================================
+
+      player.load();
+
+
+      // ======================================================
+      // SCROLL TO PLAYER
+      // ======================================================
+
+      const playerPanel =
+        document.querySelector(
+          ".player-panel"
+        );
+
+
+      if (
+        playerPanel
+      ) {
+
+        playerPanel.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+      }
+
+
+      // ======================================================
+      // PLAY
+      // ======================================================
+
+      player.play()
+        .then(
+          () => {
+
+            console.log(
+              "Video playback started."
+            );
+
+          }
+        )
+        .catch(
+          error => {
+
+            console.log(
+              "Autoplay blocked. Press Play.",
+              error
+            );
+
+          }
+        );
+
+
+      // ======================================================
+      // VIDEO ERROR LISTENER
+      // ======================================================
+
+      player.onerror =
+        () => {
+
+          console.error(
+            "VIDEO PLAYER ERROR:",
+            player.error
+          );
+
+
+          showPlayerError(
+            "Unable to play this video. Check the R2 file and Worker."
+          );
+
+        };
+
+    }
+
+
+    // ========================================================
+    // PLAYER ERROR
+    // ========================================================
+
+    function showPlayerError(
+      message
+    ) {
+
+      player.pause();
+
+
+      player.removeAttribute(
+        "src"
+      );
+
+
+      player.load();
+
+
+      playerMessage.textContent =
+        message;
+
+
+      playerMessage.classList.add(
+        "show"
+      );
+
+    }
+
+
+    // ========================================================
+    // HTML ESCAPE
+    // ========================================================
+
+    function escapeHTML(
+      value
+    ) {
+
+      return String(
+        value ?? ""
+      )
+
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
+
+    }
+
+
+    // ========================================================
+    // FILTER BUTTONS
+    // ========================================================
+
+    filterButtons.forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            filterButtons.forEach(
+              btn => {
+
+                btn.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+            button.classList.add(
+              "active"
+            );
+
+
+            activeCategory =
+              button.dataset.category ||
+              "All";
+
+
+            renderVideos();
+
+          }
+        );
+
+      }
+    );
+
+
+    // ========================================================
+    // AUTHENTICATION
+    // ========================================================
+
+    onAuthStateChanged(
+      auth,
+      user => {
+
+        console.log(
+          "AUTH STATE:",
+          user
+        );
+
+
+        currentUser =
+          user;
+
+
+        // ====================================================
+        // NOT LOGGED IN
+        // ====================================================
+
+        if (!user) {
+
+          window.location.href =
+            "/login.html";
+
+          return;
+
+        }
+
+
+        // ====================================================
+        // LOAD VIDEOS
+        // ====================================================
+
+        loadVideos();
+
+      }
+    );
+
+
+    // ========================================================
+    // INITIAL PLAYER ERROR HANDLER
+    // ========================================================
+
+    player.addEventListener(
+      "error",
+      () => {
+
+        if (
+          player.error
+        ) {
+
+          console.error(
+            "HTML VIDEO ERROR:",
+            player.error
+          );
+
+        }
+
+      }
+    );
+
+
+    // ========================================================
+    // READY
+    // ========================================================
+
+    console.log(
+      "✅ GTRADES-AXIS™ Video Academy loaded."
+    );
+
+    console.log(
+      "☁️ Cloudflare R2 Worker:",
+      R2_WORKER
+    );
+
+  </script>
 
 </body>
+
 </html>
