@@ -78,7 +78,7 @@
     .filter-btn.active {
       background: #2196f3;
       border-color: #2196f3;
-      color: white;
+      color: #fff;
     }
 
     .player-panel {
@@ -121,6 +121,7 @@
     #r2VideoPlayer {
       display: block;
       width: 100%;
+      height: auto;
       max-height: 75vh;
       background: #000;
     }
@@ -130,6 +131,7 @@
       color: #94a3b8;
       padding: 70px 20px;
       text-align: center;
+      position: absolute;
     }
 
     #playerMessage.show {
@@ -168,11 +170,37 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      overflow: hidden;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.25);
     }
 
     .play-icon {
-      font-size: 46px;
-      color: #2196f3;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #2196f3;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      padding-left: 4px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     }
 
     .video-info {
@@ -184,19 +212,28 @@
       line-height: 1.4;
     }
 
+    .video-description {
+      color: #8d9aae;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
     .video-meta {
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 12px;
       color: #8d9aae;
       font-size: 13px;
+      align-items: center;
     }
 
     .badge {
       padding: 4px 8px;
       border-radius: 5px;
       font-size: 11px;
+      font-weight: 700;
     }
 
     .badge-free {
@@ -266,8 +303,6 @@
 
   </section>
 
-  <!-- FILTERS -->
-
   <div class="filters">
 
 ```
@@ -322,8 +357,6 @@
 
   </div>
 
-  <!-- PLAYER -->
-
   <section class="player-panel">
 
 ```
@@ -349,15 +382,13 @@
   ></video>
 
   <div id="playerMessage">
-    Select a video to begin.
+    Select a video to begin watching.
   </div>
 
 </div>
 ```
 
   </section>
-
-  <!-- VIDEO LESSONS -->
 
   <h2 class="section-title">
     Video Lessons
@@ -497,6 +528,9 @@ let videos = [];
 let activeCategory =
   "All";
 
+let currentVideoKey =
+  "";
+
 
 /* ============================================================
    GET VIDEO KEY
@@ -509,6 +543,7 @@ function getVideoKey(video) {
     video.fileKey ||
     video.r2Key ||
     video.storageKey ||
+    video.resourceKey ||
     video.key ||
     ""
   );
@@ -518,20 +553,6 @@ function getVideoKey(video) {
 
 /* ============================================================
    BUILD R2 VIDEO URL
-
-   IMPORTANT:
-   The worker serves files through:
-
-   /file?key=...
-
-   Do NOT use:
-
-   /?key=...
-
-   Do NOT use:
-
-   ?action=file
-
 ============================================================ */
 
 function buildR2URL(videoKey) {
@@ -539,23 +560,15 @@ function buildR2URL(videoKey) {
   if (!videoKey) {
 
     throw new Error(
-      "This video does not have a videoKey."
+      "This video does not have an R2 file key."
     );
 
   }
 
-  const url =
-    new URL(
-      "/file",
-      R2_WORKER
-    );
-
-  url.searchParams.set(
-    "key",
-    videoKey
+  return (
+    `${R2_WORKER}/file?key=` +
+    encodeURIComponent(videoKey)
   );
-
-  return url.toString();
 
 }
 
@@ -580,9 +593,8 @@ async function loadVideos() {
 
     let snapshot;
 
-
     /* --------------------------------------------------------
-       FIRST: ORDERED QUERY
+       TRY CREATED DATE ORDER
     -------------------------------------------------------- */
 
     try {
@@ -604,18 +616,12 @@ async function loadVideos() {
           videosQuery
         );
 
-    }
-
-    catch (error) {
+    } catch (orderError) {
 
       console.warn(
-        "createdAt ordering failed.",
-        error
+        "createdAt ordering failed. Loading normally.",
+        orderError
       );
-
-      /* ------------------------------------------------------
-         FALLBACK
-      ------------------------------------------------------ */
 
       snapshot =
         await getDocs(
@@ -635,19 +641,18 @@ async function loadVideos() {
     videos = [];
 
     snapshot.forEach(
-      docSnap => {
+      videoDoc => {
 
         const data =
-          docSnap.data();
+          videoDoc.data();
 
-        const video = {
+        const video =
+          {
+            id:
+              videoDoc.id,
 
-          id:
-            docSnap.id,
-
-          ...data
-
-        };
+            ...data
+          };
 
         console.log(
           "VIDEO DOCUMENT:",
@@ -669,18 +674,17 @@ async function loadVideos() {
     videos.sort(
       (a, b) => {
 
-        const aSeconds =
-          a.createdAt?.seconds ||
-          0;
+        const aTime =
+          getTimestamp(
+            a.createdAt
+          );
 
-        const bSeconds =
-          b.createdAt?.seconds ||
-          0;
+        const bTime =
+          getTimestamp(
+            b.createdAt
+          );
 
-        return (
-          bSeconds -
-          aSeconds
-        );
+        return bTime - aTime;
 
       }
     );
@@ -708,28 +712,19 @@ async function loadVideos() {
     ) {
 
       const firstVideo =
-        videos.find(
-          video =>
-            !!getVideoKey(video)
-        );
+        videos[0];
 
-      if (firstVideo) {
+      console.log(
+        "FIRST VIDEO:",
+        firstVideo
+      );
 
-        console.log(
-          "Opening first video:",
-          firstVideo
-        );
+      openVideo(
+        firstVideo,
+        false
+      );
 
-        openVideo(
-          firstVideo,
-          false
-        );
-
-      }
-
-    }
-
-    else {
+    } else {
 
       videosContainer.innerHTML = `
         <div class="status">
@@ -739,9 +734,7 @@ async function loadVideos() {
 
     }
 
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(
       "FIRESTORE VIDEO ERROR:",
@@ -760,12 +753,62 @@ async function loadVideos() {
 
 
 /* ============================================================
+   TIMESTAMP HELPER
+============================================================ */
+
+function getTimestamp(value) {
+
+  if (!value) {
+    return 0;
+  }
+
+  if (
+    typeof value.seconds ===
+    "number"
+  ) {
+
+    return value.seconds;
+
+  }
+
+  if (
+    typeof value.toMillis ===
+    "function"
+  ) {
+
+    return value.toMillis();
+
+  }
+
+  if (
+    typeof value ===
+    "string"
+  ) {
+
+    const parsed =
+      Date.parse(value);
+
+    return Number.isNaN(
+      parsed
+    )
+      ? 0
+      : parsed;
+
+  }
+
+  return 0;
+
+}
+
+
+/* ============================================================
    RENDER VIDEOS
 ============================================================ */
 
 function renderVideos() {
 
-  videosContainer.innerHTML = "";
+  videosContainer.innerHTML =
+    "";
 
   noResults.style.display =
     "none";
@@ -793,8 +836,8 @@ function renderVideos() {
               video.category ||
               "General"
             )
-            .toLowerCase()
-            .trim();
+              .toLowerCase()
+              .trim();
 
           return (
             category ===
@@ -814,7 +857,8 @@ function renderVideos() {
   ---------------------------------------------------------- */
 
   if (
-    filtered.length === 0
+    filtered.length ===
+    0
   ) {
 
     noResults.style.display =
@@ -833,7 +877,9 @@ function renderVideos() {
     video => {
 
       videosContainer.appendChild(
-        createVideoCard(video)
+        createVideoCard(
+          video
+        )
       );
 
     }
@@ -846,7 +892,9 @@ function renderVideos() {
    CREATE VIDEO CARD
 ============================================================ */
 
-function createVideoCard(video) {
+function createVideoCard(
+  video
+) {
 
   const card =
     document.createElement(
@@ -873,16 +921,58 @@ function createVideoCard(video) {
     video.status === "premium";
 
 
-  const videoKey =
-    getVideoKey(video);
+  const thumbnailKey =
+    video.thumbnailKey ||
+    video.thumbnail ||
+    "";
+
+
+  let thumbnailHTML =
+    "";
+
+
+  if (thumbnailKey) {
+
+    try {
+
+      const thumbnailURL =
+        buildR2URL(
+          thumbnailKey
+        );
+
+      thumbnailHTML = `
+        <img
+          src="${thumbnailURL}"
+          alt="${escapeHTML(title)}"
+          loading="lazy"
+          onerror="this.style.display='none';"
+        >
+      `;
+
+    } catch (error) {
+
+      console.warn(
+        "Thumbnail error:",
+        error
+      );
+
+    }
+
+  }
 
 
   card.innerHTML = `
 
     <div class="video-thumb">
 
-      <div class="play-icon">
-        ▶
+      ${thumbnailHTML}
+
+      <div class="play-overlay">
+
+        <div class="play-icon">
+          ▶
+        </div>
+
       </div>
 
     </div>
@@ -892,6 +982,18 @@ function createVideoCard(video) {
       <div class="video-title">
         ${escapeHTML(title)}
       </div>
+
+      ${
+        video.description
+          ? `
+            <div class="video-description">
+              ${escapeHTML(
+                video.description
+              )}
+            </div>
+          `
+          : ""
+      }
 
       <div class="video-meta">
 
@@ -906,13 +1008,11 @@ function createVideoCard(video) {
               : "badge-free"
           }"
         >
-
           ${
             premium
               ? "Premium"
               : "Free"
           }
-
         </span>
 
       </div>
@@ -922,38 +1022,9 @@ function createVideoCard(video) {
   `;
 
 
-  /* ----------------------------------------------------------
-     DISABLE CARD WITHOUT FILE
-  ---------------------------------------------------------- */
-
-  if (!videoKey) {
-
-    card.style.opacity =
-      "0.55";
-
-    card.title =
-      "This video has no R2 file attached.";
-
-  }
-
-
-  /* ----------------------------------------------------------
-     CLICK
-  ---------------------------------------------------------- */
-
   card.addEventListener(
     "click",
     () => {
-
-      if (!videoKey) {
-
-        showPlayerError(
-          "This video has no R2 file attached."
-        );
-
-        return;
-
-      }
 
       openVideo(
         video,
@@ -975,17 +1046,19 @@ function createVideoCard(video) {
 
 function openVideo(
   video,
-  scroll = true
+  scrollToPlayer = true
 ) {
 
   console.log(
-    "OPEN VIDEO:",
+    "GTRADES-AXIS™ OPEN VIDEO:",
     video
   );
 
 
   const videoKey =
-    getVideoKey(video);
+    getVideoKey(
+      video
+    );
 
 
   if (!videoKey) {
@@ -1006,6 +1079,7 @@ function openVideo(
 
   let videoURL;
 
+
   try {
 
     videoURL =
@@ -1013,14 +1087,7 @@ function openVideo(
         videoKey
       );
 
-  }
-
-  catch (error) {
-
-    console.error(
-      "R2 URL ERROR:",
-      error
-    );
+  } catch (error) {
 
     showPlayerError(
       error.message
@@ -1042,18 +1109,14 @@ function openVideo(
   );
 
 
-  /* ----------------------------------------------------------
-     TITLE
-  ---------------------------------------------------------- */
+  currentVideoKey =
+    videoKey;
+
 
   nowPlayingTitle.textContent =
     video.title ||
     "GTRADES-AXIS™ Video";
 
-
-  /* ----------------------------------------------------------
-     HIDE ERROR
-  ---------------------------------------------------------- */
 
   playerMessage.classList.remove(
     "show"
@@ -1061,17 +1124,10 @@ function openVideo(
 
 
   /* ----------------------------------------------------------
-     STOP OLD VIDEO
+     STOP PREVIOUS VIDEO
   ---------------------------------------------------------- */
 
-  try {
-
-    player.pause();
-
-  }
-
-  catch (_) {}
-
+  player.pause();
 
   player.removeAttribute(
     "src"
@@ -1081,15 +1137,17 @@ function openVideo(
 
 
   /* ----------------------------------------------------------
-     SET R2 SOURCE
+     LOAD NEW VIDEO
   ---------------------------------------------------------- */
 
   player.src =
     videoURL;
 
+  player.load();
+
 
   /* ----------------------------------------------------------
-     EVENTS
+     ERROR HANDLING
   ---------------------------------------------------------- */
 
   player.onerror =
@@ -1101,31 +1159,19 @@ function openVideo(
       );
 
       showPlayerError(
-        "Unable to play this video from Cloudflare R2."
+        "Unable to play this video. Please try again."
       );
 
     };
-
-
-  player.onloadedmetadata =
-    () => {
-
-      console.log(
-        "VIDEO METADATA LOADED:",
-        videoURL
-      );
-
-    };
-
-
-  player.load();
 
 
   /* ----------------------------------------------------------
      SCROLL
   ---------------------------------------------------------- */
 
-  if (scroll) {
+  if (
+    scrollToPlayer
+  ) {
 
     document
       .querySelector(
@@ -1144,20 +1190,11 @@ function openVideo(
   ---------------------------------------------------------- */
 
   player.play()
-    .then(
-      () => {
-
-        console.log(
-          "Video autoplay started."
-        );
-
-      }
-    )
     .catch(
       error => {
 
         console.log(
-          "Autoplay blocked. User can press Play.",
+          "Autoplay blocked. Press Play.",
           error
         );
 
@@ -1175,24 +1212,13 @@ function showPlayerError(
   message
 ) {
 
-  try {
-
-    player.pause();
-
-  }
-
-  catch (_) {}
-
+  player.pause();
 
   player.removeAttribute(
     "src"
   );
 
   player.load();
-
-
-  nowPlayingTitle.textContent =
-    "Video unavailable";
 
 
   playerMessage.textContent =
@@ -1210,7 +1236,9 @@ function showPlayerError(
    HTML ESCAPE
 ============================================================ */
 
-function escapeHTML(value) {
+function escapeHTML(
+  value
+) {
 
   return String(
     value ?? ""
@@ -1294,7 +1322,7 @@ onAuthStateChanged(
   user => {
 
     console.log(
-      "AUTH STATE:",
+      "GTRADES-AXIS™ AUTH STATE:",
       user
     );
 
@@ -1309,12 +1337,6 @@ onAuthStateChanged(
     }
 
 
-    console.log(
-      "Authenticated user:",
-      user.uid
-    );
-
-
     loadVideos();
 
   }
@@ -1326,11 +1348,11 @@ onAuthStateChanged(
 ============================================================ */
 
 console.log(
-  "GTRADES-AXIS™ Video Academy loaded."
+  "✅ GTRADES-AXIS™ Video Academy loaded"
 );
 
 console.log(
-  "Cloudflare R2 Worker:",
+  "☁️ Cloudflare R2 Worker:",
   R2_WORKER
 );
 
