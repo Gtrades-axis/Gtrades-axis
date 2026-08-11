@@ -2,5 +2,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1106.0",
     "@aws-sdk/s3-request-presigner": "^3.1106.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.120.1"
   }
 }
