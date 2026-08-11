@@ -1,1445 +1,3781 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GTRADES AXIS™ | Admin</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script type="importmap">
-  {
-    "imports": {
-      "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-    }
-  }
-  </script>
-  <script type="module">
-    import { auth, db } from "./js/firebase.js";
-    import { onAuthStateChanged } from "firebase/auth";
-    import { doc, getDoc } from "firebase/firestore";
+<title>GTRADES-AXIS™ | Admin Portal</title>
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const snap = await getDoc(doc(db, "users", user.uid));
-          if (!snap.exists() || snap.data().role !== "admin") {
-            document.body.innerHTML = "";
-            window.location.href = "/dashboard";
-          }
-        } catch (e) {
-          window.location.href = "/login";
-        }
-      } else {
-        window.location.href = "/login";
-      }
-    });
-  </script>
+<style>
+*{
+  box-sizing:border-box;
+}
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  
-  <style>
-    /* ------------------------------------------------------------
-       ALL YOUR EXISTING STYLES – KEEP THEM AS IS
-       (I'm including a minimal set here for brevity, but you can
-       copy your existing styles – they are long and unchanged)
-    ------------------------------------------------------------ */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #0b0d15;
-      color: #e8edf5;
-      min-height: 100vh;
-      display: flex;
-      font-size: 16px;
-    }
-    :root {
-      --bg-primary: #0b0d15;
-      --bg-secondary: #131724;
-      --bg-card: #1a1f2f;
-      --bg-card-hover: #222a3e;
-      --border-color: #2a3450;
-      --text-primary: #e8edf5;
-      --text-secondary: #9aa4bf;
-      --accent-blue: #4f7cff;
-      --green: #00c897;
-      --red: #ff4766;
-      --gold: #f5a623;
-      --radius: 12px;
-      --sidebar-width: 240px;
-    }
-    a { text-decoration: none; color: inherit; }
-    button { cursor: pointer; font-family: inherit; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
+:root{
+  --bg:#05070b;
+  --panel:#0b1018;
+  --panel2:#0f1621;
+  --border:#1d2938;
+  --text:#ffffff;
+  --muted:#8d9aae;
+  --blue:#2196f3;
+  --blue2:#0d6efd;
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#f5c451;
+}
 
-    .sidebar {
-      width: var(--sidebar-width);
-      min-height: 100vh;
-      background: var(--bg-secondary);
-      border-right: 1px solid var(--border-color);
-      padding: 28px 18px;
-      display: flex;
-      flex-direction: column;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      flex-shrink: 0;
-      z-index: 100;
-    }
-    .sidebar .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
-    .sidebar .logo img { width: 42px; height: 42px; object-fit: contain; border-radius: 10px; background: #0f1628; padding: 4px; }
-    .sidebar .logo h2 { font-size: 1.125rem; background: linear-gradient(135deg, #fff 30%, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .sidebar .logo h2 span { -webkit-text-fill-color: var(--accent-blue); }
-    .sidebar nav { flex: 1; }
-    .sidebar nav ul { list-style: none; padding: 0; }
-    .sidebar nav ul li { margin: 2px 0; }
-    .sidebar nav ul li a {
-      display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 8px;
-      color: var(--text-secondary); transition: 0.2s; font-size: 0.875rem; font-weight: 500; border-left: 3px solid transparent;
-    }
-    .sidebar nav ul li a:hover { background: var(--bg-card); color: #fff; }
-    .sidebar nav ul li.active a { background: rgba(79,124,255,0.12); color: var(--accent-blue); border-left-color: var(--accent-blue); }
-    .sidebar nav ul li a i { width: 20px; text-align: center; }
-    .sidebar .logout-btn {
-      margin-top: auto;
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255,71,102,0.08);
-      color: var(--red);
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: 0.25s;
-      font-family: 'Poppins', sans-serif;
-      width: 100%;
-    }
-    .sidebar .logout-btn:hover { background: rgba(255,71,102,0.18); }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
 
-    .admin-main { flex: 1; padding: 28px 36px 40px; max-width: 1440px; margin: 0 auto; width: 100%; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
-    .admin-header h1 { font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, #fff 30%, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .admin-header p { color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px; }
-    .admin-header .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    #liveDate { color: var(--text-secondary); font-size: 0.875rem; padding: 6px 18px; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); }
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
 
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; margin-bottom: 28px; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px 22px; display: flex; align-items: center; gap: 16px; transition: 0.25s; }
-    .stat-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-    .stat-card .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
-    .stat-card .stat-icon.blue { background: rgba(79,124,255,0.15); color: var(--accent-blue); }
-    .stat-card .stat-icon.gold { background: rgba(245,166,35,0.15); color: var(--gold); }
-    .stat-card .stat-icon.green { background: rgba(0,200,151,0.15); color: var(--green); }
-    .stat-card .stat-icon.purple { background: rgba(156,39,176,0.15); color: #9c27b0; }
-    .stat-card .stat-icon.red { background: rgba(255,71,102,0.15); color: var(--red); }
-    .stat-card div h2 { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
-    .stat-card div p { color: var(--text-secondary); font-size: 0.8rem; margin-top: 2px; }
+button{
+  cursor:pointer;
+}
 
-    .quick-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
-    .quick-actions button { padding: 10px 22px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); color: var(--text-primary); font-weight: 500; font-size: 0.875rem; transition: 0.25s; display: inline-flex; align-items: center; gap: 8px; }
-    .quick-actions button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
-    .quick-actions button i { color: var(--accent-blue); }
+header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:#080b11;
+  border-bottom:1px solid var(--border);
+  padding:18px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
 
-    .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 28px; }
-    .dashboard-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 22px 24px; }
-    .dashboard-card h2 { font-size: 1.125rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-    .dashboard-card h2 i { color: var(--accent-blue); }
-    .dashboard-card.large { grid-column: 1; }
+.brand{
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:1px;
+}
 
-    .card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
-    .card-header p { color: var(--text-secondary); font-size: 0.8rem; }
-    .card-header input, .card-header select { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.8rem; font-family: 'Poppins', sans-serif; outline: none; min-width: 160px; }
-    .card-header input:focus, .card-header select:focus { border-color: var(--accent-blue); }
+.brand span{
+  color:var(--blue);
+}
 
-    .table-container { overflow-x: auto; margin-top: 4px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 700px; }
-    thead { border-bottom: 2px solid var(--border-color); }
-    thead th { padding: 12px 12px 10px 12px; text-align: left; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
-    tbody tr { border-bottom: 1px solid var(--border-color); transition: 0.2s; }
-    tbody tr:hover { background: var(--bg-card-hover); }
-    tbody td { padding: 10px 12px; vertical-align: middle; }
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
 
-    .user-cell { display: flex; align-items: center; gap: 12px; }
-    .user-cell .avatar-small { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; }
+.user-email{
+  color:var(--muted);
+  font-size:13px;
+}
 
-    .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
-    .badge.member { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
-    .badge.admin { background: rgba(245,166,35,0.12); color: var(--gold); }
-    .badge.premium { background: rgba(0,200,151,0.12); color: var(--green); }
-    .badge.free { background: rgba(156,39,176,0.12); color: #9c27b0; }
-    .badge.active { background: rgba(0,200,151,0.12); color: var(--green); }
-    .badge.pending { background: rgba(245,166,35,0.12); color: var(--gold); }
-    .badge.suspended { background: rgba(255,71,102,0.12); color: var(--red); }
-    .badge.paid { background: rgba(0,200,151,0.12); color: var(--green); }
-    .badge.unpaid { background: rgba(255,71,102,0.12); color: var(--red); }
-    .badge.published { background: rgba(0,200,151,0.12); color: var(--green); }
-    .badge.draft { background: rgba(245,166,35,0.12); color: var(--gold); }
+.logout-btn{
+  border:1px solid #334155;
+  background:#111827;
+  color:white;
+  padding:9px 14px;
+  border-radius:7px;
+}
 
-    .manage-btn { padding: 4px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: 0.2s; }
-    .manage-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+.logout-btn:hover{
+  border-color:var(--blue);
+}
 
-    .right-panel { display: flex; flex-direction: column; gap: 20px; }
-    .empty-card { text-align: center; padding: 24px 12px; color: var(--text-secondary); }
-    .empty-card i { font-size: 2rem; color: var(--border-color); display: block; margin-bottom: 8px; }
+.layout{
+  display:flex;
+  min-height:calc(100vh - 70px);
+}
 
-    .overview-list { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
-    .overview-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-color); }
-    .overview-item span { color: var(--text-secondary); font-size: 0.8rem; }
-    .overview-item strong { font-size: 1rem; font-weight: 600; }
+.sidebar{
+  width:240px;
+  flex-shrink:0;
+  background:#080b11;
+  border-right:1px solid var(--border);
+  padding:25px 15px;
+}
 
-    .activity-feed .activity-item { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-    .activity-item .activity-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
-    .activity-icon.blue { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
-    .activity-info { flex: 1; }
-    .activity-item h4 { font-size: 0.875rem; }
-    .activity-item p { font-size: 0.75rem; color: var(--text-secondary); }
+.sidebar-title{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin:0 10px 12px;
+}
 
-    .manager-section { margin-top: 24px; }
-    .manager-section .dashboard-card { margin-bottom: 24px; }
+.nav-btn{
+  width:100%;
+  text-align:left;
+  border:1px solid transparent;
+  background:transparent;
+  color:#aeb8c7;
+  padding:13px 14px;
+  border-radius:8px;
+  margin-bottom:6px;
+}
 
-    .manager-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .manager-form .full-width { grid-column: 1 / -1; }
-    .manager-form label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
-    .manager-form input, .manager-form select, .manager-form textarea { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.8rem; font-family: 'Poppins', sans-serif; outline: none; width: 100%; }
-    .manager-form input:focus, .manager-form select:focus, .manager-form textarea:focus { border-color: var(--accent-blue); }
-    .manager-form textarea { min-height: 100px; resize: vertical; }
-    .manager-form .checkbox-group { display: flex; align-items: center; gap: 10px; }
-    .manager-form .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
-    .manager-form .form-actions { grid-column: 1 / -1; display: flex; gap: 12px; }
-    .manager-form .form-actions button { padding: 10px 22px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.875rem; transition: 0.25s; flex: 1; }
-    .manager-form .form-actions .save-btn { background: var(--accent-blue); color: #fff; }
-    .manager-form .form-actions .cancel-btn { background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+.nav-btn:hover,
+.nav-btn.active{
+  background:#101b2a;
+  color:white;
+  border-color:#1e4165;
+}
 
-    .module-status-toggle { cursor: pointer; transition: 0.2s; }
-    .module-status-toggle:hover { opacity: 0.7; }
+.nav-btn.active{
+  color:var(--blue);
+}
 
-    .payments-stats { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
-    .payments-stats .p-stat { background: var(--bg-primary); padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); font-size: 0.8rem; }
-    .p-stat span { font-weight: 700; }
-    .p-stat .pending { color: var(--gold); }
-    .p-stat .approved { color: var(--green); }
-    .p-stat .rejected { color: var(--red); }
-    
-    .btn-approve { background: rgba(0,200,151,0.12); color: var(--green); border: none; padding: 4px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
-    .btn-approve:hover { background: var(--green); color: #fff; }
-    .btn-reject { background: rgba(255,71,102,0.12); color: var(--red); border: none; padding: 4px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
-    .btn-reject:hover { background: var(--red); color: #fff; }
-    .btn-view-proof { background: rgba(79,124,255,0.12); color: var(--accent-blue); padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; border: none; cursor: pointer; }
-    .btn-view-proof:hover { background: var(--accent-blue); color: #fff; }
+.main{
+  flex:1;
+  padding:30px;
+  min-width:0;
+}
 
-    .member-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
-    .member-modal.active { display: flex; }
-    .member-modal-content { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); max-width: 520px; width: 92%; padding: 30px 26px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
-    .member-modal-content .close-modal { position: absolute; top: 16px; right: 20px; font-size: 28px; color: var(--text-secondary); cursor: pointer; background: none; border: none; transition: 0.2s; }
-    .member-modal-content .close-modal:hover { color: #fff; }
-    .member-modal-content h2 { font-size: 1.375rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .member-modal-content h2 i { color: var(--accent-blue); }
+.page{
+  display:none;
+}
 
-    .member-profile { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
-    .member-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
-    .member-profile h3 { font-size: 1.125rem; }
-    .member-profile p { color: var(--text-secondary); font-size: 0.875rem; }
+.page.active{
+  display:block;
+}
 
-    .member-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
-    .detail-box { background: var(--bg-primary); border-radius: 8px; padding: 12px 14px; }
-    .detail-box label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; display: block; }
-    .detail-box span { font-size: 1rem; font-weight: 600; display: block; margin-top: 2px; }
+.page-title{
+  font-size:30px;
+  margin:0;
+}
 
-    .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .modal-actions button { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; flex: 1 0 auto; justify-content: center; cursor: pointer; }
-    .approve-btn { background: rgba(0,200,151,0.12); color: var(--green); }
-    .approve-btn:hover { background: var(--green); color: #fff; }
-    .premium-btn { background: rgba(245,166,35,0.12); color: var(--gold); }
-    .premium-btn:hover { background: var(--gold); color: #0b0d15; }
-    .admin-btn { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
-    .admin-btn:hover { background: var(--accent-blue); color: #fff; }
-    .suspend-btn { background: rgba(255,71,102,0.12); color: var(--red); }
-    .suspend-btn:hover { background: var(--red); color: #fff; }
-    .delete-btn { background: rgba(255,71,102,0.12); color: var(--red); }
-    .delete-btn:hover { background: var(--red); color: #fff; }
+.page-subtitle{
+  color:var(--muted);
+  margin:8px 0 28px;
+}
 
-    @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } }
-    @media (max-width: 992px) { .sidebar { width: 200px; padding: 20px 14px; } .admin-main { padding: 20px 24px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 768px) {
-      .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--border-color); min-height: auto; }
-      .sidebar .logo { margin-bottom: 0; flex: 1; } .sidebar nav { flex: 1 1 100%; order: 3; margin-top: 10px; }
-      .admin-main { padding: 16px; } .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .right-panel { grid-template-columns: 1fr; } .manager-form { grid-template-columns: 1fr; }
-    }
-    .admin-footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
-    
-    .file-picker { display: flex; flex-direction: column; gap: 6px; }
-    .file-picker input[type="file"] { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; color: #fff; }
-    .file-picker .file-name { color: var(--text-secondary); font-size: 0.8rem; }
-    .recent-member { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
-    .recent-member .member-info h4 { font-size: 0.875rem; }
-    .recent-member .member-info p { font-size: 0.75rem; color: var(--text-secondary); }
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-bottom:25px;
+}
 
-    .video-preview { margin-top: 10px; max-width: 300px; }
-    .video-preview video { width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
-    /* VIDEO UPLOAD FEEDBACK */
-    .upload-status { display:none; margin-top:14px; padding:14px 16px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-primary); }
-    .upload-status.show { display:block; }
-    .upload-status-row { display:flex; align-items:center; gap:10px; font-size:.82rem; font-weight:600; }
-    .upload-status-row i { color:var(--accent-blue); }
-    .upload-status.success { border-color:rgba(0,200,151,.45); background:rgba(0,200,151,.08); }
-    .upload-status.success .upload-status-row i { color:var(--green); }
-    .upload-status.error { border-color:rgba(255,71,102,.45); background:rgba(255,71,102,.08); }
-    .upload-status.error .upload-status-row i { color:var(--red); }
-    .upload-status-detail { margin-top:5px; color:var(--text-secondary); font-size:.72rem; word-break:break-word; }
-    .upload-progress { width:100%; height:6px; margin-top:10px; overflow:hidden; border-radius:20px; background:#0b0d15; }
-    .upload-progress-bar { width:35%; height:100%; border-radius:20px; background:var(--accent-blue); animation:uploadPulse 1.2s ease-in-out infinite; }
-    .upload-status.success .upload-progress, .upload-status.error .upload-progress { display:none; }
-    @keyframes uploadPulse { 0%{transform:translateX(-120%)} 50%{transform:translateX(180%)} 100%{transform:translateX(350%)} }
-    .save-btn.uploading { opacity:.75; cursor:wait; }
-  </style>
-</head>
-<body>
+.stat{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+}
 
-<!-- ===== SIDEBAR ===== -->
-<aside class="sidebar">
-  <div class="logo"><img src="images/imageslogo.png.png" alt="Logo" /><h2>GTRADES <span>AXIS™</span></h2></div>
-  <nav>
-    <ul>
-      <li class="active"><a href="#dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-      <li><a href="#members"><i class="fa-solid fa-users"></i> Members</a></li>
-      <li><a href="#academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
-      <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
-      <li><a href="#videos"><i class="fa-solid fa-video"></i> Videos</a></li>
-      <li><a href="#payments"><i class="fa-solid fa-credit-card"></i> Payments</a></li>
-    </ul>
-  </nav>
-  <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-</aside>
+.stat-label{
+  color:var(--muted);
+  font-size:13px;
+}
 
-<!-- ===== MAIN ===== -->
-<main class="admin-main">
-  <header class="admin-header">
-    <div><h1>GTRADES-AXIS ADMIN</h1><p>Manage Members • Academy • Resources</p></div>
-    <div class="header-right"><div id="liveDate"></div></div>
-  </header>
+.stat-number{
+  font-size:30px;
+  font-weight:800;
+  margin-top:8px;
+}
 
-  <!-- STATS -->
-  <section class="stats-grid">
-    <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-users"></i></div><div><h2 id="totalMembers">0</h2><p>Total Members</p></div></div>
-    <div class="stat-card"><div class="stat-icon gold"><i class="fa-solid fa-crown"></i></div><div><h2 id="premiumMembers">0</h2><p>Premium Members</p></div></div>
-    <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-graduation-cap"></i></div><div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div></div>
-    <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-video"></i></div><div><h2 id="videoCount">0</h2><p>Videos</p></div></div>
-    <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-clock"></i></div><div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div></div>
-  </section>
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-bottom:25px;
+  overflow:hidden;
+}
 
-  <!-- QUICK ACTIONS -->
-  <section class="quick-actions">
-    <button onclick="document.getElementById('academy').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-book-medical"></i> Manage Modules</button>
-    <button onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-video-plus"></i> Add Video</button>
-    <button onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
-    <button onclick="document.getElementById('payments').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-credit-card"></i> View Payments</button>
-  </section>
+.panel-header{
+  padding:18px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
 
-  <!-- DASHBOARD GRID -->
-  <div class="dashboard-grid">
-    <div class="dashboard-card large" id="members">
-      <div class="card-header"><div><h2><i class="fa-solid fa-users"></i> Members Management</h2></div><input type="text" id="memberSearch" placeholder="🔍 Search member..." /></div>
-      <div class="table-container"><table class="members-table"><thead><tr><th>User</th><th>Membership</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody id="membersTable"><tr><td colspan="5"><div class="empty-card">Loading members...</div></td></tr></tbody></table></div>
-    </div>
-    <div class="right-panel">
-      <div class="dashboard-card"><h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2><div id="recentMembers"><div class="empty-card">No members yet.</div></div></div>
-      <div class="dashboard-card"><h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2><div class="overview-list"><div class="overview-item"><span>Academy Modules</span><strong id="moduleOverview">0</strong></div><div class="overview-item"><span>Videos</span><strong id="videoOverview">0</strong></div><div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div></div></div>
-      <div class="dashboard-card"><h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2><div class="activity-feed" id="activityFeed"></div></div>
-    </div>
-  </div>
+.panel-title{
+  margin:0;
+  font-size:18px;
+}
 
-  <!-- ========================================================== ACADEMY MANAGER -->
-  <section class="manager-section" id="academy">
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules.</p></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
-          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples</button>
-        </div>
-      </div>
-      <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules...</div></td></tr></tbody></table></div></div>
-      <div id="moduleFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="moduleFormTitle">Add New Module</h3>
-        <form id="moduleForm" class="manager-form">
-          <div><label>Module Number</label><input type="number" id="moduleOrder" placeholder="e.g. 1" required min="1" /></div>
-          <div><label>Module Title</label><input type="text" id="moduleTitle" placeholder="e.g. Market Structure" required /></div>
-          <div class="full-width"><label>Description</label><textarea id="moduleDescription" rows="2"></textarea></div>
-          <div class="full-width"><label>Content (HTML)</label><textarea id="moduleContent" rows="10"></textarea></div>
-          <div class="full-width"><label>Module File (PDF/Video)</label><div class="file-picker"><input type="file" id="moduleFilePicker" accept=".pdf,.mp4,.mov,.avi" /><div class="file-name" id="moduleFileName">No file chosen</div></div></div>
-          <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label>Has Quiz</label></div>
-          <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label>Published</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveModuleBtn">Save Module</button><button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button></div>
-          <input type="hidden" id="editingModuleId" />
-          <input type="hidden" id="existingModuleFileKey" />
-        </form>
-      </div>
-    </div>
-  </section>
+.panel-body{
+  padding:20px;
+}
 
-  <!-- ========================================================== PAYMENTS MANAGER -->
-  <section class="manager-section" id="payments">
-    <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
-      <div class="payments-stats">
-        <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
-        <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
-        <div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div>
-      </div>
-      <div class="table-container">
-        <table class="members-table" id="paymentsTable">
-          <thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+.primary-btn{
+  border:0;
+  background:var(--blue);
+  color:white;
+  padding:11px 16px;
+  border-radius:7px;
+  font-weight:700;
+}
 
-  <!-- ========================================================== VIDEO MANAGER (FILE UPLOAD) -->
-  <section class="manager-section" id="videos">
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Upload video files (MP4, MOV, etc.) to Cloudflare R2.</p></div>
-        <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Video</button>
-      </div>
-      <div id="videoListContainer"><div class="table-container"><table class="members-table" id="videoTable"><thead><tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody id="videoTableBody"><tr><td colspan="6"><div class="empty-card">No videos yet. Upload one above!</div></td></tr></tbody></table></div></div>
-      <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="videoFormTitle">Upload Video File</h3>
-        <form id="videoForm" class="manager-form">
-          <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required /></div>
-          <div><label>Category</label><select id="videoCategory"><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
-          <div><label>Duration</label><input type="text" id="videoDuration" placeholder="e.g. 12:45" /></div>
-          <div class="full-width"><label>Video File (MP4, MOV, AVI, etc.)</label>
-            <div class="file-picker">
-              <input type="file" id="videoFilePicker" accept="video/*" required />
-              <div class="file-name" id="videoFileName">No file chosen</div>
-              <div class="video-preview" id="videoPreview" style="display:none;"><video id="videoPreviewEl" controls style="width:100%; max-height:200px;"></video></div>
-            </div>
-            <small style="color:var(--text-secondary);">Select a video file from your device. It will be uploaded to Cloudflare R2.</small>
-          </div>
-          <div class="full-width"><label>Thumbnail Image (Optional)</label>
-            <div class="file-picker">
-              <input type="file" id="videoThumbnailFile" accept="image/*" />
-              <div class="file-name" id="thumbnailFileName">No file chosen</div>
-              <div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div>
-            </div>
-          </div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-upload"></i> Upload Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
-          <div id="videoUploadStatus" class="upload-status" aria-live="polite">
-            <div class="upload-status-row"><i id="videoUploadStatusIcon" class="fa-solid fa-cloud-arrow-up"></i><span id="videoUploadStatusText">Ready to upload.</span></div>
-            <div id="videoUploadStatusDetail" class="upload-status-detail"></div>
-            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
-          </div>
-          <input type="hidden" id="editingVideoId" />
-          <input type="hidden" id="existingVideoKey" />
-          <input type="hidden" id="existingThumbnailKey" />
-        </form>
-      </div>
-    </div>
-  </section>
+.primary-btn:hover{
+  background:#1976d2;
+}
 
-  <!-- ========================================================== RESOURCE MANAGER -->
-  <section class="manager-section" id="resources">
-    <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage PDFs, indicators, journals (stored in R2).</p></div>
-        <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Resource</button>
-      </div>
-      <div id="resourceListContainer"><div class="table-container"><table class="members-table" id="resourceTable"><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody></table></div></div>
-      <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="resourceFormTitle">Add New Resource</h3>
-        <form id="resourceForm" class="manager-form">
-          <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
-          <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option></select></div>
-          <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
-          <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
-          <div id="resourceUploadProgress" style="display:none;grid-column:1/-1;margin:6px 0 4px;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;">
-            <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#94a3b8;font-size:13px;">
-              <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
-            </div>
-            <div style="width:100%;height:8px;background:#172033;border-radius:20px;overflow:hidden;">
-              <div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div>
-            </div>
-          </div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
-          <input type="hidden" id="editingResourceId" />
-        </form>
-      </div>
-    </div>
-  </section>
+.secondary-btn{
+  border:1px solid #334155;
+  background:#111827;
+  color:white;
+  padding:10px 15px;
+  border-radius:7px;
+}
 
-  <footer class="admin-footer"><p>© <span id="year"></span> GTRADES AXIS™ | Professional Trading Platform</p></footer>
-</main>
+.danger-btn{
+  border:1px solid #6b2020;
+  background:#211011;
+  color:#ff7777;
+  padding:9px 13px;
+  border-radius:7px;
+}
 
-<!-- ===== MEMBER MODAL ===== -->
-<div class="member-modal" id="memberModal">
-  <div class="member-modal-content">
-    <button class="close-modal" id="closeModal">&times;</button>
-    <h2><i class="fa-solid fa-user"></i> Member Details</h2>
-    <div class="member-profile"><div class="member-avatar" id="memberAvatar">U</div><div><h3 id="modalName">Member Name</h3><p id="modalEmail">member@email.com</p></div></div>
-    <div class="member-details">
-      <div class="detail-box"><label>Membership</label><span id="modalRole">Free</span></div>
-      <div class="detail-box"><label>Status</label><span id="modalStatus">Pending</span></div>
-      <div class="detail-box"><label>Payment</label><span id="modalPayment">Unpaid</span></div>
-      <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
-    </div>
-    <div class="modal-actions">
-      <button id="approveBtn" class="approve-btn">Approve</button>
-      <button id="premiumBtn" class="premium-btn">Premium</button>
-      <button id="adminBtn" class="admin-btn">Admin</button>
-      <button id="suspendBtn" class="suspend-btn">Suspend</button>
-      <button id="deleteBtn" class="delete-btn">Delete</button>
-    </div>
-  </div>
-</div>
+.form-container{
+  display:none;
+}
 
-<!-- ========================================================== SCRIPTS (ALL FEATURES) -->
-<script type="importmap">
-{
-  "imports": {
-    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.form-group.full{
+  grid-column:1/-1;
+}
+
+label{
+  color:#cbd5e1;
+  font-size:13px;
+  font-weight:700;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  background:#070b11;
+  color:white;
+  border:1px solid #263244;
+  border-radius:7px;
+  padding:12px;
+  outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--blue);
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+.file-box{
+  border:1px dashed #334155;
+  background:#070b11;
+  border-radius:8px;
+  padding:18px;
+}
+
+.file-box input{
+  padding:0;
+  border:0;
+  background:transparent;
+}
+
+.file-name{
+  color:var(--muted);
+  margin-top:8px;
+  font-size:13px;
+  word-break:break-all;
+}
+
+.checkbox-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.checkbox-row input{
+  width:auto;
+}
+
+.form-actions{
+  display:flex;
+  gap:10px;
+  margin-top:22px;
+}
+
+.upload-status{
+  display:none;
+  margin-top:18px;
+  padding:15px;
+  border:1px solid #263244;
+  border-radius:8px;
+  background:#070b11;
+}
+
+.upload-status.show{
+  display:block;
+}
+
+.upload-status.success{
+  border-color:#166534;
+  background:#07140c;
+}
+
+.upload-status.error{
+  border-color:#7f1d1d;
+  background:#1a0808;
+}
+
+.status-main{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:700;
+}
+
+.status-detail{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:6px;
+}
+
+.preview-box{
+  display:none;
+  margin-top:12px;
+  background:#000;
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.preview-box video{
+  display:block;
+  width:100%;
+  max-height:350px;
+}
+
+.preview-image{
+  display:none;
+  margin-top:12px;
+  max-width:220px;
+  border-radius:8px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  text-align:left;
+  color:#8491a5;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  padding:13px;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+
+td{
+  padding:13px;
+  border-bottom:1px solid #131d2a;
+  color:#d8dee8;
+  vertical-align:middle;
+}
+
+tr:hover td{
+  background:#0d141e;
+}
+
+.thumb{
+  width:55px;
+  height:42px;
+  object-fit:cover;
+  border-radius:6px;
+  background:#111827;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:5px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.badge.free{
+  background:#123b27;
+  color:#55e89a;
+}
+
+.badge.premium{
+  background:#392b08;
+  color:#f5c451;
+}
+
+.action-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.action-btn{
+  border:1px solid #334155;
+  background:#111827;
+  color:#d8dee8;
+  padding:7px 10px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+.action-btn:hover{
+  border-color:var(--blue);
+  color:white;
+}
+
+.action-btn.preview{
+  color:#55e89a;
+  border-color:#176333;
+}
+
+.action-btn.delete{
+  color:#ff7070;
+  border-color:#652323;
+}
+
+.empty{
+  padding:45px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.loading-screen{
+  position:fixed;
+  inset:0;
+  background:#05070b;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+
+.spinner{
+  width:35px;
+  height:35px;
+  border:3px solid #263244;
+  border-top-color:var(--blue);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+
+.loading-text{
+  margin-top:15px;
+  color:var(--muted);
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
   }
 }
-</script>
+
+.mobile-menu{
+  display:none;
+}
+
+@media(max-width:900px){
+
+  .sidebar{
+    width:190px;
+  }
+
+  .main{
+    padding:20px;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:700px){
+
+  header{
+    padding:15px;
+  }
+
+  .user-email{
+    display:none;
+  }
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    width:100%;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    gap:5px;
+    padding:10px;
+    overflow-x:auto;
+  }
+
+  .sidebar-title{
+    display:none;
+  }
+
+  .nav-btn{
+    width:auto;
+    white-space:nowrap;
+    margin:0;
+  }
+
+  .main{
+    padding:15px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-group.full{
+    grid-column:auto;
+  }
+
+  .panel-header{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .page-title{
+    font-size:24px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loadingScreen" class="loading-screen">
+  <div class="spinner"></div>
+  <div class="loading-text">Checking admin access...</div>
+</div>
+
+<header>
+
+  <div class="brand">
+    GTRADES-<span>AXIS™</span>
+  </div>
+
+  <div class="header-right">
+    <div id="userEmail" class="user-email"></div>
+    <button id="logoutBtn" class="logout-btn">
+      Logout
+    </button>
+  </div>
+
+</header>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-title">
+      ADMINISTRATION
+    </div>
+
+    <button class="nav-btn active" data-page="dashboardPage">
+      Dashboard
+    </button>
+
+    <button class="nav-btn" data-page="videosPage">
+      Videos
+    </button>
+
+    <button class="nav-btn" data-page="resourcesPage">
+      Resources
+    </button>
+
+  </aside>
+
+
+  <main class="main">
+
+    <!-- =====================================================
+         DASHBOARD
+    ====================================================== -->
+
+    <section id="dashboardPage" class="page active">
+
+      <h1 class="page-title">
+        Admin Dashboard
+      </h1>
+
+      <p class="page-subtitle">
+        Manage your GTRADES-AXIS™ academy content.
+      </p>
+
+      <div class="stats">
+
+        <div class="stat">
+          <div class="stat-label">
+            Total Videos
+          </div>
+
+          <div id="videoCount" class="stat-number">
+            0
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            Total Resources
+          </div>
+
+          <div id="resourceCount" class="stat-number">
+            0
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            Academy Content
+          </div>
+
+          <div id="contentCount" class="stat-number">
+            0
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+          <h2 class="panel-title">
+            Quick Actions
+          </h2>
+        </div>
+
+        <div class="panel-body">
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+            <button
+              class="primary-btn"
+              id="quickVideoBtn"
+            >
+              Upload Video
+            </button>
+
+            <button
+              class="secondary-btn"
+              id="quickResourceBtn"
+            >
+              Upload Resource
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         VIDEOS
+    ====================================================== -->
+
+    <section id="videosPage" class="page">
+
+      <h1 class="page-title">
+        Video Academy
+      </h1>
+
+      <p class="page-subtitle">
+        Upload and manage academy videos stored in Cloudflare R2.
+      </p>
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <h2
+            id="videoFormTitle"
+            class="panel-title"
+          >
+            Upload Video
+          </h2>
+
+          <button
+            id="toggleVideoFormBtn"
+            class="primary-btn"
+          >
+            + Upload Video
+          </button>
+
+        </div>
+
+
+        <div
+          id="videoFormContainer"
+          class="panel-body form-container"
+        >
+
+          <form id="videoForm">
+
+            <input
+              type="hidden"
+              id="editingVideoId"
+            >
+
+            <input
+              type="hidden"
+              id="existingVideoKey"
+            >
+
+            <input
+              type="hidden"
+              id="existingThumbnailKey"
+            >
+
+
+            <div class="form-grid">
+
+              <div class="form-group full">
+
+                <label>
+                  Video Title
+                </label>
+
+                <input
+                  type="text"
+                  id="videoTitle"
+                  placeholder="e.g. Understanding Market Structure"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Category
+                </label>
+
+                <select id="videoCategory">
+
+                  <option value="Market Structure">
+                    Market Structure
+                  </option>
+
+                  <option value="Supply & Demand">
+                    Supply & Demand
+                  </option>
+
+                  <option value="Entries">
+                    Entries
+                  </option>
+
+                  <option value="Risk Management">
+                    Risk Management
+                  </option>
+
+                  <option value="Psychology">
+                    Psychology
+                  </option>
+
+                  <option value="General">
+                    General
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Duration
+                </label>
+
+                <input
+                  type="text"
+                  id="videoDuration"
+                  placeholder="e.g. 12:45"
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Video File
+                </label>
+
+                <div class="file-box">
+
+                  <input
+                    type="file"
+                    id="videoFilePicker"
+                    accept="video/*"
+                  >
+
+                  <div
+                    id="videoFileName"
+                    class="file-name"
+                  >
+                    No file chosen
+                  </div>
+
+                </div>
+
+                <div
+                  id="videoPreview"
+                  class="preview-box"
+                >
+
+                  <video
+                    id="videoPreviewEl"
+                    controls
+                    playsinline
+                  ></video>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Thumbnail
+                </label>
+
+                <div class="file-box">
+
+                  <input
+                    type="file"
+                    id="videoThumbnailFile"
+                    accept="image/*"
+                  >
+
+                  <div
+                    id="thumbnailFileName"
+                    class="file-name"
+                  >
+                    No file chosen
+                  </div>
+
+                </div>
+
+                <img
+                  id="thumbnailPreviewImg"
+                  class="preview-image"
+                  alt="Thumbnail preview"
+                >
+
+              </div>
+
+
+              <div class="form-group full">
+
+                <label>
+                  Access
+                </label>
+
+                <div class="checkbox-row">
+
+                  <input
+                    type="checkbox"
+                    id="videoPremiumOnly"
+                  >
+
+                  <span>
+                    Premium members only
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+              <button
+                type="submit"
+                id="saveVideoBtn"
+                class="primary-btn"
+              >
+                Upload Video
+              </button>
+
+              <button
+                type="button"
+                id="cancelVideoBtn"
+                class="secondary-btn"
+              >
+                Cancel
+              </button>
+
+            </div>
+
+
+            <div
+              id="videoUploadStatus"
+              class="upload-status"
+            >
+
+              <div class="status-main">
+
+                <span id="videoUploadStatusIcon">
+                  ☁
+                </span>
+
+                <span id="videoUploadStatusText">
+                  Ready to upload.
+                </span>
+
+              </div>
+
+              <div
+                id="videoUploadStatusDetail"
+                class="status-detail"
+              ></div>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <h2 class="panel-title">
+            Video Library
+          </h2>
+
+          <span
+            id="videoOverview"
+            style="color:var(--muted);"
+          >
+            0
+          </span>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Thumbnail</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Duration</th>
+                <th>Access</th>
+                <th>Actions</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="videoTableBody">
+
+              <tr>
+                <td colspan="6">
+                  <div class="empty">
+                    Loading videos...
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RESOURCES
+    ====================================================== -->
+
+    <section id="resourcesPage" class="page">
+
+      <h1 class="page-title">
+        Academy Resources
+      </h1>
+
+      <p class="page-subtitle">
+        Upload PDFs, journals, templates, checklists and other academy files to Cloudflare R2.
+      </p>
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <h2
+            id="resourceFormTitle"
+            class="panel-title"
+          >
+            Upload Resource
+          </h2>
+
+          <button
+            id="toggleResourceFormBtn"
+            class="primary-btn"
+          >
+            + Upload Resource
+          </button>
+
+        </div>
+
+
+        <div
+          id="resourceFormContainer"
+          class="panel-body form-container"
+        >
+
+          <form id="resourceForm">
+
+            <input
+              type="hidden"
+              id="editingResourceId"
+            >
+
+            <input
+              type="hidden"
+              id="existingResourceKey"
+            >
+
+
+            <div class="form-grid">
+
+              <div class="form-group full">
+
+                <label>
+                  Resource Title
+                </label>
+
+                <input
+                  type="text"
+                  id="resourceTitle"
+                  placeholder="e.g. GTRADES-AXIS™ Trading Plan"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Category
+                </label>
+
+                <select id="resourceCategory">
+
+                  <option value="Trading Plan">
+                    Trading Plan
+                  </option>
+
+                  <option value="Checklist">
+                    Checklist
+                  </option>
+
+                  <option value="Journal">
+                    Journal
+                  </option>
+
+                  <option value="Risk Management">
+                    Risk Management
+                  </option>
+
+                  <option value="Templates">
+                    Templates
+                  </option>
+
+                  <option value="Wallpapers">
+                    Wallpapers
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Access
+                </label>
+
+                <select id="resourcePremiumOnly">
+
+                  <option value="false">
+                    Free
+                  </option>
+
+                  <option value="true">
+                    Premium
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="form-group full">
+
+                <label>
+                  Resource File
+                </label>
+
+                <div class="file-box">
+
+                  <input
+                    type="file"
+                    id="resourceFilePicker"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.txt,.png,.jpg,.jpeg,.webp"
+                  >
+
+                  <div
+                    id="resourceFileName"
+                    class="file-name"
+                  >
+                    No file chosen
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+              <button
+                type="submit"
+                id="saveResourceBtn"
+                class="primary-btn"
+              >
+                Upload Resource
+              </button>
+
+              <button
+                type="button"
+                id="cancelResourceBtn"
+                class="secondary-btn"
+              >
+                Cancel
+              </button>
+
+            </div>
+
+
+            <div
+              id="resourceUploadStatus"
+              class="upload-status"
+            >
+
+              <div class="status-main">
+
+                <span id="resourceUploadStatusIcon">
+                  ☁
+                </span>
+
+                <span id="resourceUploadStatusText">
+                  Ready to upload.
+                </span>
+
+              </div>
+
+              <div
+                id="resourceUploadStatusDetail"
+                class="status-detail"
+              ></div>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <h2 class="panel-title">
+            Resource Library
+          </h2>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>File</th>
+                <th>Access</th>
+                <th>Actions</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="resourceTableBody">
+
+              <tr>
+                <td colspan="5">
+                  <div class="empty">
+                    Loading resources...
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
 
 <script type="module">
-  // ─── IMPORTS ──────────────────────────────────────────────────────────────
-  import { auth, db } from "./js/firebase.js";
-  import { signOut, onAuthStateChanged } from "firebase/auth";
-  import { 
-    collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, 
-    onSnapshot, serverTimestamp, addDoc 
-  } from "firebase/firestore";
-  import { uploadToR2, getDownloadUrl } from "./js/upload.js";
 
-  // ─── GLOBALS ──────────────────────────────────────────────────────────────
-  let allMembers = [];
-  let selectedUser = null;
-  let currentModules = [];
-  let videos = [];
+/* ============================================================
+   FIREBASE IMPORTS
+============================================================ */
 
-  // ─── DOM REFS ─────────────────────────────────────────────────────────────
-  const membersTableBody = document.getElementById('membersTable');
-  const memberSearch = document.getElementById('memberSearch');
-  const memberModal = document.getElementById('memberModal');
-  const closeModal = document.getElementById('closeModal');
-  const modalName = document.getElementById('modalName');
-  const modalEmail = document.getElementById('modalEmail');
-  const modalRole = document.getElementById('modalRole');
-  const modalStatus = document.getElementById('modalStatus');
-  const modalPayment = document.getElementById('modalPayment');
-  const modalJoined = document.getElementById('modalJoined');
-  const modalAvatar = document.getElementById('memberAvatar');
-  const modalApproveBtn = document.getElementById('approveBtn');
-  const modalPremiumBtn = document.getElementById('premiumBtn');
-  const modalAdminBtn = document.getElementById('adminBtn');
-  const modalSuspendBtn = document.getElementById('suspendBtn');
-  const modalDeleteBtn = document.getElementById('deleteBtn');
+import {
+  initializeApp
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 
-  // ─── LOGOUT & CLOCK ──────────────────────────────────────────────────────
-  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-    if (confirm("Logout?")) { await signOut(auth); window.location.href = "/login"; }
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+/* ============================================================
+   FIREBASE CONFIG
+============================================================ */
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+
+  authDomain:
+    "gtrades-axis.firebaseapp.com",
+
+  projectId:
+    "gtrades-axis",
+
+  storageBucket:
+    "gtrades-axis.firebasestorage.app",
+
+  messagingSenderId:
+    "111456545888",
+
+  appId:
+    "1:111456545888:web:f0526c142d7ea5e22fe705"
+
+};
+
+
+/* ============================================================
+   INITIALIZE
+============================================================ */
+
+const app =
+  initializeApp(firebaseConfig);
+
+const auth =
+  getAuth(app);
+
+const db =
+  getFirestore(app);
+
+
+/* ============================================================
+   CLOUDFLARE R2 WORKER
+============================================================ */
+
+const R2_WORKER =
+  "https://r2-uploader.davidthuku574.workers.dev";
+
+
+/* ============================================================
+   GLOBAL STATE
+============================================================ */
+
+let videos = [];
+let resources = [];
+
+let videoUnsubscribe = null;
+let resourceUnsubscribe = null;
+
+
+/* ============================================================
+   ELEMENT HELPERS
+============================================================ */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* ============================================================
+   R2 URL
+============================================================ */
+
+function getDownloadUrl(key){
+
+  if(!key){
+    throw new Error(
+      "Missing R2 file key."
+    );
+  }
+
+  const url =
+    new URL(R2_WORKER);
+
+  url.searchParams.set(
+    "key",
+    key
+  );
+
+  url.searchParams.set(
+    "action",
+    "file"
+  );
+
+  return url.toString();
+
+}
+
+
+/* ============================================================
+   R2 UPLOAD
+============================================================ */
+
+async function uploadToR2(file,key){
+
+  if(!file){
+    throw new Error(
+      "No file selected."
+    );
+  }
+
+  if(!key){
+    throw new Error(
+      "No R2 key generated."
+    );
+  }
+
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "file",
+    file,
+    file.name
+  );
+
+  formData.append(
+    "key",
+    key
+  );
+
+  formData.append(
+    "contentType",
+    file.type ||
+    "application/octet-stream"
+  );
+
+
+  const response =
+    await fetch(
+      `${R2_WORKER}/upload`,
+      {
+        method:"POST",
+        body:formData
+      }
+    );
+
+
+  let result;
+
+  try{
+    result =
+      await response.json();
+  }
+
+  catch{
+    throw new Error(
+      `R2 returned HTTP ${response.status}.`
+    );
+  }
+
+
+  if(
+    !response.ok ||
+    !result.success
+  ){
+
+    throw new Error(
+      result.error ||
+      `R2 upload failed with HTTP ${response.status}.`
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* ============================================================
+   SAFE R2 FILE NAME
+============================================================ */
+
+function safeFileName(name){
+
+  const original =
+    String(name || "file");
+
+  const extensionMatch =
+    original.match(/\.([^.]+)$/);
+
+  const extension =
+    extensionMatch
+      ? "." + extensionMatch[1].toLowerCase()
+      : "";
+
+  const base =
+    original
+      .replace(/\.[^.]+$/,"")
+      .replace(/[^a-z0-9]+/gi,"_")
+      .replace(/^_+|_+$/g,"")
+      .slice(0,80);
+
+  return (
+    base ||
+    "file"
+  ) + extension;
+
+}
+
+
+/* ============================================================
+   ELAPSED TIME
+============================================================ */
+
+function formatElapsed(ms){
+
+  const seconds =
+    Math.max(
+      0,
+      Math.floor(ms / 1000)
+    );
+
+  const minutes =
+    Math.floor(
+      seconds / 60
+    );
+
+  const sec =
+    seconds % 60;
+
+  return minutes
+    ? `${minutes}m ${String(sec).padStart(2,"0")}s`
+    : `${sec}s`;
+
+}
+
+
+/* ============================================================
+   UPLOAD STATUS
+============================================================ */
+
+function setUploadStatus(
+  prefix,
+  type,
+  text,
+  detail=""
+){
+
+  const status =
+    $(prefix + "Status");
+
+  const icon =
+    $(prefix + "UploadStatusIcon");
+
+  const statusText =
+    $(prefix + "UploadStatusText");
+
+  const statusDetail =
+    $(prefix + "UploadStatusDetail");
+
+
+  if(!status){
+    return;
+  }
+
+
+  status.className =
+    "upload-status show";
+
+
+  if(type === "success"){
+    status.classList.add("success");
+  }
+
+  if(type === "error"){
+    status.classList.add("error");
+  }
+
+
+  if(icon){
+
+    icon.textContent =
+      type === "success"
+        ? "✓"
+        : type === "error"
+          ? "!"
+          : "☁";
+
+  }
+
+
+  if(statusText){
+    statusText.textContent =
+      text;
+  }
+
+
+  if(statusDetail){
+    statusDetail.textContent =
+      detail;
+  }
+
+}
+
+
+/* ============================================================
+   AUTH + ADMIN ACCESS
+============================================================ */
+
+onAuthStateChanged(
+  auth,
+  async user => {
+
+    if(!user){
+
+      window.location.href =
+        "login.html";
+
+      return;
+
+    }
+
+
+    $("userEmail").textContent =
+      user.email || "";
+
+
+    try{
+
+      const userRef =
+        doc(
+          db,
+          "users",
+          user.uid
+        );
+
+      const userSnap =
+        await getDoc(
+          userRef
+        );
+
+
+      if(!userSnap.exists()){
+
+        alert(
+          "Your account does not have an admin profile."
+        );
+
+        await signOut(auth);
+
+        window.location.href =
+          "login.html";
+
+        return;
+
+      }
+
+
+      const userData =
+        userSnap.data();
+
+
+      const role =
+        String(
+          userData.role || ""
+        ).toLowerCase();
+
+
+      if(role !== "admin"){
+
+        alert(
+          "Admin access required."
+        );
+
+        await signOut(auth);
+
+        window.location.href =
+          "login.html";
+
+        return;
+
+      }
+
+
+      $("loadingScreen").style.display =
+        "none";
+
+
+      startAdminListeners();
+
+    }
+
+    catch(error){
+
+      console.error(
+        "ADMIN AUTH ERROR:",
+        error
+      );
+
+      alert(
+        "Unable to verify admin access."
+      );
+
+      await signOut(auth);
+
+      window.location.href =
+        "login.html";
+
+    }
+
+  }
+);
+
+
+/* ============================================================
+   LOGOUT
+============================================================ */
+
+$("logoutBtn")
+  .addEventListener(
+    "click",
+    async () => {
+
+      await signOut(auth);
+
+      window.location.href =
+        "login.html";
+
+    }
+  );
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+document
+  .querySelectorAll(".nav-btn")
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach(btn =>
+            btn.classList.remove(
+              "active"
+            )
+          );
+
+        document
+          .querySelectorAll(".page")
+          .forEach(page =>
+            page.classList.remove(
+              "active"
+            )
+          );
+
+
+        button.classList.add(
+          "active"
+        );
+
+
+        const page =
+          $(button.dataset.page);
+
+        if(page){
+          page.classList.add(
+            "active"
+          );
+        }
+
+      }
+    );
+
   });
 
-  function updateClock() {
-    const el = document.getElementById("liveDate");
-    if (el) el.textContent = new Date().toLocaleString("en-GB", { 
-      weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" 
+
+/* ============================================================
+   OPEN PAGE HELPER
+============================================================ */
+
+function openPage(pageId){
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === pageId
+      );
+
     });
-  }
-  updateClock(); setInterval(updateClock, 1000);
-  document.getElementById("year").textContent = new Date().getFullYear();
 
-  function addActivity(text) {
-    const feed = document.getElementById('activityFeed');
-    if (!feed) return;
-    const time = new Date().toLocaleTimeString();
-    const item = document.createElement('div');
-    item.className = 'activity-item';
-    item.innerHTML = `<div class="activity-icon blue"><i class="fa-solid fa-pen-to-square"></i></div><div class="activity-info"><h4>${text}</h4><p>${time}</p></div>`;
-    feed.prepend(item);
-    while (feed.children.length > 10) feed.removeChild(feed.lastChild);
-  }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  1. MEMBERS (Full)
-  // ═══════════════════════════════════════════════════════════════════════════
-  function listenMembers() {
-    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      allMembers = [];
-      snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
-      renderMembersTable(allMembers);
-      updateMemberStats(allMembers);
-      renderRecentMembers(allMembers);
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.toggle(
+        "active",
+        page.id === pageId
+      );
+
     });
-  }
 
-  function updateMemberStats(members) {
-    const totalEl = document.getElementById('totalMembers');
-    const premiumEl = document.getElementById('premiumMembers');
-    if (totalEl) totalEl.textContent = members.length;
-    if (premiumEl) premiumEl.textContent = members.filter(m => m.membership === 'premium').length;
-  }
+}
 
-  function renderRecentMembers(members) {
-    const container = document.getElementById('recentMembers');
-    const recent = members.slice(0, 5);
-    if (recent.length === 0) return container.innerHTML = `<div class="empty-card">No members yet.</div>`;
-    container.innerHTML = recent.map(m => `
-      <div class="recent-member">
-        <div class="avatar-small">${(m.displayName || m.email || 'U')[0].toUpperCase()}</div>
-        <div class="member-info"><h4>${m.displayName || m.email || 'Member'}</h4><p>${m.membership || 'Free'}</p></div>
-      </div>
-    `).join('');
-  }
 
-  function renderMembersTable(members) {
-    const searchTerm = (memberSearch.value || '').toLowerCase();
-    const filtered = members.filter(m => 
-      (m.email || '').toLowerCase().includes(searchTerm) || 
-      (m.displayName || '').toLowerCase().includes(searchTerm)
-    );
-    if (filtered.length === 0) {
-      membersTableBody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No members found.</div></td></tr>`;
-      return;
+/* ============================================================
+   QUICK ACTIONS
+============================================================ */
+
+$("quickVideoBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      openPage("videosPage");
+
+      $("videoFormContainer").style.display =
+        "block";
+
+      $("videoFormTitle").textContent =
+        "Upload Video";
+
+      $("saveVideoBtn").textContent =
+        "Upload Video";
+
+      $("videoFormContainer")
+        .scrollIntoView({
+          behavior:"smooth"
+        });
+
     }
-    membersTableBody.innerHTML = filtered.map(m => `
+  );
+
+
+$("quickResourceBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      openPage("resourcesPage");
+
+      $("resourceFormContainer").style.display =
+        "block";
+
+      $("resourceFormTitle").textContent =
+        "Upload Resource";
+
+      $("saveResourceBtn").textContent =
+        "Upload Resource";
+
+      $("resourceFormContainer")
+        .scrollIntoView({
+          behavior:"smooth"
+        });
+
+    }
+  );
+
+
+/* ============================================================
+   START LISTENERS
+============================================================ */
+
+function startAdminListeners(){
+
+  listenVideos();
+
+  listenResources();
+
+}
+
+
+/* ============================================================
+   VIDEOS LISTENER
+============================================================ */
+
+function listenVideos(){
+
+  if(videoUnsubscribe){
+    videoUnsubscribe();
+  }
+
+
+  let q;
+
+  try{
+
+    q =
+      query(
+        collection(
+          db,
+          "videos"
+        ),
+        orderBy(
+          "createdAt",
+          "desc"
+        )
+      );
+
+  }
+
+  catch{
+
+    q =
+      collection(
+        db,
+        "videos"
+      );
+
+  }
+
+
+  videoUnsubscribe =
+    onSnapshot(
+      q,
+
+      snapshot => {
+
+        videos = [];
+
+
+        snapshot.forEach(
+          item => {
+
+            videos.push({
+              id:item.id,
+              ...item.data()
+            });
+
+          }
+        );
+
+
+        $("videoCount").textContent =
+          videos.length;
+
+        $("videoOverview").textContent =
+          videos.length;
+
+
+        renderVideosTable();
+
+        updateContentCount();
+
+      },
+
+      error => {
+
+        console.error(
+          "VIDEOS LISTENER ERROR:",
+          error
+        );
+
+        $("videoTableBody").innerHTML =
+          `
+          <tr>
+            <td colspan="6">
+              <div class="empty">
+                Unable to load videos.
+              </div>
+            </td>
+          </tr>
+          `;
+
+      }
+
+    );
+
+}
+
+
+/* ============================================================
+   VIDEO TABLE
+============================================================ */
+
+function renderVideosTable(){
+
+  const tbody =
+    $("videoTableBody");
+
+
+  if(!videos.length){
+
+    tbody.innerHTML =
+      `
       <tr>
-        <td>
-          <div class="user-cell">
-            <div class="avatar-small">${(m.displayName || m.email || 'U')[0].toUpperCase()}</div>
-            <div class="user-info"><strong>${m.displayName || m.email || 'Member'}</strong><small>${m.email || '--'}</small></div>
+        <td colspan="6">
+          <div class="empty">
+            No videos yet. Upload one above.
           </div>
         </td>
-        <td><span class="badge ${m.membership || 'free'}">${(m.membership || 'Free').toUpperCase()}</span></td>
-        <td><span class="badge ${m.status || 'pending'}">${(m.status || 'Pending').toUpperCase()}</span></td>
-        <td>${m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleDateString() : '--'}</td>
-        <td><button class="manage-btn manage-member-btn" data-id="${m.id}">Manage</button></td>
       </tr>
-    `).join('');
-    document.querySelectorAll('.manage-member-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const user = allMembers.find(m => m.id === btn.dataset.id);
-        if (user) openModal(user);
-      });
-    });
-  }
-  memberSearch.addEventListener('input', () => renderMembersTable(allMembers));
+      `;
 
-  function openModal(user) {
-    selectedUser = user;
-    modalName.textContent = user.displayName || user.email || 'Member';
-    modalEmail.textContent = user.email || 'N/A';
-    modalRole.textContent = (user.role || 'member').toUpperCase();
-    modalStatus.textContent = (user.status || 'pending').toUpperCase();
-    modalPayment.textContent = (user.paymentStatus || 'unpaid').toUpperCase();
-    modalJoined.textContent = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : '--';
-    modalAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
-    memberModal.classList.add('active');
+    return;
+
   }
 
-  function closeModalFunc() { selectedUser = null; memberModal.classList.remove('active'); }
-  closeModal.addEventListener('click', closeModalFunc);
-  memberModal.addEventListener('click', (e) => { if(e.target === memberModal) closeModalFunc(); });
 
-  async function updateMemberField(field, value) {
-    if (!selectedUser) return alert("No user selected.");
-    try {
-      await updateDoc(doc(db, "users", selectedUser.id), { [field]: value, updatedAt: serverTimestamp() });
-      addActivity(`Updated ${field} for ${selectedUser.email || 'member'}`);
-      closeModalFunc();
-    } catch (e) { alert("Error updating member: " + e.message); }
-  }
-  modalApproveBtn.addEventListener('click', () => updateMemberField('status', 'active'));
-  modalPremiumBtn.addEventListener('click', () => updateMemberField('membership', 'premium'));
-  modalAdminBtn.addEventListener('click', () => updateMemberField('role', 'admin'));
-  modalSuspendBtn.addEventListener('click', () => updateMemberField('status', 'suspended'));
-  modalDeleteBtn.addEventListener('click', async () => {
-    if (!selectedUser) return;
-    if (!confirm(`Permanently delete ${selectedUser.email}? This cannot be undone!`)) return;
-    try { await deleteDoc(doc(db, "users", selectedUser.id)); addActivity(`Deleted member ${selectedUser.email}`); closeModalFunc(); } 
-    catch (e) { alert("Error deleting member: " + e.message); }
-  });
+  tbody.innerHTML =
+    videos.map(video => {
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  2. ACADEMY MODULES (Full)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const MODULES_COLLECTION = "academy_modules";
-  function getSampleModules() {
-    return [
-      { id: "mod_1", order: 1, title: "Introduction", description: "Welcome to GTRADES-AXIS™ Academy.", content: "<h3>Welcome</h3><p>Welcome to GTRADES-AXIS™ Academy...</p>", hasQuiz: true, published: true, lessons: [], quiz: { passingScore: 70, questions: [] } }
-    ];
-  }
+      const title =
+        escapeHTML(
+          video.title ||
+          "Untitled Video"
+        );
 
-  async function loadModulesFromFirestore() {
-    try {
-      const q = query(collection(db, MODULES_COLLECTION), orderBy("order", "asc"));
-      const snapshot = await getDocs(q);
-      const modules = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if(!data.lessons) data.lessons = [];
-        if(!data.quiz) data.quiz = { passingScore: 70, questions: [] };
-        modules.push({ id: doc.id, ...data });
-      });
-      return modules;
-    } catch (e) { console.error(e); return []; }
-  }
 
-  async function saveModuleToFirestore(moduleData) {
-    const docRef = doc(db, MODULES_COLLECTION, moduleData.id);
-    const snap = await getDoc(docRef);
-    if (snap.exists()) { await updateDoc(docRef, { ...moduleData, updatedAt: new Date().toISOString() }); }
-    else { await setDoc(docRef, { ...moduleData, updatedAt: new Date().toISOString() }); }
-  }
+      const category =
+        escapeHTML(
+          video.category ||
+          "General"
+        );
 
-  async function deleteModuleFromFirestore(id) { await deleteDoc(doc(db, MODULES_COLLECTION, id)); }
 
-  async function renderModules() {
-    const modules = await loadModulesFromFirestore(); currentModules = modules;
-    const tbody = document.getElementById('moduleTableBody');
-    const countEl = document.getElementById('lessonCount');
-    const overviewEl = document.getElementById('moduleOverview');
-    const pendingEl = document.getElementById('pendingLessons');
-    let totalLessons = 0, draftLessons = 0;
-    modules.forEach(mod => { totalLessons += (mod.lessons?.length || 0); if (!mod.published) draftLessons += (mod.lessons?.length || 0); });
-    if (countEl) countEl.textContent = totalLessons;
-    if (overviewEl) overviewEl.textContent = modules.length;
-    if (pendingEl) pendingEl.textContent = draftLessons;
-    if (modules.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No modules yet.</div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = modules.map((mod) => `
-      <tr>
-        <td><strong>Module ${mod.order}</strong></td>
-        <td><div><strong>${mod.title}</strong></div><div style="color:var(--text-secondary);font-size:0.75rem;">${mod.description || ''}</div><div style="color:var(--text-secondary);font-size:0.7rem;margin-top:4px;">${mod.lessons?.length || 0} Lessons • ${mod.hasQuiz ? 'Has Quiz' : 'No Quiz'} ${mod.moduleFileKey ? '📎' : ''}</div></td>
-        <td><span class="badge ${mod.published !== false ? 'published' : 'draft'} module-status-toggle" data-id="${mod.id}" title="Click to toggle status">${mod.published !== false ? 'Published' : 'Draft'}</span></td>
-        <td><button class="manage-btn edit-module" data-id="${mod.id}"><i class="fa-solid fa-pen"></i> Edit</button><button class="manage-btn delete-module" data-id="${mod.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button></td>
-      </tr>
-    `).join('');
-    document.querySelectorAll('.module-status-toggle').forEach(el => {
-      el.addEventListener('click', async function() {
-        const id = this.dataset.id; const mod = currentModules.find(l => l.id === id);
-        if (mod) { mod.published = !mod.published; await saveModuleToFirestore(mod); renderModules(); addActivity(`Toggled module "${mod.title}" to ${mod.published ? 'Published' : 'Draft'}`); }
-      });
-    });
-    document.querySelectorAll('.edit-module').forEach(el => {
-      el.addEventListener('click', function() {
-        const id = this.dataset.id; const mod = currentModules.find(l => l.id === id);
-        if (mod) {
-          document.getElementById('editingModuleId').value = id; document.getElementById('moduleOrder').value = mod.order;
-          document.getElementById('moduleTitle').value = mod.title; document.getElementById('moduleDescription').value = mod.description || '';
-          document.getElementById('moduleContent').value = mod.content || '';
-          document.getElementById('moduleHasQuiz').checked = mod.hasQuiz !== false; document.getElementById('modulePublished').checked = mod.published !== false;
-          document.getElementById('existingModuleFileKey').value = mod.moduleFileKey || '';
-          document.getElementById('moduleFileName').textContent = mod.moduleFileKey ? 'File attached' : 'No file chosen';
-          document.getElementById('moduleFormTitle').textContent = 'Edit Module'; document.getElementById('saveModuleBtn').textContent = 'Update Module';
-          document.getElementById('moduleFormContainer').style.display = 'block'; document.getElementById('moduleFormContainer').scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    });
-    document.querySelectorAll('.delete-module').forEach(el => {
-      el.addEventListener('click', async function() {
-        const id = this.dataset.id; const mod = currentModules.find(l => l.id === id);
-        if (confirm(`Delete module "${mod?.title}"?`)) { await deleteModuleFromFirestore(id); renderModules(); addActivity(`Deleted module "${mod?.title}"`); }
-      });
-    });
-  }
+      const duration =
+        escapeHTML(
+          video.duration ||
+          "—"
+        );
 
-  document.getElementById('toggleModuleFormBtn')?.addEventListener('click', function() {
-    const container = document.getElementById('moduleFormContainer');
-    if (container.style.display === 'none') { container.style.display = 'block'; document.getElementById('moduleFormTitle').textContent = 'Add New Module'; document.getElementById('saveModuleBtn').textContent = 'Save Module'; document.getElementById('editingModuleId').value = ''; document.getElementById('moduleForm').reset(); document.getElementById('modulePublished').checked = true; document.getElementById('moduleHasQuiz').checked = true; container.scrollIntoView({ behavior: 'smooth' }); }
-    else { container.style.display = 'none'; }
-  });
-  document.getElementById('cancelModuleBtn')?.addEventListener('click', function() { document.getElementById('moduleFormContainer').style.display = 'none'; });
-  document.getElementById('moduleForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editingModuleId').value || 'mod-' + Date.now();
-    const order = parseInt(document.getElementById('moduleOrder').value); const title = document.getElementById('moduleTitle').value.trim();
-    const description = document.getElementById('moduleDescription').value.trim(); const content = document.getElementById('moduleContent').value;
-    const hasQuiz = document.getElementById('moduleHasQuiz').checked; const published = document.getElementById('modulePublished').checked;
-    const file = document.getElementById('moduleFilePicker').files[0];
-    let moduleFileKey = document.getElementById('existingModuleFileKey').value || null;
 
-    if (!title || !order) return alert('Please fill in all required fields.');
+      const premium =
+        video.premiumOnly === true;
 
-    try {
-      if (file) {
-        const key = `modules/${id}/${Date.now()}_${file.name}`;
-        moduleFileKey = await uploadToR2(file, key);
-        document.getElementById('moduleFileName').textContent = 'Uploaded: ' + file.name;
-      }
 
-      const existingMod = currentModules.find(m => m.id === id);
-      const moduleData = { id, order, title, description, content, hasQuiz, published, moduleFileKey, lessons: existingMod?.lessons || [], quiz: existingMod?.quiz || { passingScore: 70, questions: [] } };
-      await saveModuleToFirestore(moduleData); renderModules(); addActivity(`Saved module "${title}"`); document.getElementById('moduleFormContainer').style.display = 'none'; document.getElementById('moduleForm').reset(); document.getElementById('editingModuleId').value = '';
-    } catch (error) { alert('Error saving module: ' + error.message); }
-  });
-  document.getElementById('addSampleModulesBtn')?.addEventListener('click', async function() {
-    const existing = await loadModulesFromFirestore();
-    if (existing.length > 0) { if (!confirm('This will add sample modules. Continue?')) return; }
-    const samples = getSampleModules();
-    for (const mod of samples) { await saveModuleToFirestore(mod); }
-    renderModules(); addActivity('Imported sample modules');
-  });
+      const thumbnail =
+        video.thumbnailKey
+          ? `
+            <img
+              class="thumb"
+              src="${getDownloadUrl(video.thumbnailKey)}"
+              alt=""
+              onerror="this.style.display='none'"
+            >
+            `
+          : "—";
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  3. PAYMENTS (Full)
-  // ═══════════════════════════════════════════════════════════════════════════
-  function listenPayments() {
-    const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      const tbody = document.getElementById('paymentsTableBody');
-      let pending = 0, approved = 0, rejected = 0;
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No payments found.</div></td></tr>`;
-      } else {
-        let html = '';
-        snapshot.forEach(doc => {
-          const p = { id: doc.id, ...doc.data() };
-          if (p.status === 'pending') pending++;
-          else if (p.status === 'approved') approved++;
-          else if (p.status === 'rejected') rejected++;
-          const proofLink = p.proofURL ? `<a href="${p.proofURL}" target="_blank" class="btn-view-proof">View</a>` : '—';
-          html += `
-            <tr>
-              <td><strong>${p.name || '—'}</strong><br><small style="color:#9aa4bf;">${p.email || ''}</small></td>
-              <td>${p.plan || '—'}</td>
-              <td>${p.paymentMethod || '—'}</td>
-              <td>$${p.amount || 0}</td>
-              <td>${proofLink}</td>
-              <td><span class="badge ${p.status || 'pending'}">${(p.status || 'pending').charAt(0).toUpperCase() + (p.status || 'pending').slice(1)}</span></td>
-              <td>
-                ${p.status === 'pending' ? `
-                  <button class="btn-approve" data-id="${p.id}" data-uid="${p.userId}">Approve</button>
-                  <button class="btn-reject" data-id="${p.id}" data-uid="${p.userId}">Reject</button>
-                ` : '—'}
-              </td>
-            </tr>
-          `;
-        });
-        tbody.innerHTML = html;
-      }
-      document.getElementById('payPending').textContent = pending;
-      document.getElementById('payApproved').textContent = approved;
-      document.getElementById('payRejected').textContent = rejected;
-      document.querySelectorAll('.btn-approve').forEach(btn => {
-        btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'approved'));
-      });
-      document.querySelectorAll('.btn-reject').forEach(btn => {
-        btn.addEventListener('click', () => handlePayment(btn.dataset.id, btn.dataset.uid, 'rejected'));
-      });
-    });
-  }
 
-  async function handlePayment(paymentId, userId, status) {
-    if (!confirm(`Are you sure you want to ${status} this payment?`)) return;
-    try {
-      await updateDoc(doc(db, "payments", paymentId), { status: status, reviewedAt: serverTimestamp() });
-      if (status === 'approved') {
-        await updateDoc(doc(db, "users", userId), { membership: 'premium', updatedAt: serverTimestamp() });
-        addActivity(`Approved payment and upgraded user to Premium.`);
-      } else { addActivity(`Rejected a payment request.`); }
-    } catch (error) { alert("Failed to update payment."); }
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  4. VIDEOS (File Upload) – Full
-  // ═══════════════════════════════════════════════════════════════════════════
-  function listenVideos() {
-    const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
-    onSnapshot(q, async (snapshot) => {
-      videos = [];
-      snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
-      document.getElementById('videoCount').textContent = videos.length;
-      document.getElementById('videoOverview').textContent = videos.length;
-      await renderVideosTable();
-    });
-  }
-
-  async function renderVideosTable() {
-    const tbody = document.getElementById('videoTableBody');
-    if (videos.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">No videos yet. Upload one above!</div></td></tr>`;
-      return;
-    }
-
-    let html = '';
-    for (const v of videos) {
-      let thumbHtml = '—';
-      if (v.thumbnailKey) {
-        try {
-          const url = await getDownloadUrl(v.thumbnailKey);
-          if (url) thumbHtml = `<img src="${url}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" />`;
-        } catch (e) { thumbHtml = '📸'; }
-      }
-
-      html += `
+      return `
         <tr>
-          <td>${thumbHtml}</td>
-          <td><strong>${v.title}</strong></td>
-          <td>${v.category}</td>
-          <td>${v.duration || '—'}</td>
-          <td><span class="badge ${v.premiumOnly ? 'premium' : 'free'}">${v.premiumOnly ? 'Premium' : 'Free'}</span></td>
+
           <td>
-            <button class="manage-btn edit-video" data-id="${v.id}"><i class="fa-solid fa-pen"></i> Edit</button>
-            <button class="manage-btn delete-video" style="color:var(--red);" data-id="${v.id}"><i class="fa-solid fa-trash"></i> Delete</button>
-            ${v.videoKey ? `<button class="manage-btn preview-video" data-key="${v.videoKey}" style="color:var(--green);border-color:var(--green);"><i class="fa-solid fa-play"></i> Preview</button>` : ''}
+            ${thumbnail}
           </td>
+
+          <td>
+            <strong>
+              ${title}
+            </strong>
+          </td>
+
+          <td>
+            ${category}
+          </td>
+
+          <td>
+            ${duration}
+          </td>
+
+          <td>
+            <span class="badge ${premium ? "premium" : "free"}">
+              ${premium ? "Premium" : "Free"}
+            </span>
+          </td>
+
+          <td>
+
+            <div class="action-row">
+
+              ${
+                video.videoKey
+                  ? `
+                    <button
+                      class="action-btn preview"
+                      data-video-preview="${escapeHTML(video.videoKey)}"
+                    >
+                      ▶ Preview
+                    </button>
+                    `
+                  : ""
+              }
+
+              <button
+                class="action-btn"
+                data-video-edit="${video.id}"
+              >
+                Edit
+              </button>
+
+              <button
+                class="action-btn delete"
+                data-video-delete="${video.id}"
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+
         </tr>
       `;
-    }
-    tbody.innerHTML = html;
 
-    document.querySelectorAll('.preview-video').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const key = this.dataset.key;
-        try {
-          const url = await getDownloadUrl(key);
-          window.open(url, '_blank');
-        } catch (e) { alert('Error playing video: ' + e.message); }
-      });
-    });
+    }).join("");
 
-    document.querySelectorAll('.edit-video').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const v = videos.find(item => item.id === this.dataset.id);
-        if (v) {
-          document.getElementById('editingVideoId').value = v.id;
-          document.getElementById('videoTitle').value = v.title;
-          document.getElementById('videoCategory').value = v.category;
-          document.getElementById('videoDuration').value = v.duration || '';
-          document.getElementById('videoPremiumOnly').checked = v.premiumOnly || false;
-          document.getElementById('existingVideoKey').value = v.videoKey || '';
-          document.getElementById('existingThumbnailKey').value = v.thumbnailKey || '';
-          document.getElementById('videoFileName').textContent = v.videoKey ? 'Video uploaded' : 'No file';
-          document.getElementById('videoFormTitle').textContent = 'Edit Video';
-          document.getElementById('saveVideoBtn').textContent = 'Update Video';
-          document.getElementById('videoFormContainer').style.display = 'block';
-          document.getElementById('videoFormContainer').scrollIntoView({ behavior: 'smooth' });
+
+  bindVideoActions();
+
+}
+
+
+/* ============================================================
+   VIDEO ACTIONS
+============================================================ */
+
+function bindVideoActions(){
+
+  document
+    .querySelectorAll("[data-video-preview]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const key =
+            button.dataset.videoPreview;
+
+          if(!key){
+            alert(
+              "This video has no R2 file."
+            );
+            return;
+          }
+
+
+          const url =
+            getDownloadUrl(key);
+
+
+          window.open(
+            url,
+            "_blank"
+          );
+
         }
-      });
+      );
+
     });
 
-    document.querySelectorAll('.delete-video').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const id = this.dataset.id;
-        if (confirm('Delete this video permanently?')) {
-          try { await deleteDoc(doc(db, "videos", id)); addActivity('Deleted a video.'); } 
-          catch (e) { alert('Error deleting video.'); }
+
+  document
+    .querySelectorAll("[data-video-edit]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const video =
+            videos.find(
+              item =>
+                item.id ===
+                button.dataset.videoEdit
+            );
+
+
+          if(video){
+            editVideo(video);
+          }
+
         }
-      });
+      );
+
     });
+
+
+  document
+    .querySelectorAll("[data-video-delete]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        async () => {
+
+          await deleteVideo(
+            button.dataset.videoDelete
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* ============================================================
+   EDIT VIDEO
+============================================================ */
+
+function editVideo(video){
+
+  openPage("videosPage");
+
+
+  $("videoFormContainer").style.display =
+    "block";
+
+
+  $("videoFormTitle").textContent =
+    "Edit Video";
+
+
+  $("saveVideoBtn").textContent =
+    "Update Video";
+
+
+  $("editingVideoId").value =
+    video.id;
+
+
+  $("existingVideoKey").value =
+    video.videoKey || "";
+
+
+  $("existingThumbnailKey").value =
+    video.thumbnailKey || "";
+
+
+  $("videoTitle").value =
+    video.title || "";
+
+
+  $("videoCategory").value =
+    video.category || "General";
+
+
+  $("videoDuration").value =
+    video.duration || "";
+
+
+  $("videoPremiumOnly").checked =
+    video.premiumOnly === true;
+
+
+  $("videoFileName").textContent =
+    video.videoKey
+      ? "Existing video stored in R2"
+      : "No file chosen";
+
+
+  $("thumbnailFileName").textContent =
+    video.thumbnailKey
+      ? "Existing thumbnail stored in R2"
+      : "No file chosen";
+
+
+  $("videoFormContainer")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+}
+
+
+/* ============================================================
+   DELETE VIDEO
+============================================================ */
+
+async function deleteVideo(id){
+
+  const video =
+    videos.find(
+      item => item.id === id
+    );
+
+
+  if(!video){
+    return;
   }
 
-  document.getElementById('toggleVideoFormBtn')?.addEventListener('click', function() {
-    const container = document.getElementById('videoFormContainer');
-    if (container.style.display === 'none') {
-      container.style.display = 'block';
-      document.getElementById('videoFormTitle').textContent = 'Upload Video File';
-      document.getElementById('saveVideoBtn').textContent = 'Upload Video';
-      document.getElementById('editingVideoId').value = '';
-      document.getElementById('videoForm').reset();
-      document.getElementById('thumbnailPreview').style.display = 'none';
-      document.getElementById('videoPreview').style.display = 'none';
-      document.getElementById('existingVideoKey').value = '';
-      document.getElementById('existingThumbnailKey').value = '';
-      document.getElementById('videoFileName').textContent = 'No file chosen';
-      document.getElementById('thumbnailFileName').textContent = 'No file chosen';
-      container.scrollIntoView({ behavior: 'smooth' });
-    } else { container.style.display = 'none'; }
-  });
-  document.getElementById('cancelVideoBtn')?.addEventListener('click', function() { 
-    document.getElementById('videoFormContainer').style.display = 'none'; 
-  });
 
-  // Video file preview
-  document.getElementById('videoFilePicker')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      document.getElementById('videoFileName').textContent = file.name;
-      const url = URL.createObjectURL(file);
-      document.getElementById('videoPreviewEl').src = url;
-      document.getElementById('videoPreview').style.display = 'block';
-    } else {
-      document.getElementById('videoFileName').textContent = 'No file chosen';
-      document.getElementById('videoPreview').style.display = 'none';
-    }
-  });
+  const confirmed =
+    confirm(
+      `Delete "${video.title || "this video"}" from the academy?`
+    );
 
-  // Thumbnail preview
-  document.getElementById('videoThumbnailFile')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      document.getElementById('thumbnailFileName').textContent = file.name;
-      const reader = new FileReader(); reader.onload = function(event) { 
-        document.getElementById('thumbnailPreviewImg').src = event.target.result; 
-        document.getElementById('thumbnailPreview').style.display = 'block'; 
-      }; reader.readAsDataURL(file);
-    } else {
-      document.getElementById('thumbnailFileName').textContent = 'No file chosen';
-      document.getElementById('thumbnailPreview').style.display = 'none';
-    }
-  });
 
-  // VIDEO UPLOAD FEEDBACK
-  const videoUploadStatus = document.getElementById('videoUploadStatus');
-  const videoUploadStatusIcon = document.getElementById('videoUploadStatusIcon');
-  const videoUploadStatusText = document.getElementById('videoUploadStatusText');
-  const videoUploadStatusDetail = document.getElementById('videoUploadStatusDetail');
-  const saveVideoBtn = document.getElementById('saveVideoBtn');
-  let videoUploadTimer = null;
-  let videoUploadStartedAt = 0;
-
-  function setVideoUploadStatus(type, text, detail='') {
-    if (!videoUploadStatus) return;
-    videoUploadStatus.className = 'upload-status show' + (type === 'success' ? ' success' : type === 'error' ? ' error' : '');
-    if (videoUploadStatusIcon) videoUploadStatusIcon.className = type === 'success' ? 'fa-solid fa-circle-check' : type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-cloud-arrow-up';
-    if (videoUploadStatusText) videoUploadStatusText.textContent = text;
-    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = detail;
+  if(!confirmed){
+    return;
   }
-  function clearVideoUploadStatus() {
-    if (videoUploadTimer) clearInterval(videoUploadTimer);
-    videoUploadTimer = null;
-    if (videoUploadStatus) videoUploadStatus.className = 'upload-status';
-    if (videoUploadStatusText) videoUploadStatusText.textContent = 'Ready to upload.';
-    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = '';
+
+
+  try{
+
+    await deleteDoc(
+      doc(
+        db,
+        "videos",
+        id
+      )
+    );
+
+
+    alert(
+      "Video record deleted."
+    );
+
   }
-  function formatElapsed(ms) {
-    const s=Math.max(0,Math.floor(ms/1000)), m=Math.floor(s/60), sec=s%60;
-    return m ? `${m}m ${String(sec).padStart(2,'0')}s` : `${sec}s`;
+
+  catch(error){
+
+    console.error(
+      "DELETE VIDEO ERROR:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to delete video."
+    );
+
   }
-  function startVideoUploadProgress(message, detail) {
-    videoUploadStartedAt=Date.now();
-    setVideoUploadStatus('working',message,detail);
-    if (videoUploadTimer) clearInterval(videoUploadTimer);
-    videoUploadTimer=setInterval(()=>{
-      if (videoUploadStatusDetail) videoUploadStatusDetail.textContent=`${detail} • Elapsed ${formatElapsed(Date.now()-videoUploadStartedAt)}`;
-    },1000);
-  }
-  function stopVideoUploadProgress() { if(videoUploadTimer) clearInterval(videoUploadTimer); videoUploadTimer=null; }
 
-  document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (saveVideoBtn?.disabled) return;
+}
 
-    const id=document.getElementById('editingVideoId').value || 'vid-'+Date.now();
-    const title=document.getElementById('videoTitle').value.trim();
-    const category=document.getElementById('videoCategory').value;
-    const duration=document.getElementById('videoDuration').value.trim();
-    const premiumOnly=document.getElementById('videoPremiumOnly').checked;
-    const videoFile=document.getElementById('videoFilePicker').files[0];
-    const thumbFile=document.getElementById('videoThumbnailFile').files[0];
-    const existingVideoKey=document.getElementById('existingVideoKey').value;
-    const existingThumbKey=document.getElementById('existingThumbnailKey').value;
-    const isEditing=Boolean(document.getElementById('editingVideoId').value);
 
-    if(!title){ setVideoUploadStatus('error','Video title is required.','Enter a title and try again.'); return; }
-    if(!videoFile && !existingVideoKey){ setVideoUploadStatus('error','No video file selected.','Choose a video file before uploading.'); return; }
+/* ============================================================
+   VIDEO FORM TOGGLE
+============================================================ */
 
-    try {
-      if(saveVideoBtn){ saveVideoBtn.disabled=true; saveVideoBtn.classList.add('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Uploading...'; }
-      let videoKey=existingVideoKey;
-      let thumbnailKey=existingThumbKey;
+$("toggleVideoFormBtn")
+  .addEventListener(
+    "click",
+    () => {
 
-      if(videoFile){
-        const ext=(videoFile.name.split('.').pop()||'mp4').toLowerCase();
-        const safeTitle=title.replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'video';
-        videoKey=`videos/${Date.now()}_${safeTitle}.${ext}`;
-        const sizeMB=(videoFile.size/(1024*1024)).toFixed(1);
-        startVideoUploadProgress('Uploading video to Cloudflare R2...',`${videoFile.name} • ${sizeMB} MB`);
-        await uploadToR2(videoFile,videoKey);
-        document.getElementById('videoFileName').textContent='✅ Uploaded: '+videoFile.name;
-        setVideoUploadStatus('working','Video upload complete.','Preparing video record in Firestore...');
+      const container =
+        $("videoFormContainer");
+
+
+      if(
+        container.style.display ===
+        "none" ||
+        !container.style.display
+      ){
+
+        resetVideoForm();
+
+        container.style.display =
+          "block";
+
       }
 
-      if(thumbFile){
-        const sizeMB=(thumbFile.size/(1024*1024)).toFixed(1);
-        startVideoUploadProgress('Uploading thumbnail to Cloudflare R2...',`${thumbFile.name} • ${sizeMB} MB`);
-        thumbnailKey=await uploadToR2(thumbFile,`thumbnails/${Date.now()}_${thumbFile.name}`);
-        document.getElementById('thumbnailFileName').textContent='✅ Uploaded: '+thumbFile.name;
-        document.getElementById('thumbnailPreview').style.display='none';
+      else{
+
+        container.style.display =
+          "none";
+
       }
 
-      stopVideoUploadProgress();
-      setVideoUploadStatus('working','Saving video information...','Writing the video record to Firestore.');
-      const data={title,category,duration,premiumOnly,videoKey,thumbnailKey,updatedAt:serverTimestamp()};
-      if(!isEditing){ data.createdAt=serverTimestamp(); await addDoc(collection(db,'videos'),data); }
-      else { await updateDoc(doc(db,'videos',id),data); }
-
-      stopVideoUploadProgress();
-      setVideoUploadStatus('success',isEditing?'✅ Video updated successfully!':'✅ Video uploaded successfully!',`Cloudflare R2 + Firestore saved. Completed in ${formatElapsed(Date.now()-videoUploadStartedAt)}.`);
-      addActivity(isEditing?`Updated video "${title}"`:`Uploaded video "${title}"`);
-      document.getElementById('videoForm').reset();
-      document.getElementById('videoPreview').style.display='none';
-      document.getElementById('thumbnailPreview').style.display='none';
-      document.getElementById('videoFileName').textContent='No file chosen';
-      document.getElementById('thumbnailFileName').textContent='No file chosen';
-      document.getElementById('editingVideoId').value='';
-      document.getElementById('existingVideoKey').value='';
-      document.getElementById('existingThumbnailKey').value='';
-      document.getElementById('videoFormTitle').textContent='Upload Video File';
-      setTimeout(()=>{ document.getElementById('videoFormContainer').style.display='none'; clearVideoUploadStatus(); },1800);
-    } catch(error) {
-      stopVideoUploadProgress();
-      console.error('VIDEO UPLOAD ERROR:',error);
-      setVideoUploadStatus('error','❌ Video upload failed.',error?.message||'Unknown error. Check the browser console.');
-      addActivity(`Video upload failed: ${title||'Untitled video'}`);
-    } finally {
-      if(saveVideoBtn){ saveVideoBtn.disabled=false; saveVideoBtn.classList.remove('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-upload"></i> Upload Video'; }
     }
-  });
+  );
 
-  //  5. RESOURCES — CLOUDFLARE R2 + FIRESTORE (FIXED)
-  // ═══════════════════════════════════════════════════════════════════════════
 
-  // Uses the SAME Cloudflare R2 Worker already used by the working upload system.
-  // This resource section does not touch Firebase Storage.
-  const RESOURCE_R2_WORKER = "https://r2-uploader.davidthuku574.workers.dev";
+$("cancelVideoBtn")
+  .addEventListener(
+    "click",
+    () => {
 
-  function setResourceUploadProgress(percent, message, show = true) {
-    const box = document.getElementById('resourceUploadProgress');
-    const bar = document.getElementById('resourceUploadProgressBar');
-    const text = document.getElementById('resourceUploadProgressText');
-    if (box) box.style.display = show ? 'block' : 'none';
-    if (bar) bar.style.width = `${Math.max(0, Math.min(100, Number(percent) || 0))}%`;
-    if (text) text.textContent = message || 'Preparing upload...';
-  }
+      resetVideoForm();
 
-  function resetResourceUploadUI() {
-    setResourceUploadProgress(0, 'Preparing upload...', false);
-    const name = document.getElementById('resourceFileName');
-    if (name) name.textContent = 'No file chosen';
-  }
+      $("videoFormContainer").style.display =
+        "none";
 
-  async function uploadResourceToR2(file, key, onProgress) {
-    if (!file) throw new Error('No file selected.');
-    if (!key) throw new Error('No R2 object key provided.');
+    }
+  );
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('key', key);
-    formData.append('type', 'resource');
-    formData.append('contentType', file.type || 'application/octet-stream');
 
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${RESOURCE_R2_WORKER}/upload`, true);
+/* ============================================================
+   RESET VIDEO FORM
+============================================================ */
 
-      xhr.upload.addEventListener('progress', event => {
-        if (event.lengthComputable && typeof onProgress === 'function') {
-          onProgress(Math.round((event.loaded / event.total) * 100));
-        }
-      });
+function resetVideoForm(){
 
-      xhr.onload = () => {
-        if (xhr.status < 200 || xhr.status >= 300) {
-          reject(new Error(`Cloudflare R2 upload failed (${xhr.status}). ${xhr.responseText || ''}`));
-          return;
-        }
+  $("videoForm").reset();
 
-        let result;
-        try {
-          result = JSON.parse(xhr.responseText || '{}');
-        } catch (e) {
-          reject(new Error('Cloudflare Worker returned invalid JSON.'));
-          return;
-        }
+  $("editingVideoId").value =
+    "";
 
-        if (!result.success) {
-          reject(new Error(result.message || result.error || 'Cloudflare R2 upload failed.'));
-          return;
-        }
+  $("existingVideoKey").value =
+    "";
 
-        resolve(result.key || result.fileKey || key);
-      };
+  $("existingThumbnailKey").value =
+    "";
 
-      xhr.onerror = () => reject(new Error('Network/CORS error while uploading to Cloudflare R2.'));
-      xhr.onabort = () => reject(new Error('Upload was cancelled.'));
-      xhr.ontimeout = () => reject(new Error('Upload timed out.'));
-      xhr.send(formData);
-    });
-  }
+  $("videoFormTitle").textContent =
+    "Upload Video";
 
-  function listenResources() {
-    const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      const tbody = document.getElementById('resourceTableBody');
-      const overviewEl = document.getElementById('resourceOverview');
-      if (!tbody) return;
+  $("saveVideoBtn").textContent =
+    "Upload Video";
 
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
-        if (overviewEl) overviewEl.textContent = 0;
+  $("videoFileName").textContent =
+    "No file chosen";
+
+  $("thumbnailFileName").textContent =
+    "No file chosen";
+
+
+  $("videoPreview").style.display =
+    "none";
+
+
+  $("thumbnailPreviewImg").style.display =
+    "none";
+
+
+  $("videoPreviewEl").removeAttribute(
+    "src"
+  );
+
+
+  $("thumbnailPreviewImg").removeAttribute(
+    "src"
+  );
+
+
+  $("videoUploadStatus").className =
+    "upload-status";
+
+}
+
+
+/* ============================================================
+   VIDEO FILE PREVIEW
+============================================================ */
+
+$("videoFilePicker")
+  .addEventListener(
+    "change",
+    event => {
+
+      const file =
+        event.target.files[0];
+
+
+      if(!file){
+
+        $("videoFileName").textContent =
+          "No file chosen";
+
+        $("videoPreview").style.display =
+          "none";
+
+        return;
+
+      }
+
+
+      $("videoFileName").textContent =
+        `${file.name} • ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+
+
+      const url =
+        URL.createObjectURL(file);
+
+
+      $("videoPreviewEl").src =
+        url;
+
+
+      $("videoPreview").style.display =
+        "block";
+
+    }
+  );
+
+
+/* ============================================================
+   THUMBNAIL PREVIEW
+============================================================ */
+
+$("videoThumbnailFile")
+  .addEventListener(
+    "change",
+    event => {
+
+      const file =
+        event.target.files[0];
+
+
+      if(!file){
+
+        $("thumbnailFileName").textContent =
+          "No file chosen";
+
+        $("thumbnailPreviewImg").style.display =
+          "none";
+
+        return;
+
+      }
+
+
+      $("thumbnailFileName").textContent =
+        `${file.name} • ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        e => {
+
+          $("thumbnailPreviewImg").src =
+            e.target.result;
+
+          $("thumbnailPreviewImg").style.display =
+            "block";
+
+        };
+
+
+      reader.readAsDataURL(
+        file
+      );
+
+    }
+  );
+
+
+/* ============================================================
+   VIDEO UPLOAD
+============================================================ */
+
+$("videoForm")
+  .addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+
+      const button =
+        $("saveVideoBtn");
+
+
+      if(button.disabled){
         return;
       }
 
-      let html = '';
-      let count = 0;
 
-      snapshot.forEach(item => {
-        count++;
-        const r = { id: item.id, ...item.data() };
-        const key = r.fileKey || r.resourceKey || r.r2Key || '';
-        const downloadBtn = key
-          ? `<button class="btn-view-proof download-resource-btn" data-key="${encodeURIComponent(key)}">Download</button>`
-          : (r.link ? `<a href="${r.link}" target="_blank" class="btn-view-proof">Legacy</a>` : '—');
+      const title =
+        $("videoTitle")
+          .value
+          .trim();
 
-        html += `
-          <tr>
-            <td><strong>${r.title || 'Untitled Resource'}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
-            <td>${r.category || 'PDF'}</td>
-            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span> ${downloadBtn}</td>
-            <td>
-              <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
-              <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
-                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i> ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
-              </button>
-              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
-            </td>
-          </tr>`;
-      });
 
-      tbody.innerHTML = html;
-      if (overviewEl) overviewEl.textContent = count;
+      const category =
+        $("videoCategory")
+          .value;
 
-      document.querySelectorAll('.download-resource-btn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const key = decodeURIComponent(this.dataset.key || '');
-          if (!key) return alert('No R2 file key found.');
-          try {
-            const url = await getDownloadUrl(key);
-            window.open(url, '_blank', 'noopener,noreferrer');
-          } catch (error) {
-            alert('Download failed: ' + error.message);
-          }
-        });
-      });
 
-      document.querySelectorAll('.edit-resource').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.dataset.id;
-          try {
-            const snap = await getDoc(doc(db, 'resources', id));
-            if (!snap.exists()) return alert('Resource not found.');
-            const data = snap.data();
-            document.getElementById('editingResourceId').value = id;
-            document.getElementById('resourceTitle').value = data.title || '';
-            document.getElementById('resourceCategory').value = data.category || 'PDF';
-            document.getElementById('resourceDescription').value = data.description || '';
-            document.getElementById('premiumOnly').checked = data.premiumOnly === true;
-            document.getElementById('resourceFileName').textContent = data.fileKey || data.resourceKey || data.r2Key ? 'File uploaded — choose a new file only if replacing it' : 'No file chosen';
-            document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
-            document.getElementById('saveResourceBtn').textContent = 'Update Resource';
-            document.getElementById('resourceFormContainer').style.display = 'block';
-            document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
-          } catch (e) {
-            alert('Error loading resource: ' + e.message);
-          }
-        });
-      });
+      const duration =
+        $("videoDuration")
+          .value
+          .trim();
 
-      document.querySelectorAll('.delete-resource').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.dataset.id;
-          if (!confirm('Delete this resource permanently?')) return;
-          try {
-            await deleteDoc(doc(db, 'resources', id));
-            addActivity('Deleted a resource.');
-          } catch (e) {
-            alert('Error deleting resource: ' + e.message);
-          }
-        });
-      });
 
-      document.querySelectorAll('.toggle-resource').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.dataset.id;
-          try {
-            const snap = await getDoc(doc(db, 'resources', id));
-            if (!snap.exists()) return;
-            const current = snap.data().premiumOnly === true;
-            await updateDoc(doc(db, 'resources', id), {
-              premiumOnly: !current,
-              updatedAt: serverTimestamp()
-            });
-            addActivity('Toggled resource premium status.');
-          } catch (e) {
-            alert('Error updating status: ' + e.message);
-          }
-        });
-      });
-    }, error => {
-      console.error('RESOURCES LISTEN ERROR:', error);
-      const tbody = document.getElementById('resourceTableBody');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">Unable to load resources: ${error.message}</div></td></tr>`;
-    });
+      const premiumOnly =
+        $("videoPremiumOnly")
+          .checked;
+
+
+      const videoFile =
+        $("videoFilePicker")
+          .files[0];
+
+
+      const thumbnailFile =
+        $("videoThumbnailFile")
+          .files[0];
+
+
+      const editingId =
+        $("editingVideoId")
+          .value
+          .trim();
+
+
+      let videoKey =
+        $("existingVideoKey")
+          .value
+          .trim();
+
+
+      let thumbnailKey =
+        $("existingThumbnailKey")
+          .value
+          .trim();
+
+
+      const isEditing =
+        Boolean(editingId);
+
+
+      if(!title){
+
+        setUploadStatus(
+          "video",
+          "error",
+          "Video title is required.",
+          "Enter a title before uploading."
+        );
+
+        return;
+
+      }
+
+
+      if(
+        !videoFile &&
+        !videoKey
+      ){
+
+        setUploadStatus(
+          "video",
+          "error",
+          "No video file selected.",
+          "Choose an MP4 or other supported video file."
+        );
+
+        return;
+
+      }
+
+
+      const started =
+        Date.now();
+
+
+      try{
+
+        button.disabled =
+          true;
+
+
+        button.textContent =
+          isEditing
+            ? "Updating..."
+            : "Uploading...";
+
+
+        /* ------------------------------------------
+           VIDEO
+        ------------------------------------------ */
+
+        if(videoFile){
+
+          const safeName =
+            safeFileName(
+              videoFile.name
+            );
+
+
+          videoKey =
+            `videos/${Date.now()}_${safeName}`;
+
+
+          setUploadStatus(
+            "video",
+            "working",
+            "Uploading video to Cloudflare R2...",
+            `${videoFile.name} • ${(videoFile.size / 1024 / 1024).toFixed(1)} MB`
+          );
+
+
+          await uploadToR2(
+            videoFile,
+            videoKey
+          );
+
+
+          $("videoFileName").textContent =
+            `✓ Uploaded: ${videoFile.name}`;
+
+        }
+
+
+        /* ------------------------------------------
+           THUMBNAIL
+        ------------------------------------------ */
+
+        if(thumbnailFile){
+
+          const safeName =
+            safeFileName(
+              thumbnailFile.name
+            );
+
+
+          thumbnailKey =
+            `thumbnails/${Date.now()}_${safeName}`;
+
+
+          setUploadStatus(
+            "video",
+            "working",
+            "Uploading thumbnail...",
+            thumbnailFile.name
+          );
+
+
+          await uploadToR2(
+            thumbnailFile,
+            thumbnailKey
+          );
+
+
+          $("thumbnailFileName").textContent =
+            `✓ Uploaded: ${thumbnailFile.name}`;
+
+        }
+
+
+        /* ------------------------------------------
+           FIRESTORE
+        ------------------------------------------ */
+
+        setUploadStatus(
+          "video",
+          "working",
+          "Saving video information...",
+          "Saving the R2 file key in Firestore."
+        );
+
+
+        const data = {
+
+          title,
+
+          category,
+
+          duration,
+
+          premiumOnly,
+
+          videoKey,
+
+          thumbnailKey,
+
+          updatedAt:
+            serverTimestamp()
+
+        };
+
+
+        if(isEditing){
+
+          await updateDoc(
+            doc(
+              db,
+              "videos",
+              editingId
+            ),
+            data
+          );
+
+        }
+
+        else{
+
+          data.createdAt =
+            serverTimestamp();
+
+
+          await addDoc(
+            collection(
+              db,
+              "videos"
+            ),
+            data
+          );
+
+        }
+
+
+        setUploadStatus(
+          "video",
+          "success",
+          isEditing
+            ? "✓ Video updated successfully."
+            : "✓ Video uploaded successfully.",
+          `R2 + Firestore completed in ${formatElapsed(Date.now() - started)}.`
+        );
+
+
+        $("videoForm").reset();
+
+        $("editingVideoId").value =
+          "";
+
+        $("existingVideoKey").value =
+          "";
+
+        $("existingThumbnailKey").value =
+          "";
+
+        $("videoPreview").style.display =
+          "none";
+
+        $("thumbnailPreviewImg").style.display =
+          "none";
+
+        $("videoFormTitle").textContent =
+          "Upload Video";
+
+
+        setTimeout(
+          () => {
+
+            $("videoFormContainer").style.display =
+              "none";
+
+            $("videoUploadStatus").className =
+              "upload-status";
+
+            $("videoFileName").textContent =
+              "No file chosen";
+
+            $("thumbnailFileName").textContent =
+              "No file chosen";
+
+          },
+          1800
+        );
+
+      }
+
+      catch(error){
+
+        console.error(
+          "VIDEO UPLOAD ERROR:",
+          error
+        );
+
+
+        setUploadStatus(
+          "video",
+          "error",
+          "✕ Video upload failed.",
+          error?.message ||
+          "Unknown error."
+        );
+
+      }
+
+      finally{
+
+        button.disabled =
+          false;
+
+
+        button.textContent =
+          isEditing
+            ? "Update Video"
+            : "Upload Video";
+
+      }
+
+    }
+  );
+
+
+/* ============================================================
+   RESOURCES LISTENER
+============================================================ */
+
+function listenResources(){
+
+  if(resourceUnsubscribe){
+    resourceUnsubscribe();
   }
 
-  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function () {
-    const container = document.getElementById('resourceFormContainer');
-    if (!container) return;
 
-    if (container.style.display === 'none') {
-      container.style.display = 'block';
-      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
-      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
-      document.getElementById('editingResourceId').value = '';
-      document.getElementById('resourceForm').reset();
-      resetResourceUploadUI();
-      container.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      container.style.display = 'none';
-    }
-  });
+  let q;
 
-  document.getElementById('cancelResourceBtn')?.addEventListener('click', function () {
-    document.getElementById('resourceFormContainer').style.display = 'none';
-    resetResourceUploadUI();
-  });
 
-  document.getElementById('resourceFilePicker')?.addEventListener('change', function () {
-    const file = this.files?.[0];
-    const name = document.getElementById('resourceFileName');
-    if (!name) return;
-    if (!file) {
-      name.textContent = 'No file chosen';
-      return;
-    }
-    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-    name.textContent = `${file.name} — ${sizeMB} MB`;
-  });
+  try{
 
-  document.getElementById('resourceForm')?.addEventListener('submit', async function (e) {
-    e.preventDefault();
+    q =
+      query(
+        collection(
+          db,
+          "resources"
+        ),
+        orderBy(
+          "createdAt",
+          "desc"
+        )
+      );
 
-    const form = this;
-    if (form.dataset.uploading === 'true') return;
+  }
 
-    const editingId = document.getElementById('editingResourceId').value.trim();
-    const title = document.getElementById('resourceTitle').value.trim();
-    const category = document.getElementById('resourceCategory').value || 'PDF';
-    const description = document.getElementById('resourceDescription').value.trim();
-    const premiumOnly = document.getElementById('premiumOnly').checked;
-    const file = document.getElementById('resourceFilePicker').files?.[0] || null;
-    const saveButton = document.getElementById('saveResourceBtn');
+  catch{
 
-    if (!title) return alert('Please enter a resource title.');
-    if (!editingId && !file) return alert('Please choose a file to upload.');
+    q =
+      collection(
+        db,
+        "resources"
+      );
 
-    form.dataset.uploading = 'true';
-    if (saveButton) {
-      saveButton.disabled = true;
-      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (editingId ? 'Updating...' : 'Uploading...');
-    }
+  }
 
-    try {
-      let fileKey = null;
-      let oldData = null;
 
-      if (editingId) {
-        const snap = await getDoc(doc(db, 'resources', editingId));
-        if (!snap.exists()) throw new Error('Resource no longer exists.');
-        oldData = snap.data();
-        fileKey = oldData.fileKey || oldData.resourceKey || oldData.r2Key || null;
+  resourceUnsubscribe =
+    onSnapshot(
+      q,
+
+      snapshot => {
+
+        resources = [];
+
+
+        snapshot.forEach(
+          item => {
+
+            resources.push({
+              id:item.id,
+              ...item.data()
+            });
+
+          }
+        );
+
+
+        $("resourceCount").textContent =
+          resources.length;
+
+
+        renderResourcesTable();
+
+        updateContentCount();
+
+      },
+
+      error => {
+
+        console.error(
+          "RESOURCES LISTENER ERROR:",
+          error
+        );
+
+
+        $("resourceTableBody").innerHTML =
+          `
+          <tr>
+            <td colspan="5">
+              <div class="empty">
+                Unable to load resources.
+              </div>
+            </td>
+          </tr>
+          `;
+
       }
 
-      if (file) {
-        const originalName = file.name || 'resource';
-        const safeName = originalName
-          .replace(/[^a-zA-Z0-9._-]/g, '_')
-          .replace(/_+/g, '_');
-        const safeCategory = String(category)
-          .replace(/[^a-zA-Z0-9_-]/g, '_')
-          .toLowerCase();
-        const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
+    );
 
-        setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);
-        fileKey = await uploadResourceToR2(file, key, percent => {
-          setResourceUploadProgress(percent, `Uploading ${percent}% — ${originalName}`);
-        });
+}
 
-        if (!fileKey) throw new Error('Cloudflare R2 did not return a file key.');
-        setResourceUploadProgress(100, 'Upload complete — saving resource information...');
+
+/* ============================================================
+   RESOURCES TABLE
+============================================================ */
+
+function renderResourcesTable(){
+
+  const tbody =
+    $("resourceTableBody");
+
+
+  if(!resources.length){
+
+    tbody.innerHTML =
+      `
+      <tr>
+        <td colspan="5">
+          <div class="empty">
+            No resources yet. Upload one above.
+          </div>
+        </td>
+      </tr>
+      `;
+
+    return;
+
+  }
+
+
+  tbody.innerHTML =
+    resources.map(resource => {
+
+      const title =
+        escapeHTML(
+          resource.title ||
+          "Untitled Resource"
+        );
+
+
+      const category =
+        escapeHTML(
+          resource.category ||
+          "Other"
+        );
+
+
+      const fileName =
+        escapeHTML(
+          resource.fileName ||
+          resource.name ||
+          "File"
+        );
+
+
+      const premium =
+        resource.premiumOnly === true;
+
+
+      return `
+        <tr>
+
+          <td>
+            <strong>
+              ${title}
+            </strong>
+          </td>
+
+          <td>
+            ${category}
+          </td>
+
+          <td>
+            ${fileName}
+          </td>
+
+          <td>
+
+            <span class="badge ${premium ? "premium" : "free"}">
+              ${premium ? "Premium" : "Free"}
+            </span>
+
+          </td>
+
+          <td>
+
+            <div class="action-row">
+
+              ${
+                resource.fileKey
+                  ? `
+                    <button
+                      class="action-btn preview"
+                      data-resource-preview="${escapeHTML(resource.fileKey)}"
+                    >
+                      Open
+                    </button>
+                    `
+                  : ""
+              }
+
+              <button
+                class="action-btn"
+                data-resource-edit="${resource.id}"
+              >
+                Edit
+              </button>
+
+              <button
+                class="action-btn delete"
+                data-resource-delete="${resource.id}"
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+
+  bindResourceActions();
+
+}
+
+
+/* ============================================================
+   RESOURCE ACTIONS
+============================================================ */
+
+function bindResourceActions(){
+
+  document
+    .querySelectorAll("[data-resource-preview]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const key =
+            button.dataset.resourcePreview;
+
+
+          if(!key){
+
+            alert(
+              "This resource has no R2 file."
+            );
+
+            return;
+
+          }
+
+
+          window.open(
+            getDownloadUrl(key),
+            "_blank"
+          );
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll("[data-resource-edit]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const resource =
+            resources.find(
+              item =>
+                item.id ===
+                button.dataset.resourceEdit
+            );
+
+
+          if(resource){
+            editResource(resource);
+          }
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll("[data-resource-delete]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          deleteResource(
+            button.dataset.resourceDelete
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* ============================================================
+   RESOURCE FORM TOGGLE
+============================================================ */
+
+$("toggleResourceFormBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      const container =
+        $("resourceFormContainer");
+
+
+      if(
+        container.style.display ===
+        "none" ||
+        !container.style.display
+      ){
+
+        resetResourceForm();
+
+        container.style.display =
+          "block";
+
       }
 
-      if (!fileKey) throw new Error('No R2 file key is available for this resource.');
+      else{
 
-      const data = {
-        title,
-        category,
-        description,
-        premiumOnly,
-        fileKey,
-        resourceKey: fileKey,
-        r2Key: fileKey,
-        fileName: file?.name || oldData?.fileName || fileKey.split('/').pop(),
-        type: file?.type || oldData?.type || category,
-        updatedAt: serverTimestamp()
-      };
+        container.style.display =
+          "none";
 
-      if (editingId) {
-        await updateDoc(doc(db, 'resources', editingId), data);
-        addActivity(`Updated resource "${title}"`);
-      } else {
-        data.createdAt = serverTimestamp();
-        await addDoc(collection(db, 'resources'), data);
-        addActivity(`Uploaded resource "${title}"`);
       }
 
-      setResourceUploadProgress(100, '100% — Resource saved successfully.');
-      alert(editingId ? '✅ Resource updated successfully!' : '✅ Resource uploaded to Cloudflare R2 successfully!');
-
-      document.getElementById('resourceFormContainer').style.display = 'none';
-      document.getElementById('resourceForm').reset();
-      document.getElementById('editingResourceId').value = '';
-      resetResourceUploadUI();
-      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
-      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
-
-    } catch (error) {
-      console.error('RESOURCE UPLOAD ERROR:', error);
-      setResourceUploadProgress(0, '❌ Upload failed.');
-      alert('❌ Resource upload failed:\n\n' + (error?.message || error));
-    } finally {
-      form.dataset.uploading = 'false';
-      if (saveButton) {
-        saveButton.disabled = false;
-        saveButton.innerHTML = editingId ? 'Update Resource' : 'Save Resource';
-      }
     }
-  });
+  );
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  6. INIT
-  // ═══════════════════════════════════════════════════════════════════════════
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      listenMembers();
-      renderModules();
-      listenPayments();
-      listenVideos();
-      listenResources();
-    } else {
-      window.location.href = "/login";
+
+$("cancelResourceBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      resetResourceForm();
+
+      $("resourceFormContainer").style.display =
+        "none";
+
     }
-  });
+  );
 
-  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Video Upload) – All features included.');
+
+/* ============================================================
+   RESET RESOURCE FORM
+============================================================ */
+
+function resetResourceForm(){
+
+  $("resourceForm").reset();
+
+  $("editingResourceId").value =
+    "";
+
+  $("existingResourceKey").value =
+    "";
+
+  $("resourceFormTitle").textContent =
+    "Upload Resource";
+
+  $("saveResourceBtn").textContent =
+    "Upload Resource";
+
+  $("resourceFileName").textContent =
+    "No file chosen";
+
+  $("resourceUploadStatus").className =
+    "upload-status";
+
+}
+
+
+/* ============================================================
+   RESOURCE FILE PICKER
+============================================================ */
+
+$("resourceFilePicker")
+  .addEventListener(
+    "change",
+    event => {
+
+      const file =
+        event.target.files[0];
+
+
+      $("resourceFileName").textContent =
+        file
+          ? `${file.name} • ${(file.size / 1024 / 1024).toFixed(1)} MB`
+          : "No file chosen";
+
+    }
+  );
+
+
+/* ============================================================
+   EDIT RESOURCE
+============================================================ */
+
+function editResource(resource){
+
+  openPage("resourcesPage");
+
+
+  $("resourceFormContainer").style.display =
+    "block";
+
+
+  $("resourceFormTitle").textContent =
+    "Edit Resource";
+
+
+  $("saveResourceBtn").textContent =
+    "Update Resource";
+
+
+  $("editingResourceId").value =
+    resource.id;
+
+
+  $("existingResourceKey").value =
+    resource.fileKey || "";
+
+
+  $("resourceTitle").value =
+    resource.title || "";
+
+
+  $("resourceCategory").value =
+    resource.category || "Other";
+
+
+  $("resourcePremiumOnly").value =
+    resource.premiumOnly === true
+      ? "true"
+      : "false";
+
+
+  $("resourceFileName").textContent =
+    resource.fileKey
+      ? "Existing file stored in R2"
+      : "No file chosen";
+
+
+  $("resourceFormContainer")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+}
+
+
+/* ============================================================
+   DELETE RESOURCE
+============================================================ */
+
+async function deleteResource(id){
+
+  const resource =
+    resources.find(
+      item => item.id === id
+    );
+
+
+  if(!resource){
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      `Delete "${resource.title || "this resource"}" from the academy?`
+    );
+
+
+  if(!confirmed){
+    return;
+  }
+
+
+  try{
+
+    await deleteDoc(
+      doc(
+        db,
+        "resources",
+        id
+      )
+    );
+
+
+    alert(
+      "Resource record deleted."
+    );
+
+  }
+
+  catch(error){
+
+    console.error(
+      "DELETE RESOURCE ERROR:",
+      error
+    );
+
+
+    alert(
+      error.message ||
+      "Unable to delete resource."
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   RESOURCE UPLOAD
+============================================================ */
+
+$("resourceForm")
+  .addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+
+      const button =
+        $("saveResourceBtn");
+
+
+      if(button.disabled){
+        return;
+      }
+
+
+      const title =
+        $("resourceTitle")
+          .value
+          .trim();
+
+
+      const category =
+        $("resourceCategory")
+          .value;
+
+
+      const premiumOnly =
+        $("resourcePremiumOnly")
+          .value === "true";
+
+
+      const file =
+        $("resourceFilePicker")
+          .files[0];
+
+
+      const editingId =
+        $("editingResourceId")
+          .value
+          .trim();
+
+
+      let fileKey =
+        $("existingResourceKey")
+          .value
+          .trim();
+
+
+      const isEditing =
+        Boolean(editingId);
+
+
+      if(!title){
+
+        setUploadStatus(
+          "resource",
+          "error",
+          "Resource title is required.",
+          "Enter a title before uploading."
+        );
+
+        return;
+
+      }
+
+
+      if(
+        !file &&
+        !fileKey
+      ){
+
+        setUploadStatus(
+          "resource",
+          "error",
+          "No resource file selected.",
+          "Choose a file before uploading."
+        );
+
+        return;
+
+      }
+
+
+      const started =
+        Date.now();
+
+
+      try{
+
+        button.disabled =
+          true;
+
+
+        button.textContent =
+          isEditing
+            ? "Updating..."
+            : "Uploading...";
+
+
+        let fileName =
+          file
+            ? file.name
+            : "";
+
+
+        /* ------------------------------------------
+           R2 UPLOAD
+        ------------------------------------------ */
+
+        if(file){
+
+          const safeName =
+            safeFileName(
+              file.name
+            );
+
+
+          fileKey =
+            `resources/${Date.now()}_${safeName}`;
+
+
+          setUploadStatus(
+            "resource",
+            "working",
+            "Uploading resource to Cloudflare R2...",
+            `${file.name} • ${(file.size / 1024 / 1024).toFixed(1)} MB`
+          );
+
+
+          await uploadToR2(
+            file,
+            fileKey
+          );
+
+
+          $("resourceFileName").textContent =
+            `✓ Uploaded: ${file.name}`;
+
+        }
+
+
+        /* ------------------------------------------
+           FIRESTORE
+        ------------------------------------------ */
+
+        setUploadStatus(
+          "resource",
+          "working",
+          "Saving resource information...",
+          "Saving the R2 file key in Firestore."
+        );
+
+
+        const data = {
+
+          title,
+
+          category,
+
+          premiumOnly,
+
+          fileKey,
+
+          fileName,
+
+          updatedAt:
+            serverTimestamp()
+
+        };
+
+
+        if(isEditing){
+
+          await updateDoc(
+            doc(
+              db,
+              "resources",
+              editingId
+            ),
+            data
+          );
+
+        }
+
+        else{
+
+          data.createdAt =
+            serverTimestamp();
+
+
+          await addDoc(
+            collection(
+              db,
+              "resources"
+            ),
+            data
+          );
+
+        }
+
+
+        setUploadStatus(
+          "resource",
+          "success",
+          isEditing
+            ? "✓ Resource updated successfully."
+            : "✓ Resource uploaded successfully.",
+          `R2 + Firestore completed in ${formatElapsed(Date.now() - started)}.`
+        );
+
+
+        $("resourceForm").reset();
+
+        $("editingResourceId").value =
+          "";
+
+        $("existingResourceKey").value =
+          "";
+
+        $("resourceFormTitle").textContent =
+          "Upload Resource";
+
+
+        setTimeout(
+          () => {
+
+            $("resourceFormContainer").style.display =
+              "none";
+
+            $("resourceUploadStatus").className =
+              "upload-status";
+
+            $("resourceFileName").textContent =
+              "No file chosen";
+
+          },
+          1800
+        );
+
+      }
+
+      catch(error){
+
+        console.error(
+          "RESOURCE UPLOAD ERROR:",
+          error
+        );
+
+
+        setUploadStatus(
+          "resource",
+          "error",
+          "✕ Resource upload failed.",
+          error?.message ||
+          "Unknown error."
+        );
+
+      }
+
+      finally{
+
+        button.disabled =
+          false;
+
+
+        button.textContent =
+          isEditing
+            ? "Update Resource"
+            : "Upload Resource";
+
+      }
+
+    }
+  );
+
+
+/* ============================================================
+   CONTENT COUNT
+============================================================ */
+
+function updateContentCount(){
+
+  $("contentCount").textContent =
+    videos.length +
+    resources.length;
+
+}
+
 </script>
+
 </body>
 </html>
