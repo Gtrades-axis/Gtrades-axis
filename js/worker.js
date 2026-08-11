@@ -1,516 +1,527 @@
 // ============================================================
 // GTRADES-AXIS™
-// CLOUDFLARE R2 UNIFIED VIDEO/FILE WORKER
+// CLOUDFLARE R2 VIDEO UPLOADER
 // ============================================================
 
 export default {
   async fetch(request, env) {
 
-    const url = new URL(request.url);
+    // ========================================================
+    // CORS
+    // ========================================================
 
-    const cors = {
+    const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods":
-        "GET, POST, HEAD, OPTIONS",
+        "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers":
-        "Range, Content-Type, Authorization",
-      "Access-Control-Expose-Headers":
-        "Content-Length, Content-Range, Accept-Ranges, Content-Type, ETag",
-      "Access-Control-Max-Age": "86400"
+        "Content-Type",
     };
 
-    // --------------------------------------------------------
-    // CORS PREFLIGHT
-    // --------------------------------------------------------
+    // ========================================================
+    // OPTIONS / CORS PREFLIGHT
+    // ========================================================
 
     if (request.method === "OPTIONS") {
+
       return new Response(null, {
         status: 204,
-        headers: cors
+        headers: corsHeaders
       });
+
     }
 
-    // --------------------------------------------------------
+    // ========================================================
+    // URL
+    // ========================================================
+
+    const url =
+      new URL(request.url);
+
+    const pathname =
+      url.pathname;
+
+    // ========================================================
+    // HEALTH CHECK
+    // ========================================================
+
+    if (
+      pathname === "/" &&
+      request.method === "GET"
+    ) {
+
+      return json(
+        {
+          success: true,
+          service:
+            "GTRADES-AXIS R2 Uploader",
+          status: "online"
+        },
+        200,
+        corsHeaders
+      );
+
+    }
+
+    // ========================================================
     // UPLOAD
-    // POST /upload
-    // FormData:
-    // file
-    // key
-    // contentType
-    // --------------------------------------------------------
+    // ========================================================
 
     if (
-      request.method === "POST" &&
-      url.pathname === "/upload"
+      pathname === "/upload" &&
+      request.method === "POST"
     ) {
 
-      try {
+      return handleUpload(
+        request,
+        env,
+        corsHeaders
+      );
 
-        const form = await request.formData();
+    }
 
-        const file = form.get("file");
-        const key = form.get("key");
-        const suppliedType = form.get("contentType");
+    // ========================================================
+    // FILE
+    // ========================================================
 
-        if (!file) {
-          return json(
-            {
-              success: false,
-              error: "No file received."
-            },
-            400,
-            cors
-          );
-        }
+    if (
+      pathname === "/file" &&
+      request.method === "GET"
+    ) {
 
-        if (!key) {
-          return json(
-            {
-              success: false,
-              error: "Missing R2 object key."
-            },
-            400,
-            cors
-          );
-        }
+      return handleFile(
+        request,
+        env,
+        corsHeaders
+      );
 
-        if (!(file instanceof File)) {
-          return json(
-            {
-              success: false,
-              error: "Invalid uploaded file."
-            },
-            400,
-            cors
-          );
-        }
+    }
 
-        const contentType =
-          suppliedType ||
-          file.type ||
-          detectContentType(key);
+    // ========================================================
+    // NOT FOUND
+    // ========================================================
 
-        await env.GTRADES_ASSETS.put(
-          key,
-          file.stream(),
-          {
-            httpMetadata: {
-              contentType,
-              cacheControl:
-                "public, max-age=31536000"
-            }
-          }
-        );
+    return json(
+      {
+        success: false,
+        error:
+          "Route not found."
+      },
+      404,
+      corsHeaders
+    );
+  }
+};
 
-        const saved =
-          await env.GTRADES_ASSETS.head(key);
 
-        if (!saved) {
-          return json(
-            {
-              success: false,
-              error:
-                "Upload completed but file could not be verified in R2.",
-              key
-            },
-            500,
-            cors
-          );
-        }
+// ============================================================
+// UPLOAD HANDLER
+// ============================================================
 
-        return json(
-          {
-            success: true,
-            key,
-            size: saved.size,
-            contentType,
-            etag: saved.etag,
-            url:
-              `${url.origin}/file?key=${encodeURIComponent(key)}`
-          },
-          200,
-          cors
-        );
+async function handleUpload(
+  request,
+  env,
+  corsHeaders
+) {
 
-      } catch (error) {
+  try {
 
-        console.error(
-          "R2 UPLOAD ERROR:",
-          error
-        );
+    // --------------------------------------------------------
+    // CHECK R2 BUCKET
+    // --------------------------------------------------------
 
-        return json(
-          {
-            success: false,
-            error:
-              error?.message ||
-              "R2 upload failed."
-          },
-          500,
-          cors
-        );
-      }
+    if (!env.GTRADES_ASSETS) {
+
+      return json(
+        {
+          success: false,
+          error:
+            "R2 bucket binding GTRADES_ASSETS is missing."
+        },
+        500,
+        corsHeaders
+      );
+
     }
 
     // --------------------------------------------------------
-    // DELETE
-    // DELETE /file?key=...
+    // READ FORM DATA
+    // --------------------------------------------------------
+
+    const formData =
+      await request.formData();
+
+    const file =
+      formData.get("file");
+
+    const key =
+      formData.get("key");
+
+    const type =
+      formData.get("type") ||
+      "file";
+
+    const contentType =
+      formData.get("contentType") ||
+      (
+        file?.type ||
+        "application/octet-stream"
+      );
+
+    // --------------------------------------------------------
+    // VALIDATE FILE
     // --------------------------------------------------------
 
     if (
-      request.method === "POST" &&
-      url.pathname === "/delete"
+      !file ||
+      typeof file === "string"
     ) {
 
-      try {
+      return json(
+        {
+          success: false,
+          error:
+            "No file was received."
+        },
+        400,
+        corsHeaders
+      );
 
-        const body =
-          await request.json();
-
-        const key =
-          body?.key;
-
-        if (!key) {
-          return json(
-            {
-              success: false,
-              error: "Missing R2 object key."
-            },
-            400,
-            cors
-          );
-        }
-
-        await env.GTRADES_ASSETS.delete(key);
-
-        return json(
-          {
-            success: true,
-            key
-          },
-          200,
-          cors
-        );
-
-      } catch (error) {
-
-        return json(
-          {
-            success: false,
-            error:
-              error?.message ||
-              "Delete failed."
-          },
-          500,
-          cors
-        );
-      }
     }
 
     // --------------------------------------------------------
-    // FILE INFORMATION
-    // /info?key=...
+    // VALIDATE KEY
     // --------------------------------------------------------
 
     if (
-      url.pathname === "/info"
+      !key ||
+      typeof key !== "string"
     ) {
 
-      const key =
-        url.searchParams.get("key");
+      return json(
+        {
+          success: false,
+          error:
+            "No R2 file key was provided."
+        },
+        400,
+        corsHeaders
+      );
 
-      if (!key) {
-        return json(
-          {
-            success: false,
-            error: "Missing R2 object key."
-          },
-          400,
-          cors
-        );
-      }
-
-      try {
-
-        const object =
-          await env.GTRADES_ASSETS.head(key);
-
-        if (!object) {
-          return json(
-            {
-              success: false,
-              error: "File not found in R2.",
-              key
-            },
-            404,
-            cors
-          );
-        }
-
-        return json(
-          {
-            success: true,
-            key,
-            size: object.size,
-            etag: object.etag,
-            contentType:
-              object.httpMetadata?.contentType ||
-              detectContentType(key)
-          },
-          200,
-          cors
-        );
-
-      } catch (error) {
-
-        return json(
-          {
-            success: false,
-            error:
-              error?.message ||
-              "Unable to inspect R2 object."
-          },
-          500,
-          cors
-        );
-      }
     }
 
     // --------------------------------------------------------
-    // VIDEO / FILE DELIVERY
-    //
-    // Works with:
-    //
-    // /file?key=videos/example.mp4
-    //
-    // /?key=videos/example.mp4
+    // CLEAN KEY
     // --------------------------------------------------------
 
-    if (
-      request.method === "GET" ||
-      request.method === "HEAD"
-    ) {
+    const cleanKey =
+      key
+        .replace(/^\/+/, "")
+        .trim();
 
-      const key =
-        url.searchParams.get("key");
+    if (!cleanKey) {
 
-      if (!key) {
-        return json(
-          {
-            success: false,
-            error: "Missing R2 object key."
-          },
-          400,
-          cors
-        );
-      }
+      return json(
+        {
+          success: false,
+          error:
+            "Invalid R2 key."
+        },
+        400,
+        corsHeaders
+      );
 
-      try {
-
-        const object =
-          await env.GTRADES_ASSETS.get(key);
-
-        if (!object) {
-
-          return json(
-            {
-              success: false,
-              error: "File not found in R2.",
-              key
-            },
-            404,
-            cors
-          );
-        }
-
-        const contentType =
-          object.httpMetadata?.contentType ||
-          detectContentType(key);
-
-        const headers =
-          new Headers(cors);
-
-        headers.set(
-          "Content-Type",
-          contentType
-        );
-
-        headers.set(
-          "Accept-Ranges",
-          "bytes"
-        );
-
-        headers.set(
-          "Cache-Control",
-          "public, max-age=3600"
-        );
-
-        headers.set(
-          "Content-Length",
-          String(object.size)
-        );
-
-        if (object.etag) {
-          headers.set(
-            "ETag",
-            object.etag
-          );
-        }
-
-        // ----------------------------------------------------
-        // HEAD
-        // ----------------------------------------------------
-
-        if (request.method === "HEAD") {
-
-          return new Response(
-            null,
-            {
-              status: 200,
-              headers
-            }
-          );
-        }
-
-        // ----------------------------------------------------
-        // RANGE
-        // Required for video seeking/streaming
-        // ----------------------------------------------------
-
-        const range =
-          request.headers.get("Range");
-
-        if (range) {
-
-          const match =
-            range.match(
-              /bytes=(\d+)-(\d*)/
-            );
-
-          if (match) {
-
-            const start =
-              Number(match[1]);
-
-            let end =
-              match[2]
-                ? Number(match[2])
-                : object.size - 1;
-
-            if (
-              start >= object.size ||
-              start < 0
-            ) {
-
-              const badHeaders =
-                new Headers(cors);
-
-              badHeaders.set(
-                "Content-Range",
-                `bytes */${object.size}`
-              );
-
-              return new Response(
-                null,
-                {
-                  status: 416,
-                  headers: badHeaders
-                }
-              );
-            }
-
-            if (end >= object.size) {
-              end =
-                object.size - 1;
-            }
-
-            if (end < start) {
-              end =
-                object.size - 1;
-            }
-
-            const length =
-              end - start + 1;
-
-            const ranged =
-              await env.GTRADES_ASSETS.get(
-                key,
-                {
-                  range: {
-                    offset: start,
-                    length
-                  }
-                }
-              );
-
-            headers.set(
-              "Content-Length",
-              String(length)
-            );
-
-            headers.set(
-              "Content-Range",
-              `bytes ${start}-${end}/${object.size}`
-            );
-
-            return new Response(
-              ranged.body,
-              {
-                status: 206,
-                headers
-              }
-            );
-          }
-        }
-
-        // ----------------------------------------------------
-        // NORMAL FILE
-        // ----------------------------------------------------
-
-        return new Response(
-          object.body,
-          {
-            status: 200,
-            headers
-          }
-        );
-
-      } catch (error) {
-
-        console.error(
-          "R2 READ ERROR:",
-          error
-        );
-
-        return json(
-          {
-            success: false,
-            error:
-              error?.message ||
-              "Unable to read R2 object.",
-            key
-          },
-          500,
-          cors
-        );
-      }
     }
 
-    // --------------------------------------------------------
-    // WORKER STATUS
-    // --------------------------------------------------------
+    console.log(
+      "GTRADES upload started:",
+      {
+        key: cleanKey,
+        type: type,
+        contentType: contentType,
+        size: file.size
+      }
+    );
+
+    // ========================================================
+    // WRITE DIRECTLY TO R2
+    // ========================================================
+
+    await env.GTRADES_ASSETS.put(
+      cleanKey,
+      file.stream(),
+      {
+        httpMetadata: {
+          contentType:
+            contentType
+        },
+
+        customMetadata: {
+          originalName:
+            file.name || "",
+
+          uploadType:
+            String(type),
+
+          uploadedAt:
+            new Date().toISOString()
+        }
+      }
+    );
+
+    console.log(
+      "R2 PUT completed:",
+      cleanKey
+    );
+
+    // ========================================================
+    // VERIFY OBJECT
+    // ========================================================
+
+    const savedObject =
+      await env.GTRADES_ASSETS.head(
+        cleanKey
+      );
+
+    if (!savedObject) {
+
+      console.error(
+        "R2 verification failed:",
+        cleanKey
+      );
+
+      return json(
+        {
+          success: false,
+          error:
+            "File was sent to R2 but could not be verified."
+        },
+        500,
+        corsHeaders
+      );
+
+    }
+
+    console.log(
+      "R2 verification successful:",
+      {
+        key: cleanKey,
+        size: savedObject.size
+      }
+    );
+
+    // ========================================================
+    // FILE URL
+    // ========================================================
+
+    const fileURL =
+      `${urlFromRequest(request)}/file?key=${encodeURIComponent(cleanKey)}`;
+
+    // ========================================================
+    // SUCCESS
+    // ========================================================
 
     return json(
       {
         success: true,
-        worker: "GTRADES-AXIS R2",
-        status: "online"
+
+        message:
+          "File uploaded successfully.",
+
+        key:
+          cleanKey,
+
+        url:
+          fileURL,
+
+        fileUrl:
+          fileURL,
+
+        type:
+          type,
+
+        contentType:
+          contentType,
+
+        size:
+          savedObject.size
       },
       200,
-      cors
+      corsHeaders
     );
+
+  } catch (error) {
+
+    console.error(
+      "GTRADES R2 UPLOAD ERROR:",
+      error
+    );
+
+    return json(
+      {
+        success: false,
+
+        error:
+          error?.message ||
+          "R2 upload failed."
+      },
+      500,
+      corsHeaders
+    );
+
   }
-};
+
+}
+
+
+// ============================================================
+// FILE HANDLER
+// ============================================================
+
+async function handleFile(
+  request,
+  env,
+  corsHeaders
+) {
+
+  try {
+
+    // --------------------------------------------------------
+    // CHECK BUCKET
+    // --------------------------------------------------------
+
+    if (!env.GTRADES_ASSETS) {
+
+      return new Response(
+        "R2 bucket binding missing.",
+        {
+          status: 500,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+    // --------------------------------------------------------
+    // GET KEY
+    // --------------------------------------------------------
+
+    const url =
+      new URL(request.url);
+
+    const key =
+      url.searchParams.get(
+        "key"
+      );
+
+    if (!key) {
+
+      return new Response(
+        "Missing key.",
+        {
+          status: 400,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+    const cleanKey =
+      key
+        .replace(/^\/+/, "")
+        .trim();
+
+    // ========================================================
+    // GET OBJECT
+    // ========================================================
+
+    const object =
+      await env.GTRADES_ASSETS.get(
+        cleanKey
+      );
+
+    // ========================================================
+    // NOT FOUND
+    // ========================================================
+
+    if (!object) {
+
+      return new Response(
+        "File not found in R2.",
+        {
+          status: 404,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+    // ========================================================
+    // RESPONSE HEADERS
+    // ========================================================
+
+    const headers =
+      new Headers(
+        corsHeaders
+      );
+
+    headers.set(
+      "Content-Type",
+      object.httpMetadata?.contentType ||
+      "application/octet-stream"
+    );
+
+    headers.set(
+      "Cache-Control",
+      "public, max-age=31536000, immutable"
+    );
+
+    headers.set(
+      "Accept-Ranges",
+      "bytes"
+    );
+
+    if (
+      object.size !== undefined
+    ) {
+
+      headers.set(
+        "Content-Length",
+        String(object.size)
+      );
+
+    }
+
+    // ========================================================
+    // RETURN FILE
+    // ========================================================
+
+    return new Response(
+      object.body,
+      {
+        status: 200,
+        headers
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "GTRADES R2 FILE ERROR:",
+      error
+    );
+
+    return new Response(
+      "Unable to retrieve file.",
+      {
+        status: 500,
+        headers: corsHeaders
+      }
+    );
+
+  }
+
+}
 
 
 // ============================================================
@@ -519,68 +530,44 @@ export default {
 
 function json(
   data,
-  status = 200,
-  cors = {}
+  status,
+  corsHeaders
 ) {
+
+  const headers =
+    new Headers(
+      corsHeaders
+    );
+
+  headers.set(
+    "Content-Type",
+    "application/json"
+  );
 
   return new Response(
     JSON.stringify(data),
     {
       status,
-      headers: {
-        ...cors,
-        "Content-Type":
-          "application/json; charset=utf-8"
-      }
+      headers
     }
   );
+
 }
 
 
 // ============================================================
-// CONTENT TYPE
+// WORKER BASE URL
 // ============================================================
 
-function detectContentType(key) {
+function urlFromRequest(
+  request
+) {
 
-  const lower =
-    key.toLowerCase();
+  const url =
+    new URL(request.url);
 
-  if (lower.endsWith(".mp4"))
-    return "video/mp4";
+  return (
+    url.origin
+  );
 
-  if (lower.endsWith(".webm"))
-    return "video/webm";
-
-  if (lower.endsWith(".mov"))
-    return "video/quicktime";
-
-  if (lower.endsWith(".avi"))
-    return "video/x-msvideo";
-
-  if (lower.endsWith(".m4v"))
-    return "video/x-m4v";
-
-  if (lower.endsWith(".jpg"))
-    return "image/jpeg";
-
-  if (lower.endsWith(".jpeg"))
-    return "image/jpeg";
-
-  if (lower.endsWith(".png"))
-    return "image/png";
-
-  if (lower.endsWith(".webp"))
-    return "image/webp";
-
-  if (lower.endsWith(".gif"))
-    return "image/gif";
-
-  if (lower.endsWith(".pdf"))
-    return "application/pdf";
-
-  if (lower.endsWith(".txt"))
-    return "text/plain";
-
-  return "application/octet-stream";
 }
