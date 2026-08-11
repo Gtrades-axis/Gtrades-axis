@@ -1,136 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Video Manager | GTRADES-AXIS™</title>
 
-<link
-  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-  rel="stylesheet"
->
-
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   font-family:Poppins,sans-serif;
   background:#080b12;
-  color:#e8edf5;
+  color:#e8edf5
 }
 
 .admin{
   max-width:1400px;
   margin:auto;
-  padding:35px;
+  padding:35px
 }
 
 .header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:30px;
+  margin-bottom:30px
 }
 
-.header h1{
-  margin:0;
-}
-
-.header p{
-  color:#94a3b8;
-}
+.header h1{margin:0}
+.header p{color:#94a3b8}
 
 .panel{
   background:#111624;
   border:1px solid #29344e;
   border-radius:14px;
   padding:25px;
-  margin-bottom:25px;
+  margin-bottom:25px
 }
 
 .form-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:18px;
+  gap:18px
 }
 
 .field{
   display:flex;
   flex-direction:column;
-  gap:7px;
+  gap:7px
 }
 
-.field.full{
-  grid-column:1/-1;
-}
+.field.full{grid-column:1/-1}
 
 label{
   color:#94a3b8;
-  font-size:.85rem;
+  font-size:.85rem
 }
 
-input,
-select{
+input,select{
   width:100%;
   padding:12px;
   border-radius:8px;
   border:1px solid #29344e;
   background:#0b0f18;
-  color:#fff;
+  color:#fff
 }
 
 .checkbox{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:10px
 }
 
-.checkbox input{
-  width:auto;
-}
+.checkbox input{width:auto}
 
 button{
   border:0;
   border-radius:8px;
   padding:11px 18px;
   cursor:pointer;
-  font-weight:600;
+  font-weight:600
 }
 
 .primary{
   background:#4f7cff;
-  color:#fff;
+  color:#fff
 }
 
 .secondary{
   background:#1d2639;
-  color:#fff;
+  color:#fff
 }
 
 .danger{
   background:#3a1520;
-  color:#ff6b81;
+  color:#ff6b81
+}
+
+.preview{
+  background:#102d4d;
+  color:#58a6ff
 }
 
 .progress{
   display:none;
-  margin-top:20px;
+  margin-top:20px
 }
 
 .progress-bar{
@@ -138,34 +115,33 @@ button{
   height:8px;
   background:#20283a;
   border-radius:10px;
-  overflow:hidden;
+  overflow:hidden
 }
 
 .progress-fill{
   width:0;
   height:100%;
-  background:#4f7cff;
+  background:#4f7cff
 }
 
 .table-wrapper{
-  overflow-x:auto;
+  overflow-x:auto
 }
 
 table{
   width:100%;
-  border-collapse:collapse;
+  border-collapse:collapse
 }
 
-th,
-td{
+th,td{
   text-align:left;
   padding:14px;
-  border-bottom:1px solid #29344e;
+  border-bottom:1px solid #29344e
 }
 
 th{
   color:#94a3b8;
-  font-size:.8rem;
+  font-size:.8rem
 }
 
 .thumb{
@@ -173,48 +149,108 @@ th{
   height:45px;
   object-fit:cover;
   border-radius:6px;
+  background:#080b12
 }
 
 .badge{
   padding:4px 9px;
   border-radius:20px;
-  font-size:.7rem;
+  font-size:.7rem
 }
 
 .premium{
   background:#3d2c0c;
-  color:#f5a623;
+  color:#f5a623
 }
 
 .free{
   background:#0b352b;
-  color:#00c897;
+  color:#00c897
 }
 
 .actions{
   display:flex;
   gap:6px;
-  flex-wrap:wrap;
+  flex-wrap:wrap
+}
+
+/* VIDEO MODAL */
+
+.video-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+  z-index:99999
+}
+
+.video-modal.active{
+  display:flex
+}
+
+.video-modal-box{
+  width:min(1000px,100%);
+  background:#0d121d;
+  border:1px solid #29344e;
+  border-radius:14px;
+  padding:18px;
+  box-shadow:0 20px 80px rgba(0,0,0,.6)
+}
+
+.video-modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:15px
+}
+
+.video-modal-title{
+  margin:0;
+  font-size:18px
+}
+
+.video-close{
+  background:#3a1520;
+  color:#ff6b81;
+  font-size:18px;
+  padding:8px 13px
+}
+
+#adminVideoPlayer{
+  display:block;
+  width:100%;
+  max-height:75vh;
+  background:#000;
+  border-radius:10px
+}
+
+.video-loading{
+  color:#94a3b8;
+  text-align:center;
+  padding:20px
 }
 
 @media(max-width:800px){
-
-  .admin{
-    padding:20px;
-  }
+  .admin{padding:20px}
 
   .form-grid{
-    grid-template-columns:1fr;
+    grid-template-columns:1fr
   }
 
   .field.full{
-    grid-column:auto;
+    grid-column:auto
   }
 
+  .header{
+    align-items:flex-start;
+    gap:15px
+  }
 }
-
 </style>
-
 </head>
 
 <body>
@@ -222,269 +258,161 @@ th{
 <div class="admin">
 
 <div class="header">
-
 <div>
-
-<h1>
-GTRADES-AXIS™ Video Manager
-</h1>
-
-<p>
-Upload and manage private R2 video content.
-</p>
-
+<h1>GTRADES-AXIS™ Video Manager</h1>
+<p>Upload and manage private R2 video content.</p>
 </div>
 
-<button
-id="logoutBtn"
-class="danger"
->
+<button id="logoutBtn" class="danger">
 Logout
 </button>
-
 </div>
-
 
 <div class="panel">
 
-<h2 id="formTitle">
-Add Video
-</h2>
+<h2 id="formTitle">Add Video</h2>
 
 <form id="videoForm">
 
 <div class="form-grid">
 
-
 <div class="field">
-
-<label>
-Video Title
-</label>
-
-<input
-id="videoTitle"
-required
->
-
+<label>Video Title</label>
+<input id="videoTitle" required>
 </div>
 
-
 <div class="field">
-
-<label>
-Category
-</label>
+<label>Category</label>
 
 <select id="videoCategory">
-
-<option>
-Market Structure
-</option>
-
-<option>
-Supply & Demand
-</option>
-
-<option>
-Liquidity
-</option>
-
-<option>
-Entries
-</option>
-
-<option>
-Psychology
-</option>
-
+<option>Market Structure</option>
+<option>Supply & Demand</option>
+<option>Liquidity</option>
+<option>Entries</option>
+<option>Psychology</option>
 </select>
-
 </div>
 
-
 <div class="field">
-
-<label>
-Duration
-</label>
-
-<input
-id="videoDuration"
-placeholder="12:45"
-required
->
-
+<label>Duration</label>
+<input id="videoDuration" placeholder="12:45" required>
 </div>
 
-
 <div class="field">
-
-<label>
-Video File
-</label>
-
-<input
-id="videoFile"
-type="file"
-accept="video/*"
->
-
+<label>Video File</label>
+<input id="videoFile" type="file" accept="video/*">
 </div>
 
-
 <div class="field">
-
-<label>
-Thumbnail
-</label>
-
-<input
-id="thumbnailFile"
-type="file"
-accept="image/*"
->
-
+<label>Thumbnail</label>
+<input id="thumbnailFile" type="file" accept="image/*">
 </div>
 
-
 <div class="field">
-
-<label>
-Access
-</label>
+<label>Access</label>
 
 <div class="checkbox">
-
-<input
-id="videoPremiumOnly"
-type="checkbox"
-checked
->
-
-<span>
-Premium Only
-</span>
-
+<input id="videoPremiumOnly" type="checkbox" checked>
+<span>Premium Only</span>
 </div>
-
 </div>
-
 
 <div class="field full">
-
-<label>
-Description
-</label>
-
+<label>Description</label>
 <input
 id="videoDescription"
 placeholder="Optional video description"
 >
+</div>
 
 </div>
 
+<div style="margin-top:20px;display:flex;gap:10px">
 
-</div>
-
-
-<div
-style="
-margin-top:20px;
-display:flex;
-gap:10px;
-"
->
-
-<button
-class="primary"
-type="submit"
-id="saveBtn"
->
+<button class="primary" type="submit" id="saveBtn">
 Upload Video
 </button>
 
-<button
-class="secondary"
-type="button"
-id="cancelBtn"
->
+<button class="secondary" type="button" id="cancelBtn">
 Cancel
 </button>
 
 </div>
 
+<div class="progress" id="progress">
 
-<div
-class="progress"
-id="progress"
->
-
-<p id="progressText">
-Uploading...
-</p>
+<p id="progressText">Uploading...</p>
 
 <div class="progress-bar">
-
-<div
-id="progressFill"
-class="progress-fill"
-></div>
-
+<div id="progressFill" class="progress-fill"></div>
 </div>
 
 </div>
 
 </form>
-
 </div>
-
 
 <div class="panel">
 
-<h2>
-Video Library
-</h2>
+<h2>Video Library</h2>
 
 <div class="table-wrapper">
 
 <table>
 
 <thead>
-
 <tr>
-
-<th>
-Thumbnail
-</th>
-
-<th>
-Title
-</th>
-
-<th>
-Category
-</th>
-
-<th>
-Access
-</th>
-
-<th>
-Actions
-</th>
-
+<th>Thumbnail</th>
+<th>Title</th>
+<th>Category</th>
+<th>Access</th>
+<th>Actions</th>
 </tr>
-
 </thead>
 
-<tbody id="videoTableBody">
-
-</tbody>
+<tbody id="videoTableBody"></tbody>
 
 </table>
 
 </div>
+</div>
+
+</div>
+
+
+<!-- VIDEO PREVIEW MODAL -->
+
+<div id="videoModal" class="video-modal">
+
+<div class="video-modal-box">
+
+<div class="video-modal-header">
+
+<h3 id="videoModalTitle" class="video-modal-title">
+Video Preview
+</h3>
+
+<button
+id="videoCloseBtn"
+class="video-close"
+type="button"
+>
+✕
+</button>
+
+</div>
+
+<div id="videoLoading" class="video-loading">
+Loading video...
+</div>
+
+<video
+id="adminVideoPlayer"
+controls
+playsinline
+preload="metadata"
+style="display:none"
+></video>
 
 </div>
 
@@ -512,5 +440,4 @@ src="./js/admin-videos.js"
 ></script>
 
 </body>
-
 </html>
