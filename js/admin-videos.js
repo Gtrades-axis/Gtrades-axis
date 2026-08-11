@@ -1,709 +1,751 @@
-// ============================================================
-// GTRADES-AXIS™
-// js/admin-videos.js
-// FINAL ADMIN VIDEO UPLOAD + PREVIEW
-// ============================================================
-
 import {
   getAuth,
   onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+} from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
   getFirestore,
   doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  getDoc,
+  collection,
+  addDoc,
+  serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 import { app } from "./firebase.js";
+
 
 // ============================================================
 // CONFIG
 // ============================================================
 
-const WORKER =
-  "https://gtrades-video-api.davidthuku574.workers.dev";
+const WORKER_URL =
+  "https://r2-uploader.davidthuku574.workers.dev";
+
+
+// ============================================================
+// FIREBASE
+// ============================================================
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ============================================================
-// STATE
-// ============================================================
-
-let uploading = false;
-let currentXHR = null;
 
 // ============================================================
 // ELEMENTS
 // ============================================================
 
 const form =
-  document.querySelector("#videoUploadForm") ||
-  document.querySelector("form");
-
-const fileInput =
-  document.querySelector("#videoFile") ||
-  document.querySelector('input[type="file"][accept*="video"]');
+  document.getElementById("videoUploadForm");
 
 const titleInput =
-  document.querySelector("#videoTitle") ||
-  document.querySelector('input[name="title"]');
+  document.getElementById("videoTitle");
 
 const categoryInput =
-  document.querySelector("#videoCategory") ||
-  document.querySelector('select[name="category"]');
+  document.getElementById("videoCategory");
 
 const durationInput =
-  document.querySelector("#videoDuration") ||
-  document.querySelector('input[name="duration"]');
+  document.getElementById("videoDuration");
+
+const videoInput =
+  document.getElementById("videoFile");
+
+const thumbnailInput =
+  document.getElementById("videoThumbnail");
 
 const premiumInput =
-  document.querySelector("#premiumOnly") ||
-  document.querySelector('input[name="premiumOnly"]');
+  document.getElementById("premiumOnly");
 
 const uploadButton =
-  document.querySelector("#uploadVideoBtn") ||
-  document.querySelector('button[type="submit"]');
+  document.getElementById("uploadVideoBtn");
+
+const preview =
+  document.getElementById("preview");
+
+const progressBox =
+  document.getElementById("progressBox");
+
+const progressText =
+  document.getElementById("progressText");
+
+const bar =
+  document.getElementById("bar");
+
+const percent =
+  document.getElementById("percent");
+
+const status =
+  document.getElementById("status");
+
 
 // ============================================================
-// AUTH
+// STATE
+// ============================================================
+
+let uploadLocked = false;
+
+
+// ============================================================
+// ADMIN AUTH
 // ============================================================
 
 onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
-    window.location.href = "/login.html";
+    location.href = "/login.html";
     return;
   }
 
   try {
 
-    const snap = await getDoc(
-      doc(db, "users", user.uid)
-    );
+    const userRef =
+      doc(db, "users", user.uid);
 
-    if (!snap.exists()) {
-      window.location.href = "/login.html";
+    const userSnap =
+      await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      location.href = "/login.html";
       return;
     }
 
-    if (snap.data().role !== "admin") {
-      window.location.href = "/dashboard.html";
+    const data =
+      userSnap.data();
+
+    if (data.role !== "admin") {
+      location.href = "/dashboard.html";
       return;
     }
-
-    console.log("GTRADES ADMIN VIDEO SYSTEM READY");
 
   } catch (error) {
-    console.error("Admin verification error:", error);
+
+    console.error(error);
+
+    location.href = "/login.html";
   }
+
 });
 
-// ============================================================
-// LOCAL VIDEO PREVIEW
-// ============================================================
-
-if (fileInput) {
-
-  fileInput.addEventListener("change", () => {
-
-    const file = fileInput.files?.[0];
-
-    if (!file) return;
-
-    showLocalPreview(file);
-
-  });
-
-}
 
 // ============================================================
-// SHOW LOCAL PREVIEW
+// LOCAL PREVIEW
 // ============================================================
 
-function showLocalPreview(file) {
-
-  let preview =
-    document.querySelector("#adminLocalVideoPreview");
-
-  if (!preview) {
-
-    preview = document.createElement("video");
-
-    preview.id =
-      "adminLocalVideoPreview";
-
-    preview.controls = true;
-    preview.playsInline = true;
-    preview.preload = "metadata";
-
-    fileInput.parentNode.appendChild(preview);
-  }
-
-  if (preview.dataset.url) {
-    URL.revokeObjectURL(
-      preview.dataset.url
-    );
-  }
-
-  const url =
-    URL.createObjectURL(file);
-
-  preview.dataset.url = url;
-  preview.src = url;
-
-  preview.style.display = "block";
-  preview.style.width = "256px";
-  preview.style.maxWidth = "100%";
-  preview.style.marginTop = "12px";
-  preview.style.borderRadius = "10px";
-  preview.style.background = "#000";
-}
-
-// ============================================================
-// UPLOAD
-// ============================================================
-
-if (form) {
-
-  form.addEventListener("submit", async (event) => {
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    // HARD LOCK AGAINST DOUBLE CLICK
-    if (uploading) return;
+videoInput.addEventListener(
+  "change",
+  () => {
 
     const file =
-      fileInput?.files?.[0];
+      videoInput.files[0];
 
     if (!file) {
-      showStatus(
-        "error",
-        "Please select a video file."
-      );
+
+      preview.removeAttribute("src");
+      preview.style.display = "none";
+
       return;
     }
 
     if (!file.type.startsWith("video/")) {
-      showStatus(
-        "error",
+
+      videoInput.value = "";
+
+      showError(
         "Please select a valid video file."
       );
+
       return;
     }
 
-    uploading = true;
+    const oldURL =
+      preview.dataset.objectUrl;
 
-    setUploadButton(true);
+    if (oldURL) {
+      URL.revokeObjectURL(oldURL);
+    }
 
-    showProgress(0, "Preparing upload...");
+    const objectURL =
+      URL.createObjectURL(file);
+
+    preview.dataset.objectUrl =
+      objectURL;
+
+    preview.src =
+      objectURL;
+
+    preview.style.display =
+      "block";
+
+  }
+);
+
+
+// ============================================================
+// FORM
+// ============================================================
+
+form.addEventListener(
+  "submit",
+  async (event) => {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (uploadLocked) {
+      return;
+    }
+
+    const video =
+      videoInput.files[0];
+
+    if (!video) {
+
+      showError(
+        "Select a video first."
+      );
+
+      return;
+    }
+
+    if (!video.type.startsWith("video/")) {
+
+      showError(
+        "Invalid video file."
+      );
+
+      return;
+    }
+
+    if (!titleInput.value.trim()) {
+
+      showError(
+        "Enter a video title."
+      );
+
+      return;
+    }
+
+    // ========================================================
+    // HARD LOCK
+    // ========================================================
+
+    uploadLocked = true;
+
+    uploadButton.disabled = true;
+
+    uploadButton.textContent =
+      "Uploading...";
+
+    status.className = "";
+    status.style.display = "none";
+
+    progressBox.style.display =
+      "block";
+
+    updateProgress(
+      0,
+      "Preparing upload..."
+    );
+
 
     try {
 
-      // ------------------------------------------------------
-      // 1. GET PRESIGNED R2 UPLOAD URL
-      // ------------------------------------------------------
-
-      const title =
-        titleInput?.value?.trim() ||
-        file.name.replace(/\.[^/.]+$/, "");
+      // ======================================================
+      // GENERATE UNIQUE FILE NAME
+      // ======================================================
 
       const extension =
-        file.name.includes(".")
-          ? file.name.substring(
-              file.name.lastIndexOf(".")
-            )
-          : ".mp4";
+        getExtension(video.name);
 
       const safeTitle =
-        title
-          .replace(/[^a-zA-Z0-9-_ ]/g, "")
+        titleInput.value
           .trim()
+          .replace(/[^a-zA-Z0-9-_ ]/g, "")
           .replace(/\s+/g, "-")
           .toLowerCase();
 
-      const key =
+      const videoKey =
         `videos/${Date.now()}-${safeTitle || "video"}${extension}`;
 
-      showProgress(
-        3,
-        "Preparing secure Cloudflare R2 upload..."
+
+      // ======================================================
+      // UPLOAD VIDEO DIRECTLY TO WORKER
+      // ======================================================
+
+      updateProgress(
+        2,
+        "Uploading video..."
       );
 
-      const urlResponse =
-        await fetch(
-          `${WORKER}/upload-url`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-            body: JSON.stringify({
-              key,
-              contentType:
-                file.type || "video/mp4"
-            })
-          }
+      const videoResult =
+        await uploadFile(
+          video,
+          videoKey,
+          "video"
         );
 
-      if (!urlResponse.ok) {
 
-        const text =
-          await urlResponse.text();
+      // ======================================================
+      // THUMBNAIL
+      // ======================================================
 
-        throw new Error(
-          `Upload URL failed (${urlResponse.status}): ${text}`
-        );
-      }
-
-      const uploadData =
-        await urlResponse.json();
+      let thumbnailKey = "";
+      let thumbnailURL = "";
 
       if (
-        !uploadData.success ||
-        !uploadData.uploadUrl
+        thumbnailInput.files &&
+        thumbnailInput.files.length
       ) {
-        throw new Error(
-          "Cloudflare did not return an upload URL."
+
+        const thumbnail =
+          thumbnailInput.files[0];
+
+        const thumbExtension =
+          getExtension(
+            thumbnail.name
+          );
+
+        thumbnailKey =
+          `thumbnails/${Date.now()}-${safeTitle || "thumbnail"}${thumbExtension}`;
+
+        updateProgress(
+          92,
+          "Uploading thumbnail..."
         );
+
+        const thumbResult =
+          await uploadFile(
+            thumbnail,
+            thumbnailKey,
+            "thumbnail"
+          );
+
+        thumbnailURL =
+          thumbResult.url || "";
       }
 
-      // ------------------------------------------------------
-      // 2. UPLOAD DIRECTLY TO R2
-      //    XMLHttpRequest gives REAL progress
-      // ------------------------------------------------------
 
-      showProgress(
-        5,
-        "Uploading video to Cloudflare R2..."
-      );
-
-      await uploadWithProgress(
-        uploadData.uploadUrl,
-        file
-      );
-
-      // ------------------------------------------------------
-      // 3. VERIFY
-      // ------------------------------------------------------
-
-      showProgress(
-        97,
-        "Verifying uploaded video..."
-      );
+      // ======================================================
+      // VIDEO URL
+      // ======================================================
 
       const videoURL =
-        `${WORKER}/?key=${encodeURIComponent(
-          uploadData.key || key
-        )}`;
+        videoResult.url ||
+        `${WORKER_URL}/file?key=${encodeURIComponent(videoKey)}`;
 
-      const verify =
-        await fetch(
-          videoURL,
-          {
-            method: "HEAD"
-          }
-        );
 
-      if (!verify.ok) {
+      // ======================================================
+      // SAVE FIRESTORE METADATA
+      // ======================================================
 
-        console.warn(
-          "HEAD verification returned:",
-          verify.status
-        );
+      updateProgress(
+        97,
+        "Saving video information..."
+      );
 
-      }
+      await addDoc(
+        collection(db, "videos"),
+        {
+          title:
+            titleInput.value.trim(),
 
-      // ------------------------------------------------------
-      // 4. SUCCESS
-      // ------------------------------------------------------
+          category:
+            categoryInput.value,
 
-      showProgress(
+          duration:
+            durationInput.value.trim(),
+
+          premiumOnly:
+            premiumInput.checked,
+
+          videoUrl:
+            videoURL,
+
+          url:
+            videoURL,
+
+          videoURL:
+            videoURL,
+
+          videoKey:
+            videoKey,
+
+          thumbnail:
+            thumbnailURL,
+
+          thumbnailUrl:
+            thumbnailURL,
+
+          thumbnailKey:
+            thumbnailKey,
+
+          fileName:
+            video.name,
+
+          fileSize:
+            video.size,
+
+          contentType:
+            video.type,
+
+          createdAt:
+            serverTimestamp(),
+
+          active:
+            true,
+
+          published:
+            true
+        }
+      );
+
+
+      // ======================================================
+      // COMPLETE
+      // ======================================================
+
+      updateProgress(
         100,
         "Upload complete!"
       );
 
-      showStatus(
-        "success",
+      showSuccess(
         "Video uploaded successfully."
       );
 
-      // Keep preview visible
-      // Reset only after success
+      uploadButton.textContent =
+        "✓ Uploaded";
+
+      // ======================================================
+      // RESET AFTER SUCCESS
+      // ======================================================
+
       setTimeout(() => {
 
-        if (form) {
-          form.reset();
-        }
+        form.reset();
 
-        uploading = false;
-        setUploadButton(false);
+        preview.removeAttribute("src");
+        preview.style.display =
+          "none";
 
-      }, 1000);
+        progressBox.style.display =
+          "none";
+
+        uploadButton.disabled =
+          false;
+
+        uploadButton.textContent =
+          "☁ Upload Video";
+
+        uploadLocked =
+          false;
+
+      }, 1800);
+
 
     } catch (error) {
 
       console.error(
-        "VIDEO UPLOAD ERROR:",
+        "GTRADES VIDEO ERROR:",
         error
       );
 
-      showStatus(
-        "error",
+      showError(
         error.message ||
         "Video upload failed."
       );
 
-      showProgress(
-        0,
-        "Upload failed."
-      );
+      uploadButton.disabled =
+        false;
 
-      uploading = false;
+      uploadButton.textContent =
+        "☁ Upload Video";
 
-      setUploadButton(false);
+      uploadLocked =
+        false;
+
     }
 
-  });
+  }
+);
 
-}
 
 // ============================================================
-// XHR UPLOAD WITH REAL PROGRESS
+// UPLOAD FILE
 // ============================================================
 
-function uploadWithProgress(
-  uploadURL,
-  file
+function uploadFile(
+  file,
+  key,
+  type
 ) {
 
   return new Promise(
-    (resolve, reject) => {
+    async (resolve, reject) => {
 
-      const xhr =
-        new XMLHttpRequest();
+      try {
 
-      currentXHR = xhr;
+        const formData =
+          new FormData();
 
-      xhr.open(
-        "PUT",
-        uploadURL,
-        true
-      );
+        formData.append(
+          "file",
+          file,
+          file.name
+        );
 
-      xhr.setRequestHeader(
-        "Content-Type",
-        file.type || "video/mp4"
-      );
+        formData.append(
+          "key",
+          key
+        );
 
-      xhr.upload.addEventListener(
-        "progress",
-        (event) => {
+        formData.append(
+          "type",
+          type
+        );
 
-          if (!event.lengthComputable)
-            return;
+        formData.append(
+          "contentType",
+          file.type
+        );
 
-          const percent =
-            Math.round(
-              (event.loaded /
-                event.total) *
-              90
-            ) + 5;
 
-          const loadedMB =
-            (
+        const xhr =
+          new XMLHttpRequest();
+
+        xhr.open(
+          "POST",
+          `${WORKER_URL}/upload`,
+          true
+        );
+
+
+        // ====================================================
+        // PROGRESS
+        // ====================================================
+
+        xhr.upload.onprogress =
+          (event) => {
+
+            if (!event.lengthComputable)
+              return;
+
+            const raw =
               event.loaded /
-              1024 /
-              1024
-            ).toFixed(1);
+              event.total;
 
-          const totalMB =
-            (
-              event.total /
-              1024 /
-              1024
-            ).toFixed(1);
+            let start = 2;
+            let end = type === "video"
+              ? 90
+              : 96;
 
-          showProgress(
-            percent,
-            `Uploading ${loadedMB} MB / ${totalMB} MB`
-          );
+            const value =
+              Math.round(
+                start +
+                raw *
+                (end - start)
+              );
 
-        }
-      );
+            const loaded =
+              (
+                event.loaded /
+                1024 /
+                1024
+              ).toFixed(1);
 
-      xhr.addEventListener(
-        "load",
-        () => {
+            const total =
+              (
+                event.total /
+                1024 /
+                1024
+              ).toFixed(1);
 
-          currentXHR = null;
+            updateProgress(
+              value,
+              `Uploading ${loaded} MB / ${total} MB`
+            );
 
-          if (
-            xhr.status >= 200 &&
-            xhr.status < 300
-          ) {
-            resolve();
-          } else {
+          };
+
+
+        // ====================================================
+        // SUCCESS
+        // ====================================================
+
+        xhr.onload =
+          () => {
+
+            if (
+              xhr.status < 200 ||
+              xhr.status >= 300
+            ) {
+
+              reject(
+                new Error(
+                  `Cloudflare upload failed (${xhr.status}): ${xhr.responseText}`
+                )
+              );
+
+              return;
+            }
+
+            let response;
+
+            try {
+
+              response =
+                JSON.parse(
+                  xhr.responseText
+                );
+
+            } catch {
+
+              reject(
+                new Error(
+                  "Cloudflare returned an invalid response."
+                )
+              );
+
+              return;
+            }
+
+            if (!response.success) {
+
+              reject(
+                new Error(
+                  response.error ||
+                  "R2 upload failed."
+                )
+              );
+
+              return;
+            }
+
+            resolve(response);
+
+          };
+
+
+        // ====================================================
+        // NETWORK ERROR
+        // ====================================================
+
+        xhr.onerror =
+          () => {
+
             reject(
               new Error(
-                `R2 upload failed (${xhr.status}).`
+                "Network error while uploading to Cloudflare."
               )
             );
-          }
 
-        }
-      );
+          };
 
-      xhr.addEventListener(
-        "error",
-        () => {
 
-          currentXHR = null;
+        xhr.onabort =
+          () => {
 
-          reject(
-            new Error(
-              "Network error while uploading to R2."
-            )
-          );
+            reject(
+              new Error(
+                "Upload was cancelled."
+              )
+            );
 
-        }
-      );
+          };
 
-      xhr.addEventListener(
-        "abort",
-        () => {
 
-          currentXHR = null;
+        xhr.send(formData);
 
-          reject(
-            new Error(
-              "Upload cancelled."
-            )
-          );
+      } catch (error) {
 
-        }
-      );
+        reject(error);
 
-      xhr.send(file);
+      }
+
     }
   );
 }
 
-// ============================================================
-// UPLOAD BUTTON LOCK
-// ============================================================
-
-function setUploadButton(state) {
-
-  if (!uploadButton) return;
-
-  uploadButton.disabled = state;
-
-  uploadButton.style.pointerEvents =
-    state ? "none" : "";
-
-  uploadButton.style.opacity =
-    state ? "0.65" : "";
-
-  uploadButton.innerHTML =
-    state
-      ? "⏳ Uploading..."
-      : "☁ Upload Video";
-}
 
 // ============================================================
-// PROGRESS UI
+// PROGRESS
 // ============================================================
 
-function showProgress(
-  percent,
+function updateProgress(
+  value,
   message
 ) {
 
-  let box =
-    document.querySelector(
-      "#adminUploadProgress"
-    );
-
-  if (!box) {
-
-    box =
-      document.createElement("div");
-
-    box.id =
-      "adminUploadProgress";
-
-    box.innerHTML = `
-      <div class="gta-progress-message">
-        Preparing...
-      </div>
-
-      <div class="gta-progress-track">
-        <div class="gta-progress-bar"></div>
-      </div>
-
-      <div class="gta-progress-percent">
-        0%
-      </div>
-    `;
-
-    form.appendChild(box);
-  }
-
-  box.style.display = "block";
-
-  const bar =
-    box.querySelector(
-      ".gta-progress-bar"
-    );
-
-  const messageElement =
-    box.querySelector(
-      ".gta-progress-message"
-    );
-
-  const percentElement =
-    box.querySelector(
-      ".gta-progress-percent"
+  const safeValue =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        value
+      )
     );
 
   bar.style.width =
-    `${percent}%`;
+    `${safeValue}%`;
 
-  messageElement.textContent =
+  percent.textContent =
+    `${safeValue}%`;
+
+  progressText.textContent =
     message;
 
-  percentElement.textContent =
-    `${percent}%`;
 }
+
 
 // ============================================================
 // STATUS
 // ============================================================
 
-function showStatus(
-  type,
+function showSuccess(
   message
 ) {
 
-  let status =
-    document.querySelector(
-      "#adminVideoUploadStatus"
-    );
-
-  if (!status) {
-
-    status =
-      document.createElement("div");
-
-    status.id =
-      "adminVideoUploadStatus";
-
-    form.appendChild(status);
-  }
-
   status.className =
-    `gta-upload-status ${type}`;
+    "success";
 
-  status.innerHTML =
-    type === "success"
-      ? `✓ ${escapeHTML(message)}`
-      : `✕ ${escapeHTML(message)}`;
+  status.textContent =
+    `✓ ${message}`;
 
-  status.style.display =
-    "block";
 }
 
-// ============================================================
-// CSS
-// ============================================================
 
-const style =
-  document.createElement("style");
+function showError(
+  message
+) {
 
-style.textContent = `
+  status.className =
+    "error";
 
-  #adminLocalVideoPreview {
-    display: block;
-  }
+  status.textContent =
+    `❌ ${message}`;
 
-  #adminUploadProgress {
-    margin-top: 18px;
-    padding: 15px;
-    border-radius: 10px;
-    background: rgba(0,0,0,.25);
-    border: 1px solid rgba(80,130,255,.25);
-  }
+}
 
-  .gta-progress-message {
-    color: #dce7ff;
-    font-size: 13px;
-    margin-bottom: 9px;
-  }
-
-  .gta-progress-track {
-    width: 100%;
-    height: 10px;
-    overflow: hidden;
-    border-radius: 20px;
-    background: #090d16;
-  }
-
-  .gta-progress-bar {
-    width: 0%;
-    height: 100%;
-    border-radius: 20px;
-    background: linear-gradient(
-      90deg,
-      #3268ff,
-      #00b7ff
-    );
-    transition: width .15s ease;
-  }
-
-  .gta-progress-percent {
-    text-align: right;
-    color: #fff;
-    font-size: 12px;
-    margin-top: 6px;
-  }
-
-  .gta-upload-status {
-    margin-top: 14px;
-    padding: 13px;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-
-  .gta-upload-status.success {
-    color: #b9ffd0;
-    background: rgba(0,180,80,.12);
-    border: 1px solid rgba(0,220,100,.35);
-  }
-
-  .gta-upload-status.error {
-    color: #ffd0d0;
-    background: rgba(220,40,70,.12);
-    border: 1px solid rgba(220,60,80,.4);
-  }
-
-`;
-
-document.head.appendChild(style);
 
 // ============================================================
-// ESCAPE
+// EXTENSION
 // ============================================================
 
-function escapeHTML(value) {
+function getExtension(
+  filename
+) {
 
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  const index =
+    filename.lastIndexOf(".");
+
+  if (index === -1) {
+    return ".mp4";
+  }
+
+  return filename
+    .substring(index)
+    .toLowerCase();
+
 }
