@@ -1,28 +1,6 @@
 // ============================================================
 // GTRADES-AXIS™
-// js/admin-videos.js
-//
 // ADMIN VIDEO MANAGER
-//
-// The browser NEVER writes the R2 object directly.
-//
-// Flow:
-//
-// Admin
-// ↓
-// Firebase Auth
-// ↓
-// Firebase Callable Function
-// ↓
-// Admin permission checked
-// ↓
-// Upload authorization created
-// ↓
-// Cloudflare Worker
-// ↓
-// R2
-// ↓
-// Firestore metadata
 // ============================================================
 
 import {
@@ -55,8 +33,8 @@ import {
 // CONFIG
 // ============================================================
 
-const R2_WORKER_URL =
-  "https://gtrades-video-api.davidthuku574.workers.dev";
+const R2_WORKER =
+  "https://r2-uploader.davidthuku574.workers.dev";
 
 
 // ============================================================
@@ -110,12 +88,32 @@ const logoutBtn =
 
 
 // ============================================================
+// PREVIEW DOM
+// ============================================================
+
+const videoModal =
+  document.getElementById("videoModal");
+
+const adminVideoPlayer =
+  document.getElementById("adminVideoPlayer");
+
+const videoModalTitle =
+  document.getElementById("videoModalTitle");
+
+const videoLoading =
+  document.getElementById("videoLoading");
+
+const videoCloseBtn =
+  document.getElementById("videoCloseBtn");
+
+
+// ============================================================
 // STATE
 // ============================================================
 
 let currentUser = null;
-
 let editingId = null;
+let currentPreviewURL = null;
 
 
 // ============================================================
@@ -124,20 +122,14 @@ let editingId = null;
 
 onAuthStateChanged(
   auth,
-  async (user) => {
+  async user => {
 
     if (!user) {
-
-      location.href =
-        "/login";
-
+      location.href = "/login";
       return;
     }
 
-
-    currentUser =
-      user;
-
+    currentUser = user;
 
     try {
 
@@ -147,10 +139,8 @@ onAuthStateChanged(
           "verifyAdminAccess"
         );
 
-
       const result =
         await verifyAdmin();
-
 
       if (
         result?.data?.admin !== true
@@ -166,7 +156,6 @@ onAuthStateChanged(
         return;
       }
 
-
       await loadVideos();
 
     } catch (error) {
@@ -176,40 +165,32 @@ onAuthStateChanged(
         error
       );
 
-
       alert(
         "You do not have administrator access."
       );
 
-
       location.href =
         "/dashboard";
-
     }
-
   }
 );
 
 
 // ============================================================
-// LOAD
+// LOAD VIDEOS
 // ============================================================
 
 async function loadVideos() {
 
   tableBody.innerHTML = `
     <tr>
-      <td colspan="5">
-        Loading...
-      </td>
+      <td colspan="5">Loading...</td>
     </tr>
   `;
-
 
   try {
 
     let snapshot;
-
 
     try {
 
@@ -236,12 +217,9 @@ async function loadVideos() {
             "videos"
           )
         );
-
     }
 
-
     tableBody.innerHTML = "";
-
 
     if (snapshot.empty) {
 
@@ -256,9 +234,8 @@ async function loadVideos() {
       return;
     }
 
-
     snapshot.forEach(
-      (videoDoc) => {
+      videoDoc => {
 
         renderRow(
           videoDoc.id,
@@ -275,7 +252,6 @@ async function loadVideos() {
       error
     );
 
-
     tableBody.innerHTML = `
       <tr>
         <td colspan="5">
@@ -283,9 +259,7 @@ async function loadVideos() {
         </td>
       </tr>
     `;
-
   }
-
 }
 
 
@@ -293,16 +267,17 @@ async function loadVideos() {
 // ROW
 // ============================================================
 
-function renderRow(id, video) {
+function renderRow(
+  id,
+  video
+) {
 
   const row =
     document.createElement("tr");
 
-
   const thumbnail =
     video.thumbnailUrl ||
     "";
-
 
   row.innerHTML = `
 
@@ -310,42 +285,33 @@ function renderRow(id, video) {
 
       ${
         thumbnail
-
-          ? `
-            <img
-              class="thumb"
-              src="${escapeHTML(thumbnail)}"
-              alt=""
-            >
-          `
-
-          : "📹"
+        ? `
+          <img
+            class="thumb"
+            src="${escapeHTML(thumbnail)}"
+            alt=""
+          >
+        `
+        : "📹"
       }
 
     </td>
 
-
     <td>
-
       <strong>
         ${escapeHTML(
           video.title ||
           "Untitled"
         )}
       </strong>
-
     </td>
 
-
     <td>
-
       ${escapeHTML(
         video.category ||
         "General"
       )}
-
     </td>
-
 
     <td>
 
@@ -367,20 +333,27 @@ function renderRow(id, video) {
 
     </td>
 
-
     <td>
 
       <div class="actions">
 
         <button
+          class="preview preview-btn"
+          type="button"
+        >
+          ▶ Preview
+        </button>
+
+        <button
           class="secondary edit-btn"
+          type="button"
         >
           Edit
         </button>
 
-
         <button
           class="secondary toggle-btn"
+          type="button"
         >
           ${
             video.premiumOnly
@@ -389,9 +362,9 @@ function renderRow(id, video) {
           }
         </button>
 
-
         <button
           class="danger delete-btn"
+          type="button"
         >
           Delete
         </button>
@@ -399,10 +372,19 @@ function renderRow(id, video) {
       </div>
 
     </td>
-
   `;
 
 
+  // PREVIEW
+  row
+    .querySelector(".preview-btn")
+    .onclick = () =>
+      previewVideo(
+        video
+      );
+
+
+  // EDIT
   row
     .querySelector(".edit-btn")
     .onclick = () =>
@@ -412,6 +394,7 @@ function renderRow(id, video) {
       );
 
 
+  // TOGGLE
   row
     .querySelector(".toggle-btn")
     .onclick = () =>
@@ -421,6 +404,7 @@ function renderRow(id, video) {
       );
 
 
+  // DELETE
   row
     .querySelector(".delete-btn")
     .onclick = () =>
@@ -430,15 +414,256 @@ function renderRow(id, video) {
       );
 
 
-  tableBody.appendChild(
-    row
-  );
-
+  tableBody.appendChild(row);
 }
 
 
 // ============================================================
-// GET SECURE UPLOAD TOKEN
+// VIDEO KEY
+// ============================================================
+
+function getVideoKey(video) {
+
+  return (
+    video.videoKey ||
+    video.fileKey ||
+    video.r2Key ||
+    video.storageKey ||
+    ""
+  );
+}
+
+
+// ============================================================
+// ADMIN VIDEO PREVIEW
+//
+// EXACT SAME R2 FLOW AS STUDENT PORTAL
+// ============================================================
+
+async function previewVideo(video) {
+
+  const videoKey =
+    getVideoKey(video);
+
+  if (!videoKey) {
+
+    alert(
+      "This video has no R2 file attached."
+    );
+
+    return;
+  }
+
+  if (!currentUser) {
+
+    alert(
+      "Administrator authentication is not ready."
+    );
+
+    return;
+  }
+
+  try {
+
+    closePreview();
+
+    videoModal.classList.add(
+      "active"
+    );
+
+    document.body.style.overflow =
+      "hidden";
+
+    videoModalTitle.textContent =
+      video.title ||
+      "Video Preview";
+
+    videoLoading.style.display =
+      "block";
+
+    videoLoading.textContent =
+      "Loading video...";
+
+    adminVideoPlayer.style.display =
+      "none";
+
+    const token =
+      await currentUser.getIdToken(true);
+
+    // IMPORTANT:
+    // Same endpoint/action used by
+    // the working student portal.
+
+    const response =
+      await fetch(
+        `${R2_WORKER}/?key=${encodeURIComponent(
+          videoKey
+        )}&action=file`,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          },
+
+          cache:
+            "no-store"
+        }
+      );
+
+    if (!response.ok) {
+
+      const errorData =
+        await response
+          .json()
+          .catch(
+            () => ({})
+          );
+
+      throw new Error(
+        errorData.error ||
+        `Video authorization failed (${response.status})`
+      );
+    }
+
+    const blob =
+      await response.blob();
+
+    if (!blob.size) {
+      throw new Error(
+        "The video file returned empty data."
+      );
+    }
+
+    currentPreviewURL =
+      URL.createObjectURL(
+        blob
+      );
+
+    adminVideoPlayer.src =
+      currentPreviewURL;
+
+    adminVideoPlayer.load();
+
+    videoLoading.style.display =
+      "none";
+
+    adminVideoPlayer.style.display =
+      "block";
+
+    await adminVideoPlayer
+      .play()
+      .catch(
+        () => {}
+      );
+
+  } catch (error) {
+
+    console.error(
+      "ADMIN VIDEO PREVIEW ERROR:",
+      error
+    );
+
+    videoLoading.style.display =
+      "block";
+
+    videoLoading.textContent =
+      error?.message ||
+      "Unable to preview this video.";
+
+  }
+}
+
+
+// ============================================================
+// CLOSE PREVIEW
+// ============================================================
+
+function closePreview() {
+
+  adminVideoPlayer.pause();
+
+  adminVideoPlayer.removeAttribute(
+    "src"
+  );
+
+  adminVideoPlayer.load();
+
+  if (currentPreviewURL) {
+
+    URL.revokeObjectURL(
+      currentPreviewURL
+    );
+
+    currentPreviewURL =
+      null;
+  }
+
+  videoModal.classList.remove(
+    "active"
+  );
+
+  document.body.style.overflow =
+    "";
+
+  videoLoading.style.display =
+    "none";
+
+  adminVideoPlayer.style.display =
+    "none";
+}
+
+
+// ============================================================
+// CLOSE BUTTON
+// ============================================================
+
+videoCloseBtn?.addEventListener(
+  "click",
+  closePreview
+);
+
+
+// ============================================================
+// CLICK OUTSIDE
+// ============================================================
+
+videoModal?.addEventListener(
+  "click",
+  event => {
+
+    if (
+      event.target ===
+      videoModal
+    ) {
+
+      closePreview();
+    }
+  }
+);
+
+
+// ============================================================
+// ESC
+// ============================================================
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closePreview();
+    }
+  }
+);
+
+
+// ============================================================
+// UPLOAD AUTHORIZATION
 // ============================================================
 
 async function getUploadAuthorization(
@@ -452,19 +677,13 @@ async function getUploadAuthorization(
       "createVideoUploadAuthorization"
     );
 
-
   const result =
     await fn({
-
       key,
-
       contentType
-
     });
 
-
   return result.data;
-
 }
 
 
@@ -480,29 +699,29 @@ async function uploadToR2(
 
   const response =
     await fetch(
-      `${R2_WORKER_URL}/upload`,
+      `${R2_WORKER}/upload`,
       {
-        method:"PUT",
+        method: "PUT",
 
-        headers:{
+        headers: {
           "Content-Type":
-            file.type,
+            file.type ||
+            "application/octet-stream",
 
           "X-Upload-Token":
             uploadToken
         },
 
-        body:file
+        body: file
       }
     );
 
-
   const result =
-    await response.json()
+    await response
+      .json()
       .catch(
         () => ({})
       );
-
 
   if (
     !response.ok ||
@@ -513,12 +732,9 @@ async function uploadToR2(
       result.error ||
       "R2 upload failed."
     );
-
   }
 
-
   return result;
-
 }
 
 
@@ -528,26 +744,21 @@ async function uploadToR2(
 
 form.addEventListener(
   "submit",
-  async (event) => {
+  async event => {
 
     event.preventDefault();
-
 
     const title =
       titleInput.value.trim();
 
-
     const duration =
       durationInput.value.trim();
-
 
     const file =
       videoFile.files[0];
 
-
     const thumbnail =
       thumbnailFile.files[0];
-
 
     if (!title) {
 
@@ -557,7 +768,6 @@ form.addEventListener(
 
       return;
     }
-
 
     if (
       !editingId &&
@@ -571,35 +781,29 @@ form.addEventListener(
       return;
     }
 
-
     try {
 
       saveBtn.disabled =
         true;
 
-
       progress.style.display =
         "block";
-
 
       progressFill.style.width =
         "10%";
 
-
       progressText.textContent =
         "Preparing secure upload...";
 
-
       let videoKey =
         null;
-
 
       let thumbnailKey =
         null;
 
 
       // ======================================================
-      // VIDEO UPLOAD
+      // VIDEO
       // ======================================================
 
       if (file) {
@@ -609,14 +813,11 @@ form.addEventListener(
             file.name
           );
 
-
         videoKey =
           `videos/${currentUser.uid}/${Date.now()}_${safeName}`;
 
-
         progressText.textContent =
           "Authorizing video upload...";
-
 
         const authorization =
           await getUploadAuthorization(
@@ -624,14 +825,11 @@ form.addEventListener(
             file.type
           );
 
-
         progressFill.style.width =
           "30%";
 
-
         progressText.textContent =
           "Uploading video to Cloudflare R2...";
-
 
         await uploadToR2(
           file,
@@ -639,10 +837,8 @@ form.addEventListener(
           authorization.token
         );
 
-
         progressFill.style.width =
           "70%";
-
       }
 
 
@@ -657,14 +853,11 @@ form.addEventListener(
             thumbnail.name
           );
 
-
         thumbnailKey =
           `thumbnails/${currentUser.uid}/${Date.now()}_${safeName}`;
 
-
         progressText.textContent =
           "Authorizing thumbnail upload...";
-
 
         const authorization =
           await getUploadAuthorization(
@@ -672,38 +865,32 @@ form.addEventListener(
             thumbnail.type
           );
 
-
         progressText.textContent =
           "Uploading thumbnail...";
-
 
         await uploadToR2(
           thumbnail,
           thumbnailKey,
           authorization.token
         );
-
       }
 
+
+      // ======================================================
+      // FIRESTORE
+      // ======================================================
 
       progressFill.style.width =
         "90%";
 
-
       progressText.textContent =
         "Saving video metadata...";
-
-
-      // ======================================================
-      // FIRESTORE UPDATE
-      // ======================================================
 
       const saveVideo =
         httpsCallable(
           functions,
           "saveVideoMetadata"
         );
-
 
       await saveVideo({
 
@@ -726,24 +913,20 @@ form.addEventListener(
         videoKey,
 
         thumbnailKey
-
       });
 
 
       progressFill.style.width =
         "100%";
 
-
       progressText.textContent =
         "Complete.";
-
 
       alert(
         editingId
           ? "✅ Video updated successfully."
           : "✅ Video uploaded successfully."
       );
-
 
       resetForm();
 
@@ -755,7 +938,6 @@ form.addEventListener(
         "VIDEO SAVE ERROR:",
         error
       );
-
 
       alert(
         error?.message ||
@@ -779,9 +961,7 @@ form.addEventListener(
         },
         1000
       );
-
     }
-
   }
 );
 
@@ -798,45 +978,35 @@ function editVideo(
   editingId =
     id;
 
-
   titleInput.value =
     video.title || "";
-
 
   categoryInput.value =
     video.category ||
     "Market Structure";
 
-
   durationInput.value =
     video.duration || "";
-
 
   descriptionInput.value =
     video.description || "";
 
-
   premiumInput.checked =
     video.premiumOnly === true;
-
 
   videoFile.value =
     "";
 
-
   thumbnailFile.value =
     "";
 
-
   saveBtn.textContent =
     "Update Video";
-
 
   window.scrollTo({
     top:0,
     behavior:"smooth"
   });
-
 }
 
 
@@ -852,7 +1022,6 @@ async function togglePremium(
   const newValue =
     !video.premiumOnly;
 
-
   if (
     !confirm(
       `Make this video ${
@@ -862,10 +1031,8 @@ async function togglePremium(
       }?`
     )
   ) {
-
     return;
   }
-
 
   try {
 
@@ -875,16 +1042,10 @@ async function togglePremium(
         "setVideoPremiumStatus"
       );
 
-
     await fn({
-
       videoId:id,
-
-      premiumOnly:
-        newValue
-
+      premiumOnly:newValue
     });
-
 
     await loadVideos();
 
@@ -896,9 +1057,7 @@ async function togglePremium(
       error?.message ||
       "Unable to update video."
     );
-
   }
-
 }
 
 
@@ -916,10 +1075,8 @@ async function deleteVideo(
       `Delete "${video.title}" permanently?`
     )
   ) {
-
     return;
   }
-
 
   try {
 
@@ -929,16 +1086,11 @@ async function deleteVideo(
         "deleteVideo"
       );
 
-
     await fn({
-
       videoId:id
-
     });
 
-
     await loadVideos();
-
 
     alert(
       "✅ Video deleted."
@@ -952,9 +1104,7 @@ async function deleteVideo(
       error?.message ||
       "Unable to delete video."
     );
-
   }
-
 }
 
 
@@ -971,7 +1121,6 @@ function resetForm() {
 
   saveBtn.textContent =
     "Upload Video";
-
 }
 
 
@@ -990,11 +1139,20 @@ cancelBtn.onclick =
 logoutBtn.onclick =
   async () => {
 
-    await signOut(auth);
+    try {
 
-    location.href =
-      "/login";
+      await signOut(auth);
 
+      location.href =
+        "/login";
+
+    } catch (error) {
+
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
+    }
   };
 
 
@@ -1011,7 +1169,6 @@ function cleanFilename(
       /[^a-zA-Z0-9._-]/g,
       "_"
     );
-
 }
 
 
@@ -1042,5 +1199,14 @@ function escapeHTML(
       "'",
       "&#039;"
     );
-
 }
+
+
+console.log(
+  "GTRADES-AXIS™ ADMIN VIDEO MANAGER LOADED"
+);
+
+console.log(
+  "R2 Worker:",
+  R2_WORKER
+);
