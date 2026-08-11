@@ -16,25 +16,21 @@ import {
 
 import { app } from "./firebase.js";
 
-
 // ============================================================
-// CONFIG
+// GTRADES-AXIS™
+// STUDENT VIDEO SYSTEM
+// R2 PLAYBACK VERSION
 // ============================================================
 
 const R2_WORKER =
   "https://r2-uploader.davidthuku574.workers.dev";
 
-
 // ============================================================
 // FIREBASE
 // ============================================================
 
-const auth =
-  getAuth(app);
-
-const db =
-  getFirestore(app);
-
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // ============================================================
 // ELEMENTS
@@ -61,19 +57,19 @@ const searchInput =
 const filterButtons =
   document.querySelectorAll(".filter-btn");
 
-
 // ============================================================
 // STATE
 // ============================================================
 
 let videos = [];
 
-let activeCategory =
-  "All";
+let activeCategory = "All";
 
-let hasPremiumAccess =
-  false;
+let hasPremiumAccess = false;
 
+let currentVideoKey = "";
+
+let currentObjectURL = null;
 
 // ============================================================
 // BUILD R2 URL
@@ -83,16 +79,15 @@ function buildR2URL(key) {
 
   if (!key) {
     throw new Error(
-      "This video has no R2 key."
+      "This video has no R2 object key."
     );
   }
 
   return (
-    `${R2_WORKER}/file?key=` +
+    `${R2_WORKER}/?key=` +
     encodeURIComponent(key)
   );
 }
-
 
 // ============================================================
 // AUTH
@@ -100,27 +95,23 @@ function buildR2URL(key) {
 
 onAuthStateChanged(
   auth,
-  async user => {
+  async (user) => {
 
     if (!user) {
-      window.location.href =
-        "/login.html";
+      window.location.href = "/login.html";
       return;
     }
 
     try {
 
-      const userRef =
-        doc(
-          db,
-          "users",
-          user.uid
-        );
+      const userRef = doc(
+        db,
+        "users",
+        user.uid
+      );
 
       const userSnap =
-        await getDoc(
-          userRef
-        );
+        await getDoc(userRef);
 
       if (userSnap.exists()) {
 
@@ -129,8 +120,8 @@ onAuthStateChanged(
 
         hasPremiumAccess =
           data.membership === "premium" ||
-          data.role === "admin" ||
-          data.membership === "admin";
+          data.membership === "admin" ||
+          data.role === "admin";
       }
 
     } catch (error) {
@@ -139,12 +130,13 @@ onAuthStateChanged(
         "MEMBERSHIP ERROR:",
         error
       );
+
+      hasPremiumAccess = false;
     }
 
-    loadVideos();
+    await loadVideos();
   }
 );
-
 
 // ============================================================
 // LOAD VIDEOS
@@ -152,8 +144,12 @@ onAuthStateChanged(
 
 async function loadVideos() {
 
-  if (!container)
+  if (!container) {
+    console.error(
+      "videosContainer not found."
+    );
     return;
+  }
 
   container.innerHTML = `
     <div class="status">
@@ -161,71 +157,93 @@ async function loadVideos() {
     </div>
   `;
 
-
   try {
 
     let snapshot;
 
+    // --------------------------------------------------------
+    // TRY CREATED DATE FIRST
+    // --------------------------------------------------------
 
     try {
 
-      const q =
-        query(
-          collection(
-            db,
-            "videos"
-          ),
-          orderBy(
-            "createdAt",
-            "desc"
-          )
-        );
+      const q = query(
+        collection(db, "videos"),
+        orderBy("createdAt", "desc")
+      );
 
-      snapshot =
-        await getDocs(q);
+      snapshot = await getDocs(q);
 
-    } catch {
+    } catch (orderError) {
 
-      snapshot =
-        await getDocs(
-          collection(
-            db,
-            "videos"
-          )
-        );
+      console.warn(
+        "createdAt ordering failed. Loading normally.",
+        orderError
+      );
+
+      snapshot = await getDocs(
+        collection(db, "videos")
+      );
     }
-
 
     videos = [];
 
-
     snapshot.forEach(
-      videoDoc => {
+      (videoDoc) => {
 
         const data =
           videoDoc.data();
 
         videos.push({
-          id:
-            videoDoc.id,
+          id: videoDoc.id,
           ...data
         });
 
       }
     );
 
+    // --------------------------------------------------------
+    // SORT LOCALLY IF CREATEDAT EXISTS
+    // --------------------------------------------------------
+
+    videos.sort(
+      (a, b) => {
+
+        const aTime =
+          a.createdAt?.seconds ||
+          0;
+
+        const bTime =
+          b.createdAt?.seconds ||
+          0;
+
+        return bTime - aTime;
+      }
+    );
 
     renderVideos();
 
+    // --------------------------------------------------------
+    // AUTO SELECT FIRST VIDEO
+    // --------------------------------------------------------
 
-    // Automatically select first
-    // video but don't force autoplay.
     if (videos.length) {
-      openVideo(
-        videos[0]
-      );
-    }
 
+      const firstAccessible =
+        videos.find(
+          (video) =>
+            !video.premiumOnly ||
+            hasPremiumAccess
+        );
+
+      if (firstAccessible) {
+
+        openVideo(
+          firstAccessible,
+          false
+        );
+      }
+    }
 
   } catch (error) {
 
@@ -242,69 +260,78 @@ async function loadVideos() {
   }
 }
 
-
 // ============================================================
-// RENDER
+// RENDER VIDEOS
 // ============================================================
 
 function renderVideos() {
 
+  if (!container) {
+    return;
+  }
+
   container.innerHTML = "";
 
   if (noResults) {
-    noResults.style.display =
-      "none";
+    noResults.style.display = "none";
   }
 
+  let filtered = [...videos];
 
-  let filtered =
-    [...videos];
+  // ----------------------------------------------------------
+  // CATEGORY
+  // ----------------------------------------------------------
 
-
-  if (
-    activeCategory !==
-    "All"
-  ) {
+  if (activeCategory !== "All") {
 
     filtered =
       filtered.filter(
-        video =>
-          String(
-            video.category ||
-            "General"
-          )
-            .toLowerCase()
-            .trim() ===
-          activeCategory
-            .toLowerCase()
-            .trim()
+        (video) => {
+
+          const category =
+            String(
+              video.category ||
+              "General"
+            )
+              .toLowerCase()
+              .trim();
+
+          return (
+            category ===
+            activeCategory
+              .toLowerCase()
+              .trim()
+          );
+        }
       );
   }
 
+  // ----------------------------------------------------------
+  // SEARCH
+  // ----------------------------------------------------------
 
   const keyword =
     searchInput?.value
       ?.toLowerCase()
       .trim() || "";
 
-
   if (keyword) {
 
     filtered =
       filtered.filter(
-        video => {
+        (video) => {
 
           const title =
             String(
-              video.title ||
-              ""
-            ).toLowerCase();
+              video.title || ""
+            )
+              .toLowerCase();
 
           const category =
             String(
-              video.category ||
-              ""
-            ).toLowerCase();
+              video.category || ""
+            )
+              .toLowerCase();
 
           return (
             title.includes(keyword) ||
@@ -314,42 +341,42 @@ function renderVideos() {
       );
   }
 
+  // ----------------------------------------------------------
+  // EMPTY
+  // ----------------------------------------------------------
 
   if (!filtered.length) {
 
     if (noResults) {
-      noResults.style.display =
-        "block";
+      noResults.style.display = "block";
     }
 
     return;
   }
 
+  // ----------------------------------------------------------
+  // CARDS
+  // ----------------------------------------------------------
 
   filtered.forEach(
-    video => {
+    (video) => {
 
       container.appendChild(
-        createVideoCard(
-          video
-        )
+        createVideoCard(video)
       );
 
     }
   );
 }
 
-
 // ============================================================
-// CARD
+// CREATE CARD
 // ============================================================
 
 function createVideoCard(video) {
 
   const card =
-    document.createElement(
-      "div"
-    );
+    document.createElement("div");
 
   const premium =
     video.premiumOnly === true;
@@ -358,7 +385,6 @@ function createVideoCard(video) {
     !premium ||
     hasPremiumAccess;
 
-
   card.className =
     `video-card${
       canAccess
@@ -366,24 +392,23 @@ function createVideoCard(video) {
         : " locked"
     }`;
 
-
   const title =
     video.title ||
     "Untitled Video";
-
 
   const category =
     video.category ||
     "General";
 
-
   const duration =
     video.duration ||
     "—";
 
+  // ----------------------------------------------------------
+  // THUMBNAIL
+  // ----------------------------------------------------------
 
   let thumbnail = "";
-
 
   if (video.thumbnailKey) {
 
@@ -392,21 +417,20 @@ function createVideoCard(video) {
         video.thumbnailKey
       );
 
-  } else if (
-    video.thumbnailUrl
-  ) {
+  } else if (video.thumbnailUrl) {
 
     thumbnail =
       video.thumbnailUrl;
 
-  } else if (
-    video.thumbnail
-  ) {
+  } else if (video.thumbnail) {
 
     thumbnail =
       video.thumbnail;
   }
 
+  // ----------------------------------------------------------
+  // CARD HTML
+  // ----------------------------------------------------------
 
   card.innerHTML = `
 
@@ -417,10 +441,15 @@ function createVideoCard(video) {
           ? `
             <img
               src="${escapeHTML(thumbnail)}"
+              alt="${escapeHTML(title)}"
+              loading="lazy"
               style="
                 width:100%;
                 height:100%;
                 object-fit:cover;
+              "
+              onerror="
+                this.style.display='none';
               "
             >
           `
@@ -432,6 +461,7 @@ function createVideoCard(video) {
                 display:flex;
                 align-items:center;
                 justify-content:center;
+                font-size:40px;
               "
             >
               ▶
@@ -454,7 +484,6 @@ function createVideoCard(video) {
       }
 
     </div>
-
 
     <div class="video-info">
 
@@ -487,107 +516,165 @@ function createVideoCard(video) {
     </div>
   `;
 
+  // ----------------------------------------------------------
+  // CLICK
+  // ----------------------------------------------------------
 
   if (canAccess) {
 
     card.addEventListener(
       "click",
-      () => openVideo(video)
+      () => {
+
+        openVideo(
+          video,
+          true
+        );
+
+      }
     );
-
   }
-
 
   return card;
 }
-
 
 // ============================================================
 // OPEN VIDEO
 // ============================================================
 
-function openVideo(video) {
+function openVideo(
+  video,
+  scrollToPlayer = true
+) {
 
-  const videoKey =
-    video.videoKey ||
-    video.fileKey ||
-    video.r2Key ||
-    video.storageKey ||
-    "";
+  try {
 
+    // --------------------------------------------------------
+    // GET R2 KEY
+    // --------------------------------------------------------
 
-  if (!videoKey) {
+    const videoKey =
+      video.videoKey ||
+      video.fileKey ||
+      video.r2Key ||
+      video.storageKey ||
+      "";
+
+    if (!videoKey) {
+
+      console.error(
+        "VIDEO HAS NO KEY:",
+        video
+      );
+
+      showPlayerError(
+        "This video has no R2 file attached."
+      );
+
+      return;
+    }
+
+    // --------------------------------------------------------
+    // BUILD REAL WORKER URL
+    // --------------------------------------------------------
+
+    const videoURL =
+      buildR2URL(videoKey);
+
+    currentVideoKey =
+      videoKey;
+
+    console.log(
+      "GTRADES-AXIS™ PLAYING:",
+      videoURL
+    );
+
+    // --------------------------------------------------------
+    // TITLE
+    // --------------------------------------------------------
+
+    if (nowPlayingTitle) {
+
+      nowPlayingTitle.textContent =
+        video.title ||
+        "GTRADES-AXIS™ Video";
+    }
+
+    // --------------------------------------------------------
+    // HIDE ERROR
+    // --------------------------------------------------------
+
+    playerMessage?.classList.remove(
+      "show"
+    );
+
+    // --------------------------------------------------------
+    // STOP OLD VIDEO
+    // --------------------------------------------------------
+
+    if (player) {
+
+      player.pause();
+
+      player.removeAttribute(
+        "src"
+      );
+
+      player.load();
+
+      // ------------------------------------------------------
+      // SET NEW VIDEO
+      // ------------------------------------------------------
+
+      player.src =
+        videoURL;
+
+      player.controls = true;
+
+      player.preload =
+        "metadata";
+
+      player.playsInline =
+        true;
+
+      // ------------------------------------------------------
+      // LOAD
+      // ------------------------------------------------------
+
+      player.load();
+    }
+
+    // --------------------------------------------------------
+    // SCROLL
+    // --------------------------------------------------------
+
+    if (scrollToPlayer) {
+
+      document
+        .querySelector(".player-panel")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+    }
+
+    // --------------------------------------------------------
+    // DO NOT FORCE AUTOPLAY
+    // --------------------------------------------------------
+
+  } catch (error) {
+
+    console.error(
+      "OPEN VIDEO ERROR:",
+      error
+    );
 
     showPlayerError(
-      "This video has no R2 file attached."
+      error.message ||
+      "Unable to open video."
     );
-
-    return;
   }
-
-
-  const videoURL =
-    buildR2URL(
-      videoKey
-    );
-
-
-  console.log(
-    "PLAYING:",
-    videoURL
-  );
-
-
-  if (nowPlayingTitle) {
-
-    nowPlayingTitle.textContent =
-      video.title ||
-      "GTRADES-AXIS™ Video";
-  }
-
-
-  playerMessage?.classList.remove(
-    "show"
-  );
-
-
-  player.pause();
-
-
-  player.removeAttribute(
-    "src"
-  );
-
-
-  player.load();
-
-
-  player.src =
-    videoURL;
-
-
-  player.load();
-
-
-  document
-    .querySelector(
-      ".player-panel"
-    )
-    ?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-
-  player.play()
-    .catch(
-      () => {
-        // Browser autoplay may be blocked.
-        // User can press play.
-      }
-    );
 }
-
 
 // ============================================================
 // PLAYER ERROR
@@ -597,32 +684,133 @@ player?.addEventListener(
   "error",
   () => {
 
+    const mediaError =
+      player.error;
+
     console.error(
       "HTML VIDEO ERROR:",
-      player.error
+      mediaError
     );
 
+    if (!mediaError) {
+      return;
+    }
+
+    let message =
+      "Error playing video.";
+
+    switch (
+      mediaError.code
+    ) {
+
+      case 1:
+        message =
+          "Video playback was aborted.";
+        break;
+
+      case 2:
+        message =
+          "Network error while loading video.";
+        break;
+
+      case 3:
+        message =
+          "Video data could not be decoded.";
+        break;
+
+      case 4:
+        message =
+          "Video format or source is not supported.";
+        break;
+    }
+
     showPlayerError(
-      "Error playing video. Please try again."
+      message
     );
   }
 );
 
+// ============================================================
+// PLAYER LOADING EVENTS
+// ============================================================
+
+player?.addEventListener(
+  "loadedmetadata",
+  () => {
+
+    console.log(
+      "VIDEO METADATA LOADED:",
+      currentVideoKey
+    );
+
+    playerMessage?.classList.remove(
+      "show"
+    );
+  }
+);
+
+player?.addEventListener(
+  "canplay",
+  () => {
+
+    console.log(
+      "VIDEO READY:",
+      currentVideoKey
+    );
+
+    playerMessage?.classList.remove(
+      "show"
+    );
+  }
+);
 
 // ============================================================
-// SHOW ERROR
+// PLAYER WAITING
 // ============================================================
 
-function showPlayerError(message) {
+player?.addEventListener(
+  "waiting",
+  () => {
 
-  player.pause();
+    console.log(
+      "VIDEO BUFFERING..."
+    );
+  }
+);
 
-  player.removeAttribute(
-    "src"
-  );
+// ============================================================
+// PLAYER PLAYING
+// ============================================================
 
-  player.load();
+player?.addEventListener(
+  "playing",
+  () => {
 
+    console.log(
+      "VIDEO PLAYING:",
+      currentVideoKey
+    );
+  }
+);
+
+// ============================================================
+// SHOW PLAYER ERROR
+// ============================================================
+
+function showPlayerError(
+  message
+) {
+
+  if (player) {
+
+    player.pause();
+
+    player.removeAttribute(
+      "src"
+    );
+
+    player.load();
+  }
 
   if (playerMessage) {
 
@@ -635,7 +823,6 @@ function showPlayerError(message) {
   }
 }
 
-
 // ============================================================
 // SEARCH
 // ============================================================
@@ -645,42 +832,37 @@ searchInput?.addEventListener(
   renderVideos
 );
 
-
 // ============================================================
 // FILTERS
 // ============================================================
 
 filterButtons.forEach(
-  button => {
+  (button) => {
 
     button.addEventListener(
       "click",
       () => {
 
         filterButtons.forEach(
-          btn =>
+          (btn) =>
             btn.classList.remove(
               "active"
             )
         );
 
-
         button.classList.add(
           "active"
         );
 
-
         activeCategory =
           button.dataset.category ||
           "All";
-
 
         renderVideos();
       }
     );
   }
 );
-
 
 // ============================================================
 // ESCAPE HTML
@@ -712,3 +894,26 @@ function escapeHTML(value) {
       "&#039;"
     );
 }
+
+// ============================================================
+// OPTIONAL LOGOUT
+// ============================================================
+
+window.gtradesLogout =
+  async function () {
+
+    try {
+
+      await signOut(auth);
+
+      window.location.href =
+        "/login.html";
+
+    } catch (error) {
+
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
+    }
+  };
