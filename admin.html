@@ -1097,158 +1097,1049 @@
   });
 
   //  5. RESOURCES (Full)
-  // ═══════════════════════════════════════════════════════════════════════════
-  function listenResources() {
-    const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      const tbody = document.getElementById('resourceTableBody');
-      const overviewEl = document.getElementById('resourceOverview');
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
-        if (overviewEl) overviewEl.textContent = 0;
-        return;
-      }
-      let html = '', resCount = 0;
-      snapshot.forEach(doc => {
-        resCount++;
-        const r = { id: doc.id, ...doc.data() };
-        const downloadBtn = r.fileKey 
-          ? `<button class="btn-view-proof download-resource-btn" data-key="${r.fileKey}">Download</button>` 
-          : (r.link ? `<a href="${r.link}" target="_blank" class="btn-view-proof">Legacy</a>` : '—');
-        html += `
-          <tr>
-            <td><strong>${r.title}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
-            <td>${r.category}</td>
-            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span> ${downloadBtn}</td>
-            <td>
-              <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
-              <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
-                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i> ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
-              </button>
-              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
-            </td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-      if (overviewEl) overviewEl.textContent = resCount;
+ // ============================================================
+// 5. RESOURCES
+// SAME CLOUDFLARE R2 SYSTEM AS VIDEOS
+// ============================================================
 
-      document.querySelectorAll('.download-resource-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const key = this.dataset.key;
-          if (!key) return alert('No key');
-          try {
-            const url = await getDownloadUrl(key);
-            window.open(url, '_blank');
-          } catch (error) {
-            alert('Download failed: ' + error.message);
-          }
-        });
-      });
+function listenResources() {
+  const q = query(
+    collection(db, "resources"),
+    orderBy("createdAt", "desc")
+  );
 
-      document.querySelectorAll('.edit-resource').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.dataset.id;
-          try {
-            const snap = await getDoc(doc(db, "resources", id));
-            if (snap.exists()) {
-              const data = snap.data();
-              document.getElementById('editingResourceId').value = id;
-              document.getElementById('resourceTitle').value = data.title || '';
-              document.getElementById('resourceCategory').value = data.category || 'PDF';
-              document.getElementById('resourceDescription').value = data.description || '';
-              document.getElementById('premiumOnly').checked = data.premiumOnly || false;
-              document.getElementById('resourceFileName').textContent = data.fileKey ? 'File uploaded' : 'No file';
-              document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
-              document.getElementById('saveResourceBtn').textContent = 'Update Resource';
-              document.getElementById('resourceFormContainer').style.display = 'block';
-              document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
-            }
-          } catch (e) { alert('Error loading resource'); }
-        });
-      });
+  onSnapshot(q, (snapshot) => {
+    const tbody = document.getElementById("resourceTableBody");
+    const overviewEl = document.getElementById("resourceOverview");
 
-      document.querySelectorAll('.delete-resource').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.dataset.id;
-          if (confirm('Delete this resource?')) {
-            try { await deleteDoc(doc(db, "resources", id)); addActivity('Deleted a resource.'); } 
-            catch (e) { alert('Error deleting.'); }
-          }
-        });
-      });
-      document.querySelectorAll('.toggle-resource').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const id = this.dataset.id;
-          try {
-            const snap = await getDoc(doc(db, "resources", id));
-            if (snap.exists()) {
-              const current = snap.data().premiumOnly || false;
-              await updateDoc(doc(db, "resources", id), { premiumOnly: !current });
-              addActivity(`Toggled resource premium status.`);
-            }
-          } catch (e) { alert('Error updating status.'); }
-        });
-      });
-    });
-  }
+    if (!tbody) return;
 
-  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
-    const container = document.getElementById('resourceFormContainer');
-    if (container.style.display === 'none') {
-      container.style.display = 'block';
-      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
-      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
-      document.getElementById('editingResourceId').value = '';
-      document.getElementById('resourceForm').reset();
-      document.getElementById('resourceFileName').textContent = 'No file chosen';
-      container.scrollIntoView({ behavior: 'smooth' });
-    } else { container.style.display = 'none'; }
-  });
-  document.getElementById('cancelResourceBtn')?.addEventListener('click', function() {
-    document.getElementById('resourceFormContainer').style.display = 'none';
-  });
-  document.getElementById('resourceFilePicker')?.addEventListener('change', function() {
-    document.getElementById('resourceFileName').textContent = this.files.length > 0 ? this.files[0].name : 'No file chosen';
-  });
+    if (snapshot.empty) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4">
+            <div class="empty-card">No resources yet.</div>
+          </td>
+        </tr>
+      `;
 
-  document.getElementById('resourceForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editingResourceId').value || 'res-' + Date.now();
-    const title = document.getElementById('resourceTitle').value.trim();
-    const category = document.getElementById('resourceCategory').value;
-    const description = document.getElementById('resourceDescription').value.trim();
-    const premiumOnly = document.getElementById('premiumOnly').checked;
-    const file = document.getElementById('resourceFilePicker').files[0];
-
-    if (!title) return alert('Please enter a title.');
-    try {
-      let fileKey = null;
-      if (document.getElementById('editingResourceId').value && !file) {
-        const snap = await getDoc(doc(db, "resources", id));
-        if (snap.exists()) fileKey = snap.data().fileKey || null;
-      }
-      if (file) {
-        const key = `resources/${category}/${Date.now()}_${file.name}`;
-        fileKey = await uploadToR2(file, key);
-      }
-      if (!fileKey && !document.getElementById('editingResourceId').value) {
-        return alert('Please choose a file to upload.');
-      }
-      const data = { title, category, description, premiumOnly, fileKey, updatedAt: serverTimestamp() };
-      if (!document.getElementById('editingResourceId').value) { data.createdAt = serverTimestamp(); await addDoc(collection(db, "resources"), data); }
-      else { await updateDoc(doc(db, "resources", id), data); }
-      addActivity(`Saved resource "${title}"`);
-      document.getElementById('resourceFormContainer').style.display = 'none';
-      document.getElementById('resourceForm').reset();
-      document.getElementById('resourceFileName').textContent = 'No file chosen';
-      alert('✅ Resource uploaded to Cloudflare R2!');
-    } catch (error) {
-      alert("Error saving resource: " + error.message);
-      console.error(error);
+      if (overviewEl) overviewEl.textContent = "0";
+      return;
     }
+
+    let html = "";
+    let count = 0;
+
+    snapshot.forEach((item) => {
+      count++;
+
+      const r = {
+        id: item.id,
+        ...item.data()
+      };
+
+      const fileKey =
+        r.fileKey ||
+        r.resourceKey ||
+        r.r2Key ||
+        "";
+
+      html += `
+        <tr>
+
+          <td>
+            <strong>${r.title || "Untitled Resource"}</strong>
+            <br>
+            <small style="color:#9aa4bf;">
+              ${r.description || ""}
+            </small>
+          </td>
+
+          <td>
+            ${r.category || "PDF"}
+          </td>
+
+          <td>
+            <span class="badge ${r.premiumOnly ? "premium" : "free"}">
+              ${r.premiumOnly ? "Premium" : "Free"}
+            </span>
+          </td>
+
+          <td>
+
+            ${
+              fileKey
+                ? `
+                  <button
+                    class="btn-view-proof download-resource-btn"
+                    data-key="${encodeURIComponent(fileKey)}"
+                  >
+                    Download
+                  </button>
+                `
+                : "—"
+            }
+
+            <button
+              class="manage-btn edit-resource"
+              data-id="${r.id}"
+            >
+              <i class="fa-solid fa-pen"></i>
+              Edit
+            </button>
+
+            <button
+              class="manage-btn delete-resource"
+              data-id="${r.id}"
+              style="color:var(--red);"
+            >
+              <i class="fa-solid fa-trash"></i>
+              Delete
+            </button>
+
+            <button
+              class="manage-btn toggle-resource"
+              data-id="${r.id}"
+            >
+              ${r.premiumOnly ? "Make Free" : "Make Premium"}
+            </button>
+
+          </td>
+
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+
+    if (overviewEl) {
+      overviewEl.textContent = count;
+    }
+
+    // ----------------------------------------------------------
+    // DOWNLOAD
+    // ----------------------------------------------------------
+
+    document
+      .querySelectorAll(".download-resource-btn")
+      .forEach((btn) => {
+
+        btn.addEventListener("click", async function () {
+
+          const encodedKey =
+            this.dataset.key || "";
+
+          const key =
+            decodeURIComponent(encodedKey);
+
+          if (!key) {
+            alert("Resource file is missing.");
+            return;
+          }
+
+          try {
+
+            const url =
+              await getDownloadUrl(key);
+
+            window.open(
+              url,
+              "_blank",
+              "noopener,noreferrer"
+            );
+
+          } catch (error) {
+
+            console.error(
+              "RESOURCE DOWNLOAD ERROR:",
+              error
+            );
+
+            alert(
+              "Unable to open resource: " +
+              error.message
+            );
+
+          }
+
+        });
+
+      });
+
+    // ----------------------------------------------------------
+    // EDIT
+    // ----------------------------------------------------------
+
+    document
+      .querySelectorAll(".edit-resource")
+      .forEach((btn) => {
+
+        btn.addEventListener("click", async function () {
+
+          const id =
+            this.dataset.id;
+
+          try {
+
+            const snap =
+              await getDoc(
+                doc(db, "resources", id)
+              );
+
+            if (!snap.exists()) {
+              alert("Resource not found.");
+              return;
+            }
+
+            const r =
+              snap.data();
+
+            document.getElementById(
+              "editingResourceId"
+            ).value = id;
+
+            document.getElementById(
+              "resourceTitle"
+            ).value = r.title || "";
+
+            document.getElementById(
+              "resourceCategory"
+            ).value = r.category || "PDF";
+
+            document.getElementById(
+              "resourceDescription"
+            ).value = r.description || "";
+
+            document.getElementById(
+              "premiumOnly"
+            ).checked = r.premiumOnly || false;
+
+            document.getElementById(
+              "resourceFileName"
+            ).textContent =
+              r.fileKey
+                ? "Existing file: " +
+                  (r.fileName ||
+                    r.fileKey.split("/").pop())
+                : "No file chosen";
+
+            document.getElementById(
+              "resourceFormTitle"
+            ).textContent =
+              "Edit Resource";
+
+            document.getElementById(
+              "saveResourceBtn"
+            ).textContent =
+              "Update Resource";
+
+            const container =
+              document.getElementById(
+                "resourceFormContainer"
+              );
+
+            container.style.display =
+              "block";
+
+            container.scrollIntoView({
+              behavior: "smooth"
+            });
+
+          } catch (error) {
+
+            console.error(
+              "RESOURCE EDIT ERROR:",
+              error
+            );
+
+            alert(
+              "Error loading resource: " +
+              error.message
+            );
+
+          }
+
+        });
+
+      });
+
+    // ----------------------------------------------------------
+    // DELETE
+    // ----------------------------------------------------------
+
+    document
+      .querySelectorAll(".delete-resource")
+      .forEach((btn) => {
+
+        btn.addEventListener("click", async function () {
+
+          const id =
+            this.dataset.id;
+
+          if (
+            !confirm(
+              "Delete this resource permanently?"
+            )
+          ) {
+            return;
+          }
+
+          try {
+
+            await deleteDoc(
+              doc(db, "resources", id)
+            );
+
+            addActivity(
+              "Deleted a resource."
+            );
+
+          } catch (error) {
+
+            console.error(
+              "RESOURCE DELETE ERROR:",
+              error
+            );
+
+            alert(
+              "Error deleting resource: " +
+              error.message
+            );
+
+          }
+
+        });
+
+      });
+
+    // ----------------------------------------------------------
+    // PREMIUM TOGGLE
+    // ----------------------------------------------------------
+
+    document
+      .querySelectorAll(".toggle-resource")
+      .forEach((btn) => {
+
+        btn.addEventListener("click", async function () {
+
+          const id =
+            this.dataset.id;
+
+          try {
+
+            const snap =
+              await getDoc(
+                doc(db, "resources", id)
+              );
+
+            if (!snap.exists()) {
+              return;
+            }
+
+            const current =
+              snap.data().premiumOnly || false;
+
+            await updateDoc(
+              doc(db, "resources", id),
+              {
+                premiumOnly: !current,
+                updatedAt: serverTimestamp()
+              }
+            );
+
+            addActivity(
+              `Changed resource access to ${
+                !current ? "Premium" : "Free"
+              }.`
+            );
+
+          } catch (error) {
+
+            console.error(
+              "RESOURCE STATUS ERROR:",
+              error
+            );
+
+            alert(
+              "Error updating resource: " +
+              error.message
+            );
+
+          }
+
+        });
+
+      });
+
+  });
+}
+
+
+// ============================================================
+// RESOURCE FORM OPEN / CLOSE
+// ============================================================
+
+document
+  .getElementById("toggleResourceFormBtn")
+  ?.addEventListener("click", function () {
+
+    const container =
+      document.getElementById(
+        "resourceFormContainer"
+      );
+
+    if (
+      container.style.display === "none" ||
+      !container.style.display
+    ) {
+
+      container.style.display =
+        "block";
+
+      document.getElementById(
+        "resourceFormTitle"
+      ).textContent =
+        "Add New Resource";
+
+      document.getElementById(
+        "saveResourceBtn"
+      ).textContent =
+        "Save Resource";
+
+      document.getElementById(
+        "editingResourceId"
+      ).value = "";
+
+      document.getElementById(
+        "resourceForm"
+      ).reset();
+
+      document.getElementById(
+        "resourceFileName"
+      ).textContent =
+        "No file chosen";
+
+      container.scrollIntoView({
+        behavior: "smooth"
+      });
+
+    } else {
+
+      container.style.display =
+        "none";
+
+    }
+
   });
 
+
+document
+  .getElementById("cancelResourceBtn")
+  ?.addEventListener("click", function () {
+
+    document.getElementById(
+      "resourceFormContainer"
+    ).style.display = "none";
+
+  });
+
+
+// ============================================================
+// RESOURCE FILE PICKER
+// ============================================================
+
+document
+  .getElementById("resourceFilePicker")
+  ?.addEventListener("change", function () {
+
+    const file =
+      this.files?.[0];
+
+    const nameEl =
+      document.getElementById(
+        "resourceFileName"
+      );
+
+    if (!file) {
+
+      if (nameEl) {
+        nameEl.textContent =
+          "No file chosen";
+      }
+
+      return;
+    }
+
+    const sizeMB =
+      (
+        file.size /
+        1024 /
+        1024
+      ).toFixed(2);
+
+    if (nameEl) {
+
+      nameEl.textContent =
+        `${file.name} — ${sizeMB} MB`;
+
+    }
+
+  });
+
+
+// ============================================================
+// RESOURCE UPLOAD / UPDATE
+// IMPORTANT:
+// USE THE SAME uploadToR2() AS VIDEOS
+// DO NOT CREATE ANOTHER R2 UPLOADER
+// ============================================================
+
+document
+  .getElementById("resourceForm")
+  ?.addEventListener("submit", async function (e) {
+
+    e.preventDefault();
+
+    const form = this;
+
+    if (
+      form.dataset.uploading === "true"
+    ) {
+      return;
+    }
+
+    const saveButton =
+      document.getElementById(
+        "saveResourceBtn"
+      );
+
+    const filePicker =
+      document.getElementById(
+        "resourceFilePicker"
+      );
+
+    const fileNameEl =
+      document.getElementById(
+        "resourceFileName"
+      );
+
+    const progressBox =
+      document.getElementById(
+        "resourceUploadProgress"
+      );
+
+    const progressBar =
+      document.getElementById(
+        "resourceUploadProgressBar"
+      );
+
+    const progressText =
+      document.getElementById(
+        "resourceUploadProgressText"
+      );
+
+    const editingId =
+      document.getElementById(
+        "editingResourceId"
+      ).value.trim();
+
+    const title =
+      document.getElementById(
+        "resourceTitle"
+      ).value.trim();
+
+    const category =
+      document.getElementById(
+        "resourceCategory"
+      ).value || "PDF";
+
+    const description =
+      document.getElementById(
+        "resourceDescription"
+      ).value.trim();
+
+    const premiumOnly =
+      document.getElementById(
+        "premiumOnly"
+      ).checked;
+
+    const file =
+      filePicker?.files?.[0] || null;
+
+    if (!title) {
+
+      alert(
+        "Please enter a resource title."
+      );
+
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // UPDATE WITHOUT NEW FILE
+    // ----------------------------------------------------------
+
+    if (
+      editingId &&
+      !file
+    ) {
+
+      form.dataset.uploading =
+        "true";
+
+      if (saveButton) {
+
+        saveButton.disabled =
+          true;
+
+        saveButton.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+
+      }
+
+      try {
+
+        await updateDoc(
+          doc(
+            db,
+            "resources",
+            editingId
+          ),
+          {
+            title,
+            category,
+            description,
+            premiumOnly,
+            updatedAt:
+              serverTimestamp()
+          }
+        );
+
+        addActivity(
+          `Updated resource "${title}"`
+        );
+
+        alert(
+          "✅ Resource updated successfully."
+        );
+
+        form.reset();
+
+        document.getElementById(
+          "editingResourceId"
+        ).value = "";
+
+        fileNameEl.textContent =
+          "No file chosen";
+
+        document.getElementById(
+          "resourceFormContainer"
+        ).style.display =
+          "none";
+
+      } catch (error) {
+
+        console.error(
+          "RESOURCE UPDATE ERROR:",
+          error
+        );
+
+        alert(
+          "Error updating resource: " +
+          error.message
+        );
+
+      } finally {
+
+        form.dataset.uploading =
+          "false";
+
+        if (saveButton) {
+
+          saveButton.disabled =
+            false;
+
+          saveButton.innerHTML =
+            "Save Resource";
+
+        }
+
+      }
+
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // NEW RESOURCE MUST HAVE FILE
+    // ----------------------------------------------------------
+
+    if (
+      !editingId &&
+      !file
+    ) {
+
+      alert(
+        "Please choose a file to upload."
+      );
+
+      return;
+    }
+
+    form.dataset.uploading =
+      "true";
+
+    if (saveButton) {
+
+      saveButton.disabled =
+        true;
+
+      saveButton.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+    }
+
+    if (progressBox) {
+      progressBox.style.display =
+        "block";
+    }
+
+    if (progressBar) {
+      progressBar.style.width =
+        "0%";
+    }
+
+    if (progressText) {
+      progressText.textContent =
+        "Preparing upload...";
+    }
+
+    try {
+
+      let fileKey = null;
+
+      // --------------------------------------------------------
+      // KEEP OLD FILE KEY WHEN EDITING
+      // --------------------------------------------------------
+
+      if (editingId) {
+
+        const snap =
+          await getDoc(
+            doc(
+              db,
+              "resources",
+              editingId
+            )
+          );
+
+        if (snap.exists()) {
+
+          const old =
+            snap.data();
+
+          fileKey =
+            old.fileKey ||
+            old.resourceKey ||
+            old.r2Key ||
+            null;
+
+        }
+
+      }
+
+      // --------------------------------------------------------
+      // UPLOAD NEW FILE
+      //
+      // THIS IS THE IMPORTANT PART:
+      //
+      // We call the SAME uploadToR2()
+      // imported at the top of the admin page.
+      //
+      // Videos already use this successfully.
+      // --------------------------------------------------------
+
+      if (file) {
+
+        const originalName =
+          file.name || "resource";
+
+        const cleanName =
+          originalName
+            .replace(
+              /[^a-zA-Z0-9._-]/g,
+              "_"
+            )
+            .replace(
+              /_+/g,
+              "_"
+            );
+
+        const cleanCategory =
+          String(category)
+            .replace(
+              /[^a-zA-Z0-9_-]/g,
+              "_"
+            )
+            .replace(
+              /_+/g,
+              "_"
+            );
+
+        const key =
+          `resources/${cleanCategory}/${Date.now()}_${cleanName}`;
+
+        if (progressText) {
+
+          progressText.textContent =
+            "Uploading 0%...";
+
+        }
+
+        /*
+         * IMPORTANT:
+         * No /upload endpoint.
+         * No Firebase Storage.
+         * No new worker.
+         *
+         * Same uploadToR2 used by videos.
+         */
+
+        fileKey =
+          await uploadToR2(
+            file,
+            key
+          );
+
+        if (progressBar) {
+          progressBar.style.width =
+            "100%";
+        }
+
+        if (progressText) {
+
+          progressText.textContent =
+            "Upload complete. Saving resource...";
+
+        }
+
+        if (fileNameEl) {
+
+          fileNameEl.textContent =
+            "✅ Uploaded: " +
+            originalName;
+
+        }
+
+      }
+
+      // --------------------------------------------------------
+      // SAFETY
+      // --------------------------------------------------------
+
+      if (!fileKey) {
+
+        throw new Error(
+          "No R2 file key was returned."
+        );
+
+      }
+
+      // --------------------------------------------------------
+      // FIRESTORE RECORD
+      // --------------------------------------------------------
+
+      const data = {
+
+        title,
+
+        category,
+
+        description,
+
+        premiumOnly,
+
+        fileKey,
+
+        resourceKey:
+          fileKey,
+
+        fileName:
+          file?.name ||
+          fileKey.split("/").pop(),
+
+        type:
+          file?.type ||
+          category,
+
+        updatedAt:
+          serverTimestamp()
+
+      };
+
+      // --------------------------------------------------------
+      // CREATE
+      // --------------------------------------------------------
+
+      if (!editingId) {
+
+        data.createdAt =
+          serverTimestamp();
+
+        const newDoc =
+          await addDoc(
+            collection(
+              db,
+              "resources"
+            ),
+            data
+          );
+
+        console.log(
+          "RESOURCE CREATED:",
+          newDoc.id
+        );
+
+        addActivity(
+          `Uploaded resource "${title}"`
+        );
+
+      }
+
+      // --------------------------------------------------------
+      // UPDATE
+      // --------------------------------------------------------
+
+      else {
+
+        await updateDoc(
+          doc(
+            db,
+            "resources",
+            editingId
+          ),
+          data
+        );
+
+        addActivity(
+          `Updated resource "${title}"`
+        );
+
+      }
+
+      // --------------------------------------------------------
+      // SUCCESS
+      // --------------------------------------------------------
+
+      if (progressBar) {
+
+        progressBar.style.width =
+          "100%";
+
+      }
+
+      if (progressText) {
+
+        progressText.textContent =
+          "100% — Resource saved successfully.";
+
+      }
+
+      alert(
+        editingId
+          ? "✅ Resource updated successfully!"
+          : "✅ Resource uploaded successfully!"
+      );
+
+      // --------------------------------------------------------
+      // RESET
+      // --------------------------------------------------------
+
+      form.reset();
+
+      document.getElementById(
+        "editingResourceId"
+      ).value = "";
+
+      if (fileNameEl) {
+
+        fileNameEl.textContent =
+          "No file chosen";
+
+      }
+
+      document.getElementById(
+        "resourceFormTitle"
+      ).textContent =
+        "Add New Resource";
+
+      if (saveButton) {
+
+        saveButton.innerHTML =
+          "Save Resource";
+
+      }
+
+      setTimeout(() => {
+
+        if (progressBox) {
+          progressBox.style.display =
+            "none";
+        }
+
+        if (progressBar) {
+          progressBar.style.width =
+            "0%";
+        }
+
+        if (progressText) {
+          progressText.textContent =
+            "Preparing upload...";
+        }
+
+        document.getElementById(
+          "resourceFormContainer"
+        ).style.display =
+          "none";
+
+      }, 1000);
+
+    } catch (error) {
+
+      console.error(
+        "RESOURCE UPLOAD ERROR:",
+        error
+      );
+
+      if (progressText) {
+
+        progressText.textContent =
+          "Upload failed.";
+
+      }
+
+      alert(
+        "❌ Error saving resource:\n\n" +
+        error.message
+      );
+
+    } finally {
+
+      form.dataset.uploading =
+        "false";
+
+      if (saveButton) {
+
+        saveButton.disabled =
+          false;
+
+        saveButton.innerHTML =
+          "Save Resource";
+
+      }
+
+    }
+
+  });
   // ═══════════════════════════════════════════════════════════════════════════
   //  6. INIT
   // ═══════════════════════════════════════════════════════════════════════════
