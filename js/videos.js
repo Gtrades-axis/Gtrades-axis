@@ -1,17 +1,11 @@
-// ============================================================
-// GTRADES-AXIS™
-// STUDENT VIDEO ACADEMY
-// js/videos.js
-// ============================================================
-
-import { auth, db } from "./firebase.js";
-
 import {
+  getAuth,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
+  getFirestore,
   collection,
   getDocs,
   query,
@@ -20,6 +14,9 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+import { app } from "./firebase.js";
+
+
 // ============================================================
 // CONFIG
 // ============================================================
@@ -27,47 +24,43 @@ import {
 const R2_WORKER =
   "https://r2-uploader.davidthuku574.workers.dev";
 
+
+// ============================================================
+// FIREBASE
+// ============================================================
+
+const auth =
+  getAuth(app);
+
+const db =
+  getFirestore(app);
+
+
 // ============================================================
 // ELEMENTS
 // ============================================================
 
-const app =
-  document.getElementById("app");
-
 const container =
-  document.getElementById(
-    "videosContainer"
-  );
-
-const searchInput =
-  document.getElementById(
-    "searchInput"
-  );
-
-const filterButtons =
-  document.querySelectorAll(
-    ".filter-btn"
-  );
+  document.getElementById("videosContainer");
 
 const noResults =
-  document.getElementById(
-    "noResultsMessage"
-  );
+  document.getElementById("noResultsMessage");
 
-const logoutBtn =
-  document.getElementById(
-    "logoutBtn"
-  );
+const player =
+  document.getElementById("r2VideoPlayer");
 
-const modal =
-  document.getElementById(
-    "videoModal"
-  );
+const playerMessage =
+  document.getElementById("playerMessage");
 
-const closeModalButton =
-  document.getElementById(
-    "closeModal"
-  );
+const nowPlayingTitle =
+  document.getElementById("nowPlayingTitle");
+
+const searchInput =
+  document.getElementById("videoSearch");
+
+const filterButtons =
+  document.querySelectorAll(".filter-btn");
+
 
 // ============================================================
 // STATE
@@ -81,22 +74,25 @@ let activeCategory =
 let hasPremiumAccess =
   false;
 
-let currentVideoURL =
-  null;
 
 // ============================================================
-// ESCAPE
+// BUILD R2 URL
 // ============================================================
 
-function escapeHTML(value) {
+function buildR2URL(key) {
 
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  if (!key) {
+    throw new Error(
+      "This video has no R2 key."
+    );
+  }
+
+  return (
+    `${R2_WORKER}/file?key=` +
+    encodeURIComponent(key)
+  );
 }
+
 
 // ============================================================
 // AUTH
@@ -107,18 +103,12 @@ onAuthStateChanged(
   async user => {
 
     if (!user) {
-
       window.location.href =
-        "login.html";
-
+        "/login.html";
       return;
     }
 
     try {
-
-      app?.classList.remove(
-        "loading"
-      );
 
       const userRef =
         doc(
@@ -128,68 +118,58 @@ onAuthStateChanged(
         );
 
       const userSnap =
-        await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-
-        showError(
-          "Your account information could not be found."
+        await getDoc(
+          userRef
         );
 
-        return;
+      if (userSnap.exists()) {
+
+        const data =
+          userSnap.data();
+
+        hasPremiumAccess =
+          data.membership === "premium" ||
+          data.role === "admin" ||
+          data.membership === "admin";
       }
-
-      const userData =
-        userSnap.data();
-
-      hasPremiumAccess =
-        userData.role === "admin" ||
-        userData.membership === "premium";
-
-      await loadVideos();
 
     } catch (error) {
 
       console.error(
-        "VIDEO PORTAL ERROR:",
+        "MEMBERSHIP ERROR:",
         error
       );
-
-      showError(
-        "Unable to load the video academy."
-      );
     }
+
+    loadVideos();
   }
 );
 
+
 // ============================================================
-// LOAD
+// LOAD VIDEOS
 // ============================================================
 
 async function loadVideos() {
 
-  if (!container) return;
+  if (!container)
+    return;
 
   container.innerHTML = `
-    <div
-      style="
-        grid-column:1/-1;
-        text-align:center;
-        padding:40px;
-        color:#94a3b8;
-      "
-    >
+    <div class="status">
       Loading videos...
     </div>
   `;
+
 
   try {
 
     let snapshot;
 
+
     try {
 
-      const videosQuery =
+      const q =
         query(
           collection(
             db,
@@ -202,9 +182,7 @@ async function loadVideos() {
         );
 
       snapshot =
-        await getDocs(
-          videosQuery
-        );
+        await getDocs(q);
 
     } catch {
 
@@ -217,33 +195,53 @@ async function loadVideos() {
         );
     }
 
+
     videos = [];
+
 
     snapshot.forEach(
       videoDoc => {
 
+        const data =
+          videoDoc.data();
+
         videos.push({
-          id: videoDoc.id,
-          ...videoDoc.data()
+          id:
+            videoDoc.id,
+          ...data
         });
 
       }
     );
 
+
     renderVideos();
+
+
+    // Automatically select first
+    // video but don't force autoplay.
+    if (videos.length) {
+      openVideo(
+        videos[0]
+      );
+    }
+
 
   } catch (error) {
 
     console.error(
-      "FIRESTORE VIDEO ERROR:",
+      "VIDEO LOAD ERROR:",
       error
     );
 
-    showError(
-      "Unable to load videos."
-    );
+    container.innerHTML = `
+      <div class="status">
+        Unable to load videos.
+      </div>
+    `;
   }
 }
+
 
 // ============================================================
 // RENDER
@@ -251,16 +249,17 @@ async function loadVideos() {
 
 function renderVideos() {
 
-  if (!container) return;
-
   container.innerHTML = "";
 
-  noResults?.classList.remove(
-    "visible"
-  );
+  if (noResults) {
+    noResults.style.display =
+      "none";
+  }
+
 
   let filtered =
     [...videos];
+
 
   if (
     activeCategory !==
@@ -282,10 +281,12 @@ function renderVideos() {
       );
   }
 
+
   const keyword =
     searchInput?.value
       ?.toLowerCase()
       .trim() || "";
+
 
   if (keyword) {
 
@@ -295,59 +296,49 @@ function renderVideos() {
 
           const title =
             String(
-              video.title || ""
-            ).toLowerCase();
-
-          const description =
-            String(
-              video.description || ""
+              video.title ||
+              ""
             ).toLowerCase();
 
           const category =
             String(
-              video.category || ""
+              video.category ||
+              ""
             ).toLowerCase();
 
           return (
             title.includes(keyword) ||
-            description.includes(keyword) ||
             category.includes(keyword)
           );
         }
       );
   }
 
+
   if (!filtered.length) {
 
     if (noResults) {
       noResults.style.display =
         "block";
-
-      noResults.classList.add(
-        "visible"
-      );
     }
 
     return;
   }
 
-  if (noResults) {
-    noResults.style.display =
-      "none";
 
-    noResults.classList.remove(
-      "visible"
-    );
-  }
+  filtered.forEach(
+    video => {
 
-  filtered.forEach(video => {
+      container.appendChild(
+        createVideoCard(
+          video
+        )
+      );
 
-    container.appendChild(
-      createVideoCard(video)
-    );
-
-  });
+    }
+  );
 }
+
 
 // ============================================================
 // CARD
@@ -360,12 +351,13 @@ function createVideoCard(video) {
       "div"
     );
 
-  const premiumOnly =
+  const premium =
     video.premiumOnly === true;
 
   const canAccess =
-    !premiumOnly ||
+    !premium ||
     hasPremiumAccess;
+
 
   card.className =
     `video-card${
@@ -374,25 +366,47 @@ function createVideoCard(video) {
         : " locked"
     }`;
 
+
   const title =
     video.title ||
     "Untitled Video";
+
 
   const category =
     video.category ||
     "General";
 
+
   const duration =
     video.duration ||
     "—";
 
-  const thumbnail =
-    video.thumbnailKey
-      ? `${R2_WORKER}/?key=${encodeURIComponent(
-          video.thumbnailKey
-        )}&action=file`
-      : video.thumbnail ||
-        "";
+
+  let thumbnail = "";
+
+
+  if (video.thumbnailKey) {
+
+    thumbnail =
+      buildR2URL(
+        video.thumbnailKey
+      );
+
+  } else if (
+    video.thumbnailUrl
+  ) {
+
+    thumbnail =
+      video.thumbnailUrl;
+
+  } else if (
+    video.thumbnail
+  ) {
+
+    thumbnail =
+      video.thumbnail;
+  }
+
 
   card.innerHTML = `
 
@@ -418,16 +432,9 @@ function createVideoCard(video) {
                 display:flex;
                 align-items:center;
                 justify-content:center;
-                background:#080d16;
               "
             >
-              <i
-                class="fa-solid fa-circle-play"
-                style="
-                  font-size:3rem;
-                  color:#1d9bf0;
-                "
-              ></i>
+              ▶
             </div>
           `
       }
@@ -440,19 +447,14 @@ function createVideoCard(video) {
         !canAccess
           ? `
             <div class="lock-overlay">
-
-              <i class="fa-solid fa-lock"></i>
-
-              <span>
-                Premium Only
-              </span>
-
+              🔒 Premium Only
             </div>
           `
           : ""
       }
 
     </div>
+
 
     <div class="video-info">
 
@@ -468,13 +470,13 @@ function createVideoCard(video) {
 
         <span
           class="badge ${
-            premiumOnly
+            premium
               ? "badge-premium"
               : "badge-free"
           }"
         >
           ${
-            premiumOnly
+            premium
               ? "Premium"
               : "Free"
           }
@@ -485,34 +487,26 @@ function createVideoCard(video) {
     </div>
   `;
 
+
   if (canAccess) {
 
     card.addEventListener(
       "click",
       () => openVideo(video)
     );
+
   }
+
 
   return card;
 }
+
 
 // ============================================================
 // OPEN VIDEO
 // ============================================================
 
-async function openVideo(video) {
-
-  if (
-    video.premiumOnly === true &&
-    !hasPremiumAccess
-  ) {
-
-    alert(
-      "Premium membership is required."
-    );
-
-    return;
-  }
+function openVideo(video) {
 
   const videoKey =
     video.videoKey ||
@@ -521,321 +515,126 @@ async function openVideo(video) {
     video.storageKey ||
     "";
 
+
   if (!videoKey) {
 
-    alert(
+    showPlayerError(
       "This video has no R2 file attached."
     );
 
     return;
   }
 
-  const user =
-    auth.currentUser;
 
-  if (!user) {
+  const videoURL =
+    buildR2URL(
+      videoKey
+    );
 
-    window.location.href =
-      "login.html";
 
-    return;
-  }
+  console.log(
+    "PLAYING:",
+    videoURL
+  );
 
-  try {
 
-    const token =
-      await user.getIdToken(true);
+  if (nowPlayingTitle) {
 
-    await playAuthenticatedVideo(
-      videoKey,
-      token,
+    nowPlayingTitle.textContent =
       video.title ||
-        "GTRADES-AXIS Video"
-    );
-
-  } catch (error) {
-
-    console.error(
-      "VIDEO PLAY ERROR:",
-      error
-    );
-
-    alert(
-      error.message ||
-      "Unable to play this video."
-    );
-  }
-}
-
-// ============================================================
-// PLAYER
-// ============================================================
-
-async function playAuthenticatedVideo(
-  videoKey,
-  token,
-  title
-) {
-
-  if (!modal) {
-
-    alert(
-      "Video player modal not found."
-    );
-
-    return;
+      "GTRADES-AXIS™ Video";
   }
 
-  modal.classList.add(
-    "active"
+
+  playerMessage?.classList.remove(
+    "show"
   );
 
-  document.body.style.overflow =
-    "hidden";
 
-  let videoPlayer =
-    document.getElementById(
-      "r2VideoPlayer"
-    );
+  player.pause();
 
-  if (!videoPlayer) {
 
-    videoPlayer =
-      document.createElement(
-        "video"
-      );
-
-    videoPlayer.id =
-      "r2VideoPlayer";
-
-    videoPlayer.controls =
-      true;
-
-    videoPlayer.playsInline =
-      true;
-
-    videoPlayer.preload =
-      "metadata";
-
-    videoPlayer.style.width =
-      "100%";
-
-    videoPlayer.style.maxHeight =
-      "80vh";
-
-    videoPlayer.style.background =
-      "#000";
-
-    const modalContent =
-      modal.querySelector(
-        ".modal-content"
-      );
-
-    if (!modalContent) {
-
-      throw new Error(
-        "Video modal content not found."
-      );
-    }
-
-    modalContent.appendChild(
-      videoPlayer
-    );
-  }
-
-  videoPlayer.style.display =
-    "block";
-
-  videoPlayer.setAttribute(
-    "aria-label",
-    title
-  );
-
-  videoPlayer.pause();
-
-  videoPlayer.removeAttribute(
+  player.removeAttribute(
     "src"
   );
 
-  videoPlayer.load();
 
-  if (currentVideoURL) {
+  player.load();
 
-    URL.revokeObjectURL(
-      currentVideoURL
-    );
 
-    currentVideoURL =
-      null;
-  }
+  player.src =
+    videoURL;
 
-  const response =
-    await fetch(
-      `${R2_WORKER}/?key=${encodeURIComponent(
-        videoKey
-      )}&action=file`,
-      {
-        method: "GET",
 
-        headers: {
-          Authorization:
-            `Bearer ${token}`
-        },
+  player.load();
 
-        cache:
-          "no-store"
+
+  document
+    .querySelector(
+      ".player-panel"
+    )
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+
+  player.play()
+    .catch(
+      () => {
+        // Browser autoplay may be blocked.
+        // User can press play.
       }
     );
-
-  if (!response.ok) {
-
-    const errorData =
-      await response
-        .json()
-        .catch(
-          () => ({})
-        );
-
-    throw new Error(
-      errorData.error ||
-      `Video authorization failed (${response.status})`
-    );
-  }
-
-  const blob =
-    await response.blob();
-
-  const blobURL =
-    URL.createObjectURL(
-      blob
-    );
-
-  currentVideoURL =
-    blobURL;
-
-  videoPlayer.src =
-    blobURL;
-
-  videoPlayer.load();
-
-  await videoPlayer
-    .play()
-    .catch(() => {});
 }
 
+
 // ============================================================
-// CLOSE
+// PLAYER ERROR
 // ============================================================
 
-function closeVideo() {
+player?.addEventListener(
+  "error",
+  () => {
 
-  const videoPlayer =
-    document.getElementById(
-      "r2VideoPlayer"
+    console.error(
+      "HTML VIDEO ERROR:",
+      player.error
     );
 
-  if (videoPlayer) {
-
-    videoPlayer.pause();
-
-    videoPlayer.removeAttribute(
-      "src"
+    showPlayerError(
+      "Error playing video. Please try again."
     );
-
-    videoPlayer.load();
   }
+);
 
-  if (currentVideoURL) {
 
-    URL.revokeObjectURL(
-      currentVideoURL
-    );
+// ============================================================
+// SHOW ERROR
+// ============================================================
 
-    currentVideoURL =
-      null;
-  }
+function showPlayerError(message) {
 
-  modal?.classList.remove(
-    "active"
+  player.pause();
+
+  player.removeAttribute(
+    "src"
   );
 
-  document.body.style.overflow =
-    "";
+  player.load();
+
+
+  if (playerMessage) {
+
+    playerMessage.textContent =
+      message;
+
+    playerMessage.classList.add(
+      "show"
+    );
+  }
 }
 
-// ============================================================
-// LOGOUT
-// ============================================================
-
-logoutBtn?.addEventListener(
-  "click",
-  async () => {
-
-    try {
-
-      await signOut(auth);
-
-      window.location.href =
-        "login.html";
-
-    } catch (error) {
-
-      console.error(
-        "LOGOUT ERROR:",
-        error
-      );
-
-      alert(
-        "Unable to logout."
-      );
-    }
-  }
-);
-
-// ============================================================
-// CLOSE BUTTON
-// ============================================================
-
-closeModalButton?.addEventListener(
-  "click",
-  closeVideo
-);
-
-// ============================================================
-// OUTSIDE MODAL
-// ============================================================
-
-modal?.addEventListener(
-  "click",
-  event => {
-
-    if (
-      event.target ===
-      modal
-    ) {
-
-      closeVideo();
-    }
-  }
-);
-
-// ============================================================
-// ESC
-// ============================================================
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      event.key ===
-      "Escape"
-    ) {
-
-      closeVideo();
-    }
-  }
-);
 
 // ============================================================
 // SEARCH
@@ -846,8 +645,9 @@ searchInput?.addEventListener(
   renderVideos
 );
 
+
 // ============================================================
-// FILTER
+// FILTERS
 // ============================================================
 
 filterButtons.forEach(
@@ -864,13 +664,16 @@ filterButtons.forEach(
             )
         );
 
+
         button.classList.add(
           "active"
         );
 
+
         activeCategory =
           button.dataset.category ||
           "All";
+
 
         renderVideos();
       }
@@ -878,46 +681,34 @@ filterButtons.forEach(
   }
 );
 
+
 // ============================================================
-// ERROR
+// ESCAPE HTML
 // ============================================================
 
-function showError(message) {
+function escapeHTML(value) {
 
-  if (!container) return;
-
-  container.innerHTML = `
-
-    <div
-      style="
-        grid-column:1/-1;
-        text-align:center;
-        padding:60px 20px;
-        color:#ff8799;
-      "
-    >
-
-      <i
-        class="fa-solid fa-circle-exclamation"
-        style="
-          font-size:2.5rem;
-          margin-bottom:15px;
-        "
-      ></i>
-
-      <p>
-        ${escapeHTML(message)}
-      </p>
-
-    </div>
-  `;
+  return String(
+    value ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
-
-console.log(
-  "GTRADES-AXIS™ Student Video Academy loaded."
-);
-
-console.log(
-  "R2 Worker:",
-  R2_WORKER
-);
