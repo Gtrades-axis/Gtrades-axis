@@ -1,15 +1,6 @@
-<!-- =========================================================
-GTRADES-AXIS™
-PREMIUM RESOURCES PORTAL
-resources.html
-========================================================= -->
-
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -17,19 +8,14 @@ resources.html
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>
-    Premium Resources | GTRADES-AXIS™
-  </title>
+  <title>Premium Resources | GTRADES-AXIS™</title>
 
   <meta
     name="description"
     content="GTRADES-AXIS™ Premium Trading Resources"
   >
 
-  <link
-    rel="icon"
-    href="/images/favicon.png"
-  >
+  <link rel="icon" href="/images/favicon.png">
 
   <link
     rel="stylesheet"
@@ -37,11 +23,14 @@ resources.html
   >
 
   <style>
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html {
+      background: #05080d;
     }
 
     body {
@@ -51,7 +40,12 @@ resources.html
       font-family:
         Inter,
         Arial,
+        Helvetica,
         sans-serif;
+    }
+
+    body.loading-page {
+      overflow: hidden;
     }
 
     a {
@@ -59,9 +53,14 @@ resources.html
       text-decoration: none;
     }
 
-    /* =====================================================
+    button,
+    input {
+      font: inherit;
+    }
+
+    /* =========================================================
        SIDEBAR
-       ===================================================== */
+       ========================================================= */
 
     .sidebar {
       position: fixed;
@@ -69,16 +68,19 @@ resources.html
       top: 0;
       bottom: 0;
       width: 250px;
+
       background: #080c13;
       border-right: 1px solid #172033;
+
       padding: 28px 16px;
-      z-index: 20;
+
+      z-index: 100;
     }
 
     .brand {
       font-size: 20px;
       font-weight: 900;
-      letter-spacing: .5px;
+      letter-spacing: 0.5px;
       margin-bottom: 35px;
     }
 
@@ -92,6 +94,7 @@ resources.html
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 1.5px;
+
       margin: 0 12px 12px;
     }
 
@@ -107,19 +110,26 @@ resources.html
       display: flex;
       align-items: center;
       gap: 13px;
+
       padding: 13px 14px;
+
       border-radius: 10px;
+
       color: #94a3b8;
-      transition: .2s;
+
+      transition:
+        background 0.2s ease,
+        color 0.2s ease;
     }
 
-    .menu a:hover,
+    .menu a:hover {
+      background: #101a2a;
+      color: #ffffff;
+    }
+
     .menu li.active a {
       background: #101a2a;
-      color: #fff;
-    }
-
-    .menu li.active a {
+      color: #ffffff;
       border-left: 3px solid #2196f3;
     }
 
@@ -130,53 +140,82 @@ resources.html
 
     .logout {
       position: absolute;
+
       left: 16px;
       right: 16px;
       bottom: 25px;
+
+      width: calc(100% - 32px);
+
       border: 1px solid #263244;
+
       background: #0d131e;
+
       color: #cbd5e1;
+
       padding: 12px;
+
       border-radius: 10px;
+
       cursor: pointer;
+
       font-size: 14px;
+
+      transition: 0.2s;
     }
 
     .logout:hover {
       background: #151d2b;
-      color: #fff;
+      color: #ffffff;
+      border-color: #334155;
     }
 
-    /* =====================================================
+    /* =========================================================
        MAIN
-       ===================================================== */
+       ========================================================= */
 
     .main {
       margin-left: 250px;
       min-height: 100vh;
+
+      display: flex;
+      flex-direction: column;
     }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
 
     header {
       padding: 26px 35px;
+
       border-bottom: 1px solid #172033;
+
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(5, 8, 13, .94);
+
+      background: rgba(5, 8, 13, 0.96);
+
       position: sticky;
       top: 0;
-      z-index: 10;
+
+      z-index: 50;
+
       backdrop-filter: blur(12px);
     }
 
     .page-title {
       font-size: 25px;
       font-weight: 900;
+      letter-spacing: -0.3px;
     }
 
     .page-subtitle {
       margin-top: 5px;
+
       color: #64748b;
+
       font-size: 13px;
     }
 
@@ -184,26 +223,42 @@ resources.html
       display: flex;
       align-items: center;
       gap: 8px;
+
       background: #101827;
+
       border: 1px solid #26344b;
+
       padding: 9px 14px;
+
       border-radius: 30px;
+
       color: #94a3b8;
+
       font-size: 13px;
+
+      white-space: nowrap;
     }
 
     .member-chip.premium {
       color: #60a5fa;
       border-color: #1d4ed8;
+      background: rgba(37, 99, 235, 0.08);
     }
 
-    /* =====================================================
+    /* =========================================================
        CONTENT
-       ===================================================== */
+       ========================================================= */
 
     .content {
+      width: 100%;
       padding: 35px;
+
+      flex: 1;
     }
+
+    /* =========================================================
+       TOOLBAR
+       ========================================================= */
 
     .toolbar {
       margin-bottom: 30px;
@@ -212,30 +267,49 @@ resources.html
     .search-row {
       display: flex;
       gap: 10px;
+
       margin-bottom: 18px;
     }
 
     .search {
       flex: 1;
+
       position: relative;
     }
 
     .search i {
       position: absolute;
+
       left: 16px;
       top: 50%;
+
       transform: translateY(-50%);
+
       color: #64748b;
+
+      pointer-events: none;
     }
 
     .search input {
       width: 100%;
+
       background: #0a101a;
+
       border: 1px solid #1b2739;
-      color: #fff;
+
+      color: #ffffff;
+
       border-radius: 11px;
+
       padding: 14px 16px 14px 45px;
+
       outline: none;
+
+      transition: border 0.2s;
+    }
+
+    .search input::placeholder {
+      color: #64748b;
     }
 
     .search input:focus {
@@ -244,48 +318,78 @@ resources.html
 
     .refresh {
       width: 48px;
+      min-width: 48px;
+
       border: 1px solid #1b2739;
+
       background: #0a101a;
+
       color: #94a3b8;
+
       border-radius: 11px;
+
       cursor: pointer;
+
+      transition: 0.2s;
     }
 
     .refresh:hover {
-      color: #fff;
+      color: #ffffff;
       border-color: #2563eb;
+    }
+
+    .refresh:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .filters {
       display: flex;
+
       gap: 8px;
+
       flex-wrap: wrap;
     }
 
     .filter {
       border: 1px solid #1b2739;
+
       background: #0a101a;
+
       color: #94a3b8;
+
       padding: 9px 15px;
+
       border-radius: 20px;
+
       cursor: pointer;
+
+      transition: 0.2s;
     }
 
-    .filter:hover,
-    .filter.active {
-      color: #fff;
+    .filter:hover {
+      color: #ffffff;
       background: #15243b;
       border-color: #2563eb;
     }
 
-    /* =====================================================
-       SECTION
-       ===================================================== */
+    .filter.active {
+      color: #ffffff;
+      background: #15243b;
+      border-color: #2563eb;
+    }
+
+    /* =========================================================
+       SECTION HEADER
+       ========================================================= */
 
     .section-head {
       display: flex;
+
       justify-content: space-between;
+
       align-items: center;
+
       margin-bottom: 18px;
     }
 
@@ -298,98 +402,147 @@ resources.html
       font-size: 13px;
     }
 
-    /* =====================================================
-       GRID
-       ===================================================== */
+    /* =========================================================
+       RESOURCE GRID
+       ========================================================= */
 
     .resource-grid {
       display: grid;
+
       grid-template-columns:
         repeat(auto-fill, minmax(300px, 1fr));
+
       gap: 18px;
     }
 
+    /* =========================================================
+       RESOURCE CARD
+       ========================================================= */
+
     .resource-card {
       background: #0a101a;
+
       border: 1px solid #182438;
+
       border-radius: 15px;
+
       padding: 20px;
-      min-height: 270px;
+
+      min-height: 285px;
+
       display: flex;
+
       flex-direction: column;
+
       transition:
-        transform .2s,
-        border-color .2s,
-        box-shadow .2s;
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     .resource-card:hover {
       transform: translateY(-3px);
+
       border-color: #2563eb;
+
       box-shadow:
-        0 12px 40px rgba(0,0,0,.3);
+        0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .resource-card.locked {
+      opacity: 0.9;
     }
 
     .resource-icon {
       width: 52px;
       height: 52px;
+
       border-radius: 13px;
+
       background: #101d32;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       color: #60a5fa;
+
       font-size: 22px;
+
       margin-bottom: 18px;
     }
 
     .resource-top {
       display: flex;
+
       justify-content: space-between;
+
       gap: 10px;
+
       align-items: center;
+
       margin-bottom: 10px;
     }
 
     .resource-category {
       color: #64748b;
+
       font-size: 11px;
+
       text-transform: uppercase;
-      letter-spacing: .8px;
+
+      letter-spacing: 0.8px;
+
       font-weight: 800;
     }
 
     .resource-badge {
       font-size: 10px;
+
       padding: 5px 8px;
+
       border-radius: 20px;
+
       font-weight: 800;
+
+      white-space: nowrap;
     }
 
     .resource-badge.free {
       color: #4ade80;
-      background: rgba(34,197,94,.1);
+
+      background: rgba(34, 197, 94, 0.1);
     }
 
     .resource-badge.premium {
       color: #60a5fa;
-      background: rgba(37,99,235,.13);
+
+      background: rgba(37, 99, 235, 0.13);
     }
 
     .resource-body h3 {
       font-size: 18px;
+
       margin-bottom: 9px;
+
+      line-height: 1.35;
     }
 
     .resource-body p {
       color: #94a3b8;
+
       line-height: 1.6;
+
       font-size: 13px;
     }
 
     .resource-storage {
       margin-top: 15px;
+
       color: #64748b;
+
       font-size: 12px;
     }
 
@@ -397,24 +550,30 @@ resources.html
       margin-right: 5px;
     }
 
-    .resource-storage.unavailable {
-      color: #f87171;
-    }
-
     .resource-action {
       margin-top: auto;
+
       padding-top: 20px;
     }
 
     .download-btn {
       width: 100%;
+
       border: 0;
+
       background: #2563eb;
-      color: white;
+
+      color: #ffffff;
+
       padding: 12px;
+
       border-radius: 9px;
+
       cursor: pointer;
+
       font-weight: 800;
+
+      transition: 0.2s;
     }
 
     .download-btn:hover {
@@ -422,7 +581,7 @@ resources.html
     }
 
     .download-btn:disabled {
-      opacity: .55;
+      opacity: 0.55;
       cursor: not-allowed;
     }
 
@@ -431,82 +590,219 @@ resources.html
       color: #94a3b8;
     }
 
-    /* =====================================================
-       STATES
-       ===================================================== */
+    .locked-btn:hover {
+      background: #1d293d;
+      color: #cbd5e1;
+    }
 
-    .loading,
-    .empty-state,
-    .error-state {
+    /* =========================================================
+       LOADING
+       ========================================================= */
+
+    .loading {
       grid-column: 1 / -1;
+
+      min-height: 270px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      justify-content: center;
+
       text-align: center;
-      padding: 70px 20px;
+
       color: #64748b;
     }
 
-    .loading i,
-    .empty-state i,
-    .error-state i {
-      font-size: 35px;
+    .loading i {
+      font-size: 38px;
+
+      margin-bottom: 16px;
+
+      color: #6b84a6;
+    }
+
+    .loading small {
+      margin-top: 10px;
+
+      color: #475569;
+    }
+
+    /* =========================================================
+       EMPTY
+       ========================================================= */
+
+    .empty-state {
+      grid-column: 1 / -1;
+
+      text-align: center;
+
+      padding: 70px 20px;
+
+      color: #64748b;
+    }
+
+    .empty-state i {
+      font-size: 40px;
+
       margin-bottom: 15px;
     }
 
-    .empty-state h3,
-    .error-state h3 {
+    .empty-state h3 {
       color: #e2e8f0;
+
       margin-bottom: 8px;
     }
 
+    /* =========================================================
+       ERROR
+       ========================================================= */
+
     .error-state {
+      grid-column: 1 / -1;
+
+      text-align: center;
+
+      padding: 70px 20px;
+
       color: #f87171;
+    }
+
+    .error-state > i {
+      font-size: 40px;
+
+      margin-bottom: 15px;
+    }
+
+    .error-state h3 {
+      color: #e2e8f0;
+
+      margin-bottom: 8px;
+    }
+
+    .error-state p {
+      color: #94a3b8;
+
+      max-width: 600px;
+
+      margin: 0 auto;
+
+      line-height: 1.6;
     }
 
     .error-state button {
       margin-top: 20px;
+
       padding: 10px 16px;
+
       background: #172033;
+
       border: 1px solid #26344b;
-      color: #fff;
+
+      color: #ffffff;
+
       border-radius: 8px;
+
       cursor: pointer;
     }
 
-    /* =====================================================
+    .error-state button:hover {
+      background: #1e293b;
+    }
+
+    /* =========================================================
+       DEBUG PANEL
+       ========================================================= */
+
+    .debug-panel {
+      display: none;
+
+      margin-top: 25px;
+
+      padding: 15px;
+
+      background: #080c13;
+
+      border: 1px solid #172033;
+
+      border-radius: 10px;
+
+      color: #64748b;
+
+      font-family: monospace;
+
+      font-size: 11px;
+
+      line-height: 1.6;
+
+      white-space: pre-wrap;
+
+      word-break: break-word;
+    }
+
+    .debug-panel.show {
+      display: block;
+    }
+
+    /* =========================================================
        FOOTER
-       ===================================================== */
+       ========================================================= */
 
     footer {
       margin-top: 50px;
+
       padding: 25px 35px;
+
       border-top: 1px solid #172033;
+
       color: #475569;
+
       font-size: 12px;
+
       text-align: center;
     }
 
-    /* =====================================================
+    /* =========================================================
        MOBILE
-       ===================================================== */
+       ========================================================= */
 
     @media (max-width: 800px) {
 
       .sidebar {
         position: relative;
+
         width: 100%;
+
         height: auto;
+
         padding: 18px;
+      }
+
+      .brand {
+        margin-bottom: 20px;
       }
 
       .menu {
         display: grid;
+
         grid-template-columns:
           repeat(2, 1fr);
+
         gap: 5px;
+      }
+
+      .menu li {
+        margin-bottom: 0;
       }
 
       .logout {
         position: static;
+
         width: 100%;
+
         margin-top: 12px;
       }
 
@@ -533,17 +829,42 @@ resources.html
       .menu a {
         font-size: 13px;
       }
+
+      .page-title {
+        font-size: 21px;
+      }
+
+      .page-subtitle {
+        font-size: 12px;
+      }
     }
 
-  </style>
+    @media (max-width: 500px) {
 
+      .menu {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        gap: 7px;
+      }
+
+      .content {
+        padding: 15px;
+      }
+
+      header {
+        padding: 18px 15px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- =====================================================
+  <!-- =======================================================
        SIDEBAR
-       ===================================================== -->
+       ======================================================= -->
 
   <aside class="sidebar">
 
@@ -611,6 +932,7 @@ resources.html
     <button
       class="logout"
       id="logoutBtn"
+      type="button"
     >
       <i class="fa-solid fa-right-from-bracket"></i>
       Logout
@@ -618,11 +940,14 @@ resources.html
 
   </aside>
 
-  <!-- =====================================================
+
+  <!-- =======================================================
        MAIN
-       ===================================================== -->
+       ======================================================= -->
 
   <main class="main">
+
+    <!-- HEADER -->
 
     <header>
 
@@ -642,17 +967,20 @@ resources.html
         class="member-chip"
         id="accessChip"
       >
-        <i class="fa-solid fa-shield-check"></i>
-        Member Access
+        <i class="fa-solid fa-user"></i>
+        Checking Access...
       </div>
 
     </header>
 
+
+    <!-- =====================================================
+         CONTENT
+         ===================================================== -->
+
     <div class="content">
 
-      <!-- =================================================
-           TOOLBAR
-           ================================================= -->
+      <!-- TOOLBAR -->
 
       <section class="toolbar">
 
@@ -674,12 +1002,16 @@ resources.html
           <button
             class="refresh"
             id="refreshBtn"
+            type="button"
             title="Refresh resources"
           >
             <i class="fa-solid fa-rotate-right"></i>
           </button>
 
         </div>
+
+
+        <!-- FILTERS -->
 
         <div
           class="filters"
@@ -689,6 +1021,7 @@ resources.html
           <button
             class="filter active"
             data-category="All"
+            type="button"
           >
             All
           </button>
@@ -696,6 +1029,7 @@ resources.html
           <button
             class="filter"
             data-category="PDFs"
+            type="button"
           >
             PDFs
           </button>
@@ -703,6 +1037,7 @@ resources.html
           <button
             class="filter"
             data-category="Indicators"
+            type="button"
           >
             Indicators
           </button>
@@ -710,6 +1045,7 @@ resources.html
           <button
             class="filter"
             data-category="Journals"
+            type="button"
           >
             Journals
           </button>
@@ -717,6 +1053,7 @@ resources.html
           <button
             class="filter"
             data-category="Strategies"
+            type="button"
           >
             Strategies
           </button>
@@ -724,6 +1061,7 @@ resources.html
           <button
             class="filter"
             data-category="Videos"
+            type="button"
           >
             Videos
           </button>
@@ -732,9 +1070,8 @@ resources.html
 
       </section>
 
-      <!-- =================================================
-           SECTION
-           ================================================= -->
+
+      <!-- SECTION HEADER -->
 
       <div class="section-head">
 
@@ -751,9 +1088,8 @@ resources.html
 
       </div>
 
-      <!-- =================================================
-           RESOURCES
-           ================================================= -->
+
+      <!-- RESOURCE GRID -->
 
       <section
         class="resource-grid"
@@ -762,19 +1098,32 @@ resources.html
 
         <div class="loading">
 
-          <i
-            class="fa-solid fa-circle-notch fa-spin"
-          ></i>
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
 
           <div>
-            Loading your resources...
+            Connecting to GTRADES-AXIS™...
           </div>
+
+          <small>
+            Loading your resources...
+          </small>
 
         </div>
 
       </section>
 
+
+      <!-- DEBUG -->
+
+      <div
+        class="debug-panel"
+        id="debugPanel"
+      ></div>
+
     </div>
+
+
+    <!-- FOOTER -->
 
     <footer>
       © 2026 GTRADES-AXIS™ · Trade with Structure. Execute with Precision.
@@ -782,1040 +1131,1647 @@ resources.html
 
   </main>
 
-  <!-- =====================================================
+
+  <!-- =======================================================
+       FIREBASE + APPLICATION
+       EVERYTHING IS INSIDE THIS ONE HTML FILE
+       ======================================================= -->
+
+  <script type="module">
+
+    /* ========================================================
        FIREBASE
-       ===================================================== -->
+       ======================================================== */
 
-  <script type="module" src="/js/resources.js"></script>
+    import {
+      auth,
+      db
+    } from "/js/firebase.js";
 
-</body>
 
-</html>javascript
-// ============================================================
-// GTRADES-AXIS™
-// PREMIUM RESOURCES
-// js/resources.js
-// CLOUDFLARE R2 VERSION
-// ============================================================
+    import {
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-import { auth, db } from "./firebase.js";
 
-import {
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      collection,
+      getDocs,
+      query,
+      orderBy,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// ============================================================
-// CONFIG
-// ============================================================
+    /* ========================================================
+       CONFIG
+       ======================================================== */
 
-const R2_WORKER =
-  "https://r2-uploader.davidthuku574.workers.dev";
+    const R2_WORKER =
+      "https://r2-uploader.davidthuku574.workers.dev";
 
-// ============================================================
-// DOM
-// ============================================================
 
-const grid =
-  document.getElementById("resourceGrid");
+    /* ========================================================
+       DOM
+       ======================================================== */
 
-const searchInput =
-  document.getElementById("searchInput");
+    const grid =
+      document.getElementById("resourceGrid");
 
-const refreshBtn =
-  document.getElementById("refreshBtn");
+    const searchInput =
+      document.getElementById("searchInput");
 
-const resourceCount =
-  document.getElementById("resourceCount");
+    const refreshBtn =
+      document.getElementById("refreshBtn");
 
-const filters =
-  document.querySelectorAll(".filter");
+    const resourceCount =
+      document.getElementById("resourceCount");
 
-const logoutBtn =
-  document.getElementById("logoutBtn");
+    const filters =
+      document.querySelectorAll(".filter");
 
-const accessChip =
-  document.getElementById("accessChip");
+    const logoutBtn =
+      document.getElementById("logoutBtn");
 
-// ============================================================
-// STATE
-// ============================================================
+    const accessChip =
+      document.getElementById("accessChip");
 
-let resources = [];
-let activeCategory = "All";
-let hasPremiumAccess = false;
+    const debugPanel =
+      document.getElementById("debugPanel");
 
-// ============================================================
-// ESCAPE HTML
-// ============================================================
 
-function escapeHTML(value) {
+    /* ========================================================
+       STATE
+       ======================================================== */
 
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+    let resources = [];
 
-// ============================================================
-// AUTH
-// ============================================================
+    let activeCategory = "All";
 
-onAuthStateChanged(auth, async (user) => {
+    let hasPremiumAccess = false;
 
-  if (!user) {
 
-    window.location.href = "/login.html";
-    return;
-  }
+    /* ========================================================
+       DEBUG
+       ======================================================== */
 
-  try {
+    function debug(message, data = null) {
 
-    const userRef =
-      doc(db, "users", user.uid);
-
-    const userSnap =
-      await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-
-      showError(
-        "Your account information could not be found."
+      console.log(
+        "[GTRADES-AXIS RESOURCES]",
+        message,
+        data ?? ""
       );
 
-      return;
     }
 
-    const userData =
-      userSnap.data();
 
-    // --------------------------------------------------------
-    // PREMIUM / ADMIN ACCESS
-    // --------------------------------------------------------
+    /* ========================================================
+       ESCAPE HTML
+       ======================================================== */
 
-    hasPremiumAccess =
-      userData.role === "admin" ||
-      userData.membership === "premium";
+    function escapeHTML(value) {
 
-    // --------------------------------------------------------
-    // ACCESS CHIP
-    // --------------------------------------------------------
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-    if (accessChip) {
 
-      accessChip.innerHTML =
-        hasPremiumAccess
-          ? `<i class="fa-solid fa-shield-check"></i> Premium Access`
-          : `<i class="fa-solid fa-user"></i> Member Access`;
+    /* ========================================================
+       TIMESTAMP
+       ======================================================== */
 
-      if (hasPremiumAccess) {
-        accessChip.classList.add("premium");
+    function getTimestampValue(timestamp) {
+
+      if (!timestamp) {
+        return 0;
       }
+
+      if (
+        typeof timestamp === "object" &&
+        typeof timestamp.seconds === "number"
+      ) {
+        return timestamp.seconds * 1000;
+      }
+
+      if (
+        typeof timestamp === "object" &&
+        typeof timestamp.toMillis === "function"
+      ) {
+        return timestamp.toMillis();
+      }
+
+      if (timestamp instanceof Date) {
+        return timestamp.getTime();
+      }
+
+      if (typeof timestamp === "number") {
+        return timestamp;
+      }
+
+      return 0;
     }
 
-    await loadResources();
 
-  } catch (error) {
+    /* ========================================================
+       AUTH STATE
+       ======================================================== */
 
-    console.error(
-      "RESOURCE AUTH ERROR:",
-      error
-    );
+    onAuthStateChanged(
+      auth,
+      async (user) => {
 
-    showError(
-      "Unable to load your resources."
-    );
-  }
-
-});
-
-// ============================================================
-// LOAD RESOURCES
-// ============================================================
-
-async function loadResources() {
-
-  if (!grid) {
-    console.error(
-      "resourceGrid not found."
-    );
-    return;
-  }
-
-  grid.innerHTML = `
-    <div class="loading">
-
-      <i class="fa-solid fa-circle-notch fa-spin"></i>
-
-      <div>
-        Loading your resources...
-      </div>
-
-    </div>
-  `;
-
-  try {
-
-    let snapshot;
-
-    // --------------------------------------------------------
-    // TRY CREATED DATE
-    // --------------------------------------------------------
-
-    try {
-
-      const resourcesQuery =
-        query(
-          collection(db, "resources"),
-          orderBy("createdAt", "desc")
+        debug(
+          "Auth state changed:",
+          user
+            ? user.email
+            : "NO USER"
         );
 
-      snapshot =
-        await getDocs(resourcesQuery);
+        if (!user) {
 
-    } catch (orderError) {
+          window.location.href =
+            "/login.html";
 
-      console.warn(
-        "createdAt ordering failed. Loading normally.",
-        orderError
-      );
+          return;
+        }
 
-      snapshot =
-        await getDocs(
-          collection(db, "resources")
+        try {
+
+          /* --------------------------------------------------
+             GET USER PROFILE
+             -------------------------------------------------- */
+
+          const userRef =
+            doc(
+              db,
+              "users",
+              user.uid
+            );
+
+          const userSnap =
+            await getDoc(userRef);
+
+
+          if (!userSnap.exists()) {
+
+            showError(
+              "Your account information could not be found.",
+              "Firestore users document does not exist for this account."
+            );
+
+            return;
+          }
+
+
+          const userData =
+            userSnap.data();
+
+
+          debug(
+            "USER PROFILE:",
+            userData
+          );
+
+
+          /* --------------------------------------------------
+             PREMIUM ACCESS
+             -------------------------------------------------- */
+
+          hasPremiumAccess =
+            userData.role === "admin" ||
+            userData.membership === "premium";
+
+
+          debug(
+            "Premium access:",
+            hasPremiumAccess
+          );
+
+
+          /* --------------------------------------------------
+             ACCESS CHIP
+             -------------------------------------------------- */
+
+          if (accessChip) {
+
+            if (hasPremiumAccess) {
+
+              accessChip.innerHTML = `
+                <i class="fa-solid fa-shield-check"></i>
+                Premium Access
+              `;
+
+              accessChip.classList.add(
+                "premium"
+              );
+
+            } else {
+
+              accessChip.innerHTML = `
+                <i class="fa-solid fa-user"></i>
+                Member Access
+              `;
+
+              accessChip.classList.remove(
+                "premium"
+              );
+            }
+          }
+
+
+          /* --------------------------------------------------
+             LOAD RESOURCES
+             -------------------------------------------------- */
+
+          await loadResources();
+
+        } catch (error) {
+
+          console.error(
+            "GTRADES-AXIS AUTH ERROR:",
+            error
+          );
+
+          showError(
+            "Unable to load your resources.",
+            error?.message || String(error)
+          );
+        }
+
+      }
+    );
+
+
+    /* ========================================================
+       LOAD RESOURCES
+       ======================================================== */
+
+    async function loadResources() {
+
+      if (!grid) {
+
+        console.error(
+          "resourceGrid not found."
         );
+
+        return;
+      }
+
+
+      /* ------------------------------------------------------
+         LOADING
+         ------------------------------------------------------ */
+
+      grid.innerHTML = `
+        <div class="loading">
+
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+
+          <div>
+            Loading your resources...
+          </div>
+
+          <small>
+            Connecting to Firestore
+          </small>
+
+        </div>
+      `;
+
+
+      try {
+
+        let snapshot;
+
+
+        /* ----------------------------------------------------
+           FIRST TRY: CREATED AT ORDER
+           ---------------------------------------------------- */
+
+        try {
+
+          const resourcesQuery =
+            query(
+              collection(
+                db,
+                "resources"
+              ),
+              orderBy(
+                "createdAt",
+                "desc"
+              )
+            );
+
+
+          snapshot =
+            await getDocs(
+              resourcesQuery
+            );
+
+
+        } catch (orderError) {
+
+          console.warn(
+            "createdAt order failed. Loading collection normally.",
+            orderError
+          );
+
+
+          snapshot =
+            await getDocs(
+              collection(
+                db,
+                "resources"
+              )
+            );
+        }
+
+
+        /* ----------------------------------------------------
+           BUILD ARRAY
+           ---------------------------------------------------- */
+
+        resources = [];
+
+
+        snapshot.forEach(
+          (resourceDoc) => {
+
+            const data =
+              resourceDoc.data();
+
+
+            resources.push({
+
+              id:
+                resourceDoc.id,
+
+              ...data
+
+            });
+
+          }
+        );
+
+
+        debug(
+          "Resources loaded:",
+          resources
+        );
+
+
+        /* ----------------------------------------------------
+           LOCAL SORT
+           ---------------------------------------------------- */
+
+        resources.sort(
+          (a, b) => {
+
+            const aTime =
+              getTimestampValue(
+                a.createdAt
+              );
+
+            const bTime =
+              getTimestampValue(
+                b.createdAt
+              );
+
+            return bTime - aTime;
+
+          }
+        );
+
+
+        /* ----------------------------------------------------
+           RENDER
+           ---------------------------------------------------- */
+
+        renderResources();
+
+
+      } catch (error) {
+
+        console.error(
+          "LOAD RESOURCES ERROR:",
+          error
+        );
+
+
+        showError(
+          "Unable to load resources.",
+          error?.message || String(error)
+        );
+      }
+
     }
 
-    // --------------------------------------------------------
-    // BUILD ARRAY
-    // --------------------------------------------------------
 
-    resources = [];
+    /* ========================================================
+       CATEGORY MATCH
+       ======================================================== */
 
-    snapshot.forEach((resourceDoc) => {
+    function categoryMatches(
+      resource,
+      selectedCategory
+    ) {
 
-      resources.push({
+      if (
+        selectedCategory === "All"
+      ) {
+        return true;
+      }
 
-        id: resourceDoc.id,
 
-        ...resourceDoc.data()
-
-      });
-
-    });
-
-    // --------------------------------------------------------
-    // LOCAL SORT
-    // --------------------------------------------------------
-
-    resources.sort((a, b) => {
-
-      const aTime =
-        a.createdAt?.seconds || 0;
-
-      const bTime =
-        b.createdAt?.seconds || 0;
-
-      return bTime - aTime;
-
-    });
-
-    renderResources();
-
-  } catch (error) {
-
-    console.error(
-      "LOAD RESOURCES ERROR:",
-      error
-    );
-
-    showError(
-      "Unable to load resources."
-    );
-  }
-}
-
-// ============================================================
-// RENDER RESOURCES
-// ============================================================
-
-function renderResources() {
-
-  if (!grid) {
-    return;
-  }
-
-  grid.innerHTML = "";
-
-  let filtered =
-    [...resources];
-
-  // ==========================================================
-  // CATEGORY FILTER
-  // ==========================================================
-
-  if (activeCategory !== "All") {
-
-    filtered =
-      filtered.filter((resource) => {
-
-        const category =
-          String(
-            resource.category ||
-            "General"
-          )
+      const category =
+        String(
+          resource.category ||
+          ""
+        )
           .toLowerCase()
           .trim();
 
-        return (
-          category ===
-          activeCategory
-            .toLowerCase()
-            .trim()
-        );
 
-      });
+      const type =
+        String(
+          resource.type ||
+          ""
+        )
+          .toLowerCase()
+          .trim();
 
-  }
 
-  // ==========================================================
-  // SEARCH
-  // ==========================================================
+      const selected =
+        selectedCategory
+          .toLowerCase()
+          .trim();
 
-  const keyword =
-    searchInput?.value
-      ?.toLowerCase()
-      .trim() || "";
 
-  if (keyword) {
+      /* ------------------------------------------------------
+         PDF
+         ------------------------------------------------------ */
 
-    filtered =
-      filtered.filter((resource) => {
-
-        const title =
-          String(
-            resource.title || ""
-          ).toLowerCase();
-
-        const description =
-          String(
-            resource.description || ""
-          ).toLowerCase();
-
-        const category =
-          String(
-            resource.category || ""
-          ).toLowerCase();
+      if (selected === "pdfs") {
 
         return (
-          title.includes(keyword) ||
-          description.includes(keyword) ||
-          category.includes(keyword)
+          category === "pdf" ||
+          category === "pdfs" ||
+          type === "pdf" ||
+          type.includes("pdf")
         );
-
-      });
-
-  }
-
-  // ==========================================================
-  // COUNT
-  // ==========================================================
-
-  if (resourceCount) {
-
-    resourceCount.textContent =
-      `${filtered.length} resource${
-        filtered.length === 1
-          ? ""
-          : "s"
-      }`;
-
-  }
-
-  // ==========================================================
-  // EMPTY
-  // ==========================================================
-
-  if (!filtered.length) {
-
-    grid.innerHTML = `
-
-      <div class="empty-state">
-
-        <i class="fa-solid fa-folder-open"></i>
-
-        <h3>
-          No resources found
-        </h3>
-
-        <p>
-          Try another search or category.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-  }
-
-  // ==========================================================
-  // CARDS
-  // ==========================================================
-
-  filtered.forEach((resource) => {
-
-    grid.appendChild(
-      createResourceCard(resource)
-    );
-
-  });
-
-}
-
-// ============================================================
-// CREATE RESOURCE CARD
-// ============================================================
-
-function createResourceCard(resource) {
-
-  const card =
-    document.createElement("div");
-
-  // ----------------------------------------------------------
-  // ACCESS
-  // ----------------------------------------------------------
-
-  const premiumOnly =
-    resource.premiumOnly === true ||
-    resource.access === "premium" ||
-    resource.status === "premium";
-
-  const canAccess =
-    !premiumOnly ||
-    hasPremiumAccess;
-
-  card.className =
-    `resource-card${
-      canAccess
-        ? ""
-        : " locked"
-    }`;
-
-  // ----------------------------------------------------------
-  // DATA
-  // ----------------------------------------------------------
-
-  const title =
-    resource.title ||
-    "Untitled Resource";
-
-  const category =
-    resource.category ||
-    "General";
-
-  const description =
-    resource.description ||
-    "GTRADES-AXIS™ trading resource.";
-
-  const type =
-    String(
-      resource.type ||
-      category ||
-      "PDF"
-    ).toUpperCase();
-
-  // ----------------------------------------------------------
-  // CARD
-  // ----------------------------------------------------------
-
-  card.innerHTML = `
-
-    <div class="resource-icon">
-
-      <i class="fa-solid ${getIcon(type)}"></i>
-
-    </div>
-
-    <div class="resource-content">
-
-      <div class="resource-category">
-        ${escapeHTML(category)}
-      </div>
-
-      <h3>
-        ${escapeHTML(title)}
-      </h3>
-
-      <p>
-        ${escapeHTML(description)}
-      </p>
-
-      <div class="resource-meta">
-
-        <span>
-          <i class="fa-solid fa-cloud"></i>
-          Cloudflare R2
-        </span>
-
-        <span
-          class="resource-status ${
-            premiumOnly
-              ? "premium"
-              : "free"
-          }"
-        >
-          ${
-            premiumOnly
-              ? "Premium"
-              : "Free"
-          }
-        </span>
-
-      </div>
-
-      ${
-        premiumOnly && !hasPremiumAccess
-
-          ? `
-
-            <button
-              class="resource-btn locked-btn"
-              type="button"
-            >
-
-              <i class="fa-solid fa-lock"></i>
-
-              Premium Required
-
-            </button>
-
-          `
-
-          : `
-
-            <button
-              class="resource-btn download-resource"
-              type="button"
-            >
-
-              <i class="fa-solid fa-download"></i>
-
-              Download
-
-            </button>
-
-          `
       }
 
-    </div>
 
-  `;
+      /* ------------------------------------------------------
+         NORMAL CATEGORIES
+         ------------------------------------------------------ */
 
-  // ==========================================================
-  // DOWNLOAD BUTTON
-  // ==========================================================
-
-  const button =
-    card.querySelector(
-      ".download-resource"
-    );
-
-  if (button) {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        downloadResource(
-          resource,
-          button
-        );
-
-      }
-    );
-
-  }
-
-  // ==========================================================
-  // LOCKED BUTTON
-  // ==========================================================
-
-  const lockedButton =
-    card.querySelector(
-      ".locked-btn"
-    );
-
-  if (lockedButton) {
-
-    lockedButton.addEventListener(
-      "click",
-      () => {
-
-        alert(
-          "Premium membership is required to access this resource."
-        );
-
-      }
-    );
-
-  }
-
-  return card;
-}
-
-// ============================================================
-// ICON
-// ============================================================
-
-function getIcon(type) {
-
-  if (type.includes("PDF")) {
-    return "fa-file-pdf";
-  }
-
-  if (type.includes("INDICATOR")) {
-    return "fa-chart-line";
-  }
-
-  if (type.includes("JOURNAL")) {
-    return "fa-book";
-  }
-
-  if (type.includes("STRATEG")) {
-    return "fa-bullseye";
-  }
-
-  if (type.includes("VIDEO")) {
-    return "fa-circle-play";
-  }
-
-  if (type.includes("EXCEL") || type.includes("XLS")) {
-    return "fa-file-excel";
-  }
-
-  if (type.includes("ZIP")) {
-    return "fa-file-zipper";
-  }
-
-  return "fa-file";
-}
-
-// ============================================================
-// GET R2 KEY
-// ============================================================
-
-function getResourceKey(resource) {
-
-  return (
-
-    resource.resourceKey ||
-
-    resource.fileKey ||
-
-    resource.r2Key ||
-
-    resource.storageKey ||
-
-    resource.key ||
-
-    ""
-  );
-
-}
-
-// ============================================================
-// BUILD R2 FILE URL
-// ============================================================
-
-function buildR2FileURL(key) {
-
-  if (!key) {
-    throw new Error(
-      "This resource has no R2 file key."
-    );
-  }
-
-  return (
-    `${R2_WORKER}/file?key=` +
-    encodeURIComponent(key)
-  );
-
-}
-
-// ============================================================
-// DOWNLOAD RESOURCE
-// ============================================================
-
-async function downloadResource(
-  resource,
-  button
-) {
-
-  const key =
-    getResourceKey(resource);
-
-  if (!key) {
-
-    alert(
-      "This resource has no R2 file attached."
-    );
-
-    return;
-  }
-
-  const user =
-    auth.currentUser;
-
-  if (!user) {
-
-    window.location.href =
-      "/login.html";
-
-    return;
-  }
-
-  // ----------------------------------------------------------
-  // PREMIUM CHECK
-  // ----------------------------------------------------------
-
-  const premiumOnly =
-    resource.premiumOnly === true ||
-    resource.access === "premium" ||
-    resource.status === "premium";
-
-  if (
-    premiumOnly &&
-    !hasPremiumAccess
-  ) {
-
-    alert(
-      "Premium membership is required."
-    );
-
-    return;
-  }
-
-  const originalText =
-    button?.innerHTML ||
-    `<i class="fa-solid fa-download"></i> Download`;
-
-  try {
-
-    // --------------------------------------------------------
-    // BUTTON
-    // --------------------------------------------------------
-
-    if (button) {
-
-      button.disabled = true;
-
-      button.innerHTML =
-        `<i class="fa-solid fa-spinner fa-spin"></i> Preparing...`;
-
+      return (
+        category === selected ||
+        type === selected
+      );
     }
 
-    console.log(
-      "GTRADES-AXIS™ RESOURCE KEY:",
-      key
-    );
 
-    // --------------------------------------------------------
-    // DIRECT R2 WORKER FILE ENDPOINT
-    // --------------------------------------------------------
+    /* ========================================================
+       SEARCH
+       ======================================================== */
 
-    const url =
-      buildR2FileURL(key);
+    function searchMatches(
+      resource,
+      keyword
+    ) {
 
-    console.log(
-      "GTRADES-AXIS™ RESOURCE URL:",
-      url
-    );
+      if (!keyword) {
+        return true;
+      }
 
-    // --------------------------------------------------------
-    // FETCH FILE
-    // --------------------------------------------------------
 
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
+      const fields = [
+
+        resource.title,
+
+        resource.description,
+
+        resource.category,
+
+        resource.type,
+
+        resource.fileName,
+
+        resource.filename
+
+      ];
+
+
+      return fields.some(
+        (value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(keyword)
+      );
+    }
+
+
+    /* ========================================================
+       RENDER RESOURCES
+       ======================================================== */
+
+    function renderResources() {
+
+      if (!grid) {
+        return;
+      }
+
+
+      grid.innerHTML = "";
+
+
+      let filtered =
+        [...resources];
+
+
+      /* ------------------------------------------------------
+         CATEGORY
+         ------------------------------------------------------ */
+
+      filtered =
+        filtered.filter(
+          (resource) =>
+            categoryMatches(
+              resource,
+              activeCategory
+            )
+        );
+
+
+      /* ------------------------------------------------------
+         SEARCH
+         ------------------------------------------------------ */
+
+      const keyword =
+        searchInput?.value
+          ?.toLowerCase()
+          .trim() || "";
+
+
+      filtered =
+        filtered.filter(
+          (resource) =>
+            searchMatches(
+              resource,
+              keyword
+            )
+        );
+
+
+      /* ------------------------------------------------------
+         COUNT
+         ------------------------------------------------------ */
+
+      if (resourceCount) {
+
+        resourceCount.textContent =
+          `${filtered.length} resource${
+            filtered.length === 1
+              ? ""
+              : "s"
+          }`;
+      }
+
+
+      /* ------------------------------------------------------
+         EMPTY
+         ------------------------------------------------------ */
+
+      if (!filtered.length) {
+
+        grid.innerHTML = `
+
+          <div class="empty-state">
+
+            <i class="fa-solid fa-folder-open"></i>
+
+            <h3>
+              No resources found
+            </h3>
+
+            <p>
+              ${
+                resources.length
+                  ? "Try another search or category."
+                  : "There are currently no resources in the library."
+              }
+            </p>
+
+          </div>
+
+        `;
+
+        return;
+      }
+
+
+      /* ------------------------------------------------------
+         CARDS
+         ------------------------------------------------------ */
+
+      filtered.forEach(
+        (resource) => {
+
+          grid.appendChild(
+            createResourceCard(
+              resource
+            )
+          );
+
         }
       );
 
-    console.log(
-      "R2 RESOURCE RESPONSE:",
-      response.status,
-      response.headers.get("content-type")
-    );
-
-    if (!response.ok) {
-
-      throw new Error(
-        `Resource access failed (${response.status}).`
-      );
-
     }
 
-    // --------------------------------------------------------
-    // BLOB
-    // --------------------------------------------------------
 
-    const blob =
-      await response.blob();
+    /* ========================================================
+       CREATE RESOURCE CARD
+       ======================================================== */
 
-    if (!blob.size) {
+    function createResourceCard(
+      resource
+    ) {
 
-      throw new Error(
-        "The resource file is empty."
-      );
-
-    }
-
-    // --------------------------------------------------------
-    // FILE NAME
-    // --------------------------------------------------------
-
-    let filename =
-      resource.fileName ||
-      resource.filename ||
-      key.split("/").pop() ||
-      "GTRADES-AXIS-Resource";
-
-    filename =
-      filename.replace(
-        /[<>:"/\\|?*]/g,
-        "_"
-      );
-
-    // --------------------------------------------------------
-    // CREATE DOWNLOAD
-    // --------------------------------------------------------
-
-    const blobURL =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
-    link.href =
-      blobURL;
-
-    link.download =
-      filename;
-
-    document.body.appendChild(
-      link
-    );
-
-    link.click();
-
-    link.remove();
-
-    // --------------------------------------------------------
-    // CLEANUP
-    // --------------------------------------------------------
-
-    setTimeout(() => {
-
-      URL.revokeObjectURL(
-        blobURL
-      );
-
-    }, 5000);
-
-  } catch (error) {
-
-    console.error(
-      "RESOURCE DOWNLOAD ERROR:",
-      error
-    );
-
-    alert(
-      error.message ||
-      "Unable to download this resource."
-    );
-
-  } finally {
-
-    if (button) {
-
-      button.disabled = false;
-
-      button.innerHTML =
-        originalText;
-
-    }
-
-  }
-
-}
-
-// ============================================================
-// FILTER BUTTONS
-// ============================================================
-
-filters.forEach((button) => {
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      filters.forEach((btn) => {
-
-        btn.classList.remove(
-          "active"
+      const card =
+        document.createElement(
+          "div"
         );
 
-      });
 
-      button.classList.add(
-        "active"
+      /* ------------------------------------------------------
+         PREMIUM
+         ------------------------------------------------------ */
+
+      const premiumOnly =
+        resource.premiumOnly === true ||
+        resource.access === "premium" ||
+        resource.status === "premium";
+
+
+      const canAccess =
+        !premiumOnly ||
+        hasPremiumAccess;
+
+
+      card.className =
+        "resource-card" +
+        (
+          canAccess
+            ? ""
+            : " locked"
+        );
+
+
+      /* ------------------------------------------------------
+         DATA
+         ------------------------------------------------------ */
+
+      const title =
+        resource.title ||
+        "Untitled Resource";
+
+
+      const category =
+        resource.category ||
+        "General";
+
+
+      const description =
+        resource.description ||
+        "GTRADES-AXIS™ trading resource.";
+
+
+      const type =
+        String(
+          resource.type ||
+          category ||
+          "PDF"
+        ).toUpperCase();
+
+
+      /* ------------------------------------------------------
+         CARD HTML
+         ------------------------------------------------------ */
+
+      card.innerHTML = `
+
+        <div class="resource-icon">
+
+          <i class="fa-solid ${getIcon(type)}"></i>
+
+        </div>
+
+
+        <div class="resource-top">
+
+          <div class="resource-category">
+            ${escapeHTML(category)}
+          </div>
+
+
+          <div
+            class="resource-badge ${
+              premiumOnly
+                ? "premium"
+                : "free"
+            }"
+          >
+
+            ${
+              premiumOnly
+                ? "Premium"
+                : "Free"
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="resource-body">
+
+          <h3>
+            ${escapeHTML(title)}
+          </h3>
+
+          <p>
+            ${escapeHTML(description)}
+          </p>
+
+        </div>
+
+
+        <div class="resource-storage">
+
+          <i class="fa-solid fa-cloud"></i>
+
+          Cloudflare R2
+
+        </div>
+
+
+        <div class="resource-action">
+
+          ${
+            premiumOnly &&
+            !hasPremiumAccess
+
+              ? `
+
+                <button
+                  class="download-btn locked-btn"
+                  type="button"
+                >
+
+                  <i class="fa-solid fa-lock"></i>
+
+                  Premium Required
+
+                </button>
+
+              `
+
+              : `
+
+                <button
+                  class="download-btn download-resource"
+                  type="button"
+                >
+
+                  <i class="fa-solid fa-download"></i>
+
+                  Download
+
+                </button>
+
+              `
+          }
+
+        </div>
+
+      `;
+
+
+      /* ------------------------------------------------------
+         DOWNLOAD
+         ------------------------------------------------------ */
+
+      const downloadButton =
+        card.querySelector(
+          ".download-resource"
+        );
+
+
+      if (downloadButton) {
+
+        downloadButton.addEventListener(
+          "click",
+          () => {
+
+            downloadResource(
+              resource,
+              downloadButton
+            );
+
+          }
+        );
+
+      }
+
+
+      /* ------------------------------------------------------
+         LOCKED
+         ------------------------------------------------------ */
+
+      const lockedButton =
+        card.querySelector(
+          ".locked-btn"
+        );
+
+
+      if (lockedButton) {
+
+        lockedButton.addEventListener(
+          "click",
+          () => {
+
+            alert(
+              "Premium membership is required to access this resource."
+            );
+
+          }
+        );
+
+      }
+
+
+      return card;
+    }
+
+
+    /* ========================================================
+       ICON
+       ======================================================== */
+
+    function getIcon(type) {
+
+      if (
+        type.includes("PDF")
+      ) {
+        return "fa-file-pdf";
+      }
+
+
+      if (
+        type.includes("INDICATOR")
+      ) {
+        return "fa-chart-line";
+      }
+
+
+      if (
+        type.includes("JOURNAL")
+      ) {
+        return "fa-book";
+      }
+
+
+      if (
+        type.includes("STRATEG")
+      ) {
+        return "fa-bullseye";
+      }
+
+
+      if (
+        type.includes("VIDEO")
+      ) {
+        return "fa-circle-play";
+      }
+
+
+      if (
+        type.includes("EXCEL") ||
+        type.includes("XLS")
+      ) {
+        return "fa-file-excel";
+      }
+
+
+      if (
+        type.includes("WORD") ||
+        type.includes("DOC")
+      ) {
+        return "fa-file-word";
+      }
+
+
+      if (
+        type.includes("ZIP")
+      ) {
+        return "fa-file-zipper";
+      }
+
+
+      if (
+        type.includes("IMAGE") ||
+        type.includes("PNG") ||
+        type.includes("JPG") ||
+        type.includes("JPEG")
+      ) {
+        return "fa-file-image";
+      }
+
+
+      return "fa-file";
+    }
+
+
+    /* ========================================================
+       GET R2 KEY
+       ======================================================== */
+
+    function getResourceKey(
+      resource
+    ) {
+
+      const key =
+
+        resource.resourceKey ||
+
+        resource.fileKey ||
+
+        resource.r2Key ||
+
+        resource.storageKey ||
+
+        resource.key ||
+
+        "";
+
+
+      return String(
+        key
+      ).trim();
+    }
+
+
+    /* ========================================================
+       BUILD R2 URL
+       
+       IMPORTANT:
+       
+       THIS IS THE SAME ROUTE USED BY THE
+       WORKING VIDEO SYSTEM.
+
+       /?key=
+
+       NOT
+
+       /file?key=
+       ======================================================== */
+
+    function buildR2FileURL(
+      key
+    ) {
+
+      if (!key) {
+
+        throw new Error(
+          "This resource has no R2 file key."
+        );
+      }
+
+
+      return (
+        `${R2_WORKER}/?key=` +
+        encodeURIComponent(key)
+      );
+    }
+
+
+    /* ========================================================
+       DOWNLOAD RESOURCE
+       ======================================================== */
+
+    async function downloadResource(
+      resource,
+      button
+    ) {
+
+      /* ------------------------------------------------------
+         GET KEY
+         ------------------------------------------------------ */
+
+      const key =
+        getResourceKey(
+          resource
+        );
+
+
+      if (!key) {
+
+        console.error(
+          "RESOURCE HAS NO R2 KEY:",
+          resource
+        );
+
+
+        alert(
+          "This resource has no R2 file attached."
+        );
+
+        return;
+      }
+
+
+      /* ------------------------------------------------------
+         AUTH
+         ------------------------------------------------------ */
+
+      const user =
+        auth.currentUser;
+
+
+      if (!user) {
+
+        window.location.href =
+          "/login.html";
+
+        return;
+      }
+
+
+      /* ------------------------------------------------------
+         PREMIUM
+         ------------------------------------------------------ */
+
+      const premiumOnly =
+        resource.premiumOnly === true ||
+        resource.access === "premium" ||
+        resource.status === "premium";
+
+
+      if (
+        premiumOnly &&
+        !hasPremiumAccess
+      ) {
+
+        alert(
+          "Premium membership is required."
+        );
+
+        return;
+      }
+
+
+      /* ------------------------------------------------------
+         ORIGINAL BUTTON
+         ------------------------------------------------------ */
+
+      const originalText =
+        button?.innerHTML ||
+        `
+          <i class="fa-solid fa-download"></i>
+          Download
+        `;
+
+
+      try {
+
+        /* ----------------------------------------------------
+           LOADING BUTTON
+           ---------------------------------------------------- */
+
+        if (button) {
+
+          button.disabled =
+            true;
+
+          button.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Preparing...
+          `;
+        }
+
+
+        debug(
+          "R2 KEY:",
+          key
+        );
+
+
+        /* ----------------------------------------------------
+           BUILD URL
+           ---------------------------------------------------- */
+
+        const url =
+          buildR2FileURL(
+            key
+          );
+
+
+        debug(
+          "R2 URL:",
+          url
+        );
+
+
+        /* ----------------------------------------------------
+           FETCH
+           ---------------------------------------------------- */
+
+        const response =
+          await fetch(
+            url,
+            {
+              method: "GET",
+              cache: "no-store"
+            }
+          );
+
+
+        debug(
+          "R2 RESPONSE STATUS:",
+          response.status
+        );
+
+
+        debug(
+          "R2 CONTENT TYPE:",
+          response.headers.get(
+            "content-type"
+          )
+        );
+
+
+        /* ----------------------------------------------------
+           CHECK
+           ---------------------------------------------------- */
+
+        if (!response.ok) {
+
+          let message =
+            `Resource access failed (${response.status}).`;
+
+
+          try {
+
+            const text =
+              await response.text();
+
+
+            if (text) {
+
+              try {
+
+                const json =
+                  JSON.parse(
+                    text
+                  );
+
+
+                if (json?.error) {
+                  message =
+                    json.error;
+                }
+
+              } catch {
+
+                if (
+                  text.length < 500
+                ) {
+                  message =
+                    text;
+                }
+
+              }
+
+            }
+
+          } catch {
+            /* ignore */
+          }
+
+
+          throw new Error(
+            message
+          );
+        }
+
+
+        /* ----------------------------------------------------
+           BLOB
+           ---------------------------------------------------- */
+
+        const blob =
+          await response.blob();
+
+
+        debug(
+          "R2 BLOB SIZE:",
+          blob.size
+        );
+
+
+        if (!blob.size) {
+
+          throw new Error(
+            "The resource file is empty."
+          );
+        }
+
+
+        /* ----------------------------------------------------
+           FILE NAME
+           ---------------------------------------------------- */
+
+        let filename =
+
+          resource.fileName ||
+
+          resource.filename ||
+
+          key
+            .split("/")
+            .pop() ||
+
+          "GTRADES-AXIS-Resource";
+
+
+        filename =
+          filename.replace(
+            /[<>:"/\\|?*]/g,
+            "_"
+          );
+
+
+        /* ----------------------------------------------------
+           BLOB URL
+           ---------------------------------------------------- */
+
+        const blobURL =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        /* ----------------------------------------------------
+           DOWNLOAD LINK
+           ---------------------------------------------------- */
+
+        const link =
+          document.createElement(
+            "a"
+          );
+
+
+        link.href =
+          blobURL;
+
+
+        link.download =
+          filename;
+
+
+        link.style.display =
+          "none";
+
+
+        document.body.appendChild(
+          link
+        );
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        /* ----------------------------------------------------
+           CLEANUP
+           ---------------------------------------------------- */
+
+        setTimeout(
+          () => {
+
+            URL.revokeObjectURL(
+              blobURL
+            );
+
+          },
+          5000
+        );
+
+
+        debug(
+          "DOWNLOAD STARTED:",
+          filename
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "GTRADES-AXIS™ RESOURCE DOWNLOAD ERROR:",
+          error
+        );
+
+
+        alert(
+          error?.message ||
+          "Unable to download this resource."
+        );
+
+
+      } finally {
+
+        if (button) {
+
+          button.disabled =
+            false;
+
+          button.innerHTML =
+            originalText;
+        }
+
+      }
+
+    }
+
+
+    /* ========================================================
+       FILTER BUTTONS
+       ======================================================== */
+
+    filters.forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            filters.forEach(
+              (btn) => {
+
+                btn.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+            button.classList.add(
+              "active"
+            );
+
+
+            activeCategory =
+              button.dataset.category ||
+              "All";
+
+
+            renderResources();
+
+          }
+        );
+
+      }
+    );
+
+
+    /* ========================================================
+       SEARCH
+       ======================================================== */
+
+    searchInput?.addEventListener(
+      "input",
+      () => {
+
+        renderResources();
+
+      }
+    );
+
+
+    /* ========================================================
+       REFRESH
+       ======================================================== */
+
+    refreshBtn?.addEventListener(
+      "click",
+      async () => {
+
+        if (
+          refreshBtn.disabled
+        ) {
+          return;
+        }
+
+
+        refreshBtn.disabled =
+          true;
+
+
+        const original =
+          refreshBtn.innerHTML;
+
+
+        refreshBtn.innerHTML = `
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        `;
+
+
+        try {
+
+          await loadResources();
+
+        } catch (error) {
+
+          console.error(
+            "REFRESH ERROR:",
+            error
+          );
+
+        } finally {
+
+          refreshBtn.disabled =
+            false;
+
+
+          refreshBtn.innerHTML =
+            original;
+        }
+
+      }
+    );
+
+
+    /* ========================================================
+       LOGOUT
+       ======================================================== */
+
+    logoutBtn?.addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          await signOut(
+            auth
+          );
+
+
+          window.location.href =
+            "/login.html";
+
+
+        } catch (error) {
+
+          console.error(
+            "LOGOUT ERROR:",
+            error
+          );
+
+
+          alert(
+            "Unable to logout."
+          );
+
+        }
+
+      }
+    );
+
+
+    /* ========================================================
+       ERROR STATE
+       ======================================================== */
+
+    function showError(
+      message,
+      technicalDetails = ""
+    ) {
+
+      if (!grid) {
+        return;
+      }
+
+
+      grid.innerHTML = `
+
+        <div class="error-state">
+
+          <i class="fa-solid fa-circle-exclamation"></i>
+
+          <h3>
+            Unable to load resources
+          </h3>
+
+          <p>
+            ${escapeHTML(message)}
+          </p>
+
+          <button
+            type="button"
+            id="retryResourcesBtn"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+            Try Again
+          </button>
+
+        </div>
+
+      `;
+
+
+      const retryButton =
+        document.getElementById(
+          "retryResourcesBtn"
+        );
+
+
+      retryButton?.addEventListener(
+        "click",
+        () => {
+
+          loadResources();
+
+        }
       );
 
-      activeCategory =
-        button.dataset.category ||
-        "All";
 
-      renderResources();
+      /* ------------------------------------------------------
+         DEBUG
+         ------------------------------------------------------ */
 
-    }
-  );
+      if (
+        debugPanel &&
+        technicalDetails
+      ) {
 
-});
+        debugPanel.textContent =
+          technicalDetails;
 
-// ============================================================
-// SEARCH
-// ============================================================
+        debugPanel.classList.add(
+          "show"
+        );
 
-searchInput?.addEventListener(
-  "input",
-  renderResources
-);
-
-// ============================================================
-// REFRESH
-// ============================================================
-
-refreshBtn?.addEventListener(
-  "click",
-  async () => {
-
-    if (refreshBtn.disabled) {
-      return;
-    }
-
-    refreshBtn.disabled = true;
-
-    const original =
-      refreshBtn.innerHTML;
-
-    refreshBtn.innerHTML =
-      `<i class="fa-solid fa-spinner fa-spin"></i>`;
-
-    try {
-
-      await loadResources();
-
-    } finally {
-
-      refreshBtn.disabled = false;
-
-      refreshBtn.innerHTML =
-        original;
+      }
 
     }
 
-  }
-);
 
-// ============================================================
-// LOGOUT
-// ============================================================
+    /* ========================================================
+       INIT LOG
+       ======================================================== */
 
-logoutBtn?.addEventListener(
-  "click",
-  async () => {
+    debug(
+      "================================================"
+    );
 
-    try {
+    debug(
+      "GTRADES-AXIS™ PREMIUM RESOURCES"
+    );
 
-      await signOut(auth);
+    debug(
+      "Storage: Cloudflare R2"
+    );
 
-      window.location.href =
-        "/login.html";
+    debug(
+      "Worker:",
+      R2_WORKER
+    );
 
-    } catch (error) {
+    debug(
+      "Delivery route: /?key="
+    );
 
-      console.error(
-        "LOGOUT ERROR:",
-        error
-      );
+    debug(
+      "Firestore collection: resources"
+    );
 
-      alert(
-        "Unable to logout."
-      );
+    debug(
+      "================================================"
+    );
 
-    }
+  </script>
 
-  }
-);
-
-// ============================================================
-// ERROR
-// ============================================================
-
-function showError(message) {
-
-  if (!grid) {
-    return;
-  }
-
-  grid.innerHTML = `
-
-    <div
-      class="error-state"
-    >
-
-      <i
-        class="fa-solid fa-circle-exclamation"
-      ></i>
-
-      <h3>
-        Unable to load resources
-      </h3>
-
-      <p>
-        ${escapeHTML(message)}
-      </p>
-
-    </div>
-
-  `;
-
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-console.log(
-  "✅ GTRADES-AXIS™ Resources loaded"
-);
-
-console.log(
-  "☁️ Cloudflare R2 Worker:",
-  R2_WORKER
-);
+</body>
+</html>

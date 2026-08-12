@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Upgrade to Premium | GTRADES-AXIS™</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/payment.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  >
+
+  <style>
+    .proof-upload {
+      margin: 18px 0;
+    }
+
+    .proof-upload label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: #9aa4bf;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .proof-upload input[type="file"] {
+      width: 100%;
+      padding: 11px;
+      background: #0b0d15;
+      border: 1px solid #2a3450;
+      border-radius: 8px;
+      color: #e8edf5;
+      box-sizing: border-box;
+    }
+
+    .file-hint {
+      font-size: 12px;
+      color: #6a7490;
+      margin-top: 6px;
+    }
+
+    .payment-warning {
+      background: rgba(255,71,102,.06);
+      border: 1px solid rgba(255,71,102,.15);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 12px;
+      color: #f87171;
+      font-size: 13px;
+      margin: 18px 0;
+    }
+
+    .payment-warning i {
+      font-size: 20px;
+      margin-top: 2px;
+    }
+
+    .currency-box {
+      display: none;
+      margin: 20px 0;
+      padding: 20px;
+      background: #0b0d15;
+      border: 1px solid #2a3450;
+      border-radius: 12px;
+    }
+
+    .currency-box.active {
+      display: block;
+    }
+
+    .currency-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 8px 0;
+      color: #9aa4bf;
+    }
+
+    .currency-row strong {
+      color: #fff;
+    }
+
+    .kes-amount {
+      font-size: 26px;
+      color: #00c897 !important;
+    }
+
+    .rate-text {
+      font-size: 12px;
+      color: #6a7490;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .mpesa-details-box {
+      display: none;
+      margin-top: 14px;
+      padding: 15px;
+      background: rgba(0,200,151,.06);
+      border: 1px solid rgba(0,200,151,.15);
+      border-radius: 10px;
+      color: #dce4f5;
+    }
+
+    .mpesa-details-box.active {
+      display: block;
+    }
+
+    .mpesa-details-box strong {
+      color: #00c897;
+    }
+
+    .success-modal,
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.82);
+    }
+
+    .success-modal.active,
+    .loading-screen.active {
+      display: flex;
+    }
+
+    .success-card {
+      width: min(420px, 90%);
+      background: #131724;
+      border: 1px solid #2a3450;
+      border-radius: 16px;
+      padding: 40px 30px;
+      text-align: center;
+      color: white;
+    }
+
+    .success-icon {
+      font-size: 58px;
+      color: #00c897;
+      margin-bottom: 15px;
+    }
+
+    .success-card h2 {
+      margin-bottom: 10px;
+    }
+
+    .success-card p {
+      color: #9aa4bf;
+      line-height: 1.6;
+    }
+
+    .status-box {
+      background: #0b0d15;
+      padding: 14px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .status-box span {
+      display: block;
+      font-size: 11px;
+      color: #6a7490;
+      text-transform: uppercase;
+    }
+
+    .status-box strong {
+      color: #f5a623;
+    }
+
+    .success-card button {
+      margin-top: 15px;
+      padding: 12px 30px;
+      border: 0;
+      border-radius: 8px;
+      background: #4f7cff;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .loader-box {
+      text-align: center;
+      color: white;
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      margin: auto auto 16px;
+      border: 4px solid rgba(255,255,255,.1);
+      border-top-color: #4f7cff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .payment-message {
+      margin-top: 15px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      display: none;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .payment-message.error {
+      display: block;
+      background: rgba(255,71,102,.08);
+      border: 1px solid rgba(255,71,102,.2);
+      color: #ff7171;
+    }
+
+    .payment-message.success {
+      display: block;
+      background: rgba(0,200,151,.08);
+      border: 1px solid rgba(0,200,151,.2);
+      color: #00c897;
+    }
+
+    input[readonly] {
+      opacity: .85;
+      cursor: not-allowed;
+    }
+
+    .auth-loading {
+      font-size: 12px;
+      color: #6a7490;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+  <div class="logo">
+
+    <img
+      src="images/logo.png"
+      alt="GTRADES-AXIS Logo"
+    >
+
+    <div>
+      <h2>GTRADES-AXIS™</h2>
+
+      <small>
+        Trade with Structure. Execute with Precision.
+      </small>
+    </div>
+
+  </div>
+
+  <div class="top-actions">
+
+    <a
+      href="dashboard.html"
+      class="back-btn"
+    >
+      <i class="fa-solid fa-arrow-left"></i>
+      Dashboard
+    </a>
+
+  </div>
+
+</header>
+
+
+<section class="payment-hero">
+
+  <h1>
+    Upgrade To
+    <span>Premium</span>
+  </h1>
+
+  <p>
+    Unlock the complete GTRADES-AXIS™ Trading Academy,
+    Trading Journal, AI Trade Review, Premium Resources
+    and much more.
+  </p>
+
+</section>
+
+
+<section class="plans">
+
+  <div class="plan-card">
+
+    <div class="plan-header">
+
+      <h2>Premium Monthly</h2>
+
+      <h1>$50</h1>
+
+      <p>Per Month</p>
+
+    </div>
+
+    <ul>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Premium Academy
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Trading Journal
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        AI Trade Review
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Premium Resources
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Analytics Dashboard
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Priority Support
+      </li>
+
+    </ul>
+
+    <button
+      type="button"
+      class="select-plan"
+      data-plan="Monthly"
+      data-price="50"
+    >
+      Choose Plan
+    </button>
+
+  </div>
+
+
+  <div class="plan-card featured">
+
+    <div class="popular">
+      BEST VALUE
+    </div>
+
+    <div class="plan-header">
+
+      <h2>Lifetime Premium</h2>
+
+      <h1>$200</h1>
+
+      <p>One-Time Payment</p>
+
+    </div>
+
+    <ul>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Everything in Monthly
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Lifetime Access
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        All Future Updates
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        Lifetime Premium Resources
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        VIP Features
+      </li>
+
+      <li>
+        <i class="fa-solid fa-check"></i>
+        No Renewal Fees
+      </li>
+
+    </ul>
+
+    <button
+      type="button"
+      class="select-plan"
+      data-plan="Lifetime"
+      data-price="200"
+    >
+      Choose Plan
+    </button>
+
+  </div>
+
+</section>
+
+
+<section class="premium-benefits">
+
+  <h2>Why Upgrade?</h2>
+
+  <div class="benefits-grid">
+
+    <div class="benefit-card">
+
+      <i class="fa-solid fa-graduation-cap"></i>
+
+      <h3>Premium Academy</h3>
+
+      <p>
+        Complete trading education from beginner
+        to advanced.
+      </p>
+
+    </div>
+
+    <div class="benefit-card">
+
+      <i class="fa-solid fa-book"></i>
+
+      <h3>Trading Journal</h3>
+
+      <p>
+        Track every trade, statistics, mistakes
+        and consistency.
+      </p>
+
+    </div>
+
+    <div class="benefit-card">
+
+      <i class="fa-solid fa-robot"></i>
+
+      <h3>AI Trade Review</h3>
+
+      <p>
+        Receive intelligent feedback on every trade.
+      </p>
+
+    </div>
+
+    <div class="benefit-card">
+
+      <i class="fa-solid fa-chart-line"></i>
+
+      <h3>Trading Analytics</h3>
+
+      <p>
+        Professional performance metrics and reports.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="payment-methods">
+
+  <h2>Choose Your Payment Method</h2>
+
+  <p class="section-text">
+
+    Select your payment method below.
+    M-PESA payments are converted from USD to KES
+    using the current exchange rate.
+
+  </p>
+
+  <div class="payment-grid">
+
+
+    <div class="payment-card">
+
+      <div class="payment-icon mpesa">
+
+        <i class="fa-solid fa-mobile-screen-button"></i>
+
+      </div>
+
+      <h3>M-PESA</h3>
+
+      <div class="payment-details">
+
+        <div class="detail">
+
+          <span>Number</span>
+
+          <strong>0712416214</strong>
+
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="0712416214"
+          >
+            <i class="fa-regular fa-copy"></i>
+          </button>
+
+        </div>
+
+        <div class="detail">
+
+          <span>Account Name</span>
+
+          <strong>David Thuku</strong>
+
+        </div>
+
+      </div>
+
+      <div class="instructions">
+
+        <h4>Instructions</h4>
+
+        <ol>
+
+          <li>
+            Choose <b>Send Money</b>.
+          </li>
+
+          <li>
+            Send the exact KES amount displayed below.
+          </li>
+
+          <li>
+            Keep your M-PESA transaction code.
+          </li>
+
+          <li>
+            Submit the payment form.
+          </li>
+
+        </ol>
+
+      </div>
+
+    </div>
+
+
+    <div class="payment-card">
+
+      <div class="payment-icon paypal">
+
+        <i class="fa-brands fa-paypal"></i>
+
+      </div>
+
+      <h3>PayPal</h3>
+
+      <div class="payment-details">
+
+        <div class="detail">
+
+          <span>PayPal Email</span>
+
+          <strong>
+            Davidthuku574@gmail.com
+          </strong>
+
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="Davidthuku574@gmail.com"
+          >
+            <i class="fa-regular fa-copy"></i>
+          </button>
+
+        </div>
+
+        <div class="detail">
+
+          <span>Currency</span>
+
+          <strong>USD</strong>
+
+        </div>
+
+      </div>
+
+      <div class="instructions">
+
+        <h4>Instructions</h4>
+
+        <ol>
+
+          <li>
+            Log in to PayPal.
+          </li>
+
+          <li>
+            Send the USD amount displayed.
+          </li>
+
+          <li>
+            Copy the PayPal Transaction ID.
+          </li>
+
+          <li>
+            Submit the form.
+          </li>
+
+        </ol>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="payment-notice">
+
+  <div class="notice-card">
+
+    <i class="fa-solid fa-circle-info"></i>
+
+    <div>
+
+      <h3>Important</h3>
+
+      <p>
+
+        Premium Membership is activated only after
+        an administrator verifies your payment.
+
+        Approval usually takes between
+        <strong>5 minutes</strong>
+        and
+        <strong>24 hours</strong>.
+
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="payment-form-section">
+
+  <div class="payment-form-card">
+
+    <h2>Submit Payment</h2>
+
+    <p>
+
+      Complete this form after sending your payment.
+      Your membership will be activated after verification.
+
+    </p>
+
+
+    <form id="paymentForm" novalidate>
+
+
+      <input
+        type="hidden"
+        id="userId"
+      >
+
+      <input
+        type="hidden"
+        id="exchangeRate"
+      >
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="userName">
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            id="userName"
+            readonly
+            placeholder="Loading your account..."
+          >
+
+          <div
+            class="auth-loading"
+            id="nameStatus"
+          >
+            Loading account information...
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="userEmail">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="userEmail"
+            readonly
+            placeholder="Loading your account..."
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="membershipPlan">
+            Membership Plan
+          </label>
+
+          <select
+            id="membershipPlan"
+            required
+          >
+
+            <option value="">
+              Select Plan
+            </option>
+
+            <option value="Monthly">
+              Premium Monthly ($50)
+            </option>
+
+            <option value="Lifetime">
+              Lifetime Premium ($200)
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="paymentMethod">
+            Payment Method
+          </label>
+
+          <select
+            id="paymentMethod"
+            required
+          >
+
+            <option value="">
+              Select Method
+            </option>
+
+            <option value="Mpesa">
+              M-PESA
+            </option>
+
+            <option value="PayPal">
+              PayPal
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="currency-box"
+        id="currencyBox"
+      >
+
+        <div class="currency-row">
+
+          <span>Plan Price</span>
+
+          <strong id="usdAmount">
+            $0
+          </strong>
+
+        </div>
+
+        <div class="currency-row">
+
+          <span>Exchange Rate</span>
+
+          <strong id="rateDisplay">
+            Loading...
+          </strong>
+
+        </div>
+
+        <div class="currency-row">
+
+          <span>Amount to Send</span>
+
+          <strong
+            id="kesAmount"
+            class="kes-amount"
+          >
+            KSh 0
+          </strong>
+
+        </div>
+
+        <div
+          class="rate-text"
+          id="rateTime"
+        >
+          Loading current exchange rate...
+        </div>
+
+
+        <div
+          class="mpesa-details-box"
+          id="mpesaDetails"
+        >
+
+          Send exactly:
+
+          <strong id="mpesaAmount">
+            KSh 0
+          </strong>
+
+          to
+
+          <strong>
+            0712416214
+          </strong>
+
+          — David Thuku.
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="amountDisplay">
+            Amount Paid
+          </label>
+
+          <input
+            type="text"
+            id="amountDisplay"
+            readonly
+            placeholder="Select plan and payment method"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="transactionId">
+            Transaction Code / PayPal ID
+          </label>
+
+          <input
+            type="text"
+            id="transactionId"
+            placeholder="e.g. QGH82JDK9"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="proof-upload">
+
+        <label for="paymentProof">
+          Upload Payment Proof
+        </label>
+
+        <input
+          type="file"
+          id="paymentProof"
+          accept="image/jpeg,image/png,application/pdf"
+        >
+
+        <div class="file-hint">
+          JPG, PNG or PDF — maximum 5MB.
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="notes">
+          Additional Notes (Optional)
+        </label>
+
+        <textarea
+          id="notes"
+          rows="4"
+          placeholder="Anything you would like the administrator to know..."
+        ></textarea>
+
+      </div>
+
+
+      <div class="selected-plan-box">
+
+        <h3>
+          Selected Plan
+        </h3>
+
+        <div class="selected-plan-info">
+
+          <span id="selectedPlanName">
+            No Plan Selected
+          </span>
+
+          <strong id="selectedPlanPrice">
+            $0
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="payment-warning">
+
+        <i class="fa-solid fa-circle-exclamation"></i>
+
+        <p>
+
+          Submitting false payment information may result
+          in your account being permanently suspended.
+
+        </p>
+
+      </div>
+
+
+      <button
+        type="submit"
+        id="submitPayment"
+        class="submit-payment-btn"
+        disabled
+      >
+
+        <i class="fa-solid fa-paper-plane"></i>
+
+        Submit Payment
+
+      </button>
+
+
+      <div
+        id="paymentMessage"
+        class="payment-message"
+      ></div>
+
+    </form>
+
+  </div>
+
+</section>
+
+
+<div
+  id="successModal"
+  class="success-modal"
+>
+
+  <div class="success-card">
+
+    <div class="success-icon">
+
+      <i class="fa-solid fa-circle-check"></i>
+
+    </div>
+
+    <h2>
+      Payment Submitted
+    </h2>
+
+    <p>
+
+      Your payment request has been submitted successfully.
+      An administrator will verify your transaction.
+
+    </p>
+
+    <div class="status-box">
+
+      <span>Status</span>
+
+      <strong>
+        PENDING VERIFICATION
+      </strong>
+
+    </div>
+
+    <p>
+
+      Once approved, your account will automatically
+      become Premium.
+
+    </p>
+
+    <button
+      type="button"
+      id="successClose"
+    >
+      Continue
+    </button>
+
+  </div>
+
+</div>
+
+
+<div
+  id="loadingScreen"
+  class="loading-screen"
+>
+
+  <div class="loader-box">
+
+    <div class="loader"></div>
+
+    <h3>
+      Processing Payment...
+    </h3>
+
+    <p>
+      Please wait.
+    </p>
+
+  </div>
+
+</div>
+
+
+<footer class="payment-footer">
+
+  <div class="footer-logo">
+
+    <h2>
+      GTRADES-AXIS™
+    </h2>
+
+    <p>
+      Trade with Structure. Execute with Precision.
+    </p>
+
+  </div>
+
+  <div class="footer-links">
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <a href="premium-academy.html">
+      Academy
+    </a>
+
+    <a href="resources.html">
+      Resources
+    </a>
+
+    <a href="contact.html">
+      Contact
+    </a>
+
+  </div>
+
+  <div class="footer-copy">
+
+    © 2026 GTRADES-AXIS™ All Rights Reserved.
+
+  </div>
+
+</footer>
+
+
+<script type="module">
+
+  import {
+    auth,
+    db
+  } from "./js/firebase.js";
+
+  import {
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+  import {
+    doc,
+    getDoc,
+    collection,
+    addDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+  /* =====================================================
+     CONFIG
+  ===================================================== */
+
+  const MONTHLY_PRICE = 50;
+  const LIFETIME_PRICE = 200;
+
+  const MPESA_NUMBER = "0712416214";
+  const MPESA_NAME = "David Thuku";
+
+  const RATE_API =
+    "https://api.frankfurter.dev/v2/rate/USD/KES";
+
+
+  /* =====================================================
+     DOM
+  ===================================================== */
+
+  const paymentForm =
+    document.getElementById("paymentForm");
+
+  const userId =
+    document.getElementById("userId");
+
+  const userName =
+    document.getElementById("userName");
+
+  const userEmail =
+    document.getElementById("userEmail");
+
+  const nameStatus =
+    document.getElementById("nameStatus");
+
+  const exchangeRate =
+    document.getElementById("exchangeRate");
+
+  const membershipPlan =
+    document.getElementById("membershipPlan");
+
+  const paymentMethod =
+    document.getElementById("paymentMethod");
+
+  const currencyBox =
+    document.getElementById("currencyBox");
+
+  const usdAmount =
+    document.getElementById("usdAmount");
+
+  const rateDisplay =
+    document.getElementById("rateDisplay");
+
+  const kesAmount =
+    document.getElementById("kesAmount");
+
+  const rateTime =
+    document.getElementById("rateTime");
+
+  const mpesaDetails =
+    document.getElementById("mpesaDetails");
+
+  const mpesaAmount =
+    document.getElementById("mpesaAmount");
+
+  const amountDisplay =
+    document.getElementById("amountDisplay");
+
+  const transactionId =
+    document.getElementById("transactionId");
+
+  const paymentProof =
+    document.getElementById("paymentProof");
+
+  const notes =
+    document.getElementById("notes");
+
+  const selectedPlanName =
+    document.getElementById("selectedPlanName");
+
+  const selectedPlanPrice =
+    document.getElementById("selectedPlanPrice");
+
+  const submitPayment =
+    document.getElementById("submitPayment");
+
+  const paymentMessage =
+    document.getElementById("paymentMessage");
+
+  const successModal =
+    document.getElementById("successModal");
+
+  const successClose =
+    document.getElementById("successClose");
+
+  const loadingScreen =
+    document.getElementById("loadingScreen");
+
+
+  /* =====================================================
+     STATE
+  ===================================================== */
+
+  let currentUser = null;
+  let currentExchangeRate = null;
+
+
+  /* =====================================================
+     MESSAGE
+  ===================================================== */
+
+  function showMessage(message, type = "error") {
+
+    paymentMessage.textContent = message;
+
+    paymentMessage.className =
+      "payment-message " + type;
+
+  }
+
+
+  function clearMessage() {
+
+    paymentMessage.textContent = "";
+
+    paymentMessage.className =
+      "payment-message";
+
+  }
+
+
+  /* =====================================================
+     LOADING
+  ===================================================== */
+
+  function showLoading(show) {
+
+    if (show) {
+
+      loadingScreen.classList.add("active");
+
+    } else {
+
+      loadingScreen.classList.remove("active");
+
+    }
+
+  }
+
+
+  /* =====================================================
+     PRICE
+  ===================================================== */
+
+  function getPrice(plan) {
+
+    if (plan === "Monthly") {
+      return MONTHLY_PRICE;
+    }
+
+    if (plan === "Lifetime") {
+      return LIFETIME_PRICE;
+    }
+
+    return 0;
+
+  }
+
+
+  /* =====================================================
+     FORMAT KES
+  ===================================================== */
+
+  function formatKES(value) {
+
+    return "KSh " +
+      Number(value).toLocaleString(
+        "en-KE",
+        {
+          maximumFractionDigits: 0
+        }
+      );
+
+  }
+
+
+  /* =====================================================
+     AUTH
+  ===================================================== */
+
+  onAuthStateChanged(
+    auth,
+    async (user) => {
+
+      if (!user) {
+
+        currentUser = null;
+
+        userId.value = "";
+        userName.value = "";
+        userEmail.value = "";
+
+        nameStatus.textContent =
+          "Please log in to continue.";
+
+        submitPayment.disabled = true;
+
+        showMessage(
+          "You must be logged in before submitting a payment.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      currentUser = user;
+
+
+      /*
+       * THIS IS THE SAME UID THAT IS SENT
+       * AS paymentData.userId BELOW.
+       */
+
+      userId.value =
+        user.uid;
+
+
+      userEmail.value =
+        user.email || "";
+
+
+      let fullName = "";
+
+
+      try {
+
+        const userRef =
+          doc(
+            db,
+            "users",
+            user.uid
+          );
+
+        const userSnap =
+          await getDoc(userRef);
+
+
+        if (userSnap.exists()) {
+
+          const data =
+            userSnap.data();
+
+
+          fullName =
+            data.name ||
+            data.fullName ||
+            data.displayName ||
+            "";
+
+
+          if (
+            !userEmail.value &&
+            data.email
+          ) {
+
+            userEmail.value =
+              data.email;
+
+          }
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Error loading user profile:",
+          error
+        );
+
+      }
+
+
+      if (!fullName) {
+
+        fullName =
+          user.displayName || "";
+
+      }
+
+
+      if (!fullName) {
+
+        fullName =
+          user.email
+            ? user.email.split("@")[0]
+            : "GTRADES-AXIS Member";
+
+      }
+
+
+      userName.value =
+        fullName;
+
+
+      nameStatus.textContent =
+        "Account information loaded.";
+
+      nameStatus.style.color =
+        "#00c897";
+
+
+      submitPayment.disabled =
+        false;
+
+
+      console.log(
+        "Authenticated payment user:",
+        {
+          uid: user.uid,
+          email: user.email,
+          name: fullName
+        }
+      );
+
+    }
+  );
+
+
+  /* =====================================================
+     EXCHANGE RATE
+  ===================================================== */
+
+  async function loadExchangeRate() {
+
+    rateDisplay.textContent =
+      "Loading...";
+
+
+    try {
+
+      const response =
+        await fetch(
+          RATE_API,
+          {
+            cache: "no-store"
+          }
+        );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Exchange-rate request failed."
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !data ||
+        typeof data.rate !== "number"
+      ) {
+
+        throw new Error(
+          "Invalid exchange-rate response."
+        );
+
+      }
+
+
+      currentExchangeRate =
+        Number(data.rate);
+
+
+      exchangeRate.value =
+        currentExchangeRate;
+
+
+      rateDisplay.textContent =
+        "1 USD = " +
+        currentExchangeRate.toFixed(2) +
+        " KES";
+
+
+      rateTime.textContent =
+        "Current USD/KES exchange rate.";
+
+
+      updatePaymentDisplay();
+
+
+    } catch (error) {
+
+      console.error(
+        "Exchange-rate error:",
+        error
+      );
+
+
+      /*
+       * FALLBACK ONLY IF API IS UNAVAILABLE.
+       */
+
+      currentExchangeRate =
+        129;
+
+
+      exchangeRate.value =
+        currentExchangeRate;
+
+
+      rateDisplay.textContent =
+        "1 USD = 129.00 KES";
+
+
+      rateTime.textContent =
+        "Live exchange rate unavailable. Fallback rate is being used.";
+
+
+      updatePaymentDisplay();
+
+    }
+
+  }
+
+
+  /* =====================================================
+     PAYMENT DISPLAY
+  ===================================================== */
+
+  function updatePaymentDisplay() {
+
+    const plan =
+      membershipPlan.value;
+
+    const method =
+      paymentMethod.value;
+
+    const price =
+      getPrice(plan);
+
+
+    if (!price) {
+
+      currencyBox.classList.remove("active");
+
+      selectedPlanName.textContent =
+        "No Plan Selected";
+
+      selectedPlanPrice.textContent =
+        "$0";
+
+      usdAmount.textContent =
+        "$0";
+
+      amountDisplay.value =
+        "";
+
+      mpesaDetails.classList.remove("active");
+
+      return;
+
+    }
+
+
+    currencyBox.classList.add("active");
+
+
+    if (plan === "Monthly") {
+
+      selectedPlanName.textContent =
+        "Premium Monthly";
+
+    } else {
+
+      selectedPlanName.textContent =
+        "Lifetime Premium";
+
+    }
+
+
+    selectedPlanPrice.textContent =
+      "$" + price;
+
+
+    usdAmount.textContent =
+      "$" + price;
+
+
+    if (method === "Mpesa") {
+
+      const rate =
+        currentExchangeRate || 129;
+
+
+      const kes =
+        Math.round(
+          price * rate
+        );
+
+
+      kesAmount.textContent =
+        formatKES(kes);
+
+
+      mpesaAmount.textContent =
+        formatKES(kes);
+
+
+      amountDisplay.value =
+        formatKES(kes);
+
+
+      mpesaDetails.classList.add("active");
+
+    }
+
+
+    else if (method === "PayPal") {
+
+      amountDisplay.value =
+        "$" + price;
+
+
+      const rate =
+        currentExchangeRate || 129;
+
+
+      kesAmount.textContent =
+        formatKES(
+          Math.round(
+            price * rate
+          )
+        );
+
+
+      mpesaDetails.classList.remove("active");
+
+    }
+
+
+    else {
+
+      amountDisplay.value =
+        "";
+
+      mpesaDetails.classList.remove("active");
+
+    }
+
+  }
+
+
+  /* =====================================================
+     PLAN BUTTONS
+  ===================================================== */
+
+  document
+    .querySelectorAll(".select-plan")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const plan =
+            button.dataset.plan;
+
+
+          membershipPlan.value =
+            plan;
+
+
+          updatePaymentDisplay();
+
+
+          document
+            .querySelector(
+              ".payment-form-section"
+            )
+            .scrollIntoView({
+              behavior: "smooth"
+            });
+
+        }
+      );
+
+    });
+
+
+  /* =====================================================
+     PLAN CHANGE
+  ===================================================== */
+
+  membershipPlan.addEventListener(
+    "change",
+    () => {
+
+      clearMessage();
+
+      updatePaymentDisplay();
+
+    }
+  );
+
+
+  /* =====================================================
+     PAYMENT METHOD
+  ===================================================== */
+
+  paymentMethod.addEventListener(
+    "change",
+    () => {
+
+      clearMessage();
+
+      updatePaymentDisplay();
+
+    }
+  );
+
+
+  /* =====================================================
+     COPY
+  ===================================================== */
+
+  document
+    .querySelectorAll(".copy-btn")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        async () => {
+
+          const value =
+            button.dataset.copy;
+
+
+          try {
+
+            await navigator.clipboard.writeText(
+              value
+            );
+
+
+            const old =
+              button.innerHTML;
+
+
+            button.innerHTML =
+              '<i class="fa-solid fa-check"></i>';
+
+
+            setTimeout(
+              () => {
+
+                button.innerHTML =
+                  old;
+
+              },
+              1500
+            );
+
+
+          } catch (error) {
+
+            console.error(
+              "Copy failed:",
+              error
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+
+  /* =====================================================
+     PROOF VALIDATION
+  ===================================================== */
+
+  paymentProof.addEventListener(
+    "change",
+    () => {
+
+      const file =
+        paymentProof.files[0];
+
+
+      if (!file) {
+        return;
+      }
+
+
+      const maxSize =
+        5 * 1024 * 1024;
+
+
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "application/pdf"
+      ];
+
+
+      if (file.size > maxSize) {
+
+        paymentProof.value = "";
+
+        showMessage(
+          "Payment proof must be 5MB or smaller.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !allowedTypes.includes(
+          file.type
+        )
+      ) {
+
+        paymentProof.value = "";
+
+        showMessage(
+          "Payment proof must be JPG, PNG or PDF.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      clearMessage();
+
+    }
+  );
+
+
+  /* =====================================================
+     SUBMIT PAYMENT
+  ===================================================== */
+
+  paymentForm.addEventListener(
+    "submit",
+    async (event) => {
+
+      event.preventDefault();
+
+      clearMessage();
+
+
+      /*
+       * MUST BE LOGGED IN
+       */
+
+      if (!currentUser) {
+
+        showMessage(
+          "Please log in before submitting your payment.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      const name =
+        userName.value.trim();
+
+      const email =
+        userEmail.value.trim();
+
+      const plan =
+        membershipPlan.value;
+
+      const method =
+        paymentMethod.value;
+
+      const transaction =
+        transactionId.value.trim();
+
+
+      /*
+       * VALIDATION
+       */
+
+      if (!name) {
+
+        showMessage(
+          "Your account name has not loaded yet. Please wait and try again.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!email) {
+
+        showMessage(
+          "Your email has not loaded. Please refresh the page.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!plan) {
+
+        showMessage(
+          "Please select a membership plan.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!method) {
+
+        showMessage(
+          "Please select a payment method.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!transaction) {
+
+        showMessage(
+          "Please enter your transaction code or PayPal transaction ID.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      const price =
+        getPrice(plan);
+
+
+      if (!price) {
+
+        showMessage(
+          "Invalid membership plan.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * M-PESA CALCULATION
+       */
+
+      let amountKES = null;
+
+
+      if (method === "Mpesa") {
+
+        if (!currentExchangeRate) {
+
+          await loadExchangeRate();
+
+        }
+
+
+        amountKES =
+          Math.round(
+            price *
+            currentExchangeRate
+          );
+
+      }
+
+
+      /*
+       * PROOF INFORMATION
+       */
+
+      let proofName = "";
+      let proofType = "";
+      let proofSize = 0;
+
+
+      if (
+        paymentProof.files &&
+        paymentProof.files.length
+      ) {
+
+        const file =
+          paymentProof.files[0];
+
+
+        proofName =
+          file.name;
+
+        proofType =
+          file.type;
+
+        proofSize =
+          file.size;
+
+      }
+
+
+      /*
+       * LOCK FORM
+       */
+
+      submitPayment.disabled =
+        true;
+
+
+      submitPayment.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+
+      showLoading(true);
+
+
+      try {
+
+
+        /* =================================================
+           PAYMENT DOCUMENT
+
+           IMPORTANT:
+
+           Firestore rules require:
+
+           request.resource.data.userId
+           ==
+           request.auth.uid
+
+           Therefore this MUST be:
+
+           userId: currentUser.uid
+
+           NOT:
+
+           uid: currentUser.uid
+        ================================================= */
+
+        const paymentData = {
+
+          userId:
+            currentUser.uid,
+
+          name:
+            name,
+
+          email:
+            email,
+
+          plan:
+            plan,
+
+          paymentMethod:
+            method,
+
+          transactionId:
+            transaction,
+
+          amountUSD:
+            Number(price),
+
+          status:
+            "pending",
+
+          notes:
+            notes.value.trim(),
+
+          submittedAt:
+            serverTimestamp()
+
+        };
+
+
+        /*
+         * M-PESA
+         */
+
+        if (method === "Mpesa") {
+
+          paymentData.currency =
+            "KES";
+
+          paymentData.amountKES =
+            Number(amountKES);
+
+          paymentData.exchangeRate =
+            Number(currentExchangeRate);
+
+        }
+
+
+        /*
+         * PAYPAL
+         */
+
+        if (method === "PayPal") {
+
+          paymentData.currency =
+            "USD";
+
+        }
+
+
+        /*
+         * PAYMENT PROOF METADATA
+         */
+
+        if (proofName) {
+
+          paymentData.proofFileName =
+            proofName;
+
+          paymentData.proofFileType =
+            proofType;
+
+          paymentData.proofFileSize =
+            proofSize;
+
+        }
+
+
+        /*
+         * DEBUG
+         */
+
+        console.log(
+          "Submitting payment data:",
+          paymentData
+        );
+
+
+        /*
+         * CREATE FIRESTORE DOCUMENT
+         */
+
+        const paymentRef =
+          await addDoc(
+            collection(
+              db,
+              "payments"
+            ),
+            paymentData
+          );
+
+
+        console.log(
+          "PAYMENT CREATED:",
+          paymentRef.id
+        );
+
+
+        showLoading(false);
+
+
+        /*
+         * SUCCESS
+         */
+
+        successModal.classList.add(
+          "active"
+        );
+
+
+        /*
+         * RESET FORM
+         */
+
+        membershipPlan.value =
+          "";
+
+        paymentMethod.value =
+          "";
+
+        transactionId.value =
+          "";
+
+        paymentProof.value =
+          "";
+
+        notes.value =
+          "";
+
+        amountDisplay.value =
+          "";
+
+        currencyBox.classList.remove(
+          "active"
+        );
+
+        mpesaDetails.classList.remove(
+          "active"
+        );
+
+        selectedPlanName.textContent =
+          "No Plan Selected";
+
+        selectedPlanPrice.textContent =
+          "$0";
+
+        usdAmount.textContent =
+          "$0";
+
+
+      } catch (error) {
+
+        console.error(
+          "================================"
+        );
+
+        console.error(
+          "PAYMENT SUBMISSION ERROR"
+        );
+
+        console.error(
+          error
+        );
+
+        console.error(
+          "CODE:",
+          error.code
+        );
+
+        console.error(
+          "MESSAGE:",
+          error.message
+        );
+
+        console.error(
+          "================================"
+        );
+
+
+        showLoading(false);
+
+
+        let message =
+          "Unable to submit payment.";
+
+
+        if (
+          error.code ===
+          "permission-denied"
+        ) {
+
+          message =
+            "Payment was rejected by Firestore security rules. Please make sure you are logged in and try again.";
+
+        }
+
+
+        else if (
+          error.code ===
+          "unauthenticated"
+        ) {
+
+          message =
+            "Your login session has expired. Please log in again.";
+
+        }
+
+
+        else if (error.message) {
+
+          message =
+            error.message;
+
+        }
+
+
+        showMessage(
+          message,
+          "error"
+        );
+
+      }
+
+
+      submitPayment.disabled =
+        false;
+
+
+      submitPayment.innerHTML =
+        '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
+
+    }
+  );
+
+
+  /* =====================================================
+     SUCCESS CLOSE
+  ===================================================== */
+
+  successClose.addEventListener(
+    "click",
+    () => {
+
+      successModal.classList.remove(
+        "active"
+      );
+
+
+      window.location.href =
+        "dashboard.html";
+
+    }
+  );
+
+
+  /* =====================================================
+     START
+  ===================================================== */
+
+  loadExchangeRate();
+
+
+  console.log(
+    "GTRADES-AXIS™ payment system loaded."
+  );
+
+</script>
+
+</body>
+</html>

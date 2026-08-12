@@ -1,1705 +1,2040 @@
-// ==========================================================
+// ============================================================
 // GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 1
-// Firebase Setup + Load Payment Requests
-// ==========================================================
+// ADMIN PAYMENT MANAGEMENT
+// EXISTING STUDENT PAYMENT SYSTEM
+// ============================================================
 
-
-console.log("ADMIN PAYMENTS JS LOADED");
-
-
-
-import { auth, db } from "../firebase.js";
-
-
+import { auth, db } from "./firebase.js";
 
 import {
-
-    collection,
-    query,
-    where,
-    orderBy,
-    onSnapshot
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-import {
-
-    doc,
-    updateDoc,
-    getDoc,
-    serverTimestamp
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-import {
-
-    onAuthStateChanged
-
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-
-
-// ===============================
-// ELEMENTS
-// ===============================
-
-
-const paymentTable =
-
-document.getElementById(
-    "paymentsTable"
-);
-
-
-
-
-const emptyMessage =
-
-document.getElementById(
-    "emptyPayments"
-);
-
-
-
-
-
-// ===============================
-// ADMIN CHECK
-// ===============================
-
-
-onAuthStateChanged(
-
-auth,
-
-async(user)=>{
-
-
-if(!user){
-
-
-    window.location.href =
-    "../login.html";
-
-
-    return;
-
-
-}
-
-
-
-console.log(
-    "Admin logged in:",
-    user.email
-);
-
-
-
-loadPayments();
-
-
-
-});
-
-
-
-
-
-// ===============================
-// LOAD PAYMENTS
-// ===============================
-
-
-function loadPayments(){
-
-
-
-const paymentsRef =
-
-collection(
-    db,
-    "payments"
-);
-
-
-
-
-
-const paymentsQuery =
-
-query(
-
-paymentsRef,
-
-
-where(
-    "status",
-    "==",
-    "pending"
-),
-
-
-orderBy(
-    "createdAt",
-    "desc"
-)
-
-);
-
-
-
-
-
-onSnapshot(
-
-paymentsQuery,
-
-(snapshot)=>{
-
-
-
-if(snapshot.empty){
-
-
-
-    if(emptyMessage){
-
-        emptyMessage.style.display =
-        "block";
-
-    }
-
-
-
-    if(paymentTable){
-
-        paymentTable.innerHTML =
-        "";
-
-    }
-
-
-    return;
-
-
-
-}
-
-
-
-
-if(emptyMessage){
-
-    emptyMessage.style.display =
-    "none";
-
-}
-
-
-
-paymentTable.innerHTML = "";
-
-
-
-
-
-snapshot.forEach(
-
-(doc)=>{
-
-
-const payment = doc.data();
-
-
-
-paymentTable.innerHTML += `
-
-<tr>
-
-
-<td>
-${payment.name || "N/A"}
-</td>
-
-
-
-<td>
-${payment.email || "N/A"}
-</td>
-
-
-
-<td>
-${payment.plan || "N/A"}
-</td>
-
-
-<td>
-
-<span class="status ${payment.status}">
-
-${payment.status}
-
-</span>
-
-</td>
-
-
-
-<td>
-${payment.paymentMethod || "N/A"}
-</td>
-
-
-
-<td>
-
-<a href="${payment.paymentProof || '#'}"
-target="_blank">
-
-View Proof
-
-</a>
-
-</td>
-
-
-
-<td>
-
-<button 
-class="approve-btn"
-data-id="${doc.id}"
-data-user="${payment.userId}">
-
-Approve
-
-</button>
-
-
-
-<button 
-class="reject-btn"
-data-id="${doc.id}">
-
-Reject
-
-</button>
-
-
-</td>
-
-
-</tr>
-
-`;
-
-
-
-});
-
-
-
-console.log(
-"Payments loaded"
-);
-
-
-
-});
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 2
-// Approve + Reject Payment Actions
-// ==========================================================
-
-
 import {
-
-    doc,
-    updateDoc,
-    getDoc
-
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 
+// ============================================================
+// DOM
+// ============================================================
+
+const paymentsTable = document.getElementById("paymentsTable");
+const paymentCount = document.getElementById("paymentCount");
+
+const totalPayments = document.getElementById("totalPayments");
+const pendingPayments = document.getElementById("pendingPayments");
+const approvedPayments = document.getElementById("approvedPayments");
+const totalRevenue = document.getElementById("totalRevenue");
+
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+const methodFilter = document.getElementById("methodFilter");
+const refreshBtn = document.getElementById("refreshBtn");
+
+const paymentModal = document.getElementById("paymentModal");
+const modalBody = document.getElementById("modalBody");
+const closeModal = document.getElementById("closeModal");
 
 
+// ============================================================
+// STATE
+// ============================================================
 
-// ===============================
-// BUTTON ACTION LISTENER
-// ===============================
-
-
-document.addEventListener(
-"click",
-async(e)=>{
+let allPayments = [];
+let currentAdmin = null;
 
 
+// ============================================================
+// AUTHENTICATION
+// ============================================================
 
-// ===============================
-// APPROVE PAYMENT
-// ===============================
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+
+    window.location.href = "login.html";
+    return;
+
+  }
+
+  currentAdmin = user;
+
+  try {
+
+    const adminRef = doc(
+      db,
+      "users",
+      user.uid
+    );
+
+    const adminSnap = await getDoc(adminRef);
+
+    if (!adminSnap.exists()) {
+
+      alert("Admin profile was not found.");
+
+      window.location.href = "dashboard.html";
+      return;
+
+    }
+
+    const adminData = adminSnap.data();
+
+    if (adminData.role !== "admin") {
+
+      alert("Access denied. Admins only.");
+
+      window.location.href = "dashboard.html";
+      return;
+
+    }
+
+    await loadPayments();
+
+  } catch (error) {
+
+    console.error(
+      "Admin authentication error:",
+      error
+    );
+
+    showError(
+      "Unable to verify administrator access.",
+      error
+    );
+
+  }
+
+});
 
 
-if(
-e.target.classList.contains(
-"approve-btn"
-)
+// ============================================================
+// LOAD PAYMENTS
+// IMPORTANT:
+// DO NOT USE orderBy()
+// This makes the admin page compatible with old
+// payment documents that may not contain submittedAt.
+// ============================================================
 
-){
+async function loadPayments() {
+
+  paymentsTable.innerHTML = `
+    <tr>
+      <td colspan="8" class="loading">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <br>
+        Loading payments...
+      </td>
+    </tr>
+  `;
+
+  try {
+
+    console.log(
+      "GTRADES-AXIS: Reading /payments..."
+    );
+
+    const snapshot = await getDocs(
+      collection(db, "payments")
+    );
+
+    console.log(
+      "GTRADES-AXIS: Payments found:",
+      snapshot.size
+    );
+
+    allPayments = [];
+
+    snapshot.forEach((paymentDoc) => {
+
+      const data = paymentDoc.data();
+
+      console.log(
+        "Payment:",
+        paymentDoc.id,
+        data
+      );
+
+      allPayments.push({
+        id: paymentDoc.id,
+        ...data
+      });
+
+    });
 
 
+    // --------------------------------------------------------
+    // SORT LOCALLY
+    // Supports multiple possible date fields
+    // --------------------------------------------------------
 
-const paymentId =
+    allPayments.sort((a, b) => {
 
-e.target.dataset.id;
+      const aTime = getPaymentTime(a);
+      const bTime = getPaymentTime(b);
 
+      return bTime - aTime;
 
-
-const userId =
-
-e.target.dataset.user;
-
+    });
 
 
+    updateStatistics();
+    renderPayments();
 
+  } catch (error) {
 
-if(
-!confirm(
-"Approve this payment?"
-)
+    console.error(
+      "FAILED TO LOAD PAYMENTS:",
+      error
+    );
 
-){
+    paymentsTable.innerHTML = `
+      <tr>
+        <td colspan="8">
+          <div class="empty-state">
 
-return;
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <br><br>
+
+            <strong>
+              Failed to load payments
+            </strong>
+
+            <br><br>
+
+            <small>
+              ${escapeHtml(error.message)}
+            </small>
+
+          </div>
+        </td>
+      </tr>
+    `;
+
+  }
 
 }
 
 
+// ============================================================
+// STATISTICS
+// ============================================================
 
+function updateStatistics() {
 
-try{
+  const total = allPayments.length;
 
+  const pending = allPayments.filter(
+    payment =>
+      getStatus(payment) === "pending"
+  ).length;
 
+  const approved = allPayments.filter(
+    payment =>
+      getStatus(payment) === "approved"
+  ).length;
 
-// ===============================
-// UPDATE PAYMENT STATUS
-// ===============================
-
-
-const alreadyApproved =
-
-await checkPaymentAlreadyApproved(
-paymentId
-);
-
-
-
-if(alreadyApproved){
-
-
-    alert(
-        "This payment is already approved."
+  const revenue = allPayments
+    .filter(
+      payment =>
+        getStatus(payment) === "approved"
+    )
+    .reduce(
+      (sum, payment) =>
+        sum + getAmountUSD(payment),
+      0
     );
 
 
+  totalPayments.textContent = total;
+
+  pendingPayments.textContent = pending;
+
+  approvedPayments.textContent = approved;
+
+  totalRevenue.textContent =
+    "$" +
+    revenue.toLocaleString(
+      "en-US",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }
+    );
+
+}
+
+
+// ============================================================
+// RENDER PAYMENTS
+// ============================================================
+
+function renderPayments() {
+
+  const search =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+  const selectedStatus =
+    statusFilter.value;
+
+  const selectedMethod =
+    methodFilter.value;
+
+
+  const filtered = allPayments.filter(
+    payment => {
+
+      const status =
+        getStatus(payment);
+
+      const method =
+        getPaymentMethod(payment);
+
+
+      const searchable = [
+
+        payment.name,
+
+        payment.fullName,
+
+        payment.email,
+
+        payment.transactionId,
+
+        payment.transaction,
+
+        payment.mpesaCode,
+
+        payment.reference,
+
+        payment.plan,
+
+        method
+
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+
+      const matchesSearch =
+        !search ||
+        searchable.includes(search);
+
+
+      const matchesStatus =
+        selectedStatus === "all" ||
+        status === selectedStatus;
+
+
+      const matchesMethod =
+        selectedMethod === "all" ||
+        normalizeMethod(method) ===
+          normalizeMethod(selectedMethod);
+
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesMethod
+      );
+
+    }
+  );
+
+
+  paymentCount.textContent =
+    filtered.length +
+    (
+      filtered.length === 1
+        ? " payment"
+        : " payments"
+    );
+
+
+  if (!filtered.length) {
+
+    paymentsTable.innerHTML = `
+      <tr>
+
+        <td colspan="8">
+
+          <div class="empty-state">
+
+            <i class="fa-solid fa-receipt"></i>
+
+            <br><br>
+
+            No payments found.
+
+          </div>
+
+        </td>
+
+      </tr>
+    `;
+
     return;
 
+  }
+
+
+  paymentsTable.innerHTML =
+    filtered
+      .map(createPaymentRow)
+      .join("");
 
 }
 
 
+// ============================================================
+// CREATE PAYMENT ROW
+// ============================================================
 
-await updateDoc(
+function createPaymentRow(payment) {
 
-doc(
-db,
-"payments",
-paymentId
-),
+  const id = payment.id;
 
-{
+  const name =
+    payment.name ||
+    payment.fullName ||
+    "Unknown Student";
+
+  const email =
+    payment.email ||
+    "No email";
+
+  const plan =
+    payment.plan ||
+    payment.package ||
+    payment.membershipPlan ||
+    "Unknown";
+
+  const method =
+    getPaymentMethod(payment);
+
+  const transaction =
+    getTransactionId(payment);
+
+  const status =
+    getStatus(payment);
+
+  const amountUSD =
+    getAmountUSD(payment);
+
+  const amountKES =
+    getAmountKES(payment);
+
+  const date =
+    formatDate(
+      getPaymentDate(payment)
+    );
 
 
-status:
-
-"approved",
-
-
-approvedAt:
-
-serverTimestamp()
+  const planClass =
+    plan
+      .toLowerCase()
+      .includes("lifetime")
+      ? "plan-lifetime"
+      : "plan-monthly";
 
 
+  const isMpesa =
+    normalizeMethod(method)
+      .includes("mpesa");
+
+
+  const methodClass =
+    isMpesa
+      ? "method-mpesa"
+      : "method-paypal";
+
+
+  const methodIcon =
+    isMpesa
+      ? "fa-mobile-screen-button"
+      : "fa-brands fa-paypal";
+
+
+  return `
+
+    <tr>
+
+      <td>
+
+        <div class="student-name">
+
+          ${escapeHtml(name)}
+
+        </div>
+
+        <div class="student-email">
+
+          ${escapeHtml(email)}
+
+        </div>
+
+      </td>
+
+
+      <td>
+
+        <span class="plan ${planClass}">
+
+          ${escapeHtml(plan)}
+
+        </span>
+
+      </td>
+
+
+      <td>
+
+        <span class="method ${methodClass}">
+
+          <i class="${methodIcon}"></i>
+
+          ${escapeHtml(method)}
+
+        </span>
+
+      </td>
+
+
+      <td>
+
+        <span class="amount-usd">
+
+          $${amountUSD.toLocaleString(
+            "en-US",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }
+          )}
+
+        </span>
+
+        ${
+          amountKES
+            ? `
+              <span class="amount-kes">
+
+                KSh ${amountKES.toLocaleString(
+                  "en-KE"
+                )}
+
+              </span>
+            `
+            : ""
+        }
+
+      </td>
+
+
+      <td>
+
+        <span class="transaction">
+
+          ${escapeHtml(transaction)}
+
+        </span>
+
+      </td>
+
+
+      <td>
+
+        ${createStatusBadge(status)}
+
+      </td>
+
+
+      <td>
+
+        ${date}
+
+      </td>
+
+
+      <td>
+
+        <div class="actions">
+
+          <button
+            class="action-btn"
+            title="View Payment"
+            data-action="view"
+            data-id="${escapeAttribute(id)}"
+          >
+
+            <i class="fa-solid fa-eye"></i>
+
+          </button>
+
+
+          ${
+            status === "pending"
+              ? `
+
+                <button
+                  class="action-btn approve-btn"
+                  title="Approve Payment"
+                  data-action="approve"
+                  data-id="${escapeAttribute(id)}"
+                >
+
+                  <i class="fa-solid fa-check"></i>
+
+                </button>
+
+
+                <button
+                  class="action-btn reject-btn"
+                  title="Reject Payment"
+                  data-action="reject"
+                  data-id="${escapeAttribute(id)}"
+                >
+
+                  <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+              `
+              : ""
+          }
+
+
+          <button
+            class="action-btn delete-btn"
+            title="Delete Payment"
+            data-action="delete"
+            data-id="${escapeAttribute(id)}"
+          >
+
+            <i class="fa-solid fa-trash"></i>
+
+          </button>
+
+        </div>
+
+      </td>
+
+    </tr>
+
+  `;
 
 }
 
-);
+
+// ============================================================
+// PAYMENT STATUS
+// ============================================================
+
+function getStatus(payment) {
+
+  const value =
+    payment.status ||
+    payment.paymentStatus ||
+    "pending";
+
+  const status =
+    String(value)
+      .trim()
+      .toLowerCase();
 
 
+  // Handle older payment records
 
-await createPaymentLog(
+  if (
+    status === "paid" ||
+    status === "complete" ||
+    status === "completed" ||
+    status === "success" ||
+    status === "successful"
+  ) {
 
-"APPROVED",
+    return "approved";
 
-paymentId,
-
-userId,
-
-"Payment approved and premium membership activated"
-
-);
-
-
-
-// ===============================
-// PAYMENT HISTORY
-// ===============================
+  }
 
 
-async function loadPaymentHistory(){
+  if (
+    status === "declined" ||
+    status === "cancelled" ||
+    status === "canceled"
+  ) {
+
+    return "rejected";
+
+  }
 
 
-
-const paymentsRef =
-
-collection(
-
-db,
-
-"payments"
-
-);
-
-
-
-
-const snapshot =
-
-await getDocs(
-paymentsRef
-);
-
-
-
-
-snapshot.forEach(
-
-(doc)=>{
-
-
-const payment =
-doc.data();
-
-
-
-console.log(
-
-"Payment History:",
-
-{
-
-id:doc.id,
-
-status:
-payment.status,
-
-user:
-payment.email
-
-}
-
-);
-
-
-
-});
-
-
+  return status;
 
 }
 
 
+// ============================================================
+// PAYMENT METHOD
+// ============================================================
 
-loadPaymentHistory();
+function getPaymentMethod(payment) {
 
-// ===============================
-// UPDATE USER MEMBERSHIP
-// ===============================
-
-
-if(userId){
-
-
-
-const userRef =
-
-doc(
-
-db,
-
-"users",
-
-userId
-
-);
-
-
-
-
-const userSnap =
-
-await getDoc(
-userRef
-);
-
-
-
-
-
-if(
-userSnap.exists()
-){
-
-
-
-await updateDoc(
-
-userRef,
-
-{
-
-
-membership:
-"premium",
-
-
-status:
-"active",
-
-
-role:
-"member"
-
-
-
-}
-
-);
-
-
-
-console.log(
-"User upgraded to premium"
-);
-
-
+  return (
+    payment.paymentMethod ||
+    payment.method ||
+    payment.payment_method ||
+    "Unknown"
+  );
 
 }
 
 
+function normalizeMethod(method) {
+
+  return String(method || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, "");
 
 }
 
 
+// ============================================================
+// TRANSACTION ID
+// ============================================================
+
+function getTransactionId(payment) {
+
+  return (
+    payment.transactionId ||
+    payment.transactionID ||
+    payment.transaction ||
+    payment.mpesaCode ||
+    payment.mpesaTransactionId ||
+    payment.reference ||
+    payment.paypalTransactionId ||
+    payment.paypalOrderId ||
+    "—"
+  );
+
+}
 
 
+// ============================================================
+// USER ID
+// IMPORTANT:
+// SUPPORT BOTH uid AND userId
+// ============================================================
+
+function getUserId(payment) {
+
+  return (
+    payment.uid ||
+    payment.userId ||
+    payment.userUID ||
+    payment.userUid ||
+    null
+  );
+
+}
 
 
-alert(
+// ============================================================
+// AMOUNT USD
+// ============================================================
 
-"Payment approved successfully."
+function getAmountUSD(payment) {
 
+  const amount =
+    payment.amountUSD ??
+    payment.amountUsd ??
+    payment.amount ??
+    payment.price ??
+    0;
+
+  return Number(amount) || 0;
+
+}
+
+
+// ============================================================
+// AMOUNT KES
+// ============================================================
+
+function getAmountKES(payment) {
+
+  const amount =
+    payment.amountKES ??
+    payment.amountKes ??
+    payment.kesAmount ??
+    null;
+
+  if (
+    amount === null ||
+    amount === undefined ||
+    amount === ""
+  ) {
+
+    return null;
+
+  }
+
+  const number =
+    Number(amount);
+
+  return Number.isFinite(number)
+    ? number
+    : null;
+
+}
+
+
+// ============================================================
+// PAYMENT DATE
+// ============================================================
+
+function getPaymentDate(payment) {
+
+  return (
+    payment.submittedAt ||
+    payment.createdAt ||
+    payment.paymentDate ||
+    payment.timestamp ||
+    payment.date ||
+    null
+  );
+
+}
+
+
+// ============================================================
+// PAYMENT TIME
+// ============================================================
+
+function getPaymentTime(payment) {
+
+  const value =
+    getPaymentDate(payment);
+
+  return getTimestamp(value);
+
+}
+
+
+// ============================================================
+// STATUS BADGE
+// ============================================================
+
+function createStatusBadge(status) {
+
+  let className =
+    "status-pending";
+
+  let label =
+    "Pending";
+
+
+  if (status === "approved") {
+
+    className =
+      "status-approved";
+
+    label =
+      "Approved";
+
+  }
+
+
+  if (status === "rejected") {
+
+    className =
+      "status-rejected";
+
+    label =
+      "Rejected";
+
+  }
+
+
+  return `
+
+    <span class="status ${className}">
+
+      ${escapeHtml(label)}
+
+    </span>
+
+  `;
+
+}
+
+
+// ============================================================
+// PAYMENT TABLE CLICK
+// ============================================================
+
+paymentsTable.addEventListener(
+  "click",
+  async (event) => {
+
+    const button =
+      event.target.closest(
+        "[data-action]"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    const action =
+      button.dataset.action;
+
+    const id =
+      button.dataset.id;
+
+
+    const payment =
+      allPayments.find(
+        item =>
+          item.id === id
+      );
+
+
+    if (!payment) {
+
+      alert(
+        "Payment record could not be found."
+      );
+
+      return;
+
+    }
+
+
+    if (action === "view") {
+
+      openPaymentModal(payment);
+
+    }
+
+
+    if (action === "approve") {
+
+      await approvePayment(payment);
+
+    }
+
+
+    if (action === "reject") {
+
+      await rejectPayment(payment);
+
+    }
+
+
+    if (action === "delete") {
+
+      await deletePayment(payment);
+
+    }
+
+  }
 );
 
 
+// ============================================================
+// PAYMENT MODAL
+// ============================================================
+
+function openPaymentModal(payment) {
+
+  const status =
+    getStatus(payment);
+
+  const userId =
+    getUserId(payment);
+
+  const amountUSD =
+    getAmountUSD(payment);
+
+  const amountKES =
+    getAmountKES(payment);
+
+  const transaction =
+    getTransactionId(payment);
+
+  const method =
+    getPaymentMethod(payment);
+
+  const date =
+    formatDate(
+      getPaymentDate(payment)
+    );
 
 
+  const proofUrl =
+    payment.proofUrl ||
+    payment.proofURL ||
+    payment.paymentProofUrl ||
+    payment.receiptUrl ||
+    null;
+
+
+  const proofName =
+    payment.proofFileName ||
+    payment.proofName ||
+    null;
+
+
+  let proofHTML = "";
+
+
+  if (proofUrl) {
+
+    proofHTML = `
+
+      <div class="detail-item full">
+
+        <label>Payment Proof</label>
+
+        <strong>
+
+          ${escapeHtml(
+            proofName ||
+            "Payment proof"
+          )}
+
+        </strong>
+
+        <br><br>
+
+        <a
+          href="${escapeAttribute(proofUrl)}"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="
+            display:inline-block;
+            padding:10px 15px;
+            background:#4f7cff;
+            color:white;
+            border-radius:7px;
+            text-decoration:none;
+            font-size:12px;
+          "
+        >
+
+          <i class="fa-solid fa-file-arrow-up"></i>
+
+          View Payment Proof
+
+        </a>
+
+      </div>
+
+    `;
+
+  } else if (proofName) {
+
+    proofHTML = `
+
+      <div class="detail-item full">
+
+        <label>Payment Proof</label>
+
+        <strong>
+
+          ${escapeHtml(proofName)}
+
+        </strong>
+
+        <div style="
+          color:#68748d;
+          font-size:11px;
+          margin-top:6px;
+        ">
+
+          Payment proof is attached to this
+          payment record.
+
+        </div>
+
+      </div>
+
+    `;
+
+  } else {
+
+    proofHTML = `
+
+      <div class="detail-item full">
+
+        <label>Payment Proof</label>
+
+        <strong>
+
+          No proof file attached
+
+        </strong>
+
+      </div>
+
+    `;
+
+  }
+
+
+  modalBody.innerHTML = `
+
+    <div class="detail-grid">
+
+
+      <div class="detail-item">
+
+        <label>Student Name</label>
+
+        <strong>
+
+          ${escapeHtml(
+            payment.name ||
+            payment.fullName ||
+            "Unknown"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Email</label>
+
+        <strong>
+
+          ${escapeHtml(
+            payment.email ||
+            "—"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>User UID</label>
+
+        <strong style="
+          font-family:monospace;
+          font-size:11px;
+        ">
+
+          ${escapeHtml(
+            userId ||
+            "—"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Payment ID</label>
+
+        <strong style="
+          font-family:monospace;
+          font-size:11px;
+        ">
+
+          ${escapeHtml(
+            payment.id
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Plan</label>
+
+        <strong>
+
+          ${escapeHtml(
+            payment.plan ||
+            payment.package ||
+            "—"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Payment Method</label>
+
+        <strong>
+
+          ${escapeHtml(method)}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>USD Amount</label>
+
+        <strong>
+
+          $${amountUSD.toFixed(2)}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>KES Amount</label>
+
+        <strong>
+
+          ${
+            amountKES !== null
+              ? "KSh " +
+                amountKES.toLocaleString(
+                  "en-KE"
+                )
+              : "—"
+          }
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Exchange Rate</label>
+
+        <strong>
+
+          ${
+            payment.exchangeRate
+              ? "1 USD = " +
+                Number(
+                  payment.exchangeRate
+                ).toFixed(2) +
+                " KES"
+              : "—"
+          }
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Status</label>
+
+        <strong>
+
+          ${createStatusBadge(status)}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item full">
+
+        <label>
+          Transaction / Reference
+        </label>
+
+        <strong style="
+          font-family:monospace;
+        ">
+
+          ${escapeHtml(transaction)}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item full">
+
+        <label>Notes</label>
+
+        <strong>
+
+          ${
+            payment.notes
+              ? escapeHtml(
+                  payment.notes
+                )
+              : "No notes"
+          }
+
+        </strong>
+
+      </div>
+
+
+      ${proofHTML}
+
+
+      <div class="detail-item full">
+
+        <label>Submitted</label>
+
+        <strong>
+
+          ${date}
+
+        </strong>
+
+      </div>
+
+
+    </div>
+
+
+    ${
+      status === "pending"
+        ? `
+
+          <div class="modal-actions">
+
+            <button
+              class="modal-approve"
+              id="modalApprove"
+              type="button"
+            >
+
+              <i class="fa-solid fa-check"></i>
+
+              Approve Payment
+
+            </button>
+
+
+            <button
+              class="modal-reject"
+              id="modalReject"
+              type="button"
+            >
+
+              <i class="fa-solid fa-xmark"></i>
+
+              Reject Payment
+
+            </button>
+
+          </div>
+
+        `
+        : ""
+    }
+
+  `;
+
+
+  paymentModal.classList.add(
+    "active"
+  );
+
+
+  const modalApprove =
+    document.getElementById(
+      "modalApprove"
+    );
+
+
+  const modalReject =
+    document.getElementById(
+      "modalReject"
+    );
+
+
+  if (modalApprove) {
+
+    modalApprove.onclick =
+      async () => {
+
+        closePaymentModal();
+
+        await approvePayment(
+          payment
+        );
+
+      };
+
+  }
+
+
+  if (modalReject) {
+
+    modalReject.onclick =
+      async () => {
+
+        closePaymentModal();
+
+        await rejectPayment(
+          payment
+        );
+
+      };
+
+  }
 
 }
 
-catch(error){
+
+// ============================================================
+// APPROVE PAYMENT
+// ============================================================
+
+async function approvePayment(payment) {
+
+  if (!currentAdmin) {
+
+    alert(
+      "Administrator session not found."
+    );
+
+    return;
+
+  }
 
 
-
-console.error(
-
-"Approval error:",
-
-error
-
-);
+  const userId =
+    getUserId(payment);
 
 
+  if (!userId) {
 
-alert(
+    alert(
+      "This payment does not contain a user ID (uid/userId).\n\n" +
+      "The payment cannot automatically activate the student's membership."
+    );
 
-"Failed to approve payment."
+    return;
 
-);
+  }
 
 
+  const confirmed =
+    confirm(
+      "Approve this payment?\n\n" +
+
+      "Student: " +
+      (
+        payment.name ||
+        payment.email ||
+        "Unknown"
+      ) +
+
+      "\nPlan: " +
+      (
+        payment.plan ||
+        "Unknown"
+      ) +
+
+      "\nAmount: $" +
+      getAmountUSD(payment).toFixed(2) +
+
+      "\n\n" +
+
+      "The student's membership will be changed to PREMIUM."
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    // --------------------------------------------------------
+    // FIRST VERIFY USER
+    // --------------------------------------------------------
+
+    const userRef =
+      doc(
+        db,
+        "users",
+        userId
+      );
+
+
+    const userSnap =
+      await getDoc(userRef);
+
+
+    if (!userSnap.exists()) {
+
+      throw new Error(
+        "Student user document was not found: " +
+        userId
+      );
+
+    }
+
+
+    // --------------------------------------------------------
+    // UPDATE PAYMENT
+    // --------------------------------------------------------
+
+    await updateDoc(
+      doc(
+        db,
+        "payments",
+        payment.id
+      ),
+      {
+
+        status:
+          "approved",
+
+        approvedAt:
+          serverTimestamp(),
+
+        approvedBy:
+          currentAdmin.uid
+
+      }
+    );
+
+
+    // --------------------------------------------------------
+    // UPDATE STUDENT
+    // --------------------------------------------------------
+
+    await updateDoc(
+      userRef,
+      {
+
+        membership:
+          "premium",
+
+        status:
+          "active",
+
+        role:
+          "member",
+
+        membershipUpdatedAt:
+          serverTimestamp(),
+
+        membershipUpdatedBy:
+          currentAdmin.uid
+
+      }
+    );
+
+
+    alert(
+      "Payment approved successfully.\n\n" +
+      "Student membership is now PREMIUM."
+    );
+
+
+    closePaymentModal();
+
+    await loadPayments();
+
+
+  } catch (error) {
+
+    console.error(
+      "APPROVE PAYMENT ERROR:",
+      error
+    );
+
+
+    alert(
+      "Unable to approve payment.\n\n" +
+      error.message
+    );
+
+
+    await loadPayments();
+
+  }
 
 }
 
 
-
-
-
-}
-
-
-
-
-
-
-// ===============================
+// ============================================================
 // REJECT PAYMENT
-// ===============================
+// ============================================================
+
+async function rejectPayment(payment) {
+
+  if (!currentAdmin) {
+
+    alert(
+      "Administrator session not found."
+    );
+
+    return;
+
+  }
 
 
-
-if(
-
-e.target.classList.contains(
-"reject-btn"
-)
-
-){
+  const reason =
+    prompt(
+      "Why are you rejecting this payment?\n\n" +
+      "Leave blank if you do not want to add a reason."
+    );
 
 
-
-const paymentId =
-
-e.target.dataset.id;
-
+  if (reason === null) {
+    return;
+  }
 
 
+  try {
+
+    await updateDoc(
+      doc(
+        db,
+        "payments",
+        payment.id
+      ),
+      {
+
+        status:
+          "rejected",
+
+        rejectionReason:
+          reason.trim(),
+
+        rejectedAt:
+          serverTimestamp(),
+
+        rejectedBy:
+          currentAdmin.uid
+
+      }
+    );
 
 
-if(
+    alert(
+      "Payment rejected."
+    );
 
-!confirm(
 
-"Reject this payment?"
+    closePaymentModal();
 
-)
+    await loadPayments();
 
-){
 
-return;
+  } catch (error) {
+
+    console.error(
+      "REJECT PAYMENT ERROR:",
+      error
+    );
+
+
+    alert(
+      "Unable to reject payment.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// DELETE PAYMENT
+// ============================================================
+
+async function deletePayment(payment) {
+
+  if (!currentAdmin) {
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      "Delete this payment record?\n\n" +
+      "This cannot be undone."
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await deleteDoc(
+      doc(
+        db,
+        "payments",
+        payment.id
+      )
+    );
+
+
+    alert(
+      "Payment record deleted."
+    );
+
+
+    await loadPayments();
+
+
+  } catch (error) {
+
+    console.error(
+      "DELETE PAYMENT ERROR:",
+      error
+    );
+
+
+    alert(
+      "Unable to delete payment.\n\n" +
+      error.message
+    );
+
+  }
 
 }
 
 
+// ============================================================
+// CLOSE MODAL
+// ============================================================
 
+function closePaymentModal() {
 
-
-try{
-
-
-
-await updateDoc(
-
-doc(
-
-db,
-
-"payments",
-
-paymentId
-
-),
-
-{
-
-
-status:
-"rejected",
-
-
-rejectedAt:
-new Date()
-
-
-
-}
-
-);
-
-
-
-
-
-alert(
-
-"Payment rejected."
-
-);
-
-
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(
-
-"Reject error:",
-
-error
-
-);
-
-
-
-alert(
-
-"Failed to reject payment."
-
-);
-
-
+  paymentModal.classList.remove(
+    "active"
+  );
 
 }
 
 
-
-
-
-}
-
-
-
-});
-// ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 3
-// Security + History + Status Management
-// ==========================================================
-
-
-
-import {
-
-    getDocs
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-// ===============================
-// VERIFY ADMIN ROLE
-// ===============================
-
-
-async function verifyAdmin(user){
-
-
-
-if(!user){
-
-    return false;
-
-}
-
-
-
-try{
-
-
-const adminRef =
-
-doc(
-
-db,
-
-"users",
-
-user.uid
-
+closeModal.addEventListener(
+  "click",
+  closePaymentModal
 );
 
 
+paymentModal.addEventListener(
+  "click",
+  (event) => {
 
-const adminSnap =
+    if (
+      event.target ===
+      paymentModal
+    ) {
 
-await getDoc(
-adminRef
+      closePaymentModal();
+
+    }
+
+  }
 );
 
 
-
-
-
-if(
-adminSnap.exists()
-){
-
-
-const data =
-adminSnap.data();
-
-
-
-
-if(
-data.role === "admin"
-){
-
-
-console.log(
-"Admin verified"
-);
-
-
-return true;
-
-
-}
-
-
-
-}
-
-
-
-return false;
-
-
-
-}
-catch(error){
-
-
-console.error(
-"Admin verification error:",
-error
-);
-
-
-return false;
-
-
-}
-
-
-}
-
-
-
-
-
-
-// ===============================
-// BLOCK NON ADMINS
-// ===============================
-
-
-onAuthStateChanged(
-
-auth,
-
-async(user)=>{
-
-
-
-const allowed =
-
-await verifyAdmin(
-user
-);
-
-
-
-if(!allowed){
-
-
-
-alert(
-"Unauthorized access"
-);
-
-
-
-window.location.href =
-"../index.html";
-
-
-
-}
-
-
-
-});
-// ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 4
-// Dashboard Statistics + Search + Filters
-// ==========================================================
-
-
-
-// ===============================
-// DASHBOARD ELEMENTS
-// ===============================
-
-
-const totalPaymentsElement =
-
-document.getElementById(
-    "totalPayments"
-);
-
-
-
-const pendingPaymentsElement =
-
-document.getElementById(
-    "pendingPayments"
-);
-
-
-
-const approvedPaymentsElement =
-
-document.getElementById(
-    "approvedPayments"
-);
-
-
-
-const revenueElement =
-
-document.getElementById(
-    "totalRevenue"
-);
-
-
-
-
-
-// Search
-
-const searchInput =
-
-document.getElementById(
-    "paymentSearch"
-);
-
-
-
-
-// Filter
-
-const statusFilter =
-
-document.getElementById(
-    "paymentFilter"
-);
-
-
-
-
-
-let allPayments = [];
-
-
-
-
-
-// ===============================
-// LOAD ALL PAYMENT DATA
-// ===============================
-
-
-function loadPaymentStatistics(){
-
-
-
-const paymentsRef =
-
-collection(
-
-db,
-
-"payments"
-
-);
-
-
-
-
-onSnapshot(
-
-paymentsRef,
-
-(snapshot)=>{
-
-
-
-allPayments = [];
-
-
-
-let total = 0;
-
-let pending = 0;
-
-let approved = 0;
-
-let revenue = 0;
-
-
-
-
-
-snapshot.forEach(
-
-(doc)=>{
-
-
-const payment =
-doc.data();
-
-
-
-allPayments.push({
-
-id:
-doc.id,
-
-...payment
-
-});
-
-
-
-total++;
-
-
-
-
-if(
-payment.status === "pending"
-){
-
-pending++;
-
-}
-
-
-
-
-if(
-payment.status === "approved"
-){
-
-
-approved++;
-
-
-
-// If amount exists
-
-if(
-payment.amount
-){
-
-revenue +=
-Number(payment.amount);
-
-}
-
-
-}
-
-
-
-
-
-});
-
-
-
-
-
-
-// Update cards
-
-
-if(totalPaymentsElement)
-
-totalPaymentsElement.innerText =
-total;
-
-
-
-if(pendingPaymentsElement)
-
-pendingPaymentsElement.innerText =
-pending;
-
-
-
-if(approvedPaymentsElement)
-
-approvedPaymentsElement.innerText =
-approved;
-
-
-
-if(revenueElement)
-
-revenueElement.innerText =
-"$ " + revenue;
-
-
-
-renderPayments(
-allPayments
-);
-
-
-
-});
-
-
-
-}
-
-
-
-loadPaymentStatistics();
-
-
-
-
-
-// ===============================
-// SEARCH + FILTER
-// ===============================
-
-
-if(searchInput){
-
-
+// ============================================================
+// FILTERS
+// ============================================================
 
 searchInput.addEventListener(
-
-"input",
-
-()=>{
-
-
-filterPayments();
-
-
-}
-
+  "input",
+  renderPayments
 );
-
-
-
-}
-
-
-
-
-if(statusFilter){
-
 
 
 statusFilter.addEventListener(
-
-"change",
-
-()=>{
-
-
-filterPayments();
-
-
-
-}
-
+  "change",
+  renderPayments
 );
 
 
-
-}
-
-
-
-
-
-function filterPayments(){
-
-
-
-let filtered =
-allPayments;
-
-
-
-const search =
-searchInput?.value
-.toLowerCase()
-.trim();
-
-
-
-
-const status =
-statusFilter?.value;
-
-
-
-
-if(search){
-
-
-filtered = filtered.filter(
-
-(payment)=>
-
-
-payment.name
-?.toLowerCase()
-.includes(search)
-
-
-||
-
-payment.email
-?.toLowerCase()
-.includes(search)
-
-
+methodFilter.addEventListener(
+  "change",
+  renderPayments
 );
 
 
+// ============================================================
+// REFRESH
+// ============================================================
 
-}
+refreshBtn.addEventListener(
+  "click",
+  async () => {
 
-
-
-
-
-if(
-status &&
-status !== "all"
-){
-
+    refreshBtn.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin"></i>';
 
 
-filtered = filtered.filter(
-
-(payment)=>
-
-payment.status === status
+    await loadPayments();
 
 
+    refreshBtn.innerHTML =
+      '<i class="fa-solid fa-rotate"></i> Refresh';
+
+  }
 );
 
 
+// ============================================================
+// DATE FORMAT
+// ============================================================
+
+function formatDate(value) {
+
+  if (!value) {
+    return "—";
+  }
+
+
+  const time =
+    getTimestamp(value);
+
+
+  if (!time) {
+    return "—";
+  }
+
+
+  const date =
+    new Date(time);
+
+
+  return date.toLocaleString(
+    "en-KE",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
 
 }
 
 
+// ============================================================
+// TIMESTAMP
+// ============================================================
+
+function getTimestamp(value) {
+
+  if (!value) {
+    return 0;
+  }
 
 
+  try {
 
-renderPayments(filtered);
+    if (
+      typeof value.toMillis ===
+      "function"
+    ) {
+
+      return value.toMillis();
+
+    }
 
 
+    if (
+      typeof value.toDate ===
+      "function"
+    ) {
+
+      return value
+        .toDate()
+        .getTime();
+
+    }
+
+
+    if (
+      value.seconds !== undefined
+    ) {
+
+      return (
+        Number(value.seconds) *
+        1000
+      );
+
+    }
+
+
+    if (
+      typeof value === "number"
+    ) {
+
+      return value < 10000000000
+        ? value * 1000
+        : value;
+
+    }
+
+
+    const date =
+      new Date(value);
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return 0;
+
+    }
+
+
+    return date.getTime();
+
+  } catch {
+
+    return 0;
+
+  }
 
 }
 
 
+// ============================================================
+// HTML SECURITY
+// ============================================================
+
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return "";
+
+  }
 
 
+  return String(value)
 
-// ===============================
-// RENDER PAYMENT TABLE
-// ===============================
+    .replace(
+      /&/g,
+      "&amp;"
+    )
 
+    .replace(
+      /</g,
+      "&lt;"
+    )
 
-function renderPayments(data){
+    .replace(
+      />/g,
+      "&gt;"
+    )
 
+    .replace(
+      /"/g,
+      "&quot;"
+    )
 
-
-if(!paymentTable){
-
-return;
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
+function escapeAttribute(value) {
 
-
-paymentTable.innerHTML = "";
-
-
-
-
-data.forEach(
-
-(payment)=>{
-
-
-
-paymentTable.innerHTML += `
-
-
-<tr>
-
-
-<td>
-
-${payment.name || "N/A"}
-
-</td>
-
-
-
-<td>
-
-${payment.email || "N/A"}
-
-</td>
-
-
-
-<td>
-
-${payment.plan || "N/A"}
-
-</td>
-
-
-
-<td>
-
-<span class="status ${payment.status}">
-
-${payment.status}
-
-</span>
-
-</td>
-
-
-
-<td>
-
-${payment.paymentMethod || "N/A"}
-
-</td>
-
-
-
-<td>
-
-
-<a href="${payment.paymentProof || '#'}"
-target="_blank">
-
-Proof
-
-</a>
-
-
-</td>
-
-
-
-<td>
-
-
-${
-payment.status === "pending"
-
-?
-
-`
-
-<button 
-class="approve-btn"
-data-id="${payment.id}"
-data-user="${payment.userId}">
-
-Approve
-
-</button>
-
-
-<button 
-class="reject-btn"
-data-id="${payment.id}">
-
-Reject
-
-</button>
-
-`
-
-:
-
-"Completed"
+  return escapeHtml(value);
 
 }
 
 
-</td>
+// ============================================================
+// ERROR DISPLAY
+// ============================================================
 
+function showError(message, error) {
 
-</tr>
+  paymentsTable.innerHTML = `
 
+    <tr>
 
+      <td colspan="8">
 
-`;
+        <div class="empty-state">
 
+          <i class="fa-solid fa-triangle-exclamation"></i>
 
+          <br><br>
 
-});
+          <strong>
+            ${escapeHtml(message)}
+          </strong>
 
+          <br><br>
 
+          <small>
+            ${escapeHtml(
+              error?.message ||
+              "Unknown error"
+            )}
+          </small>
 
-}
-// ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 5 FINAL
-// Security + Audit Logs + Navigation Cleanup
-// ==========================================================
+        </div>
 
+      </td>
 
-import {
+    </tr>
 
-    addDoc
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-// ===============================
-// CREATE APPROVAL AUDIT LOG
-// ===============================
-
-
-async function createPaymentLog(
-
-action,
-
-paymentId,
-
-userId,
-
-details
-
-){
-
-
-try{
-
-
-await addDoc(
-
-collection(
-
-db,
-
-"paymentLogs"
-
-),
-
-{
-
-
-action:
-
-action,
-
-
-paymentId:
-
-paymentId,
-
-
-userId:
-
-userId,
-
-
-details:
-
-details,
-
-
-admin:
-
-auth.currentUser.email,
-
-
-createdAt:
-
-serverTimestamp()
-
+  `;
 
 }
 
-);
 
-
+// ============================================================
+// DEBUG
+// ============================================================
 
 console.log(
-"Payment audit saved"
+  "GTRADES-AXIS™ Admin Payments loaded successfully."
 );
-
-
-
-}
-
-catch(error){
-
-
-console.error(
-
-"Audit log error:",
-
-error
-
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-// ===============================
-// UPDATE APPROVE FUNCTION
-// ===============================
-
-
-// Add this after successful approval:
-
-
-// createPaymentLog(
-// "APPROVED",
-// paymentId,
-// userId,
-// "Payment approved and premium activated"
-// );
-
-
-
-
-
-
-// ===============================
-// UPDATE REJECT FUNCTION
-// ===============================
-
-
-// Add this after successful rejection:
-
-
-// createPaymentLog(
-// "REJECTED",
-// paymentId,
-// null,
-// "Payment rejected by admin"
-// );
-
-
-
-
-
-
-
-// ===============================
-// PREVENT DOUBLE APPROVAL
-// ===============================
-
-
-async function checkPaymentAlreadyApproved(paymentId){
-
-
-const paymentRef =
-
-doc(
-
-db,
-
-"payments",
-
-paymentId
-
-);
-
-
-
-const paymentSnap =
-
-await getDoc(
-paymentRef
-);
-
-
-
-if(
-paymentSnap.exists()
-){
-
-
-const data =
-paymentSnap.data();
-
-
-
-if(
-data.status === "approved"
-){
-
-
-return true;
-
-
-}
-
-
-}
-
-
-
-return false;
-
-
-}
