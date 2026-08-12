@@ -85,7 +85,7 @@ let currentUserData = null;
 // ─── AUTH ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "login.html";
+    window.location.href = "/login";
     return;
   }
   currentUser = user;
@@ -535,7 +535,7 @@ document.querySelectorAll("#logoutBtn").forEach((btn) => {
   btn?.addEventListener("click", async () => {
     if (confirm("Logout?")) {
       await signOut(auth);
-      window.location.href = "login.html";
+      window.location.href = "/login";
     }
   });
 });

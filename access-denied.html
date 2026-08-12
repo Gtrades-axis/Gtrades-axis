@@ -80,7 +80,7 @@
       This content is for <strong>Premium members</strong> only.<br />
       Please upgrade your account to access the Academy, Resources, and other premium features.
     </p>
-    <a href="dashboard.html" class="btn">Go to Dashboard</a>
+    <a href="/dashboard" class="btn">Go to Dashboard</a>
     <a href="#" id="logoutAccessDenied" class="logout-link">
       <i class="fa-solid fa-right-from-bracket"></i> Log out
     </a>
@@ -93,7 +93,7 @@
     document.getElementById("logoutAccessDenied").addEventListener("click", async (e) => {
       e.preventDefault();
       await signOut(auth);
-      window.location.href = "login.html";
+      window.location.href = "/login";
     });
   </script>
 </body>

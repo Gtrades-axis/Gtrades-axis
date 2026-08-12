@@ -24,7 +24,7 @@ async function checkJournalAccess() {
 
             if (!user) {
 
-                window.location.href = "login.html";
+                window.location.href = "/login";
 
                 return;
 
@@ -40,7 +40,7 @@ async function checkJournalAccess() {
 
                     alert("User account not found.");
 
-                    window.location.href = "dashboard.html";
+                    window.location.href = "/dashboard";
 
                     return;
 
@@ -94,7 +94,7 @@ async function checkJournalAccess() {
                             The Trading Journal is available only to Premium Members.
                             </p>
 
-                            <a href="dashboard.html"
+                            <a href="/dashboard"
                                style="
                                display:inline-block;
                                padding:14px 28px;
@@ -286,7 +286,7 @@ function saveTrade(e) {
         }
         saveTrades();
         alert('✅ Trade updated!');
-        window.location.href = 'history.html';
+        window.location.href = '/history';
     } else {
         // ── NEW TRADE ──
         trades.unshift(trade);

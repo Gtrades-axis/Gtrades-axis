@@ -25,36 +25,16 @@ import {
 // ============================================================
 
 const PREMIUM_PAGES = [
-
-    "premium-academy.html",
-
-    "journal.html",
-
-    "resources.html",
-
-    "videos.html",
-
-    "analytics.html",
-
-    "history.html",
-
-    "ai-review.html"
-
+    '/academy', '/journal', '/resources', '/videos', '/analytics',
+    '/history', '/ai-review', '/certificate', '/lesson', '/quiz',
+    '/premium-resources'
 ];
 
 // ============================================================
 // CURRENT PAGE
 // ============================================================
 
-const currentPage =
-
-window.location.pathname
-
-.split("/")
-
-.pop()
-
-.toLowerCase();
+const currentPage = (window.location.pathname.replace(/\/+$/, '') || '/').toLowerCase();
 
 // ============================================================
 // EXIT IF NOT PREMIUM PAGE
@@ -88,7 +68,7 @@ async(user)=>{
 
     if(!user){
 
-        window.location.href="login.html";
+        window.location.href="/login";
 
         return;
 
@@ -106,7 +86,7 @@ async(user)=>{
 
         if(!snap.exists()){
 
-            window.location.href="login.html";
+            window.location.href="/login";
 
             return;
 
@@ -242,13 +222,13 @@ function lockPremiumContent(page) {
 
             <div class="premium-buttons">
 
-                <a href="payment.html" class="upgrade-btn">
+                <a href="/payment" class="upgrade-btn">
 
                     Upgrade Now
 
                 </a>
 
-                <a href="dashboard.html" class="dashboard-btn">
+                <a href="/dashboard" class="dashboard-btn">
 
                     Dashboard
 

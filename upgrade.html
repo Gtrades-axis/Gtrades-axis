@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Upgrade | GTRADES-AXIS™</title>
+
+<link rel="stylesheet" href="/css/style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: #080a10;
+    color: #fff;
+}
+
+.topbar {
+    min-height: 75px;
+    padding: 12px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #202638;
+    background: #0b0e17;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.logo small {
+    color: #7f8aa3;
+    font-size: 10px;
+}
+
+.back-btn {
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #29334c;
+    padding: 9px 15px;
+    border-radius: 8px;
+}
+
+.hero {
+    text-align: center;
+    padding: 70px 20px 40px;
+}
+
+.hero h1 {
+    font-size: clamp(32px, 5vw, 55px);
+    margin: 0;
+}
+
+.hero h1 span {
+    color: #4f7cff;
+}
+
+.hero p {
+    max-width: 700px;
+    margin: 15px auto;
+    color: #929db5;
+    line-height: 1.8;
+}
+
+.plans {
+    width: min(1050px, 92%);
+    margin: 20px auto 80px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.plan-card {
+    position: relative;
+    background: #111522;
+    border: 1px solid #29334c;
+    border-radius: 18px;
+    padding: 35px;
+    overflow: hidden;
+}
+
+.plan-card.featured {
+    border-color: #4f7cff;
+}
+
+.popular {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #4f7cff;
+    padding: 8px 18px;
+    border-bottom-left-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.plan-header {
+    margin-bottom: 25px;
+}
+
+.plan-header h2 {
+    margin: 0 0 12px;
+}
+
+.plan-price {
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.plan-header p {
+    color: #7f8aa3;
+}
+
+.plan-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 25px 0;
+}
+
+.plan-card li {
+    padding: 9px 0;
+    color: #b9c2d5;
+}
+
+.plan-card li i {
+    color: #00c897;
+    margin-right: 8px;
+}
+
+.select-plan {
+    width: 100%;
+    border: 0;
+    padding: 14px;
+    border-radius: 9px;
+    background: #4f7cff;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.select-plan:hover {
+    opacity: .9;
+}
+
+.account-box {
+    text-align: center;
+    width: min(700px, 92%);
+    margin: -30px auto 70px;
+    padding: 18px;
+    background: #0e121d;
+    border: 1px solid #202a40;
+    border-radius: 12px;
+    color: #8f9ab2;
+}
+
+.account-box strong {
+    color: #fff;
+}
+
+.message {
+    width: min(700px, 92%);
+    margin: 20px auto;
+    padding: 14px;
+    border-radius: 9px;
+    display: none;
+    text-align: center;
+}
+
+.message.error {
+    display: block;
+    background: rgba(255,70,90,.08);
+    border: 1px solid rgba(255,70,90,.2);
+    color: #ff7373;
+}
+
+footer {
+    text-align: center;
+    padding: 35px 20px;
+    border-top: 1px solid #202638;
+    color: #68738d;
+}
+
+@media(max-width: 750px) {
+
+    .plans {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        padding: 12px 20px;
+    }
+
+    .logo small {
+        display: none;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="logo">
+
+        <img src="/images/logo.png" alt="GTRADES-AXIS">
+
+        <div>
+            <h2>GTRADES-AXIS™</h2>
+            <small>
+                Trade with Structure. Execute with Precision.
+            </small>
+        </div>
+
+    </div>
+
+    <a href="/dashboard" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i>
+        Dashboard
+    </a>
+
+</header>
+
+
+<section class="hero">
+
+    <h1>
+        Upgrade To <span>Premium</span>
+    </h1>
+
+    <p>
+        Unlock the complete GTRADES-AXIS™ Premium Academy,
+        Trading Journal, AI Trade Review, Premium Resources
+        and advanced trading tools.
+    </p>
+
+</section>
+
+
+<div id="message" class="message"></div>
+
+
+<div class="account-box">
+
+    <i class="fa-solid fa-user"></i>
+
+    <span id="accountText">
+        Checking your account...
+    </span>
+
+</div>
+
+
+<section class="plans">
+
+    <!-- MONTHLY -->
+
+    <div class="plan-card">
+
+        <div class="plan-header">
+
+            <h2>Premium Monthly</h2>
+
+            <div class="plan-price">
+                $50
+            </div>
+
+            <p>
+                Per Month
+            </p>
+
+        </div>
+
+        <ul>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Premium Academy
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Trading Journal
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                AI Trade Review
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Premium Resources
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Analytics Dashboard
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Priority Support
+            </li>
+
+        </ul>
+
+        <button
+            class="select-plan"
+            data-plan="Monthly">
+
+            Continue With Monthly
+
+        </button>
+
+    </div>
+
+
+    <!-- LIFETIME -->
+
+    <div class="plan-card featured">
+
+        <div class="popular">
+            BEST VALUE
+        </div>
+
+        <div class="plan-header">
+
+            <h2>Lifetime Premium</h2>
+
+            <div class="plan-price">
+                $200
+            </div>
+
+            <p>
+                One-Time Payment
+            </p>
+
+        </div>
+
+        <ul>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Everything in Monthly
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Lifetime Access
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                All Future Updates
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                Lifetime Premium Resources
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                VIP Features
+            </li>
+
+            <li>
+                <i class="fa-solid fa-check"></i>
+                No Renewal Fees
+            </li>
+
+        </ul>
+
+        <button
+            class="select-plan"
+            data-plan="Lifetime">
+
+            Continue With Lifetime
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<footer>
+
+    <strong>GTRADES-AXIS™</strong>
+
+    <p>
+        Trade with Structure. Execute with Precision.
+    </p>
+
+    © 2026 GTRADES-AXIS™ All Rights Reserved.
+
+</footer>
+
+
+<script type="module">
+
+import { auth, db } from "/js/firebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import {
+    doc,
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    limit
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+const accountText =
+    document.getElementById("accountText");
+
+const message =
+    document.getElementById("message");
+
+
+let currentUser = null;
+let currentMembership = "member";
+
+
+function showMessage(text) {
+
+    message.textContent = text;
+    message.className = "message error";
+
+}
+
+
+onAuthStateChanged(auth, async user => {
+
+    if (!user) {
+
+        currentUser = null;
+
+        accountText.innerHTML =
+            "Please <strong>log in</strong> before upgrading.";
+
+        document
+            .querySelectorAll(".select-plan")
+            .forEach(button => {
+
+                button.disabled = true;
+                button.style.opacity = ".5";
+
+            });
+
+        return;
+    }
+
+
+    currentUser = user;
+
+
+    let userData = {};
+
+
+    try {
+
+        const userSnap =
+            await getDoc(
+                doc(db, "users", user.uid)
+            );
+
+        if (userSnap.exists()) {
+
+            userData =
+                userSnap.data();
+
+            currentMembership =
+                userData.membership ||
+                userData.role ||
+                "member";
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not load student:",
+            error
+        );
+
+    }
+
+
+    const name =
+        userData.name ||
+        userData.fullName ||
+        userData.displayName ||
+        user.displayName ||
+        user.email?.split("@")[0] ||
+        "Member";
+
+
+    accountText.innerHTML =
+        `Signed in as <strong>${name}</strong>`;
+
+
+    /*
+     * Check whether there is already a pending payment.
+     *
+     * This prevents the same user from creating
+     * multiple pending entries for the same upgrade.
+     */
+
+    try {
+
+        const paymentsQuery =
+            query(
+                collection(db, "payments"),
+                where("userId", "==", user.uid),
+                where("status", "==", "pending"),
+                limit(10)
+            );
+
+
+        const snapshot =
+            await getDocs(paymentsQuery);
+
+
+        if (!snapshot.empty) {
+
+            accountText.innerHTML +=
+                `<br>
+                 <span style="color:#f5a623">
+                 You already have a payment awaiting verification.
+                 </span>`;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Pending payment check:",
+            error
+        );
+
+    }
+
+});
+
+
+document
+.querySelectorAll(".select-plan")
+.forEach(button => {
+
+    button.addEventListener("click", async () => {
+
+        clearMessage();
+
+
+        if (!currentUser) {
+
+            showMessage(
+                "Please log in before selecting a Premium plan."
+            );
+
+            return;
+        }
+
+
+        const plan =
+            button.dataset.plan;
+
+
+        if (
+            plan !== "Monthly" &&
+            plan !== "Lifetime"
+        ) {
+
+            showMessage(
+                "Invalid membership plan."
+            );
+
+            return;
+        }
+
+
+        button.disabled = true;
+
+        button.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+
+
+        try {
+
+            /*
+             * Check for existing pending payments.
+             */
+
+            const pendingQuery =
+                query(
+                    collection(db, "payments"),
+                    where(
+                        "userId",
+                        "==",
+                        currentUser.uid
+                    ),
+                    where(
+                        "status",
+                        "==",
+                        "pending"
+                    ),
+                    limit(10)
+                );
+
+
+            const pendingSnapshot =
+                await getDocs(pendingQuery);
+
+
+            if (!pendingSnapshot.empty) {
+
+                /*
+                 * Allow the user to continue only if
+                 * they are intentionally changing/upgrading
+                 * the plan.
+                 */
+
+                const existing =
+                    pendingSnapshot.docs.some(
+                        paymentDoc =>
+                            paymentDoc.data().plan === plan
+                    );
+
+
+                if (existing) {
+
+                    showMessage(
+                        "You already have a payment awaiting verification for this plan. Please wait for the administrator to verify it."
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            /*
+             * Send the selected plan to /payments.
+             */
+
+            const url =
+                `/payments?plan=${encodeURIComponent(plan)}`;
+
+
+            window.location.href = url;
+
+
+        } catch (error) {
+
+            console.error(
+                "Upgrade check failed:",
+                error
+            );
+
+
+            showMessage(
+                "We could not verify your current payment status. Please try again."
+            );
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                plan === "Monthly"
+                    ? "Continue With Monthly"
+                    : "Continue With Lifetime";
+
+        }
+
+    });
+
+});
+
+
+function clearMessage() {
+
+    message.textContent = "";
+    message.className = "message";
+
+}
+
+</script>
+
+</body>
+</html>

@@ -68,9 +68,9 @@
 
             <div class="divider"><span class="divider-line"></span><span class="divider-text">secure access</span><span class="divider-line"></span></div>
             <div class="login-links">
-                Don't have an account? <a href="register.html">Create one</a>
+                Don't have an account? <a href="/register">Create one</a>
             </div>
-            <a class="back-home" href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+            <a class="back-home" href="/"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
         </div>
     </div>
 
@@ -145,7 +145,7 @@
                 }
 
                 // 🔽 FIXED: Redirects to the HTML file, not the route
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
 
             } catch (error) {
                 console.error("Google Login Error:", error);
@@ -167,7 +167,7 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 // 🔽 FIXED: Redirects to the HTML file, not the route
-                window.location.href = 'dashboard.html'; 
+                window.location.href = '/dashboard'; 
             } catch (error) {
                 console.error("Email Login Error:", error);
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {

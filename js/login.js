@@ -29,7 +29,7 @@ if (form) {
                 await sendEmailVerification(user);
                 alert("📧 Please verify your email first. A new verification link has been sent to your inbox.");
                 // Optionally redirect to verify-email page
-                window.location.href = "verify-email.html";
+                window.location.href = "/verify-email";
                 return;
             }
 
@@ -60,15 +60,15 @@ if (form) {
 
             // 7. Role-based redirects
             if (userData.role === "admin") {
-                window.location.href = "admin.html";
+                window.location.href = "/admin";
                 return;
             }
             if (userData.role === "premium") {
-                window.location.href = "dashboard.html";
+                window.location.href = "/dashboard";
                 return;
             }
             // Default for members and auto-upgraded users
-            window.location.href = "dashboard.html";
+            window.location.href = "/dashboard";
 
         } catch (error) {
             console.error("Login error:", error);

@@ -92,7 +92,7 @@ let uploadLocked = false;
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
-        window.location.href = "/login.html";
+        window.location.href = "/login";
         return;
     }
 
@@ -119,7 +119,7 @@ onAuthStateChanged(auth, async (user) => {
             );
 
             setTimeout(() => {
-                window.location.href = "/dashboard.html";
+                window.location.href = "/dashboard";
             }, 1500);
 
             return;

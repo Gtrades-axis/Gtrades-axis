@@ -96,7 +96,7 @@ onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
 
-    window.location.href = "/login.html";
+    window.location.href = "/login";
 
     return;
   }
@@ -890,7 +890,7 @@ async function downloadResource(
   if (!user) {
 
     window.location.href =
-      "/login.html";
+      "/login";
 
     return;
   }
@@ -1267,7 +1267,7 @@ logoutBtn?.addEventListener(
       await signOut(auth);
 
       window.location.href =
-        "/login.html";
+        "/login";
 
     } catch (error) {
 
