@@ -266,12 +266,12 @@ function renderDashboard() {
     const lesson = mod.lessons.find((l) => l.id === firstIncomplete.lessonId);
     continueBtn.textContent = `Continue ${mod.title} – ${lesson ? lesson.title : ''}`;
     continueBtn.onclick = () => {
-      window.location.href = `/lesson?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
+      window.location.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
     };
   } else {
     continueBtn.textContent = "🎉 All modules complete! View Certificate";
     continueBtn.onclick = () => {
-      window.location.href = "/certificate?final=true";
+      window.location.href = "certificate.html?final=true";
     };
   }
 
@@ -342,10 +342,10 @@ function renderDashboard() {
           </div>
           <span>${completed.length}/${total} lessons</span>
         </div>
-        <a href="${unlocked && total > 0 ? `/lesson?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">
+        <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">
           ${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}
         </a>
-        ${mod.hasQuiz && unlocked ? `<a href="/quiz?module=${mod.id}" class="quiz-link">Take Quiz</a>` : ''}
+        ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Take Quiz</a>` : ''}
       </div>
     `;
   });

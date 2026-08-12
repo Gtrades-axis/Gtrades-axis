@@ -21,24 +21,19 @@ import {
 // ROUTE PATHS (Clean URL structure)
 // ============================================================
 
-const PUBLIC_PAGES = [
-    '/', '/login', '/register', '/pending', '/access-denied',
-    '/premium', '/contact', '/strategy', '/upgrade', '/payment',
-    '/membership', '/forgot-password', '/verify-email', '/downloads'
-];
+const PUBLIC_PAGES = ['/', '/login', '/register', '/pending', '/access-denied', '/premium'];
 
 // 🛡️ SECURE LIST: Covering all variations so members can't slip through
 const ADMIN_PAGES = [
-    '/admin', '/admin-members', '/admin-payments', '/admin-performance',
-    '/admin-video-upload', '/admin-videos', '/academy-admin',
-    '/resources-admin', '/videos-admin'
+    '/admin', '/admin/', '/admin.html',
+    '/members', '/members/', '/members.html',
+    '/admin-payments', '/admin-payments/', '/admin-payments.html',
+    '/academy-admin', '/academy-admin/', '/academy-admin.html',
+    '/resources-admin', '/resources-admin/', '/resources-admin.html',
+    '/videos-admin', '/videos-admin/', '/videos-admin.html'
 ];
 
-const PREMIUM_PAGES = [
-    '/academy', '/journal', '/resources', '/videos', '/analytics',
-    '/history', '/ai-review', '/certificate', '/lesson', '/quiz',
-    '/premium-resources'
-];
+const PREMIUM_PAGES = ['/premium-academy', '/journal', '/resources', '/videos', '/analytics', '/history', '/ai-review'];
 
 // ============================================================
 // PAGE GUARD

@@ -1,64 +1,72 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 const map = {
-  "index.html": "/",
-  "dashboard": "/dashboard",
-  "login": "/login",
-  "register.html": "/register",
-  "profile.html": "/profile",
-  "history.html": "/history",
-  "journal.html": "/journal",
-  "analytics.html": "/analytics",
-  "resources.html": "/resources",
-  "admin": "/admin",
-  "ai-review.html": "/ai-review",
-  "certificate.html": "/certificate",
-  "lesson.html": "/lesson",
-  "quiz.html": "/quiz",
-  "premium-academy.html": "/academy",
-  "academy.html": "/academy-admin",
-  "contact.html": "/contact",
-  "support.html": "/support",
-  "videos.html": "/videos",
-  "pending": "/pending",
-  "access-denied.html": "/access-denied",
-  "upgrade.html": "/upgrade",
-  "payment.html": "/payment",
-  "membership.html": "/membership",
-  "downloads.html": "/downloads",
-  "forgot-password.html": "/forgot-password",
-  "backtesting-lab": "/backtesting-lab",
-  "premium-resources.html": "/premium-resources",
-  "premium.html": "/premium",
-  "strategy.html": "/strategy",
-  "module.html": "/module",
-  "student-performance.html": "/student-performance",
-  "verify-email.html": "/verify-email",
-  "admin-members.html": "/admin-members",
-  "admin-payments.html": "/admin-payments",
-  "admin-performance.html": "/admin-performance",
-  "admin-video-upload.html": "/admin-video-upload",
-  "admin-videos.html": "/admin-videos"
+  'index.html': '/',
+  'dashboard.html': '/dashboard',
+  'login.html': '/login',
+  'register.html': '/register',
+  'profile.html': '/profile',
+  'history.html': '/history',
+  'journal.html': '/journal',
+  'analytics.html': '/analytics',
+  'resources.html': '/resources',
+  'admin.html': '/admin',
+  'ai-review.html': '/ai-review',
+  'certificate.html': '/certificate',
+  'lesson.html': '/lesson',
+  'quiz.html': '/quiz',
+  'premium-academy.html': '/academy',
+  'contact.html': '/contact',
+  'support.html': '/support',
+  'videos.html': '/videos',
+  'pending.html': '/pending',
+  'access-denied.html': '/access-denied',
+  // add any other .html files you have
 };
 
+const dir = './';
+
 function walk(dir, callback) {
-  for (const file of fs.readdirSync(dir)) {
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
-    if (stat.isDirectory()) {
-      if (!["node_modules", ".git", ".vscode", ".github"].includes(file)) walk(fullPath, callback);
-    } else if (/\.(html|js)$/.test(file)) callback(fullPath);
-  }
+  fs.readdir(dir, (err, files) => {
+    if (err) return;
+    files.forEach(file => {
+      const fullPath = path.join(dir, file);
+      fs.stat(fullPath, (err, stat) => {
+        if (stat && stat.isDirectory()) {
+          if (file !== 'node_modules' && file !== '.git' && file !== '.vscode' && file !== '.github') {
+            walk(fullPath, callback);
+          }
+        } else if (/\.(html|htm|js)$/.test(file)) {
+          callback(fullPath);
+        }
+      });
+    });
+  });
 }
 
-walk(".", (file) => {
-  let content = fs.readFileSync(file, "utf8");
-  const original = content;
-  for (const [oldLink, newLink] of Object.entries(map)) {
-    const escaped = oldLink.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    content = content.replace(new RegExp(`((?:href|action|src)=["'])(?:\\.\\./|\\.\\/)?${escaped}(?=([?#][^"']*)?["'])`, "g"), `$1${newLink}`);
-    content = content.replace(new RegExp(`((?:window\\.)?location\\.href\\s*=\\s*["'])(?:\\.\\./|\\.\\/)?${escaped}(?=([?#][^"']*)?["'])`, "g"), `$1${newLink}`);
+walk(dir, (file) => {
+  let content = fs.readFileSync(file, 'utf8');
+  let changed = false;
+
+  Object.entries(map).forEach(([oldLink, newLink]) => {
+    // Replace in HTML attributes (href, action, src)
+    const attrRegex = new RegExp(`(href|action|src)=["'](?:\.\.\/|\.\/)?${oldLink}["']`, 'g');
+    if (attrRegex.test(content)) {
+      content = content.replace(attrRegex, (match, attr) => `${attr}="${newLink}"`);
+      changed = true;
+    }
+
+    // Replace in JavaScript redirects
+    const jsRegex = new RegExp(`(location\\.href|window\\.location\\.href)\\s*=\\s*["'](?:\.\.\/|\.\/)?${oldLink}["']`, 'g');
+    if (jsRegex.test(content)) {
+      content = content.replace(jsRegex, (match, func) => `${func} = "${newLink}"`);
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    fs.writeFileSync(file, content, 'utf8');
+    console.log(`✅ Updated: ${file}`);
   }
-  if (content !== original) { fs.writeFileSync(file, content, "utf8"); console.log(`Updated: ${file}`); }
 });

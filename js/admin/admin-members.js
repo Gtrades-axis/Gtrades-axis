@@ -49,7 +49,7 @@ const suspendedMembersEl = document.getElementById("suspendedMembers");
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
-        window.location.href = "/login";
+        window.location.href = "../login.html";
         return;
     }
 
@@ -59,7 +59,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!adminSnap.exists()) {
             await signOut(auth);
-            window.location.href = "/login";
+            window.location.href = "../login.html";
             return;
         }
 
@@ -67,7 +67,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (adminData.role !== "admin") {
             await signOut(auth);
-            window.location.href = "/";
+            window.location.href = "../index.html";
             return;
         }
 
@@ -723,14 +723,14 @@ window.reloadMembers = function () {
 window.checkAdminAccess = async function () {
     const user = auth.currentUser;
     if (!user) {
-        window.location.href = "/login";
+        window.location.href = "../login.html";
         return false;
     }
 
     const snap = await getDoc(doc(db, "users", user.uid));
     if (!snap.exists() || snap.data().role !== "admin") {
         await signOut(auth);
-        window.location.href = "/login";
+        window.location.href = "../login.html";
         return false;
     }
 

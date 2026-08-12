@@ -76,11 +76,11 @@
     <div class="logo"><h2>GTRADES <span>AXIS™</span></h2></div>
     <nav>
       <ul>
-        <li><a href="/dashboard"><i class="fas fa-house"></i> Dashboard</a></li>
-        <li class="active"><a href="/academy"><i class="fas fa-book-open"></i> Modules</a></li>
-        <li><a href="/resources"><i class="fas fa-folder-open"></i> Resources</a></li>
-        <li><a href="/videos"><i class="fas fa-circle-play"></i> Videos</a></li>
-        <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+        <li><a href="dashboard.html"><i class="fas fa-house"></i> Dashboard</a></li>
+        <li class="active"><a href="premium-academy.html"><i class="fas fa-book-open"></i> Modules</a></li>
+        <li><a href="resources.html"><i class="fas fa-folder-open"></i> Resources</a></li>
+        <li><a href="videos.html"><i class="fas fa-circle-play"></i> Videos</a></li>
+        <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
         <li style="margin-top:40px;"><a href="#" id="logoutBtnSidebar" style="color:#ff4766;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
     </nav>
@@ -92,8 +92,8 @@
       <h2>Premium Members Only</h2>
       <p style="color:#94a3b8;margin:12px 0 24px;">Upgrade your membership to access the full Academy.</p>
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-        <a href="/upgrade" style="background:linear-gradient(135deg,#f5a623,#f7c948);color:#0b0d15;padding:12px 32px;border-radius:8px;font-weight:600;text-decoration:none;">Upgrade</a>
-        <a href="/dashboard" style="background:#1a1f2f;color:#94a3b8;border:1px solid #2a3450;padding:12px 32px;border-radius:8px;text-decoration:none;">Dashboard</a>
+        <a href="upgrade.html" style="background:linear-gradient(135deg,#f5a623,#f7c948);color:#0b0d15;padding:12px 32px;border-radius:8px;font-weight:600;text-decoration:none;">Upgrade</a>
+        <a href="dashboard.html" style="background:#1a1f2f;color:#94a3b8;border:1px solid #2a3450;padding:12px 32px;border-radius:8px;text-decoration:none;">Dashboard</a>
       </div>
     </div>
 
@@ -101,7 +101,7 @@
       <header class="topbar">
         <div>
           <h1>Premium Academy</h1>
-          <p><a href="/dashboard" style="color:#4f7cff;text-decoration:none;"><i class="fas fa-arrow-left"></i> Dashboard</a></p>
+          <p><a href="dashboard.html" style="color:#4f7cff;text-decoration:none;"><i class="fas fa-arrow-left"></i> Dashboard</a></p>
         </div>
         <div><span id="userName" style="font-weight:600;">Trader</span> <span id="userRole" style="color:#f5a623;font-size:0.8rem;">Premium</span></div>
       </header>
@@ -183,7 +183,7 @@
   app.classList.add('loading');
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "/login"; return; }
+    if (!user) { window.location.href = "login.html"; return; }
     try {
       const userSnap = await getDoc(doc(db, "users", user.uid));
       if (!userSnap.exists()) { app.classList.remove('loading'); app.classList.add('locked'); return; }
@@ -201,7 +201,7 @@
   });
 
   document.getElementById('logoutBtnSidebar')?.addEventListener('click', async (e) => {
-    e.preventDefault(); if (confirm('Logout?')) { await signOut(auth); window.location.href = "/login"; }
+    e.preventDefault(); if (confirm('Logout?')) { await signOut(auth); window.location.href = "login.html"; }
   });
 
   async function loadProgress(uid) {
@@ -236,10 +236,10 @@
       const mod = modules.find(m => m.id === firstIncomplete.moduleId);
       const lesson = mod?.lessons.find(l => l.id === firstIncomplete.lessonId);
       continueBtn.textContent = `Continue ${mod?.title || ''} – ${lesson?.title || ''}`;
-      continueBtn.onclick = () => window.location.href = `/lesson?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
+      continueBtn.onclick = () => window.location.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
     } else {
       continueBtn.textContent = "🎉 All Done! View Certificate";
-      continueBtn.onclick = () => window.location.href = "/certificate?final=true";
+      continueBtn.onclick = () => window.location.href = "certificate.html?final=true";
     }
 
     let lessonsDone = 0, quizzesPassed = 0, certificates = 0;
@@ -279,8 +279,8 @@
           </div>
           ${fileDownload}
           <div style="margin-top:10px;">
-            <a href="${unlocked && total > 0 ? `/lesson?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}</a>
-            ${mod.hasQuiz && unlocked ? `<a href="/quiz?module=${mod.id}" class="quiz-link">Quiz</a>` : ''}
+            <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="module-btn ${!unlocked ? 'locked' : ''}">${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}</a>
+            ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Quiz</a>` : ''}
           </div>
         </div>
       `;

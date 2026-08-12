@@ -72,7 +72,7 @@ if (form) {
 
             alert("✅ Registration successful!\n\nVerification email sent. Please check your inbox.");
             console.log("➡️ Redirecting to pending.html");
-            window.location.href = "/pending";
+            window.location.href = "pending.html";
 
         } catch (error) {
             console.error("❌ Registration error:", error);

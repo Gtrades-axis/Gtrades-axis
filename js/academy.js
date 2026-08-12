@@ -82,7 +82,7 @@ const todayDate = document.getElementById("todayDate");
 // ─── Auth guard ───────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "/login";
+    window.location.href = "login.html";
     return;
   }
   currentUser = user;
@@ -99,7 +99,7 @@ onAuthStateChanged(auth, async (user) => {
           <i class="fa-solid fa-lock" style="font-size:3rem;color:#ffb300;display:block;margin-bottom:16px;"></i>
           <h2>Premium Access Required</h2>
           <p style="color:#94a3b8;margin-bottom:16px;">Upgrade to Premium to access the Academy.</p>
-          <a href="/dashboard" class="btn btn-primary" style="display:inline-block;">Go to Dashboard</a>
+          <a href="dashboard.html" class="btn btn-primary" style="display:inline-block;">Go to Dashboard</a>
         </div>
       `;
       return;
@@ -196,13 +196,13 @@ function renderDashboard() {
     const lesson = mod.lessons.find((l) => l.id === firstIncomplete.lessonId);
     continueModuleEl.textContent = mod.title;
     continueLessonEl.textContent = lesson ? lesson.title : "Start Module";
-    continueBtn.href = `/lesson?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
+    continueBtn.href = `lesson.html?module=${firstIncomplete.moduleId}&lesson=${firstIncomplete.lessonId}`;
     continueBtn.textContent = "Continue ▶";
   } else {
     continueModuleEl.textContent = "🎉 All modules complete!";
     continueLessonEl.textContent = "You've finished the Academy. Great job!";
     continueBtn.textContent = "View Certificate";
-    continueBtn.href = "/certificate?final=true";
+    continueBtn.href = "certificate.html?final=true";
   }
 
   // 3. Achievements
@@ -251,10 +251,10 @@ function renderDashboard() {
           <div class="mini-bar"><div class="fill" style="width:${pctMod}%;"></div></div>
           <span>${pctMod}%</span>
         </div>
-        <a href="${unlocked && total > 0 ? `/lesson?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="btn-module ${!unlocked ? 'locked' : ''}">
+        <a href="${unlocked && total > 0 ? `lesson.html?module=${mod.id}&lesson=${mod.lessons[0].id}` : '#'}" class="btn-module ${!unlocked ? 'locked' : ''}">
           ${isCompleted ? 'Review' : (unlocked ? 'Start' : '🔒 Locked')}
         </a>
-        ${mod.hasQuiz && unlocked ? `<a href="/quiz?module=${mod.id}" class="quiz-link">Quiz</a>` : ''}
+        ${mod.hasQuiz && unlocked ? `<a href="quiz.html?module=${mod.id}" class="quiz-link">Quiz</a>` : ''}
       </div>
     `;
   });

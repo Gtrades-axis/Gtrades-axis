@@ -180,7 +180,7 @@ function renderLessons(){
 
                 location.href=
 
-                `/lesson?module=${moduleId}&lesson=${lesson.id}`;
+                `lesson.html?module=${moduleId}&lesson=${lesson.id}`;
 
             };
 

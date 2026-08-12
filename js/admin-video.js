@@ -95,7 +95,7 @@ let uploadLocked = false;
 onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
-    window.location.href = "/login";
+    window.location.href = "/login.html";
     return;
   }
 
@@ -108,7 +108,7 @@ onAuthStateChanged(auth, async (user) => {
       await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      window.location.href = "/login";
+      window.location.href = "/login.html";
       return;
     }
 
@@ -116,7 +116,7 @@ onAuthStateChanged(auth, async (user) => {
       userSnap.data();
 
     if (data.role !== "admin") {
-      window.location.href = "/dashboard";
+      window.location.href = "/dashboard.html";
       return;
     }
 
@@ -131,7 +131,7 @@ onAuthStateChanged(auth, async (user) => {
       error
     );
 
-    window.location.href = "/login";
+    window.location.href = "/login.html";
 
   }
 

@@ -79,7 +79,7 @@ async(user)=>{
 
 
         window.location.href =
-        "/login";
+        "../login.html";
 
 
         return;
@@ -117,7 +117,7 @@ async(user)=>{
 
 
             window.location.href =
-            "/login";
+            "../login.html";
 
 
             return;
@@ -141,7 +141,7 @@ async(user)=>{
 
 
             window.location.href =
-            "/";
+            "../index.html";
 
 
             return;
@@ -643,7 +643,7 @@ window.openMembers =
 function(){
 
     window.location.href =
-    "/admin-members";
+    "admin-members.html";
 
 };
 
@@ -653,7 +653,7 @@ window.openPayments =
 function(){
 
     window.location.href =
-    "/admin-payments";
+    "admin-payments.html";
 
 };
 
@@ -663,7 +663,7 @@ window.openAcademy =
 function(){
 
     window.location.href =
-    "academy-admin";
+    "admin-academy.html";
 
 };
 
@@ -685,7 +685,7 @@ async function(){
 
 
         window.location.href =
-        "/login";
+        "../login.html";
 
 
     }
@@ -1799,7 +1799,7 @@ async()=>{
 
 
             window.location.href =
-            "/login";
+            "../login.html";
 
 
         }

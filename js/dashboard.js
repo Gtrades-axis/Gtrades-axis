@@ -59,7 +59,7 @@ onAuthStateChanged(auth, async (user)=>{
 
     if(!user){
 
-        window.location.href = "/login";
+        window.location.href = "login.html";
         return;
 
     }
@@ -91,7 +91,7 @@ onAuthStateChanged(auth, async (user)=>{
             await signOut(auth);
 
             window.location.href =
-                "/login";
+                "login.html";
 
             return;
 
@@ -627,7 +627,7 @@ async(e)=>{
 
 
         window.location.href =
-            "/login";
+            "login.html";
 
 
 

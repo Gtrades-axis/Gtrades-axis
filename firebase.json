@@ -7,13 +7,7 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "cleanUrls": true,
-    "trailingSlash": false,
-    "rewrites": [
-      {
-        "source": "/academy-admin",
-        "destination": "/academy.html"
-      }
-    ]
+    "cleanUrls": false,
+    "trailingSlash": false
   }
 }

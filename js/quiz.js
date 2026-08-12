@@ -23,7 +23,7 @@ function findModuleInFallback() {
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "/login"; return; }
+  if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
   await loadProgress();
   await loadQuiz();
@@ -72,7 +72,7 @@ async function loadQuiz() {
         <div class="result-box">
           <div class="score pass">✅ Quiz Passed!</div>
           <div class="details">Score: ${modProgress.quizScore || 0}%</div>
-          <button onclick="window.location.href='/academy'" class="btn btn-primary" style="margin-top:10px;">Back to Academy</button>
+          <button onclick="window.location.href='premium-academy.html'" class="btn btn-primary" style="margin-top:10px;">Back to Academy</button>
         </div>
       `;
       return;
@@ -142,9 +142,9 @@ async function submitQuiz() {
       <div class="${passed ? 'pass' : 'fail'}">${passed ? '✅ Passed!' : '❌ Not passed (needs ' + passingScore + '%)'}</div>
       <div class="details">Correct: ${correct}/${total}</div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;">
-        <button onclick="window.location.href='/academy'" class="btn btn-primary">Back to Academy</button>
+        <button onclick="window.location.href='premium-academy.html'" class="btn btn-primary">Back to Academy</button>
         ${!passed ? `<button onclick="window.location.reload()" class="btn-secondary">Retry</button>` : ''}
-        ${passed ? `<button onclick="window.location.href='/certificate?module=${moduleId}'" class="btn btn-primary" style="background:linear-gradient(135deg,#ffb300,#f57c00);">Get Certificate</button>` : ''}
+        ${passed ? `<button onclick="window.location.href='certificate.html?module=${moduleId}'" class="btn btn-primary" style="background:linear-gradient(135deg,#ffb300,#f57c00);">Get Certificate</button>` : ''}
       </div>
     </div>
   `;

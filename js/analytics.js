@@ -22,7 +22,7 @@ function getEl(id) {
 // ─── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = "/login";
+    window.location.href = "login.html";
     return;
   }
   currentUser = user;
