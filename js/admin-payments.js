@@ -1,10 +1,13 @@
-// ==========================================================
+// ============================================================
 // GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// SINGLE CLEAN VERSION
-// ==========================================================
+// ADMIN PAYMENT MANAGEMENT
+// Works with the EXISTING student payment.html
+// ============================================================
 
-import { auth, db } from "./firebase.js";
+import {
+  auth,
+  db
+} from "./firebase.js";
 
 import {
   onAuthStateChanged
@@ -12,796 +15,1710 @@ import {
 
 import {
   collection,
-  query,
-  orderBy,
-  onSnapshot,
+  getDocs,
   doc,
   getDoc,
   updateDoc,
-  serverTimestamp,
-  addDoc
+  deleteDoc,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// ==========================================================
+
+// ============================================================
 // DOM
-// ==========================================================
+// ============================================================
 
-const tbody = document.getElementById("paymentsBody");
+const paymentsTable =
+  document.getElementById("paymentsTable");
 
-const statPending = document.getElementById("statPending");
-const statApproved = document.getElementById("statApproved");
-const statRejected = document.getElementById("statRejected");
-const statRevenue = document.getElementById("statRevenue");
+const paymentCount =
+  document.getElementById("paymentCount");
 
-const searchInput = document.getElementById("paymentSearch");
-const statusFilter = document.getElementById("paymentFilter");
+const totalPayments =
+  document.getElementById("totalPayments");
 
-const adminMessage = document.getElementById("adminMessage");
+const pendingPayments =
+  document.getElementById("pendingPayments");
 
-// ==========================================================
+const approvedPayments =
+  document.getElementById("approvedPayments");
+
+const totalRevenue =
+  document.getElementById("totalRevenue");
+
+const searchInput =
+  document.getElementById("searchInput");
+
+const statusFilter =
+  document.getElementById("statusFilter");
+
+const methodFilter =
+  document.getElementById("methodFilter");
+
+const refreshBtn =
+  document.getElementById("refreshBtn");
+
+const paymentModal =
+  document.getElementById("paymentModal");
+
+const modalBody =
+  document.getElementById("modalBody");
+
+const closeModal =
+  document.getElementById("closeModal");
+
+
+// ============================================================
 // STATE
-// ==========================================================
+// ============================================================
 
 let allPayments = [];
-let unsubscribePayments = null;
 
-// ==========================================================
-// MESSAGE
-// ==========================================================
+let currentAdmin = null;
 
-function showMessage(message, type = "success") {
 
-  if (!adminMessage) return;
-
-  adminMessage.textContent = message;
-
-  adminMessage.className =
-    "admin-message " + type;
-
-  setTimeout(() => {
-
-    adminMessage.className =
-      "admin-message";
-
-    adminMessage.textContent = "";
-
-  }, 5000);
-}
-
-// ==========================================================
+// ============================================================
 // AUTH + ADMIN CHECK
-// ==========================================================
+// ============================================================
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(
+  auth,
+  async (user) => {
 
-  if (!user) {
-
-    window.location.href = "login.html";
-
-    return;
-  }
-
-  try {
-
-    const userRef =
-      doc(db, "users", user.uid);
-
-    const userSnap =
-      await getDoc(userRef);
-
-    if (!userSnap.exists()) {
+    if (!user) {
 
       window.location.href =
-        "access-denied.html";
+        "login.html";
 
       return;
-    }
-
-    const userData =
-      userSnap.data();
-
-    if (userData.role !== "admin") {
-
-      window.location.href =
-        "access-denied.html";
-
-      return;
-    }
-
-    console.log(
-      "✅ Admin verified:",
-      user.email
-    );
-
-    startPaymentListener();
-
-  } catch (error) {
-
-    console.error(
-      "Admin verification error:",
-      error
-    );
-
-    window.location.href =
-      "login.html";
-  }
-
-});
-
-// ==========================================================
-// FIRESTORE PAYMENT LISTENER
-// ==========================================================
-
-function startPaymentListener() {
-
-  if (unsubscribePayments) {
-
-    unsubscribePayments();
-
-  }
-
-  const paymentsRef =
-    collection(db, "payments");
-
-  const paymentsQuery =
-    query(
-      paymentsRef,
-      orderBy("createdAt", "desc")
-    );
-
-  unsubscribePayments =
-    onSnapshot(
-      paymentsQuery,
-
-      (snapshot) => {
-
-        allPayments = [];
-
-        snapshot.forEach((paymentDoc) => {
-
-          allPayments.push({
-
-            id: paymentDoc.id,
-
-            ...paymentDoc.data()
-
-          });
-
-        });
-
-        updateStatistics(allPayments);
-
-        applyFilters();
-
-      },
-
-      (error) => {
-
-        console.error(
-          "Payment listener error:",
-          error
-        );
-
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8">
-              <div class="empty">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Failed to load payments.
-              </div>
-            </td>
-          </tr>
-        `;
-      }
-    );
-}
-
-// ==========================================================
-// STATISTICS
-// ==========================================================
-
-function updateStatistics(payments) {
-
-  let pending = 0;
-  let approved = 0;
-  let rejected = 0;
-  let revenue = 0;
-
-  payments.forEach((payment) => {
-
-    const status =
-      payment.status || "pending";
-
-    if (status === "pending") {
-
-      pending++;
-
-    } else if (status === "approved") {
-
-      approved++;
-
-      const amount =
-        Number(payment.amount || 0);
-
-      revenue += amount;
-
-    } else if (status === "rejected") {
-
-      rejected++;
 
     }
 
-  });
+    currentAdmin = user;
 
-  statPending.textContent = pending;
-
-  statApproved.textContent = approved;
-
-  statRejected.textContent = rejected;
-
-  statRevenue.textContent =
-    "$" + revenue.toFixed(2);
-}
-
-// ==========================================================
-// SEARCH
-// ==========================================================
-
-if (searchInput) {
-
-  searchInput.addEventListener(
-    "input",
-    applyFilters
-  );
-
-}
-
-// ==========================================================
-// FILTER
-// ==========================================================
-
-if (statusFilter) {
-
-  statusFilter.addEventListener(
-    "change",
-    applyFilters
-  );
-
-}
-
-// ==========================================================
-// APPLY FILTERS
-// ==========================================================
-
-function applyFilters() {
-
-  let filtered =
-    [...allPayments];
-
-  const search =
-    searchInput
-      ? searchInput.value
-          .toLowerCase()
-          .trim()
-      : "";
-
-  const status =
-    statusFilter
-      ? statusFilter.value
-      : "all";
-
-  if (search) {
-
-    filtered =
-      filtered.filter((payment) => {
-
-        const name =
-          String(payment.name || "")
-            .toLowerCase();
-
-        const email =
-          String(payment.email || "")
-            .toLowerCase();
-
-        const transaction =
-          String(payment.transactionId || "")
-            .toLowerCase();
-
-        return (
-          name.includes(search) ||
-          email.includes(search) ||
-          transaction.includes(search)
-        );
-
-      });
-
-  }
-
-  if (status !== "all") {
-
-    filtered =
-      filtered.filter(
-        payment =>
-          (payment.status || "pending") === status
-      );
-
-  }
-
-  renderPayments(filtered);
-}
-
-// ==========================================================
-// ESCAPE HTML
-// ==========================================================
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-// ==========================================================
-// RENDER
-// ==========================================================
-
-function renderPayments(payments) {
-
-  if (!payments.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8">
-
-          <div class="empty">
-
-            <i class="fa-solid fa-inbox"></i>
-
-            No payments found.
-
-          </div>
-
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
-  tbody.innerHTML =
-    payments.map((payment) => {
-
-      const status =
-        payment.status || "pending";
-
-      const statusLabel =
-        status.charAt(0).toUpperCase() +
-        status.slice(1);
-
-      const proofKey =
-        payment.proofKey || "";
-
-      const proofURL =
-        payment.proofURL || "";
-
-      let proofHTML = "—";
-
-      if (proofURL) {
-
-        proofHTML = `
-          <a
-            href="${escapeHtml(proofURL)}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="proof-btn"
-          >
-            <i class="fa-solid fa-eye"></i>
-            View
-          </a>
-        `;
-
-      } else if (proofKey) {
-
-        proofHTML = `
-          <span
-            style="color:#9aa4bf;font-size:11px;"
-            title="${escapeHtml(proofKey)}"
-          >
-            R2 file
-          </span>
-        `;
-
-      }
-
-      let actions = "—";
-
-      if (status === "pending") {
-
-        actions = `
-
-          <div class="action-btns">
-
-            <button
-              class="action-btn approve-btn"
-              data-id="${escapeHtml(payment.id)}"
-              data-user="${escapeHtml(payment.userId || "")}"
-            >
-              <i class="fa-solid fa-check"></i>
-              Approve
-            </button>
-
-            <button
-              class="action-btn reject-btn"
-              data-id="${escapeHtml(payment.id)}"
-              data-user="${escapeHtml(payment.userId || "")}"
-            >
-              <i class="fa-solid fa-xmark"></i>
-              Reject
-            </button>
-
-          </div>
-
-        `;
-
-      } else {
-
-        actions = `
-          <span class="completed">
-            <i class="fa-solid fa-check"></i>
-            Completed
-          </span>
-        `;
-      }
-
-      return `
-
-        <tr>
-
-          <td>
-
-            <div class="user-name">
-              ${escapeHtml(payment.name || "N/A")}
-            </div>
-
-            <div class="user-email">
-              ${escapeHtml(payment.email || "")}
-            </div>
-
-          </td>
-
-          <td>
-            ${escapeHtml(payment.plan || "N/A")}
-          </td>
-
-          <td>
-            ${escapeHtml(payment.paymentMethod || "N/A")}
-          </td>
-
-          <td>
-
-            <code>
-              ${escapeHtml(payment.transactionId || "N/A")}
-            </code>
-
-          </td>
-
-          <td>
-            $${Number(payment.amount || 0).toFixed(2)}
-          </td>
-
-          <td>
-            ${proofHTML}
-          </td>
-
-          <td>
-
-            <span
-              class="status-badge ${escapeHtml(status)}"
-            >
-              ${escapeHtml(statusLabel)}
-            </span>
-
-          </td>
-
-          <td>
-            ${actions}
-          </td>
-
-        </tr>
-
-      `;
-
-    }).join("");
-}
-
-// ==========================================================
-// BUTTON EVENTS
-// ==========================================================
-
-document.addEventListener("click", async (event) => {
-
-  const approveButton =
-    event.target.closest(".approve-btn");
-
-  const rejectButton =
-    event.target.closest(".reject-btn");
-
-  if (approveButton) {
-
-    await handlePaymentAction(
-      approveButton.dataset.id,
-      approveButton.dataset.user,
-      "approved"
-    );
-
-  }
-
-  if (rejectButton) {
-
-    await handlePaymentAction(
-      rejectButton.dataset.id,
-      rejectButton.dataset.user,
-      "rejected"
-    );
-
-  }
-
-});
-
-// ==========================================================
-// APPROVE / REJECT
-// ==========================================================
-
-async function handlePaymentAction(
-  paymentId,
-  userId,
-  status
-) {
-
-  if (!paymentId) {
-
-    alert("Invalid payment.");
-
-    return;
-  }
-
-  const actionText =
-    status === "approved"
-      ? "approve"
-      : "reject";
-
-  const confirmed =
-    confirm(
-      `Are you sure you want to ${actionText} this payment?`
-    );
-
-  if (!confirmed) return;
-
-  try {
-
-    // ------------------------------------------------------
-    // Re-read payment first
-    // ------------------------------------------------------
-
-    const paymentRef =
-      doc(db, "payments", paymentId);
-
-    const paymentSnap =
-      await getDoc(paymentRef);
-
-    if (!paymentSnap.exists()) {
-
-      alert(
-        "Payment no longer exists."
-      );
-
-      return;
-    }
-
-    const payment =
-      paymentSnap.data();
-
-    // ------------------------------------------------------
-    // Prevent double processing
-    // ------------------------------------------------------
-
-    if (payment.status !== "pending") {
-
-      alert(
-        `This payment is already ${payment.status}.`
-      );
-
-      return;
-    }
-
-    // ------------------------------------------------------
-    // UPDATE PAYMENT
-    // ------------------------------------------------------
-
-    const paymentUpdate = {
-
-      status,
-
-      reviewedAt:
-        serverTimestamp(),
-
-      reviewedBy:
-        auth.currentUser.uid
-
-    };
-
-    if (status === "approved") {
-
-      paymentUpdate.approvedAt =
-        serverTimestamp();
-
-    }
-
-    if (status === "rejected") {
-
-      paymentUpdate.rejectedAt =
-        serverTimestamp();
-
-    }
-
-    await updateDoc(
-      paymentRef,
-      paymentUpdate
-    );
-
-    // ------------------------------------------------------
-    // APPROVED → PREMIUM
-    // ------------------------------------------------------
-
-    if (
-      status === "approved" &&
-      userId
-    ) {
+    try {
 
       const userRef =
-        doc(db, "users", userId);
+        doc(
+          db,
+          "users",
+          user.uid
+        );
 
       const userSnap =
         await getDoc(userRef);
 
       if (!userSnap.exists()) {
 
-        throw new Error(
-          "User account does not exist."
+        alert(
+          "Admin profile was not found."
         );
+
+        window.location.href =
+          "dashboard.html";
+
+        return;
 
       }
 
-      await updateDoc(
-        userRef,
-        {
+      const userData =
+        userSnap.data();
 
-          membership:
-            "premium",
+      if (
+        userData.role !== "admin"
+      ) {
 
-          status:
-            "active",
+        alert(
+          "Access denied. Admins only."
+        );
 
-          updatedAt:
-            serverTimestamp()
+        window.location.href =
+          "dashboard.html";
 
-        }
+        return;
+
+      }
+
+      await loadPayments();
+
+    } catch (error) {
+
+      console.error(
+        "Admin authentication error:",
+        error
       );
+
+      paymentsTable.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <br>
+            Unable to verify administrator access.
+            <br><br>
+            ${escapeHtml(error.message)}
+          </td>
+        </tr>
+      `;
 
     }
-
-    // ------------------------------------------------------
-    // AUDIT LOG
-    // ------------------------------------------------------
-
-    await createPaymentLog({
-
-      action:
-        status.toUpperCase(),
-
-      paymentId,
-
-      userId:
-        userId || null,
-
-      details:
-        status === "approved"
-          ? "Payment approved and user upgraded to Premium."
-          : "Payment rejected by administrator."
-
-    });
-
-    // ------------------------------------------------------
-    // MESSAGE
-    // ------------------------------------------------------
-
-    if (status === "approved") {
-
-      showMessage(
-        "Payment approved. User is now Premium.",
-        "success"
-      );
-
-    } else {
-
-      showMessage(
-        "Payment rejected.",
-        "success"
-      );
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Payment action error:",
-      error
-    );
-
-    showMessage(
-      "Failed to process payment. Check Firestore permissions.",
-      "error"
-    );
 
   }
+);
 
-}
 
-// ==========================================================
-// PAYMENT AUDIT LOG
-// ==========================================================
+// ============================================================
+// LOAD PAYMENTS
+// ============================================================
 
-async function createPaymentLog({
-  action,
-  paymentId,
-  userId,
-  details
-}) {
+async function loadPayments() {
+
+  paymentsTable.innerHTML = `
+    <tr>
+      <td colspan="8" class="loading">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <br>
+        Loading payments...
+      </td>
+    </tr>
+  `;
 
   try {
 
-    await addDoc(
-      collection(db, "paymentLogs"),
-      {
+    /*
+     * We read the existing /payments collection.
+     *
+     * No new fields are required.
+     */
 
-        action,
+    let snapshot;
 
-        paymentId,
+    try {
 
-        userId,
+      const paymentsQuery =
+        query(
+          collection(
+            db,
+            "payments"
+          ),
+          orderBy(
+            "submittedAt",
+            "desc"
+          )
+        );
 
-        details,
+      snapshot =
+        await getDocs(
+          paymentsQuery
+        );
 
-        adminUid:
-          auth.currentUser
-            ? auth.currentUser.uid
-            : null,
+    } catch (indexError) {
 
-        adminEmail:
-          auth.currentUser
-            ? auth.currentUser.email
-            : null,
+      /*
+       * If Firestore requires an index or
+       * old documents have no submittedAt,
+       * fall back to a normal collection read.
+       */
 
-        createdAt:
-          serverTimestamp()
+      console.warn(
+        "Ordered payment query failed. Falling back to normal query.",
+        indexError
+      );
+
+      snapshot =
+        await getDocs(
+          collection(
+            db,
+            "payments"
+          )
+        );
+
+    }
+
+    allPayments = [];
+
+    snapshot.forEach(
+      paymentDoc => {
+
+        allPayments.push({
+          id: paymentDoc.id,
+          ...paymentDoc.data()
+        });
 
       }
     );
 
+    /*
+     * Sort locally as a second layer.
+     */
+
+    allPayments.sort(
+      (a, b) => {
+
+        const aTime =
+          getTimestamp(
+            a.submittedAt
+          );
+
+        const bTime =
+          getTimestamp(
+            b.submittedAt
+          );
+
+        return bTime - aTime;
+
+      }
+    );
+
+    updateStatistics();
+
+    renderPayments();
+
   } catch (error) {
 
     console.error(
-      "Audit log error:",
+      "Failed to load payments:",
       error
+    );
+
+    paymentsTable.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-state">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <br>
+          Failed to load payments.
+          <br><br>
+          <small>
+            ${escapeHtml(error.message)}
+          </small>
+        </td>
+      </tr>
+    `;
+
+  }
+
+}
+
+
+// ============================================================
+// STATISTICS
+// ============================================================
+
+function updateStatistics() {
+
+  const total =
+    allPayments.length;
+
+  const pending =
+    allPayments.filter(
+      payment =>
+        getStatus(payment) === "pending"
+    ).length;
+
+  const approved =
+    allPayments.filter(
+      payment =>
+        getStatus(payment) === "approved"
+    ).length;
+
+  /*
+   * Revenue is based on approved
+   * amountUSD only.
+   */
+
+  const revenue =
+    allPayments
+      .filter(
+        payment =>
+          getStatus(payment) === "approved"
+      )
+      .reduce(
+        (sum, payment) => {
+
+          return sum +
+            Number(
+              payment.amountUSD || 0
+            );
+
+        },
+        0
+      );
+
+  totalPayments.textContent =
+    total;
+
+  pendingPayments.textContent =
+    pending;
+
+  approvedPayments.textContent =
+    approved;
+
+  totalRevenue.textContent =
+    "$" +
+    revenue.toLocaleString(
+      "en-US",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }
+    );
+
+}
+
+
+// ============================================================
+// RENDER
+// ============================================================
+
+function renderPayments() {
+
+  const search =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+  const status =
+    statusFilter.value;
+
+  const method =
+    methodFilter.value;
+
+  const filtered =
+    allPayments.filter(
+      payment => {
+
+        const paymentStatus =
+          getStatus(payment);
+
+        const paymentMethod =
+          payment.paymentMethod || "";
+
+        const searchable = [
+          payment.name,
+          payment.email,
+          payment.transactionId,
+          payment.plan,
+          paymentMethod
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        const matchesSearch =
+          !search ||
+          searchable.includes(search);
+
+        const matchesStatus =
+          status === "all" ||
+          paymentStatus === status;
+
+        const matchesMethod =
+          method === "all" ||
+          paymentMethod === method;
+
+        return (
+          matchesSearch &&
+          matchesStatus &&
+          matchesMethod
+        );
+
+      }
+    );
+
+  paymentCount.textContent =
+    filtered.length +
+    (
+      filtered.length === 1
+        ? " payment"
+        : " payments"
+    );
+
+  if (!filtered.length) {
+
+    paymentsTable.innerHTML = `
+      <tr>
+        <td colspan="8">
+          <div class="empty-state">
+            <i class="fa-solid fa-receipt"></i>
+            <br>
+            No payments found.
+          </div>
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  paymentsTable.innerHTML =
+    filtered
+      .map(
+        payment =>
+          createPaymentRow(payment)
+      )
+      .join("");
+
+}
+
+
+// ============================================================
+// PAYMENT ROW
+// ============================================================
+
+function createPaymentRow(payment) {
+
+  const id =
+    payment.id;
+
+  const name =
+    payment.name ||
+    "Unknown Student";
+
+  const email =
+    payment.email ||
+    "No email";
+
+  const plan =
+    payment.plan ||
+    "Unknown";
+
+  const method =
+    payment.paymentMethod ||
+    "Unknown";
+
+  const transaction =
+    payment.transactionId ||
+    "—";
+
+  const status =
+    getStatus(payment);
+
+  const amountUSD =
+    Number(
+      payment.amountUSD || 0
+    );
+
+  const amountKES =
+    payment.amountKES
+      ? Number(payment.amountKES)
+      : null;
+
+  const date =
+    formatDate(
+      payment.submittedAt
+    );
+
+  const planClass =
+    plan.toLowerCase()
+      .includes("lifetime")
+      ? "plan-lifetime"
+      : "plan-monthly";
+
+  const methodClass =
+    method.toLowerCase()
+      .includes("mpesa")
+      ? "method-mpesa"
+      : "method-paypal";
+
+  const methodIcon =
+    method.toLowerCase()
+      .includes("mpesa")
+      ? "fa-mobile-screen-button"
+      : "fa-brands fa-paypal";
+
+  return `
+    <tr>
+
+      <!-- STUDENT -->
+
+      <td>
+
+        <div class="student-name">
+          ${escapeHtml(name)}
+        </div>
+
+        <div class="student-email">
+          ${escapeHtml(email)}
+        </div>
+
+      </td>
+
+
+      <!-- PLAN -->
+
+      <td>
+
+        <span class="plan ${planClass}">
+          ${escapeHtml(plan)}
+        </span>
+
+      </td>
+
+
+      <!-- METHOD -->
+
+      <td>
+
+        <span class="method ${methodClass}">
+
+          <i class="fa-solid ${methodIcon}"></i>
+
+          ${escapeHtml(method)}
+
+        </span>
+
+      </td>
+
+
+      <!-- AMOUNT -->
+
+      <td>
+
+        <span class="amount-usd">
+
+          $${amountUSD.toLocaleString(
+            "en-US",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }
+          )}
+
+        </span>
+
+        ${
+          amountKES
+            ? `
+              <span class="amount-kes">
+                KSh ${amountKES.toLocaleString(
+                  "en-KE"
+                )}
+              </span>
+            `
+            : ""
+        }
+
+      </td>
+
+
+      <!-- TRANSACTION -->
+
+      <td>
+
+        <span class="transaction">
+
+          ${escapeHtml(transaction)}
+
+        </span>
+
+      </td>
+
+
+      <!-- STATUS -->
+
+      <td>
+
+        ${createStatusBadge(status)}
+
+      </td>
+
+
+      <!-- DATE -->
+
+      <td>
+
+        ${date}
+
+      </td>
+
+
+      <!-- ACTIONS -->
+
+      <td>
+
+        <div class="actions">
+
+          <button
+            class="action-btn"
+            title="View Payment"
+            data-action="view"
+            data-id="${escapeAttribute(id)}"
+          >
+
+            <i class="fa-solid fa-eye"></i>
+
+          </button>
+
+          ${
+            status === "pending"
+              ? `
+                <button
+                  class="action-btn approve-btn"
+                  title="Approve Payment"
+                  data-action="approve"
+                  data-id="${escapeAttribute(id)}"
+                >
+
+                  <i class="fa-solid fa-check"></i>
+
+                </button>
+
+                <button
+                  class="action-btn reject-btn"
+                  title="Reject Payment"
+                  data-action="reject"
+                  data-id="${escapeAttribute(id)}"
+                >
+
+                  <i class="fa-solid fa-xmark"></i>
+
+                </button>
+              `
+              : ""
+          }
+
+        </div>
+
+      </td>
+
+    </tr>
+  `;
+
+}
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function getStatus(payment) {
+
+  return (
+    payment.status ||
+    "pending"
+  )
+    .toString()
+    .toLowerCase();
+
+}
+
+
+function createStatusBadge(status) {
+
+  let label =
+    status;
+
+  let className =
+    "status-pending";
+
+  if (status === "approved") {
+
+    className =
+      "status-approved";
+
+    label =
+      "Approved";
+
+  } else if (
+    status === "rejected"
+  ) {
+
+    className =
+      "status-rejected";
+
+    label =
+      "Rejected";
+
+  } else {
+
+    className =
+      "status-pending";
+
+    label =
+      "Pending";
+
+  }
+
+  return `
+    <span class="status ${className}">
+      ${escapeHtml(label)}
+    </span>
+  `;
+
+}
+
+
+// ============================================================
+// CLICK HANDLER
+// ============================================================
+
+paymentsTable.addEventListener(
+  "click",
+  async event => {
+
+    const button =
+      event.target.closest(
+        "[data-action]"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const action =
+      button.dataset.action;
+
+    const id =
+      button.dataset.id;
+
+    const payment =
+      allPayments.find(
+        item =>
+          item.id === id
+      );
+
+    if (!payment) {
+
+      alert(
+        "Payment record could not be found."
+      );
+
+      return;
+
+    }
+
+    if (action === "view") {
+
+      openPaymentModal(payment);
+
+    }
+
+    if (action === "approve") {
+
+      await approvePayment(
+        payment
+      );
+
+    }
+
+    if (action === "reject") {
+
+      await rejectPayment(
+        payment
+      );
+
+    }
+
+  }
+);
+
+
+// ============================================================
+// VIEW PAYMENT
+// ============================================================
+
+function openPaymentModal(payment) {
+
+  const status =
+    getStatus(payment);
+
+  const amountUSD =
+    Number(
+      payment.amountUSD || 0
+    );
+
+  const amountKES =
+    payment.amountKES
+      ? Number(payment.amountKES)
+      : null;
+
+  const submittedDate =
+    formatDate(
+      payment.submittedAt
+    );
+
+  const proof =
+    payment.proofFileName
+      ? `
+        <div class="detail-item full">
+
+          <label>Payment Proof</label>
+
+          <strong>
+            ${escapeHtml(
+              payment.proofFileName
+            )}
+          </strong>
+
+          <div style="
+            color:#68748d;
+            font-size:11px;
+            margin-top:5px;
+          ">
+
+            ${
+              payment.proofFileType
+                ? escapeHtml(
+                    payment.proofFileType
+                  )
+                : ""
+            }
+
+            ${
+              payment.proofFileSize
+                ? " • " +
+                  formatFileSize(
+                    payment.proofFileSize
+                  )
+                : ""
+            }
+
+          </div>
+
+        </div>
+      `
+      : `
+        <div class="detail-item full">
+
+          <label>Payment Proof</label>
+
+          <strong>
+            No proof file attached
+          </strong>
+
+        </div>
+      `;
+
+  modalBody.innerHTML = `
+
+    <div class="detail-grid">
+
+      <div class="detail-item">
+
+        <label>Student Name</label>
+
+        <strong>
+          ${escapeHtml(
+            payment.name ||
+            "Unknown"
+          )}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Email</label>
+
+        <strong>
+          ${escapeHtml(
+            payment.email ||
+            "—"
+          )}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>User UID</label>
+
+        <strong style="
+          font-family:monospace;
+          font-size:11px;
+        ">
+
+          ${escapeHtml(
+            payment.uid ||
+            "—"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Payment ID</label>
+
+        <strong style="
+          font-family:monospace;
+          font-size:11px;
+        ">
+
+          ${escapeHtml(
+            payment.id
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Plan</label>
+
+        <strong>
+          ${escapeHtml(
+            payment.plan ||
+            "—"
+          )}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Payment Method</label>
+
+        <strong>
+          ${escapeHtml(
+            payment.paymentMethod ||
+            "—"
+          )}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>USD Amount</label>
+
+        <strong>
+          $${amountUSD.toFixed(2)}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>KES Amount</label>
+
+        <strong>
+          ${
+            amountKES !== null
+              ? "KSh " +
+                amountKES.toLocaleString(
+                  "en-KE"
+                )
+              : "—"
+          }
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Exchange Rate</label>
+
+        <strong>
+          ${
+            payment.exchangeRate
+              ? "1 USD = " +
+                Number(
+                  payment.exchangeRate
+                ).toFixed(2) +
+                " KES"
+              : "—"
+          }
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item">
+
+        <label>Status</label>
+
+        <strong>
+          ${createStatusBadge(status)}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item full">
+
+        <label>
+          Transaction / PayPal ID
+        </label>
+
+        <strong style="
+          font-family:monospace;
+        ">
+
+          ${escapeHtml(
+            payment.transactionId ||
+            "—"
+          )}
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-item full">
+
+        <label>Notes</label>
+
+        <strong>
+
+          ${
+            payment.notes
+              ? escapeHtml(
+                  payment.notes
+                )
+              : "No notes"
+          }
+
+        </strong>
+
+      </div>
+
+
+      ${proof}
+
+
+      <div class="detail-item full">
+
+        <label>Submitted</label>
+
+        <strong>
+          ${submittedDate}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    ${
+      status === "pending"
+        ? `
+          <div class="modal-actions">
+
+            <button
+              class="modal-approve"
+              id="modalApprove"
+            >
+
+              <i class="fa-solid fa-check"></i>
+
+              Approve Payment
+
+            </button>
+
+            <button
+              class="modal-reject"
+              id="modalReject"
+            >
+
+              <i class="fa-solid fa-xmark"></i>
+
+              Reject Payment
+
+            </button>
+
+          </div>
+        `
+        : ""
+    }
+
+  `;
+
+  paymentModal.classList.add(
+    "active"
+  );
+
+
+  const modalApprove =
+    document.getElementById(
+      "modalApprove"
+    );
+
+  const modalReject =
+    document.getElementById(
+      "modalReject"
+    );
+
+
+  if (modalApprove) {
+
+    modalApprove.onclick =
+      async () => {
+
+        closePaymentModal();
+
+        await approvePayment(
+          payment
+        );
+
+      };
+
+  }
+
+
+  if (modalReject) {
+
+    modalReject.onclick =
+      async () => {
+
+        closePaymentModal();
+
+        await rejectPayment(
+          payment
+        );
+
+      };
+
+  }
+
+}
+
+
+// ============================================================
+// APPROVE PAYMENT
+// ============================================================
+
+async function approvePayment(payment) {
+
+  if (!currentAdmin) {
+
+    alert(
+      "Administrator session not found."
+    );
+
+    return;
+
+  }
+
+  const confirmed =
+    confirm(
+      `Approve payment from ${payment.name || payment.email}?\n\n` +
+      `Plan: ${payment.plan || "Unknown"}\n` +
+      `Amount: $${Number(payment.amountUSD || 0).toFixed(2)}\n\n` +
+      `This will activate Premium membership.`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    /*
+     * ----------------------------------------------------
+     * STEP 1
+     * Mark payment approved
+     * ----------------------------------------------------
+     */
+
+    await updateDoc(
+      doc(
+        db,
+        "payments",
+        payment.id
+      ),
+      {
+        status: "approved",
+
+        approvedAt:
+          new Date(),
+
+        approvedBy:
+          currentAdmin.uid
+      }
+    );
+
+
+    /*
+     * ----------------------------------------------------
+     * STEP 2
+     * Update student membership
+     * ----------------------------------------------------
+     */
+
+    if (!payment.uid) {
+
+      throw new Error(
+        "This payment does not contain a student UID. Payment was approved, but the student's membership could not be updated."
+      );
+
+    }
+
+
+    const userRef =
+      doc(
+        db,
+        "users",
+        payment.uid
+      );
+
+
+    const userSnap =
+      await getDoc(
+        userRef
+      );
+
+
+    if (!userSnap.exists()) {
+
+      throw new Error(
+        "The student user document does not exist."
+      );
+
+    }
+
+
+    await updateDoc(
+      userRef,
+      {
+
+        membership:
+          "premium",
+
+        status:
+          "active",
+
+        role:
+          "member",
+
+        membershipUpdatedAt:
+          new Date(),
+
+        membershipUpdatedBy:
+          currentAdmin.uid
+
+      }
+    );
+
+
+    alert(
+      "Payment approved successfully.\n\nThe student's membership is now Premium."
+    );
+
+
+    await loadPayments();
+
+
+  } catch (error) {
+
+    console.error(
+      "Approve payment error:",
+      error
+    );
+
+    alert(
+      "Unable to approve payment:\n\n" +
+      error.message
+    );
+
+    /*
+     * Reload because payment may have
+     * changed even if membership update failed.
+     */
+
+    await loadPayments();
+
+  }
+
+}
+
+
+// ============================================================
+// REJECT PAYMENT
+// ============================================================
+
+async function rejectPayment(payment) {
+
+  if (!currentAdmin) {
+
+    alert(
+      "Administrator session not found."
+    );
+
+    return;
+
+  }
+
+
+  const reason =
+    prompt(
+      "Why are you rejecting this payment?\n\n" +
+      "You can leave this blank."
+    );
+
+
+  if (reason === null) {
+    return;
+  }
+
+
+  try {
+
+    await updateDoc(
+      doc(
+        db,
+        "payments",
+        payment.id
+      ),
+      {
+
+        status:
+          "rejected",
+
+        rejectionReason:
+          reason.trim(),
+
+        rejectedAt:
+          new Date(),
+
+        rejectedBy:
+          currentAdmin.uid
+
+      }
+    );
+
+
+    alert(
+      "Payment rejected."
+    );
+
+
+    await loadPayments();
+
+
+  } catch (error) {
+
+    console.error(
+      "Reject payment error:",
+      error
+    );
+
+    alert(
+      "Unable to reject payment:\n\n" +
+      error.message
     );
 
   }
 
 }
 
+
+// ============================================================
+// CLOSE MODAL
+// ============================================================
+
+function closePaymentModal() {
+
+  paymentModal.classList.remove(
+    "active"
+  );
+
+}
+
+
+closeModal.addEventListener(
+  "click",
+  closePaymentModal
+);
+
+
+paymentModal.addEventListener(
+  "click",
+  event => {
+
+    if (
+      event.target ===
+      paymentModal
+    ) {
+
+      closePaymentModal();
+
+    }
+
+  }
+);
+
+
+// ============================================================
+// FILTERS
+// ============================================================
+
+searchInput.addEventListener(
+  "input",
+  renderPayments
+);
+
+statusFilter.addEventListener(
+  "change",
+  renderPayments
+);
+
+methodFilter.addEventListener(
+  "change",
+  renderPayments
+);
+
+
+// ============================================================
+// REFRESH
+// ============================================================
+
+refreshBtn.addEventListener(
+  "click",
+  async () => {
+
+    refreshBtn.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+    await loadPayments();
+
+    refreshBtn.innerHTML =
+      '<i class="fa-solid fa-rotate"></i> Refresh';
+
+  }
+);
+
+
+// ============================================================
+// DATE
+// ============================================================
+
+function formatDate(timestamp) {
+
+  if (!timestamp) {
+
+    return "—";
+
+  }
+
+  let date;
+
+  try {
+
+    if (
+      typeof timestamp.toDate ===
+      "function"
+    ) {
+
+      date =
+        timestamp.toDate();
+
+    } else if (
+      timestamp.seconds
+    ) {
+
+      date =
+        new Date(
+          timestamp.seconds *
+          1000
+        );
+
+    } else if (
+      timestamp instanceof Date
+    ) {
+
+      date =
+        timestamp;
+
+    } else {
+
+      date =
+        new Date(timestamp);
+
+    }
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return "—";
+
+    }
+
+    return date.toLocaleString(
+      "en-KE",
+      {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    );
+
+  } catch {
+
+    return "—";
+
+  }
+
+}
+
+
+// ============================================================
+// TIMESTAMP
+// ============================================================
+
+function getTimestamp(timestamp) {
+
+  if (!timestamp) {
+
+    return 0;
+
+  }
+
+  try {
+
+    if (
+      typeof timestamp.toMillis ===
+      "function"
+    ) {
+
+      return timestamp.toMillis();
+
+    }
+
+    if (
+      typeof timestamp.toDate ===
+      "function"
+    ) {
+
+      return timestamp
+        .toDate()
+        .getTime();
+
+    }
+
+    if (
+      timestamp.seconds
+    ) {
+
+      return Number(
+        timestamp.seconds
+      ) * 1000;
+
+    }
+
+    const date =
+      new Date(timestamp);
+
+    return Number.isNaN(
+      date.getTime()
+    )
+      ? 0
+      : date.getTime();
+
+  } catch {
+
+    return 0;
+
+  }
+
+}
+
+
+// ============================================================
+// FILE SIZE
+// ============================================================
+
+function formatFileSize(bytes) {
+
+  if (!bytes) {
+
+    return "0 B";
+
+  }
+
+  const sizes = [
+    "B",
+    "KB",
+    "MB",
+    "GB"
+  ];
+
+  const i =
+    Math.floor(
+      Math.log(bytes) /
+      Math.log(1024)
+    );
+
+  return (
+    bytes /
+    Math.pow(
+      1024,
+      i
+    )
+  ).toFixed(1) +
+  " " +
+  sizes[i];
+
+}
+
+
+// ============================================================
+// HTML SECURITY
+// ============================================================
+
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return "";
+
+  }
+
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function escapeAttribute(value) {
+
+  return escapeHtml(value);
+
+}
+
+
+// ============================================================
+// END
+// ============================================================
+
 console.log(
-  "✅ GTRADES-AXIS™ Admin Payments loaded."
+  "GTRADES-AXIS™ Admin Payments loaded."
 );

@@ -1,28 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <title>GTRADES-AXIS™ | Payments</title>
 
-  <title>
-    Admin - Payments | GTRADES-AXIS™
-  </title>
+  <link rel="stylesheet" href="css/style.css">
 
   <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  >
-
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
   >
 
   <link
@@ -30,121 +18,235 @@
     rel="stylesheet"
   >
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-  >
-
   <style>
 
     * {
-      margin: 0;
-      padding: 0;
       box-sizing: border-box;
     }
 
     body {
+      margin: 0;
+      background: #080a10;
+      color: #eef2ff;
       font-family: Poppins, sans-serif;
-      background: #0b0d15;
-      color: #e8edf5;
-      min-height: 100vh;
-      padding: 20px;
     }
 
-    .admin-container {
-      max-width: 1400px;
+    .admin-wrapper {
+      min-height: 100vh;
+    }
+
+    /* =========================
+       TOPBAR
+    ========================= */
+
+    .admin-topbar {
+      height: 72px;
+      padding: 0 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: #0d1019;
+      border-bottom: 1px solid #20283a;
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .admin-brand h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .admin-brand span {
+      display: block;
+      font-size: 11px;
+      color: #6f7b95;
+    }
+
+    .back-dashboard {
+      text-decoration: none;
+      color: #c9d2e7;
+      border: 1px solid #29334a;
+      padding: 9px 15px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .back-dashboard:hover {
+      border-color: #4f7cff;
+      color: white;
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .admin-content {
+      padding: 30px;
+      max-width: 1500px;
       margin: auto;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      gap: 15px;
-      flex-wrap: wrap;
+    .page-heading {
+      margin-bottom: 25px;
     }
 
-    .header h1 {
+    .page-heading h1 {
+      margin: 0;
       font-size: 28px;
     }
 
-    .header h1 i {
-      color: #4f7cff;
-      margin-right: 10px;
+    .page-heading p {
+      color: #78849e;
+      margin: 7px 0 0;
+      font-size: 13px;
     }
 
-    .back {
-      color: #4f7cff;
-      text-decoration: none;
-      font-weight: 600;
-    }
+    /* =========================
+       STATISTICS
+    ========================= */
 
-    .stats-bar {
+    .stats-grid {
       display: grid;
       grid-template-columns:
-        repeat(4, minmax(150px, 1fr));
+        repeat(4, minmax(0, 1fr));
 
-      gap: 16px;
+      gap: 15px;
       margin-bottom: 25px;
     }
 
     .stat-card {
-      background: #131724;
-      border: 1px solid #2a3450;
+      background: #0f131e;
+      border: 1px solid #202a3e;
       border-radius: 12px;
-      padding: 18px;
-      text-align: center;
+      padding: 20px;
     }
 
-    .stat-card h2 {
-      font-size: 28px;
+    .stat-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-card i {
+      font-size: 20px;
       color: #4f7cff;
     }
 
-    .stat-card p {
-      color: #9aa4bf;
-      font-size: 13px;
+    .stat-card span {
+      color: #78849e;
+      font-size: 12px;
     }
 
-    .stat-card.pending h2 {
-      color: #f5a623;
+    .stat-card h2 {
+      margin: 10px 0 0;
+      font-size: 27px;
     }
 
-    .stat-card.approved h2 {
-      color: #00c897;
-    }
+    /* =========================
+       TOOLBAR
+    ========================= */
 
-    .stat-card.rejected h2 {
-      color: #ff4766;
-    }
+    .toolbar {
+      background: #0f131e;
+      border: 1px solid #202a3e;
+      border-radius: 12px;
+      padding: 15px;
 
-    .filters {
       display: flex;
       gap: 12px;
-      margin-bottom: 20px;
       flex-wrap: wrap;
+
+      margin-bottom: 18px;
     }
 
-    .filters input,
-    .filters select {
-      background: #131724;
-      border: 1px solid #2a3450;
-      color: #fff;
-      padding: 11px 14px;
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 13px;
+      top: 13px;
+      color: #66728b;
+    }
+
+    .search-box input,
+    .filter-select {
+      width: 100%;
+      background: #090c13;
+      color: white;
+
+      border: 1px solid #29334a;
       border-radius: 8px;
-      font-family: Poppins, sans-serif;
+
+      padding: 11px 12px;
+      outline: none;
+      font-family: inherit;
     }
 
-    .filters input {
-      min-width: 280px;
+    .search-box input {
+      padding-left: 38px;
     }
 
-    .payments-table {
-      background: #131724;
-      border: 1px solid #2a3450;
+    .filter-select {
+      width: 170px;
+    }
+
+    .refresh-btn {
+      border: 1px solid #29334a;
+      background: #141a28;
+      color: white;
+      padding: 0 17px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .refresh-btn:hover {
+      border-color: #4f7cff;
+    }
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .table-card {
+      background: #0f131e;
+      border: 1px solid #202a3e;
       border-radius: 12px;
+
       overflow: hidden;
+    }
+
+    .table-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #202a3e;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .payment-count {
+      font-size: 12px;
+      color: #75819a;
     }
 
     .table-scroll {
@@ -153,1268 +255,664 @@
 
     table {
       width: 100%;
-      min-width: 1200px;
       border-collapse: collapse;
-    }
-
-    thead {
-      background: #0b0d15;
+      min-width: 1050px;
     }
 
     th {
-      padding: 14px;
       text-align: left;
-      color: #9aa4bf;
+      padding: 13px 15px;
+
+      color: #68748d;
       font-size: 11px;
       text-transform: uppercase;
+      letter-spacing: .5px;
+
+      background: #0b0e16;
+      border-bottom: 1px solid #202a3e;
     }
 
     td {
-      padding: 14px;
-      border-top: 1px solid #2a3450;
+      padding: 15px;
+      border-bottom: 1px solid #1b2232;
       vertical-align: middle;
       font-size: 13px;
     }
 
-    tbody tr:hover {
-      background: #1a1f2f;
+    tr:hover td {
+      background: #121725;
     }
 
-    .status {
-      display: inline-block;
-      padding: 4px 11px;
-      border-radius: 20px;
+    .student-name {
+      font-weight: 600;
+    }
+
+    .student-email {
+      color: #707d97;
       font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .plan {
+      font-weight: 600;
+    }
+
+    .plan-monthly {
+      color: #4f7cff;
+    }
+
+    .plan-lifetime {
+      color: #00c897;
+    }
+
+    .method {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .method-mpesa {
+      color: #00c897;
+    }
+
+    .method-paypal {
+      color: #4f7cff;
+    }
+
+    .amount-usd {
+      font-weight: 700;
+    }
+
+    .amount-kes {
+      display: block;
+      font-size: 11px;
+      color: #00c897;
+      margin-top: 3px;
+    }
+
+    .transaction {
+      font-family: monospace;
+      font-size: 12px;
+      color: #cbd4e7;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
     }
 
-    .status.pending {
-      background: rgba(245,166,35,.12);
-      color: #f5a623;
+    .status-pending {
+      color: #f5b94c;
+      background: rgba(245,185,76,.1);
+      border: 1px solid rgba(245,185,76,.2);
     }
 
-    .status.approved {
-      background: rgba(0,200,151,.12);
+    .status-approved {
       color: #00c897;
+      background: rgba(0,200,151,.1);
+      border: 1px solid rgba(0,200,151,.2);
     }
 
-    .status.rejected {
-      background: rgba(255,71,102,.12);
-      color: #ff4766;
+    .status-rejected {
+      color: #ff6678;
+      background: rgba(255,102,120,.1);
+      border: 1px solid rgba(255,102,120,.2);
     }
 
-    .money-usd {
-      color: #fff;
-      font-weight: 700;
-    }
+    /* =========================
+       ACTIONS
+    ========================= */
 
-    .money-kes {
-      color: #00c897;
-      font-weight: 700;
-    }
-
-    .rate {
-      color: #9aa4bf;
-      font-size: 11px;
-    }
-
-    .proof-btn {
-      display: inline-block;
-      padding: 6px 11px;
-      border-radius: 6px;
-      background: rgba(79,124,255,.12);
-      color: #4f7cff;
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .proof-btn:hover {
-      background: #4f7cff;
-      color: white;
-    }
-
-    .action-buttons {
+    .actions {
       display: flex;
       gap: 7px;
-      flex-wrap: wrap;
     }
 
-    .action-buttons button {
-      border: none;
-      border-radius: 6px;
-      padding: 7px 13px;
+    .action-btn {
+      border: 1px solid #29334a;
+      background: #141a28;
+      color: white;
+
+      width: 34px;
+      height: 34px;
+
+      border-radius: 7px;
       cursor: pointer;
-      font-family: Poppins, sans-serif;
-      font-weight: 600;
-      font-size: 11px;
     }
 
-    .approve-btn {
-      background: rgba(0,200,151,.12);
-      color: #00c897;
+    .action-btn:hover {
+      border-color: #4f7cff;
     }
 
     .approve-btn:hover {
-      background: #00c897;
-      color: #fff;
-    }
-
-    .reject-btn {
-      background: rgba(255,71,102,.12);
-      color: #ff4766;
+      color: #00c897;
+      border-color: #00c897;
     }
 
     .reject-btn:hover {
-      background: #ff4766;
-      color: #fff;
+      color: #ff6678;
+      border-color: #ff6678;
     }
 
-    .loading,
-    .empty,
-    .error {
+    .delete-btn:hover {
+      color: #ff6678;
+      border-color: #ff6678;
+    }
+
+    /* =========================
+       EMPTY
+    ========================= */
+
+    .empty-state {
+      padding: 70px 20px;
       text-align: center;
-      padding: 45px;
-      color: #9aa4bf;
+      color: #65718a;
+    }
+
+    .empty-state i {
+      font-size: 40px;
+      margin-bottom: 15px;
+    }
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    .loading {
+      padding: 60px;
+      text-align: center;
+      color: #71809a;
     }
 
     .loading i {
-      color: #4f7cff;
-      font-size: 25px;
+      font-size: 28px;
+      margin-bottom: 12px;
     }
 
-    @media (max-width: 700px) {
+    /* =========================
+       MODAL
+    ========================= */
 
-      .stats-bar {
+    .modal {
+      position: fixed;
+      inset: 0;
+
+      background: rgba(0,0,0,.78);
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      z-index: 9999;
+
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(650px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+
+      background: #101521;
+      border: 1px solid #2a354d;
+      border-radius: 15px;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #202a3e;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .close-modal {
+      border: 0;
+      background: transparent;
+      color: #75819a;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+    }
+
+    .detail-item {
+      background: #0a0d14;
+      border: 1px solid #202a3e;
+      border-radius: 9px;
+      padding: 13px;
+    }
+
+    .detail-item.full {
+      grid-column: 1 / -1;
+    }
+
+    .detail-item label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #68748d;
+      margin-bottom: 5px;
+    }
+
+    .detail-item strong {
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    .modal-approve {
+      background: #00c897;
+      color: #06110e;
+      border: 0;
+    }
+
+    .modal-reject {
+      background: transparent;
+      color: #ff6678;
+      border: 1px solid #ff6678;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media(max-width: 900px) {
+
+      .stats-grid {
         grid-template-columns: 1fr 1fr;
       }
 
-      .filters input {
-        min-width: 100%;
+      .admin-content {
+        padding: 20px;
+      }
+
+    }
+
+    @media(max-width: 600px) {
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-topbar {
+        padding: 0 15px;
+      }
+
+      .admin-brand span {
+        display: none;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
       }
 
     }
 
   </style>
-
 </head>
 
 <body>
 
-<div class="admin-container">
+<div class="admin-wrapper">
 
-  <div class="header">
+  <!-- =================================================
+       TOPBAR
+  ================================================== -->
 
-    <h1>
-      <i class="fa-solid fa-credit-card"></i>
-      Payment Approvals
-    </h1>
+  <header class="admin-topbar">
+
+    <div class="admin-brand">
+
+      <img
+        src="images/logo.png"
+        alt="GTRADES-AXIS"
+      >
+
+      <div>
+
+        <h2>GTRADES-AXIS™</h2>
+
+        <span>Admin Payments</span>
+
+      </div>
+
+    </div>
 
     <a
       href="admin.html"
-      class="back"
+      class="back-dashboard"
     >
       <i class="fa-solid fa-arrow-left"></i>
-      Back to Admin
+      Admin Dashboard
     </a>
 
-  </div>
+  </header>
 
 
-  <div class="stats-bar">
+  <!-- =================================================
+       CONTENT
+  ================================================== -->
 
-    <div class="stat-card pending">
-      <h2 id="statPending">0</h2>
-      <p>Pending</p>
+  <main class="admin-content">
+
+    <div class="page-heading">
+
+      <h1>Payment Management</h1>
+
+      <p>
+        Review, approve and manage student payment submissions.
+      </p>
+
     </div>
 
-    <div class="stat-card approved">
-      <h2 id="statApproved">0</h2>
-      <p>Approved</p>
-    </div>
 
-    <div class="stat-card rejected">
-      <h2 id="statRejected">0</h2>
-      <p>Rejected</p>
-    </div>
+    <!-- =================================================
+         STATS
+    ================================================== -->
 
-    <div class="stat-card">
-      <h2 id="statRevenue">$0</h2>
-      <p>Approved Revenue</p>
-    </div>
+    <section class="stats-grid">
 
-  </div>
+      <div class="stat-card">
 
+        <div class="stat-card-top">
 
-  <div class="filters">
+          <span>Total Payments</span>
 
-    <input
-      type="search"
-      id="paymentSearch"
-      placeholder="Search name, email or transaction ID..."
-    >
+          <i class="fa-solid fa-wallet"></i>
 
-    <select id="paymentFilter">
+        </div>
 
-      <option value="all">
-        All Payments
-      </option>
+        <h2 id="totalPayments">0</h2>
 
-      <option value="pending">
-        Pending
-      </option>
-
-      <option value="approved">
-        Approved
-      </option>
-
-      <option value="rejected">
-        Rejected
-      </option>
-
-    </select>
-
-  </div>
+      </div>
 
 
-  <div class="payments-table">
+      <div class="stat-card">
 
-    <div class="table-scroll">
+        <div class="stat-card-top">
 
-      <table>
+          <span>Pending</span>
 
-        <thead>
+          <i class="fa-solid fa-clock"></i>
 
-          <tr>
+        </div>
 
-            <th>User</th>
+        <h2 id="pendingPayments">0</h2>
 
-            <th>Plan</th>
+      </div>
 
-            <th>Method</th>
 
-            <th>USD</th>
+      <div class="stat-card">
 
-            <th>KES Paid</th>
+        <div class="stat-card-top">
 
-            <th>Rate</th>
+          <span>Approved</span>
 
-            <th>Transaction</th>
+          <i class="fa-solid fa-circle-check"></i>
 
-            <th>Proof</th>
+        </div>
 
-            <th>Status</th>
+        <h2 id="approvedPayments">0</h2>
 
-            <th>Actions</th>
+      </div>
 
-          </tr>
 
-        </thead>
+      <div class="stat-card">
 
-        <tbody id="paymentsBody">
+        <div class="stat-card-top">
 
-          <tr>
+          <span>Revenue</span>
 
-            <td colspan="10">
+          <i class="fa-solid fa-dollar-sign"></i>
 
-              <div class="loading">
+        </div>
+
+        <h2 id="totalRevenue">$0</h2>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         TOOLBAR
+    ================================================== -->
+
+    <section class="toolbar">
+
+      <div class="search-box">
+
+        <i class="fa-solid fa-search"></i>
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search name, email or transaction..."
+        >
+
+      </div>
+
+
+      <select
+        id="statusFilter"
+        class="filter-select"
+      >
+
+        <option value="all">
+          All Status
+        </option>
+
+        <option value="pending">
+          Pending
+        </option>
+
+        <option value="approved">
+          Approved
+        </option>
+
+        <option value="rejected">
+          Rejected
+        </option>
+
+      </select>
+
+
+      <select
+        id="methodFilter"
+        class="filter-select"
+      >
+
+        <option value="all">
+          All Methods
+        </option>
+
+        <option value="Mpesa">
+          M-PESA
+        </option>
+
+        <option value="PayPal">
+          PayPal
+        </option>
+
+      </select>
+
+
+      <button
+        id="refreshBtn"
+        class="refresh-btn"
+        type="button"
+      >
+
+        <i class="fa-solid fa-rotate"></i>
+
+        Refresh
+
+      </button>
+
+    </section>
+
+
+    <!-- =================================================
+         TABLE
+    ================================================== -->
+
+    <section class="table-card">
+
+      <div class="table-header">
+
+        <h3>Payment Submissions</h3>
+
+        <span
+          class="payment-count"
+          id="paymentCount"
+        >
+          0 payments
+        </span>
+
+      </div>
+
+
+      <div class="table-scroll">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Student</th>
+
+              <th>Plan</th>
+
+              <th>Method</th>
+
+              <th>Amount</th>
+
+              <th>Transaction</th>
+
+              <th>Status</th>
+
+              <th>Date</th>
+
+              <th>Actions</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="paymentsTable">
+
+            <tr>
+
+              <td
+                colspan="8"
+                class="loading"
+              >
 
                 <i class="fa-solid fa-spinner fa-spin"></i>
 
-                <p>
-                  Loading payments...
-                </p>
+                <br>
 
-              </div>
+                Loading payments...
 
-            </td>
+              </td>
 
-          </tr>
+            </tr>
 
-        </tbody>
+          </tbody>
 
-      </table>
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- =====================================================
+     PAYMENT DETAILS MODAL
+===================================================== -->
+
+<div
+  class="modal"
+  id="paymentModal"
+>
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h2>Payment Details</h2>
+
+      <button
+        class="close-modal"
+        id="closeModal"
+        type="button"
+      >
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
 
     </div>
+
+
+    <div
+      class="modal-body"
+      id="modalBody"
+    ></div>
 
   </div>
 
 </div>
 
 
-<script type="importmap">
-{
-  "imports": {
-    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-  }
-}
-</script>
-
-
-<script type="module">
-
-import {
-  auth,
-  db
-} from "./js/firebase.js";
-
-
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-  addDoc
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-// ============================================================
-// DOM
-// ============================================================
-
-const tbody =
-  document.getElementById(
-    "paymentsBody"
-  );
-
-const statPending =
-  document.getElementById(
-    "statPending"
-  );
-
-const statApproved =
-  document.getElementById(
-    "statApproved"
-  );
-
-const statRejected =
-  document.getElementById(
-    "statRejected"
-  );
-
-const statRevenue =
-  document.getElementById(
-    "statRevenue"
-  );
-
-const searchInput =
-  document.getElementById(
-    "paymentSearch"
-  );
-
-const filterInput =
-  document.getElementById(
-    "paymentFilter"
-  );
-
-
-let allPayments = [];
-
-
-// ============================================================
-// ADMIN AUTH
-// ============================================================
-
-onAuthStateChanged(
-  auth,
-  async (user) => {
-
-    if (!user) {
-
-      window.location.href =
-        "login.html";
-
-      return;
-
-    }
-
-
-    try {
-
-      const userRef =
-        doc(
-          db,
-          "users",
-          user.uid
-        );
-
-
-      const userSnap =
-        await getDoc(userRef);
-
-
-      if (
-        !userSnap.exists() ||
-        userSnap.data().role !== "admin"
-      ) {
-
-        window.location.href =
-          "access-denied.html";
-
-        return;
-
-      }
-
-
-      console.log(
-        "✅ Admin verified:",
-        user.email
-      );
-
-
-      loadPayments();
-
-    } catch (error) {
-
-      console.error(
-        "ADMIN CHECK ERROR:",
-        error
-      );
-
-      window.location.href =
-        "login.html";
-
-    }
-
-  }
-);
-
-
-// ============================================================
-// LOAD PAYMENTS
-// ============================================================
-
-function loadPayments() {
-
-  const q =
-    query(
-
-      collection(
-        db,
-        "payments"
-      ),
-
-      orderBy(
-        "createdAt",
-        "desc"
-      )
-
-    );
-
-
-  onSnapshot(
-    q,
-    (snapshot) => {
-
-      allPayments = [];
-
-
-      snapshot.forEach(
-        (paymentDoc) => {
-
-          allPayments.push({
-
-            id:
-              paymentDoc.id,
-
-            ...paymentDoc.data()
-
-          });
-
-        }
-      );
-
-
-      updateStats();
-
-      filterAndRender();
-
-    },
-    (error) => {
-
-      console.error(
-        "PAYMENTS LISTENER ERROR:",
-        error
-      );
-
-
-      tbody.innerHTML = `
-
-        <tr>
-
-          <td colspan="10">
-
-            <div class="error">
-
-              <i class="fa-solid fa-circle-exclamation"></i>
-
-              <p>
-                Error loading payments.
-              </p>
-
-              <small>
-                ${escapeHTML(error.message)}
-              </small>
-
-            </div>
-
-          </td>
-
-        </tr>
-
-      `;
-
-    }
-  );
-
-}
-
-
-// ============================================================
-// STATISTICS
-// ============================================================
-
-function updateStats() {
-
-  let pending = 0;
-
-  let approved = 0;
-
-  let rejected = 0;
-
-  let revenue = 0;
-
-
-  allPayments.forEach(
-    (payment) => {
-
-      if (
-        payment.status ===
-        "pending"
-      ) {
-
-        pending++;
-
-      }
-
-
-      if (
-        payment.status ===
-        "approved"
-      ) {
-
-        approved++;
-
-        revenue +=
-          Number(
-            payment.amountUSD || 0
-          );
-
-      }
-
-
-      if (
-        payment.status ===
-        "rejected"
-      ) {
-
-        rejected++;
-
-      }
-
-    }
-  );
-
-
-  statPending.textContent =
-    pending;
-
-  statApproved.textContent =
-    approved;
-
-  statRejected.textContent =
-    rejected;
-
-  statRevenue.textContent =
-    `$${revenue.toFixed(2)}`;
-
-}
-
-
-// ============================================================
-// SEARCH + FILTER
-// ============================================================
-
-searchInput.addEventListener(
-  "input",
-  filterAndRender
-);
-
-
-filterInput.addEventListener(
-  "change",
-  filterAndRender
-);
-
-
-function filterAndRender() {
-
-  const search =
-    searchInput.value
-      .toLowerCase()
-      .trim();
-
-
-  const filter =
-    filterInput.value;
-
-
-  let filtered =
-    allPayments.filter(
-      (payment) => {
-
-        const matchesSearch =
-          !search ||
-
-          String(
-            payment.name || ""
-          )
-            .toLowerCase()
-            .includes(search) ||
-
-          String(
-            payment.email || ""
-          )
-            .toLowerCase()
-            .includes(search) ||
-
-          String(
-            payment.transactionId || ""
-          )
-            .toLowerCase()
-            .includes(search);
-
-
-        const matchesStatus =
-          filter === "all" ||
-          payment.status === filter;
-
-
-        return (
-          matchesSearch &&
-          matchesStatus
-        );
-
-      }
-    );
-
-
-  renderPayments(
-    filtered
-  );
-
-}
-
-
-// ============================================================
-// RENDER
-// ============================================================
-
-function renderPayments(
-  payments
-) {
-
-  if (!payments.length) {
-
-    tbody.innerHTML = `
-
-      <tr>
-
-        <td colspan="10">
-
-          <div class="empty">
-
-            <i class="fa-solid fa-inbox"></i>
-
-            <p>
-              No payments found.
-            </p>
-
-          </div>
-
-        </td>
-
-      </tr>
-
-    `;
-
-    return;
-
-  }
-
-
-  tbody.innerHTML =
-    payments
-      .map(renderPayment)
-      .join("");
-
-
-  document
-    .querySelectorAll(".approve-btn")
-    .forEach(
-      (button) => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            handlePayment(
-              button.dataset.id,
-              "approved"
-            );
-
-          }
-        );
-
-      }
-    );
-
-
-  document
-    .querySelectorAll(".reject-btn")
-    .forEach(
-      (button) => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            handlePayment(
-              button.dataset.id,
-              "rejected"
-            );
-
-          }
-        );
-
-      }
-    );
-
-}
-
-
-// ============================================================
-// PAYMENT ROW
-// ============================================================
-
-function renderPayment(
-  payment
-) {
-
-  const status =
-    payment.status ||
-    "pending";
-
-
-  const usd =
-    Number(
-      payment.amountUSD || 0
-    );
-
-
-  const kes =
-    payment.amountKES;
-
-
-  const rate =
-    payment.exchangeRate;
-
-
-  const proof =
-    payment.proofURL ||
-    "";
-
-
-  const actions =
-    status === "pending"
-
-      ? `
-
-        <div class="action-buttons">
-
-          <button
-            class="approve-btn"
-            data-id="${payment.id}"
-          >
-            <i class="fa-solid fa-check"></i>
-            Approve
-          </button>
-
-          <button
-            class="reject-btn"
-            data-id="${payment.id}"
-          >
-            <i class="fa-solid fa-xmark"></i>
-            Reject
-          </button>
-
-        </div>
-
-      `
-
-      : "—";
-
-
-  const transaction =
-    escapeHTML(
-      payment.transactionId ||
-      "—"
-    );
-
-
-  return `
-
-    <tr>
-
-      <td>
-
-        <strong>
-          ${escapeHTML(
-            payment.name ||
-            "N/A"
-          )}
-        </strong>
-
-        <br>
-
-        <small style="color:#9aa4bf;">
-          ${escapeHTML(
-            payment.email ||
-            ""
-          )}
-        </small>
-
-      </td>
-
-
-      <td>
-        ${escapeHTML(
-          payment.plan ||
-          "—"
-        )}
-      </td>
-
-
-      <td>
-        ${
-          payment.paymentMethod ===
-          "Mpesa"
-            ? "M-PESA"
-            : "PayPal"
-        }
-      </td>
-
-
-      <td>
-
-        <span class="money-usd">
-          $${usd.toFixed(2)}
-        </span>
-
-      </td>
-
-
-      <td>
-
-        ${
-          kes !== null &&
-          kes !== undefined
-            ? `
-              <span class="money-kes">
-                KSh ${Number(kes).toLocaleString("en-KE")}
-              </span>
-            `
-            : "—"
-        }
-
-      </td>
-
-
-      <td>
-
-        ${
-          rate
-            ? `
-              <span class="rate">
-                1 USD =
-                KSh ${Number(rate).toFixed(4)}
-              </span>
-            `
-            : "—"
-        }
-
-      </td>
-
-
-      <td>
-
-        <code>
-          ${transaction}
-        </code>
-
-      </td>
-
-
-      <td>
-
-        ${
-          proof
-            ? `
-              <a
-                href="${escapeAttribute(proof)}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="proof-btn"
-              >
-                <i class="fa-solid fa-eye"></i>
-                View
-              </a>
-            `
-            : "—"
-        }
-
-      </td>
-
-
-      <td>
-
-        <span
-          class="status ${status}"
-        >
-          ${escapeHTML(status)}
-        </span>
-
-      </td>
-
-
-      <td>
-
-        ${actions}
-
-      </td>
-
-    </tr>
-
-  `;
-
-}
-
-
-// ============================================================
-// APPROVE / REJECT
-// ============================================================
-
-async function handlePayment(
-  paymentId,
-  newStatus
-) {
-
-  const payment =
-    allPayments.find(
-      (item) =>
-        item.id === paymentId
-    );
-
-
-  if (!payment) {
-
-    alert(
-      "Payment could not be found."
-    );
-
-    return;
-
-  }
-
-
-  if (
-    payment.status !==
-    "pending"
-  ) {
-
-    alert(
-      "This payment has already been processed."
-    );
-
-    return;
-
-  }
-
-
-  const action =
-    newStatus === "approved"
-      ? "approve"
-      : "reject";
-
-
-  const confirmed =
-    confirm(
-      `Are you sure you want to ${action} this payment?`
-    );
-
-
-  if (!confirmed) {
-
-    return;
-
-  }
-
-
-  try {
-
-    // --------------------------------------------------------
-    // UPDATE PAYMENT
-    // --------------------------------------------------------
-
-    await updateDoc(
-
-      doc(
-        db,
-        "payments",
-        paymentId
-      ),
-
-      {
-
-        status:
-          newStatus,
-
-        reviewedAt:
-          serverTimestamp(),
-
-        reviewedBy:
-          auth.currentUser.uid
-
-      }
-
-    );
-
-
-    // --------------------------------------------------------
-    // APPROVE USER
-    // --------------------------------------------------------
-
-    if (
-      newStatus ===
-      "approved"
-    ) {
-
-      if (!payment.userId) {
-
-        throw new Error(
-          "Payment has no userId."
-        );
-
-      }
-
-
-      const userRef =
-        doc(
-          db,
-          "users",
-          payment.userId
-        );
-
-
-      const userSnap =
-        await getDoc(
-          userRef
-        );
-
-
-      if (!userSnap.exists()) {
-
-        throw new Error(
-          "User account was not found."
-        );
-
-      }
-
-
-      await updateDoc(
-        userRef,
-        {
-
-          membership:
-            "premium",
-
-          status:
-            "active",
-
-          role:
-            "member",
-
-          updatedAt:
-            serverTimestamp()
-
-        }
-      );
-
-
-      // ------------------------------------------------------
-      // AUDIT LOG
-      // ------------------------------------------------------
-
-      await addDoc(
-
-        collection(
-          db,
-          "paymentLogs"
-        ),
-
-        {
-
-          action:
-            "APPROVED",
-
-          paymentId,
-
-          userId:
-            payment.userId,
-
-          details:
-            "Payment approved and Premium membership activated.",
-
-          admin:
-            auth.currentUser.email,
-
-          createdAt:
-            serverTimestamp()
-
-        }
-
-      );
-
-
-      alert(
-        "✅ Payment approved. User is now Premium."
-      );
-
-    }
-
-
-    // --------------------------------------------------------
-    // REJECT
-    // --------------------------------------------------------
-
-    if (
-      newStatus ===
-      "rejected"
-    ) {
-
-      await addDoc(
-
-        collection(
-          db,
-          "paymentLogs"
-        ),
-
-        {
-
-          action:
-            "REJECTED",
-
-          paymentId,
-
-          userId:
-            payment.userId || null,
-
-          details:
-            "Payment rejected by administrator.",
-
-          admin:
-            auth.currentUser.email,
-
-          createdAt:
-            serverTimestamp()
-
-        }
-
-      );
-
-
-      alert(
-        "❌ Payment rejected."
-      );
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "PAYMENT ACTION ERROR:",
-      error
-    );
-
-
-    alert(
-      error?.message ||
-      "Failed to process payment."
-    );
-
-  }
-
-}
-
-
-// ============================================================
-// SECURITY HELPERS
-// ============================================================
-
-function escapeHTML(
-  value
-) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-function escapeAttribute(
-  value
-) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-
-}
-
-
-console.log(
-  "✅ Admin Payments System Loaded"
-);
-
-</script>
+<script type="module" src="js/admin-payments.js"></script>
 
 </body>
 </html>
