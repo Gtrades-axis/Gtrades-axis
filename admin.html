@@ -265,6 +265,14 @@
     .delete-btn { background: rgba(255,71,102,0.12); color: var(--red); }
     .delete-btn:hover { background: var(--red); color: #fff; }
 
+    .modal-control-group{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-color)}
+    .modal-control-group h4{font-size:.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+    .modal-control-group h4 i{margin-right:6px;color:var(--accent-blue)}
+    .member-btn{background:rgba(79,124,255,.12);color:var(--accent-blue)}.member-btn:hover{background:var(--accent-blue);color:#fff}
+    .paid-btn{background:rgba(0,200,151,.12);color:var(--green)}.paid-btn:hover{background:var(--green);color:#fff}
+    .unpaid-btn{background:rgba(255,71,102,.12);color:var(--red)}.unpaid-btn:hover{background:var(--red);color:#fff}
+    .modal-danger{margin-top:18px;padding-top:14px;border-top:1px solid var(--border-color)}.modal-danger .delete-btn{width:100%}
+    .user-info{min-width:0}.user-info strong,.user-info small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.user-info small{color:var(--text-secondary);font-size:.72rem}
     @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } .right-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } }
     @media (max-width: 992px) { .sidebar { width: 200px; padding: 20px 14px; } .admin-main { padding: 20px 24px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) {
@@ -347,7 +355,7 @@
   <div class="dashboard-grid">
     <div class="dashboard-card large" id="members">
       <div class="card-header"><div><h2><i class="fa-solid fa-users"></i> Members Management</h2></div><input type="text" id="memberSearch" placeholder="🔍 Search member..." /></div>
-      <div class="table-container"><table class="members-table"><thead><tr><th>User</th><th>Membership</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody id="membersTable"><tr><td colspan="5"><div class="empty-card">Loading members...</div></td></tr></tbody></table></div>
+      <div class="table-container"><table class="members-table"><thead><tr><th>User Email</th><th>Membership</th><th>Status</th><th>Payment</th><th>Joined</th><th>Management</th></tr></thead><tbody id="membersTable"><tr><td colspan="5"><div class="empty-card">Loading members...</div></td></tr></tbody></table></div>
     </div>
     <div class="right-panel">
       <div class="dashboard-card"><h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2><div id="recentMembers"><div class="empty-card">No members yet.</div></div></div>
@@ -458,10 +466,10 @@
         <h3 id="resourceFormTitle">Add New Resource</h3>
         <form id="resourceForm" class="manager-form">
           <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
-          <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option></select></div>
+          <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option><option value="General">General</option><option value="Other">Other / Custom</option></select><input type="text" id="resourceCustomCategory" placeholder="Enter custom category" style="display:none;margin-top:8px;" maxlength="50" /></div>
           <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
           <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
-          <div id="resourceUploadProgress" style="display:none;grid-column:1/-1;margin:6px 0 4px;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;">
+          <div id="resourceUploadProgress" style="display:none;margin:14px 0;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
             <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#94a3b8;font-size:13px;">
               <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
             </div>
@@ -487,18 +495,25 @@
     <h2><i class="fa-solid fa-user"></i> Member Details</h2>
     <div class="member-profile"><div class="member-avatar" id="memberAvatar">U</div><div><h3 id="modalName">Member Name</h3><p id="modalEmail">member@email.com</p></div></div>
     <div class="member-details">
-      <div class="detail-box"><label>Membership</label><span id="modalRole">Free</span></div>
-      <div class="detail-box"><label>Status</label><span id="modalStatus">Pending</span></div>
-      <div class="detail-box"><label>Payment</label><span id="modalPayment">Unpaid</span></div>
+      <div class="detail-box"><label>Membership</label><span id="modalRole">MEMBER</span></div>
+      <div class="detail-box"><label>Status</label><span id="modalStatus">PENDING</span></div>
+      <div class="detail-box"><label>Payment</label><span id="modalPayment">UNPAID</span></div>
       <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
     </div>
-    <div class="modal-actions">
-      <button id="approveBtn" class="approve-btn">Approve</button>
-      <button id="premiumBtn" class="premium-btn">Premium</button>
-      <button id="adminBtn" class="admin-btn">Admin</button>
-      <button id="suspendBtn" class="suspend-btn">Suspend</button>
-      <button id="deleteBtn" class="delete-btn">Delete</button>
-    </div>
+    <div class="modal-control-group"><h4><i class="fa-solid fa-crown"></i> Membership</h4><div class="modal-actions">
+      <button id="memberBtn" class="member-btn"><i class="fa-solid fa-user"></i> Member</button>
+      <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
+      <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-shield-halved"></i> Admin</button>
+    </div></div>
+    <div class="modal-control-group"><h4><i class="fa-solid fa-user-check"></i> Status</h4><div class="modal-actions">
+      <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-check"></i> Activate</button>
+      <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
+    </div></div>
+    <div class="modal-control-group"><h4><i class="fa-solid fa-money-bill-wave"></i> Payment</h4><div class="modal-actions">
+      <button id="paidBtn" class="paid-btn"><i class="fa-solid fa-check-circle"></i> Paid</button>
+      <button id="unpaidBtn" class="unpaid-btn"><i class="fa-solid fa-circle-xmark"></i> Unpaid</button>
+    </div></div>
+    <div class="modal-danger"><button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete Member</button></div>
   </div>
 </div>
 
@@ -573,105 +588,31 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  1. MEMBERS (Full)
+  //  1. MEMBERS — FULL MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
-  function listenMembers() {
-    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      allMembers = [];
-      snapshot.forEach(doc => allMembers.push({ id: doc.id, ...doc.data() }));
-      renderMembersTable(allMembers);
-      updateMemberStats(allMembers);
-      renderRecentMembers(allMembers);
-    });
-  }
-
-  function updateMemberStats(members) {
-    const totalEl = document.getElementById('totalMembers');
-    const premiumEl = document.getElementById('premiumMembers');
-    if (totalEl) totalEl.textContent = members.length;
-    if (premiumEl) premiumEl.textContent = members.filter(m => m.membership === 'premium').length;
-  }
-
-  function renderRecentMembers(members) {
-    const container = document.getElementById('recentMembers');
-    const recent = members.slice(0, 5);
-    if (recent.length === 0) return container.innerHTML = `<div class="empty-card">No members yet.</div>`;
-    container.innerHTML = recent.map(m => `
-      <div class="recent-member">
-        <div class="avatar-small">${(m.displayName || m.email || 'U')[0].toUpperCase()}</div>
-        <div class="member-info"><h4>${m.displayName || m.email || 'Member'}</h4><p>${m.membership || 'Free'}</p></div>
-      </div>
-    `).join('');
-  }
-
-  function renderMembersTable(members) {
-    const searchTerm = (memberSearch.value || '').toLowerCase();
-    const filtered = members.filter(m => 
-      (m.email || '').toLowerCase().includes(searchTerm) || 
-      (m.displayName || '').toLowerCase().includes(searchTerm)
-    );
-    if (filtered.length === 0) {
-      membersTableBody.innerHTML = `<tr><td colspan="5"><div class="empty-card">No members found.</div></td></tr>`;
-      return;
-    }
-    membersTableBody.innerHTML = filtered.map(m => `
-      <tr>
-        <td>
-          <div class="user-cell">
-            <div class="avatar-small">${(m.displayName || m.email || 'U')[0].toUpperCase()}</div>
-            <div class="user-info"><strong>${m.displayName || m.email || 'Member'}</strong><small>${m.email || '--'}</small></div>
-          </div>
-        </td>
-        <td><span class="badge ${m.membership || 'free'}">${(m.membership || 'Free').toUpperCase()}</span></td>
-        <td><span class="badge ${m.status || 'pending'}">${(m.status || 'Pending').toUpperCase()}</span></td>
-        <td>${m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleDateString() : '--'}</td>
-        <td><button class="manage-btn manage-member-btn" data-id="${m.id}">Manage</button></td>
-      </tr>
-    `).join('');
-    document.querySelectorAll('.manage-member-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const user = allMembers.find(m => m.id === btn.dataset.id);
-        if (user) openModal(user);
-      });
-    });
-  }
-  memberSearch.addEventListener('input', () => renderMembersTable(allMembers));
-
-  function openModal(user) {
-    selectedUser = user;
-    modalName.textContent = user.displayName || user.email || 'Member';
-    modalEmail.textContent = user.email || 'N/A';
-    modalRole.textContent = (user.role || 'member').toUpperCase();
-    modalStatus.textContent = (user.status || 'pending').toUpperCase();
-    modalPayment.textContent = (user.paymentStatus || 'unpaid').toUpperCase();
-    modalJoined.textContent = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : '--';
-    modalAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
-    memberModal.classList.add('active');
-  }
-
-  function closeModalFunc() { selectedUser = null; memberModal.classList.remove('active'); }
-  closeModal.addEventListener('click', closeModalFunc);
-  memberModal.addEventListener('click', (e) => { if(e.target === memberModal) closeModalFunc(); });
-
-  async function updateMemberField(field, value) {
-    if (!selectedUser) return alert("No user selected.");
-    try {
-      await updateDoc(doc(db, "users", selectedUser.id), { [field]: value, updatedAt: serverTimestamp() });
-      addActivity(`Updated ${field} for ${selectedUser.email || 'member'}`);
-      closeModalFunc();
-    } catch (e) { alert("Error updating member: " + e.message); }
-  }
-  modalApproveBtn.addEventListener('click', () => updateMemberField('status', 'active'));
-  modalPremiumBtn.addEventListener('click', () => updateMemberField('membership', 'premium'));
-  modalAdminBtn.addEventListener('click', () => updateMemberField('role', 'admin'));
-  modalSuspendBtn.addEventListener('click', () => updateMemberField('status', 'suspended'));
-  modalDeleteBtn.addEventListener('click', async () => {
-    if (!selectedUser) return;
-    if (!confirm(`Permanently delete ${selectedUser.email}? This cannot be undone!`)) return;
-    try { await deleteDoc(doc(db, "users", selectedUser.id)); addActivity(`Deleted member ${selectedUser.email}`); closeModalFunc(); } 
-    catch (e) { alert("Error deleting member: " + e.message); }
-  });
+  function timestampToDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();if(v.seconds!==undefined)return new Date(v.seconds*1000);const d=new Date(v);return Number.isNaN(d.getTime())?null:d;}
+  function formatJoined(v){const d=timestampToDate(v);return d?d.toLocaleDateString('en-GB'):'--';}
+  function getMembership(u){if(u.role==='admin')return'admin';return u.membership==='premium'?'premium':'member';}
+  function getStatus(u){return u.status||'pending';}
+  function getPaymentStatus(u){return u.paymentStatus||(u.payment==='paid'?'paid':'unpaid');}
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+  function listenMembers(){const q=query(collection(db,'users'),orderBy('createdAt','desc'));onSnapshot(q,s=>{allMembers=[];s.forEach(d=>allMembers.push({id:d.id,...d.data()}));renderMembersTable(allMembers);updateMemberStats(allMembers);renderRecentMembers(allMembers);},e=>{console.error(e);membersTableBody.innerHTML=`<tr><td colspan="6"><div class="empty-card">Unable to load members: ${e.message}</div></td></tr>`;});}
+  function updateMemberStats(m){if(document.getElementById('totalMembers'))document.getElementById('totalMembers').textContent=m.length;if(document.getElementById('premiumMembers'))document.getElementById('premiumMembers').textContent=m.filter(x=>getMembership(x)==='premium').length;}
+  function renderRecentMembers(m){const c=document.getElementById('recentMembers');if(!c)return;const r=m.slice(0,5);c.innerHTML=r.length?r.map(x=>{const n=x.displayName||x.name||x.email||'Member';return `<div class="recent-member"><div class="avatar-small">${escapeHtml(n[0].toUpperCase())}</div><div class="member-info"><h4>${escapeHtml(n)}</h4><p>${getMembership(x).toUpperCase()}</p></div></div>`}).join(''):'<div class="empty-card">No members yet.</div>';}
+  function renderMembersTable(m){const term=(memberSearch?.value||'').toLowerCase().trim();const f=m.filter(x=>String(x.email||'').toLowerCase().includes(term)||String(x.displayName||x.name||'').toLowerCase().includes(term));if(!f.length){membersTableBody.innerHTML='<tr><td colspan="6"><div class="empty-card">No members found.</div></td></tr>';return;}membersTableBody.innerHTML=f.map(x=>{const n=x.displayName||x.name||x.email||'Member',mem=getMembership(x),st=getStatus(x),pay=getPaymentStatus(x);return `<tr><td><div class="user-cell"><div class="avatar-small">${escapeHtml(n[0].toUpperCase())}</div><div class="user-info"><strong>${escapeHtml(x.email||'--')}</strong><small>${escapeHtml(n)}</small></div></div></td><td><span class="badge ${mem}">${mem.toUpperCase()}</span></td><td><span class="badge ${st}">${st.toUpperCase()}</span></td><td><span class="badge ${pay}">${pay.toUpperCase()}</span></td><td>${formatJoined(x.createdAt)}</td><td><button class="manage-btn manage-member-btn" data-id="${escapeHtml(x.id)}"><i class="fa-solid fa-sliders"></i> Manage</button></td></tr>`}).join('');document.querySelectorAll('.manage-member-btn').forEach(b=>b.onclick=()=>{const u=allMembers.find(x=>x.id===b.dataset.id);if(u)openModal(u);});}
+  memberSearch?.addEventListener('input',()=>renderMembersTable(allMembers));
+  function openModal(u){selectedUser=u;const n=u.displayName||u.name||u.email||'Member';modalName.textContent=n;modalEmail.textContent=u.email||'N/A';modalRole.textContent=getMembership(u).toUpperCase();modalStatus.textContent=getStatus(u).toUpperCase();modalPayment.textContent=getPaymentStatus(u).toUpperCase();modalJoined.textContent=formatJoined(u.createdAt);modalAvatar.textContent=n[0].toUpperCase();memberModal.classList.add('active');}
+  function closeModalFunc(){selectedUser=null;memberModal.classList.remove('active');}
+  closeModal?.addEventListener('click',closeModalFunc);memberModal?.addEventListener('click',e=>{if(e.target===memberModal)closeModalFunc();});
+  async function updateSelectedUser(changes,text,confirmText=''){if(!selectedUser)return alert('No user selected.');if(confirmText&&!confirm(confirmText))return;try{await updateDoc(doc(db,'users',selectedUser.id),{...changes,updatedAt:serverTimestamp()});addActivity(text||`Updated ${selectedUser.email||'member'}`);closeModalFunc();}catch(e){console.error(e);alert('Error updating member: '+e.message);}}
+  document.getElementById('memberBtn')?.addEventListener('click',()=>updateSelectedUser({role:'member',membership:'free'},`Changed ${selectedUser?.email||'member'} to Member.`,`Move ${selectedUser?.email||'this member'} back to ordinary Member?`));
+  document.getElementById('premiumBtn')?.addEventListener('click',()=>updateSelectedUser({role:'member',membership:'premium'},`Upgraded ${selectedUser?.email||'member'} to Premium.`,`Make ${selectedUser?.email||'this member'} a Premium member?`));
+  document.getElementById('adminBtn')?.addEventListener('click',()=>updateSelectedUser({role:'admin',membership:'premium'},`Promoted ${selectedUser?.email||'member'} to Admin.`,`Give ${selectedUser?.email||'this member'} Admin access?`));
+  document.getElementById('approveBtn')?.addEventListener('click',()=>updateSelectedUser({status:'active'},`Activated ${selectedUser?.email||'member'}.`));
+  document.getElementById('suspendBtn')?.addEventListener('click',()=>updateSelectedUser({status:'suspended'},`Suspended ${selectedUser?.email||'member'}.`,`Suspend ${selectedUser?.email||'this member'}?`));
+  document.getElementById('paidBtn')?.addEventListener('click',()=>updateSelectedUser({paymentStatus:'paid'},`Marked ${selectedUser?.email||'member'} as Paid.`));
+  document.getElementById('unpaidBtn')?.addEventListener('click',()=>updateSelectedUser({paymentStatus:'unpaid'},`Marked ${selectedUser?.email||'member'} as Unpaid.`));
+  document.getElementById('deleteBtn')?.addEventListener('click',async()=>{if(!selectedUser)return;const e=selectedUser.email||'this member';if(!confirm(`Permanently delete ${e}? This cannot be undone.`))return;try{await deleteDoc(doc(db,'users',selectedUser.id));addActivity(`Deleted member ${e}`);closeModalFunc();}catch(err){alert('Error deleting member: '+err.message);}});
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  2. ACADEMY MODULES (Full)
@@ -1103,31 +1044,17 @@
     }
   });
 
+  // ═══════════════════════════════════════════════════════════════════════════
   //  5. RESOURCES — CLOUDFLARE R2 + FIRESTORE (FIXED)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // Uses the SAME Cloudflare R2 Worker already used by the working upload system.
-  // This resource section does not touch Firebase Storage.
+  // IMPORTANT: Resource uploads use a dedicated uploader here so this page
+  // does NOT depend on the old upload.js implementation for resources.
   const RESOURCE_R2_WORKER = "https://r2-uploader.davidthuku574.workers.dev";
 
-  function setResourceUploadProgress(percent, message, show = true) {
-    const box = document.getElementById('resourceUploadProgress');
-    const bar = document.getElementById('resourceUploadProgressBar');
-    const text = document.getElementById('resourceUploadProgressText');
-    if (box) box.style.display = show ? 'block' : 'none';
-    if (bar) bar.style.width = `${Math.max(0, Math.min(100, Number(percent) || 0))}%`;
-    if (text) text.textContent = message || 'Preparing upload...';
-  }
-
-  function resetResourceUploadUI() {
-    setResourceUploadProgress(0, 'Preparing upload...', false);
-    const name = document.getElementById('resourceFileName');
-    if (name) name.textContent = 'No file chosen';
-  }
-
-  async function uploadResourceToR2(file, key, onProgress) {
-    if (!file) throw new Error('No file selected.');
-    if (!key) throw new Error('No R2 object key provided.');
+  function resourceUploadToR2(file, key, onProgress) {
+    if (!file) return Promise.reject(new Error('No file selected.'));
+    if (!key) return Promise.reject(new Error('No R2 object key provided.'));
 
     const formData = new FormData();
     formData.append('file', file);
@@ -1139,7 +1066,7 @@
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${RESOURCE_R2_WORKER}/upload`, true);
 
-      xhr.upload.addEventListener('progress', event => {
+      xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable && typeof onProgress === 'function') {
           onProgress(Math.round((event.loaded / event.total) * 100));
         }
@@ -1154,8 +1081,8 @@
         let result;
         try {
           result = JSON.parse(xhr.responseText || '{}');
-        } catch (e) {
-          reject(new Error('Cloudflare Worker returned invalid JSON.'));
+        } catch (_) {
+          reject(new Error('Cloudflare Worker returned an invalid JSON response.'));
           return;
         }
 
@@ -1164,18 +1091,47 @@
           return;
         }
 
-        resolve(result.key || result.fileKey || key);
+        const returnedKey = result.key || result.fileKey || key;
+        resolve(returnedKey);
       };
 
       xhr.onerror = () => reject(new Error('Network/CORS error while uploading to Cloudflare R2.'));
       xhr.onabort = () => reject(new Error('Upload was cancelled.'));
       xhr.ontimeout = () => reject(new Error('Upload timed out.'));
+      xhr.timeout = 0;
       xhr.send(formData);
     });
   }
 
+  function resetResourceForm() {
+    const form = document.getElementById('resourceForm');
+    if (form) form.reset();
+    const ids = ['editingResourceId'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    const fileName = document.getElementById('resourceFileName');
+    if (fileName) fileName.textContent = 'No file chosen';
+    if(document.getElementById('resourceCustomCategory')) document.getElementById('resourceCustomCategory').value='';
+    syncCustomResourceCategory();
+    const progress = document.getElementById('resourceUploadProgress');
+    const bar = document.getElementById('resourceUploadProgressBar');
+    const text = document.getElementById('resourceUploadProgressText');
+    if (progress) progress.style.display = 'none';
+    if (bar) bar.style.width = '0%';
+    if (text) text.textContent = 'Preparing upload...';
+  }
+
+  function setResourceUploadProgress(percent, message) {
+    const progress = document.getElementById('resourceUploadProgress');
+    const bar = document.getElementById('resourceUploadProgressBar');
+    const text = document.getElementById('resourceUploadProgressText');
+    if (progress) progress.style.display = 'block';
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    if (text) text.textContent = message || `Uploading ${percent}%...`;
+  }
+
   function listenResources() {
-    const q = query(collection(db, "resources"), orderBy("createdAt", "desc"));
+    const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'));
+
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('resourceTableBody');
       const overviewEl = document.getElementById('resourceOverview');
@@ -1183,47 +1139,63 @@
 
       if (snapshot.empty) {
         tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
-        if (overviewEl) overviewEl.textContent = 0;
+        if (overviewEl) overviewEl.textContent = '0';
         return;
       }
 
       let html = '';
       let count = 0;
 
-      snapshot.forEach(item => {
+      snapshot.forEach(resourceDoc => {
         count++;
-        const r = { id: item.id, ...item.data() };
+        const r = { id: resourceDoc.id, ...resourceDoc.data() };
         const key = r.fileKey || r.resourceKey || r.r2Key || '';
-        const downloadBtn = key
-          ? `<button class="btn-view-proof download-resource-btn" data-key="${encodeURIComponent(key)}">Download</button>`
-          : (r.link ? `<a href="${r.link}" target="_blank" class="btn-view-proof">Legacy</a>` : '—');
+        const safeTitle = String(r.title || 'Untitled Resource');
+        const safeDescription = String(r.description || '');
+        const safeCategory = String(r.category || 'PDF');
 
         html += `
           <tr>
-            <td><strong>${r.title || 'Untitled Resource'}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
-            <td>${r.category || 'PDF'}</td>
-            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span> ${downloadBtn}</td>
             <td>
-              <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
-              <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
-                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i> ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
-              </button>
-              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
+              <strong>${safeTitle}</strong><br>
+              <small style="color:#9aa4bf;">${safeDescription}</small>
             </td>
-          </tr>`;
+            <td>${safeCategory}</td>
+            <td>
+              <span class="badge ${r.premiumOnly ? 'premium' : 'free'}">
+                ${r.premiumOnly ? 'Premium' : 'Free'}
+              </span>
+              ${key ? `<button class="btn-view-proof download-resource-btn" data-key="${key}">Download</button>` : ' — '}
+            </td>
+            <td>
+              <button class="manage-btn edit-resource" data-id="${r.id}">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
+                <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i>
+                ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
+              </button>
+              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </td>
+          </tr>
+        `;
       });
 
       tbody.innerHTML = html;
-      if (overviewEl) overviewEl.textContent = count;
+      if (overviewEl) overviewEl.textContent = String(count);
 
       document.querySelectorAll('.download-resource-btn').forEach(btn => {
         btn.addEventListener('click', async function () {
-          const key = decodeURIComponent(this.dataset.key || '');
-          if (!key) return alert('No R2 file key found.');
+          const key = this.dataset.key;
+          if (!key) return alert('This resource has no R2 file key.');
           try {
             const url = await getDownloadUrl(key);
+            if (!url) throw new Error('No download URL was returned.');
             window.open(url, '_blank', 'noopener,noreferrer');
           } catch (error) {
+            console.error('RESOURCE DOWNLOAD ERROR:', error);
             alert('Download failed: ' + error.message);
           }
         });
@@ -1234,20 +1206,26 @@
           const id = this.dataset.id;
           try {
             const snap = await getDoc(doc(db, 'resources', id));
-            if (!snap.exists()) return alert('Resource not found.');
+            if (!snap.exists()) return alert('Resource no longer exists.');
+
             const data = snap.data();
             document.getElementById('editingResourceId').value = id;
             document.getElementById('resourceTitle').value = data.title || '';
-            document.getElementById('resourceCategory').value = data.category || 'PDF';
+            const known=['PDF','Indicator','Journal','Strategy','Video','General'];
+            document.getElementById('resourceCategory').value=known.includes(data.category)?data.category:'Other';
+            document.getElementById('resourceCustomCategory').value=known.includes(data.category)?'':(data.category||'');
+            syncCustomResourceCategory();
             document.getElementById('resourceDescription').value = data.description || '';
             document.getElementById('premiumOnly').checked = data.premiumOnly === true;
-            document.getElementById('resourceFileName').textContent = data.fileKey || data.resourceKey || data.r2Key ? 'File uploaded — choose a new file only if replacing it' : 'No file chosen';
+            document.getElementById('resourceFileName').textContent =
+              data.fileKey || data.resourceKey || data.r2Key ? 'Existing file saved — choose a new file only if replacing it.' : 'No file chosen';
             document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
             document.getElementById('saveResourceBtn').textContent = 'Update Resource';
             document.getElementById('resourceFormContainer').style.display = 'block';
             document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
-          } catch (e) {
-            alert('Error loading resource: ' + e.message);
+          } catch (error) {
+            console.error('RESOURCE EDIT ERROR:', error);
+            alert('Error loading resource: ' + error.message);
           }
         });
       });
@@ -1255,12 +1233,13 @@
       document.querySelectorAll('.delete-resource').forEach(btn => {
         btn.addEventListener('click', async function () {
           const id = this.dataset.id;
-          if (!confirm('Delete this resource permanently?')) return;
+          if (!confirm('Delete this resource record?')) return;
           try {
             await deleteDoc(doc(db, 'resources', id));
             addActivity('Deleted a resource.');
-          } catch (e) {
-            alert('Error deleting resource: ' + e.message);
+          } catch (error) {
+            console.error('RESOURCE DELETE ERROR:', error);
+            alert('Error deleting resource: ' + error.message);
           }
         });
       });
@@ -1276,14 +1255,15 @@
               premiumOnly: !current,
               updatedAt: serverTimestamp()
             });
-            addActivity('Toggled resource premium status.');
-          } catch (e) {
-            alert('Error updating status: ' + e.message);
+            addActivity(`Changed resource access to ${!current ? 'Premium' : 'Free'}.`);
+          } catch (error) {
+            console.error('RESOURCE STATUS ERROR:', error);
+            alert('Error updating status: ' + error.message);
           }
         });
       });
-    }, error => {
-      console.error('RESOURCES LISTEN ERROR:', error);
+    }, (error) => {
+      console.error('RESOURCE LISTENER ERROR:', error);
       const tbody = document.getElementById('resourceTableBody');
       if (tbody) tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">Unable to load resources: ${error.message}</div></td></tr>`;
     });
@@ -1293,13 +1273,12 @@
     const container = document.getElementById('resourceFormContainer');
     if (!container) return;
 
-    if (container.style.display === 'none') {
+    if (container.style.display === 'none' || !container.style.display) {
       container.style.display = 'block';
       document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
       document.getElementById('saveResourceBtn').textContent = 'Save Resource';
-      document.getElementById('editingResourceId').value = '';
-      document.getElementById('resourceForm').reset();
-      resetResourceUploadUI();
+      resetResourceForm();
+      container.style.display = 'block';
       container.scrollIntoView({ behavior: 'smooth' });
     } else {
       container.style.display = 'none';
@@ -1308,19 +1287,23 @@
 
   document.getElementById('cancelResourceBtn')?.addEventListener('click', function () {
     document.getElementById('resourceFormContainer').style.display = 'none';
-    resetResourceUploadUI();
+    resetResourceForm();
   });
+
+  const resourceCategorySelect=document.getElementById('resourceCategory');
+  const resourceCustomCategory=document.getElementById('resourceCustomCategory');
+  function syncCustomResourceCategory(){if(!resourceCategorySelect||!resourceCustomCategory)return;const custom=resourceCategorySelect.value==='Other';resourceCustomCategory.style.display=custom?'block':'none';resourceCustomCategory.required=custom;if(!custom)resourceCustomCategory.value='';}
+  resourceCategorySelect?.addEventListener('change',syncCustomResourceCategory);syncCustomResourceCategory();
 
   document.getElementById('resourceFilePicker')?.addEventListener('change', function () {
     const file = this.files?.[0];
-    const name = document.getElementById('resourceFileName');
-    if (!name) return;
+    const fileNameEl = document.getElementById('resourceFileName');
     if (!file) {
-      name.textContent = 'No file chosen';
+      if (fileNameEl) fileNameEl.textContent = 'No file chosen';
       return;
     }
     const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-    name.textContent = `${file.name} — ${sizeMB} MB`;
+    if (fileNameEl) fileNameEl.textContent = `${file.name} — ${sizeMB} MB`;
   });
 
   document.getElementById('resourceForm')?.addEventListener('submit', async function (e) {
@@ -1329,13 +1312,17 @@
     const form = this;
     if (form.dataset.uploading === 'true') return;
 
+    const saveButton = document.getElementById('saveResourceBtn');
+    const filePicker = document.getElementById('resourceFilePicker');
     const editingId = document.getElementById('editingResourceId').value.trim();
     const title = document.getElementById('resourceTitle').value.trim();
-    const category = document.getElementById('resourceCategory').value || 'PDF';
+    const selectedCategory = document.getElementById('resourceCategory').value || 'PDF';
+    const customCategory = document.getElementById('resourceCustomCategory')?.value.trim() || '';
+    const category = selectedCategory === 'Other' ? customCategory : selectedCategory;
+    if (selectedCategory === 'Other' && !customCategory) return alert('Please enter a custom resource category.');
     const description = document.getElementById('resourceDescription').value.trim();
     const premiumOnly = document.getElementById('premiumOnly').checked;
-    const file = document.getElementById('resourceFilePicker').files?.[0] || null;
-    const saveButton = document.getElementById('saveResourceBtn');
+    const file = filePicker?.files?.[0] || null;
 
     if (!title) return alert('Please enter a resource title.');
     if (!editingId && !file) return alert('Please choose a file to upload.');
@@ -1343,20 +1330,22 @@
     form.dataset.uploading = 'true';
     if (saveButton) {
       saveButton.disabled = true;
-      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (editingId ? 'Updating...' : 'Uploading...');
+      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
     }
 
     try {
       let fileKey = null;
       let oldData = null;
 
+      // Editing: keep the existing R2 key when no new file was selected.
       if (editingId) {
-        const snap = await getDoc(doc(db, 'resources', editingId));
-        if (!snap.exists()) throw new Error('Resource no longer exists.');
-        oldData = snap.data();
+        const existingSnap = await getDoc(doc(db, 'resources', editingId));
+        if (!existingSnap.exists()) throw new Error('Resource no longer exists.');
+        oldData = existingSnap.data();
         fileKey = oldData.fileKey || oldData.resourceKey || oldData.r2Key || null;
       }
 
+      // New file: upload FIRST, then write Firestore.
       if (file) {
         const originalName = file.name || 'resource';
         const safeName = originalName
@@ -1368,7 +1357,8 @@
         const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
 
         setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);
-        fileKey = await uploadResourceToR2(file, key, percent => {
+
+        fileKey = await resourceUploadToR2(file, key, (percent) => {
           setResourceUploadProgress(percent, `Uploading ${percent}% — ${originalName}`);
         });
 
@@ -1376,7 +1366,9 @@
         setResourceUploadProgress(100, 'Upload complete — saving resource information...');
       }
 
-      if (!fileKey) throw new Error('No R2 file key is available for this resource.');
+      if (!fileKey) {
+        throw new Error('No R2 file key is available for this resource.');
+      }
 
       const data = {
         title,
@@ -1396,19 +1388,18 @@
         addActivity(`Updated resource "${title}"`);
       } else {
         data.createdAt = serverTimestamp();
-        await addDoc(collection(db, 'resources'), data);
+        const created = await addDoc(collection(db, 'resources'), data);
+        console.log('RESOURCE CREATED:', created.id, data);
         addActivity(`Uploaded resource "${title}"`);
       }
 
       setResourceUploadProgress(100, '100% — Resource saved successfully.');
       alert(editingId ? '✅ Resource updated successfully!' : '✅ Resource uploaded to Cloudflare R2 successfully!');
 
-      document.getElementById('resourceFormContainer').style.display = 'none';
-      document.getElementById('resourceForm').reset();
-      document.getElementById('editingResourceId').value = '';
-      resetResourceUploadUI();
-      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
-      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
+      setTimeout(() => {
+        document.getElementById('resourceFormContainer').style.display = 'none';
+        resetResourceForm();
+      }, 700);
 
     } catch (error) {
       console.error('RESOURCE UPLOAD ERROR:', error);
