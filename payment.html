@@ -23,11 +23,6 @@
   >
 
   <style>
-
-    /* =====================================================
-       PAYMENT PAGE EXTRA STYLES
-    ===================================================== */
-
     .proof-upload {
       margin: 18px 0;
     }
@@ -254,15 +249,10 @@
       color: #6a7490;
       margin-top: 6px;
     }
-
   </style>
 </head>
 
 <body>
-
-<!-- =====================================================
-     TOP BAR
-===================================================== -->
 
 <header class="topbar">
 
@@ -274,13 +264,11 @@
     >
 
     <div>
-
       <h2>GTRADES-AXIS™</h2>
 
       <small>
         Trade with Structure. Execute with Precision.
       </small>
-
     </div>
 
   </div>
@@ -300,10 +288,6 @@
 </header>
 
 
-<!-- =====================================================
-     HERO
-===================================================== -->
-
 <section class="payment-hero">
 
   <h1>
@@ -320,13 +304,7 @@
 </section>
 
 
-<!-- =====================================================
-     PLANS
-===================================================== -->
-
 <section class="plans">
-
-  <!-- MONTHLY -->
 
   <div class="plan-card">
 
@@ -385,8 +363,6 @@
 
   </div>
 
-
-  <!-- LIFETIME -->
 
   <div class="plan-card featured">
 
@@ -452,10 +428,6 @@
 </section>
 
 
-<!-- =====================================================
-     BENEFITS
-===================================================== -->
-
 <section class="premium-benefits">
 
   <h2>Why Upgrade?</h2>
@@ -475,7 +447,6 @@
 
     </div>
 
-
     <div class="benefit-card">
 
       <i class="fa-solid fa-book"></i>
@@ -489,7 +460,6 @@
 
     </div>
 
-
     <div class="benefit-card">
 
       <i class="fa-solid fa-robot"></i>
@@ -501,7 +471,6 @@
       </p>
 
     </div>
-
 
     <div class="benefit-card">
 
@@ -520,10 +489,6 @@
 </section>
 
 
-<!-- =====================================================
-     PAYMENT METHODS
-===================================================== -->
-
 <section class="payment-methods">
 
   <h2>Choose Your Payment Method</h2>
@@ -536,10 +501,8 @@
 
   </p>
 
-
   <div class="payment-grid">
 
-    <!-- MPESA -->
 
     <div class="payment-card">
 
@@ -569,7 +532,6 @@
 
         </div>
 
-
         <div class="detail">
 
           <span>Account Name</span>
@@ -579,7 +541,6 @@
         </div>
 
       </div>
-
 
       <div class="instructions">
 
@@ -609,8 +570,6 @@
 
     </div>
 
-
-    <!-- PAYPAL -->
 
     <div class="payment-card">
 
@@ -642,7 +601,6 @@
 
         </div>
 
-
         <div class="detail">
 
           <span>Currency</span>
@@ -652,7 +610,6 @@
         </div>
 
       </div>
-
 
       <div class="instructions">
 
@@ -687,10 +644,6 @@
 </section>
 
 
-<!-- =====================================================
-     NOTICE
-===================================================== -->
-
 <section class="payment-notice">
 
   <div class="notice-card">
@@ -720,10 +673,6 @@
 </section>
 
 
-<!-- =====================================================
-     PAYMENT FORM
-===================================================== -->
-
 <section class="payment-form-section">
 
   <div class="payment-form-card">
@@ -740,7 +689,6 @@
 
     <form id="paymentForm" novalidate>
 
-      <!-- HIDDEN USER ID -->
 
       <input
         type="hidden"
@@ -752,8 +700,6 @@
         id="exchangeRate"
       >
 
-
-      <!-- USER INFORMATION -->
 
       <div class="form-grid">
 
@@ -797,8 +743,6 @@
 
       </div>
 
-
-      <!-- PLAN / METHOD -->
 
       <div class="form-grid">
 
@@ -860,8 +804,6 @@
       </div>
 
 
-      <!-- CURRENCY -->
-
       <div
         class="currency-box"
         id="currencyBox"
@@ -877,7 +819,6 @@
 
         </div>
 
-
         <div class="currency-row">
 
           <span>Exchange Rate</span>
@@ -887,7 +828,6 @@
           </strong>
 
         </div>
-
 
         <div class="currency-row">
 
@@ -901,7 +841,6 @@
           </strong>
 
         </div>
-
 
         <div
           class="rate-text"
@@ -934,8 +873,6 @@
 
       </div>
 
-
-      <!-- PAYMENT AMOUNT / TRANSACTION -->
 
       <div class="form-grid">
 
@@ -973,8 +910,6 @@
       </div>
 
 
-      <!-- PAYMENT PROOF -->
-
       <div class="proof-upload">
 
         <label for="paymentProof">
@@ -994,8 +929,6 @@
       </div>
 
 
-      <!-- NOTES -->
-
       <div class="form-group">
 
         <label for="notes">
@@ -1010,8 +943,6 @@
 
       </div>
 
-
-      <!-- SELECTED PLAN -->
 
       <div class="selected-plan-box">
 
@@ -1034,8 +965,6 @@
       </div>
 
 
-      <!-- WARNING -->
-
       <div class="payment-warning">
 
         <i class="fa-solid fa-circle-exclamation"></i>
@@ -1049,8 +978,6 @@
 
       </div>
 
-
-      <!-- SUBMIT -->
 
       <button
         type="submit"
@@ -1078,10 +1005,6 @@
 </section>
 
 
-<!-- =====================================================
-     SUCCESS MODAL
-===================================================== -->
-
 <div
   id="successModal"
   class="success-modal"
@@ -1095,11 +1018,9 @@
 
     </div>
 
-
     <h2>
       Payment Submitted
     </h2>
-
 
     <p>
 
@@ -1107,7 +1028,6 @@
       An administrator will verify your transaction.
 
     </p>
-
 
     <div class="status-box">
 
@@ -1119,14 +1039,12 @@
 
     </div>
 
-
     <p>
 
       Once approved, your account will automatically
       become Premium.
 
     </p>
-
 
     <button
       type="button"
@@ -1139,10 +1057,6 @@
 
 </div>
 
-
-<!-- =====================================================
-     LOADING
-===================================================== -->
 
 <div
   id="loadingScreen"
@@ -1166,10 +1080,6 @@
 </div>
 
 
-<!-- =====================================================
-     FOOTER
-===================================================== -->
-
 <footer class="payment-footer">
 
   <div class="footer-logo">
@@ -1183,7 +1093,6 @@
     </p>
 
   </div>
-
 
   <div class="footer-links">
 
@@ -1205,7 +1114,6 @@
 
   </div>
 
-
   <div class="footer-copy">
 
     © 2026 GTRADES-AXIS™ All Rights Reserved.
@@ -1215,10 +1123,6 @@
 </footer>
 
 
-<!-- =====================================================
-     FIREBASE
-===================================================== -->
-
 <script type="module">
 
   import {
@@ -1226,11 +1130,9 @@
     db
   } from "./js/firebase.js";
 
-
   import {
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
 
   import {
     doc,
@@ -1246,17 +1148,11 @@
   ===================================================== */
 
   const MONTHLY_PRICE = 50;
-
   const LIFETIME_PRICE = 200;
 
   const MPESA_NUMBER = "0712416214";
-
   const MPESA_NAME = "David Thuku";
 
-
-  /*
-   * Current Frankfurter API.
-   */
   const RATE_API =
     "https://api.frankfurter.dev/v2/rate/USD/KES";
 
@@ -1349,7 +1245,6 @@
   ===================================================== */
 
   let currentUser = null;
-
   let currentExchangeRate = null;
 
 
@@ -1359,8 +1254,7 @@
 
   function showMessage(message, type = "error") {
 
-    paymentMessage.textContent =
-      message;
+    paymentMessage.textContent = message;
 
     paymentMessage.className =
       "payment-message " + type;
@@ -1386,15 +1280,11 @@
 
     if (show) {
 
-      loadingScreen.classList.add(
-        "active"
-      );
+      loadingScreen.classList.add("active");
 
     } else {
 
-      loadingScreen.classList.remove(
-        "active"
-      );
+      loadingScreen.classList.remove("active");
 
     }
 
@@ -1402,21 +1292,17 @@
 
 
   /* =====================================================
-     PLAN PRICE
+     PRICE
   ===================================================== */
 
   function getPrice(plan) {
 
     if (plan === "Monthly") {
-
       return MONTHLY_PRICE;
-
     }
 
     if (plan === "Lifetime") {
-
       return LIFETIME_PRICE;
-
     }
 
     return 0;
@@ -1442,7 +1328,7 @@
 
 
   /* =====================================================
-     FIREBASE AUTH
+     AUTH
   ===================================================== */
 
   onAuthStateChanged(
@@ -1453,15 +1339,14 @@
 
         currentUser = null;
 
+        userId.value = "";
         userName.value = "";
-
         userEmail.value = "";
 
         nameStatus.textContent =
           "Please log in to continue.";
 
-        submitPayment.disabled =
-          true;
+        submitPayment.disabled = true;
 
         showMessage(
           "You must be logged in before submitting a payment.",
@@ -1477,24 +1362,17 @@
 
 
       /*
-       * Firebase Authentication email
-       */
-
-      userEmail.value =
-        user.email || "";
-
-
-      /*
-       * Hidden UID
+       * THIS IS THE SAME UID THAT IS SENT
+       * AS paymentData.userId BELOW.
        */
 
       userId.value =
         user.uid;
 
 
-      /*
-       * Load user profile from Firestore
-       */
+      userEmail.value =
+        user.email || "";
+
 
       let fullName = "";
 
@@ -1507,7 +1385,6 @@
             "users",
             user.uid
           );
-
 
         const userSnap =
           await getDoc(userRef);
@@ -1526,11 +1403,6 @@
             "";
 
 
-          /*
-           * If email wasn't in Firebase Auth,
-           * use Firestore email.
-           */
-
           if (
             !userEmail.value &&
             data.email
@@ -1546,16 +1418,12 @@
       } catch (error) {
 
         console.error(
-          "Firestore profile error:",
+          "Error loading user profile:",
           error
         );
 
       }
 
-
-      /*
-       * Firebase Auth displayName fallback
-       */
 
       if (!fullName) {
 
@@ -1564,10 +1432,6 @@
 
       }
 
-
-      /*
-       * Final fallback
-       */
 
       if (!fullName) {
 
@@ -1586,7 +1450,6 @@
       nameStatus.textContent =
         "Account information loaded.";
 
-
       nameStatus.style.color =
         "#00c897";
 
@@ -1596,11 +1459,11 @@
 
 
       console.log(
-        "Payment user loaded:",
+        "Authenticated payment user:",
         {
           uid: user.uid,
-          name: fullName,
-          email: userEmail.value
+          email: user.email,
+          name: fullName
         }
       );
 
@@ -1632,8 +1495,7 @@
       if (!response.ok) {
 
         throw new Error(
-          "Rate request failed: " +
-          response.status
+          "Exchange-rate request failed."
         );
 
       }
@@ -1649,7 +1511,7 @@
       ) {
 
         throw new Error(
-          "Invalid exchange rate."
+          "Invalid exchange-rate response."
         );
 
       }
@@ -1679,15 +1541,13 @@
     } catch (error) {
 
       console.error(
-        "Exchange rate error:",
+        "Exchange-rate error:",
         error
       );
 
 
       /*
-       * Fallback rate so payment selection
-       * does not break if the public API is
-       * temporarily unavailable.
+       * FALLBACK ONLY IF API IS UNAVAILABLE.
        */
 
       currentExchangeRate =
@@ -1703,7 +1563,7 @@
 
 
       rateTime.textContent =
-        "Live exchange rate temporarily unavailable. Fallback rate is being used.";
+        "Live exchange rate unavailable. Fallback rate is being used.";
 
 
       updatePaymentDisplay();
@@ -1714,7 +1574,7 @@
 
 
   /* =====================================================
-     UPDATE PAYMENT DISPLAY
+     PAYMENT DISPLAY
   ===================================================== */
 
   function updatePaymentDisplay() {
@@ -1722,10 +1582,8 @@
     const plan =
       membershipPlan.value;
 
-
     const method =
       paymentMethod.value;
-
 
     const price =
       getPrice(plan);
@@ -1733,40 +1591,28 @@
 
     if (!price) {
 
-      currencyBox.classList.remove(
-        "active"
-      );
-
+      currencyBox.classList.remove("active");
 
       selectedPlanName.textContent =
         "No Plan Selected";
 
-
       selectedPlanPrice.textContent =
         "$0";
-
 
       usdAmount.textContent =
         "$0";
 
-
       amountDisplay.value =
         "";
 
-
-      mpesaDetails.classList.remove(
-        "active"
-      );
-
+      mpesaDetails.classList.remove("active");
 
       return;
 
     }
 
 
-    currencyBox.classList.add(
-      "active"
-    );
+    currencyBox.classList.add("active");
 
 
     if (plan === "Monthly") {
@@ -1790,16 +1636,15 @@
       "$" + price;
 
 
-    /*
-     * M-PESA
-     */
-
     if (method === "Mpesa") {
+
+      const rate =
+        currentExchangeRate || 129;
+
 
       const kes =
         Math.round(
-          price *
-          currentExchangeRate
+          price * rate
         );
 
 
@@ -1815,16 +1660,10 @@
         formatKES(kes);
 
 
-      mpesaDetails.classList.add(
-        "active"
-      );
+      mpesaDetails.classList.add("active");
 
     }
 
-
-    /*
-     * PAYPAL
-     */
 
     else if (method === "PayPal") {
 
@@ -1832,34 +1671,29 @@
         "$" + price;
 
 
+      const rate =
+        currentExchangeRate || 129;
+
+
       kesAmount.textContent =
-        "KSh " +
-        Math.round(
-          price *
-          currentExchangeRate
-        ).toLocaleString();
+        formatKES(
+          Math.round(
+            price * rate
+          )
+        );
 
 
-      mpesaDetails.classList.remove(
-        "active"
-      );
+      mpesaDetails.classList.remove("active");
 
     }
 
-
-    /*
-     * Nothing selected
-     */
 
     else {
 
       amountDisplay.value =
         "";
 
-
-      mpesaDetails.classList.remove(
-        "active"
-      );
+      mpesaDetails.classList.remove("active");
 
     }
 
@@ -1871,14 +1705,12 @@
   ===================================================== */
 
   document
-    .querySelectorAll(
-      ".select-plan"
-    )
+    .querySelectorAll(".select-plan")
     .forEach(button => {
 
       button.addEventListener(
         "click",
-        async () => {
+        () => {
 
           const plan =
             button.dataset.plan;
@@ -1922,7 +1754,7 @@
 
 
   /* =====================================================
-     PAYMENT METHOD CHANGE
+     PAYMENT METHOD
   ===================================================== */
 
   paymentMethod.addEventListener(
@@ -1938,13 +1770,11 @@
 
 
   /* =====================================================
-     COPY BUTTONS
+     COPY
   ===================================================== */
 
   document
-    .querySelectorAll(
-      ".copy-btn"
-    )
+    .querySelectorAll(".copy-btn")
     .forEach(button => {
 
       button.addEventListener(
@@ -1970,12 +1800,15 @@
               '<i class="fa-solid fa-check"></i>';
 
 
-            setTimeout(() => {
+            setTimeout(
+              () => {
 
-              button.innerHTML =
-                old;
+                button.innerHTML =
+                  old;
 
-            }, 1500);
+              },
+              1500
+            );
 
 
           } catch (error) {
@@ -1994,7 +1827,7 @@
 
 
   /* =====================================================
-     PAYMENT PROOF VALIDATION
+     PROOF VALIDATION
   ===================================================== */
 
   paymentProof.addEventListener(
@@ -2025,12 +1858,10 @@
 
         paymentProof.value = "";
 
-
         showMessage(
           "Payment proof must be 5MB or smaller.",
           "error"
         );
-
 
         return;
 
@@ -2045,12 +1876,10 @@
 
         paymentProof.value = "";
 
-
         showMessage(
           "Payment proof must be JPG, PNG or PDF.",
           "error"
         );
-
 
         return;
 
@@ -2064,7 +1893,7 @@
 
 
   /* =====================================================
-     FORM SUBMISSION
+     SUBMIT PAYMENT
   ===================================================== */
 
   paymentForm.addEventListener(
@@ -2073,14 +1902,11 @@
 
       event.preventDefault();
 
-
       clearMessage();
 
 
       /*
-       * IMPORTANT:
-       * We do NOT rely on browser validation
-       * for the automatically populated name/email.
+       * MUST BE LOGGED IN
        */
 
       if (!currentUser) {
@@ -2098,31 +1924,27 @@
       const name =
         userName.value.trim();
 
-
       const email =
         userEmail.value.trim();
-
 
       const plan =
         membershipPlan.value;
 
-
       const method =
         paymentMethod.value;
-
 
       const transaction =
         transactionId.value.trim();
 
 
       /*
-       * NAME
+       * VALIDATION
        */
 
       if (!name) {
 
         showMessage(
-          "Your name has not loaded yet. Please wait a moment and try again.",
+          "Your account name has not loaded yet. Please wait and try again.",
           "error"
         );
 
@@ -2130,15 +1952,11 @@
 
       }
 
-
-      /*
-       * EMAIL
-       */
 
       if (!email) {
 
         showMessage(
-          "Your email has not loaded yet. Please refresh the page and try again.",
+          "Your email has not loaded. Please refresh the page.",
           "error"
         );
 
@@ -2146,10 +1964,6 @@
 
       }
 
-
-      /*
-       * PLAN
-       */
 
       if (!plan) {
 
@@ -2163,10 +1977,6 @@
       }
 
 
-      /*
-       * PAYMENT METHOD
-       */
-
       if (!method) {
 
         showMessage(
@@ -2178,10 +1988,6 @@
 
       }
 
-
-      /*
-       * TRANSACTION
-       */
 
       if (!transaction) {
 
@@ -2212,7 +2018,7 @@
 
 
       /*
-       * M-PESA AMOUNT
+       * M-PESA CALCULATION
        */
 
       let amountKES = null;
@@ -2237,19 +2043,17 @@
 
 
       /*
-       * PAYMENT PROOF
+       * PROOF INFORMATION
        */
 
       let proofName = "";
-
       let proofType = "";
-
       let proofSize = 0;
 
 
       if (
         paymentProof.files &&
-        paymentProof.files.length > 0
+        paymentProof.files.length
       ) {
 
         const file =
@@ -2259,10 +2063,8 @@
         proofName =
           file.name;
 
-
         proofType =
           file.type;
-
 
         proofSize =
           file.size;
@@ -2271,7 +2073,7 @@
 
 
       /*
-       * LOCK BUTTON
+       * LOCK FORM
        */
 
       submitPayment.disabled =
@@ -2287,13 +2089,30 @@
 
       try {
 
-        /*
-         * FIRESTORE PAYMENT RECORD
-         */
+
+        /* =================================================
+           PAYMENT DOCUMENT
+
+           IMPORTANT:
+
+           Firestore rules require:
+
+           request.resource.data.userId
+           ==
+           request.auth.uid
+
+           Therefore this MUST be:
+
+           userId: currentUser.uid
+
+           NOT:
+
+           uid: currentUser.uid
+        ================================================= */
 
         const paymentData = {
 
-          uid:
+          userId:
             currentUser.uid,
 
           name:
@@ -2327,20 +2146,16 @@
 
 
         /*
-         * MPESA INFORMATION
+         * M-PESA
          */
 
-        if (
-          method === "Mpesa"
-        ) {
+        if (method === "Mpesa") {
 
           paymentData.currency =
             "KES";
 
-
           paymentData.amountKES =
             Number(amountKES);
-
 
           paymentData.exchangeRate =
             Number(currentExchangeRate);
@@ -2349,12 +2164,10 @@
 
 
         /*
-         * PAYPAL INFORMATION
+         * PAYPAL
          */
 
-        if (
-          method === "PayPal"
-        ) {
+        if (method === "PayPal") {
 
           paymentData.currency =
             "USD";
@@ -2364,9 +2177,6 @@
 
         /*
          * PAYMENT PROOF METADATA
-         *
-         * Actual file upload can later be
-         * connected to the R2 uploader.
          */
 
         if (proofName) {
@@ -2374,10 +2184,8 @@
           paymentData.proofFileName =
             proofName;
 
-
           paymentData.proofFileType =
             proofType;
-
 
           paymentData.proofFileSize =
             proofSize;
@@ -2386,7 +2194,17 @@
 
 
         /*
-         * SAVE PAYMENT
+         * DEBUG
+         */
+
+        console.log(
+          "Submitting payment data:",
+          paymentData
+        );
+
+
+        /*
+         * CREATE FIRESTORE DOCUMENT
          */
 
         const paymentRef =
@@ -2400,7 +2218,7 @@
 
 
         console.log(
-          "Payment submitted:",
+          "PAYMENT CREATED:",
           paymentRef.id
         );
 
@@ -2409,7 +2227,7 @@
 
 
         /*
-         * SUCCESS MODAL
+         * SUCCESS
          */
 
         successModal.classList.add(
@@ -2418,50 +2236,40 @@
 
 
         /*
-         * Reset user-editable fields.
+         * RESET FORM
          */
 
         membershipPlan.value =
           "";
 
-
         paymentMethod.value =
           "";
-
 
         transactionId.value =
           "";
 
-
         paymentProof.value =
           "";
-
 
         notes.value =
           "";
 
-
         amountDisplay.value =
           "";
-
 
         currencyBox.classList.remove(
           "active"
         );
 
-
         mpesaDetails.classList.remove(
           "active"
         );
 
-
         selectedPlanName.textContent =
           "No Plan Selected";
 
-
         selectedPlanPrice.textContent =
           "$0";
-
 
         usdAmount.textContent =
           "$0";
@@ -2470,17 +2278,71 @@
       } catch (error) {
 
         console.error(
-          "PAYMENT ERROR:",
+          "================================"
+        );
+
+        console.error(
+          "PAYMENT SUBMISSION ERROR"
+        );
+
+        console.error(
           error
+        );
+
+        console.error(
+          "CODE:",
+          error.code
+        );
+
+        console.error(
+          "MESSAGE:",
+          error.message
+        );
+
+        console.error(
+          "================================"
         );
 
 
         showLoading(false);
 
 
+        let message =
+          "Unable to submit payment.";
+
+
+        if (
+          error.code ===
+          "permission-denied"
+        ) {
+
+          message =
+            "Payment was rejected by Firestore security rules. Please make sure you are logged in and try again.";
+
+        }
+
+
+        else if (
+          error.code ===
+          "unauthenticated"
+        ) {
+
+          message =
+            "Your login session has expired. Please log in again.";
+
+        }
+
+
+        else if (error.message) {
+
+          message =
+            error.message;
+
+        }
+
+
         showMessage(
-          error.message ||
-          "Unable to submit payment. Please try again.",
+          message,
           "error"
         );
 
@@ -2519,7 +2381,7 @@
 
 
   /* =====================================================
-     START EXCHANGE RATE
+     START
   ===================================================== */
 
   loadExchangeRate();
