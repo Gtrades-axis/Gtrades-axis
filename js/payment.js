@@ -2,6 +2,19 @@
 // GTRADES-AXIS™
 // PAYMENT SYSTEM
 // js/payment.js
+//
+// FEATURES
+// ------------------------------------------------------------
+// 1. Automatic USD/KES conversion
+// 2. Conversion tab appears after plan selection
+// 3. M-PESA shows KES amount
+// 4. PayPal stays in USD
+// 5. Amount Paid is read-only
+// 6. Prevent duplicate membership payment submissions
+// 7. Existing pending/approved payment blocks another payment
+// 8. Lifetime Premium blocks normal payment
+// 9. Monthly Premium can be upgraded to Lifetime
+// 10. Firestore document uses userId == Firebase UID
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -15,11 +28,12 @@ import {
     getDoc,
     collection,
     addDoc,
-    serverTimestamp,
     query,
     where,
-    getDocs
+    getDocs,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
 
 // ============================================================
 // CONFIGURATION
@@ -34,6 +48,7 @@ const MPESA_NAME = "David Thuku";
 const RATE_API =
     "https://api.frankfurter.dev/v2/rate/USD/KES";
 
+
 // ============================================================
 // DOM
 // ============================================================
@@ -41,20 +56,20 @@ const RATE_API =
 const paymentForm =
     document.getElementById("paymentForm");
 
-const userId =
+const userIdInput =
     document.getElementById("userId");
 
-const userName =
+const exchangeRateInput =
+    document.getElementById("exchangeRate");
+
+const userNameInput =
     document.getElementById("userName");
 
-const userEmail =
+const userEmailInput =
     document.getElementById("userEmail");
 
 const nameStatus =
     document.getElementById("nameStatus");
-
-const exchangeRate =
-    document.getElementById("exchangeRate");
 
 const membershipPlan =
     document.getElementById("membershipPlan");
@@ -116,18 +131,36 @@ const successClose =
 const loadingScreen =
     document.getElementById("loadingScreen");
 
+
 // ============================================================
 // STATE
 // ============================================================
 
 let currentUser = null;
-let currentExchangeRate = null;
+
 let currentUserName = "";
-let submitting = false;
+
+let currentExchangeRate = null;
+
+let membershipData = null;
+
+let checkingExistingPayment = false;
+
 
 // ============================================================
 // HELPERS
 // ============================================================
+
+function showLoading(show = true) {
+
+    if (!loadingScreen) return;
+
+    loadingScreen.classList.toggle(
+        "active",
+        show
+    );
+}
+
 
 function showMessage(message, type = "error") {
 
@@ -139,6 +172,7 @@ function showMessage(message, type = "error") {
         "payment-message " + type;
 }
 
+
 function clearMessage() {
 
     if (!paymentMessage) return;
@@ -149,18 +183,8 @@ function clearMessage() {
         "payment-message";
 }
 
-function showLoading(show = true) {
 
-    if (!loadingScreen) return;
-
-    if (show) {
-        loadingScreen.classList.add("active");
-    } else {
-        loadingScreen.classList.remove("active");
-    }
-}
-
-function getPrice(plan) {
+function getPlanPrice(plan) {
 
     if (plan === "Monthly") {
         return MONTHLY_PRICE;
@@ -173,24 +197,344 @@ function getPrice(plan) {
     return 0;
 }
 
-function formatKES(value) {
 
-    return "KSh " +
-        Number(value).toLocaleString(
+function formatKES(amount) {
+
+    return (
+        "KSh " +
+        Number(amount).toLocaleString(
             "en-KE",
             {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }
+        )
+    );
+}
+
+
+// ============================================================
+// SET AMOUNT FIELD AS READ ONLY
+// ============================================================
+
+if (amountDisplay) {
+
+    amountDisplay.readOnly = true;
+
+    amountDisplay.setAttribute(
+        "readonly",
+        "readonly"
+    );
+
+    amountDisplay.style.background =
+        "#151923";
+
+    amountDisplay.style.color =
+        "#9aa4bf";
+
+    amountDisplay.style.cursor =
+        "not-allowed";
+
+    amountDisplay.setAttribute(
+        "tabindex",
+        "-1"
+    );
+}
+
+
+// ============================================================
+// LOAD USER MEMBERSHIP
+// ============================================================
+
+async function loadMembership(user) {
+
+    membershipData = null;
+
+    try {
+
+        const userRef =
+            doc(
+                db,
+                "users",
+                user.uid
+            );
+
+        const userSnap =
+            await getDoc(userRef);
+
+        if (userSnap.exists()) {
+
+            membershipData =
+                userSnap.data();
+
+        }
+
+        console.log(
+            "GTRADES-AXIS membership:",
+            membershipData
         );
+
+    } catch (error) {
+
+        console.error(
+            "Could not load membership:",
+            error
+        );
+    }
 }
 
-function normalizeEmail(email) {
 
-    return String(email || "")
-        .trim()
-        .toLowerCase();
+// ============================================================
+// GET USER MEMBERSHIP TYPE
+// ============================================================
+
+function getMembership() {
+
+    if (!membershipData) {
+        return "";
+    }
+
+    return String(
+        membershipData.membership ||
+        ""
+    ).toLowerCase();
 }
+
+
+// ============================================================
+// MEMBERSHIP ALREADY PREMIUM?
+// ============================================================
+
+function hasLifetimePremium() {
+
+    const membership =
+        getMembership();
+
+    return (
+        membership === "lifetime" ||
+        membership === "lifetime premium"
+    );
+}
+
+
+function hasMonthlyPremium() {
+
+    const membership =
+        getMembership();
+
+    return (
+        membership === "premium" ||
+        membership === "monthly" ||
+        membership === "premium monthly"
+    );
+}
+
+
+// ============================================================
+// CHECK EXISTING PAYMENT
+//
+// IMPORTANT:
+// We only count the payment as an active membership payment
+// when it is pending or approved.
+//
+// Rejected payments do NOT permanently block the member.
+// Therefore a failed/rejected attempt can be resubmitted.
+// ============================================================
+
+async function getExistingPayments() {
+
+    if (!currentUser) {
+        return [];
+    }
+
+    try {
+
+        const paymentsRef =
+            collection(
+                db,
+                "payments"
+            );
+
+        const q =
+            query(
+                paymentsRef,
+                where(
+                    "userId",
+                    "==",
+                    currentUser.uid
+                )
+            );
+
+        const snapshot =
+            await getDocs(q);
+
+        const payments = [];
+
+        snapshot.forEach(
+            paymentDoc => {
+
+                payments.push({
+                    id: paymentDoc.id,
+                    ...paymentDoc.data()
+                });
+
+            }
+        );
+
+        return payments;
+
+    } catch (error) {
+
+        console.error(
+            "Could not check existing payments:",
+            error
+        );
+
+        throw error;
+    }
+}
+
+
+// ============================================================
+// DETERMINE WHETHER NEW PAYMENT IS ALLOWED
+// ============================================================
+
+async function checkPaymentEligibility(plan) {
+
+    if (!currentUser) {
+
+        return {
+            allowed: false,
+            reason:
+                "Please log in before making a payment."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // LIFETIME MEMBER
+    // --------------------------------------------------------
+
+    if (hasLifetimePremium()) {
+
+        return {
+            allowed: false,
+            reason:
+                "Your account already has Lifetime Premium. No additional payment is required."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // MONTHLY MEMBER
+    //
+    // Monthly members are allowed to upgrade to Lifetime.
+    // They are NOT allowed to submit another normal Monthly
+    // payment through this form.
+    // --------------------------------------------------------
+
+    if (
+        hasMonthlyPremium() &&
+        plan === "Monthly"
+    ) {
+
+        return {
+            allowed: false,
+            reason:
+                "Your account already has Premium Monthly. You can upgrade to Lifetime Premium instead."
+        };
+    }
+
+
+    const payments =
+        await getExistingPayments();
+
+
+    // --------------------------------------------------------
+    // ACTIVE PAYMENT STATUSES
+    // --------------------------------------------------------
+
+    const activePayments =
+        payments.filter(
+            payment => {
+
+                const status =
+                    String(
+                        payment.status ||
+                        ""
+                    ).toLowerCase();
+
+                return (
+                    status === "pending" ||
+                    status === "approved"
+                );
+            }
+        );
+
+
+    // --------------------------------------------------------
+    // LIFETIME PAYMENT ALREADY EXISTS
+    // --------------------------------------------------------
+
+    const lifetimePayment =
+        activePayments.find(
+            payment => {
+
+                return (
+                    payment.plan ===
+                        "Lifetime" ||
+                    payment.plan ===
+                        "Lifetime Premium"
+                );
+
+            }
+        );
+
+
+    if (lifetimePayment) {
+
+        return {
+            allowed: false,
+            reason:
+                "You already have a Lifetime Premium payment being processed or approved."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // SAME PLAN PAYMENT ALREADY EXISTS
+    // --------------------------------------------------------
+
+    const samePlanPayment =
+        activePayments.find(
+            payment =>
+                payment.plan === plan
+        );
+
+
+    if (samePlanPayment) {
+
+        return {
+            allowed: false,
+            reason:
+                plan === "Monthly"
+                    ? "You already have a Premium Monthly payment pending or approved. Please wait for verification."
+                    : "You already have a Lifetime Premium payment pending or approved. Please wait for verification."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // IF USER HAS MONTHLY AND SELECTS LIFETIME
+    //
+    // THIS IS ALLOWED.
+    // --------------------------------------------------------
+
+    return {
+        allowed: true
+    };
+}
+
 
 // ============================================================
 // AUTHENTICATION
@@ -198,30 +542,29 @@ function normalizeEmail(email) {
 
 onAuthStateChanged(
     auth,
-    async (user) => {
+    async user => {
 
         if (!user) {
 
             currentUser = null;
 
-            if (userId) {
-                userId.value = "";
+            if (userIdInput) {
+                userIdInput.value = "";
             }
 
-            if (userName) {
-                userName.value = "";
+            if (userNameInput) {
+                userNameInput.value = "";
             }
 
-            if (userEmail) {
-                userEmail.value = "";
+            if (userEmailInput) {
+                userEmailInput.value = "";
             }
 
             if (nameStatus) {
+
                 nameStatus.textContent =
                     "Please log in to continue.";
 
-                nameStatus.style.color =
-                    "#6a7490";
             }
 
             if (submitPayment) {
@@ -236,29 +579,30 @@ onAuthStateChanged(
             return;
         }
 
+
+        // ----------------------------------------------------
+        // USER LOGGED IN
+        // ----------------------------------------------------
+
         currentUser = user;
 
-        // ----------------------------------------------------
-        // UID
-        // ----------------------------------------------------
 
-        if (userId) {
-            userId.value = user.uid;
+        if (userIdInput) {
+
+            userIdInput.value =
+                user.uid;
         }
 
-        // ----------------------------------------------------
-        // EMAIL
-        // ----------------------------------------------------
 
-        let email =
-            user.email || "";
+        if (userEmailInput) {
 
-        if (userEmail) {
-            userEmail.value = email;
+            userEmailInput.value =
+                user.email || "";
         }
 
+
         // ----------------------------------------------------
-        // LOAD FIRESTORE PROFILE
+        // LOAD USER DOCUMENT
         // ----------------------------------------------------
 
         let fullName = "";
@@ -275,10 +619,14 @@ onAuthStateChanged(
             const userSnap =
                 await getDoc(userRef);
 
+
             if (userSnap.exists()) {
 
                 const data =
                     userSnap.data();
+
+                membershipData =
+                    data;
 
                 fullName =
                     data.name ||
@@ -286,16 +634,17 @@ onAuthStateChanged(
                     data.displayName ||
                     "";
 
-                if (!email && data.email) {
 
-                    email =
+                if (
+                    !userEmailInput.value &&
+                    data.email
+                ) {
+
+                    userEmailInput.value =
                         data.email;
 
-                    if (userEmail) {
-                        userEmail.value =
-                            email;
-                    }
                 }
+
             }
 
         } catch (error) {
@@ -306,40 +655,38 @@ onAuthStateChanged(
             );
         }
 
+
         // ----------------------------------------------------
-        // AUTH DISPLAY NAME FALLBACK
+        // FALLBACK NAME
         // ----------------------------------------------------
 
         if (!fullName) {
 
             fullName =
-                user.displayName || "";
+                user.displayName ||
+                "";
         }
 
-        // ----------------------------------------------------
-        // EMAIL NAME FALLBACK
-        // ----------------------------------------------------
 
         if (!fullName) {
 
             fullName =
-                email
-                    ? email.split("@")[0]
+                user.email
+                    ? user.email.split("@")[0]
                     : "GTRADES-AXIS Member";
         }
+
 
         currentUserName =
             fullName;
 
-        if (userName) {
-            userName.value =
+
+        if (userNameInput) {
+
+            userNameInput.value =
                 fullName;
         }
 
-        if (userEmail) {
-            userEmail.value =
-                email;
-        }
 
         if (nameStatus) {
 
@@ -350,36 +697,40 @@ onAuthStateChanged(
                 "#00c897";
         }
 
+
         if (submitPayment) {
-            submitPayment.disabled = false;
+
+            submitPayment.disabled =
+                false;
         }
+
 
         console.log(
             "Authenticated payment user:",
             {
                 uid: user.uid,
-                email: email,
-                name: fullName
+                email: user.email,
+                name: fullName,
+                membership:
+                    getMembership()
             }
         );
     }
 );
 
+
 // ============================================================
 // EXCHANGE RATE
 // ============================================================
 
-async function loadExchangeRate() {
+async function getExchangeRate() {
 
     if (rateDisplay) {
+
         rateDisplay.textContent =
             "Loading...";
     }
 
-    if (rateTime) {
-        rateTime.textContent =
-            "Loading current USD/KES exchange rate...";
-    }
 
     try {
 
@@ -392,15 +743,18 @@ async function loadExchangeRate() {
                 }
             );
 
+
         if (!response.ok) {
 
             throw new Error(
-                "Exchange-rate request failed."
+                `Exchange API returned ${response.status}`
             );
         }
 
+
         const data =
             await response.json();
+
 
         if (
             !data ||
@@ -412,36 +766,37 @@ async function loadExchangeRate() {
             );
         }
 
+
         currentExchangeRate =
             Number(data.rate);
 
-        if (exchangeRate) {
-            exchangeRate.value =
+
+        if (exchangeRateInput) {
+
+            exchangeRateInput.value =
                 currentExchangeRate;
         }
+
 
         if (rateDisplay) {
 
             rateDisplay.textContent =
-                "1 USD = " +
-                currentExchangeRate.toFixed(2) +
-                " KES";
+                `1 USD = ${currentExchangeRate.toFixed(2)} KES`;
         }
+
 
         if (rateTime) {
 
             rateTime.textContent =
-                "Current USD/KES exchange rate. The rate used will be recorded with your payment.";
+                `Current USD/KES exchange rate: ${currentExchangeRate.toFixed(2)}.`;
         }
+
 
         updatePaymentDisplay();
 
-        console.log(
-            "USD/KES exchange rate:",
-            currentExchangeRate
-        );
 
         return currentExchangeRate;
+
 
     } catch (error) {
 
@@ -450,33 +805,48 @@ async function loadExchangeRate() {
             error
         );
 
-        currentExchangeRate =
-            null;
 
-        if (exchangeRate) {
-            exchangeRate.value = "";
+        // ----------------------------------------------------
+        // FALLBACK
+        // ----------------------------------------------------
+
+        currentExchangeRate =
+            129;
+
+
+        if (exchangeRateInput) {
+
+            exchangeRateInput.value =
+                currentExchangeRate;
         }
+
 
         if (rateDisplay) {
 
             rateDisplay.textContent =
-                "Unavailable";
+                "1 USD = 129.00 KES";
         }
+
 
         if (rateTime) {
 
             rateTime.textContent =
-                "Live exchange rate is temporarily unavailable. Please try again shortly.";
+                "Live exchange rate unavailable. Fallback rate of 129 KES is being used.";
         }
+
 
         updatePaymentDisplay();
 
-        return null;
+
+        return currentExchangeRate;
     }
 }
 
+
 // ============================================================
-// PAYMENT DISPLAY
+// UPDATE PAYMENT DISPLAY
+//
+// THIS IS THE IMPORTANT AUTOMATIC CALCULATION METHOD.
 // ============================================================
 
 function updatePaymentDisplay() {
@@ -488,7 +858,8 @@ function updatePaymentDisplay() {
         paymentMethod?.value || "";
 
     const price =
-        getPrice(plan);
+        getPlanPrice(plan);
+
 
     // --------------------------------------------------------
     // NO PLAN
@@ -497,52 +868,71 @@ function updatePaymentDisplay() {
     if (!price) {
 
         if (currencyBox) {
-            currencyBox.classList.remove("active");
+
+            currencyBox.classList.remove(
+                "active"
+            );
         }
 
+
         if (selectedPlanName) {
+
             selectedPlanName.textContent =
                 "No Plan Selected";
         }
 
+
         if (selectedPlanPrice) {
+
             selectedPlanPrice.textContent =
                 "$0";
         }
 
+
         if (usdAmount) {
+
             usdAmount.textContent =
                 "$0";
         }
 
+
         if (kesAmount) {
+
             kesAmount.textContent =
                 "KSh 0";
         }
 
-        if (mpesaAmount) {
-            mpesaAmount.textContent =
-                "KSh 0";
-        }
 
         if (amountDisplay) {
-            amountDisplay.value = "";
+
+            amountDisplay.value =
+                "";
         }
 
+
         if (mpesaDetails) {
-            mpesaDetails.classList.remove("active");
+
+            mpesaDetails.classList.remove(
+                "active"
+            );
         }
+
 
         return;
     }
 
+
     // --------------------------------------------------------
-    // SHOW CURRENCY BOX
+    // SHOW CONVERSION TAB
     // --------------------------------------------------------
 
     if (currencyBox) {
-        currencyBox.classList.add("active");
+
+        currencyBox.classList.add(
+            "active"
+        );
     }
+
 
     // --------------------------------------------------------
     // PLAN NAME
@@ -550,26 +940,74 @@ function updatePaymentDisplay() {
 
     if (plan === "Monthly") {
 
-        selectedPlanName.textContent =
-            "Premium Monthly";
+        if (selectedPlanName) {
 
-    } else if (plan === "Lifetime") {
+            selectedPlanName.textContent =
+                "Premium Monthly";
+        }
 
-        selectedPlanName.textContent =
-            "Lifetime Premium";
+    } else {
+
+        if (selectedPlanName) {
+
+            selectedPlanName.textContent =
+                "Lifetime Premium";
+        }
     }
+
+
+    // --------------------------------------------------------
+    // USD PRICE
+    // --------------------------------------------------------
 
     if (selectedPlanPrice) {
 
         selectedPlanPrice.textContent =
-            "$" + price;
+            `$${price}`;
     }
+
 
     if (usdAmount) {
 
         usdAmount.textContent =
-            "$" + price;
+            `$${price}`;
     }
+
+
+    // --------------------------------------------------------
+    // CURRENT RATE
+    // --------------------------------------------------------
+
+    const rate =
+        currentExchangeRate;
+
+
+    if (rate && rate > 0) {
+
+        const calculatedKES =
+            Math.round(
+                price * rate
+            );
+
+
+        if (kesAmount) {
+
+            kesAmount.textContent =
+                formatKES(
+                    calculatedKES
+                );
+        }
+
+
+        if (mpesaAmount) {
+
+            mpesaAmount.textContent =
+                formatKES(
+                    calculatedKES
+                );
+        }
+    }
+
 
     // --------------------------------------------------------
     // M-PESA
@@ -577,60 +1015,51 @@ function updatePaymentDisplay() {
 
     if (method === "Mpesa") {
 
-        if (mpesaDetails) {
-            mpesaDetails.classList.add("active");
-        }
-
-        if (!currentExchangeRate) {
+        if (!rate) {
 
             if (amountDisplay) {
+
                 amountDisplay.value =
-                    "Exchange rate unavailable";
+                    "Loading exchange rate...";
             }
 
-            if (kesAmount) {
-                kesAmount.textContent =
-                    "Unavailable";
+        } else {
+
+            const calculatedKES =
+                Math.round(
+                    price * rate
+                );
+
+
+            if (amountDisplay) {
+
+                amountDisplay.value =
+                    formatKES(
+                        calculatedKES
+                    );
             }
+
 
             if (mpesaAmount) {
+
                 mpesaAmount.textContent =
-                    "Unavailable";
+                    formatKES(
+                        calculatedKES
+                    );
             }
-
-            return;
         }
 
-        const kes =
-            Math.round(
-                price *
-                currentExchangeRate
+
+        if (mpesaDetails) {
+
+            mpesaDetails.classList.add(
+                "active"
             );
-
-        if (kesAmount) {
-
-            kesAmount.textContent =
-                formatKES(kes);
-        }
-
-        if (mpesaAmount) {
-
-            mpesaAmount.textContent =
-                formatKES(kes);
-        }
-
-        // ----------------------------------------------------
-        // AMOUNT PAID IS AUTOMATIC + LOCKED
-        // ----------------------------------------------------
-
-        if (amountDisplay) {
-
-            amountDisplay.value =
-                formatKES(kes);
         }
 
         return;
     }
+
 
     // --------------------------------------------------------
     // PAYPAL
@@ -638,260 +1067,43 @@ function updatePaymentDisplay() {
 
     if (method === "PayPal") {
 
-        if (mpesaDetails) {
-            mpesaDetails.classList.remove("active");
-        }
-
-        // ----------------------------------------------------
-        // PAYPAL ALWAYS REMAINS USD
-        // ----------------------------------------------------
-
         if (amountDisplay) {
 
             amountDisplay.value =
-                "$" + price;
+                `$${price} USD`;
         }
 
-        // Show KES equivalent only as information
-        if (currentExchangeRate) {
 
-            const kes =
-                Math.round(
-                    price *
-                    currentExchangeRate
-                );
+        if (mpesaDetails) {
 
-            if (kesAmount) {
-
-                kesAmount.textContent =
-                    formatKES(kes);
-            }
+            mpesaDetails.classList.remove(
+                "active"
+            );
         }
 
         return;
     }
 
+
     // --------------------------------------------------------
-    // METHOD NOT SELECTED
+    // PLAN SELECTED BUT NO PAYMENT METHOD
     // --------------------------------------------------------
 
     if (amountDisplay) {
-        amountDisplay.value = "";
+
+        amountDisplay.value =
+            "";
     }
+
 
     if (mpesaDetails) {
-        mpesaDetails.classList.remove("active");
+
+        mpesaDetails.classList.remove(
+            "active"
+        );
     }
 }
 
-// ============================================================
-// CHECK EXISTING PAYMENTS
-// ============================================================
-
-async function checkExistingPayments(
-    uid,
-    selectedPlan
-) {
-
-    try {
-
-        const paymentsRef =
-            collection(
-                db,
-                "payments"
-            );
-
-        const paymentQuery =
-            query(
-                paymentsRef,
-                where(
-                    "userId",
-                    "==",
-                    uid
-                )
-            );
-
-        const snapshot =
-            await getDocs(
-                paymentQuery
-            );
-
-        let activeMonthly = false;
-        let activeLifetime = false;
-
-        let pendingMonthly = false;
-        let pendingLifetime = false;
-
-        let rejectedFound = false;
-
-        snapshot.forEach(
-            (paymentDoc) => {
-
-                const data =
-                    paymentDoc.data();
-
-                const status =
-                    String(
-                        data.status || ""
-                    ).toLowerCase();
-
-                const plan =
-                    data.plan;
-
-                // ------------------------------------------------
-                // REJECTED = CAN TRY AGAIN
-                // ------------------------------------------------
-
-                if (
-                    status === "rejected" ||
-                    status === "declined" ||
-                    status === "failed"
-                ) {
-
-                    rejectedFound = true;
-
-                    return;
-                }
-
-                // ------------------------------------------------
-                // APPROVED
-                // ------------------------------------------------
-
-                if (
-                    status === "approved" ||
-                    status === "paid" ||
-                    status === "completed"
-                ) {
-
-                    if (
-                        plan === "Lifetime"
-                    ) {
-                        activeLifetime = true;
-                    }
-
-                    if (
-                        plan === "Monthly"
-                    ) {
-                        activeMonthly = true;
-                    }
-                }
-
-                // ------------------------------------------------
-                // PENDING
-                // ------------------------------------------------
-
-                if (
-                    status === "pending"
-                ) {
-
-                    if (
-                        plan === "Lifetime"
-                    ) {
-                        pendingLifetime = true;
-                    }
-
-                    if (
-                        plan === "Monthly"
-                    ) {
-                        pendingMonthly = true;
-                    }
-                }
-            }
-        );
-
-        // --------------------------------------------------------
-        // LIFETIME ALREADY ACTIVE
-        // --------------------------------------------------------
-
-        if (activeLifetime) {
-
-            return {
-                allowed: false,
-                message:
-                    "You already have Lifetime Premium. No additional payment is required."
-            };
-        }
-
-        // --------------------------------------------------------
-        // LIFETIME PENDING
-        // --------------------------------------------------------
-
-        if (
-            selectedPlan === "Lifetime" &&
-            pendingLifetime
-        ) {
-
-            return {
-                allowed: false,
-                message:
-                    "You already have a Lifetime Premium payment awaiting verification. Please wait for the administrator to review it."
-            };
-        }
-
-        // --------------------------------------------------------
-        // MONTHLY ALREADY ACTIVE
-        // --------------------------------------------------------
-
-        if (
-            selectedPlan === "Monthly" &&
-            activeMonthly
-        ) {
-
-            return {
-                allowed: false,
-                message:
-                    "Your Premium Monthly membership is already active."
-            };
-        }
-
-        // --------------------------------------------------------
-        // MONTHLY PENDING
-        // --------------------------------------------------------
-
-        if (
-            selectedPlan === "Monthly" &&
-            pendingMonthly
-        ) {
-
-            return {
-                allowed: false,
-                message:
-                    "You already have a Premium Monthly payment awaiting verification. Please wait for the administrator to review it."
-            };
-        }
-
-        // --------------------------------------------------------
-        // LIFETIME UPGRADE
-        //
-        // If Monthly is active, Lifetime is allowed.
-        // --------------------------------------------------------
-
-        if (
-            selectedPlan === "Lifetime" &&
-            activeMonthly
-        ) {
-
-            return {
-                allowed: true,
-                upgrade: true
-            };
-        }
-
-        return {
-            allowed: true,
-            upgrade: false
-        };
-
-    } catch (error) {
-
-        console.error(
-            "Error checking existing payments:",
-            error
-        );
-
-        throw error;
-    }
-}
 
 // ============================================================
 // PLAN BUTTONS
@@ -899,44 +1111,48 @@ async function checkExistingPayments(
 
 document
     .querySelectorAll(".select-plan")
-    .forEach(
-        (button) => {
+    .forEach(button => {
 
-            button.addEventListener(
-                "click",
-                async () => {
+        button.addEventListener(
+            "click",
+            async () => {
 
-                    const plan =
-                        button.dataset.plan;
+                const plan =
+                    button.dataset.plan;
 
-                    if (membershipPlan) {
 
-                        membershipPlan.value =
-                            plan;
-                    }
+                if (membershipPlan) {
 
-                    clearMessage();
-
-                    updatePaymentDisplay();
-
-                    // Make sure exchange rate is loaded
-                    if (!currentExchangeRate) {
-
-                        await loadExchangeRate();
-                    }
-
-                    document
-                        .querySelector(
-                            ".payment-form-section"
-                        )
-                        ?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
+                    membershipPlan.value =
+                        plan;
                 }
-            );
-        }
-    );
+
+
+                clearMessage();
+
+
+                updatePaymentDisplay();
+
+
+                document
+                    .querySelector(
+                        ".payment-form-section"
+                    )
+                    ?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+
+                if (!currentExchangeRate) {
+
+                    await getExchangeRate();
+                }
+            }
+        );
+
+    });
+
 
 // ============================================================
 // PLAN CHANGE
@@ -950,12 +1166,14 @@ membershipPlan?.addEventListener(
 
         updatePaymentDisplay();
 
+
         if (!currentExchangeRate) {
 
-            await loadExchangeRate();
+            await getExchangeRate();
         }
     }
 );
+
 
 // ============================================================
 // PAYMENT METHOD CHANGE
@@ -971,57 +1189,64 @@ paymentMethod?.addEventListener(
     }
 );
 
+
 // ============================================================
 // COPY BUTTONS
 // ============================================================
 
 document
     .querySelectorAll(".copy-btn")
-    .forEach(
-        (button) => {
+    .forEach(button => {
 
-            button.addEventListener(
-                "click",
-                async () => {
+        button.addEventListener(
+            "click",
+            async () => {
 
-                    const value =
-                        button.dataset.copy;
+                const value =
+                    button.dataset.copy;
 
-                    if (!value) return;
 
-                    try {
+                if (!value) return;
 
-                        await navigator.clipboard.writeText(
-                            value
-                        );
 
-                        const original =
-                            button.innerHTML;
+                try {
 
-                        button.innerHTML =
-                            '<i class="fa-solid fa-check"></i>';
+                    await navigator.clipboard.writeText(
+                        value
+                    );
 
-                        setTimeout(
-                            () => {
 
-                                button.innerHTML =
-                                    original;
+                    const original =
+                        button.innerHTML;
 
-                            },
-                            1500
-                        );
 
-                    } catch (error) {
+                    button.innerHTML =
+                        '<i class="fa-solid fa-check"></i>';
 
-                        console.error(
-                            "Copy failed:",
-                            error
-                        );
-                    }
+
+                    setTimeout(
+                        () => {
+
+                            button.innerHTML =
+                                original;
+
+                        },
+                        1500
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Copy failed:",
+                        error
+                    );
                 }
-            );
-        }
-    );
+            }
+        );
+
+    });
+
 
 // ============================================================
 // PAYMENT PROOF VALIDATION
@@ -1034,12 +1259,15 @@ paymentProof?.addEventListener(
         const file =
             paymentProof.files?.[0];
 
+
         if (!file) {
             return;
         }
 
+
         const maxSize =
             5 * 1024 * 1024;
+
 
         const allowedTypes = [
             "image/jpeg",
@@ -1047,9 +1275,11 @@ paymentProof?.addEventListener(
             "application/pdf"
         ];
 
+
         if (file.size > maxSize) {
 
-            paymentProof.value = "";
+            paymentProof.value =
+                "";
 
             showMessage(
                 "Payment proof must be 5MB or smaller.",
@@ -1059,13 +1289,15 @@ paymentProof?.addEventListener(
             return;
         }
 
+
         if (
             !allowedTypes.includes(
                 file.type
             )
         ) {
 
-            paymentProof.value = "";
+            paymentProof.value =
+                "";
 
             showMessage(
                 "Payment proof must be JPG, PNG or PDF.",
@@ -1075,9 +1307,130 @@ paymentProof?.addEventListener(
             return;
         }
 
+
         clearMessage();
     }
 );
+
+
+// ============================================================
+// VALIDATION
+// ============================================================
+
+function validatePayment() {
+
+    if (!currentUser) {
+
+        return {
+            valid: false,
+            message:
+                "Please log in before submitting your payment."
+        };
+    }
+
+
+    const name =
+        userNameInput?.value.trim() || "";
+
+
+    const email =
+        userEmailInput?.value.trim() || "";
+
+
+    const plan =
+        membershipPlan?.value || "";
+
+
+    const method =
+        paymentMethod?.value || "";
+
+
+    const transaction =
+        transactionId?.value.trim() || "";
+
+
+    if (!name) {
+
+        return {
+            valid: false,
+            message:
+                "Your account name has not loaded yet."
+        };
+    }
+
+
+    if (!email) {
+
+        return {
+            valid: false,
+            message:
+                "Your account email has not loaded yet."
+        };
+    }
+
+
+    if (!plan) {
+
+        return {
+            valid: false,
+            message:
+                "Please select a membership plan."
+        };
+    }
+
+
+    if (!method) {
+
+        return {
+            valid: false,
+            message:
+                "Please select a payment method."
+        };
+    }
+
+
+    if (!transaction) {
+
+        return {
+            valid: false,
+            message:
+                "Please enter your transaction code or PayPal transaction ID."
+        };
+    }
+
+
+    const price =
+        getPlanPrice(plan);
+
+
+    if (!price) {
+
+        return {
+            valid: false,
+            message:
+                "Invalid membership plan."
+        };
+    }
+
+
+    if (
+        method === "Mpesa" &&
+        !currentExchangeRate
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "The exchange rate is still loading. Please wait a moment."
+        };
+    }
+
+
+    return {
+        valid: true
+    };
+}
+
 
 // ============================================================
 // SUBMIT PAYMENT
@@ -1085,164 +1438,84 @@ paymentProof?.addEventListener(
 
 paymentForm?.addEventListener(
     "submit",
-    async (event) => {
+    async event => {
 
         event.preventDefault();
 
-        if (submitting) {
-            return;
-        }
-
         clearMessage();
 
+
+        if (checkingExistingPayment) {
+            return;
+        }
+
+
         // ----------------------------------------------------
-        // AUTH
+        // BASIC VALIDATION
         // ----------------------------------------------------
 
-        if (!currentUser) {
+        const validation =
+            validatePayment();
+
+
+        if (!validation.valid) {
 
             showMessage(
-                "Please log in before submitting your payment.",
+                validation.message,
                 "error"
             );
 
             return;
         }
 
-        // ----------------------------------------------------
-        // VALUES
-        // ----------------------------------------------------
 
         const name =
-            userName?.value.trim();
+            userNameInput.value.trim();
 
         const email =
-            userEmail?.value.trim();
+            userEmailInput.value.trim();
 
         const plan =
-            membershipPlan?.value;
+            membershipPlan.value;
 
         const method =
-            paymentMethod?.value;
+            paymentMethod.value;
 
         const transaction =
-            transactionId?.value.trim();
-
-        // ----------------------------------------------------
-        // VALIDATION
-        // ----------------------------------------------------
-
-        if (!name) {
-
-            showMessage(
-                "Your account name has not loaded yet. Please wait and try again.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (!email) {
-
-            showMessage(
-                "Your account email has not loaded. Please refresh the page.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (!plan) {
-
-            showMessage(
-                "Please select a membership plan.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (!method) {
-
-            showMessage(
-                "Please select a payment method.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (!transaction) {
-
-            showMessage(
-                "Please enter your transaction code or PayPal transaction ID.",
-                "error"
-            );
-
-            return;
-        }
+            transactionId.value.trim();
 
         const price =
-            getPrice(plan);
+            getPlanPrice(plan);
 
-        if (!price) {
-
-            showMessage(
-                "Invalid membership plan.",
-                "error"
-            );
-
-            return;
-        }
-
-        // ----------------------------------------------------
-        // EXCHANGE RATE FOR M-PESA
-        // ----------------------------------------------------
-
-        if (
-            method === "Mpesa" &&
-            !currentExchangeRate
-        ) {
-
-            await loadExchangeRate();
-
-            if (!currentExchangeRate) {
-
-                showMessage(
-                    "The live USD/KES exchange rate is currently unavailable. Please try again shortly.",
-                    "error"
-                );
-
-                return;
-            }
-        }
 
         // ----------------------------------------------------
         // CHECK DUPLICATE / EXISTING PAYMENT
         // ----------------------------------------------------
 
-        submitting = true;
+        checkingExistingPayment =
+            true;
 
-        submitPayment.disabled = true;
+        submitPayment.disabled =
+            true;
 
         submitPayment.innerHTML =
             '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
 
-        showLoading(true);
 
         try {
 
-            const existing =
-                await checkExistingPayments(
-                    currentUser.uid,
+            const eligibility =
+                await checkPaymentEligibility(
                     plan
                 );
 
-            if (!existing.allowed) {
 
-                showLoading(false);
+            if (!eligibility.allowed) {
 
-                submitting = false;
+                showMessage(
+                    eligibility.reason,
+                    "error"
+                );
 
                 submitPayment.disabled =
                     false;
@@ -1250,21 +1523,28 @@ paymentForm?.addEventListener(
                 submitPayment.innerHTML =
                     '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
 
-                showMessage(
-                    existing.message,
-                    "error"
-                );
+                checkingExistingPayment =
+                    false;
 
                 return;
             }
 
+
             // ------------------------------------------------
-            // CALCULATE PAYMENT
+            // CALCULATE FINAL AMOUNT
             // ------------------------------------------------
 
-            let amountKES = null;
+            let amountKES =
+                null;
+
 
             if (method === "Mpesa") {
+
+                if (!currentExchangeRate) {
+
+                    await getExchangeRate();
+                }
+
 
                 amountKES =
                     Math.round(
@@ -1273,13 +1553,20 @@ paymentForm?.addEventListener(
                     );
             }
 
+
             // ------------------------------------------------
-            // PAYMENT PROOF
+            // PAYMENT PROOF METADATA
             // ------------------------------------------------
 
-            let proofName = "";
-            let proofType = "";
-            let proofSize = 0;
+            let proofName =
+                "";
+
+            let proofType =
+                "";
+
+            let proofSize =
+                0;
+
 
             if (
                 paymentProof?.files?.length
@@ -1287,6 +1574,7 @@ paymentForm?.addEventListener(
 
                 const file =
                     paymentProof.files[0];
+
 
                 proofName =
                     file.name;
@@ -1296,29 +1584,28 @@ paymentForm?.addEventListener(
 
                 proofSize =
                     file.size;
-
-                if (
-                    proofSize >
-                    5 * 1024 * 1024
-                ) {
-
-                    throw new Error(
-                        "Payment proof must be 5MB or smaller."
-                    );
-                }
             }
 
+
             // ------------------------------------------------
-            // PAYMENT DATA
+            // PROCESSING
+            // ------------------------------------------------
+
+            submitPayment.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+            showLoading(true);
+
+
+            // ------------------------------------------------
+            // CREATE PAYMENT
             // ------------------------------------------------
 
             const paymentData = {
 
-                // Identity
+                // IMPORTANT
+                // Must match Firestore rules.
                 userId:
-                    currentUser.uid,
-
-                uid:
                     currentUser.uid,
 
                 name:
@@ -1327,38 +1614,31 @@ paymentForm?.addEventListener(
                 email:
                     email,
 
-                // Plan
                 plan:
                     plan,
 
-                planPriceUSD:
-                    Number(price),
-
-                // Payment
                 paymentMethod:
                     method,
 
                 transactionId:
                     transaction,
 
-                // Status
+                amountUSD:
+                    Number(price),
+
                 status:
                     "pending",
 
-                // Notes
                 notes:
                     notes?.value.trim() || "",
 
-                // Metadata
                 submittedAt:
-                    serverTimestamp(),
-
-                createdAt:
                     serverTimestamp()
             };
 
+
             // ------------------------------------------------
-            // M-PESA
+            // M-PESA DATA
             // ------------------------------------------------
 
             if (method === "Mpesa") {
@@ -1373,47 +1653,22 @@ paymentForm?.addEventListener(
                     Number(
                         currentExchangeRate
                     );
-
-                paymentData.amountUSD =
-                    Number(price);
             }
 
+
             // ------------------------------------------------
-            // PAYPAL
+            // PAYPAL DATA
             // ------------------------------------------------
 
             if (method === "PayPal") {
 
                 paymentData.currency =
                     "USD";
-
-                paymentData.amountUSD =
-                    Number(price);
             }
 
-            // ------------------------------------------------
-            // UPGRADE FLAG
-            // ------------------------------------------------
-
-            if (existing.upgrade) {
-
-                paymentData.paymentType =
-                    "upgrade";
-
-                paymentData.upgradeFrom =
-                    "Monthly";
-
-                paymentData.upgradeTo =
-                    "Lifetime";
-
-            } else {
-
-                paymentData.paymentType =
-                    "new_membership";
-            }
 
             // ------------------------------------------------
-            // PAYMENT PROOF
+            // PROOF METADATA
             // ------------------------------------------------
 
             if (proofName) {
@@ -1428,18 +1683,12 @@ paymentForm?.addEventListener(
                     proofSize;
             }
 
-            // ------------------------------------------------
-            // DEBUG
-            // ------------------------------------------------
 
             console.log(
                 "Submitting GTRADES-AXIS payment:",
                 paymentData
             );
 
-            // ------------------------------------------------
-            // CREATE PAYMENT
-            // ------------------------------------------------
 
             const paymentRef =
                 await addDoc(
@@ -1450,16 +1699,19 @@ paymentForm?.addEventListener(
                     paymentData
                 );
 
+
             console.log(
-                "PAYMENT CREATED:",
+                "Payment created:",
                 paymentRef.id
             );
+
 
             // ------------------------------------------------
             // SUCCESS
             // ------------------------------------------------
 
             showLoading(false);
+
 
             if (successModal) {
 
@@ -1468,70 +1720,76 @@ paymentForm?.addEventListener(
                 );
             }
 
+
             // ------------------------------------------------
-            // RESET USER-ENTERED FIELDS
+            // RESET PAYMENT FIELDS
             // ------------------------------------------------
 
-            if (membershipPlan) {
-                membershipPlan.value = "";
-            }
+            membershipPlan.value =
+                "";
 
-            if (paymentMethod) {
-                paymentMethod.value = "";
-            }
+            paymentMethod.value =
+                "";
 
-            if (transactionId) {
-                transactionId.value = "";
-            }
+            transactionId.value =
+                "";
 
             if (paymentProof) {
-                paymentProof.value = "";
+
+                paymentProof.value =
+                    "";
             }
 
             if (notes) {
-                notes.value = "";
+
+                notes.value =
+                    "";
             }
 
             if (amountDisplay) {
-                amountDisplay.value = "";
+
+                amountDisplay.value =
+                    "";
             }
 
             if (currencyBox) {
+
                 currencyBox.classList.remove(
                     "active"
                 );
             }
 
             if (mpesaDetails) {
+
                 mpesaDetails.classList.remove(
                     "active"
                 );
             }
 
             if (selectedPlanName) {
+
                 selectedPlanName.textContent =
                     "No Plan Selected";
             }
 
             if (selectedPlanPrice) {
+
                 selectedPlanPrice.textContent =
                     "$0";
             }
 
             if (usdAmount) {
+
                 usdAmount.textContent =
                     "$0";
             }
 
             if (kesAmount) {
+
                 kesAmount.textContent =
                     "KSh 0";
             }
 
-            if (mpesaAmount) {
-                mpesaAmount.textContent =
-                    "KSh 0";
-            }
 
         } catch (error) {
 
@@ -1561,10 +1819,13 @@ paymentForm?.addEventListener(
                 "================================"
             );
 
+
             showLoading(false);
+
 
             let message =
                 "Unable to submit payment. Please try again.";
+
 
             if (
                 error.code ===
@@ -1572,44 +1833,48 @@ paymentForm?.addEventListener(
             ) {
 
                 message =
-                    "Payment was rejected by Firestore security rules. Please make sure you are logged in and try again.";
+                    "Payment was rejected by Firestore security rules. Please check your login session and payment rules.";
+            }
 
-            } else if (
+
+            if (
                 error.code ===
                 "unauthenticated"
             ) {
 
                 message =
                     "Your login session has expired. Please log in again.";
-
-            } else if (
-                error.message
-            ) {
-
-                message =
-                    error.message;
             }
+
+
+            if (error.message) {
+
+                console.error(
+                    error.message
+                );
+            }
+
 
             showMessage(
                 message,
                 "error"
             );
 
+
         } finally {
 
-            submitting = false;
+            checkingExistingPayment =
+                false;
 
-            if (submitPayment) {
+            submitPayment.disabled =
+                false;
 
-                submitPayment.disabled =
-                    false;
-
-                submitPayment.innerHTML =
-                    '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
-            }
+            submitPayment.innerHTML =
+                '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
         }
     }
 );
+
 
 // ============================================================
 // SUCCESS MODAL
@@ -1626,16 +1891,19 @@ successClose?.addEventListener(
             );
         }
 
+
         window.location.href =
             "dashboard.html";
     }
 );
 
+
 // ============================================================
-// START
+// INITIALIZE
 // ============================================================
 
-loadExchangeRate();
+getExchangeRate();
+
 
 console.log(
     "GTRADES-AXIS™ payment.js loaded successfully."
