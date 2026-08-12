@@ -1,13 +1,10 @@
 // ============================================================
 // GTRADES-AXIS™
 // ADMIN PAYMENT MANAGEMENT
-// Works with the EXISTING student payment.html
+// EXISTING STUDENT PAYMENT SYSTEM
 // ============================================================
 
-import {
-  auth,
-  db
-} from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import {
   onAuthStateChanged
@@ -20,8 +17,7 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
-  query,
-  orderBy
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 
@@ -29,44 +25,22 @@ import {
 // DOM
 // ============================================================
 
-const paymentsTable =
-  document.getElementById("paymentsTable");
+const paymentsTable = document.getElementById("paymentsTable");
+const paymentCount = document.getElementById("paymentCount");
 
-const paymentCount =
-  document.getElementById("paymentCount");
+const totalPayments = document.getElementById("totalPayments");
+const pendingPayments = document.getElementById("pendingPayments");
+const approvedPayments = document.getElementById("approvedPayments");
+const totalRevenue = document.getElementById("totalRevenue");
 
-const totalPayments =
-  document.getElementById("totalPayments");
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+const methodFilter = document.getElementById("methodFilter");
+const refreshBtn = document.getElementById("refreshBtn");
 
-const pendingPayments =
-  document.getElementById("pendingPayments");
-
-const approvedPayments =
-  document.getElementById("approvedPayments");
-
-const totalRevenue =
-  document.getElementById("totalRevenue");
-
-const searchInput =
-  document.getElementById("searchInput");
-
-const statusFilter =
-  document.getElementById("statusFilter");
-
-const methodFilter =
-  document.getElementById("methodFilter");
-
-const refreshBtn =
-  document.getElementById("refreshBtn");
-
-const paymentModal =
-  document.getElementById("paymentModal");
-
-const modalBody =
-  document.getElementById("modalBody");
-
-const closeModal =
-  document.getElementById("closeModal");
+const paymentModal = document.getElementById("paymentModal");
+const modalBody = document.getElementById("modalBody");
+const closeModal = document.getElementById("closeModal");
 
 
 // ============================================================
@@ -74,101 +48,79 @@ const closeModal =
 // ============================================================
 
 let allPayments = [];
-
 let currentAdmin = null;
 
 
 // ============================================================
-// AUTH + ADMIN CHECK
+// AUTHENTICATION
 // ============================================================
 
-onAuthStateChanged(
-  auth,
-  async (user) => {
+onAuthStateChanged(auth, async (user) => {
 
-    if (!user) {
+  if (!user) {
 
-      window.location.href =
-        "login.html";
+    window.location.href = "login.html";
+    return;
 
+  }
+
+  currentAdmin = user;
+
+  try {
+
+    const adminRef = doc(
+      db,
+      "users",
+      user.uid
+    );
+
+    const adminSnap = await getDoc(adminRef);
+
+    if (!adminSnap.exists()) {
+
+      alert("Admin profile was not found.");
+
+      window.location.href = "dashboard.html";
       return;
 
     }
 
-    currentAdmin = user;
+    const adminData = adminSnap.data();
 
-    try {
+    if (adminData.role !== "admin") {
 
-      const userRef =
-        doc(
-          db,
-          "users",
-          user.uid
-        );
+      alert("Access denied. Admins only.");
 
-      const userSnap =
-        await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-
-        alert(
-          "Admin profile was not found."
-        );
-
-        window.location.href =
-          "dashboard.html";
-
-        return;
-
-      }
-
-      const userData =
-        userSnap.data();
-
-      if (
-        userData.role !== "admin"
-      ) {
-
-        alert(
-          "Access denied. Admins only."
-        );
-
-        window.location.href =
-          "dashboard.html";
-
-        return;
-
-      }
-
-      await loadPayments();
-
-    } catch (error) {
-
-      console.error(
-        "Admin authentication error:",
-        error
-      );
-
-      paymentsTable.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty-state">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <br>
-            Unable to verify administrator access.
-            <br><br>
-            ${escapeHtml(error.message)}
-          </td>
-        </tr>
-      `;
+      window.location.href = "dashboard.html";
+      return;
 
     }
 
+    await loadPayments();
+
+  } catch (error) {
+
+    console.error(
+      "Admin authentication error:",
+      error
+    );
+
+    showError(
+      "Unable to verify administrator access.",
+      error
+    );
+
   }
-);
+
+});
 
 
 // ============================================================
 // LOAD PAYMENTS
+// IMPORTANT:
+// DO NOT USE orderBy()
+// This makes the admin page compatible with old
+// payment documents that may not contain submittedAt.
 // ============================================================
 
 async function loadPayments() {
@@ -185,112 +137,84 @@ async function loadPayments() {
 
   try {
 
-    /*
-     * We read the existing /payments collection.
-     *
-     * No new fields are required.
-     */
+    console.log(
+      "GTRADES-AXIS: Reading /payments..."
+    );
 
-    let snapshot;
+    const snapshot = await getDocs(
+      collection(db, "payments")
+    );
 
-    try {
-
-      const paymentsQuery =
-        query(
-          collection(
-            db,
-            "payments"
-          ),
-          orderBy(
-            "submittedAt",
-            "desc"
-          )
-        );
-
-      snapshot =
-        await getDocs(
-          paymentsQuery
-        );
-
-    } catch (indexError) {
-
-      /*
-       * If Firestore requires an index or
-       * old documents have no submittedAt,
-       * fall back to a normal collection read.
-       */
-
-      console.warn(
-        "Ordered payment query failed. Falling back to normal query.",
-        indexError
-      );
-
-      snapshot =
-        await getDocs(
-          collection(
-            db,
-            "payments"
-          )
-        );
-
-    }
+    console.log(
+      "GTRADES-AXIS: Payments found:",
+      snapshot.size
+    );
 
     allPayments = [];
 
-    snapshot.forEach(
-      paymentDoc => {
+    snapshot.forEach((paymentDoc) => {
 
-        allPayments.push({
-          id: paymentDoc.id,
-          ...paymentDoc.data()
-        });
+      const data = paymentDoc.data();
 
-      }
-    );
+      console.log(
+        "Payment:",
+        paymentDoc.id,
+        data
+      );
 
-    /*
-     * Sort locally as a second layer.
-     */
+      allPayments.push({
+        id: paymentDoc.id,
+        ...data
+      });
 
-    allPayments.sort(
-      (a, b) => {
+    });
 
-        const aTime =
-          getTimestamp(
-            a.submittedAt
-          );
 
-        const bTime =
-          getTimestamp(
-            b.submittedAt
-          );
+    // --------------------------------------------------------
+    // SORT LOCALLY
+    // Supports multiple possible date fields
+    // --------------------------------------------------------
 
-        return bTime - aTime;
+    allPayments.sort((a, b) => {
 
-      }
-    );
+      const aTime = getPaymentTime(a);
+      const bTime = getPaymentTime(b);
+
+      return bTime - aTime;
+
+    });
+
 
     updateStatistics();
-
     renderPayments();
 
   } catch (error) {
 
     console.error(
-      "Failed to load payments:",
+      "FAILED TO LOAD PAYMENTS:",
       error
     );
 
     paymentsTable.innerHTML = `
       <tr>
-        <td colspan="8" class="empty-state">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <br>
-          Failed to load payments.
-          <br><br>
-          <small>
-            ${escapeHtml(error.message)}
-          </small>
+        <td colspan="8">
+          <div class="empty-state">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <br><br>
+
+            <strong>
+              Failed to load payments
+            </strong>
+
+            <br><br>
+
+            <small>
+              ${escapeHtml(error.message)}
+            </small>
+
+          </div>
         </td>
       </tr>
     `;
@@ -306,52 +230,35 @@ async function loadPayments() {
 
 function updateStatistics() {
 
-  const total =
-    allPayments.length;
+  const total = allPayments.length;
 
-  const pending =
-    allPayments.filter(
-      payment =>
-        getStatus(payment) === "pending"
-    ).length;
+  const pending = allPayments.filter(
+    payment =>
+      getStatus(payment) === "pending"
+  ).length;
 
-  const approved =
-    allPayments.filter(
+  const approved = allPayments.filter(
+    payment =>
+      getStatus(payment) === "approved"
+  ).length;
+
+  const revenue = allPayments
+    .filter(
       payment =>
         getStatus(payment) === "approved"
-    ).length;
+    )
+    .reduce(
+      (sum, payment) =>
+        sum + getAmountUSD(payment),
+      0
+    );
 
-  /*
-   * Revenue is based on approved
-   * amountUSD only.
-   */
 
-  const revenue =
-    allPayments
-      .filter(
-        payment =>
-          getStatus(payment) === "approved"
-      )
-      .reduce(
-        (sum, payment) => {
+  totalPayments.textContent = total;
 
-          return sum +
-            Number(
-              payment.amountUSD || 0
-            );
+  pendingPayments.textContent = pending;
 
-        },
-        0
-      );
-
-  totalPayments.textContent =
-    total;
-
-  pendingPayments.textContent =
-    pending;
-
-  approvedPayments.textContent =
-    approved;
+  approvedPayments.textContent = approved;
 
   totalRevenue.textContent =
     "$" +
@@ -367,7 +274,7 @@ function updateStatistics() {
 
 
 // ============================================================
-// RENDER
+// RENDER PAYMENTS
 // ============================================================
 
 function renderPayments() {
@@ -377,52 +284,74 @@ function renderPayments() {
       .trim()
       .toLowerCase();
 
-  const status =
+  const selectedStatus =
     statusFilter.value;
 
-  const method =
+  const selectedMethod =
     methodFilter.value;
 
-  const filtered =
-    allPayments.filter(
-      payment => {
 
-        const paymentStatus =
-          getStatus(payment);
+  const filtered = allPayments.filter(
+    payment => {
 
-        const paymentMethod =
-          payment.paymentMethod || "";
+      const status =
+        getStatus(payment);
 
-        const searchable = [
-          payment.name,
-          payment.email,
-          payment.transactionId,
-          payment.plan,
-          paymentMethod
-        ]
-          .join(" ")
-          .toLowerCase();
+      const method =
+        getPaymentMethod(payment);
 
-        const matchesSearch =
-          !search ||
-          searchable.includes(search);
 
-        const matchesStatus =
-          status === "all" ||
-          paymentStatus === status;
+      const searchable = [
 
-        const matchesMethod =
-          method === "all" ||
-          paymentMethod === method;
+        payment.name,
 
-        return (
-          matchesSearch &&
-          matchesStatus &&
-          matchesMethod
-        );
+        payment.fullName,
 
-      }
-    );
+        payment.email,
+
+        payment.transactionId,
+
+        payment.transaction,
+
+        payment.mpesaCode,
+
+        payment.reference,
+
+        payment.plan,
+
+        method
+
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+
+      const matchesSearch =
+        !search ||
+        searchable.includes(search);
+
+
+      const matchesStatus =
+        selectedStatus === "all" ||
+        status === selectedStatus;
+
+
+      const matchesMethod =
+        selectedMethod === "all" ||
+        normalizeMethod(method) ===
+          normalizeMethod(selectedMethod);
+
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesMethod
+      );
+
+    }
+  );
+
 
   paymentCount.textContent =
     filtered.length +
@@ -432,17 +361,26 @@ function renderPayments() {
         : " payments"
     );
 
+
   if (!filtered.length) {
 
     paymentsTable.innerHTML = `
       <tr>
+
         <td colspan="8">
+
           <div class="empty-state">
+
             <i class="fa-solid fa-receipt"></i>
-            <br>
+
+            <br><br>
+
             No payments found.
+
           </div>
+
         </td>
+
       </tr>
     `;
 
@@ -450,28 +388,26 @@ function renderPayments() {
 
   }
 
+
   paymentsTable.innerHTML =
     filtered
-      .map(
-        payment =>
-          createPaymentRow(payment)
-      )
+      .map(createPaymentRow)
       .join("");
 
 }
 
 
 // ============================================================
-// PAYMENT ROW
+// CREATE PAYMENT ROW
 // ============================================================
 
 function createPaymentRow(payment) {
 
-  const id =
-    payment.id;
+  const id = payment.id;
 
   const name =
     payment.name ||
+    payment.fullName ||
     "Unknown Student";
 
   const email =
@@ -480,88 +416,93 @@ function createPaymentRow(payment) {
 
   const plan =
     payment.plan ||
+    payment.package ||
+    payment.membershipPlan ||
     "Unknown";
 
   const method =
-    payment.paymentMethod ||
-    "Unknown";
+    getPaymentMethod(payment);
 
   const transaction =
-    payment.transactionId ||
-    "—";
+    getTransactionId(payment);
 
   const status =
     getStatus(payment);
 
   const amountUSD =
-    Number(
-      payment.amountUSD || 0
-    );
+    getAmountUSD(payment);
 
   const amountKES =
-    payment.amountKES
-      ? Number(payment.amountKES)
-      : null;
+    getAmountKES(payment);
 
   const date =
     formatDate(
-      payment.submittedAt
+      getPaymentDate(payment)
     );
 
+
   const planClass =
-    plan.toLowerCase()
+    plan
+      .toLowerCase()
       .includes("lifetime")
       ? "plan-lifetime"
       : "plan-monthly";
 
+
+  const isMpesa =
+    normalizeMethod(method)
+      .includes("mpesa");
+
+
   const methodClass =
-    method.toLowerCase()
-      .includes("mpesa")
+    isMpesa
       ? "method-mpesa"
       : "method-paypal";
 
+
   const methodIcon =
-    method.toLowerCase()
-      .includes("mpesa")
+    isMpesa
       ? "fa-mobile-screen-button"
       : "fa-brands fa-paypal";
 
-  return `
-    <tr>
 
-      <!-- STUDENT -->
+  return `
+
+    <tr>
 
       <td>
 
         <div class="student-name">
+
           ${escapeHtml(name)}
+
         </div>
 
         <div class="student-email">
+
           ${escapeHtml(email)}
+
         </div>
 
       </td>
 
 
-      <!-- PLAN -->
-
       <td>
 
         <span class="plan ${planClass}">
+
           ${escapeHtml(plan)}
+
         </span>
 
       </td>
 
 
-      <!-- METHOD -->
-
       <td>
 
         <span class="method ${methodClass}">
 
-          <i class="fa-solid ${methodIcon}"></i>
+          <i class="${methodIcon}"></i>
 
           ${escapeHtml(method)}
 
@@ -569,8 +510,6 @@ function createPaymentRow(payment) {
 
       </td>
 
-
-      <!-- AMOUNT -->
 
       <td>
 
@@ -590,9 +529,11 @@ function createPaymentRow(payment) {
           amountKES
             ? `
               <span class="amount-kes">
+
                 KSh ${amountKES.toLocaleString(
                   "en-KE"
                 )}
+
               </span>
             `
             : ""
@@ -600,8 +541,6 @@ function createPaymentRow(payment) {
 
       </td>
 
-
-      <!-- TRANSACTION -->
 
       <td>
 
@@ -614,8 +553,6 @@ function createPaymentRow(payment) {
       </td>
 
 
-      <!-- STATUS -->
-
       <td>
 
         ${createStatusBadge(status)}
@@ -623,16 +560,12 @@ function createPaymentRow(payment) {
       </td>
 
 
-      <!-- DATE -->
-
       <td>
 
         ${date}
 
       </td>
 
-
-      <!-- ACTIONS -->
 
       <td>
 
@@ -649,9 +582,11 @@ function createPaymentRow(payment) {
 
           </button>
 
+
           ${
             status === "pending"
               ? `
+
                 <button
                   class="action-btn approve-btn"
                   title="Approve Payment"
@@ -663,6 +598,7 @@ function createPaymentRow(payment) {
 
                 </button>
 
+
                 <button
                   class="action-btn reject-btn"
                   title="Reject Payment"
@@ -673,43 +609,242 @@ function createPaymentRow(payment) {
                   <i class="fa-solid fa-xmark"></i>
 
                 </button>
+
               `
               : ""
           }
+
+
+          <button
+            class="action-btn delete-btn"
+            title="Delete Payment"
+            data-action="delete"
+            data-id="${escapeAttribute(id)}"
+          >
+
+            <i class="fa-solid fa-trash"></i>
+
+          </button>
 
         </div>
 
       </td>
 
     </tr>
+
   `;
 
 }
 
 
 // ============================================================
-// STATUS
+// PAYMENT STATUS
 // ============================================================
 
 function getStatus(payment) {
 
-  return (
+  const value =
     payment.status ||
-    "pending"
-  )
-    .toString()
-    .toLowerCase();
+    payment.paymentStatus ||
+    "pending";
+
+  const status =
+    String(value)
+      .trim()
+      .toLowerCase();
+
+
+  // Handle older payment records
+
+  if (
+    status === "paid" ||
+    status === "complete" ||
+    status === "completed" ||
+    status === "success" ||
+    status === "successful"
+  ) {
+
+    return "approved";
+
+  }
+
+
+  if (
+    status === "declined" ||
+    status === "cancelled" ||
+    status === "canceled"
+  ) {
+
+    return "rejected";
+
+  }
+
+
+  return status;
 
 }
 
 
-function createStatusBadge(status) {
+// ============================================================
+// PAYMENT METHOD
+// ============================================================
 
-  let label =
-    status;
+function getPaymentMethod(payment) {
+
+  return (
+    payment.paymentMethod ||
+    payment.method ||
+    payment.payment_method ||
+    "Unknown"
+  );
+
+}
+
+
+function normalizeMethod(method) {
+
+  return String(method || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, "");
+
+}
+
+
+// ============================================================
+// TRANSACTION ID
+// ============================================================
+
+function getTransactionId(payment) {
+
+  return (
+    payment.transactionId ||
+    payment.transactionID ||
+    payment.transaction ||
+    payment.mpesaCode ||
+    payment.mpesaTransactionId ||
+    payment.reference ||
+    payment.paypalTransactionId ||
+    payment.paypalOrderId ||
+    "—"
+  );
+
+}
+
+
+// ============================================================
+// USER ID
+// IMPORTANT:
+// SUPPORT BOTH uid AND userId
+// ============================================================
+
+function getUserId(payment) {
+
+  return (
+    payment.uid ||
+    payment.userId ||
+    payment.userUID ||
+    payment.userUid ||
+    null
+  );
+
+}
+
+
+// ============================================================
+// AMOUNT USD
+// ============================================================
+
+function getAmountUSD(payment) {
+
+  const amount =
+    payment.amountUSD ??
+    payment.amountUsd ??
+    payment.amount ??
+    payment.price ??
+    0;
+
+  return Number(amount) || 0;
+
+}
+
+
+// ============================================================
+// AMOUNT KES
+// ============================================================
+
+function getAmountKES(payment) {
+
+  const amount =
+    payment.amountKES ??
+    payment.amountKes ??
+    payment.kesAmount ??
+    null;
+
+  if (
+    amount === null ||
+    amount === undefined ||
+    amount === ""
+  ) {
+
+    return null;
+
+  }
+
+  const number =
+    Number(amount);
+
+  return Number.isFinite(number)
+    ? number
+    : null;
+
+}
+
+
+// ============================================================
+// PAYMENT DATE
+// ============================================================
+
+function getPaymentDate(payment) {
+
+  return (
+    payment.submittedAt ||
+    payment.createdAt ||
+    payment.paymentDate ||
+    payment.timestamp ||
+    payment.date ||
+    null
+  );
+
+}
+
+
+// ============================================================
+// PAYMENT TIME
+// ============================================================
+
+function getPaymentTime(payment) {
+
+  const value =
+    getPaymentDate(payment);
+
+  return getTimestamp(value);
+
+}
+
+
+// ============================================================
+// STATUS BADGE
+// ============================================================
+
+function createStatusBadge(status) {
 
   let className =
     "status-pending";
+
+  let label =
+    "Pending";
+
 
   if (status === "approved") {
 
@@ -719,9 +854,10 @@ function createStatusBadge(status) {
     label =
       "Approved";
 
-  } else if (
-    status === "rejected"
-  ) {
+  }
+
+
+  if (status === "rejected") {
 
     className =
       "status-rejected";
@@ -729,41 +865,40 @@ function createStatusBadge(status) {
     label =
       "Rejected";
 
-  } else {
-
-    className =
-      "status-pending";
-
-    label =
-      "Pending";
-
   }
 
+
   return `
+
     <span class="status ${className}">
+
       ${escapeHtml(label)}
+
     </span>
+
   `;
 
 }
 
 
 // ============================================================
-// CLICK HANDLER
+// PAYMENT TABLE CLICK
 // ============================================================
 
 paymentsTable.addEventListener(
   "click",
-  async event => {
+  async (event) => {
 
     const button =
       event.target.closest(
         "[data-action]"
       );
 
+
     if (!button) {
       return;
     }
+
 
     const action =
       button.dataset.action;
@@ -771,11 +906,13 @@ paymentsTable.addEventListener(
     const id =
       button.dataset.id;
 
+
     const payment =
       allPayments.find(
         item =>
           item.id === id
       );
+
 
     if (!payment) {
 
@@ -787,25 +924,31 @@ paymentsTable.addEventListener(
 
     }
 
+
     if (action === "view") {
 
       openPaymentModal(payment);
 
     }
 
+
     if (action === "approve") {
 
-      await approvePayment(
-        payment
-      );
+      await approvePayment(payment);
 
     }
 
+
     if (action === "reject") {
 
-      await rejectPayment(
-        payment
-      );
+      await rejectPayment(payment);
+
+    }
+
+
+    if (action === "delete") {
+
+      await deletePayment(payment);
 
     }
 
@@ -814,7 +957,7 @@ paymentsTable.addEventListener(
 
 
 // ============================================================
-// VIEW PAYMENT
+// PAYMENT MODAL
 // ============================================================
 
 function openPaymentModal(payment) {
@@ -822,86 +965,155 @@ function openPaymentModal(payment) {
   const status =
     getStatus(payment);
 
+  const userId =
+    getUserId(payment);
+
   const amountUSD =
-    Number(
-      payment.amountUSD || 0
-    );
+    getAmountUSD(payment);
 
   const amountKES =
-    payment.amountKES
-      ? Number(payment.amountKES)
-      : null;
+    getAmountKES(payment);
 
-  const submittedDate =
+  const transaction =
+    getTransactionId(payment);
+
+  const method =
+    getPaymentMethod(payment);
+
+  const date =
     formatDate(
-      payment.submittedAt
+      getPaymentDate(payment)
     );
 
-  const proof =
-    payment.proofFileName
-      ? `
-        <div class="detail-item full">
 
-          <label>Payment Proof</label>
+  const proofUrl =
+    payment.proofUrl ||
+    payment.proofURL ||
+    payment.paymentProofUrl ||
+    payment.receiptUrl ||
+    null;
 
-          <strong>
-            ${escapeHtml(
-              payment.proofFileName
-            )}
-          </strong>
 
-          <div style="
-            color:#68748d;
-            font-size:11px;
-            margin-top:5px;
-          ">
+  const proofName =
+    payment.proofFileName ||
+    payment.proofName ||
+    null;
 
-            ${
-              payment.proofFileType
-                ? escapeHtml(
-                    payment.proofFileType
-                  )
-                : ""
-            }
 
-            ${
-              payment.proofFileSize
-                ? " • " +
-                  formatFileSize(
-                    payment.proofFileSize
-                  )
-                : ""
-            }
+  let proofHTML = "";
 
-          </div>
+
+  if (proofUrl) {
+
+    proofHTML = `
+
+      <div class="detail-item full">
+
+        <label>Payment Proof</label>
+
+        <strong>
+
+          ${escapeHtml(
+            proofName ||
+            "Payment proof"
+          )}
+
+        </strong>
+
+        <br><br>
+
+        <a
+          href="${escapeAttribute(proofUrl)}"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="
+            display:inline-block;
+            padding:10px 15px;
+            background:#4f7cff;
+            color:white;
+            border-radius:7px;
+            text-decoration:none;
+            font-size:12px;
+          "
+        >
+
+          <i class="fa-solid fa-file-arrow-up"></i>
+
+          View Payment Proof
+
+        </a>
+
+      </div>
+
+    `;
+
+  } else if (proofName) {
+
+    proofHTML = `
+
+      <div class="detail-item full">
+
+        <label>Payment Proof</label>
+
+        <strong>
+
+          ${escapeHtml(proofName)}
+
+        </strong>
+
+        <div style="
+          color:#68748d;
+          font-size:11px;
+          margin-top:6px;
+        ">
+
+          Payment proof is attached to this
+          payment record.
 
         </div>
-      `
-      : `
-        <div class="detail-item full">
 
-          <label>Payment Proof</label>
+      </div>
 
-          <strong>
-            No proof file attached
-          </strong>
+    `;
 
-        </div>
-      `;
+  } else {
+
+    proofHTML = `
+
+      <div class="detail-item full">
+
+        <label>Payment Proof</label>
+
+        <strong>
+
+          No proof file attached
+
+        </strong>
+
+      </div>
+
+    `;
+
+  }
+
 
   modalBody.innerHTML = `
 
     <div class="detail-grid">
+
 
       <div class="detail-item">
 
         <label>Student Name</label>
 
         <strong>
+
           ${escapeHtml(
             payment.name ||
+            payment.fullName ||
             "Unknown"
           )}
+
         </strong>
 
       </div>
@@ -912,10 +1124,12 @@ function openPaymentModal(payment) {
         <label>Email</label>
 
         <strong>
+
           ${escapeHtml(
             payment.email ||
             "—"
           )}
+
         </strong>
 
       </div>
@@ -931,7 +1145,7 @@ function openPaymentModal(payment) {
         ">
 
           ${escapeHtml(
-            payment.uid ||
+            userId ||
             "—"
           )}
 
@@ -963,10 +1177,13 @@ function openPaymentModal(payment) {
         <label>Plan</label>
 
         <strong>
+
           ${escapeHtml(
             payment.plan ||
+            payment.package ||
             "—"
           )}
+
         </strong>
 
       </div>
@@ -977,10 +1194,9 @@ function openPaymentModal(payment) {
         <label>Payment Method</label>
 
         <strong>
-          ${escapeHtml(
-            payment.paymentMethod ||
-            "—"
-          )}
+
+          ${escapeHtml(method)}
+
         </strong>
 
       </div>
@@ -991,7 +1207,9 @@ function openPaymentModal(payment) {
         <label>USD Amount</label>
 
         <strong>
+
           $${amountUSD.toFixed(2)}
+
         </strong>
 
       </div>
@@ -1002,6 +1220,7 @@ function openPaymentModal(payment) {
         <label>KES Amount</label>
 
         <strong>
+
           ${
             amountKES !== null
               ? "KSh " +
@@ -1010,6 +1229,7 @@ function openPaymentModal(payment) {
                 )
               : "—"
           }
+
         </strong>
 
       </div>
@@ -1020,6 +1240,7 @@ function openPaymentModal(payment) {
         <label>Exchange Rate</label>
 
         <strong>
+
           ${
             payment.exchangeRate
               ? "1 USD = " +
@@ -1029,6 +1250,7 @@ function openPaymentModal(payment) {
                 " KES"
               : "—"
           }
+
         </strong>
 
       </div>
@@ -1039,7 +1261,9 @@ function openPaymentModal(payment) {
         <label>Status</label>
 
         <strong>
+
           ${createStatusBadge(status)}
+
         </strong>
 
       </div>
@@ -1048,17 +1272,14 @@ function openPaymentModal(payment) {
       <div class="detail-item full">
 
         <label>
-          Transaction / PayPal ID
+          Transaction / Reference
         </label>
 
         <strong style="
           font-family:monospace;
         ">
 
-          ${escapeHtml(
-            payment.transactionId ||
-            "—"
-          )}
+          ${escapeHtml(transaction)}
 
         </strong>
 
@@ -1084,7 +1305,7 @@ function openPaymentModal(payment) {
       </div>
 
 
-      ${proof}
+      ${proofHTML}
 
 
       <div class="detail-item full">
@@ -1092,10 +1313,13 @@ function openPaymentModal(payment) {
         <label>Submitted</label>
 
         <strong>
-          ${submittedDate}
+
+          ${date}
+
         </strong>
 
       </div>
+
 
     </div>
 
@@ -1103,11 +1327,13 @@ function openPaymentModal(payment) {
     ${
       status === "pending"
         ? `
+
           <div class="modal-actions">
 
             <button
               class="modal-approve"
               id="modalApprove"
+              type="button"
             >
 
               <i class="fa-solid fa-check"></i>
@@ -1116,9 +1342,11 @@ function openPaymentModal(payment) {
 
             </button>
 
+
             <button
               class="modal-reject"
               id="modalReject"
+              type="button"
             >
 
               <i class="fa-solid fa-xmark"></i>
@@ -1128,11 +1356,13 @@ function openPaymentModal(payment) {
             </button>
 
           </div>
+
         `
         : ""
     }
 
   `;
+
 
   paymentModal.classList.add(
     "active"
@@ -1143,6 +1373,7 @@ function openPaymentModal(payment) {
     document.getElementById(
       "modalApprove"
     );
+
 
   const modalReject =
     document.getElementById(
@@ -1200,13 +1431,48 @@ async function approvePayment(payment) {
 
   }
 
+
+  const userId =
+    getUserId(payment);
+
+
+  if (!userId) {
+
+    alert(
+      "This payment does not contain a user ID (uid/userId).\n\n" +
+      "The payment cannot automatically activate the student's membership."
+    );
+
+    return;
+
+  }
+
+
   const confirmed =
     confirm(
-      `Approve payment from ${payment.name || payment.email}?\n\n` +
-      `Plan: ${payment.plan || "Unknown"}\n` +
-      `Amount: $${Number(payment.amountUSD || 0).toFixed(2)}\n\n` +
-      `This will activate Premium membership.`
+      "Approve this payment?\n\n" +
+
+      "Student: " +
+      (
+        payment.name ||
+        payment.email ||
+        "Unknown"
+      ) +
+
+      "\nPlan: " +
+      (
+        payment.plan ||
+        "Unknown"
+      ) +
+
+      "\nAmount: $" +
+      getAmountUSD(payment).toFixed(2) +
+
+      "\n\n" +
+
+      "The student's membership will be changed to PREMIUM."
     );
+
 
   if (!confirmed) {
     return;
@@ -1215,12 +1481,35 @@ async function approvePayment(payment) {
 
   try {
 
-    /*
-     * ----------------------------------------------------
-     * STEP 1
-     * Mark payment approved
-     * ----------------------------------------------------
-     */
+    // --------------------------------------------------------
+    // FIRST VERIFY USER
+    // --------------------------------------------------------
+
+    const userRef =
+      doc(
+        db,
+        "users",
+        userId
+      );
+
+
+    const userSnap =
+      await getDoc(userRef);
+
+
+    if (!userSnap.exists()) {
+
+      throw new Error(
+        "Student user document was not found: " +
+        userId
+      );
+
+    }
+
+
+    // --------------------------------------------------------
+    // UPDATE PAYMENT
+    // --------------------------------------------------------
 
     await updateDoc(
       doc(
@@ -1229,55 +1518,23 @@ async function approvePayment(payment) {
         payment.id
       ),
       {
-        status: "approved",
+
+        status:
+          "approved",
 
         approvedAt:
-          new Date(),
+          serverTimestamp(),
 
         approvedBy:
           currentAdmin.uid
+
       }
     );
 
 
-    /*
-     * ----------------------------------------------------
-     * STEP 2
-     * Update student membership
-     * ----------------------------------------------------
-     */
-
-    if (!payment.uid) {
-
-      throw new Error(
-        "This payment does not contain a student UID. Payment was approved, but the student's membership could not be updated."
-      );
-
-    }
-
-
-    const userRef =
-      doc(
-        db,
-        "users",
-        payment.uid
-      );
-
-
-    const userSnap =
-      await getDoc(
-        userRef
-      );
-
-
-    if (!userSnap.exists()) {
-
-      throw new Error(
-        "The student user document does not exist."
-      );
-
-    }
-
+    // --------------------------------------------------------
+    // UPDATE STUDENT
+    // --------------------------------------------------------
 
     await updateDoc(
       userRef,
@@ -1293,7 +1550,7 @@ async function approvePayment(payment) {
           "member",
 
         membershipUpdatedAt:
-          new Date(),
+          serverTimestamp(),
 
         membershipUpdatedBy:
           currentAdmin.uid
@@ -1303,9 +1560,12 @@ async function approvePayment(payment) {
 
 
     alert(
-      "Payment approved successfully.\n\nThe student's membership is now Premium."
+      "Payment approved successfully.\n\n" +
+      "Student membership is now PREMIUM."
     );
 
+
+    closePaymentModal();
 
     await loadPayments();
 
@@ -1313,19 +1573,16 @@ async function approvePayment(payment) {
   } catch (error) {
 
     console.error(
-      "Approve payment error:",
+      "APPROVE PAYMENT ERROR:",
       error
     );
 
+
     alert(
-      "Unable to approve payment:\n\n" +
+      "Unable to approve payment.\n\n" +
       error.message
     );
 
-    /*
-     * Reload because payment may have
-     * changed even if membership update failed.
-     */
 
     await loadPayments();
 
@@ -1354,7 +1611,7 @@ async function rejectPayment(payment) {
   const reason =
     prompt(
       "Why are you rejecting this payment?\n\n" +
-      "You can leave this blank."
+      "Leave blank if you do not want to add a reason."
     );
 
 
@@ -1380,7 +1637,7 @@ async function rejectPayment(payment) {
           reason.trim(),
 
         rejectedAt:
-          new Date(),
+          serverTimestamp(),
 
         rejectedBy:
           currentAdmin.uid
@@ -1394,18 +1651,81 @@ async function rejectPayment(payment) {
     );
 
 
+    closePaymentModal();
+
     await loadPayments();
 
 
   } catch (error) {
 
     console.error(
-      "Reject payment error:",
+      "REJECT PAYMENT ERROR:",
       error
     );
 
+
     alert(
-      "Unable to reject payment:\n\n" +
+      "Unable to reject payment.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// DELETE PAYMENT
+// ============================================================
+
+async function deletePayment(payment) {
+
+  if (!currentAdmin) {
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      "Delete this payment record?\n\n" +
+      "This cannot be undone."
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await deleteDoc(
+      doc(
+        db,
+        "payments",
+        payment.id
+      )
+    );
+
+
+    alert(
+      "Payment record deleted."
+    );
+
+
+    await loadPayments();
+
+
+  } catch (error) {
+
+    console.error(
+      "DELETE PAYMENT ERROR:",
+      error
+    );
+
+
+    alert(
+      "Unable to delete payment.\n\n" +
       error.message
     );
 
@@ -1435,7 +1755,7 @@ closeModal.addEventListener(
 
 paymentModal.addEventListener(
   "click",
-  event => {
+  (event) => {
 
     if (
       event.target ===
@@ -1459,10 +1779,12 @@ searchInput.addEventListener(
   renderPayments
 );
 
+
 statusFilter.addEventListener(
   "change",
   renderPayments
 );
+
 
 methodFilter.addEventListener(
   "change",
@@ -1481,7 +1803,9 @@ refreshBtn.addEventListener(
     refreshBtn.innerHTML =
       '<i class="fa-solid fa-spinner fa-spin"></i>';
 
+
     await loadPayments();
+
 
     refreshBtn.innerHTML =
       '<i class="fa-solid fa-rotate"></i> Refresh';
@@ -1491,79 +1815,39 @@ refreshBtn.addEventListener(
 
 
 // ============================================================
-// DATE
+// DATE FORMAT
 // ============================================================
 
-function formatDate(timestamp) {
+function formatDate(value) {
 
-  if (!timestamp) {
-
+  if (!value) {
     return "—";
-
   }
 
-  let date;
 
-  try {
+  const time =
+    getTimestamp(value);
 
-    if (
-      typeof timestamp.toDate ===
-      "function"
-    ) {
 
-      date =
-        timestamp.toDate();
-
-    } else if (
-      timestamp.seconds
-    ) {
-
-      date =
-        new Date(
-          timestamp.seconds *
-          1000
-        );
-
-    } else if (
-      timestamp instanceof Date
-    ) {
-
-      date =
-        timestamp;
-
-    } else {
-
-      date =
-        new Date(timestamp);
-
-    }
-
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return "—";
-
-    }
-
-    return date.toLocaleString(
-      "en-KE",
-      {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      }
-    );
-
-  } catch {
-
+  if (!time) {
     return "—";
-
   }
+
+
+  const date =
+    new Date(time);
+
+
+  return date.toLocaleString(
+    "en-KE",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
 
 }
 
@@ -1572,98 +1856,82 @@ function formatDate(timestamp) {
 // TIMESTAMP
 // ============================================================
 
-function getTimestamp(timestamp) {
+function getTimestamp(value) {
 
-  if (!timestamp) {
-
+  if (!value) {
     return 0;
-
   }
+
 
   try {
 
     if (
-      typeof timestamp.toMillis ===
+      typeof value.toMillis ===
       "function"
     ) {
 
-      return timestamp.toMillis();
+      return value.toMillis();
 
     }
 
+
     if (
-      typeof timestamp.toDate ===
+      typeof value.toDate ===
       "function"
     ) {
 
-      return timestamp
+      return value
         .toDate()
         .getTime();
 
     }
 
+
     if (
-      timestamp.seconds
+      value.seconds !== undefined
     ) {
 
-      return Number(
-        timestamp.seconds
-      ) * 1000;
+      return (
+        Number(value.seconds) *
+        1000
+      );
 
     }
 
-    const date =
-      new Date(timestamp);
 
-    return Number.isNaN(
-      date.getTime()
-    )
-      ? 0
-      : date.getTime();
+    if (
+      typeof value === "number"
+    ) {
+
+      return value < 10000000000
+        ? value * 1000
+        : value;
+
+    }
+
+
+    const date =
+      new Date(value);
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return 0;
+
+    }
+
+
+    return date.getTime();
 
   } catch {
 
     return 0;
 
   }
-
-}
-
-
-// ============================================================
-// FILE SIZE
-// ============================================================
-
-function formatFileSize(bytes) {
-
-  if (!bytes) {
-
-    return "0 B";
-
-  }
-
-  const sizes = [
-    "B",
-    "KB",
-    "MB",
-    "GB"
-  ];
-
-  const i =
-    Math.floor(
-      Math.log(bytes) /
-      Math.log(1024)
-    );
-
-  return (
-    bytes /
-    Math.pow(
-      1024,
-      i
-    )
-  ).toFixed(1) +
-  " " +
-  sizes[i];
 
 }
 
@@ -1683,23 +1951,29 @@ function escapeHtml(value) {
 
   }
 
+
   return String(value)
+
     .replace(
       /&/g,
       "&amp;"
     )
+
     .replace(
       /</g,
       "&lt;"
     )
+
     .replace(
       />/g,
       "&gt;"
     )
+
     .replace(
       /"/g,
       "&quot;"
     )
+
     .replace(
       /'/g,
       "&#039;"
@@ -1716,9 +1990,51 @@ function escapeAttribute(value) {
 
 
 // ============================================================
-// END
+// ERROR DISPLAY
+// ============================================================
+
+function showError(message, error) {
+
+  paymentsTable.innerHTML = `
+
+    <tr>
+
+      <td colspan="8">
+
+        <div class="empty-state">
+
+          <i class="fa-solid fa-triangle-exclamation"></i>
+
+          <br><br>
+
+          <strong>
+            ${escapeHtml(message)}
+          </strong>
+
+          <br><br>
+
+          <small>
+            ${escapeHtml(
+              error?.message ||
+              "Unknown error"
+            )}
+          </small>
+
+        </div>
+
+      </td>
+
+    </tr>
+
+  `;
+
+}
+
+
+// ============================================================
+// DEBUG
 // ============================================================
 
 console.log(
-  "GTRADES-AXIS™ Admin Payments loaded."
+  "GTRADES-AXIS™ Admin Payments loaded successfully."
 );
