@@ -2,7 +2,18 @@
 // GTRADES-AXIS™
 // PREMIUM RESOURCES
 // js/resources.js
-// CLOUDFLARE R2 VERSION
+//
+// FIREBASE:
+//   - Authentication
+//   - Firestore metadata
+//
+// STORAGE:
+//   - Cloudflare R2
+//   - Same Worker delivery route used by Videos
+//
+// IMPORTANT:
+// Resource files are NOT stored in Firestore.
+// Firestore stores the R2 object key.
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -22,7 +33,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ============================================================
-// CLOUDFLARE R2 WORKER
+// CONFIG
 // ============================================================
 
 const R2_WORKER =
@@ -58,7 +69,9 @@ const accessChip =
 // ============================================================
 
 let resources = [];
+
 let activeCategory = "All";
+
 let hasPremiumAccess = false;
 
 // ============================================================
@@ -66,6 +79,7 @@ let hasPremiumAccess = false;
 // ============================================================
 
 function escapeHTML(value) {
+
   return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -81,11 +95,17 @@ function escapeHTML(value) {
 onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
+
     window.location.href = "/login.html";
+
     return;
   }
 
   try {
+
+    // --------------------------------------------------------
+    // GET USER PROFILE
+    // --------------------------------------------------------
 
     const userRef =
       doc(db, "users", user.uid);
@@ -94,52 +114,67 @@ onAuthStateChanged(auth, async (user) => {
       await getDoc(userRef);
 
     if (!userSnap.exists()) {
+
       showError(
         "Your account information could not be found."
       );
+
       return;
     }
 
     const userData =
       userSnap.data();
 
-    // ========================================================
+    // --------------------------------------------------------
     // PREMIUM ACCESS
-    // ========================================================
+    // --------------------------------------------------------
 
     hasPremiumAccess =
       userData.role === "admin" ||
       userData.membership === "premium";
 
-    // ========================================================
+    // --------------------------------------------------------
     // ACCESS CHIP
-    // ========================================================
+    // --------------------------------------------------------
 
     if (accessChip) {
 
-      accessChip.innerHTML =
-        hasPremiumAccess
-          ? `<i class="fa-solid fa-shield-check"></i> Premium Access`
-          : `<i class="fa-solid fa-user"></i> Member Access`;
-
       if (hasPremiumAccess) {
+
+        accessChip.innerHTML = `
+          <i class="fa-solid fa-shield-check"></i>
+          Premium Access
+        `;
+
         accessChip.classList.add("premium");
+
+      } else {
+
+        accessChip.innerHTML = `
+          <i class="fa-solid fa-user"></i>
+          Member Access
+        `;
+
+        accessChip.classList.remove("premium");
       }
     }
+
+    // --------------------------------------------------------
+    // LOAD RESOURCES
+    // --------------------------------------------------------
 
     await loadResources();
 
   } catch (error) {
 
     console.error(
-      "RESOURCE AUTH ERROR:",
+      "GTRADES-AXIS RESOURCE AUTH ERROR:",
       error
     );
 
     showError(
       "Unable to load your resources."
     );
-
   }
 
 });
@@ -151,9 +186,11 @@ onAuthStateChanged(auth, async (user) => {
 async function loadResources() {
 
   if (!grid) {
+
     console.error(
       "resourceGrid not found."
     );
+
     return;
   }
 
@@ -172,6 +209,10 @@ async function loadResources() {
   try {
 
     let snapshot;
+
+    // --------------------------------------------------------
+    // TRY CREATED DATE ORDER
+    // --------------------------------------------------------
 
     try {
 
@@ -197,28 +238,35 @@ async function loadResources() {
         );
     }
 
+    // --------------------------------------------------------
+    // BUILD RESOURCE ARRAY
+    // --------------------------------------------------------
+
     resources = [];
 
     snapshot.forEach((resourceDoc) => {
 
       resources.push({
+
         id: resourceDoc.id,
+
         ...resourceDoc.data()
+
       });
 
     });
 
-    // ========================================================
-    // SORT
-    // ========================================================
+    // --------------------------------------------------------
+    // LOCAL SORT
+    // --------------------------------------------------------
 
     resources.sort((a, b) => {
 
       const aTime =
-        a.createdAt?.seconds || 0;
+        getTimestampValue(a.createdAt);
 
       const bTime =
-        b.createdAt?.seconds || 0;
+        getTimestampValue(b.createdAt);
 
       return bTime - aTime;
 
@@ -241,13 +289,46 @@ async function loadResources() {
     showError(
       "Unable to load resources."
     );
-
   }
 
 }
 
 // ============================================================
-// RENDER
+// FIRESTORE TIMESTAMP HELPER
+// ============================================================
+
+function getTimestampValue(timestamp) {
+
+  if (!timestamp) {
+    return 0;
+  }
+
+  // Firestore Timestamp
+  if (
+    typeof timestamp === "object" &&
+    typeof timestamp.seconds === "number"
+  ) {
+
+    return timestamp.seconds * 1000;
+  }
+
+  // JavaScript Date
+  if (timestamp instanceof Date) {
+
+    return timestamp.getTime();
+  }
+
+  // Number
+  if (typeof timestamp === "number") {
+
+    return timestamp;
+  }
+
+  return 0;
+}
+
+// ============================================================
+// RENDER RESOURCES
 // ============================================================
 
 function renderResources() {
@@ -262,7 +343,7 @@ function renderResources() {
     [...resources];
 
   // ==========================================================
-  // CATEGORY
+  // CATEGORY FILTER
   // ==========================================================
 
   if (activeCategory !== "All") {
@@ -272,16 +353,42 @@ function renderResources() {
 
         const category =
           String(
-            resource.category || "General"
+            resource.category ||
+            "General"
           )
-          .toLowerCase()
-          .trim();
+            .toLowerCase()
+            .trim();
 
-        return (
-          category ===
+        const selectedCategory =
           activeCategory
             .toLowerCase()
-            .trim()
+            .trim();
+
+        // ----------------------------------------------------
+        // PDF HANDLING
+        // ----------------------------------------------------
+
+        if (
+          selectedCategory === "pdfs"
+        ) {
+
+          return (
+            category === "pdf" ||
+            category === "pdfs" ||
+            String(
+              resource.type || ""
+            )
+              .toLowerCase()
+              .includes("pdf")
+          );
+        }
+
+        // ----------------------------------------------------
+        // NORMAL CATEGORY
+        // ----------------------------------------------------
+
+        return (
+          category === selectedCategory
         );
 
       });
@@ -305,22 +412,32 @@ function renderResources() {
         const title =
           String(
             resource.title || ""
-          ).toLowerCase();
+          )
+            .toLowerCase();
 
         const description =
           String(
             resource.description || ""
-          ).toLowerCase();
+          )
+            .toLowerCase();
 
         const category =
           String(
             resource.category || ""
-          ).toLowerCase();
+          )
+            .toLowerCase();
+
+        const type =
+          String(
+            resource.type || ""
+          )
+            .toLowerCase();
 
         return (
           title.includes(keyword) ||
           description.includes(keyword) ||
-          category.includes(keyword)
+          category.includes(keyword) ||
+          type.includes(keyword)
         );
 
       });
@@ -370,21 +487,22 @@ function renderResources() {
   }
 
   // ==========================================================
-  // CARDS
+  // CREATE CARDS
   // ==========================================================
 
   filtered.forEach((resource) => {
 
-    grid.appendChild(
-      createResourceCard(resource)
-    );
+    const card =
+      createResourceCard(resource);
+
+    grid.appendChild(card);
 
   });
 
 }
 
 // ============================================================
-// CREATE CARD
+// CREATE RESOURCE CARD
 // ============================================================
 
 function createResourceCard(resource) {
@@ -393,7 +511,7 @@ function createResourceCard(resource) {
     document.createElement("div");
 
   // ==========================================================
-  // PREMIUM
+  // PREMIUM ACCESS
   // ==========================================================
 
   const premiumOnly =
@@ -407,11 +525,13 @@ function createResourceCard(resource) {
 
   card.className =
     `resource-card${
-      canAccess ? "" : " locked"
+      canAccess
+        ? ""
+        : " locked"
     }`;
 
   // ==========================================================
-  // DATA
+  // RESOURCE DATA
   // ==========================================================
 
   const title =
@@ -445,11 +565,29 @@ function createResourceCard(resource) {
 
     </div>
 
-    <div class="resource-content">
+    <div class="resource-top">
 
       <div class="resource-category">
         ${escapeHTML(category)}
       </div>
+
+      <div
+        class="resource-badge ${
+          premiumOnly
+            ? "premium"
+            : "free"
+        }"
+      >
+        ${
+          premiumOnly
+            ? "Premium"
+            : "Free"
+        }
+      </div>
+
+    </div>
+
+    <div class="resource-body">
 
       <h3>
         ${escapeHTML(title)}
@@ -459,28 +597,17 @@ function createResourceCard(resource) {
         ${escapeHTML(description)}
       </p>
 
-      <div class="resource-meta">
+    </div>
 
-        <span>
-          <i class="fa-solid fa-cloud"></i>
-          R2 Storage
-        </span>
+    <div class="resource-storage">
 
-        <span
-          class="resource-status ${
-            premiumOnly
-              ? "premium"
-              : "free"
-          }"
-        >
-          ${
-            premiumOnly
-              ? "Premium"
-              : "Free"
-          }
-        </span>
+      <i class="fa-solid fa-cloud"></i>
 
-      </div>
+      Cloudflare R2
+
+    </div>
+
+    <div class="resource-action">
 
       ${
         premiumOnly && !hasPremiumAccess
@@ -488,7 +615,7 @@ function createResourceCard(resource) {
           ? `
 
             <button
-              class="resource-btn locked-btn"
+              class="download-btn locked-btn"
               type="button"
             >
 
@@ -503,7 +630,7 @@ function createResourceCard(resource) {
           : `
 
             <button
-              class="resource-btn download-resource"
+              class="download-btn download-resource"
               type="button"
             >
 
@@ -521,7 +648,7 @@ function createResourceCard(resource) {
   `;
 
   // ==========================================================
-  // DOWNLOAD
+  // DOWNLOAD BUTTON
   // ==========================================================
 
   const button =
@@ -546,7 +673,7 @@ function createResourceCard(resource) {
   }
 
   // ==========================================================
-  // LOCKED
+  // LOCKED BUTTON
   // ==========================================================
 
   const lockedButton =
@@ -578,23 +705,38 @@ function createResourceCard(resource) {
 
 function getIcon(type) {
 
-  if (type.includes("PDF")) {
+  if (
+    type.includes("PDF")
+  ) {
+
     return "fa-file-pdf";
   }
 
-  if (type.includes("INDICATOR")) {
+  if (
+    type.includes("INDICATOR")
+  ) {
+
     return "fa-chart-line";
   }
 
-  if (type.includes("JOURNAL")) {
+  if (
+    type.includes("JOURNAL")
+  ) {
+
     return "fa-book";
   }
 
-  if (type.includes("STRATEG")) {
+  if (
+    type.includes("STRATEG")
+  ) {
+
     return "fa-bullseye";
   }
 
-  if (type.includes("VIDEO")) {
+  if (
+    type.includes("VIDEO")
+  ) {
+
     return "fa-circle-play";
   }
 
@@ -602,11 +744,32 @@ function getIcon(type) {
     type.includes("EXCEL") ||
     type.includes("XLS")
   ) {
+
     return "fa-file-excel";
   }
 
-  if (type.includes("ZIP")) {
+  if (
+    type.includes("WORD") ||
+    type.includes("DOC")
+  ) {
+
+    return "fa-file-word";
+  }
+
+  if (
+    type.includes("ZIP")
+  ) {
+
     return "fa-file-zipper";
+  }
+
+  if (
+    type.includes("IMAGE") ||
+    type.includes("PNG") ||
+    type.includes("JPG")
+  ) {
+
+    return "fa-file-image";
   }
 
   return "fa-file";
@@ -615,64 +778,74 @@ function getIcon(type) {
 // ============================================================
 // GET R2 KEY
 // ============================================================
+//
+// Supports all existing Firestore field names.
+//
+// Recommended:
+//   resourceKey: "resources/example.pdf"
+//
+// Also supports:
+//   fileKey
+//   r2Key
+//   storageKey
+//   key
+// ============================================================
 
 function getResourceKey(resource) {
 
-  const possibleKeys = [
+  const key =
 
-    resource.resourceKey,
+    resource.resourceKey ||
 
-    resource.fileKey,
+    resource.fileKey ||
 
-    resource.r2Key,
+    resource.r2Key ||
 
-    resource.storageKey,
+    resource.storageKey ||
 
-    resource.key
+    resource.key ||
 
-  ];
+    "";
 
-  for (const value of possibleKeys) {
-
-    if (
-      typeof value === "string" &&
-      value.trim()
-    ) {
-
-      return value
-        .trim()
-        .replace(/^\/+/, "");
-
-    }
-
-  }
-
-  return "";
+  return String(key).trim();
 
 }
 
 // ============================================================
-// BUILD R2 URL
+// BUILD R2 FILE URL
+// ============================================================
+//
+// IMPORTANT:
+//
+// DO NOT USE:
+//   /file?key=
+//
+// The video system is already working with:
+//
+//   /?key=
+//
+// Therefore resources use the SAME route.
+//
+// Example:
+//
+// https://r2-uploader.davidthuku574.workers.dev/
+// ?key=resources/example.pdf
+//
 // ============================================================
 
 function buildR2FileURL(key) {
 
-  const cleanKey =
-    String(key)
-      .trim()
-      .replace(/^\/+/, "");
-
-  if (!cleanKey) {
+  if (!key) {
 
     throw new Error(
-      "This resource has no R2 object key."
+      "This resource has no R2 file key."
     );
 
   }
 
   return (
-    `${R2_WORKER}/file?key=` +
-    encodeURIComponent(cleanKey)
+    `${R2_WORKER}/?key=` +
+    encodeURIComponent(key)
   );
 
 }
@@ -686,36 +859,30 @@ async function downloadResource(
   button
 ) {
 
+  // ==========================================================
+  // GET R2 KEY
+  // ==========================================================
+
   const key =
     getResourceKey(resource);
 
-  console.log(
-    "================================================"
-  );
-
-  console.log(
-    "GTRADES-AXIS™ RESOURCE"
-  );
-
-  console.log(
-    "Resource:",
-    resource
-  );
-
-  console.log(
-    "R2 KEY:",
-    key
-  );
-
   if (!key) {
+
+    console.error(
+      "RESOURCE HAS NO R2 KEY:",
+      resource
+    );
 
     alert(
       "This resource has no R2 file attached."
     );
 
     return;
-
   }
+
+  // ==========================================================
+  // AUTH
+  // ==========================================================
 
   const user =
     auth.currentUser;
@@ -726,7 +893,6 @@ async function downloadResource(
       "/login.html";
 
     return;
-
   }
 
   // ==========================================================
@@ -748,8 +914,11 @@ async function downloadResource(
     );
 
     return;
-
   }
+
+  // ==========================================================
+  // ORIGINAL BUTTON
+  // ==========================================================
 
   const originalText =
     button?.innerHTML ||
@@ -757,34 +926,50 @@ async function downloadResource(
 
   try {
 
+    // ========================================================
+    // BUTTON LOADING
+    // ========================================================
+
     if (button) {
 
       button.disabled = true;
 
       button.innerHTML =
-        `<i class="fa-solid fa-spinner fa-spin"></i> Opening...`;
+        `<i class="fa-solid fa-spinner fa-spin"></i> Preparing...`;
 
     }
 
     // ========================================================
-    // R2 URL
+    // LOG RESOURCE KEY
+    // ========================================================
+
+    console.log(
+      "================================================"
+    );
+
+    console.log(
+      "GTRADES-AXIS™ RESOURCE DOWNLOAD"
+    );
+
+    console.log(
+      "R2 KEY:",
+      key
+    );
+
+    // ========================================================
+    // BUILD WORKER URL
     // ========================================================
 
     const url =
       buildR2FileURL(key);
 
     console.log(
-      "R2 URL:",
+      "R2 WORKER URL:",
       url
     );
 
     // ========================================================
-    // IMPORTANT
-    //
-    // We do NOT download the file into a Blob.
-    //
-    // We let the Cloudflare Worker serve the actual R2
-    // object directly, exactly like the videos.
+    // FETCH
     // ========================================================
 
     const response =
@@ -797,103 +982,170 @@ async function downloadResource(
       );
 
     console.log(
-      "R2 STATUS:",
+      "R2 RESPONSE STATUS:",
       response.status
     );
 
     console.log(
-      "R2 CONTENT TYPE:",
+      "R2 RESPONSE TYPE:",
       response.headers.get(
         "content-type"
       )
     );
 
+    // ========================================================
+    // CHECK RESPONSE
+    // ========================================================
+
     if (!response.ok) {
 
-      let serverMessage = "";
+      let errorMessage =
+        `Resource access failed (${response.status}).`;
 
       try {
 
-        const contentType =
-          response.headers.get(
-            "content-type"
-          ) || "";
+        const errorData =
+          await response.json();
 
-        if (
-          contentType.includes(
-            "application/json"
-          )
-        ) {
+        if (errorData?.error) {
 
-          const data =
-            await response.json();
-
-          serverMessage =
-            data.error || "";
-
+          errorMessage =
+            errorData.error;
         }
 
-      } catch (_) {}
+      } catch {
+        // Response was not JSON.
+      }
 
       throw new Error(
-        serverMessage ||
-        `Cloudflare Worker returned HTTP ${response.status}.`
+        errorMessage
       );
 
     }
 
     // ========================================================
-    // VERIFY RESPONSE
+    // GET BLOB
     // ========================================================
 
-    const contentType =
-      response.headers.get(
-        "content-type"
-      ) || "";
+    const blob =
+      await response.blob();
 
-    if (
-      contentType.includes(
-        "application/json"
-      )
-    ) {
+    console.log(
+      "RESOURCE BLOB SIZE:",
+      blob.size
+    );
 
-      const data =
-        await response.text();
-
-      console.error(
-        "Unexpected Worker response:",
-        data
-      );
+    if (!blob.size) {
 
       throw new Error(
-        "Cloudflare Worker returned an invalid response."
+        "The resource file is empty."
       );
 
     }
 
     // ========================================================
-    // OPEN DIRECT R2 WORKER URL
+    // FILE NAME
     // ========================================================
 
-    window.open(
-      url,
-      "_blank",
-      "noopener,noreferrer"
+    let filename =
+
+      resource.fileName ||
+
+      resource.filename ||
+
+      key
+        .split("/")
+        .pop() ||
+
+      "GTRADES-AXIS-Resource";
+
+    // Remove invalid Windows filename characters
+
+    filename =
+      filename.replace(
+        /[<>:"/\\|?*]/g,
+        "_"
+      );
+
+    // ========================================================
+    // CREATE BLOB URL
+    // ========================================================
+
+    const blobURL =
+      URL.createObjectURL(blob);
+
+    // ========================================================
+    // CREATE DOWNLOAD LINK
+    // ========================================================
+
+    const link =
+      document.createElement("a");
+
+    link.href =
+      blobURL;
+
+    link.download =
+      filename;
+
+    link.style.display =
+      "none";
+
+    document.body.appendChild(
+      link
+    );
+
+    link.click();
+
+    link.remove();
+
+    // ========================================================
+    // CLEANUP
+    // ========================================================
+
+    setTimeout(() => {
+
+      URL.revokeObjectURL(
+        blobURL
+      );
+
+    }, 5000);
+
+    console.log(
+      "RESOURCE DOWNLOAD STARTED:",
+      filename
     );
 
   } catch (error) {
 
     console.error(
-      "RESOURCE OPEN ERROR:",
+      "================================================"
+    );
+
+    console.error(
+      "GTRADES-AXIS™ RESOURCE DOWNLOAD ERROR:",
       error
+    );
+
+    console.error(
+      "RESOURCE:",
+      resource
+    );
+
+    console.error(
+      "R2 KEY:",
+      key
     );
 
     alert(
       error?.message ||
-      "Unable to open this resource."
+      "Unable to download this resource."
     );
 
   } finally {
+
+    // ========================================================
+    // RESTORE BUTTON
+    // ========================================================
 
     if (button) {
 
@@ -909,7 +1161,7 @@ async function downloadResource(
 }
 
 // ============================================================
-// FILTERS
+// FILTER BUTTONS
 // ============================================================
 
 filters.forEach((button) => {
@@ -947,7 +1199,11 @@ filters.forEach((button) => {
 
 searchInput?.addEventListener(
   "input",
-  renderResources
+  () => {
+
+    renderResources();
+
+  }
 );
 
 // ============================================================
@@ -958,11 +1214,15 @@ refreshBtn?.addEventListener(
   "click",
   async () => {
 
-    if (refreshBtn.disabled) {
+    if (
+      refreshBtn.disabled
+    ) {
+
       return;
     }
 
-    refreshBtn.disabled = true;
+    refreshBtn.disabled =
+      true;
 
     const original =
       refreshBtn.innerHTML;
@@ -974,9 +1234,17 @@ refreshBtn?.addEventListener(
 
       await loadResources();
 
+    } catch (error) {
+
+      console.error(
+        "REFRESH ERROR:",
+        error
+      );
+
     } finally {
 
-      refreshBtn.disabled = false;
+      refreshBtn.disabled =
+        false;
 
       refreshBtn.innerHTML =
         original;
@@ -1018,7 +1286,7 @@ logoutBtn?.addEventListener(
 );
 
 // ============================================================
-// ERROR
+// ERROR STATE
 // ============================================================
 
 function showError(message) {
@@ -1031,7 +1299,9 @@ function showError(message) {
 
     <div class="error-state">
 
-      <i class="fa-solid fa-circle-exclamation"></i>
+      <i
+        class="fa-solid fa-circle-exclamation"
+      ></i>
 
       <h3>
         Unable to load resources
@@ -1041,9 +1311,31 @@ function showError(message) {
         ${escapeHTML(message)}
       </p>
 
+      <button
+        type="button"
+        id="retryResourcesBtn"
+      >
+        <i class="fa-solid fa-rotate-right"></i>
+        Try Again
+      </button>
+
     </div>
 
   `;
+
+  const retryButton =
+    document.getElementById(
+      "retryResourcesBtn"
+    );
+
+  retryButton?.addEventListener(
+    "click",
+    () => {
+
+      loadResources();
+
+    }
+  );
 
 }
 
@@ -1052,10 +1344,26 @@ function showError(message) {
 // ============================================================
 
 console.log(
-  "✅ GTRADES-AXIS™ Resources loaded"
+  "================================================"
 );
 
 console.log(
-  "☁️ Cloudflare R2 Worker:",
+  "✅ GTRADES-AXIS™ Premium Resources Loaded"
+);
+
+console.log(
+  "☁️ Storage: Cloudflare R2"
+);
+
+console.log(
+  "☁️ Worker:",
   R2_WORKER
+);
+
+console.log(
+  "☁️ Resource delivery route: /?key="
+);
+
+console.log(
+  "================================================"
 );
