@@ -1,437 +1,1339 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upgrade to Premium | GTRADES-AXIS™</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/payment.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <style>
-    /* ── Minimal extra styles for proof upload ── */
-    .proof-upload {
-      margin: 12px 0;
-    }
-    .proof-upload label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #9aa4bf;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .proof-upload input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      background: #0b0d15;
-      border: 1px solid #2a3450;
-      border-radius: 8px;
-      color: #e8edf5;
-      font-size: 13px;
-    }
-    .proof-upload .file-hint {
-      font-size: 12px;
-      color: #6a7490;
-      margin-top: 4px;
-    }
-    .payment-warning {
-      background: rgba(255, 71, 102, 0.06);
-      border: 1px solid rgba(255, 71, 102, 0.12);
-      border-radius: 8px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      color: #f87171;
-      font-size: 13px;
-      margin: 16px 0;
-    }
-    .payment-warning i {
-      font-size: 20px;
-      margin-top: 2px;
-    }
-    /* ── Loading screen & modal ── */
-    .loading-screen {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-    .loading-screen.active {
-      display: flex;
-    }
-    .loader-box {
-      text-align: center;
-      color: #fff;
-    }
-    .loader {
-      width: 48px;
-      height: 48px;
-      border: 4px solid rgba(255,255,255,0.1);
-      border-top-color: #4f7cff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .success-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    .success-modal.active {
-      display: flex;
-    }
-    .success-card {
-      background: #131724;
-      border: 1px solid #2a3450;
-      border-radius: 16px;
-      padding: 40px 32px;
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-    }
-    .success-icon {
-      font-size: 4rem;
-      color: #00c897;
-      margin-bottom: 16px;
-    }
-    .success-card h2 {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-    .success-card p {
-      color: #9aa4bf;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-    .status-box {
-      background: #0b0d15;
-      border-radius: 8px;
-      padding: 12px;
-      margin: 16px 0;
-    }
-    .status-box span {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #6a7490;
-      letter-spacing: 0.5px;
-      display: block;
-    }
-    .status-box strong {
-      font-size: 18px;
-      color: #f5a623;
-    }
-    .success-card .small-text {
-      font-size: 13px;
-      color: #6a7490;
-    }
-    .success-card button {
-      margin-top: 20px;
-      padding: 12px 32px;
-      background: #4f7cff;
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.25s;
-      font-size: 15px;
-    }
-    .success-card button:hover {
-      background: #3a66e0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GTRADES AXIS™ | Upgrade</title>
+
+    <link rel="stylesheet" href="css/upgrade.css">
+
+    <link rel="icon" type="image/png" href="images/favicon.png">
 </head>
 
 <body>
 
-  <!-- ─── TOP BAR ─── -->
-  <header class="topbar">
-    <div class="logo">
-      <img src="images/logo.png" alt="Logo" />
-      <div>
-        <h2>GTRADES-AXIS™</h2>
-        <small>Trade with Structure. Execute with Precision.</small>
-      </div>
-    </div>
-    <div class="top-actions">
-      <a href="dashboard.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
-    </div>
-  </header>
+<!-- =========================================================
+     HEADER
+========================================================= -->
+<header class="topbar">
 
-  <!-- ─── HERO ─── -->
-  <section class="payment-hero">
-    <h1>Upgrade To <span>Premium</span></h1>
-    <p>Unlock the complete GTRADES-AXIS™ Trading Academy, Trading Journal, AI Trade Review, Premium Resources and much more.</p>
-  </section>
-
-  <!-- ─── PLANS ─── -->
-  <section class="plans">
-    <!-- Monthly -->
-    <div class="plan-card">
-      <div class="plan-header">
-        <h2>Premium Monthly</h2>
-        <h1>$50</h1>
-        <p>Per Month</p>
-      </div>
-      <ul>
-        <li><i class="fa-solid fa-check"></i> Premium Academy</li>
-        <li><i class="fa-solid fa-check"></i> Trading Journal</li>
-        <li><i class="fa-solid fa-check"></i> AI Trade Review</li>
-        <li><i class="fa-solid fa-check"></i> Premium Resources</li>
-        <li><i class="fa-solid fa-check"></i> Analytics Dashboard</li>
-        <li><i class="fa-solid fa-check"></i> Priority Support</li>
-      </ul>
-      <button class="select-plan" data-plan="Monthly" data-price="50">Choose Plan</button>
+    <div class="brand">
+        <span class="brand-main">GTRADES</span>
+        <span class="brand-axis">AXIS™</span>
     </div>
 
-    <!-- Lifetime -->
-    <div class="plan-card featured">
-      <div class="popular">BEST VALUE</div>
-      <div class="plan-header">
-        <h2>Lifetime Premium</h2>
-        <h1>$200</h1>
-        <p>One-Time Payment</p>
-      </div>
-      <ul>
-        <li><i class="fa-solid fa-check"></i> Everything in Monthly</li>
-        <li><i class="fa-solid fa-check"></i> Lifetime Access</li>
-        <li><i class="fa-solid fa-check"></i> All Future Updates</li>
-        <li><i class="fa-solid fa-check"></i> Lifetime Premium Resources</li>
-        <li><i class="fa-solid fa-check"></i> VIP Features</li>
-        <li><i class="fa-solid fa-check"></i> No Renewal Fees</li>
-      </ul>
-      <button class="select-plan" data-plan="Lifetime" data-price="200">Choose Plan</button>
-    </div>
-  </section>
+    <a href="premium.html" class="back-btn">
+        ← Back to Dashboard
+    </a>
 
-  <!-- ─── WHY PREMIUM ─── -->
-  <section class="premium-benefits">
-    <h2>Why Upgrade?</h2>
-    <div class="benefits-grid">
-      <div class="benefit-card"><i class="fa-solid fa-graduation-cap"></i><h3>Premium Academy</h3><p>Complete trading education from beginner to advanced.</p></div>
-      <div class="benefit-card"><i class="fa-solid fa-book"></i><h3>Trading Journal</h3><p>Track every trade, statistics, mistakes and consistency.</p></div>
-      <div class="benefit-card"><i class="fa-solid fa-robot"></i><h3>AI Trade Review</h3><p>Receive intelligent feedback on every trade.</p></div>
-      <div class="benefit-card"><i class="fa-solid fa-chart-line"></i><h3>Trading Analytics</h3><p>Professional performance metrics and reports.</p></div>
-    </div>
-  </section>
+</header>
 
-  <!-- ─── PAYMENT METHODS ─── -->
-  <section class="payment-methods">
-    <h2>Choose Your Payment Method</h2>
-    <p class="section-text">After making payment, copy your transaction details and submit them using the form below.</p>
-    <div class="payment-grid">
-      <!-- MPESA -->
-      <div class="payment-card">
-        <div class="payment-icon mpesa"><i class="fa-solid fa-mobile-screen-button"></i></div>
-        <h3>M-PESA</h3>
-        <div class="payment-details">
-          <div class="detail">
-            <span>Business / Number</span>
-            <strong id="mpesaNumber">0712416214</strong>
-            <button class="copy-btn" data-copy="0712416214"><i class="fa-regular fa-copy"></i></button>
-          </div>
-          <div class="detail">
-            <span>Account Name</span>
-            <strong>David Thuku</strong>
-          </div>
-        </div>
-        <div class="instructions">
-          <h4>Instructions</h4>
-          <ol>
-            <li>Choose <b>Send Money</b>.</li>
-            <li>Send the exact amount.</li>
-            <li>Keep your transaction code.</li>
-            <li>Submit the payment form below.</li>
-          </ol>
-        </div>
-      </div>
 
-      <!-- PayPal -->
-      <div class="payment-card">
-        <div class="payment-icon paypal"><i class="fa-brands fa-paypal"></i></div>
-        <h3>PayPal</h3>
-        <div class="payment-details">
-          <div class="detail">
-            <span>PayPal Email</span>
-            <strong id="paypalEmail">Davidthuku574@gmail.com</strong>
-            <button class="copy-btn" data-copy="Davidthuku574@gmail.com"><i class="fa-regular fa-copy"></i></button>
-          </div>
-          <div class="detail">
-            <span>Currency</span>
-            <strong>USD</strong>
-          </div>
-        </div>
-        <div class="instructions">
-          <h4>Instructions</h4>
-          <ol>
-            <li>Log in to PayPal.</li>
-            <li>Send the payment.</li>
-            <li>Copy the Transaction ID.</li>
-            <li>Submit the form below.</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- =========================================================
+     MAIN
+========================================================= -->
+<main class="page-container">
 
-  <!-- ─── NOTICE ─── -->
-  <section class="payment-notice">
-    <div class="notice-card">
-      <i class="fa-solid fa-circle-info"></i>
-      <div>
-        <h3>Important</h3>
-        <p>Your Premium Membership is activated only after an administrator verifies your payment. Approval usually takes between <strong>5 minutes</strong> and <strong>24 hours</strong>, depending on verification time.</p>
-      </div>
-    </div>
-  </section>
+    <section class="payment-card">
 
-  <!-- ─── PAYMENT FORM ─── -->
-  <section class="payment-form-section">
-    <div class="payment-form-card">
-      <h2>Submit Payment</h2>
-      <p>Complete the form below after sending your payment. Your membership will be activated once an administrator verifies your transaction.</p>
+        <div class="payment-header">
 
-      <form id="paymentForm">
-        <!-- Hidden field for user ID (set by JS) -->
-        <input type="hidden" id="userId" />
+            <div class="payment-icon">
+                $
+            </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="userName" readonly required />
-          </div>
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="userEmail" readonly required />
-          </div>
+            <h1>Upgrade Your Membership</h1>
+
+            <p>
+                Select your membership plan and payment method.
+                The amount will be calculated automatically.
+            </p>
+
         </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Membership Plan</label>
-            <select id="membershipPlan" required>
-              <option value="">Select Plan</option>
-              <option value="Monthly">Premium Monthly ($50)</option>
-              <option value="Lifetime">Lifetime Premium ($200)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Payment Method</label>
-            <select id="paymentMethod" required>
-              <option value="">Select Method</option>
-              <option value="Mpesa">M-Pesa</option>
-              <option value="PayPal">PayPal</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Amount Paid (USD)</label>
-            <input type="number" id="amount" placeholder="50" required />
-          </div>
-          <div class="form-group">
-            <label>Transaction Code / PayPal ID</label>
-            <input type="text" id="transactionId" placeholder="QGH82JDK9" required />
-          </div>
-        </div>
+        <!-- =================================================
+             PAYMENT FORM
+        ================================================== -->
+        <form id="paymentForm">
 
-        <!-- ─── PROOF UPLOAD ─── -->
-        <div class="proof-upload">
-          <label for="paymentProof">Upload Payment Proof (Optional)</label>
-          <input type="file" id="paymentProof" accept="image/*,application/pdf" />
-          <div class="file-hint">Accepted: JPG, PNG, PDF (max 5MB)</div>
-        </div>
+            <!-- NAME + EMAIL -->
+            <div class="form-grid">
 
-        <div class="form-group">
-          <label>Additional Notes (Optional)</label>
-          <textarea id="notes" rows="4" placeholder="Anything you would like the administrator to know..."></textarea>
-        </div>
+                <div class="form-group">
 
-        <!-- Selected plan preview -->
-        <div class="selected-plan-box">
-          <h3>Selected Plan</h3>
-          <div class="selected-plan-info">
-            <span id="selectedPlanName">No Plan Selected</span>
-            <strong id="selectedPlanPrice">$0</strong>
-          </div>
-        </div>
+                    <label for="fullName">
+                        Full Name
+                    </label>
 
-        <div class="payment-warning">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          <p>Submitting false payment information may result in your account being permanently suspended.</p>
-        </div>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Your full name"
+                        required
+                    >
 
-        <button type="submit" id="submitPayment" class="submit-payment-btn">
-          <i class="fa-solid fa-paper-plane"></i> Submit Payment
-        </button>
-        <div id="paymentMessage" class="payment-message"></div>
-      </form>
-    </div>
-  </section>
+                </div>
 
-  <!-- ─── SUCCESS MODAL ─── -->
-  <div id="successModal" class="success-modal">
-    <div class="success-card">
-      <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
-      <h2>Payment Submitted Successfully</h2>
-      <p>Thank you for submitting your payment. Our administrators will verify your transaction.</p>
-      <div class="status-box">
-        <span>Status</span>
-        <strong>PENDING VERIFICATION</strong>
-      </div>
-      <p class="small-text">Once approved, your account will automatically become Premium.</p>
-      <button id="successClose">Continue</button>
-    </div>
-  </div>
 
-  <!-- ─── LOADING SCREEN ─── -->
-  <div id="loadingScreen" class="loading-screen">
-    <div class="loader-box">
-      <div class="loader"></div>
-      <h3>Processing Payment...</h3>
-      <p>Please wait.</p>
-    </div>
-  </div>
+                <div class="form-group">
 
-  <!-- ─── FOOTER ─── -->
-  <footer class="payment-footer">
-    <div class="footer-logo"><h2>GTRADES-AXIS™</h2><p>Trade with Structure. Execute with Precision.</p></div>
-    <div class="footer-links">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="premium-academy.html">Academy</a>
-      <a href="resources.html">Resources</a>
-      <a href="contact.html">Contact</a>
-    </div>
-    <div class="footer-copy">© 2026 GTRADES-AXIS™ All Rights Reserved.</div>
-  </footer>
+                    <label for="email">
+                        Email Address
+                    </label>
 
-  <!-- ==========================================================
-       SCRIPTS
-  =========================================================== -->
-  <script type="importmap">
-    {
-      "imports": {
-        "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-        "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js",
-        "firebase/storage": "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js"
-      }
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Your email address"
+                        readonly
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- PLAN + PAYMENT METHOD -->
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="membershipPlan">
+                        Membership Plan
+                    </label>
+
+                    <select
+                        id="membershipPlan"
+                        name="membershipPlan"
+                        required
+                    >
+
+                        <option value="">
+                            Select a membership plan
+                        </option>
+
+                        <option
+                            value="monthly"
+                            data-price="20"
+                        >
+                            Monthly Premium ($20)
+                        </option>
+
+                        <option
+                            value="quarterly"
+                            data-price="50"
+                        >
+                            Quarterly Premium ($50)
+                        </option>
+
+                        <option
+                            value="lifetime"
+                            data-price="200"
+                        >
+                            Lifetime Premium ($200)
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="paymentMethod">
+                        Payment Method
+                    </label>
+
+                    <select
+                        id="paymentMethod"
+                        name="paymentMethod"
+                        required
+                    >
+
+                        <option value="">
+                            Select payment method
+                        </option>
+
+                        <option value="mpesa">
+                            M-Pesa
+                        </option>
+
+                        <option value="paypal">
+                            PayPal
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 AUTOMATIC PAYMENT CALCULATION
+            ================================================== -->
+
+            <div
+                id="amountSection"
+                class="amount-section hidden"
+            >
+
+                <div class="amount-header">
+
+                    <div>
+                        <span class="small-label">
+                            AMOUNT TO PAY
+                        </span>
+
+                        <h3 id="amountTitle">
+                            Payment Amount
+                        </h3>
+                    </div>
+
+                    <div
+                        id="paymentBadge"
+                        class="payment-badge"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+                <!-- USD BASE PRICE -->
+                <div class="base-price-row">
+
+                    <span>
+                        Membership Price
+                    </span>
+
+                    <strong id="baseUsdAmount">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <!-- M-PESA CONVERSION -->
+                <div
+                    id="mpesaConversion"
+                    class="conversion-box hidden"
+                >
+
+                    <div class="conversion-top">
+
+                        <div>
+
+                            <span class="conversion-label">
+                                M-PESA CONVERSION
+                            </span>
+
+                            <h4>
+                                USD → KES
+                            </h4>
+
+                        </div>
+
+                        <div class="rate-display">
+
+                            <span>
+                                Conversion Rate
+                            </span>
+
+                            <strong id="conversionRateText">
+                                1 USD = 129 KES
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="conversion-calculation">
+
+                        <div class="currency-block">
+
+                            <span>
+                                USD
+                            </span>
+
+                            <strong id="conversionUsd">
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="conversion-arrow">
+                            →
+                        </div>
+
+
+                        <div class="currency-block kes-block">
+
+                            <span>
+                                KES
+                            </span>
+
+                            <strong id="conversionKes">
+                                KES 0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAYPAL -->
+                <div
+                    id="paypalAmountBox"
+                    class="paypal-box hidden"
+                >
+
+                    <div class="paypal-info">
+
+                        <span class="paypal-label">
+                            PAYPAL PAYMENT
+                        </span>
+
+                        <span>
+                            Pay exactly the amount shown below.
+                        </span>
+
+                    </div>
+
+                    <strong id="paypalUsdAmount">
+                        $0.00 USD
+                    </strong>
+
+                </div>
+
+
+                <!-- FINAL READ ONLY AMOUNT -->
+                <div class="final-amount">
+
+                    <label for="amountToPay">
+                        Amount to Pay
+                    </label>
+
+                    <div class="amount-input-wrapper">
+
+                        <span id="currencySymbol">
+                            $
+                        </span>
+
+                        <input
+                            type="text"
+                            id="amountToPay"
+                            readonly
+                            value=""
+                            tabindex="-1"
+                        >
+
+                        <span id="currencyCode">
+                            USD
+                        </span>
+
+                    </div>
+
+                    <small>
+                        This amount is automatically calculated from your
+                        selected membership plan.
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TRANSACTION CODE
+            ================================================== -->
+
+            <div class="form-group">
+
+                <label for="transactionCode">
+                    Transaction Code / PayPal ID
+                </label>
+
+                <input
+                    type="text"
+                    id="transactionCode"
+                    name="transactionCode"
+                    placeholder="Enter your M-Pesa transaction code or PayPal ID"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 PAYMENT INSTRUCTIONS
+            ================================================== -->
+
+            <div
+                id="mpesaInstructions"
+                class="instructions hidden"
+            >
+
+                <div class="instruction-icon">
+                    M
+                </div>
+
+                <div>
+
+                    <h3>M-Pesa Payment</h3>
+
+                    <p>
+                        Send the exact <strong id="instructionKes">
+                            KES 0
+                        </strong>
+                        shown above using M-Pesa.
+                    </p>
+
+                    <div class="pay-number">
+                        M-Pesa Number:
+                        <strong>YOUR MPESA NUMBER</strong>
+                    </div>
+
+                    <p class="instruction-note">
+                        After payment, enter the M-Pesa transaction code
+                        below and submit the form.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="paypalInstructions"
+                class="instructions paypal-instructions hidden"
+            >
+
+                <div class="instruction-icon paypal-icon">
+                    P
+                </div>
+
+                <div>
+
+                    <h3>PayPal Payment</h3>
+
+                    <p>
+                        Send exactly
+                        <strong id="instructionUsd">
+                            $0.00 USD
+                        </strong>
+                        through PayPal.
+                    </p>
+
+                    <div class="pay-number">
+                        PayPal:
+                        <strong>YOUR PAYPAL EMAIL</strong>
+                    </div>
+
+                    <p class="instruction-note">
+                        After payment, enter your PayPal transaction ID
+                        below and submit the form.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PAYMENT PROOF
+            ================================================== -->
+
+            <div class="form-group">
+
+                <label for="paymentProof">
+                    Upload Payment Proof
+                    <span class="optional">
+                        OPTIONAL
+                    </span>
+                </label>
+
+                <input
+                    type="file"
+                    id="paymentProof"
+                    name="paymentProof"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                >
+
+                <small class="file-note">
+                    Accepted: JPG, PNG, PDF — Maximum 5MB
+                </small>
+
+            </div>
+
+
+            <!-- =================================================
+                 NOTES
+            ================================================== -->
+
+            <div class="form-group">
+
+                <label for="notes">
+                    Additional Notes
+                    <span class="optional">
+                        OPTIONAL
+                    </span>
+                </label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                    rows="5"
+                    placeholder="Anything you would like the administrator to know..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- =================================================
+                 HIDDEN AUTOMATIC VALUES
+            ================================================== -->
+
+            <input
+                type="hidden"
+                id="planPriceUsd"
+                name="planPriceUsd"
+            >
+
+            <input
+                type="hidden"
+                id="amountPaidUsd"
+                name="amountPaidUsd"
+            >
+
+            <input
+                type="hidden"
+                id="amountPaidKes"
+                name="amountPaidKes"
+            >
+
+            <input
+                type="hidden"
+                id="conversionRate"
+                name="conversionRate"
+            >
+
+
+            <!-- =================================================
+                 SUBMIT
+            ================================================== -->
+
+            <button
+                type="submit"
+                id="submitBtn"
+                class="submit-btn"
+            >
+
+                <span id="submitText">
+                    Submit Payment
+                </span>
+
+                <span
+                    id="submitLoader"
+                    class="loader hidden"
+                ></span>
+
+            </button>
+
+
+            <div
+                id="formMessage"
+                class="form-message hidden"
+            ></div>
+
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script type="module">
+
+/*
+==============================================================
+ GTRADES AXIS™
+ UPGRADE / PAYMENT SYSTEM
+==============================================================
+*/
+
+
+/* -----------------------------------------------------------
+   FIREBASE
+----------------------------------------------------------- */
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+/*
+ IMPORTANT:
+ Replace the configuration below with the SAME Firebase
+ configuration already used by the rest of GTRADES AXIS.
+*/
+
+const firebaseConfig = {
+
+    apiKey: "YOUR_API_KEY",
+
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+    projectId: "YOUR_PROJECT_ID",
+
+    storageBucket: "YOUR_PROJECT.firebasestorage.app",
+
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+
+    appId: "YOUR_APP_ID"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+
+/* -----------------------------------------------------------
+   M-PESA CONVERSION RATE
+-----------------------------------------------------------
+
+   CHANGE THIS ONE NUMBER whenever you want to update the
+   USD → KES rate.
+
+   Example:
+   1 USD = 129 KES
+----------------------------------------------------------- */
+
+const USD_TO_KES = 129;
+
+
+/* -----------------------------------------------------------
+   ELEMENTS
+----------------------------------------------------------- */
+
+const paymentForm =
+    document.getElementById("paymentForm");
+
+const fullNameInput =
+    document.getElementById("fullName");
+
+const emailInput =
+    document.getElementById("email");
+
+const membershipPlan =
+    document.getElementById("membershipPlan");
+
+const paymentMethod =
+    document.getElementById("paymentMethod");
+
+const amountSection =
+    document.getElementById("amountSection");
+
+const amountTitle =
+    document.getElementById("amountTitle");
+
+const paymentBadge =
+    document.getElementById("paymentBadge");
+
+const baseUsdAmount =
+    document.getElementById("baseUsdAmount");
+
+const amountToPay =
+    document.getElementById("amountToPay");
+
+const currencySymbol =
+    document.getElementById("currencySymbol");
+
+const currencyCode =
+    document.getElementById("currencyCode");
+
+const mpesaConversion =
+    document.getElementById("mpesaConversion");
+
+const paypalAmountBox =
+    document.getElementById("paypalAmountBox");
+
+const conversionUsd =
+    document.getElementById("conversionUsd");
+
+const conversionKes =
+    document.getElementById("conversionKes");
+
+const conversionRateText =
+    document.getElementById("conversionRateText");
+
+const instructionKes =
+    document.getElementById("instructionKes");
+
+const instructionUsd =
+    document.getElementById("instructionUsd");
+
+const mpesaInstructions =
+    document.getElementById("mpesaInstructions");
+
+const paypalInstructions =
+    document.getElementById("paypalInstructions");
+
+const planPriceUsd =
+    document.getElementById("planPriceUsd");
+
+const amountPaidUsd =
+    document.getElementById("amountPaidUsd");
+
+const amountPaidKes =
+    document.getElementById("amountPaidKes");
+
+const conversionRate =
+    document.getElementById("conversionRate");
+
+const submitBtn =
+    document.getElementById("submitBtn");
+
+const submitText =
+    document.getElementById("submitText");
+
+const submitLoader =
+    document.getElementById("submitLoader");
+
+const formMessage =
+    document.getElementById("formMessage");
+
+
+/* -----------------------------------------------------------
+   AUTH
+----------------------------------------------------------- */
+
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+        emailInput.value = "";
+
+        return;
     }
-  </script>
 
-  <script type="module" src="js/payment.js"></script>
+
+    emailInput.value =
+        user.email || "";
+
+});
+
+
+/* -----------------------------------------------------------
+   FORMAT CURRENCY
+----------------------------------------------------------- */
+
+function formatUSD(amount) {
+
+    return `$${Number(amount).toFixed(2)}`;
+
+}
+
+
+function formatKES(amount) {
+
+    return `KES ${Number(amount).toLocaleString(
+        "en-KE",
+        {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }
+    )}`;
+
+}
+
+
+/* -----------------------------------------------------------
+   GET SELECTED PLAN PRICE
+----------------------------------------------------------- */
+
+function getPlanPrice() {
+
+    const selectedOption =
+        membershipPlan.options[
+            membershipPlan.selectedIndex
+        ];
+
+
+    if (!selectedOption) {
+
+        return 0;
+
+    }
+
+
+    const price =
+        Number(
+            selectedOption.dataset.price
+        );
+
+
+    return Number.isFinite(price)
+        ? price
+        : 0;
+
+}
+
+
+/* -----------------------------------------------------------
+   UPDATE PAYMENT DISPLAY
+----------------------------------------------------------- */
+
+function updatePaymentAmount() {
+
+    const price =
+        getPlanPrice();
+
+    const method =
+        paymentMethod.value;
+
+
+    /* Nothing selected */
+    if (!price || !method) {
+
+        amountSection.classList.add("hidden");
+
+        mpesaConversion.classList.add("hidden");
+
+        paypalAmountBox.classList.add("hidden");
+
+        mpesaInstructions.classList.add("hidden");
+
+        paypalInstructions.classList.add("hidden");
+
+        amountToPay.value = "";
+
+        return;
+
+    }
+
+
+    /* -------------------------------------------------------
+       SHOW MAIN SECTION
+    ------------------------------------------------------- */
+
+    amountSection.classList.remove("hidden");
+
+
+    /* Base USD price */
+    baseUsdAmount.textContent =
+        formatUSD(price);
+
+
+    planPriceUsd.value =
+        price.toFixed(2);
+
+
+    amountPaidUsd.value =
+        price.toFixed(2);
+
+
+    conversionRate.value =
+        USD_TO_KES;
+
+
+    /* -------------------------------------------------------
+       M-PESA
+    ------------------------------------------------------- */
+
+    if (method === "mpesa") {
+
+        const kesAmount =
+            Math.round(
+                price * USD_TO_KES
+            );
+
+
+        paymentBadge.textContent =
+            "M-PESA";
+
+
+        paymentBadge.className =
+            "payment-badge mpesa-badge";
+
+
+        amountTitle.textContent =
+            "M-Pesa Amount";
+
+
+        currencySymbol.textContent =
+            "KSh";
+
+
+        currencyCode.textContent =
+            "KES";
+
+
+        /*
+         READ ONLY AMOUNT
+
+         User CANNOT type/change this.
+        */
+
+        amountToPay.value =
+            kesAmount.toLocaleString(
+                "en-KE"
+            );
+
+
+        amountPaidKes.value =
+            kesAmount;
+
+
+        /* Conversion tab */
+
+        mpesaConversion.classList.remove(
+            "hidden"
+        );
+
+
+        conversionUsd.textContent =
+            formatUSD(price);
+
+
+        conversionKes.textContent =
+            formatKES(kesAmount);
+
+
+        conversionRateText.textContent =
+            `1 USD = ${USD_TO_KES} KES`;
+
+
+        /* Instructions */
+
+        mpesaInstructions.classList.remove(
+            "hidden"
+        );
+
+
+        paypalInstructions.classList.add(
+            "hidden"
+        );
+
+
+        instructionKes.textContent =
+            formatKES(kesAmount);
+
+
+        paypalAmountBox.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    /* -------------------------------------------------------
+       PAYPAL
+    ------------------------------------------------------- */
+
+    if (method === "paypal") {
+
+        paymentBadge.textContent =
+            "PAYPAL";
+
+
+        paymentBadge.className =
+            "payment-badge paypal-badge";
+
+
+        amountTitle.textContent =
+            "PayPal Amount";
+
+
+        currencySymbol.textContent =
+            "$";
+
+
+        currencyCode.textContent =
+            "USD";
+
+
+        /*
+         PAYPAL REMAINS USD
+        */
+
+        amountToPay.value =
+            price.toFixed(2);
+
+
+        amountPaidKes.value =
+            "";
+
+
+        mpesaConversion.classList.add(
+            "hidden"
+        );
+
+
+        paypalAmountBox.classList.remove(
+            "hidden"
+        );
+
+
+        paypalAmountBox
+            .querySelector("#paypalUsdAmount")
+            .textContent =
+            `${formatUSD(price)} USD`;
+
+
+        paypalInstructions.classList.remove(
+            "hidden"
+        );
+
+
+        mpesaInstructions.classList.add(
+            "hidden"
+        );
+
+
+        instructionUsd.textContent =
+            `${formatUSD(price)} USD`;
+
+    }
+
+}
+
+
+/* -----------------------------------------------------------
+   PLAN CHANGE
+----------------------------------------------------------- */
+
+membershipPlan.addEventListener(
+    "change",
+    updatePaymentAmount
+);
+
+
+/* -----------------------------------------------------------
+   PAYMENT METHOD CHANGE
+----------------------------------------------------------- */
+
+paymentMethod.addEventListener(
+    "change",
+    updatePaymentAmount
+);
+
+
+/* -----------------------------------------------------------
+   SUBMIT PAYMENT
+----------------------------------------------------------- */
+
+paymentForm.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        const user =
+            auth.currentUser;
+
+
+        if (!user) {
+
+            showMessage(
+                "You must be logged in before submitting a payment.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const plan =
+            membershipPlan.value;
+
+        const method =
+            paymentMethod.value;
+
+        const price =
+            getPlanPrice();
+
+
+        if (!plan || !method || !price) {
+
+            showMessage(
+                "Please select a membership plan and payment method.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const fullName =
+            fullNameInput.value.trim();
+
+        const transactionCode =
+            document
+                .getElementById("transactionCode")
+                .value
+                .trim();
+
+        const notes =
+            document
+                .getElementById("notes")
+                .value
+                .trim();
+
+        const paymentProof =
+            document
+                .getElementById("paymentProof")
+                .files[0];
+
+
+        if (!fullName) {
+
+            showMessage(
+                "Please enter your full name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!transactionCode) {
+
+            showMessage(
+                "Please enter your transaction code or PayPal ID.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /* ---------------------------------------------------
+           AUTOMATIC AMOUNTS
+        --------------------------------------------------- */
+
+        const kesAmount =
+            method === "mpesa"
+                ? Math.round(
+                    price * USD_TO_KES
+                )
+                : null;
+
+
+        /*
+         NEVER trust the visible input.
+
+         The amount comes directly from the selected plan.
+        */
+
+        const paymentData = {
+
+            userId: user.uid,
+
+            fullName: fullName,
+
+            email: user.email,
+
+            plan: plan,
+
+            paymentMethod: method,
+
+            planPriceUSD: price,
+
+            amountPaidUSD: price,
+
+            amountPaidKES:
+                method === "mpesa"
+                    ? kesAmount
+                    : null,
+
+            conversionRate:
+                method === "mpesa"
+                    ? USD_TO_KES
+                    : null,
+
+            transactionCode:
+                transactionCode,
+
+            notes:
+                notes,
+
+            paymentProofName:
+                paymentProof
+                    ? paymentProof.name
+                    : null,
+
+            status:
+                "pending",
+
+            membership:
+                "pending",
+
+            createdAt:
+                serverTimestamp()
+
+        };
+
+
+        /* ---------------------------------------------------
+           BUTTON LOADING
+        --------------------------------------------------- */
+
+        submitBtn.disabled = true;
+
+        submitText.classList.add(
+            "hidden"
+        );
+
+        submitLoader.classList.remove(
+            "hidden"
+        );
+
+
+        try {
+
+            await addDoc(
+                collection(
+                    db,
+                    "payments"
+                ),
+                paymentData
+            );
+
+
+            showMessage(
+                "Payment submitted successfully. Your membership will be activated after the administrator verifies your payment.",
+                "success"
+            );
+
+
+            paymentForm.reset();
+
+
+            amountSection.classList.add(
+                "hidden"
+            );
+
+
+            mpesaConversion.classList.add(
+                "hidden"
+            );
+
+
+            paypalAmountBox.classList.add(
+                "hidden"
+            );
+
+
+            mpesaInstructions.classList.add(
+                "hidden"
+            );
+
+
+            paypalInstructions.classList.add(
+                "hidden"
+            );
+
+
+            emailInput.value =
+                user.email || "";
+
+
+        } catch (error) {
+
+            console.error(
+                "Payment submission error:",
+                error
+            );
+
+
+            showMessage(
+                "Payment could not be submitted. Please try again.",
+                "error"
+            );
+
+        }
+
+
+        submitBtn.disabled = false;
+
+        submitText.classList.remove(
+            "hidden"
+        );
+
+        submitLoader.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+
+/* -----------------------------------------------------------
+   MESSAGE
+----------------------------------------------------------- */
+
+function showMessage(
+    message,
+    type
+) {
+
+    formMessage.textContent =
+        message;
+
+
+    formMessage.className =
+        `form-message ${type}`;
+
+
+    formMessage.classList.remove(
+        "hidden"
+    );
+
+
+    formMessage.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+}
+
+</script>
+
 </body>
 </html>
