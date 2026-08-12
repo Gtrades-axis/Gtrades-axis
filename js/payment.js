@@ -2,16 +2,6 @@
 // GTRADES-AXIS™
 // PAYMENT SYSTEM
 // js/payment.js
-//
-// PAYMENT LOGIC
-// ------------------------------------------------------------
-// 1. One active payment record per user/plan.
-// 2. Pending payment = user cannot submit another.
-// 3. Rejected/failed payment = user can retry.
-// 4. Retry updates the SAME payment document.
-// 5. attemptCount records how many attempts were made.
-// 6. Approved Monthly -> Lifetime is treated as an upgrade.
-// 7. Approved Lifetime -> no further payment.
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -25,14 +15,11 @@ import {
     getDoc,
     collection,
     addDoc,
-    updateDoc,
-    getDocs,
+    serverTimestamp,
     query,
     where,
-    serverTimestamp,
-    arrayUnion
+    getDocs
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
 
 // ============================================================
 // CONFIGURATION
@@ -47,7 +34,6 @@ const MPESA_NAME = "David Thuku";
 const RATE_API =
     "https://api.frankfurter.dev/v2/rate/USD/KES";
 
-
 // ============================================================
 // DOM
 // ============================================================
@@ -55,38 +41,26 @@ const RATE_API =
 const paymentForm =
     document.getElementById("paymentForm");
 
-const userIdInput =
+const userId =
     document.getElementById("userId");
 
-const exchangeRateInput =
-    document.getElementById("exchangeRate");
-
-const userNameInput =
+const userName =
     document.getElementById("userName");
 
-const userEmailInput =
+const userEmail =
     document.getElementById("userEmail");
 
 const nameStatus =
     document.getElementById("nameStatus");
+
+const exchangeRate =
+    document.getElementById("exchangeRate");
 
 const membershipPlan =
     document.getElementById("membershipPlan");
 
 const paymentMethod =
     document.getElementById("paymentMethod");
-
-const amountDisplay =
-    document.getElementById("amountDisplay");
-
-const transactionId =
-    document.getElementById("transactionId");
-
-const paymentProof =
-    document.getElementById("paymentProof");
-
-const notes =
-    document.getElementById("notes");
 
 const currencyBox =
     document.getElementById("currencyBox");
@@ -109,6 +83,18 @@ const mpesaDetails =
 const mpesaAmount =
     document.getElementById("mpesaAmount");
 
+const amountDisplay =
+    document.getElementById("amountDisplay");
+
+const transactionId =
+    document.getElementById("transactionId");
+
+const paymentProof =
+    document.getElementById("paymentProof");
+
+const notes =
+    document.getElementById("notes");
+
 const selectedPlanName =
     document.getElementById("selectedPlanName");
 
@@ -130,22 +116,17 @@ const successClose =
 const loadingScreen =
     document.getElementById("loadingScreen");
 
-
 // ============================================================
 // STATE
 // ============================================================
 
 let currentUser = null;
-
 let currentExchangeRate = null;
-
-let currentUserProfile = null;
-
+let currentUserName = "";
 let submitting = false;
 
-
 // ============================================================
-// HELPER
+// HELPERS
 // ============================================================
 
 function showMessage(message, type = "error") {
@@ -155,9 +136,8 @@ function showMessage(message, type = "error") {
     paymentMessage.textContent = message;
 
     paymentMessage.className =
-        `payment-message ${type}`;
+        "payment-message " + type;
 }
-
 
 function clearMessage() {
 
@@ -169,17 +149,16 @@ function clearMessage() {
         "payment-message";
 }
 
-
 function showLoading(show = true) {
 
     if (!loadingScreen) return;
 
-    loadingScreen.classList.toggle(
-        "active",
-        show
-    );
+    if (show) {
+        loadingScreen.classList.add("active");
+    } else {
+        loadingScreen.classList.remove("active");
+    }
 }
-
 
 function getPrice(plan) {
 
@@ -194,407 +173,24 @@ function getPrice(plan) {
     return 0;
 }
 
-
 function formatKES(value) {
 
     return "KSh " +
         Number(value).toLocaleString(
             "en-KE",
             {
+                minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }
         );
 }
 
+function normalizeEmail(email) {
 
-function normalizeStatus(status) {
-
-    return String(status || "")
+    return String(email || "")
         .trim()
         .toLowerCase();
 }
-
-
-// ============================================================
-// GET USER PAYMENT RECORDS
-// ============================================================
-//
-// We deliberately use userId rather than email.
-//
-// This means changing email will NOT allow another payment.
-// ============================================================
-
-async function getUserPayments() {
-
-    if (!currentUser) {
-        return [];
-    }
-
-    const paymentsRef =
-        collection(db, "payments");
-
-    const q =
-        query(
-            paymentsRef,
-            where(
-                "userId",
-                "==",
-                currentUser.uid
-            )
-        );
-
-    const snapshot =
-        await getDocs(q);
-
-    const payments = [];
-
-    snapshot.forEach(paymentDoc => {
-
-        payments.push({
-            id: paymentDoc.id,
-            ...paymentDoc.data()
-        });
-
-    });
-
-    return payments;
-}
-
-
-// ============================================================
-// FIND PAYMENT FOR PLAN
-// ============================================================
-
-function findPaymentForPlan(
-    payments,
-    plan
-) {
-
-    return payments.find(payment => {
-
-        return payment.plan === plan;
-
-    }) || null;
-}
-
-
-// ============================================================
-// FIND ANY PENDING PAYMENT
-// ============================================================
-
-function findPendingPayment(
-    payments
-) {
-
-    return payments.find(payment => {
-
-        const status =
-            normalizeStatus(
-                payment.status
-            );
-
-        return (
-            status === "pending" ||
-            status === "processing"
-        );
-
-    }) || null;
-}
-
-
-// ============================================================
-// CHECK MEMBERSHIP
-// ============================================================
-
-async function getMembershipStatus() {
-
-    if (!currentUser) {
-
-        return {
-            membership: "member",
-            role: "user"
-        };
-    }
-
-    try {
-
-        const userRef =
-            doc(
-                db,
-                "users",
-                currentUser.uid
-            );
-
-        const snap =
-            await getDoc(userRef);
-
-        if (!snap.exists()) {
-
-            return {
-                membership: "member",
-                role: "user"
-            };
-        }
-
-        const data =
-            snap.data();
-
-        currentUserProfile = data;
-
-        return {
-
-            membership:
-                String(
-                    data.membership ||
-                    "member"
-                ).toLowerCase(),
-
-            role:
-                String(
-                    data.role ||
-                    "user"
-                ).toLowerCase(),
-
-            ...data
-        };
-
-    } catch (error) {
-
-        console.error(
-            "Could not load membership:",
-            error
-        );
-
-        return {
-            membership: "member",
-            role: "user"
-        };
-    }
-}
-
-
-// ============================================================
-// DETERMINE IF USER IS ALLOWED TO PAY
-// ============================================================
-
-async function checkPaymentEligibility(
-    selectedPlan
-) {
-
-    if (!currentUser) {
-
-        return {
-            allowed: false,
-            message:
-                "Please log in before submitting a payment."
-        };
-    }
-
-
-    // --------------------------------------------------------
-    // GET MEMBERSHIP
-    // --------------------------------------------------------
-
-    const membership =
-        await getMembershipStatus();
-
-
-    const currentMembership =
-        membership.membership;
-
-
-    // --------------------------------------------------------
-    // LIFETIME MEMBER
-    // --------------------------------------------------------
-
-    if (
-        currentMembership ===
-        "lifetime"
-    ) {
-
-        return {
-
-            allowed: false,
-
-            message:
-                "Your account already has Lifetime Premium. No additional payment is required."
-        };
-    }
-
-
-    // --------------------------------------------------------
-    // PREMIUM / MONTHLY MEMBER
-    // --------------------------------------------------------
-
-    if (
-        currentMembership ===
-            "premium" ||
-        currentMembership ===
-            "monthly"
-    ) {
-
-        // Monthly user choosing Monthly again
-        if (selectedPlan === "Monthly") {
-
-            return {
-
-                allowed: false,
-
-                message:
-                    "Your account already has Premium membership. You cannot submit another Monthly payment."
-            };
-        }
-
-
-        // Monthly -> Lifetime
-        if (
-            selectedPlan ===
-            "Lifetime"
-        ) {
-
-            return {
-
-                allowed: true,
-
-                upgrade: true,
-
-                message:
-                    "This payment will be treated as a Lifetime Premium upgrade."
-            };
-        }
-    }
-
-
-    // --------------------------------------------------------
-    // GET PAYMENT HISTORY
-    // --------------------------------------------------------
-
-    const payments =
-        await getUserPayments();
-
-
-    // --------------------------------------------------------
-    // IMPORTANT:
-    // If ANY payment is currently pending,
-    // don't allow another one.
-    // --------------------------------------------------------
-
-    const pendingPayment =
-        findPendingPayment(
-            payments
-        );
-
-
-    if (pendingPayment) {
-
-        return {
-
-            allowed: false,
-
-            pending: true,
-
-            message:
-                "You already have a payment awaiting verification. Please wait for the administrator to approve or reject it before submitting another payment."
-        };
-    }
-
-
-    // --------------------------------------------------------
-    // PAYMENT FOR SELECTED PLAN
-    // --------------------------------------------------------
-
-    const existingPayment =
-        findPaymentForPlan(
-            payments,
-            selectedPlan
-        );
-
-
-    if (!existingPayment) {
-
-        return {
-            allowed: true,
-            retry: false,
-            upgrade: false
-        };
-    }
-
-
-    const status =
-        normalizeStatus(
-            existingPayment.status
-        );
-
-
-    // --------------------------------------------------------
-    // APPROVED
-    // --------------------------------------------------------
-
-    if (
-        status === "approved" ||
-        status === "paid" ||
-        status === "completed"
-    ) {
-
-        return {
-
-            allowed: false,
-
-            message:
-                `Your ${selectedPlan === "Monthly"
-                    ? "Monthly Premium"
-                    : "Lifetime Premium"
-                } payment has already been approved. You cannot submit another payment for the same plan.`
-        };
-    }
-
-
-    // --------------------------------------------------------
-    // REJECTED / FAILED
-    // --------------------------------------------------------
-    //
-    // THIS IS THE IMPORTANT PART.
-    //
-    // The user is allowed to try again.
-    // We update the SAME document.
-    // --------------------------------------------------------
-
-    if (
-        status === "rejected" ||
-        status === "failed" ||
-        status === "declined"
-    ) {
-
-        return {
-
-            allowed: true,
-
-            retry: true,
-
-            existingPayment:
-                existingPayment,
-
-            message:
-                "Your previous payment was not approved. You may submit a new payment attempt."
-        };
-    }
-
-
-    // --------------------------------------------------------
-    // UNKNOWN STATUS
-    // --------------------------------------------------------
-
-    return {
-
-        allowed: true,
-
-        retry: true,
-
-        existingPayment:
-            existingPayment
-    };
-}
-
 
 // ============================================================
 // AUTHENTICATION
@@ -602,28 +198,30 @@ async function checkPaymentEligibility(
 
 onAuthStateChanged(
     auth,
-    async user => {
+    async (user) => {
 
         if (!user) {
 
             currentUser = null;
 
-            if (userIdInput) {
-                userIdInput.value = "";
+            if (userId) {
+                userId.value = "";
             }
 
-            if (userNameInput) {
-                userNameInput.value = "";
+            if (userName) {
+                userName.value = "";
             }
 
-            if (userEmailInput) {
-                userEmailInput.value = "";
+            if (userEmail) {
+                userEmail.value = "";
             }
 
             if (nameStatus) {
-
                 nameStatus.textContent =
                     "Please log in to continue.";
+
+                nameStatus.style.color =
+                    "#6a7490";
             }
 
             if (submitPayment) {
@@ -638,20 +236,15 @@ onAuthStateChanged(
             return;
         }
 
-
         currentUser = user;
-
 
         // ----------------------------------------------------
         // UID
         // ----------------------------------------------------
 
-        if (userIdInput) {
-
-            userIdInput.value =
-                user.uid;
+        if (userId) {
+            userId.value = user.uid;
         }
-
 
         // ----------------------------------------------------
         // EMAIL
@@ -660,20 +253,15 @@ onAuthStateChanged(
         let email =
             user.email || "";
 
-
-        if (userEmailInput) {
-
-            userEmailInput.value =
-                email;
+        if (userEmail) {
+            userEmail.value = email;
         }
 
-
         // ----------------------------------------------------
-        // NAME
+        // LOAD FIRESTORE PROFILE
         // ----------------------------------------------------
 
         let fullName = "";
-
 
         try {
 
@@ -685,19 +273,12 @@ onAuthStateChanged(
                 );
 
             const userSnap =
-                await getDoc(
-                    userRef
-                );
-
+                await getDoc(userRef);
 
             if (userSnap.exists()) {
 
                 const data =
                     userSnap.data();
-
-                currentUserProfile =
-                    data;
-
 
                 fullName =
                     data.name ||
@@ -705,18 +286,13 @@ onAuthStateChanged(
                     data.displayName ||
                     "";
 
-
-                if (
-                    !email &&
-                    data.email
-                ) {
+                if (!email && data.email) {
 
                     email =
                         data.email;
 
-                    if (userEmailInput) {
-
-                        userEmailInput.value =
+                    if (userEmail) {
+                        userEmail.value =
                             email;
                     }
                 }
@@ -730,14 +306,19 @@ onAuthStateChanged(
             );
         }
 
+        // ----------------------------------------------------
+        // AUTH DISPLAY NAME FALLBACK
+        // ----------------------------------------------------
 
         if (!fullName) {
 
             fullName =
-                user.displayName ||
-                "";
+                user.displayName || "";
         }
 
+        // ----------------------------------------------------
+        // EMAIL NAME FALLBACK
+        // ----------------------------------------------------
 
         if (!fullName) {
 
@@ -747,13 +328,18 @@ onAuthStateChanged(
                     : "GTRADES-AXIS Member";
         }
 
+        currentUserName =
+            fullName;
 
-        if (userNameInput) {
-
-            userNameInput.value =
+        if (userName) {
+            userName.value =
                 fullName;
         }
 
+        if (userEmail) {
+            userEmail.value =
+                email;
+        }
 
         if (nameStatus) {
 
@@ -764,25 +350,20 @@ onAuthStateChanged(
                 "#00c897";
         }
 
-
         if (submitPayment) {
-
-            submitPayment.disabled =
-                false;
+            submitPayment.disabled = false;
         }
 
-
         console.log(
-            "GTRADES-AXIS payment user:",
+            "Authenticated payment user:",
             {
                 uid: user.uid,
-                email,
+                email: email,
                 name: fullName
             }
         );
     }
 );
-
 
 // ============================================================
 // EXCHANGE RATE
@@ -791,11 +372,14 @@ onAuthStateChanged(
 async function loadExchangeRate() {
 
     if (rateDisplay) {
-
         rateDisplay.textContent =
             "Loading...";
     }
 
+    if (rateTime) {
+        rateTime.textContent =
+            "Loading current USD/KES exchange rate...";
+    }
 
     try {
 
@@ -803,10 +387,10 @@ async function loadExchangeRate() {
             await fetch(
                 RATE_API,
                 {
+                    method: "GET",
                     cache: "no-store"
                 }
             );
-
 
         if (!response.ok) {
 
@@ -815,10 +399,8 @@ async function loadExchangeRate() {
             );
         }
 
-
         const data =
             await response.json();
-
 
         if (
             !data ||
@@ -830,10 +412,36 @@ async function loadExchangeRate() {
             );
         }
 
-
         currentExchangeRate =
             Number(data.rate);
 
+        if (exchangeRate) {
+            exchangeRate.value =
+                currentExchangeRate;
+        }
+
+        if (rateDisplay) {
+
+            rateDisplay.textContent =
+                "1 USD = " +
+                currentExchangeRate.toFixed(2) +
+                " KES";
+        }
+
+        if (rateTime) {
+
+            rateTime.textContent =
+                "Current USD/KES exchange rate. The rate used will be recorded with your payment.";
+        }
+
+        updatePaymentDisplay();
+
+        console.log(
+            "USD/KES exchange rate:",
+            currentExchangeRate
+        );
+
+        return currentExchangeRate;
 
     } catch (error) {
 
@@ -842,37 +450,30 @@ async function loadExchangeRate() {
             error
         );
 
-
-        // Fallback
         currentExchangeRate =
-            129;
+            null;
+
+        if (exchangeRate) {
+            exchangeRate.value = "";
+        }
+
+        if (rateDisplay) {
+
+            rateDisplay.textContent =
+                "Unavailable";
+        }
+
+        if (rateTime) {
+
+            rateTime.textContent =
+                "Live exchange rate is temporarily unavailable. Please try again shortly.";
+        }
+
+        updatePaymentDisplay();
+
+        return null;
     }
-
-
-    if (exchangeRateInput) {
-
-        exchangeRateInput.value =
-            currentExchangeRate;
-    }
-
-
-    if (rateDisplay) {
-
-        rateDisplay.textContent =
-            `1 USD = ${currentExchangeRate.toFixed(2)} KES`;
-    }
-
-
-    if (rateTime) {
-
-        rateTime.textContent =
-            `USD/KES rate recorded at payment submission: ${currentExchangeRate.toFixed(2)}.`;
-    }
-
-
-    updatePaymentDisplay();
 }
-
 
 // ============================================================
 // PAYMENT DISPLAY
@@ -889,94 +490,126 @@ function updatePaymentDisplay() {
     const price =
         getPrice(plan);
 
+    // --------------------------------------------------------
+    // NO PLAN
+    // --------------------------------------------------------
 
     if (!price) {
 
-        currencyBox?.classList.remove(
-            "active"
-        );
+        if (currencyBox) {
+            currencyBox.classList.remove("active");
+        }
 
         if (selectedPlanName) {
-
             selectedPlanName.textContent =
                 "No Plan Selected";
         }
 
         if (selectedPlanPrice) {
-
             selectedPlanPrice.textContent =
                 "$0";
         }
 
         if (usdAmount) {
-
             usdAmount.textContent =
                 "$0";
         }
 
-        if (amountDisplay) {
+        if (kesAmount) {
+            kesAmount.textContent =
+                "KSh 0";
+        }
 
+        if (mpesaAmount) {
+            mpesaAmount.textContent =
+                "KSh 0";
+        }
+
+        if (amountDisplay) {
             amountDisplay.value = "";
         }
 
-        mpesaDetails?.classList.remove(
-            "active"
-        );
+        if (mpesaDetails) {
+            mpesaDetails.classList.remove("active");
+        }
 
         return;
     }
 
+    // --------------------------------------------------------
+    // SHOW CURRENCY BOX
+    // --------------------------------------------------------
 
-    currencyBox?.classList.add(
-        "active"
-    );
-
-
-    if (selectedPlanName) {
-
-        selectedPlanName.textContent =
-            plan === "Monthly"
-                ? "Premium Monthly"
-                : "Lifetime Premium";
+    if (currencyBox) {
+        currencyBox.classList.add("active");
     }
 
+    // --------------------------------------------------------
+    // PLAN NAME
+    // --------------------------------------------------------
+
+    if (plan === "Monthly") {
+
+        selectedPlanName.textContent =
+            "Premium Monthly";
+
+    } else if (plan === "Lifetime") {
+
+        selectedPlanName.textContent =
+            "Lifetime Premium";
+    }
 
     if (selectedPlanPrice) {
 
         selectedPlanPrice.textContent =
-            `$${price}`;
+            "$" + price;
     }
-
 
     if (usdAmount) {
 
         usdAmount.textContent =
-            `$${price}`;
+            "$" + price;
     }
 
-
-    const rate =
-        currentExchangeRate || 129;
-
-
-    const kes =
-        Math.round(
-            price * rate
-        );
-
-
-    if (kesAmount) {
-
-        kesAmount.textContent =
-            formatKES(kes);
-    }
-
+    // --------------------------------------------------------
+    // M-PESA
+    // --------------------------------------------------------
 
     if (method === "Mpesa") {
 
-        if (amountDisplay) {
+        if (mpesaDetails) {
+            mpesaDetails.classList.add("active");
+        }
 
-            amountDisplay.value =
+        if (!currentExchangeRate) {
+
+            if (amountDisplay) {
+                amountDisplay.value =
+                    "Exchange rate unavailable";
+            }
+
+            if (kesAmount) {
+                kesAmount.textContent =
+                    "Unavailable";
+            }
+
+            if (mpesaAmount) {
+                mpesaAmount.textContent =
+                    "Unavailable";
+            }
+
+            return;
+        }
+
+        const kes =
+            Math.round(
+                price *
+                currentExchangeRate
+            );
+
+        if (kesAmount) {
+
+            kesAmount.textContent =
                 formatKES(kes);
         }
 
@@ -986,37 +619,279 @@ function updatePaymentDisplay() {
                 formatKES(kes);
         }
 
-        mpesaDetails?.classList.add(
-            "active"
-        );
-
-    } else if (
-        method === "PayPal"
-    ) {
+        // ----------------------------------------------------
+        // AMOUNT PAID IS AUTOMATIC + LOCKED
+        // ----------------------------------------------------
 
         if (amountDisplay) {
 
             amountDisplay.value =
-                `$${price}`;
+                formatKES(kes);
         }
 
-        mpesaDetails?.classList.remove(
-            "active"
-        );
+        return;
+    }
 
-    } else {
+    // --------------------------------------------------------
+    // PAYPAL
+    // --------------------------------------------------------
+
+    if (method === "PayPal") {
+
+        if (mpesaDetails) {
+            mpesaDetails.classList.remove("active");
+        }
+
+        // ----------------------------------------------------
+        // PAYPAL ALWAYS REMAINS USD
+        // ----------------------------------------------------
 
         if (amountDisplay) {
 
-            amountDisplay.value = "";
+            amountDisplay.value =
+                "$" + price;
         }
 
-        mpesaDetails?.classList.remove(
-            "active"
-        );
+        // Show KES equivalent only as information
+        if (currentExchangeRate) {
+
+            const kes =
+                Math.round(
+                    price *
+                    currentExchangeRate
+                );
+
+            if (kesAmount) {
+
+                kesAmount.textContent =
+                    formatKES(kes);
+            }
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // METHOD NOT SELECTED
+    // --------------------------------------------------------
+
+    if (amountDisplay) {
+        amountDisplay.value = "";
+    }
+
+    if (mpesaDetails) {
+        mpesaDetails.classList.remove("active");
     }
 }
 
+// ============================================================
+// CHECK EXISTING PAYMENTS
+// ============================================================
+
+async function checkExistingPayments(
+    uid,
+    selectedPlan
+) {
+
+    try {
+
+        const paymentsRef =
+            collection(
+                db,
+                "payments"
+            );
+
+        const paymentQuery =
+            query(
+                paymentsRef,
+                where(
+                    "userId",
+                    "==",
+                    uid
+                )
+            );
+
+        const snapshot =
+            await getDocs(
+                paymentQuery
+            );
+
+        let activeMonthly = false;
+        let activeLifetime = false;
+
+        let pendingMonthly = false;
+        let pendingLifetime = false;
+
+        let rejectedFound = false;
+
+        snapshot.forEach(
+            (paymentDoc) => {
+
+                const data =
+                    paymentDoc.data();
+
+                const status =
+                    String(
+                        data.status || ""
+                    ).toLowerCase();
+
+                const plan =
+                    data.plan;
+
+                // ------------------------------------------------
+                // REJECTED = CAN TRY AGAIN
+                // ------------------------------------------------
+
+                if (
+                    status === "rejected" ||
+                    status === "declined" ||
+                    status === "failed"
+                ) {
+
+                    rejectedFound = true;
+
+                    return;
+                }
+
+                // ------------------------------------------------
+                // APPROVED
+                // ------------------------------------------------
+
+                if (
+                    status === "approved" ||
+                    status === "paid" ||
+                    status === "completed"
+                ) {
+
+                    if (
+                        plan === "Lifetime"
+                    ) {
+                        activeLifetime = true;
+                    }
+
+                    if (
+                        plan === "Monthly"
+                    ) {
+                        activeMonthly = true;
+                    }
+                }
+
+                // ------------------------------------------------
+                // PENDING
+                // ------------------------------------------------
+
+                if (
+                    status === "pending"
+                ) {
+
+                    if (
+                        plan === "Lifetime"
+                    ) {
+                        pendingLifetime = true;
+                    }
+
+                    if (
+                        plan === "Monthly"
+                    ) {
+                        pendingMonthly = true;
+                    }
+                }
+            }
+        );
+
+        // --------------------------------------------------------
+        // LIFETIME ALREADY ACTIVE
+        // --------------------------------------------------------
+
+        if (activeLifetime) {
+
+            return {
+                allowed: false,
+                message:
+                    "You already have Lifetime Premium. No additional payment is required."
+            };
+        }
+
+        // --------------------------------------------------------
+        // LIFETIME PENDING
+        // --------------------------------------------------------
+
+        if (
+            selectedPlan === "Lifetime" &&
+            pendingLifetime
+        ) {
+
+            return {
+                allowed: false,
+                message:
+                    "You already have a Lifetime Premium payment awaiting verification. Please wait for the administrator to review it."
+            };
+        }
+
+        // --------------------------------------------------------
+        // MONTHLY ALREADY ACTIVE
+        // --------------------------------------------------------
+
+        if (
+            selectedPlan === "Monthly" &&
+            activeMonthly
+        ) {
+
+            return {
+                allowed: false,
+                message:
+                    "Your Premium Monthly membership is already active."
+            };
+        }
+
+        // --------------------------------------------------------
+        // MONTHLY PENDING
+        // --------------------------------------------------------
+
+        if (
+            selectedPlan === "Monthly" &&
+            pendingMonthly
+        ) {
+
+            return {
+                allowed: false,
+                message:
+                    "You already have a Premium Monthly payment awaiting verification. Please wait for the administrator to review it."
+            };
+        }
+
+        // --------------------------------------------------------
+        // LIFETIME UPGRADE
+        //
+        // If Monthly is active, Lifetime is allowed.
+        // --------------------------------------------------------
+
+        if (
+            selectedPlan === "Lifetime" &&
+            activeMonthly
+        ) {
+
+            return {
+                allowed: true,
+                upgrade: true
+            };
+        }
+
+        return {
+            allowed: true,
+            upgrade: false
+        };
+
+    } catch (error) {
+
+        console.error(
+            "Error checking existing payments:",
+            error
+        );
+
+        throw error;
+    }
+}
 
 // ============================================================
 // PLAN BUTTONS
@@ -1024,35 +899,44 @@ function updatePaymentDisplay() {
 
 document
     .querySelectorAll(".select-plan")
-    .forEach(button => {
+    .forEach(
+        (button) => {
 
-        button.addEventListener(
-            "click",
-            () => {
+            button.addEventListener(
+                "click",
+                async () => {
 
-                const plan =
-                    button.dataset.plan;
+                    const plan =
+                        button.dataset.plan;
 
-                if (membershipPlan) {
+                    if (membershipPlan) {
 
-                    membershipPlan.value =
-                        plan;
+                        membershipPlan.value =
+                            plan;
+                    }
+
+                    clearMessage();
+
+                    updatePaymentDisplay();
+
+                    // Make sure exchange rate is loaded
+                    if (!currentExchangeRate) {
+
+                        await loadExchangeRate();
+                    }
+
+                    document
+                        .querySelector(
+                            ".payment-form-section"
+                        )
+                        ?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
                 }
-
-                updatePaymentDisplay();
-
-                document
-                    .querySelector(
-                        ".payment-form-section"
-                    )
-                    ?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-            }
-        );
-    });
-
+            );
+        }
+    );
 
 // ============================================================
 // PLAN CHANGE
@@ -1060,14 +944,18 @@ document
 
 membershipPlan?.addEventListener(
     "change",
-    () => {
+    async () => {
 
         clearMessage();
 
         updatePaymentDisplay();
+
+        if (!currentExchangeRate) {
+
+            await loadExchangeRate();
+        }
     }
 );
-
 
 // ============================================================
 // PAYMENT METHOD CHANGE
@@ -1083,60 +971,60 @@ paymentMethod?.addEventListener(
     }
 );
 
-
 // ============================================================
 // COPY BUTTONS
 // ============================================================
 
 document
     .querySelectorAll(".copy-btn")
-    .forEach(button => {
+    .forEach(
+        (button) => {
 
-        button.addEventListener(
-            "click",
-            async () => {
+            button.addEventListener(
+                "click",
+                async () => {
 
-                const value =
-                    button.dataset.copy;
+                    const value =
+                        button.dataset.copy;
 
-                if (!value) return;
+                    if (!value) return;
 
-                try {
+                    try {
 
-                    await navigator.clipboard.writeText(
-                        value
-                    );
+                        await navigator.clipboard.writeText(
+                            value
+                        );
 
-                    const old =
-                        button.innerHTML;
+                        const original =
+                            button.innerHTML;
 
-                    button.innerHTML =
-                        '<i class="fa-solid fa-check"></i>';
+                        button.innerHTML =
+                            '<i class="fa-solid fa-check"></i>';
 
-                    setTimeout(
-                        () => {
+                        setTimeout(
+                            () => {
 
-                            button.innerHTML =
-                                old;
+                                button.innerHTML =
+                                    original;
 
-                        },
-                        1500
-                    );
+                            },
+                            1500
+                        );
 
-                } catch (error) {
+                    } catch (error) {
 
-                    console.error(
-                        "Copy failed:",
-                        error
-                    );
+                        console.error(
+                            "Copy failed:",
+                            error
+                        );
+                    }
                 }
-            }
-        );
-    });
-
+            );
+        }
+    );
 
 // ============================================================
-// PROOF VALIDATION
+// PAYMENT PROOF VALIDATION
 // ============================================================
 
 paymentProof?.addEventListener(
@@ -1146,19 +1034,18 @@ paymentProof?.addEventListener(
         const file =
             paymentProof.files?.[0];
 
-        if (!file) return;
-
+        if (!file) {
+            return;
+        }
 
         const maxSize =
             5 * 1024 * 1024;
-
 
         const allowedTypes = [
             "image/jpeg",
             "image/png",
             "application/pdf"
         ];
-
 
         if (file.size > maxSize) {
 
@@ -1171,7 +1058,6 @@ paymentProof?.addEventListener(
 
             return;
         }
-
 
         if (
             !allowedTypes.includes(
@@ -1189,11 +1075,9 @@ paymentProof?.addEventListener(
             return;
         }
 
-
         clearMessage();
     }
 );
-
 
 // ============================================================
 // SUBMIT PAYMENT
@@ -1201,27 +1085,15 @@ paymentProof?.addEventListener(
 
 paymentForm?.addEventListener(
     "submit",
-    async event => {
+    async (event) => {
 
         event.preventDefault();
 
-
-        // ----------------------------------------------------
-        // DOUBLE SUBMISSION PROTECTION
-        // ----------------------------------------------------
-
         if (submitting) {
-
-            console.warn(
-                "Payment submission already in progress."
-            );
-
             return;
         }
 
-
         clearMessage();
-
 
         // ----------------------------------------------------
         // AUTH
@@ -1237,29 +1109,24 @@ paymentForm?.addEventListener(
             return;
         }
 
-
         // ----------------------------------------------------
         // VALUES
         // ----------------------------------------------------
 
         const name =
-            userNameInput?.value.trim() || "";
+            userName?.value.trim();
 
         const email =
-            userEmailInput?.value.trim() || "";
+            userEmail?.value.trim();
 
         const plan =
-            membershipPlan?.value || "";
+            membershipPlan?.value;
 
         const method =
-            paymentMethod?.value || "";
+            paymentMethod?.value;
 
         const transaction =
-            transactionId?.value.trim() || "";
-
-        const additionalNotes =
-            notes?.value.trim() || "";
-
+            transactionId?.value.trim();
 
         // ----------------------------------------------------
         // VALIDATION
@@ -1268,24 +1135,22 @@ paymentForm?.addEventListener(
         if (!name) {
 
             showMessage(
-                "Your account name has not loaded yet.",
+                "Your account name has not loaded yet. Please wait and try again.",
                 "error"
             );
 
             return;
         }
-
 
         if (!email) {
 
             showMessage(
-                "Your email has not loaded yet.",
+                "Your account email has not loaded. Please refresh the page.",
                 "error"
             );
 
             return;
         }
-
 
         if (!plan) {
 
@@ -1297,7 +1162,6 @@ paymentForm?.addEventListener(
             return;
         }
 
-
         if (!method) {
 
             showMessage(
@@ -1307,7 +1171,6 @@ paymentForm?.addEventListener(
 
             return;
         }
-
 
         if (!transaction) {
 
@@ -1319,10 +1182,8 @@ paymentForm?.addEventListener(
             return;
         }
 
-
         const price =
             getPrice(plan);
-
 
         if (!price) {
 
@@ -1334,69 +1195,76 @@ paymentForm?.addEventListener(
             return;
         }
 
+        // ----------------------------------------------------
+        // EXCHANGE RATE FOR M-PESA
+        // ----------------------------------------------------
+
+        if (
+            method === "Mpesa" &&
+            !currentExchangeRate
+        ) {
+
+            await loadExchangeRate();
+
+            if (!currentExchangeRate) {
+
+                showMessage(
+                    "The live USD/KES exchange rate is currently unavailable. Please try again shortly.",
+                    "error"
+                );
+
+                return;
+            }
+        }
 
         // ----------------------------------------------------
-        // CHECK ELIGIBILITY
+        // CHECK DUPLICATE / EXISTING PAYMENT
         // ----------------------------------------------------
+
+        submitting = true;
+
+        submitPayment.disabled = true;
+
+        submitPayment.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
 
         showLoading(true);
 
-
         try {
 
-            const eligibility =
-                await checkPaymentEligibility(
+            const existing =
+                await checkExistingPayments(
+                    currentUser.uid,
                     plan
                 );
 
-
-            if (!eligibility.allowed) {
+            if (!existing.allowed) {
 
                 showLoading(false);
 
+                submitting = false;
+
+                submitPayment.disabled =
+                    false;
+
+                submitPayment.innerHTML =
+                    '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
+
                 showMessage(
-                    eligibility.message,
+                    existing.message,
                     "error"
                 );
 
                 return;
             }
 
-
             // ------------------------------------------------
-            // GET EXISTING PAYMENT
-            // ------------------------------------------------
-
-            const payments =
-                await getUserPayments();
-
-
-            const existingPayment =
-                findPaymentForPlan(
-                    payments,
-                    plan
-                );
-
-
-            const isRetry =
-                eligibility.retry &&
-                existingPayment;
-
-
-            // ------------------------------------------------
-            // M-PESA
+            // CALCULATE PAYMENT
             // ------------------------------------------------
 
             let amountKES = null;
 
-
             if (method === "Mpesa") {
-
-                if (!currentExchangeRate) {
-
-                    await loadExchangeRate();
-                }
-
 
                 amountKES =
                     Math.round(
@@ -1404,7 +1272,6 @@ paymentForm?.addEventListener(
                         currentExchangeRate
                     );
             }
-
 
             // ------------------------------------------------
             // PAYMENT PROOF
@@ -1414,14 +1281,12 @@ paymentForm?.addEventListener(
             let proofType = "";
             let proofSize = 0;
 
-
             if (
                 paymentProof?.files?.length
             ) {
 
                 const file =
                     paymentProof.files[0];
-
 
                 proofName =
                     file.name;
@@ -1432,44 +1297,28 @@ paymentForm?.addEventListener(
                 proofSize =
                     file.size;
 
-
                 if (
                     proofSize >
                     5 * 1024 * 1024
                 ) {
 
-                    showLoading(false);
-
-                    showMessage(
-                        "Payment proof must be 5MB or smaller.",
-                        "error"
+                    throw new Error(
+                        "Payment proof must be 5MB or smaller."
                     );
-
-                    return;
                 }
             }
 
-
             // ------------------------------------------------
-            // LOCK
-            // ------------------------------------------------
-
-            submitting = true;
-
-            submitPayment.disabled =
-                true;
-
-            submitPayment.innerHTML =
-                '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
-
-
-            // ------------------------------------------------
-            // COMMON DATA
+            // PAYMENT DATA
             // ------------------------------------------------
 
             const paymentData = {
 
+                // Identity
                 userId:
+                    currentUser.uid,
+
+                uid:
                     currentUser.uid,
 
                 name:
@@ -1478,31 +1327,38 @@ paymentForm?.addEventListener(
                 email:
                     email,
 
+                // Plan
                 plan:
                     plan,
 
+                planPriceUSD:
+                    Number(price),
+
+                // Payment
                 paymentMethod:
                     method,
 
                 transactionId:
                     transaction,
 
-                amountUSD:
-                    Number(price),
-
+                // Status
                 status:
                     "pending",
 
+                // Notes
                 notes:
-                    additionalNotes,
+                    notes?.value.trim() || "",
 
-                updatedAt:
+                // Metadata
+                submittedAt:
+                    serverTimestamp(),
+
+                createdAt:
                     serverTimestamp()
             };
 
-
             // ------------------------------------------------
-            // MPESA
+            // M-PESA
             // ------------------------------------------------
 
             if (method === "Mpesa") {
@@ -1517,8 +1373,10 @@ paymentForm?.addEventListener(
                     Number(
                         currentExchangeRate
                     );
-            }
 
+                paymentData.amountUSD =
+                    Number(price);
+            }
 
             // ------------------------------------------------
             // PAYPAL
@@ -1528,11 +1386,34 @@ paymentForm?.addEventListener(
 
                 paymentData.currency =
                     "USD";
+
+                paymentData.amountUSD =
+                    Number(price);
             }
 
+            // ------------------------------------------------
+            // UPGRADE FLAG
+            // ------------------------------------------------
+
+            if (existing.upgrade) {
+
+                paymentData.paymentType =
+                    "upgrade";
+
+                paymentData.upgradeFrom =
+                    "Monthly";
+
+                paymentData.upgradeTo =
+                    "Lifetime";
+
+            } else {
+
+                paymentData.paymentType =
+                    "new_membership";
+            }
 
             // ------------------------------------------------
-            // PROOF
+            // PAYMENT PROOF
             // ------------------------------------------------
 
             if (proofName) {
@@ -1547,144 +1428,38 @@ paymentForm?.addEventListener(
                     proofSize;
             }
 
+            // ------------------------------------------------
+            // DEBUG
+            // ------------------------------------------------
 
-            // =================================================
-            // RETRY
-            // =================================================
-            //
-            // VERY IMPORTANT:
-            //
-            // We DO NOT create another payment document.
-            //
-            // We update the existing rejected/failed document.
-            //
-            // Admin therefore continues seeing ONE payment.
-            // =================================================
+            console.log(
+                "Submitting GTRADES-AXIS payment:",
+                paymentData
+            );
 
-            if (isRetry) {
+            // ------------------------------------------------
+            // CREATE PAYMENT
+            // ------------------------------------------------
 
-                const previousAttempt = {
-
-                    transactionId:
-                        existingPayment.transactionId ||
-                        "",
-
-                    paymentMethod:
-                        existingPayment.paymentMethod ||
-                        "",
-
-                    amountUSD:
-                        existingPayment.amountUSD ||
-                        0,
-
-                    amountKES:
-                        existingPayment.amountKES ||
-                        null,
-
-                    status:
-                        existingPayment.status ||
-                        "rejected",
-
-                    submittedAt:
-                        existingPayment.submittedAt ||
-                        null,
-
-                    retryAt:
-                        new Date().toISOString()
-                };
-
-
-                const currentAttemptCount =
-                    Number(
-                        existingPayment.attemptCount ||
-                        1
-                    );
-
-
-                paymentData.attemptCount =
-                    currentAttemptCount + 1;
-
-
-                paymentData.lastRetryAt =
-                    serverTimestamp();
-
-
-                paymentData.retryReason =
-                    "Previous payment was rejected or failed.";
-
-
-                paymentData.previousAttempts =
-                    arrayUnion(
-                        previousAttempt
-                    );
-
-
-                // --------------------------------------------
-                // UPDATE SAME DOCUMENT
-                // --------------------------------------------
-
-                const paymentRef =
-                    doc(
+            const paymentRef =
+                await addDoc(
+                    collection(
                         db,
-                        "payments",
-                        existingPayment.id
-                    );
-
-
-                await updateDoc(
-                    paymentRef,
+                        "payments"
+                    ),
                     paymentData
                 );
 
+            console.log(
+                "PAYMENT CREATED:",
+                paymentRef.id
+            );
 
-                console.log(
-                    "PAYMENT RETRY UPDATED:",
-                    existingPayment.id
-                );
-
-
-            } else {
-
-                // =================================================
-                // FIRST PAYMENT
-                // =================================================
-
-                paymentData.attemptCount =
-                    1;
-
-                paymentData.submittedAt =
-                    serverTimestamp();
-
-                paymentData.previousAttempts =
-                    [];
-
-                paymentData.isUpgrade =
-                    eligibility.upgrade === true;
-
-
-                const paymentRef =
-                    await addDoc(
-                        collection(
-                            db,
-                            "payments"
-                        ),
-                        paymentData
-                    );
-
-
-                console.log(
-                    "NEW PAYMENT CREATED:",
-                    paymentRef.id
-                );
-            }
-
-
-            // =================================================
+            // ------------------------------------------------
             // SUCCESS
-            // =================================================
+            // ------------------------------------------------
 
             showLoading(false);
-
 
             if (successModal) {
 
@@ -1693,9 +1468,8 @@ paymentForm?.addEventListener(
                 );
             }
 
-
             // ------------------------------------------------
-            // RESET PAYMENT FIELDS
+            // RESET USER-ENTERED FIELDS
             // ------------------------------------------------
 
             if (membershipPlan) {
@@ -1722,32 +1496,42 @@ paymentForm?.addEventListener(
                 amountDisplay.value = "";
             }
 
-            currencyBox?.classList.remove(
-                "active"
-            );
+            if (currencyBox) {
+                currencyBox.classList.remove(
+                    "active"
+                );
+            }
 
-            mpesaDetails?.classList.remove(
-                "active"
-            );
+            if (mpesaDetails) {
+                mpesaDetails.classList.remove(
+                    "active"
+                );
+            }
 
             if (selectedPlanName) {
-
                 selectedPlanName.textContent =
                     "No Plan Selected";
             }
 
             if (selectedPlanPrice) {
-
                 selectedPlanPrice.textContent =
                     "$0";
             }
 
             if (usdAmount) {
-
                 usdAmount.textContent =
                     "$0";
             }
 
+            if (kesAmount) {
+                kesAmount.textContent =
+                    "KSh 0";
+            }
+
+            if (mpesaAmount) {
+                mpesaAmount.textContent =
+                    "KSh 0";
+            }
 
         } catch (error) {
 
@@ -1777,13 +1561,10 @@ paymentForm?.addEventListener(
                 "================================"
             );
 
-
             showLoading(false);
-
 
             let message =
                 "Unable to submit payment. Please try again.";
-
 
             if (
                 error.code ===
@@ -1791,37 +1572,32 @@ paymentForm?.addEventListener(
             ) {
 
                 message =
-                    "Payment was rejected by Firestore security rules. Please check your account permissions.";
-            }
+                    "Payment was rejected by Firestore security rules. Please make sure you are logged in and try again.";
 
-
-            else if (
+            } else if (
                 error.code ===
                 "unauthenticated"
             ) {
 
                 message =
                     "Your login session has expired. Please log in again.";
-            }
 
-
-            else if (error.message) {
+            } else if (
+                error.message
+            ) {
 
                 message =
                     error.message;
             }
-
 
             showMessage(
                 message,
                 "error"
             );
 
-
         } finally {
 
             submitting = false;
-
 
             if (submitPayment) {
 
@@ -1835,7 +1611,6 @@ paymentForm?.addEventListener(
     }
 );
 
-
 // ============================================================
 // SUCCESS MODAL
 // ============================================================
@@ -1844,27 +1619,24 @@ successClose?.addEventListener(
     "click",
     () => {
 
-        successModal?.classList.remove(
-            "active"
-        );
+        if (successModal) {
+
+            successModal.classList.remove(
+                "active"
+            );
+        }
 
         window.location.href =
             "dashboard.html";
     }
 );
 
-
 // ============================================================
-// INITIALIZE
+// START
 // ============================================================
 
 loadExchangeRate();
 
-
-// ============================================================
-// DEBUG
-// ============================================================
-
 console.log(
-    "GTRADES-AXIS™ payment.js loaded — duplicate-payment protection ACTIVE."
+    "GTRADES-AXIS™ payment.js loaded successfully."
 );
