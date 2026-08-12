@@ -1,1705 +1,807 @@
 // ==========================================================
 // GTRADES-AXIS™
 // ADMIN PAYMENTS MANAGEMENT
-// PART 1
-// Firebase Setup + Load Payment Requests
+// SINGLE CLEAN VERSION
 // ==========================================================
 
-
-console.log("ADMIN PAYMENTS JS LOADED");
-
-
-
-import { auth, db } from "../firebase.js";
-
-
+import { auth, db } from "./firebase.js";
 
 import {
-
-    collection,
-    query,
-    where,
-    orderBy,
-    onSnapshot
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-import {
-
-    doc,
-    updateDoc,
-    getDoc,
-    serverTimestamp
-
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-import {
-
-    onAuthStateChanged
-
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-
-
-// ===============================
-// ELEMENTS
-// ===============================
-
-
-const paymentTable =
-
-document.getElementById(
-    "paymentsTable"
-);
-
-
-
-
-const emptyMessage =
-
-document.getElementById(
-    "emptyPayments"
-);
-
-
-
-
-
-// ===============================
-// ADMIN CHECK
-// ===============================
-
-
-onAuthStateChanged(
-
-auth,
-
-async(user)=>{
-
-
-if(!user){
-
-
-    window.location.href =
-    "../login.html";
-
-
-    return;
-
-
-}
-
-
-
-console.log(
-    "Admin logged in:",
-    user.email
-);
-
-
-
-loadPayments();
-
-
-
-});
-
-
-
-
-
-// ===============================
-// LOAD PAYMENTS
-// ===============================
-
-
-function loadPayments(){
-
-
-
-const paymentsRef =
-
-collection(
-    db,
-    "payments"
-);
-
-
-
-
-
-const paymentsQuery =
-
-query(
-
-paymentsRef,
-
-
-where(
-    "status",
-    "==",
-    "pending"
-),
-
-
-orderBy(
-    "createdAt",
-    "desc"
-)
-
-);
-
-
-
-
-
-onSnapshot(
-
-paymentsQuery,
-
-(snapshot)=>{
-
-
-
-if(snapshot.empty){
-
-
-
-    if(emptyMessage){
-
-        emptyMessage.style.display =
-        "block";
-
-    }
-
-
-
-    if(paymentTable){
-
-        paymentTable.innerHTML =
-        "";
-
-    }
-
-
-    return;
-
-
-
-}
-
-
-
-
-if(emptyMessage){
-
-    emptyMessage.style.display =
-    "none";
-
-}
-
-
-
-paymentTable.innerHTML = "";
-
-
-
-
-
-snapshot.forEach(
-
-(doc)=>{
-
-
-const payment = doc.data();
-
-
-
-paymentTable.innerHTML += `
-
-<tr>
-
-
-<td>
-${payment.name || "N/A"}
-</td>
-
-
-
-<td>
-${payment.email || "N/A"}
-</td>
-
-
-
-<td>
-${payment.plan || "N/A"}
-</td>
-
-
-<td>
-
-<span class="status ${payment.status}">
-
-${payment.status}
-
-</span>
-
-</td>
-
-
-
-<td>
-${payment.paymentMethod || "N/A"}
-</td>
-
-
-
-<td>
-
-<a href="${payment.paymentProof || '#'}"
-target="_blank">
-
-View Proof
-
-</a>
-
-</td>
-
-
-
-<td>
-
-<button 
-class="approve-btn"
-data-id="${doc.id}"
-data-user="${payment.userId}">
-
-Approve
-
-</button>
-
-
-
-<button 
-class="reject-btn"
-data-id="${doc.id}">
-
-Reject
-
-</button>
-
-
-</td>
-
-
-</tr>
-
-`;
-
-
-
-});
-
-
-
-console.log(
-"Payments loaded"
-);
-
-
-
-});
-
-
-
-}
-// ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 2
-// Approve + Reject Payment Actions
-// ==========================================================
-
-
 import {
-
-    doc,
-    updateDoc,
-    getDoc
-
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-
-
-
-
-// ===============================
-// BUTTON ACTION LISTENER
-// ===============================
-
-
-document.addEventListener(
-"click",
-async(e)=>{
-
-
-
-// ===============================
-// APPROVE PAYMENT
-// ===============================
-
-
-if(
-e.target.classList.contains(
-"approve-btn"
-)
-
-){
-
-
-
-const paymentId =
-
-e.target.dataset.id;
-
-
-
-const userId =
-
-e.target.dataset.user;
-
-
-
-
-
-if(
-!confirm(
-"Approve this payment?"
-)
-
-){
-
-return;
-
-}
-
-
-
-
-try{
-
-
-
-// ===============================
-// UPDATE PAYMENT STATUS
-// ===============================
-
-
-const alreadyApproved =
-
-await checkPaymentAlreadyApproved(
-paymentId
-);
-
-
-
-if(alreadyApproved){
-
-
-    alert(
-        "This payment is already approved."
-    );
-
-
-    return;
-
-
-}
-
-
-
-await updateDoc(
-
-doc(
-db,
-"payments",
-paymentId
-),
-
-{
-
-
-status:
-
-"approved",
-
-
-approvedAt:
-
-serverTimestamp()
-
-
-
-}
-
-);
-
-
-
-await createPaymentLog(
-
-"APPROVED",
-
-paymentId,
-
-userId,
-
-"Payment approved and premium membership activated"
-
-);
-
-
-
-// ===============================
-// PAYMENT HISTORY
-// ===============================
-
-
-async function loadPaymentHistory(){
-
-
-
-const paymentsRef =
-
-collection(
-
-db,
-
-"payments"
-
-);
-
-
-
-
-const snapshot =
-
-await getDocs(
-paymentsRef
-);
-
-
-
-
-snapshot.forEach(
-
-(doc)=>{
-
-
-const payment =
-doc.data();
-
-
-
-console.log(
-
-"Payment History:",
-
-{
-
-id:doc.id,
-
-status:
-payment.status,
-
-user:
-payment.email
-
-}
-
-);
-
-
-
-});
-
-
-
-}
-
-
-
-loadPaymentHistory();
-
-// ===============================
-// UPDATE USER MEMBERSHIP
-// ===============================
-
-
-if(userId){
-
-
-
-const userRef =
-
-doc(
-
-db,
-
-"users",
-
-userId
-
-);
-
-
-
-
-const userSnap =
-
-await getDoc(
-userRef
-);
-
-
-
-
-
-if(
-userSnap.exists()
-){
-
-
-
-await updateDoc(
-
-userRef,
-
-{
-
-
-membership:
-"premium",
-
-
-status:
-"active",
-
-
-role:
-"member"
-
-
-
-}
-
-);
-
-
-
-console.log(
-"User upgraded to premium"
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-alert(
-
-"Payment approved successfully."
-
-);
-
-
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(
-
-"Approval error:",
-
-error
-
-);
-
-
-
-alert(
-
-"Failed to approve payment."
-
-);
-
-
-
-}
-
-
-
-
-
-}
-
-
-
-
-
-
-// ===============================
-// REJECT PAYMENT
-// ===============================
-
-
-
-if(
-
-e.target.classList.contains(
-"reject-btn"
-)
-
-){
-
-
-
-const paymentId =
-
-e.target.dataset.id;
-
-
-
-
-
-if(
-
-!confirm(
-
-"Reject this payment?"
-
-)
-
-){
-
-return;
-
-}
-
-
-
-
-
-try{
-
-
-
-await updateDoc(
-
-doc(
-
-db,
-
-"payments",
-
-paymentId
-
-),
-
-{
-
-
-status:
-"rejected",
-
-
-rejectedAt:
-new Date()
-
-
-
-}
-
-);
-
-
-
-
-
-alert(
-
-"Payment rejected."
-
-);
-
-
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(
-
-"Reject error:",
-
-error
-
-);
-
-
-
-alert(
-
-"Failed to reject payment."
-
-);
-
-
-
-}
-
-
-
-
-
-}
-
-
-
-});
 // ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 3
-// Security + History + Status Management
+// DOM
 // ==========================================================
 
+const tbody = document.getElementById("paymentsBody");
 
+const statPending = document.getElementById("statPending");
+const statApproved = document.getElementById("statApproved");
+const statRejected = document.getElementById("statRejected");
+const statRevenue = document.getElementById("statRevenue");
 
-import {
+const searchInput = document.getElementById("paymentSearch");
+const statusFilter = document.getElementById("paymentFilter");
 
-    getDocs
+const adminMessage = document.getElementById("adminMessage");
 
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-
-
-
-// ===============================
-// VERIFY ADMIN ROLE
-// ===============================
-
-
-async function verifyAdmin(user){
-
-
-
-if(!user){
-
-    return false;
-
-}
-
-
-
-try{
-
-
-const adminRef =
-
-doc(
-
-db,
-
-"users",
-
-user.uid
-
-);
-
-
-
-const adminSnap =
-
-await getDoc(
-adminRef
-);
-
-
-
-
-
-if(
-adminSnap.exists()
-){
-
-
-const data =
-adminSnap.data();
-
-
-
-
-if(
-data.role === "admin"
-){
-
-
-console.log(
-"Admin verified"
-);
-
-
-return true;
-
-
-}
-
-
-
-}
-
-
-
-return false;
-
-
-
-}
-catch(error){
-
-
-console.error(
-"Admin verification error:",
-error
-);
-
-
-return false;
-
-
-}
-
-
-}
-
-
-
-
-
-
-// ===============================
-// BLOCK NON ADMINS
-// ===============================
-
-
-onAuthStateChanged(
-
-auth,
-
-async(user)=>{
-
-
-
-const allowed =
-
-await verifyAdmin(
-user
-);
-
-
-
-if(!allowed){
-
-
-
-alert(
-"Unauthorized access"
-);
-
-
-
-window.location.href =
-"../index.html";
-
-
-
-}
-
-
-
-});
 // ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 4
-// Dashboard Statistics + Search + Filters
+// STATE
 // ==========================================================
-
-
-
-// ===============================
-// DASHBOARD ELEMENTS
-// ===============================
-
-
-const totalPaymentsElement =
-
-document.getElementById(
-    "totalPayments"
-);
-
-
-
-const pendingPaymentsElement =
-
-document.getElementById(
-    "pendingPayments"
-);
-
-
-
-const approvedPaymentsElement =
-
-document.getElementById(
-    "approvedPayments"
-);
-
-
-
-const revenueElement =
-
-document.getElementById(
-    "totalRevenue"
-);
-
-
-
-
-
-// Search
-
-const searchInput =
-
-document.getElementById(
-    "paymentSearch"
-);
-
-
-
-
-// Filter
-
-const statusFilter =
-
-document.getElementById(
-    "paymentFilter"
-);
-
-
-
-
 
 let allPayments = [];
+let unsubscribePayments = null;
 
-
-
-
-
-// ===============================
-// LOAD ALL PAYMENT DATA
-// ===============================
-
-
-function loadPaymentStatistics(){
-
-
-
-const paymentsRef =
-
-collection(
-
-db,
-
-"payments"
-
-);
-
-
-
-
-onSnapshot(
-
-paymentsRef,
-
-(snapshot)=>{
-
-
-
-allPayments = [];
-
-
-
-let total = 0;
-
-let pending = 0;
-
-let approved = 0;
-
-let revenue = 0;
-
-
-
-
-
-snapshot.forEach(
-
-(doc)=>{
-
-
-const payment =
-doc.data();
-
-
-
-allPayments.push({
-
-id:
-doc.id,
-
-...payment
-
-});
-
-
-
-total++;
-
-
-
-
-if(
-payment.status === "pending"
-){
-
-pending++;
-
-}
-
-
-
-
-if(
-payment.status === "approved"
-){
-
-
-approved++;
-
-
-
-// If amount exists
-
-if(
-payment.amount
-){
-
-revenue +=
-Number(payment.amount);
-
-}
-
-
-}
-
-
-
-
-
-});
-
-
-
-
-
-
-// Update cards
-
-
-if(totalPaymentsElement)
-
-totalPaymentsElement.innerText =
-total;
-
-
-
-if(pendingPaymentsElement)
-
-pendingPaymentsElement.innerText =
-pending;
-
-
-
-if(approvedPaymentsElement)
-
-approvedPaymentsElement.innerText =
-approved;
-
-
-
-if(revenueElement)
-
-revenueElement.innerText =
-"$ " + revenue;
-
-
-
-renderPayments(
-allPayments
-);
-
-
-
-});
-
-
-
-}
-
-
-
-loadPaymentStatistics();
-
-
-
-
-
-// ===============================
-// SEARCH + FILTER
-// ===============================
-
-
-if(searchInput){
-
-
-
-searchInput.addEventListener(
-
-"input",
-
-()=>{
-
-
-filterPayments();
-
-
-}
-
-);
-
-
-
-}
-
-
-
-
-if(statusFilter){
-
-
-
-statusFilter.addEventListener(
-
-"change",
-
-()=>{
-
-
-filterPayments();
-
-
-
-}
-
-);
-
-
-
-}
-
-
-
-
-
-function filterPayments(){
-
-
-
-let filtered =
-allPayments;
-
-
-
-const search =
-searchInput?.value
-.toLowerCase()
-.trim();
-
-
-
-
-const status =
-statusFilter?.value;
-
-
-
-
-if(search){
-
-
-filtered = filtered.filter(
-
-(payment)=>
-
-
-payment.name
-?.toLowerCase()
-.includes(search)
-
-
-||
-
-payment.email
-?.toLowerCase()
-.includes(search)
-
-
-);
-
-
-
-}
-
-
-
-
-
-if(
-status &&
-status !== "all"
-){
-
-
-
-filtered = filtered.filter(
-
-(payment)=>
-
-payment.status === status
-
-
-);
-
-
-
-}
-
-
-
-
-
-renderPayments(filtered);
-
-
-
-}
-
-
-
-
-
-// ===============================
-// RENDER PAYMENT TABLE
-// ===============================
-
-
-function renderPayments(data){
-
-
-
-if(!paymentTable){
-
-return;
-
-}
-
-
-
-
-paymentTable.innerHTML = "";
-
-
-
-
-data.forEach(
-
-(payment)=>{
-
-
-
-paymentTable.innerHTML += `
-
-
-<tr>
-
-
-<td>
-
-${payment.name || "N/A"}
-
-</td>
-
-
-
-<td>
-
-${payment.email || "N/A"}
-
-</td>
-
-
-
-<td>
-
-${payment.plan || "N/A"}
-
-</td>
-
-
-
-<td>
-
-<span class="status ${payment.status}">
-
-${payment.status}
-
-</span>
-
-</td>
-
-
-
-<td>
-
-${payment.paymentMethod || "N/A"}
-
-</td>
-
-
-
-<td>
-
-
-<a href="${payment.paymentProof || '#'}"
-target="_blank">
-
-Proof
-
-</a>
-
-
-</td>
-
-
-
-<td>
-
-
-${
-payment.status === "pending"
-
-?
-
-`
-
-<button 
-class="approve-btn"
-data-id="${payment.id}"
-data-user="${payment.userId}">
-
-Approve
-
-</button>
-
-
-<button 
-class="reject-btn"
-data-id="${payment.id}">
-
-Reject
-
-</button>
-
-`
-
-:
-
-"Completed"
-
-}
-
-
-</td>
-
-
-</tr>
-
-
-
-`;
-
-
-
-});
-
-
-
-}
 // ==========================================================
-// GTRADES-AXIS™
-// ADMIN PAYMENTS MANAGEMENT
-// PART 5 FINAL
-// Security + Audit Logs + Navigation Cleanup
+// MESSAGE
 // ==========================================================
 
+function showMessage(message, type = "success") {
 
-import {
+  if (!adminMessage) return;
 
-    addDoc
+  adminMessage.textContent = message;
 
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  adminMessage.className =
+    "admin-message " + type;
 
+  setTimeout(() => {
 
+    adminMessage.className =
+      "admin-message";
 
+    adminMessage.textContent = "";
 
-// ===============================
-// CREATE APPROVAL AUDIT LOG
-// ===============================
+  }, 5000);
+}
 
+// ==========================================================
+// AUTH + ADMIN CHECK
+// ==========================================================
 
-async function createPaymentLog(
+onAuthStateChanged(auth, async (user) => {
 
-action,
+  if (!user) {
 
-paymentId,
+    window.location.href = "login.html";
 
-userId,
+    return;
+  }
 
-details
+  try {
 
-){
+    const userRef =
+      doc(db, "users", user.uid);
 
+    const userSnap =
+      await getDoc(userRef);
 
-try{
+    if (!userSnap.exists()) {
 
+      window.location.href =
+        "access-denied.html";
 
-await addDoc(
+      return;
+    }
 
-collection(
+    const userData =
+      userSnap.data();
 
-db,
+    if (userData.role !== "admin") {
 
-"paymentLogs"
+      window.location.href =
+        "access-denied.html";
 
-),
+      return;
+    }
 
-{
+    console.log(
+      "✅ Admin verified:",
+      user.email
+    );
 
+    startPaymentListener();
 
-action:
+  } catch (error) {
 
-action,
+    console.error(
+      "Admin verification error:",
+      error
+    );
 
+    window.location.href =
+      "login.html";
+  }
 
-paymentId:
+});
 
-paymentId,
+// ==========================================================
+// FIRESTORE PAYMENT LISTENER
+// ==========================================================
 
+function startPaymentListener() {
 
-userId:
+  if (unsubscribePayments) {
 
-userId,
+    unsubscribePayments();
 
+  }
 
-details:
+  const paymentsRef =
+    collection(db, "payments");
 
-details,
+  const paymentsQuery =
+    query(
+      paymentsRef,
+      orderBy("createdAt", "desc")
+    );
 
+  unsubscribePayments =
+    onSnapshot(
+      paymentsQuery,
 
-admin:
+      (snapshot) => {
 
-auth.currentUser.email,
+        allPayments = [];
 
+        snapshot.forEach((paymentDoc) => {
 
-createdAt:
+          allPayments.push({
 
-serverTimestamp()
+            id: paymentDoc.id,
 
+            ...paymentDoc.data()
+
+          });
+
+        });
+
+        updateStatistics(allPayments);
+
+        applyFilters();
+
+      },
+
+      (error) => {
+
+        console.error(
+          "Payment listener error:",
+          error
+        );
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8">
+              <div class="empty">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Failed to load payments.
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    );
+}
+
+// ==========================================================
+// STATISTICS
+// ==========================================================
+
+function updateStatistics(payments) {
+
+  let pending = 0;
+  let approved = 0;
+  let rejected = 0;
+  let revenue = 0;
+
+  payments.forEach((payment) => {
+
+    const status =
+      payment.status || "pending";
+
+    if (status === "pending") {
+
+      pending++;
+
+    } else if (status === "approved") {
+
+      approved++;
+
+      const amount =
+        Number(payment.amount || 0);
+
+      revenue += amount;
+
+    } else if (status === "rejected") {
+
+      rejected++;
+
+    }
+
+  });
+
+  statPending.textContent = pending;
+
+  statApproved.textContent = approved;
+
+  statRejected.textContent = rejected;
+
+  statRevenue.textContent =
+    "$" + revenue.toFixed(2);
+}
+
+// ==========================================================
+// SEARCH
+// ==========================================================
+
+if (searchInput) {
+
+  searchInput.addEventListener(
+    "input",
+    applyFilters
+  );
 
 }
 
-);
+// ==========================================================
+// FILTER
+// ==========================================================
 
+if (statusFilter) {
 
+  statusFilter.addEventListener(
+    "change",
+    applyFilters
+  );
+
+}
+
+// ==========================================================
+// APPLY FILTERS
+// ==========================================================
+
+function applyFilters() {
+
+  let filtered =
+    [...allPayments];
+
+  const search =
+    searchInput
+      ? searchInput.value
+          .toLowerCase()
+          .trim()
+      : "";
+
+  const status =
+    statusFilter
+      ? statusFilter.value
+      : "all";
+
+  if (search) {
+
+    filtered =
+      filtered.filter((payment) => {
+
+        const name =
+          String(payment.name || "")
+            .toLowerCase();
+
+        const email =
+          String(payment.email || "")
+            .toLowerCase();
+
+        const transaction =
+          String(payment.transactionId || "")
+            .toLowerCase();
+
+        return (
+          name.includes(search) ||
+          email.includes(search) ||
+          transaction.includes(search)
+        );
+
+      });
+
+  }
+
+  if (status !== "all") {
+
+    filtered =
+      filtered.filter(
+        payment =>
+          (payment.status || "pending") === status
+      );
+
+  }
+
+  renderPayments(filtered);
+}
+
+// ==========================================================
+// ESCAPE HTML
+// ==========================================================
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ==========================================================
+// RENDER
+// ==========================================================
+
+function renderPayments(payments) {
+
+  if (!payments.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+
+          <div class="empty">
+
+            <i class="fa-solid fa-inbox"></i>
+
+            No payments found.
+
+          </div>
+
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    payments.map((payment) => {
+
+      const status =
+        payment.status || "pending";
+
+      const statusLabel =
+        status.charAt(0).toUpperCase() +
+        status.slice(1);
+
+      const proofKey =
+        payment.proofKey || "";
+
+      const proofURL =
+        payment.proofURL || "";
+
+      let proofHTML = "—";
+
+      if (proofURL) {
+
+        proofHTML = `
+          <a
+            href="${escapeHtml(proofURL)}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="proof-btn"
+          >
+            <i class="fa-solid fa-eye"></i>
+            View
+          </a>
+        `;
+
+      } else if (proofKey) {
+
+        proofHTML = `
+          <span
+            style="color:#9aa4bf;font-size:11px;"
+            title="${escapeHtml(proofKey)}"
+          >
+            R2 file
+          </span>
+        `;
+
+      }
+
+      let actions = "—";
+
+      if (status === "pending") {
+
+        actions = `
+
+          <div class="action-btns">
+
+            <button
+              class="action-btn approve-btn"
+              data-id="${escapeHtml(payment.id)}"
+              data-user="${escapeHtml(payment.userId || "")}"
+            >
+              <i class="fa-solid fa-check"></i>
+              Approve
+            </button>
+
+            <button
+              class="action-btn reject-btn"
+              data-id="${escapeHtml(payment.id)}"
+              data-user="${escapeHtml(payment.userId || "")}"
+            >
+              <i class="fa-solid fa-xmark"></i>
+              Reject
+            </button>
+
+          </div>
+
+        `;
+
+      } else {
+
+        actions = `
+          <span class="completed">
+            <i class="fa-solid fa-check"></i>
+            Completed
+          </span>
+        `;
+      }
+
+      return `
+
+        <tr>
+
+          <td>
+
+            <div class="user-name">
+              ${escapeHtml(payment.name || "N/A")}
+            </div>
+
+            <div class="user-email">
+              ${escapeHtml(payment.email || "")}
+            </div>
+
+          </td>
+
+          <td>
+            ${escapeHtml(payment.plan || "N/A")}
+          </td>
+
+          <td>
+            ${escapeHtml(payment.paymentMethod || "N/A")}
+          </td>
+
+          <td>
+
+            <code>
+              ${escapeHtml(payment.transactionId || "N/A")}
+            </code>
+
+          </td>
+
+          <td>
+            $${Number(payment.amount || 0).toFixed(2)}
+          </td>
+
+          <td>
+            ${proofHTML}
+          </td>
+
+          <td>
+
+            <span
+              class="status-badge ${escapeHtml(status)}"
+            >
+              ${escapeHtml(statusLabel)}
+            </span>
+
+          </td>
+
+          <td>
+            ${actions}
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+}
+
+// ==========================================================
+// BUTTON EVENTS
+// ==========================================================
+
+document.addEventListener("click", async (event) => {
+
+  const approveButton =
+    event.target.closest(".approve-btn");
+
+  const rejectButton =
+    event.target.closest(".reject-btn");
+
+  if (approveButton) {
+
+    await handlePaymentAction(
+      approveButton.dataset.id,
+      approveButton.dataset.user,
+      "approved"
+    );
+
+  }
+
+  if (rejectButton) {
+
+    await handlePaymentAction(
+      rejectButton.dataset.id,
+      rejectButton.dataset.user,
+      "rejected"
+    );
+
+  }
+
+});
+
+// ==========================================================
+// APPROVE / REJECT
+// ==========================================================
+
+async function handlePaymentAction(
+  paymentId,
+  userId,
+  status
+) {
+
+  if (!paymentId) {
+
+    alert("Invalid payment.");
+
+    return;
+  }
+
+  const actionText =
+    status === "approved"
+      ? "approve"
+      : "reject";
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to ${actionText} this payment?`
+    );
+
+  if (!confirmed) return;
+
+  try {
+
+    // ------------------------------------------------------
+    // Re-read payment first
+    // ------------------------------------------------------
+
+    const paymentRef =
+      doc(db, "payments", paymentId);
+
+    const paymentSnap =
+      await getDoc(paymentRef);
+
+    if (!paymentSnap.exists()) {
+
+      alert(
+        "Payment no longer exists."
+      );
+
+      return;
+    }
+
+    const payment =
+      paymentSnap.data();
+
+    // ------------------------------------------------------
+    // Prevent double processing
+    // ------------------------------------------------------
+
+    if (payment.status !== "pending") {
+
+      alert(
+        `This payment is already ${payment.status}.`
+      );
+
+      return;
+    }
+
+    // ------------------------------------------------------
+    // UPDATE PAYMENT
+    // ------------------------------------------------------
+
+    const paymentUpdate = {
+
+      status,
+
+      reviewedAt:
+        serverTimestamp(),
+
+      reviewedBy:
+        auth.currentUser.uid
+
+    };
+
+    if (status === "approved") {
+
+      paymentUpdate.approvedAt =
+        serverTimestamp();
+
+    }
+
+    if (status === "rejected") {
+
+      paymentUpdate.rejectedAt =
+        serverTimestamp();
+
+    }
+
+    await updateDoc(
+      paymentRef,
+      paymentUpdate
+    );
+
+    // ------------------------------------------------------
+    // APPROVED → PREMIUM
+    // ------------------------------------------------------
+
+    if (
+      status === "approved" &&
+      userId
+    ) {
+
+      const userRef =
+        doc(db, "users", userId);
+
+      const userSnap =
+        await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+
+        throw new Error(
+          "User account does not exist."
+        );
+
+      }
+
+      await updateDoc(
+        userRef,
+        {
+
+          membership:
+            "premium",
+
+          status:
+            "active",
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+    }
+
+    // ------------------------------------------------------
+    // AUDIT LOG
+    // ------------------------------------------------------
+
+    await createPaymentLog({
+
+      action:
+        status.toUpperCase(),
+
+      paymentId,
+
+      userId:
+        userId || null,
+
+      details:
+        status === "approved"
+          ? "Payment approved and user upgraded to Premium."
+          : "Payment rejected by administrator."
+
+    });
+
+    // ------------------------------------------------------
+    // MESSAGE
+    // ------------------------------------------------------
+
+    if (status === "approved") {
+
+      showMessage(
+        "Payment approved. User is now Premium.",
+        "success"
+      );
+
+    } else {
+
+      showMessage(
+        "Payment rejected.",
+        "success"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Payment action error:",
+      error
+    );
+
+    showMessage(
+      "Failed to process payment. Check Firestore permissions.",
+      "error"
+    );
+
+  }
+
+}
+
+// ==========================================================
+// PAYMENT AUDIT LOG
+// ==========================================================
+
+async function createPaymentLog({
+  action,
+  paymentId,
+  userId,
+  details
+}) {
+
+  try {
+
+    await addDoc(
+      collection(db, "paymentLogs"),
+      {
+
+        action,
+
+        paymentId,
+
+        userId,
+
+        details,
+
+        adminUid:
+          auth.currentUser
+            ? auth.currentUser.uid
+            : null,
+
+        adminEmail:
+          auth.currentUser
+            ? auth.currentUser.email
+            : null,
+
+        createdAt:
+          serverTimestamp()
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Audit log error:",
+      error
+    );
+
+  }
+
+}
 
 console.log(
-"Payment audit saved"
+  "✅ GTRADES-AXIS™ Admin Payments loaded."
 );
-
-
-
-}
-
-catch(error){
-
-
-console.error(
-
-"Audit log error:",
-
-error
-
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-// ===============================
-// UPDATE APPROVE FUNCTION
-// ===============================
-
-
-// Add this after successful approval:
-
-
-// createPaymentLog(
-// "APPROVED",
-// paymentId,
-// userId,
-// "Payment approved and premium activated"
-// );
-
-
-
-
-
-
-// ===============================
-// UPDATE REJECT FUNCTION
-// ===============================
-
-
-// Add this after successful rejection:
-
-
-// createPaymentLog(
-// "REJECTED",
-// paymentId,
-// null,
-// "Payment rejected by admin"
-// );
-
-
-
-
-
-
-
-// ===============================
-// PREVENT DOUBLE APPROVAL
-// ===============================
-
-
-async function checkPaymentAlreadyApproved(paymentId){
-
-
-const paymentRef =
-
-doc(
-
-db,
-
-"payments",
-
-paymentId
-
-);
-
-
-
-const paymentSnap =
-
-await getDoc(
-paymentRef
-);
-
-
-
-if(
-paymentSnap.exists()
-){
-
-
-const data =
-paymentSnap.data();
-
-
-
-if(
-data.status === "approved"
-){
-
-
-return true;
-
-
-}
-
-
-}
-
-
-
-return false;
-
-
-}

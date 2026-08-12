@@ -1,62 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Payments | GTRADES-AXIS™</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Admin - Payments | GTRADES-AXIS™
+  </title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  >
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: Poppins, sans-serif;
       background: #0b0d15;
       color: #e8edf5;
       min-height: 100vh;
       padding: 20px;
     }
+
     .admin-container {
-      max-width: 1200px;
-      margin: 0 auto;
+      max-width: 1400px;
+      margin: auto;
     }
+
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 30px;
+      gap: 15px;
       flex-wrap: wrap;
-      gap: 16px;
     }
+
     .header h1 {
       font-size: 28px;
-      font-weight: 700;
     }
-    .header h1 i { color: #4f7cff; margin-right: 10px; }
-    .header .back {
-      color: #1d9bf0;
+
+    .header h1 i {
+      color: #4f7cff;
+      margin-right: 10px;
+    }
+
+    .back {
+      color: #4f7cff;
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
     }
+
     .stats-bar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns:
+        repeat(4, minmax(150px, 1fr));
+
       gap: 16px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
+
     .stat-card {
       background: #131724;
       border: 1px solid #2a3450;
       border-radius: 12px;
-      padding: 16px 20px;
+      padding: 18px;
       text-align: center;
     }
-    .stat-card h2 { font-size: 28px; font-weight: 700; color: #4f7cff; }
-    .stat-card p { color: #9aa4bf; font-size: 13px; }
-    .stat-card.pending h2 { color: #f5a623; }
-    .stat-card.approved h2 { color: #00c897; }
-    .stat-card.rejected h2 { color: #ff4766; }
+
+    .stat-card h2 {
+      font-size: 28px;
+      color: #4f7cff;
+    }
+
+    .stat-card p {
+      color: #9aa4bf;
+      font-size: 13px;
+    }
+
+    .stat-card.pending h2 {
+      color: #f5a623;
+    }
+
+    .stat-card.approved h2 {
+      color: #00c897;
+    }
+
+    .stat-card.rejected h2 {
+      color: #ff4766;
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filters input,
+    .filters select {
+      background: #131724;
+      border: 1px solid #2a3450;
+      color: #fff;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-family: Poppins, sans-serif;
+    }
+
+    .filters input {
+      min-width: 280px;
+    }
 
     .payments-table {
       background: #131724;
@@ -64,168 +146,302 @@
       border-radius: 12px;
       overflow: hidden;
     }
-    .table-scroll { overflow-x: auto; padding: 4px; }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
     table {
       width: 100%;
+      min-width: 1200px;
       border-collapse: collapse;
-      font-size: 14px;
-      min-width: 900px;
     }
+
     thead {
       background: #0b0d15;
-      border-bottom: 2px solid #2a3450;
     }
-    thead th {
-      padding: 14px 16px;
+
+    th {
+      padding: 14px;
       text-align: left;
-      font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
       color: #9aa4bf;
-    }
-    tbody tr {
-      border-bottom: 1px solid #2a3450;
-      transition: 0.2s;
-    }
-    tbody tr:hover { background: #1a1f2f; }
-    tbody td {
-      padding: 12px 16px;
-      vertical-align: middle;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 3px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
       text-transform: uppercase;
     }
-    .status-badge.pending {
-      background: rgba(245,166,35,0.12);
+
+    td {
+      padding: 14px;
+      border-top: 1px solid #2a3450;
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    tbody tr:hover {
+      background: #1a1f2f;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status.pending {
+      background: rgba(245,166,35,.12);
       color: #f5a623;
     }
-    .status-badge.approved {
-      background: rgba(0,200,151,0.12);
+
+    .status.approved {
+      background: rgba(0,200,151,.12);
       color: #00c897;
     }
-    .status-badge.rejected {
-      background: rgba(255,71,102,0.12);
+
+    .status.rejected {
+      background: rgba(255,71,102,.12);
       color: #ff4766;
     }
-    .action-btns {
+
+    .money-usd {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .money-kes {
+      color: #00c897;
+      font-weight: 700;
+    }
+
+    .rate {
+      color: #9aa4bf;
+      font-size: 11px;
+    }
+
+    .proof-btn {
+      display: inline-block;
+      padding: 6px 11px;
+      border-radius: 6px;
+      background: rgba(79,124,255,.12);
+      color: #4f7cff;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .proof-btn:hover {
+      background: #4f7cff;
+      color: white;
+    }
+
+    .action-buttons {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       flex-wrap: wrap;
     }
-    .action-btns button {
-      padding: 6px 16px;
+
+    .action-buttons button {
       border: none;
       border-radius: 6px;
-      font-weight: 600;
-      font-size: 12px;
+      padding: 7px 13px;
       cursor: pointer;
-      transition: 0.25s;
-      font-family: 'Poppins', sans-serif;
+      font-family: Poppins, sans-serif;
+      font-weight: 600;
+      font-size: 11px;
     }
-    .btn-approve {
-      background: rgba(0,200,151,0.12);
+
+    .approve-btn {
+      background: rgba(0,200,151,.12);
       color: #00c897;
     }
-    .btn-approve:hover {
+
+    .approve-btn:hover {
       background: #00c897;
       color: #fff;
     }
-    .btn-reject {
-      background: rgba(255,71,102,0.12);
+
+    .reject-btn {
+      background: rgba(255,71,102,.12);
       color: #ff4766;
     }
-    .btn-reject:hover {
+
+    .reject-btn:hover {
       background: #ff4766;
       color: #fff;
     }
-    .btn-view-proof {
-      background: rgba(79,124,255,0.12);
-      color: #4f7cff;
-      padding: 4px 12px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 500;
-    }
-    .btn-view-proof:hover {
-      background: #4f7cff;
-      color: #fff;
-    }
-    .no-payments {
+
+    .loading,
+    .empty,
+    .error {
       text-align: center;
-      padding: 40px;
+      padding: 45px;
       color: #9aa4bf;
     }
-    .no-payments i { font-size: 2rem; display: block; margin-bottom: 12px; }
-    .loading-spinner {
-      text-align: center;
-      padding: 40px;
-    }
-    .loading-spinner i { font-size: 2rem; color: #4f7cff; }
 
-    @media (max-width: 768px) {
-      .header { flex-direction: column; align-items: stretch; }
-      .stats-bar { grid-template-columns: 1fr 1fr; }
+    .loading i {
+      color: #4f7cff;
+      font-size: 25px;
     }
+
+    @media (max-width: 700px) {
+
+      .stats-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filters input {
+        min-width: 100%;
+      }
+
+    }
+
   </style>
+
 </head>
+
 <body>
 
 <div class="admin-container">
+
   <div class="header">
-    <h1><i class="fa-solid fa-credit-card"></i> Payment Approvals</h1>
-    <a href="admin.html" class="back"><i class="fa-solid fa-arrow-left"></i> Back to Admin</a>
+
+    <h1>
+      <i class="fa-solid fa-credit-card"></i>
+      Payment Approvals
+    </h1>
+
+    <a
+      href="admin.html"
+      class="back"
+    >
+      <i class="fa-solid fa-arrow-left"></i>
+      Back to Admin
+    </a>
+
   </div>
 
-  <!-- Stats -->
-  <div class="stats-bar" id="statsBar">
+
+  <div class="stats-bar">
+
     <div class="stat-card pending">
       <h2 id="statPending">0</h2>
       <p>Pending</p>
     </div>
+
     <div class="stat-card approved">
       <h2 id="statApproved">0</h2>
       <p>Approved</p>
     </div>
+
     <div class="stat-card rejected">
       <h2 id="statRejected">0</h2>
       <p>Rejected</p>
     </div>
+
     <div class="stat-card">
-      <h2 id="statTotal">0</h2>
-      <p>Total</p>
+      <h2 id="statRevenue">$0</h2>
+      <p>Approved Revenue</p>
     </div>
+
   </div>
 
-  <!-- Table -->
-  <div class="payments-table">
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Plan</th>
-            <th>Method</th>
-            <th>Transaction ID</th>
-            <th>Amount</th>
-            <th>Proof</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="paymentsBody">
-          <tr><td colspan="8"><div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading payments...</div></td></tr>
-        </tbody>
-      </table>
-    </div>
+
+  <div class="filters">
+
+    <input
+      type="search"
+      id="paymentSearch"
+      placeholder="Search name, email or transaction ID..."
+    >
+
+    <select id="paymentFilter">
+
+      <option value="all">
+        All Payments
+      </option>
+
+      <option value="pending">
+        Pending
+      </option>
+
+      <option value="approved">
+        Approved
+      </option>
+
+      <option value="rejected">
+        Rejected
+      </option>
+
+    </select>
+
   </div>
+
+
+  <div class="payments-table">
+
+    <div class="table-scroll">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>User</th>
+
+            <th>Plan</th>
+
+            <th>Method</th>
+
+            <th>USD</th>
+
+            <th>KES Paid</th>
+
+            <th>Rate</th>
+
+            <th>Transaction</th>
+
+            <th>Proof</th>
+
+            <th>Status</th>
+
+            <th>Actions</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="paymentsBody">
+
+          <tr>
+
+            <td colspan="10">
+
+              <div class="loading">
+
+                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                <p>
+                  Loading payments...
+                </p>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
 </div>
+
 
 <script type="importmap">
 {
@@ -237,159 +453,967 @@
 }
 </script>
 
+
 <script type="module">
-  // ─── IMPORTS (ALL AT THE TOP) ─────────────────────────────
-  import { auth, db } from "./js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import {
-    collection,
-    query,
-    where,
-    onSnapshot,
-    doc,
-    getDoc,
-    updateDoc,
-    serverTimestamp,
-    orderBy,
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-  // ─── DOM REFS ──────────────────────────────────────────────
-  const tbody = document.getElementById("paymentsBody");
-  const statPending = document.getElementById("statPending");
-  const statApproved = document.getElementById("statApproved");
-  const statRejected = document.getElementById("statRejected");
-  const statTotal = document.getElementById("statTotal");
+import {
+  auth,
+  db
+} from "./js/firebase.js";
 
-  let allPayments = [];
 
-  // ─── AUTH GUARD (admin only) ─────────────────────────────
-  onAuthStateChanged(auth, async (user) => {
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+// ============================================================
+// DOM
+// ============================================================
+
+const tbody =
+  document.getElementById(
+    "paymentsBody"
+  );
+
+const statPending =
+  document.getElementById(
+    "statPending"
+  );
+
+const statApproved =
+  document.getElementById(
+    "statApproved"
+  );
+
+const statRejected =
+  document.getElementById(
+    "statRejected"
+  );
+
+const statRevenue =
+  document.getElementById(
+    "statRevenue"
+  );
+
+const searchInput =
+  document.getElementById(
+    "paymentSearch"
+  );
+
+const filterInput =
+  document.getElementById(
+    "paymentFilter"
+  );
+
+
+let allPayments = [];
+
+
+// ============================================================
+// ADMIN AUTH
+// ============================================================
+
+onAuthStateChanged(
+  auth,
+  async (user) => {
+
     if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
-    try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists() || userDoc.data().role !== "admin") {
-        window.location.href = "access-denied.html";
-        return;
-      }
-      // Admin verified – start listening
-      listenPayments();
-    } catch (e) {
-      console.error(e);
-      window.location.href = "login.html";
-    }
-  });
 
-  // ─── REAL-TIME LISTENER ──────────────────────────────────
-  function listenPayments() {
-    const q = query(
-      collection(db, "payments"),
-      orderBy("createdAt", "desc")
+      window.location.href =
+        "login.html";
+
+      return;
+
+    }
+
+
+    try {
+
+      const userRef =
+        doc(
+          db,
+          "users",
+          user.uid
+        );
+
+
+      const userSnap =
+        await getDoc(userRef);
+
+
+      if (
+        !userSnap.exists() ||
+        userSnap.data().role !== "admin"
+      ) {
+
+        window.location.href =
+          "access-denied.html";
+
+        return;
+
+      }
+
+
+      console.log(
+        "✅ Admin verified:",
+        user.email
+      );
+
+
+      loadPayments();
+
+    } catch (error) {
+
+      console.error(
+        "ADMIN CHECK ERROR:",
+        error
+      );
+
+      window.location.href =
+        "login.html";
+
+    }
+
+  }
+);
+
+
+// ============================================================
+// LOAD PAYMENTS
+// ============================================================
+
+function loadPayments() {
+
+  const q =
+    query(
+
+      collection(
+        db,
+        "payments"
+      ),
+
+      orderBy(
+        "createdAt",
+        "desc"
+      )
+
     );
 
-    onSnapshot(q, (snapshot) => {
+
+  onSnapshot(
+    q,
+    (snapshot) => {
+
       allPayments = [];
-      snapshot.forEach((doc) => {
-        allPayments.push({ id: doc.id, ...doc.data() });
-      });
-      renderTable(allPayments);
-      updateStats(allPayments);
-    }, (error) => {
-      console.error("Listener error:", error);
-      tbody.innerHTML = `<tr><td colspan="8"><div class="no-payments"><i class="fa-solid fa-circle-exclamation"></i> Error loading payments.</div></td></tr>`;
-    });
-  }
 
-  // ─── RENDER TABLE ──────────────────────────────────────────
-  function renderTable(payments) {
-    if (payments.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="no-payments"><i class="fa-solid fa-inbox"></i> No payments yet.</div></td></tr>`;
-      return;
-    }
 
-    let html = "";
-    payments.forEach((p) => {
-      const statusClass = p.status || "pending";
-      const statusLabel = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
-      const proofLink = p.proofURL ? `<a href="${p.proofURL}" target="_blank" class="btn-view-proof">View</a>` : "—";
+      snapshot.forEach(
+        (paymentDoc) => {
 
-      html += `
+          allPayments.push({
+
+            id:
+              paymentDoc.id,
+
+            ...paymentDoc.data()
+
+          });
+
+        }
+      );
+
+
+      updateStats();
+
+      filterAndRender();
+
+    },
+    (error) => {
+
+      console.error(
+        "PAYMENTS LISTENER ERROR:",
+        error
+      );
+
+
+      tbody.innerHTML = `
+
         <tr>
-          <td><strong>${p.name || "—"}</strong><br><small style="color:#9aa4bf;">${p.email || ""}</small></td>
-          <td>${p.plan || "—"}</td>
-          <td>${p.paymentMethod || "—"}</td>
-          <td><code style="font-size:12px;background:#0b0d15;padding:2px 8px;border-radius:4px;">${p.transactionId || "—"}</code></td>
-          <td>$${p.amount || 0}</td>
-          <td>${proofLink}</td>
-          <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-          <td>
-            <div class="action-btns">
-              ${statusClass === "pending" ? `
-                <button class="btn-approve" data-id="${p.id}" data-uid="${p.userId}">Approve</button>
-                <button class="btn-reject" data-id="${p.id}" data-uid="${p.userId}">Reject</button>
-              ` : "—"}
+
+          <td colspan="10">
+
+            <div class="error">
+
+              <i class="fa-solid fa-circle-exclamation"></i>
+
+              <p>
+                Error loading payments.
+              </p>
+
+              <small>
+                ${escapeHTML(error.message)}
+              </small>
+
             </div>
+
           </td>
+
         </tr>
+
       `;
-    });
 
-    tbody.innerHTML = html;
-
-    // ─── Attach event listeners ─────────────────────────────
-    document.querySelectorAll(".btn-approve").forEach((btn) => {
-      btn.addEventListener("click", () => handleAction(btn.dataset.id, btn.dataset.uid, "approved"));
-    });
-    document.querySelectorAll(".btn-reject").forEach((btn) => {
-      btn.addEventListener("click", () => handleAction(btn.dataset.id, btn.dataset.uid, "rejected"));
-    });
-  }
-
-  // ─── HANDLE APPROVE / REJECT ──────────────────────────────
-  async function handleAction(paymentId, userId, status) {
-    if (!confirm(`Are you sure you want to ${status} this payment?`)) return;
-
-    try {
-      // 1. Update payment status
-      await updateDoc(doc(db, "payments", paymentId), {
-        status: status,
-        reviewedAt: serverTimestamp(),
-      });
-
-      // 2. If approved, upgrade user to premium
-      if (status === "approved") {
-        await updateDoc(doc(db, "users", userId), {
-          membership: "premium",
-          updatedAt: serverTimestamp(),
-        });
-        alert("✅ Payment approved and user upgraded to Premium!");
-      } else {
-        alert("❌ Payment rejected.");
-      }
-    } catch (error) {
-      console.error("Action error:", error);
-      alert("Failed to update payment. Please try again.");
     }
+  );
+
+}
+
+
+// ============================================================
+// STATISTICS
+// ============================================================
+
+function updateStats() {
+
+  let pending = 0;
+
+  let approved = 0;
+
+  let rejected = 0;
+
+  let revenue = 0;
+
+
+  allPayments.forEach(
+    (payment) => {
+
+      if (
+        payment.status ===
+        "pending"
+      ) {
+
+        pending++;
+
+      }
+
+
+      if (
+        payment.status ===
+        "approved"
+      ) {
+
+        approved++;
+
+        revenue +=
+          Number(
+            payment.amountUSD || 0
+          );
+
+      }
+
+
+      if (
+        payment.status ===
+        "rejected"
+      ) {
+
+        rejected++;
+
+      }
+
+    }
+  );
+
+
+  statPending.textContent =
+    pending;
+
+  statApproved.textContent =
+    approved;
+
+  statRejected.textContent =
+    rejected;
+
+  statRevenue.textContent =
+    `$${revenue.toFixed(2)}`;
+
+}
+
+
+// ============================================================
+// SEARCH + FILTER
+// ============================================================
+
+searchInput.addEventListener(
+  "input",
+  filterAndRender
+);
+
+
+filterInput.addEventListener(
+  "change",
+  filterAndRender
+);
+
+
+function filterAndRender() {
+
+  const search =
+    searchInput.value
+      .toLowerCase()
+      .trim();
+
+
+  const filter =
+    filterInput.value;
+
+
+  let filtered =
+    allPayments.filter(
+      (payment) => {
+
+        const matchesSearch =
+          !search ||
+
+          String(
+            payment.name || ""
+          )
+            .toLowerCase()
+            .includes(search) ||
+
+          String(
+            payment.email || ""
+          )
+            .toLowerCase()
+            .includes(search) ||
+
+          String(
+            payment.transactionId || ""
+          )
+            .toLowerCase()
+            .includes(search);
+
+
+        const matchesStatus =
+          filter === "all" ||
+          payment.status === filter;
+
+
+        return (
+          matchesSearch &&
+          matchesStatus
+        );
+
+      }
+    );
+
+
+  renderPayments(
+    filtered
+  );
+
+}
+
+
+// ============================================================
+// RENDER
+// ============================================================
+
+function renderPayments(
+  payments
+) {
+
+  if (!payments.length) {
+
+    tbody.innerHTML = `
+
+      <tr>
+
+        <td colspan="10">
+
+          <div class="empty">
+
+            <i class="fa-solid fa-inbox"></i>
+
+            <p>
+              No payments found.
+            </p>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
   }
 
-  // ─── UPDATE STATS ──────────────────────────────────────────
-  function updateStats(payments) {
-    let pending = 0, approved = 0, rejected = 0;
-    payments.forEach((p) => {
-      const s = p.status || "pending";
-      if (s === "pending") pending++;
-      else if (s === "approved") approved++;
-      else if (s === "rejected") rejected++;
-    });
-    statPending.textContent = pending;
-    statApproved.textContent = approved;
-    statRejected.textContent = rejected;
-    statTotal.textContent = payments.length;
+
+  tbody.innerHTML =
+    payments
+      .map(renderPayment)
+      .join("");
+
+
+  document
+    .querySelectorAll(".approve-btn")
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            handlePayment(
+              button.dataset.id,
+              "approved"
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  document
+    .querySelectorAll(".reject-btn")
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            handlePayment(
+              button.dataset.id,
+              "rejected"
+            );
+
+          }
+        );
+
+      }
+    );
+
+}
+
+
+// ============================================================
+// PAYMENT ROW
+// ============================================================
+
+function renderPayment(
+  payment
+) {
+
+  const status =
+    payment.status ||
+    "pending";
+
+
+  const usd =
+    Number(
+      payment.amountUSD || 0
+    );
+
+
+  const kes =
+    payment.amountKES;
+
+
+  const rate =
+    payment.exchangeRate;
+
+
+  const proof =
+    payment.proofURL ||
+    "";
+
+
+  const actions =
+    status === "pending"
+
+      ? `
+
+        <div class="action-buttons">
+
+          <button
+            class="approve-btn"
+            data-id="${payment.id}"
+          >
+            <i class="fa-solid fa-check"></i>
+            Approve
+          </button>
+
+          <button
+            class="reject-btn"
+            data-id="${payment.id}"
+          >
+            <i class="fa-solid fa-xmark"></i>
+            Reject
+          </button>
+
+        </div>
+
+      `
+
+      : "—";
+
+
+  const transaction =
+    escapeHTML(
+      payment.transactionId ||
+      "—"
+    );
+
+
+  return `
+
+    <tr>
+
+      <td>
+
+        <strong>
+          ${escapeHTML(
+            payment.name ||
+            "N/A"
+          )}
+        </strong>
+
+        <br>
+
+        <small style="color:#9aa4bf;">
+          ${escapeHTML(
+            payment.email ||
+            ""
+          )}
+        </small>
+
+      </td>
+
+
+      <td>
+        ${escapeHTML(
+          payment.plan ||
+          "—"
+        )}
+      </td>
+
+
+      <td>
+        ${
+          payment.paymentMethod ===
+          "Mpesa"
+            ? "M-PESA"
+            : "PayPal"
+        }
+      </td>
+
+
+      <td>
+
+        <span class="money-usd">
+          $${usd.toFixed(2)}
+        </span>
+
+      </td>
+
+
+      <td>
+
+        ${
+          kes !== null &&
+          kes !== undefined
+            ? `
+              <span class="money-kes">
+                KSh ${Number(kes).toLocaleString("en-KE")}
+              </span>
+            `
+            : "—"
+        }
+
+      </td>
+
+
+      <td>
+
+        ${
+          rate
+            ? `
+              <span class="rate">
+                1 USD =
+                KSh ${Number(rate).toFixed(4)}
+              </span>
+            `
+            : "—"
+        }
+
+      </td>
+
+
+      <td>
+
+        <code>
+          ${transaction}
+        </code>
+
+      </td>
+
+
+      <td>
+
+        ${
+          proof
+            ? `
+              <a
+                href="${escapeAttribute(proof)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="proof-btn"
+              >
+                <i class="fa-solid fa-eye"></i>
+                View
+              </a>
+            `
+            : "—"
+        }
+
+      </td>
+
+
+      <td>
+
+        <span
+          class="status ${status}"
+        >
+          ${escapeHTML(status)}
+        </span>
+
+      </td>
+
+
+      <td>
+
+        ${actions}
+
+      </td>
+
+    </tr>
+
+  `;
+
+}
+
+
+// ============================================================
+// APPROVE / REJECT
+// ============================================================
+
+async function handlePayment(
+  paymentId,
+  newStatus
+) {
+
+  const payment =
+    allPayments.find(
+      (item) =>
+        item.id === paymentId
+    );
+
+
+  if (!payment) {
+
+    alert(
+      "Payment could not be found."
+    );
+
+    return;
+
   }
 
-  console.log("✅ Admin payments page ready.");
+
+  if (
+    payment.status !==
+    "pending"
+  ) {
+
+    alert(
+      "This payment has already been processed."
+    );
+
+    return;
+
+  }
+
+
+  const action =
+    newStatus === "approved"
+      ? "approve"
+      : "reject";
+
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to ${action} this payment?`
+    );
+
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
+
+  try {
+
+    // --------------------------------------------------------
+    // UPDATE PAYMENT
+    // --------------------------------------------------------
+
+    await updateDoc(
+
+      doc(
+        db,
+        "payments",
+        paymentId
+      ),
+
+      {
+
+        status:
+          newStatus,
+
+        reviewedAt:
+          serverTimestamp(),
+
+        reviewedBy:
+          auth.currentUser.uid
+
+      }
+
+    );
+
+
+    // --------------------------------------------------------
+    // APPROVE USER
+    // --------------------------------------------------------
+
+    if (
+      newStatus ===
+      "approved"
+    ) {
+
+      if (!payment.userId) {
+
+        throw new Error(
+          "Payment has no userId."
+        );
+
+      }
+
+
+      const userRef =
+        doc(
+          db,
+          "users",
+          payment.userId
+        );
+
+
+      const userSnap =
+        await getDoc(
+          userRef
+        );
+
+
+      if (!userSnap.exists()) {
+
+        throw new Error(
+          "User account was not found."
+        );
+
+      }
+
+
+      await updateDoc(
+        userRef,
+        {
+
+          membership:
+            "premium",
+
+          status:
+            "active",
+
+          role:
+            "member",
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      // ------------------------------------------------------
+      // AUDIT LOG
+      // ------------------------------------------------------
+
+      await addDoc(
+
+        collection(
+          db,
+          "paymentLogs"
+        ),
+
+        {
+
+          action:
+            "APPROVED",
+
+          paymentId,
+
+          userId:
+            payment.userId,
+
+          details:
+            "Payment approved and Premium membership activated.",
+
+          admin:
+            auth.currentUser.email,
+
+          createdAt:
+            serverTimestamp()
+
+        }
+
+      );
+
+
+      alert(
+        "✅ Payment approved. User is now Premium."
+      );
+
+    }
+
+
+    // --------------------------------------------------------
+    // REJECT
+    // --------------------------------------------------------
+
+    if (
+      newStatus ===
+      "rejected"
+    ) {
+
+      await addDoc(
+
+        collection(
+          db,
+          "paymentLogs"
+        ),
+
+        {
+
+          action:
+            "REJECTED",
+
+          paymentId,
+
+          userId:
+            payment.userId || null,
+
+          details:
+            "Payment rejected by administrator.",
+
+          admin:
+            auth.currentUser.email,
+
+          createdAt:
+            serverTimestamp()
+
+        }
+
+      );
+
+
+      alert(
+        "❌ Payment rejected."
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "PAYMENT ACTION ERROR:",
+      error
+    );
+
+
+    alert(
+      error?.message ||
+      "Failed to process payment."
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// SECURITY HELPERS
+// ============================================================
+
+function escapeHTML(
+  value
+) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+function escapeAttribute(
+  value
+) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
+}
+
+
+console.log(
+  "✅ Admin Payments System Loaded"
+);
+
 </script>
 
 </body>

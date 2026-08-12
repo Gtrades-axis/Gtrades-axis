@@ -1,1168 +1,828 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+  <title>Upgrade to Premium | GTRADES-AXIS™</title>
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/payment.css">
 
-<title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-Upgrade to Premium |
-GTRADES-AXIS™
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  >
 
-</title>
+  <style>
+    .proof-upload {
+      margin: 18px 0;
+    }
 
-<link rel="stylesheet"
-href="css/style.css">
+    .proof-upload label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: #9aa4bf;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
 
-<link rel="stylesheet"
-href="css/payment.css">
+    .proof-upload input[type="file"] {
+      width: 100%;
+      padding: 11px;
+      background: #0b0d15;
+      border: 1px solid #2a3450;
+      border-radius: 8px;
+      color: #e8edf5;
+    }
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    .file-hint {
+      font-size: 12px;
+      color: #6a7490;
+      margin-top: 6px;
+    }
 
+    .payment-warning {
+      background: rgba(255,71,102,.06);
+      border: 1px solid rgba(255,71,102,.15);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 12px;
+      color: #f87171;
+      font-size: 13px;
+      margin: 18px 0;
+    }
+
+    .payment-warning i {
+      font-size: 20px;
+      margin-top: 2px;
+    }
+
+    .currency-box {
+      display: none;
+      margin: 20px 0;
+      padding: 20px;
+      background: #0b0d15;
+      border: 1px solid #2a3450;
+      border-radius: 12px;
+    }
+
+    .currency-box.active {
+      display: block;
+    }
+
+    .currency-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 8px 0;
+      color: #9aa4bf;
+    }
+
+    .currency-row strong {
+      color: #fff;
+    }
+
+    .kes-amount {
+      font-size: 26px;
+      color: #00c897 !important;
+    }
+
+    .rate-text {
+      font-size: 12px;
+      color: #6a7490;
+      margin-top: 8px;
+    }
+
+    .mpesa-details-box {
+      display: none;
+      margin-top: 14px;
+      padding: 15px;
+      background: rgba(0,200,151,.06);
+      border: 1px solid rgba(0,200,151,.15);
+      border-radius: 10px;
+    }
+
+    .mpesa-details-box.active {
+      display: block;
+    }
+
+    .mpesa-details-box strong {
+      color: #00c897;
+    }
+
+    .success-modal,
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.82);
+    }
+
+    .success-modal.active,
+    .loading-screen.active {
+      display: flex;
+    }
+
+    .success-card {
+      width: min(420px, 90%);
+      background: #131724;
+      border: 1px solid #2a3450;
+      border-radius: 16px;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .success-icon {
+      font-size: 58px;
+      color: #00c897;
+      margin-bottom: 15px;
+    }
+
+    .success-card h2 {
+      margin-bottom: 10px;
+    }
+
+    .success-card p {
+      color: #9aa4bf;
+      line-height: 1.6;
+    }
+
+    .status-box {
+      background: #0b0d15;
+      padding: 14px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .status-box span {
+      display: block;
+      font-size: 11px;
+      color: #6a7490;
+      text-transform: uppercase;
+    }
+
+    .status-box strong {
+      color: #f5a623;
+    }
+
+    .success-card button {
+      margin-top: 15px;
+      padding: 12px 30px;
+      border: 0;
+      border-radius: 8px;
+      background: #4f7cff;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .loader-box {
+      text-align: center;
+      color: white;
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      margin: auto auto 16px;
+      border: 4px solid rgba(255,255,255,.1);
+      border-top-color: #4f7cff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- ==========================================================
-TOP NAVBAR
-========================================================== -->
-
 <header class="topbar">
+  <div class="logo">
+    <img src="images/logo.png" alt="GTRADES-AXIS Logo">
+    <div>
+      <h2>GTRADES-AXIS™</h2>
+      <small>Trade with Structure. Execute with Precision.</small>
+    </div>
+  </div>
 
-<div class="logo">
-
-<img src="images/logo.png"
-alt="Logo">
-
-<div>
-
-<h2>GTRADES-AXIS™</h2>
-
-<small>
-Trade with Structure.
-Execute with Precision.
-</small>
-
-</div>
-
-</div>
-
-<div class="top-actions">
-
-<a href="dashboard.html"
-class="back-btn">
-
-<i class="fa-solid fa-arrow-left"></i>
-
-Dashboard
-
-</a>
-
-</div>
-
+  <div class="top-actions">
+    <a href="dashboard.html" class="back-btn">
+      <i class="fa-solid fa-arrow-left"></i>
+      Dashboard
+    </a>
+  </div>
 </header>
 
-<!-- ==========================================================
-HERO
-========================================================== -->
-
 <section class="payment-hero">
+  <h1>Upgrade To <span>Premium</span></h1>
 
-<h1>
-
-Upgrade To
-<span>Premium</span>
-
-</h1>
-
-<p>
-
-Unlock the complete
-GTRADES-AXIS™ Trading Academy,
-Trading Journal,
-AI Trade Review,
-Premium Resources
-and much more.
-
-</p>
-
+  <p>
+    Unlock the complete GTRADES-AXIS™ Trading Academy,
+    Trading Journal, AI Trade Review, Premium Resources and much more.
+  </p>
 </section>
-
-<!-- ==========================================================
-PLANS
-========================================================== -->
 
 <section class="plans">
 
-<!-- MONTHLY -->
-
-<div class="plan-card">
-
-<div class="plan-header">
-
-<h2>
-
-Premium Monthly
-
-</h2>
-
-<h1>
-
-$50
-
-</h1>
-
-<p>
-
-Per Month
-
-</p>
-
-</div>
-
-<ul>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Premium Academy
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Trading Journal
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-AI Trade Review
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Premium Resources
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Analytics Dashboard
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Priority Support
-
-</li>
-
-</ul>
-
-<button
-class="select-plan"
-data-plan="Monthly"
-data-price="50">
-
-Choose Plan
-
-</button>
-
-</div>
-
-<!-- LIFETIME -->
-
-<div class="plan-card featured">
-
-<div class="popular">
-
-BEST VALUE
-
-</div>
-
-<div class="plan-header">
-
-<h2>
-
-Lifetime Premium
-
-</h2>
-
-<h1>
-
-$200
-
-</h1>
-
-<p>
-
-One-Time Payment
-
-</p>
-
-</div>
-
-<ul>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Everything in Monthly
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Lifetime Access
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-All Future Updates
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-Lifetime Premium Resources
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-VIP Features
-
-</li>
-
-<li>
-
-<i class="fa-solid fa-check"></i>
-
-No Renewal Fees
-
-</li>
-
-</ul>
-
-<button
-class="select-plan"
-data-plan="Lifetime"
-data-price="200">
-
-Choose Plan
-
-</button>
-
-</div>
+  <div class="plan-card">
+
+    <div class="plan-header">
+      <h2>Premium Monthly</h2>
+      <h1>$50</h1>
+      <p>Per Month</p>
+    </div>
+
+    <ul>
+      <li><i class="fa-solid fa-check"></i> Premium Academy</li>
+      <li><i class="fa-solid fa-check"></i> Trading Journal</li>
+      <li><i class="fa-solid fa-check"></i> AI Trade Review</li>
+      <li><i class="fa-solid fa-check"></i> Premium Resources</li>
+      <li><i class="fa-solid fa-check"></i> Analytics Dashboard</li>
+      <li><i class="fa-solid fa-check"></i> Priority Support</li>
+    </ul>
+
+    <button
+      class="select-plan"
+      data-plan="Monthly"
+      data-price="50"
+    >
+      Choose Plan
+    </button>
+
+  </div>
+
+
+  <div class="plan-card featured">
+
+    <div class="popular">BEST VALUE</div>
+
+    <div class="plan-header">
+      <h2>Lifetime Premium</h2>
+      <h1>$200</h1>
+      <p>One-Time Payment</p>
+    </div>
+
+    <ul>
+      <li><i class="fa-solid fa-check"></i> Everything in Monthly</li>
+      <li><i class="fa-solid fa-check"></i> Lifetime Access</li>
+      <li><i class="fa-solid fa-check"></i> All Future Updates</li>
+      <li><i class="fa-solid fa-check"></i> Lifetime Premium Resources</li>
+      <li><i class="fa-solid fa-check"></i> VIP Features</li>
+      <li><i class="fa-solid fa-check"></i> No Renewal Fees</li>
+    </ul>
+
+    <button
+      class="select-plan"
+      data-plan="Lifetime"
+      data-price="200"
+    >
+      Choose Plan
+    </button>
+
+  </div>
 
 </section>
-
-<!-- ==========================================================
-WHY PREMIUM
-========================================================== -->
 
 <section class="premium-benefits">
 
-<h2>
+  <h2>Why Upgrade?</h2>
 
-Why Upgrade?
+  <div class="benefits-grid">
 
-</h2>
+    <div class="benefit-card">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <h3>Premium Academy</h3>
+      <p>Complete trading education from beginner to advanced.</p>
+    </div>
 
-<div class="benefits-grid">
+    <div class="benefit-card">
+      <i class="fa-solid fa-book"></i>
+      <h3>Trading Journal</h3>
+      <p>Track every trade, statistics, mistakes and consistency.</p>
+    </div>
 
-<div class="benefit-card">
+    <div class="benefit-card">
+      <i class="fa-solid fa-robot"></i>
+      <h3>AI Trade Review</h3>
+      <p>Receive intelligent feedback on every trade.</p>
+    </div>
 
-<i class="fa-solid fa-graduation-cap"></i>
+    <div class="benefit-card">
+      <i class="fa-solid fa-chart-line"></i>
+      <h3>Trading Analytics</h3>
+      <p>Professional performance metrics and reports.</p>
+    </div>
 
-<h3>
-
-Premium Academy
-
-</h3>
-
-<p>
-
-Complete trading education
-from beginner to advanced.
-
-</p>
-
-</div>
-
-<div class="benefit-card">
-
-<i class="fa-solid fa-book"></i>
-
-<h3>
-
-Trading Journal
-
-</h3>
-
-<p>
-
-Track every trade,
-statistics,
-mistakes
-and consistency.
-
-</p>
-
-</div>
-
-<div class="benefit-card">
-
-<i class="fa-solid fa-robot"></i>
-
-<h3>
-
-AI Trade Review
-
-</h3>
-
-<p>
-
-Receive intelligent feedback
-on every trade.
-
-</p>
-
-</div>
-
-<div class="benefit-card">
-
-<i class="fa-solid fa-chart-line"></i>
-
-<h3>
-
-Trading Analytics
-
-</h3>
-
-<p>
-
-Professional performance
-metrics and reports.
-
-</p>
-
-</div>
-
-</div>
+  </div>
 
 </section>
-<!-- ==========================================================
-PAYMENT METHODS
-========================================================== -->
 
 <section class="payment-methods">
 
-<h2>
+  <h2>Choose Your Payment Method</h2>
 
-Choose Your Payment Method
+  <p class="section-text">
+    Select your payment method below. M-PESA payments are automatically
+    converted from USD to KES using the current exchange rate.
+  </p>
 
-</h2>
+  <div class="payment-grid">
 
-<p class="section-text">
+    <div class="payment-card">
 
-After making payment, copy your transaction details and
-submit them using the form below.
+      <div class="payment-icon mpesa">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+      </div>
 
-</p>
+      <h3>M-PESA</h3>
 
-<div class="payment-grid">
+      <div class="payment-details">
 
-<!-- =======================================================
-MPESA
-======================================================= -->
+        <div class="detail">
+          <span>Number</span>
 
-<div class="payment-card">
+          <strong>0712416214</strong>
 
-<div class="payment-icon mpesa">
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="0712416214"
+          >
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
 
-<i class="fa-solid fa-mobile-screen-button"></i>
+        <div class="detail">
+          <span>Account Name</span>
+          <strong>David Thuku</strong>
+        </div>
 
-</div>
+      </div>
 
-<h3>
+      <div class="instructions">
 
-M-PESA
+        <h4>Instructions</h4>
 
-</h3>
+        <ol>
+          <li>Choose <b>Send Money</b>.</li>
+          <li>Send the exact KES amount displayed below.</li>
+          <li>Keep your M-PESA transaction code.</li>
+          <li>Submit the payment form.</li>
+        </ol>
 
-<div class="payment-details">
+      </div>
 
-<div class="detail">
+    </div>
 
-<span>
 
-Business / Number
+    <div class="payment-card">
 
-</span>
+      <div class="payment-icon paypal">
+        <i class="fa-brands fa-paypal"></i>
+      </div>
 
-<strong id="mpesaNumber">
+      <h3>PayPal</h3>
 
-0712416214
+      <div class="payment-details">
 
-</strong>
+        <div class="detail">
 
-<button
-class="copy-btn"
-data-copy="0712416214">
+          <span>PayPal Email</span>
 
-<i class="fa-regular fa-copy"></i>
+          <strong>Davidthuku574@gmail.com</strong>
 
-</button>
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="Davidthuku574@gmail.com"
+          >
+            <i class="fa-regular fa-copy"></i>
+          </button>
 
-</div>
+        </div>
 
-<div class="detail">
+        <div class="detail">
+          <span>Currency</span>
+          <strong>USD</strong>
+        </div>
 
-<span>
+      </div>
 
-Account Name
+      <div class="instructions">
 
-</span>
+        <h4>Instructions</h4>
 
-<strong>
+        <ol>
+          <li>Log in to PayPal.</li>
+          <li>Send the USD amount displayed.</li>
+          <li>Copy the PayPal Transaction ID.</li>
+          <li>Submit the form.</li>
+        </ol>
 
-David Thuku
+      </div>
 
-</strong>
+    </div>
 
-</div>
-
-</div>
-
-<div class="instructions">
-
-<h4>
-
-Instructions
-
-</h4>
-
-<ol>
-
-<li>
-
-Choose <b>Send Money</b>.
-
-</li>
-
-<li>
-
-Send the exact amount.
-
-</li>
-
-<li>
-
-Keep your transaction code.
-
-</li>
-
-<li>
-
-Submit the payment form below.
-
-</li>
-
-</ol>
-
-</div>
-
-</div>
-
-<!-- =======================================================
-PAYPAL
-======================================================= -->
-
-<div class="payment-card">
-
-<div class="payment-icon paypal">
-
-<i class="fa-brands fa-paypal"></i>
-
-</div>
-
-<h3>
-
-PayPal
-
-</h3>
-
-<div class="payment-details">
-
-<div class="detail">
-
-<span>
-
-PayPal Email
-
-</span>
-
-<strong id="paypalEmail">
-
-Davidthuku574@gmail.com
-
-</strong>
-
-<button
-class="copy-btn"
-data-copy="Davidthuku574@gmail.com">
-
-<i class="fa-regular fa-copy"></i>
-
-</button>
-
-</div>
-
-<div class="detail">
-
-<span>
-
-Currency
-
-</span>
-
-<strong>
-
-USD
-
-</strong>
-
-</div>
-
-</div>
-
-<div class="instructions">
-
-<h4>
-
-Instructions
-
-</h4>
-
-<ol>
-
-<li>
-
-Log in to PayPal.
-
-</li>
-
-<li>
-
-Send the payment.
-
-</li>
-
-<li>
-
-Copy the Transaction ID.
-
-</li>
-
-<li>
-
-Submit the form below.
-
-</li>
-
-</ol>
-
-</div>
-
-</div>
-
-</div>
+  </div>
 
 </section>
-
-<!-- ==========================================================
-IMPORTANT NOTICE
-========================================================== -->
 
 <section class="payment-notice">
 
-<div class="notice-card">
+  <div class="notice-card">
 
-<i class="fa-solid fa-circle-info"></i>
+    <i class="fa-solid fa-circle-info"></i>
 
-<div>
+    <div>
 
-<h3>
+      <h3>Important</h3>
 
-Important
+      <p>
+        Premium Membership is activated only after an administrator
+        verifies your payment. Approval usually takes between
+        <strong>5 minutes</strong> and <strong>24 hours</strong>.
+      </p>
 
-</h3>
+    </div>
 
-<p>
-
-Your Premium Membership is activated only after
-an administrator verifies your payment.
-
-Approval usually takes between
-<strong>5 minutes</strong> and
-<strong>24 hours</strong>,
-depending on verification time.
-
-</p>
-
-</div>
-
-</div>
+  </div>
 
 </section>
-<!-- ==========================================================
-PAYMENT SUBMISSION
-========================================================== -->
 
 <section class="payment-form-section">
 
-<div class="payment-form-card">
+  <div class="payment-form-card">
 
-<h2>
+    <h2>Submit Payment</h2>
 
-Submit Payment
+    <p>
+      Complete this form after sending your payment.
+      Your membership will be activated after verification.
+    </p>
 
-</h2>
+    <form id="paymentForm">
 
-<p>
+      <input type="hidden" id="userId">
 
-Complete the form below after sending your payment.
-Your membership will be activated once an administrator
-verifies your transaction.
+      <input type="hidden" id="exchangeRate">
 
-</p>
+      <div class="form-grid">
 
-<form id="paymentForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input
+            type="text"
+            id="userName"
+            readonly
+            required
+          >
+        </div>
 
-<!-- ========================================= -->
+        <div class="form-group">
+          <label>Email Address</label>
+          <input
+            type="email"
+            id="userEmail"
+            readonly
+            required
+          >
+        </div>
 
-<div class="form-grid">
+      </div>
 
-<div class="form-group">
 
-<label>
+      <div class="form-grid">
 
-Full Name
+        <div class="form-group">
 
-</label>
+          <label>Membership Plan</label>
 
-<input
+          <select id="membershipPlan" required>
 
-type="text"
+            <option value="">
+              Select Plan
+            </option>
 
-id="fullName"
+            <option value="Monthly">
+              Premium Monthly ($50)
+            </option>
 
-readonly
+            <option value="Lifetime">
+              Lifetime Premium ($200)
+            </option>
 
-required
+          </select>
 
->
+        </div>
 
-</div>
 
-<div class="form-group">
+        <div class="form-group">
 
-<label>
+          <label>Payment Method</label>
 
-Email Address
+          <select id="paymentMethod" required>
 
-</label>
+            <option value="">
+              Select Method
+            </option>
 
-<input
+            <option value="Mpesa">
+              M-PESA
+            </option>
 
-type="email"
+            <option value="PayPal">
+              PayPal
+            </option>
 
-id="email"
+          </select>
 
-readonly
+        </div>
 
-required
+      </div>
 
->
 
-</div>
+      <div class="currency-box" id="currencyBox">
 
-</div>
+        <div class="currency-row">
+          <span>Plan Price</span>
+          <strong id="usdAmount">$0</strong>
+        </div>
 
-<!-- ========================================= -->
+        <div
+          class="currency-row"
+          id="rateRow"
+        >
+          <span>Exchange Rate</span>
+          <strong id="rateDisplay">Loading...</strong>
+        </div>
 
-<div class="form-grid">
+        <div
+          class="currency-row"
+          id="kesRow"
+        >
+          <span>Amount to Send</span>
+          <strong
+            id="kesAmount"
+            class="kes-amount"
+          >
+            KSh 0
+          </strong>
+        </div>
 
-<div class="form-group">
+        <div class="rate-text" id="rateTime">
+          Exchange rate will be locked when you submit your payment.
+        </div>
 
-<label>
+        <div
+          class="mpesa-details-box"
+          id="mpesaDetails"
+        >
+          Send exactly:
 
-Membership Plan
+          <strong id="mpesaAmount">
+            KSh 0
+          </strong>
 
-</label>
+          to
 
-<select
+          <strong>0712416214</strong>
 
-id="plan"
+          — David Thuku.
+        </div>
 
-required>
+      </div>
 
-<option value="">
 
-Select Plan
+      <div class="form-grid">
 
-</option>
+        <div class="form-group">
 
-<option value="Monthly">
+          <label>Amount Paid</label>
 
-Premium Monthly ($50)
+          <input
+            type="text"
+            id="amountDisplay"
+            readonly
+            placeholder="Select plan and payment method"
+          >
 
-</option>
+        </div>
 
-<option value="Lifetime">
 
-Lifetime Premium ($200)
+        <div class="form-group">
 
-</option>
+          <label>Transaction Code / PayPal ID</label>
 
-</select>
+          <input
+            type="text"
+            id="transactionId"
+            placeholder="e.g. QGH82JDK9"
+            required
+          >
 
-</div>
+        </div>
 
-<div class="form-group">
+      </div>
 
-<label>
 
-Payment Method
+      <div class="proof-upload">
 
-</label>
+        <label for="paymentProof">
+          Upload Payment Proof
+        </label>
 
-<select
+        <input
+          type="file"
+          id="paymentProof"
+          accept="image/jpeg,image/png,application/pdf"
+        >
 
-id="method"
+        <div class="file-hint">
+          JPG, PNG or PDF — maximum 5MB.
+        </div>
 
-required>
+      </div>
 
-<option value="">
 
-Select Method
+      <div class="form-group">
 
-</option>
+        <label>Additional Notes (Optional)</label>
 
-<option value="Mpesa">
+        <textarea
+          id="notes"
+          rows="4"
+          placeholder="Anything you would like the administrator to know..."
+        ></textarea>
 
-M-Pesa
+      </div>
 
-</option>
 
-<option value="PayPal">
+      <div class="selected-plan-box">
 
-PayPal
+        <h3>Selected Plan</h3>
 
-</option>
+        <div class="selected-plan-info">
 
-</select>
+          <span id="selectedPlanName">
+            No Plan Selected
+          </span>
 
-</div>
+          <strong id="selectedPlanPrice">
+            $0
+          </strong>
 
-</div>
+        </div>
 
-<!-- ========================================= -->
+      </div>
 
-<div class="form-grid">
 
-<div class="form-group">
+      <div class="payment-warning">
 
-<label>
+        <i class="fa-solid fa-circle-exclamation"></i>
 
-Amount Paid (USD)
+        <p>
+          Submitting false payment information may result in
+          your account being permanently suspended.
+        </p>
 
-</label>
+      </div>
 
-<input
 
-type="number"
+      <button
+        type="submit"
+        id="submitPayment"
+        class="submit-payment-btn"
+      >
+        <i class="fa-solid fa-paper-plane"></i>
+        Submit Payment
+      </button>
 
-id="amount"
+      <div
+        id="paymentMessage"
+        class="payment-message"
+      ></div>
 
-placeholder="50"
+    </form>
 
-required
-
->
-
-</div>
-
-<div class="form-group">
-
-<label>
-
-Transaction Code / PayPal ID
-
-</label>
-
-<input
-
-type="text"
-
-id="transactionCode"
-
-placeholder="QGH82JDK9"
-
-required
-
->
-
-</div>
-
-</div>
-
-<!-- ========================================= -->
-
-<div class="form-group">
-
-<label>
-
-Additional Notes (Optional)
-
-</label>
-
-<textarea
-
-id="notes"
-
-rows="5"
-
-placeholder="Anything you would like the administrator to know...">
-
-</textarea>
-
-</div>
-
-<!-- ========================================= -->
-
-<div class="selected-plan-box">
-
-<h3>
-
-Selected Plan
-
-</h3>
-
-<div class="selected-plan-info">
-
-<span id="selectedPlanName">
-
-No Plan Selected
-
-</span>
-
-<strong id="selectedPlanPrice">
-
-$0
-
-</strong>
-
-</div>
-
-</div>
-
-<!-- ========================================= -->
-
-<div class="payment-warning">
-
-<i class="fa-solid fa-circle-exclamation"></i>
-
-<p>
-
-Submitting false payment information may result in
-your account being permanently suspended.
-
-</p>
-
-</div>
-
-<!-- ========================================= -->
-
-<button
-
-type="submit"
-
-id="submitPayment"
-
-class="submit-payment-btn">
-
-<i class="fa-solid fa-paper-plane"></i>
-
-Submit Payment
-
-</button>
-
-<div
-
-id="paymentMessage"
-
-class="payment-message">
-
-</div>
-
-</form>
-
-</div>
+  </div>
 
 </section>
-<!-- ==========================================================
-PAYMENT SUCCESS MODAL
-========================================================== -->
 
-<div id="successModal" class="success-modal">
 
-    <div class="success-card">
+<div
+  id="successModal"
+  class="success-modal"
+>
 
-        <div class="success-icon">
+  <div class="success-card">
 
-            <i class="fa-solid fa-circle-check"></i>
+    <div class="success-icon">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
 
-        </div>
+    <h2>Payment Submitted</h2>
 
-        <h2>
+    <p>
+      Your payment request has been submitted successfully.
+      An administrator will verify your transaction.
+    </p>
 
-            Payment Submitted Successfully
+    <div class="status-box">
 
-        </h2>
+      <span>Status</span>
 
-        <p>
-
-            Thank you for submitting your payment.
-
-            Our administrators will verify your transaction.
-
-        </p>
-
-        <div class="status-box">
-
-            <span>
-
-                Status
-
-            </span>
-
-            <strong>
-
-                PENDING VERIFICATION
-
-            </strong>
-
-        </div>
-
-        <p class="small-text">
-
-            Once approved, your account will automatically
-            become Premium.
-
-        </p>
-
-        <button id="successClose">
-
-            Continue
-
-        </button>
+      <strong>
+        PENDING VERIFICATION
+      </strong>
 
     </div>
 
-</div>
+    <p>
+      Once approved, your account will automatically become Premium.
+    </p>
 
-<!-- ==========================================================
-LOADING SCREEN
-========================================================== -->
+    <button id="successClose">
+      Continue
+    </button>
 
-<div id="loadingScreen" class="loading-screen">
-
-    <div class="loader-box">
-
-        <div class="loader"></div>
-
-        <h3>
-
-            Processing Payment...
-
-        </h3>
-
-        <p>
-
-            Please wait.
-
-        </p>
-
-    </div>
+  </div>
 
 </div>
 
-<!-- ==========================================================
-FOOTER
-========================================================== -->
+
+<div
+  id="loadingScreen"
+  class="loading-screen"
+>
+
+  <div class="loader-box">
+
+    <div class="loader"></div>
+
+    <h3>Processing Payment...</h3>
+
+    <p>Please wait.</p>
+
+  </div>
+
+</div>
+
 
 <footer class="payment-footer">
 
-    <div class="footer-logo">
+  <div class="footer-logo">
 
-        <h2>
+    <h2>GTRADES-AXIS™</h2>
 
-            GTRADES-AXIS™
+    <p>
+      Trade with Structure. Execute with Precision.
+    </p>
 
-        </h2>
+  </div>
 
-        <p>
+  <div class="footer-links">
 
-            Trade with Structure.
-            Execute with Precision.
+    <a href="dashboard.html">Dashboard</a>
+    <a href="premium-academy.html">Academy</a>
+    <a href="resources.html">Resources</a>
+    <a href="contact.html">Contact</a>
 
-        </p>
+  </div>
 
-    </div>
-
-    <div class="footer-links">
-
-        <a href="dashboard.html">
-
-            Dashboard
-
-        </a>
-
-        <a href="premium-academy.html">
-
-            Academy
-
-        </a>
-
-        <a href="resources.html">
-
-            Resources
-
-        </a>
-
-        <a href="contact.html">
-
-            Contact
-
-        </a>
-
-    </div>
-
-    <div class="footer-copy">
-
-        © 2026 GTRADES-AXIS™
-        All Rights Reserved.
-
-    </div>
+  <div class="footer-copy">
+    © 2026 GTRADES-AXIS™ All Rights Reserved.
+  </div>
 
 </footer>
 
-<!-- ==========================================================
-SCRIPTS
-========================================================== -->
 
-<script type="module" src="js/firebase.js"></script>
-
-<script type="module" src="js/auth.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+  }
+}
+</script>
 
 <script type="module" src="js/payment.js"></script>
-
-<script>
-
-document.querySelectorAll(".copy-btn").forEach(button=>{
-
-    button.addEventListener("click",()=>{
-
-        navigator.clipboard.writeText(
-
-            button.dataset.copy
-
-        );
-
-        const original=
-
-        button.innerHTML;
-
-        button.innerHTML=
-
-        '<i class="fa-solid fa-check"></i>';
-
-        setTimeout(()=>{
-
-            button.innerHTML=original;
-
-        },1500);
-
-    });
-
-});
-
-document.querySelectorAll(".select-plan").forEach(button=>{
-
-    button.addEventListener("click",()=>{
-
-        document.getElementById("plan").value=
-
-        button.dataset.plan;
-
-        document.getElementById("amount").value=
-
-        button.dataset.price;
-
-        document.getElementById("selectedPlanName").textContent=
-
-        button.dataset.plan+" Premium";
-
-        document.getElementById("selectedPlanPrice").textContent=
-
-        "$"+button.dataset.price;
-
-        document
-
-        .getElementById("paymentForm")
-
-        .scrollIntoView({
-
-            behavior:"smooth"
-
-        });
-
-    });
-
-});
-
-</script>
 
 </body>
 </html>
