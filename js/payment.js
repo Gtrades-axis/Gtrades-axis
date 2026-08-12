@@ -1,48 +1,91 @@
 // ============================================================
 // GTRADES-AXIS™
 // PAYMENT SYSTEM
-// payment.js
-//
-// FEATURES
-// - USD pricing
-// - Live USD -> KES exchange rate
-// - M-PESA KES conversion
-// - PayPal USD payment
-// - Manual payment submission
-// - Firebase authentication
-// - Firestore payment submission
+// js/payment.js
 // ============================================================
 
 import { auth, db } from "./firebase.js";
 
 import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    onAuthStateChanged
+} from "firebase/auth";
 
 import {
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    doc,
+    getDoc,
+    collection,
+    addDoc,
+    serverTimestamp
+} from "firebase/firestore";
 
 // ============================================================
-// CONFIG
+// CONFIGURATION
 // ============================================================
 
-// Frankfurter current API
-const EXCHANGE_API =
-  "https://api.frankfurter.dev/v2/rate/USD/KES";
+const MONTHLY_PRICE = 50;
+const LIFETIME_PRICE = 200;
 
-// Default fallback rate.
-// This is ONLY used if the exchange API is temporarily
-// unavailable.
-const FALLBACK_USD_KES = 129;
+const MPESA_NUMBER = "0712416214";
+const MPESA_NAME = "David Thuku";
 
-// M-PESA details
-const MPESA_NUMBER = "0792382641";
+const PAYPAL_EMAIL = "Davidthuku574@gmail.com";
 
-// PayPal
-const PAYPAL_EMAIL = "davidthuku574@gmail.com";
+// Current exchange-rate API
+const RATE_API =
+    "https://api.frankfurter.dev/v2/rate/USD/KES";
+
+// ============================================================
+// DOM
+// ============================================================
+
+const paymentForm = document.getElementById("paymentForm");
+
+const userIdInput = document.getElementById("userId");
+const exchangeRateInput = document.getElementById("exchangeRate");
+
+const userNameInput = document.getElementById("userName");
+const userEmailInput = document.getElementById("userEmail");
+
+const membershipPlan = document.getElementById("membershipPlan");
+const paymentMethod = document.getElementById("paymentMethod");
+
+const amountDisplay = document.getElementById("amountDisplay");
+const transactionId = document.getElementById("transactionId");
+
+const paymentProof = document.getElementById("paymentProof");
+const notes = document.getElementById("notes");
+
+const currencyBox = document.getElementById("currencyBox");
+
+const usdAmount = document.getElementById("usdAmount");
+const rateDisplay = document.getElementById("rateDisplay");
+const kesAmount = document.getElementById("kesAmount");
+const rateTime = document.getElementById("rateTime");
+
+const mpesaDetails = document.getElementById("mpesaDetails");
+const mpesaAmount = document.getElementById("mpesaAmount");
+
+const selectedPlanName =
+    document.getElementById("selectedPlanName");
+
+const selectedPlanPrice =
+    document.getElementById("selectedPlanPrice");
+
+const submitPayment =
+    document.getElementById("submitPayment");
+
+const paymentMessage =
+    document.getElementById("paymentMessage");
+
+const successModal =
+    document.getElementById("successModal");
+
+const successClose =
+    document.getElementById("successClose");
+
+const loadingScreen =
+    document.getElementById("loadingScreen");
+
 
 // ============================================================
 // STATE
@@ -50,994 +93,1183 @@ const PAYPAL_EMAIL = "davidthuku574@gmail.com";
 
 let currentUser = null;
 
-let usdKesRate =
-  FALLBACK_USD_KES;
+let currentUserName = "";
 
-let selectedPlan = null;
+let currentExchangeRate = null;
 
-let exchangeRateLoaded = false;
+let selectedUSDPrice = 0;
+
 
 // ============================================================
-// DOM HELPERS
+// HELPERS
 // ============================================================
 
-function $(id) {
-  return document.getElementById(id);
+function showLoading(show = true) {
+
+    if (!loadingScreen) return;
+
+    loadingScreen.classList.toggle("active", show);
 }
 
+
+function showMessage(message, type = "error") {
+
+    if (!paymentMessage) return;
+
+    paymentMessage.textContent = message;
+
+    paymentMessage.className =
+        `payment-message ${type}`;
+
+}
+
+
+function clearMessage() {
+
+    if (!paymentMessage) return;
+
+    paymentMessage.textContent = "";
+
+    paymentMessage.className =
+        "payment-message";
+
+}
+
+
+function getPlanPrice(plan) {
+
+    if (plan === "Monthly") {
+        return MONTHLY_PRICE;
+    }
+
+    if (plan === "Lifetime") {
+        return LIFETIME_PRICE;
+    }
+
+    return 0;
+}
+
+
+function formatKES(amount) {
+
+    return `KSh ${Number(amount).toLocaleString(
+        "en-KE",
+        {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }
+    )}`;
+}
+
+
 // ============================================================
-// LOG
+// AUTHENTICATION
 // ============================================================
 
-console.log(
-  "✅ GTRADES-AXIS™ payment.js loaded"
-);
-
-// ============================================================
-// AUTH
-// ============================================================
-
-onAuthStateChanged(
-  auth,
-  async (user) => {
+onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
 
-      console.warn(
-        "No authenticated user."
-      );
+        currentUser = null;
 
-      return;
+        showMessage(
+            "You must be logged in before submitting a payment.",
+            "error"
+        );
+
+        if (submitPayment) {
+            submitPayment.disabled = true;
+        }
+
+        return;
     }
+
+
+    // --------------------------------------------------------
+    // USER IS LOGGED IN
+    // --------------------------------------------------------
 
     currentUser = user;
 
     console.log(
-      "Payment system ready:",
-      user.email
+        "GTRADES-AXIS payment user:",
+        user.uid,
+        user.email
     );
 
-    await loadExchangeRate();
 
-    updatePaymentDisplay();
-
-  }
-);
-
-// ============================================================
-// LOAD USD/KES RATE
-// ============================================================
-
-async function loadExchangeRate() {
-
-  try {
-
-    console.log(
-      "Fetching USD/KES exchange rate..."
-    );
-
-    const response =
-      await fetch(
-        EXCHANGE_API,
-        {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          },
-          cache: "no-store"
-        }
-      );
-
-    console.log(
-      "Exchange API status:",
-      response.status
-    );
-
-    if (!response.ok) {
-
-      throw new Error(
-        `Exchange API returned ${response.status}`
-      );
-
+    // Hidden UID
+    if (userIdInput) {
+        userIdInput.value = user.uid;
     }
 
-    const data =
-      await response.json();
-
-    console.log(
-      "USD/KES API response:",
-      data
-    );
-
-    if (
-      !data ||
-      typeof data.rate !== "number" ||
-      !Number.isFinite(data.rate) ||
-      data.rate <= 0
-    ) {
-
-      throw new Error(
-        "Invalid USD/KES rate received."
-      );
-
-    }
-
-    usdKesRate =
-      data.rate;
-
-    exchangeRateLoaded = true;
-
-    console.log(
-      `USD/KES rate loaded: ${usdKesRate}`
-    );
-
-  } catch (error) {
-
-    console.error(
-      "EXCHANGE RATE ERROR:",
-      error
-    );
 
     // --------------------------------------------------------
-    // FALLBACK
+    // EMAIL
+    // Firebase Authentication is the primary source.
     // --------------------------------------------------------
 
-    usdKesRate =
-      FALLBACK_USD_KES;
+    let email =
+        user.email ||
+        "";
 
-    exchangeRateLoaded = false;
 
-    console.warn(
-      `Using fallback USD/KES rate: ${usdKesRate}`
-    );
-
-  }
-
-  updateExchangeRateText();
-}
-
-// ============================================================
-// UPDATE EXCHANGE RATE TEXT
-// ============================================================
-
-function updateExchangeRateText() {
-
-  const elements =
-    document.querySelectorAll(
-      "[data-usd-kes-rate]"
-    );
-
-  elements.forEach(
-    (element) => {
-
-      element.textContent =
-        `1 USD = ${usdKesRate.toFixed(2)} KES`;
-
-    }
-  );
-
-  // Optional IDs
-  const rateElement =
-    $("exchangeRate");
-
-  if (rateElement) {
-
-    rateElement.textContent =
-      `1 USD = ${usdKesRate.toFixed(2)} KES`;
-
-  }
-
-  const rateDisplay =
-    $("usdKesRate");
-
-  if (rateDisplay) {
-
-    rateDisplay.textContent =
-      usdKesRate.toFixed(2);
-
-  }
-}
-
-// ============================================================
-// USD -> KES
-// ============================================================
-
-function usdToKes(usd) {
-
-  const amount =
-    Number(usd);
-
-  if (
-    !Number.isFinite(amount) ||
-    amount < 0
-  ) {
-
-    return 0;
-
-  }
-
-  return (
-    amount *
-    usdKesRate
-  );
-
-}
-
-// ============================================================
-// KES -> USD
-// ============================================================
-
-function kesToUsd(kes) {
-
-  const amount =
-    Number(kes);
-
-  if (
-    !Number.isFinite(amount) ||
-    amount < 0
-  ) {
-
-    return 0;
-
-  }
-
-  return (
-    amount /
-    usdKesRate
-  );
-
-}
-
-// ============================================================
-// FORMAT KES
-// ============================================================
-
-function formatKES(amount) {
-
-  return new Intl.NumberFormat(
-    "en-KE",
-    {
-      style: "currency",
-      currency: "KES",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }
-  ).format(amount);
-
-}
-
-// ============================================================
-// FORMAT USD
-// ============================================================
-
-function formatUSD(amount) {
-
-  return new Intl.NumberFormat(
-    "en-US",
-    {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }
-  ).format(amount);
-
-}
-
-// ============================================================
-// PLAN PRICES
-// ============================================================
-//
-// Change these values to your actual USD prices.
-//
-// Example:
-// $50 -> converted to current KES rate
-//
-// ============================================================
-
-const PLANS = {
-
-  monthly: {
-    name: "Monthly Membership",
-    usd: 50
-  },
-
-  quarterly: {
-    name: "Quarterly Membership",
-    usd: 120
-  },
-
-  yearly: {
-    name: "Yearly Membership",
-    usd: 400
-  }
-
-};
-
-// ============================================================
-// UPDATE PAYMENT DISPLAY
-// ============================================================
-
-function updatePaymentDisplay() {
-
-  // ----------------------------------------------------------
-  // PLAN ELEMENTS
-  // ----------------------------------------------------------
-
-  document
-    .querySelectorAll(
-      "[data-plan]"
-    )
-    .forEach(
-      (element) => {
-
-        const planKey =
-          element.dataset.plan;
-
-        const plan =
-          PLANS[planKey];
-
-        if (!plan) {
-          return;
-        }
-
-        const usd =
-          plan.usd;
-
-        const kes =
-          usdToKes(usd);
-
-        element.dataset.usd =
-          usd;
-
-        element.dataset.kes =
-          kes;
-
-      }
-    );
-
-  // ----------------------------------------------------------
-  // PRICE ELEMENTS
-  // ----------------------------------------------------------
-
-  document
-    .querySelectorAll(
-      "[data-usd-price]"
-    )
-    .forEach(
-      (element) => {
-
-        const usd =
-          Number(
-            element.dataset.usdPrice
-          );
-
-        if (!Number.isFinite(usd)) {
-          return;
-        }
-
-        element.textContent =
-          formatUSD(usd);
-
-      }
-    );
-
-  document
-    .querySelectorAll(
-      "[data-kes-price]"
-    )
-    .forEach(
-      (element) => {
-
-        const usd =
-          Number(
-            element.dataset.kesPrice
-          );
-
-        if (!Number.isFinite(usd)) {
-          return;
-        }
-
-        element.textContent =
-          formatKES(
-            usdToKes(usd)
-          );
-
-      }
-    );
-
-}
-
-// ============================================================
-// SELECT PLAN
-// ============================================================
-
-window.selectPlan =
-function selectPlan(planKey) {
-
-  const plan =
-    PLANS[planKey];
-
-  if (!plan) {
-
-    console.error(
-      "Unknown payment plan:",
-      planKey
-    );
-
-    return;
-
-  }
-
-  selectedPlan =
-    {
-      key: planKey,
-      ...plan
-    };
-
-  console.log(
-    "Selected plan:",
-    selectedPlan
-  );
-
-  const usd =
-    plan.usd;
-
-  const kes =
-    usdToKes(usd);
-
-  // ----------------------------------------------------------
-  // SELECTED PLAN DISPLAY
-  // ----------------------------------------------------------
-
-  const selectedPlanElement =
-    $("selectedPlan");
-
-  if (selectedPlanElement) {
-
-    selectedPlanElement.textContent =
-      plan.name;
-
-  }
-
-  const selectedUSD =
-    $("selectedUSD");
-
-  if (selectedUSD) {
-
-    selectedUSD.textContent =
-      formatUSD(usd);
-
-  }
-
-  const selectedKES =
-    $("selectedKES");
-
-  if (selectedKES) {
-
-    selectedKES.textContent =
-      formatKES(kes);
-
-  }
-
-  const paymentAmount =
-    $("paymentAmount");
-
-  if (paymentAmount) {
-
-    paymentAmount.value =
-      usd;
-
-  }
-
-  // ----------------------------------------------------------
-  // HIDDEN INPUTS
-  // ----------------------------------------------------------
-
-  const planInput =
-    $("planInput");
-
-  if (planInput) {
-
-    planInput.value =
-      planKey;
-
-  }
-
-  // ----------------------------------------------------------
-  // SHOW KES
-  // ----------------------------------------------------------
-
-  const mpesaAmount =
-    $("mpesaAmount");
-
-  if (mpesaAmount) {
-
-    mpesaAmount.textContent =
-      formatKES(kes);
-
-  }
-
-};
-
-// ============================================================
-// UPDATE FROM PAYMENT AMOUNT
-// ============================================================
-
-const paymentAmountInput =
-  $("paymentAmount");
-
-paymentAmountInput?.addEventListener(
-  "input",
-  () => {
-
-    const usd =
-      Number(
-        paymentAmountInput.value
-      );
-
-    if (
-      !Number.isFinite(usd) ||
-      usd <= 0
-    ) {
-      return;
+    if (userEmailInput) {
+        userEmailInput.value = email;
     }
 
-    const kes =
-      usdToKes(usd);
-
-    const kesDisplay =
-      $("paymentKES");
-
-    if (kesDisplay) {
-
-      kesDisplay.textContent =
-        formatKES(kes);
-
-    }
-
-    const mpesaDisplay =
-      $("mpesaAmount");
-
-    if (mpesaDisplay) {
-
-      mpesaDisplay.textContent =
-        formatKES(kes);
-
-    }
-
-  }
-);
-
-// ============================================================
-// M-PESA AMOUNT DISPLAY
-// ============================================================
-
-function updateMpesaAmount() {
-
-  if (!selectedPlan) {
-    return;
-  }
-
-  const kes =
-    usdToKes(
-      selectedPlan.usd
-    );
-
-  const elements =
-    document.querySelectorAll(
-      "[data-mpesa-amount]"
-    );
-
-  elements.forEach(
-    (element) => {
-
-      element.textContent =
-        formatKES(kes);
-
-    }
-  );
-
-}
-
-// ============================================================
-// PAYMENT METHOD SELECTION
-// ============================================================
-
-window.selectPaymentMethod =
-function selectPaymentMethod(method) {
-
-  console.log(
-    "Payment method:",
-    method
-  );
-
-  const mpesaSection =
-    $("mpesaPayment");
-
-  const paypalSection =
-    $("paypalPayment");
-
-  if (mpesaSection) {
-
-    mpesaSection.style.display =
-      method === "mpesa"
-        ? "block"
-        : "none";
-
-  }
-
-  if (paypalSection) {
-
-    paypalSection.style.display =
-      method === "paypal"
-        ? "block"
-        : "none";
-
-  }
-
-};
-
-// ============================================================
-// COPY M-PESA NUMBER
-// ============================================================
-
-window.copyMpesaNumber =
-async function copyMpesaNumber() {
-
-  try {
-
-    await navigator.clipboard.writeText(
-      MPESA_NUMBER
-    );
-
-    alert(
-      "M-PESA number copied."
-    );
-
-  } catch (error) {
-
-    console.error(
-      "COPY ERROR:",
-      error
-    );
-
-    alert(
-      `M-PESA Number: ${MPESA_NUMBER}`
-    );
-
-  }
-
-};
-
-// ============================================================
-// COPY PAYPAL EMAIL
-// ============================================================
-
-window.copyPaypalEmail =
-async function copyPaypalEmail() {
-
-  try {
-
-    await navigator.clipboard.writeText(
-      PAYPAL_EMAIL
-    );
-
-    alert(
-      "PayPal email copied."
-    );
-
-  } catch (error) {
-
-    console.error(
-      "COPY ERROR:",
-      error
-    );
-
-    alert(
-      `PayPal: ${PAYPAL_EMAIL}`
-    );
-
-  }
-
-};
-
-// ============================================================
-// PAYMENT SUBMISSION
-// ============================================================
-
-const paymentForm =
-  $("paymentForm");
-
-paymentForm?.addEventListener(
-  "submit",
-  async (event) => {
-
-    event.preventDefault();
-
-    if (!currentUser) {
-
-      alert(
-        "Please log in before submitting payment."
-      );
-
-      return;
-
-    }
-
-    if (!selectedPlan) {
-
-      alert(
-        "Please select a membership plan."
-      );
-
-      return;
-
-    }
-
-    const formData =
-      new FormData(
-        paymentForm
-      );
-
-    const method =
-      formData.get(
-        "paymentMethod"
-      ) ||
-      "mpesa";
-
-    const transactionId =
-      String(
-        formData.get(
-          "transactionId"
-        ) ||
-        ""
-      ).trim();
-
-    const senderName =
-      String(
-        formData.get(
-          "senderName"
-        ) ||
-        ""
-      ).trim();
-
-    const phoneNumber =
-      String(
-        formData.get(
-          "phoneNumber"
-        ) ||
-        ""
-      ).trim();
-
-    const notes =
-      String(
-        formData.get(
-          "notes"
-        ) ||
-        ""
-      ).trim();
-
-    if (!transactionId) {
-
-      alert(
-        "Please enter your transaction ID."
-      );
-
-      return;
-
-    }
 
     // --------------------------------------------------------
-    // CALCULATE
+    // NAME
+    // First try Firestore users/{uid}
     // --------------------------------------------------------
 
-    const usdAmount =
-      Number(
-        selectedPlan.usd
-      );
-
-    const kesAmount =
-      usdToKes(
-        usdAmount
-      );
-
-    // --------------------------------------------------------
-    // BUTTON
-    // --------------------------------------------------------
-
-    const submitButton =
-      paymentForm.querySelector(
-        "button[type='submit']"
-      );
-
-    const originalText =
-      submitButton?.innerHTML ||
-      "Submit Payment";
-
-    if (submitButton) {
-
-      submitButton.disabled = true;
-
-      submitButton.innerHTML =
-        `<i class="fa-solid fa-spinner fa-spin"></i>
-         Submitting...`;
-
-    }
+    let name = "";
 
     try {
 
-      // ------------------------------------------------------
-      // FIRESTORE
-      // ------------------------------------------------------
+        const userRef =
+            doc(db, "users", user.uid);
 
-      const paymentData = {
+        const userSnap =
+            await getDoc(userRef);
 
-        uid:
-          currentUser.uid,
 
-        email:
-          currentUser.email || "",
+        if (userSnap.exists()) {
 
-        name:
-          senderName,
+            const data =
+                userSnap.data();
 
-        phone:
-          phoneNumber,
 
-        paymentMethod:
-          method,
+            name =
+                data.name ||
+                data.fullName ||
+                data.displayName ||
+                "";
 
-        plan:
-          selectedPlan.key,
 
-        planName:
-          selectedPlan.name,
+            // In case email exists in Firestore
+            if (
+                !email &&
+                data.email
+            ) {
 
-        usdAmount:
-          usdAmount,
+                email = data.email;
 
-        kesAmount:
-          Math.round(
-            kesAmount
-          ),
-
-        exchangeRate:
-          usdKesRate,
-
-        exchangeRateSource:
-          "Frankfurter / Central Bank of Kenya",
-
-        exchangeRateDate:
-          new Date().toISOString(),
-
-        transactionId:
-          transactionId,
-
-        notes:
-          notes,
-
-        status:
-          "pending",
-
-        createdAt:
-          serverTimestamp()
-
-      };
-
-      const paymentRef =
-        await addDoc(
-          collection(
-            db,
-            "payments"
-          ),
-          paymentData
-        );
-
-      console.log(
-        "Payment submitted:",
-        paymentRef.id
-      );
-
-      alert(
-        "Payment submitted successfully. Your payment is pending admin verification."
-      );
-
-      paymentForm.reset();
+                if (userEmailInput) {
+                    userEmailInput.value = email;
+                }
+            }
+        }
 
     } catch (error) {
 
-      console.error(
-        "PAYMENT SUBMISSION ERROR:",
-        error
-      );
+        console.error(
+            "Could not load Firestore user profile:",
+            error
+        );
+    }
 
-      alert(
-        error?.message ||
-        "Unable to submit payment."
-      );
 
-    } finally {
+    // --------------------------------------------------------
+    // Fallback to Firebase Auth displayName
+    // --------------------------------------------------------
 
-      if (submitButton) {
+    if (!name) {
 
-        submitButton.disabled =
-          false;
+        name =
+            user.displayName ||
+            "";
+    }
 
-        submitButton.innerHTML =
-          originalText;
 
-      }
+    // --------------------------------------------------------
+    // Final fallback
+    // --------------------------------------------------------
+
+    if (!name) {
+
+        name =
+            email
+                ? email.split("@")[0]
+                : "GTRADES-AXIS Member";
+    }
+
+
+    currentUserName = name;
+
+
+    if (userNameInput) {
+        userNameInput.value = name;
+    }
+
+
+    if (userEmailInput) {
+        userEmailInput.value = email;
+    }
+
+
+    console.log(
+        "Payment form automatically filled:",
+        {
+            name,
+            email,
+            uid: user.uid
+        }
+    );
+
+
+    if (submitPayment) {
+        submitPayment.disabled = false;
+    }
+
+});
+
+
+// ============================================================
+// EXCHANGE RATE
+// ============================================================
+
+async function getExchangeRate() {
+
+    try {
+
+        if (rateDisplay) {
+            rateDisplay.textContent =
+                "Loading...";
+        }
+
+
+        const response =
+            await fetch(RATE_API, {
+                method: "GET",
+                cache: "no-store"
+            });
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Exchange API returned ${response.status}`
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data ||
+            typeof data.rate !== "number"
+        ) {
+
+            throw new Error(
+                "Invalid exchange-rate response."
+            );
+        }
+
+
+        currentExchangeRate =
+            Number(data.rate);
+
+
+        if (exchangeRateInput) {
+            exchangeRateInput.value =
+                currentExchangeRate;
+        }
+
+
+        if (rateDisplay) {
+
+            rateDisplay.textContent =
+                `1 USD = ${currentExchangeRate.toFixed(2)} KES`;
+        }
+
+
+        if (rateTime) {
+
+            rateTime.textContent =
+                `Latest available USD/KES rate: ${currentExchangeRate.toFixed(2)}. Rate will be recorded with your payment submission.`;
+        }
+
+
+        updateAmounts();
+
+
+        return currentExchangeRate;
+
+
+    } catch (error) {
+
+        console.error(
+            "Exchange rate error:",
+            error
+        );
+
+
+        /*
+         * Do NOT block the entire payment page.
+         *
+         * This fallback is only used if the public
+         * exchange-rate service is temporarily unavailable.
+         */
+
+        currentExchangeRate = 129;
+
+        if (exchangeRateInput) {
+            exchangeRateInput.value =
+                currentExchangeRate;
+        }
+
+
+        if (rateDisplay) {
+
+            rateDisplay.textContent =
+                `1 USD = ${currentExchangeRate.toFixed(2)} KES`;
+        }
+
+
+        if (rateTime) {
+
+            rateTime.textContent =
+                "Exchange-rate service temporarily unavailable. Fallback rate displayed.";
+        }
+
+
+        updateAmounts();
+
+
+        return currentExchangeRate;
+    }
+}
+
+
+// ============================================================
+// UPDATE PLAN / AMOUNTS
+// ============================================================
+
+function updateAmounts() {
+
+    const plan =
+        membershipPlan?.value || "";
+
+
+    selectedUSDPrice =
+        getPlanPrice(plan);
+
+
+    // --------------------------------------------------------
+    // No plan selected
+    // --------------------------------------------------------
+
+    if (!selectedUSDPrice) {
+
+        if (currencyBox) {
+            currencyBox.classList.remove("active");
+        }
+
+        if (selectedPlanName) {
+            selectedPlanName.textContent =
+                "No Plan Selected";
+        }
+
+        if (selectedPlanPrice) {
+            selectedPlanPrice.textContent =
+                "$0";
+        }
+
+        if (usdAmount) {
+            usdAmount.textContent =
+                "$0";
+        }
+
+        if (amountDisplay) {
+            amountDisplay.value = "";
+        }
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Show currency section
+    // --------------------------------------------------------
+
+    if (currencyBox) {
+        currencyBox.classList.add("active");
+    }
+
+
+    const planName =
+        plan === "Monthly"
+            ? "Premium Monthly"
+            : "Lifetime Premium";
+
+
+    if (selectedPlanName) {
+        selectedPlanName.textContent =
+            planName;
+    }
+
+
+    if (selectedPlanPrice) {
+        selectedPlanPrice.textContent =
+            `$${selectedUSDPrice}`;
+    }
+
+
+    if (usdAmount) {
+        usdAmount.textContent =
+            `$${selectedUSDPrice}`;
+    }
+
+
+    // --------------------------------------------------------
+    // Calculate KES
+    // --------------------------------------------------------
+
+    if (currentExchangeRate) {
+
+        const kes =
+            selectedUSDPrice *
+            currentExchangeRate;
+
+
+        if (kesAmount) {
+            kesAmount.textContent =
+                formatKES(kes);
+        }
+
+
+        if (mpesaAmount) {
+            mpesaAmount.textContent =
+                formatKES(kes);
+        }
+
+
+        if (amountDisplay) {
+
+            if (
+                paymentMethod?.value === "Mpesa"
+            ) {
+
+                amountDisplay.value =
+                    formatKES(kes);
+
+            } else {
+
+                amountDisplay.value =
+                    `$${selectedUSDPrice}`;
+            }
+        }
 
     }
 
-  }
+
+    updatePaymentMethodDisplay();
+}
+
+
+// ============================================================
+// PAYMENT METHOD DISPLAY
+// ============================================================
+
+function updatePaymentMethodDisplay() {
+
+    const method =
+        paymentMethod?.value || "";
+
+
+    if (method === "Mpesa") {
+
+        if (mpesaDetails) {
+            mpesaDetails.classList.add("active");
+        }
+
+
+        if (
+            currentExchangeRate &&
+            selectedUSDPrice
+        ) {
+
+            const kes =
+                selectedUSDPrice *
+                currentExchangeRate;
+
+
+            if (amountDisplay) {
+
+                amountDisplay.value =
+                    formatKES(kes);
+            }
+
+
+            if (mpesaAmount) {
+
+                mpesaAmount.textContent =
+                    formatKES(kes);
+            }
+        }
+
+    } else {
+
+        if (mpesaDetails) {
+            mpesaDetails.classList.remove("active");
+        }
+
+
+        if (
+            method === "PayPal" &&
+            selectedUSDPrice
+        ) {
+
+            if (amountDisplay) {
+
+                amountDisplay.value =
+                    `$${selectedUSDPrice}`;
+            }
+        }
+    }
+}
+
+
+// ============================================================
+// PLAN BUTTONS
+// ============================================================
+
+document
+    .querySelectorAll(".select-plan")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                const plan =
+                    button.dataset.plan;
+
+
+                if (membershipPlan) {
+
+                    membershipPlan.value =
+                        plan;
+                }
+
+
+                updateAmounts();
+
+
+                document
+                    .querySelector(
+                        ".payment-form-section"
+                    )
+                    ?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+
+                if (!currentExchangeRate) {
+
+                    await getExchangeRate();
+                }
+            }
+        );
+    });
+
+
+// ============================================================
+// PLAN CHANGE
+// ============================================================
+
+membershipPlan?.addEventListener(
+    "change",
+    async () => {
+
+        clearMessage();
+
+        updateAmounts();
+
+
+        if (!currentExchangeRate) {
+
+            await getExchangeRate();
+        }
+    }
 );
 
+
 // ============================================================
-// AUTO SELECT DEFAULT PLAN
+// PAYMENT METHOD CHANGE
 // ============================================================
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+paymentMethod?.addEventListener(
+    "change",
+    () => {
 
-    // If your page has a default plan
-    // you can change this.
-    //
-    // Example:
-    // selectPlan("monthly");
+        clearMessage();
 
-    updateExchangeRateText();
-
-    updatePaymentDisplay();
-
-    updateMpesaAmount();
-
-  }
+        updatePaymentMethodDisplay();
+    }
 );
 
-// ============================================================
-// DEBUG HELPERS
-// ============================================================
-
-window.GTRADES_PAYMENT = {
-
-  getRate() {
-    return usdKesRate;
-  },
-
-  usdToKes(amount) {
-    return usdToKes(amount);
-  },
-
-  kesToUsd(amount) {
-    return kesToUsd(amount);
-  },
-
-  formatKES(amount) {
-    return formatKES(amount);
-  },
-
-  formatUSD(amount) {
-    return formatUSD(amount);
-  },
-
-  reloadRate() {
-    return loadExchangeRate();
-  }
-
-};
 
 // ============================================================
-// FINAL
+// COPY BUTTONS
+// ============================================================
+
+document
+    .querySelectorAll(".copy-btn")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                const value =
+                    button.dataset.copy;
+
+
+                if (!value) return;
+
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        value
+                    );
+
+
+                    const original =
+                        button.innerHTML;
+
+
+                    button.innerHTML =
+                        '<i class="fa-solid fa-check"></i>';
+
+
+                    setTimeout(() => {
+
+                        button.innerHTML =
+                            original;
+
+                    }, 1500);
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Copy failed:",
+                        error
+                    );
+                }
+            }
+        );
+    });
+
+
+// ============================================================
+// PAYMENT VALIDATION
+// ============================================================
+
+function validatePayment() {
+
+    // --------------------------------------------------------
+    // AUTH
+    // --------------------------------------------------------
+
+    if (!currentUser) {
+
+        return {
+            valid: false,
+            message:
+                "Your session has expired. Please log in again."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // NAME
+    // --------------------------------------------------------
+
+    const name =
+        userNameInput?.value.trim();
+
+
+    if (!name) {
+
+        return {
+            valid: false,
+            message:
+                "Your account name could not be loaded. Please refresh the page and try again."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // EMAIL
+    // --------------------------------------------------------
+
+    const email =
+        userEmailInput?.value.trim();
+
+
+    if (!email) {
+
+        return {
+            valid: false,
+            message:
+                "Your account email could not be loaded. Please refresh the page and try again."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // PLAN
+    // --------------------------------------------------------
+
+    const plan =
+        membershipPlan?.value;
+
+
+    if (!plan) {
+
+        return {
+            valid: false,
+            message:
+                "Please select a membership plan."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // PAYMENT METHOD
+    // --------------------------------------------------------
+
+    const method =
+        paymentMethod?.value;
+
+
+    if (!method) {
+
+        return {
+            valid: false,
+            message:
+                "Please select a payment method."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // TRANSACTION
+    // --------------------------------------------------------
+
+    const transaction =
+        transactionId?.value.trim();
+
+
+    if (!transaction) {
+
+        return {
+            valid: false,
+            message:
+                "Please enter your transaction code / PayPal ID."
+        };
+    }
+
+
+    // --------------------------------------------------------
+    // EXCHANGE RATE FOR MPESA
+    // --------------------------------------------------------
+
+    if (
+        method === "Mpesa" &&
+        !currentExchangeRate
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "The exchange rate has not loaded yet. Please wait a moment and try again."
+        };
+    }
+
+
+    return {
+        valid: true
+    };
+}
+
+
+// ============================================================
+// SUBMIT PAYMENT
+// ============================================================
+
+paymentForm?.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        clearMessage();
+
+
+        // ----------------------------------------------------
+        // IMPORTANT:
+        // HTML required validation can fire BEFORE our JS.
+        // We manually validate everything here.
+        // ----------------------------------------------------
+
+        const validation =
+            validatePayment();
+
+
+        if (!validation.valid) {
+
+            showMessage(
+                validation.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // GET FINAL VALUES
+        // ----------------------------------------------------
+
+        const name =
+            userNameInput.value.trim();
+
+        const email =
+            userEmailInput.value.trim();
+
+        const plan =
+            membershipPlan.value;
+
+        const method =
+            paymentMethod.value;
+
+        const transaction =
+            transactionId.value.trim();
+
+        const additionalNotes =
+            notes?.value.trim() || "";
+
+
+        const price =
+            getPlanPrice(plan);
+
+
+        // ----------------------------------------------------
+        // CALCULATE AMOUNT
+        // ----------------------------------------------------
+
+        let amount = price;
+
+        let amountKES = null;
+
+
+        if (method === "Mpesa") {
+
+            amountKES =
+                Math.round(
+                    price *
+                    currentExchangeRate
+                );
+
+        }
+
+
+        // ----------------------------------------------------
+        // PAYMENT PROOF
+        // ----------------------------------------------------
+
+        let proofName = "";
+        let proofType = "";
+        let proofSize = 0;
+
+
+        if (paymentProof?.files?.length) {
+
+            const file =
+                paymentProof.files[0];
+
+
+            proofName =
+                file.name;
+
+            proofType =
+                file.type;
+
+            proofSize =
+                file.size;
+
+
+            // 5MB limit
+            if (
+                proofSize >
+                5 * 1024 * 1024
+            ) {
+
+                showMessage(
+                    "Payment proof must be 5MB or smaller.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "application/pdf"
+            ];
+
+
+            if (
+                !allowedTypes.includes(
+                    proofType
+                )
+            ) {
+
+                showMessage(
+                    "Payment proof must be JPG, PNG or PDF.",
+                    "error"
+                );
+
+                return;
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // DISABLE BUTTON
+        // ----------------------------------------------------
+
+        submitPayment.disabled = true;
+
+        submitPayment.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+
+        showLoading(true);
+
+
+        try {
+
+            // ------------------------------------------------
+            // SAVE PAYMENT TO FIRESTORE
+            // ------------------------------------------------
+
+            const paymentData = {
+
+                uid: currentUser.uid,
+
+                name: name,
+
+                email: email,
+
+                plan: plan,
+
+                paymentMethod: method,
+
+                transactionId: transaction,
+
+                amount: Number(amount),
+
+                status: "pending",
+
+                notes: additionalNotes,
+
+                submittedAt:
+                    serverTimestamp()
+            };
+
+
+            // ------------------------------------------------
+            // M-PESA DATA
+            // ------------------------------------------------
+
+            if (method === "Mpesa") {
+
+                paymentData.amountKES =
+                    Number(amountKES);
+
+                paymentData.exchangeRate =
+                    Number(currentExchangeRate);
+
+                paymentData.currency =
+                    "KES";
+
+            }
+
+
+            // ------------------------------------------------
+            // PAYPAL DATA
+            // ------------------------------------------------
+
+            if (method === "PayPal") {
+
+                paymentData.currency =
+                    "USD";
+            }
+
+
+            // ------------------------------------------------
+            // PROOF METADATA
+            // ------------------------------------------------
+
+            /*
+             * We save the proof metadata here.
+             *
+             * The actual file should be uploaded to
+             * your R2 system separately.
+             */
+
+            if (proofName) {
+
+                paymentData.proofFileName =
+                    proofName;
+
+                paymentData.proofFileType =
+                    proofType;
+
+                paymentData.proofFileSize =
+                    proofSize;
+            }
+
+
+            const paymentRef =
+                await addDoc(
+                    collection(
+                        db,
+                        "payments"
+                    ),
+                    paymentData
+                );
+
+
+            console.log(
+                "Payment submitted:",
+                paymentRef.id
+            );
+
+
+            // ------------------------------------------------
+            // SUCCESS
+            // ------------------------------------------------
+
+            showLoading(false);
+
+
+            if (successModal) {
+
+                successModal.classList.add(
+                    "active"
+                );
+            }
+
+
+            paymentForm.reset();
+
+
+            // Restore authenticated fields
+            if (userIdInput) {
+                userIdInput.value =
+                    currentUser.uid;
+            }
+
+
+            if (userNameInput) {
+                userNameInput.value =
+                    name;
+            }
+
+
+            if (userEmailInput) {
+                userEmailInput.value =
+                    email;
+            }
+
+
+            if (currencyBox) {
+                currencyBox.classList.remove(
+                    "active"
+                );
+            }
+
+
+            if (mpesaDetails) {
+                mpesaDetails.classList.remove(
+                    "active"
+                );
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "PAYMENT SUBMISSION ERROR:",
+                error
+            );
+
+
+            showLoading(false);
+
+
+            showMessage(
+                error.message ||
+                "Unable to submit payment. Please try again.",
+                "error"
+            );
+
+
+        } finally {
+
+            submitPayment.disabled =
+                false;
+
+            submitPayment.innerHTML =
+                '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
+        }
+
+    }
+);
+
+
+// ============================================================
+// SUCCESS MODAL
+// ============================================================
+
+successClose?.addEventListener(
+    "click",
+    () => {
+
+        successModal?.classList.remove(
+            "active"
+        );
+
+        window.location.href =
+            "dashboard.html";
+    }
+);
+
+
+// ============================================================
+// INITIAL EXCHANGE RATE
+// ============================================================
+
+getExchangeRate();
+
+
+// ============================================================
+// DEBUG
 // ============================================================
 
 console.log(
-  "💳 GTRADES-AXIS™ Payment System Ready"
-);
-
-console.log(
-  "💱 Exchange API:",
-  EXCHANGE_API
+    "GTRADES-AXIS payment.js loaded."
 );
