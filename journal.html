@@ -6953,325 +6953,433 @@ IMPROVEMENT   : ${trade.improvementPlan || "-"}
     /* =========================================================
        POPULATE EDIT FORM
     ========================================================= */
+/* =========================================================
+   POPULATE EDIT FORM
+========================================================= */
 
-    function populateForm(
-      trade
+function populateForm(trade) {
+
+  if (!trade) return;
+
+  /* ---------------------------------------------------------
+     STANDARD FORM FIELDS
+  --------------------------------------------------------- */
+
+  const fields = [
+
+    "tradeDate",
+    "tradeTime",
+
+    "pair",
+    "direction",
+    "session",
+    "broker",
+
+    "lotSize",
+
+    "htfSwing",
+    "htfInternal",
+
+    "mtfSwing",
+    "mtfInternal",
+
+    "ltfStructure",
+    "liquidity",
+    "poi",
+
+    "entryConfirmation",
+    "tradeValid",
+
+    "entry",
+    "stopLoss",
+    "takeProfit",
+
+    "risk",
+    "riskAmount",
+    "riskSettingAmount",
+    "potentialProfit",
+    "potentialLoss",
+    "rr",
+
+    "profit",
+    "commission",
+    "balance",
+
+    "result",
+
+    "confidence",
+    "emotion",
+    "discipline",
+    "patience",
+
+    "tradeSummary",
+    "strengths",
+    "mistakes",
+    "lessonLearned",
+    "improvementPlan",
+
+    "beforeChart",
+    "duringChart",
+    "afterChart",
+
+    "notes"
+
+  ];
+
+
+  fields.forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if (!el) return;
+
+
+    /*
+     * If the saved value exists,
+     * automatically restore it.
+     */
+
+    if (
+      trade[id] !== undefined &&
+      trade[id] !== null
     ) {
 
-      const fields = [
-
-        "tradeDate",
-        "tradeTime",
-        "pair",
-        "direction",
-        "session",
-        "broker",
-
-        "lotSize",
-
-        "htfSwing",
-        "htfInternal",
-
-        "mtfSwing",
-        "mtfInternal",
-
-        "ltfStructure",
-        "liquidity",
-        "poi",
-        "entryModel",
-        "entryConfirmation",
-        "tradeValid",
-
-        "entry",
-        "stopLoss",
-        "takeProfit",
-
-        "risk",
-        "riskAmount",
-        "riskSettingAmount",
-        "potentialProfit",
-        "potentialLoss",
-        "rr",
-
-        "profit",
-        "commission",
-        "result",
-
-        "balance",
-
-        "confidence",
-        "emotion",
-        "discipline",
-        "patience",
-
-        "tradeSummary",
-        "strengths",
-        "mistakes",
-        "lessonLearned",
-        "improvementPlan",
-
-        "beforeChart",
-        "duringChart",
-        "afterChart",
-
-        "notes"
-
-      ];
-
-
-      fields.forEach(id => {
-
-        const el = document.getElementById(id);
-
-        if (!el || trade[id] === undefined || trade[id] === null) return;
-
-        const value = String(trade[id]);
-
-        if (el.tagName === "SELECT") {
-          const exists = Array.from(el.options).some(option => option.value === value);
-
-          if (!exists && value) {
-            const option = document.createElement("option");
-            option.value = value;
-            option.textContent = value;
-            el.appendChild(option);
-          }
-        }
-
-        el.value = value;
-      });
-
-
-      /* Restore a custom/manual entry model exactly as saved. */
-      const entrySelect = document.getElementById("entryModel");
-      const entryCustom = document.getElementById("entryModelCustom");
-
-      if (entrySelect && trade.entryModel !== undefined && trade.entryModel !== null) {
-        const savedModel = String(trade.entryModel);
-        const builtIn = Array.from(entrySelect.options).some(
-          option => option.value === savedModel && option.value !== "__custom__"
-        );
-
-        if (builtIn) {
-          entrySelect.value = savedModel;
-          if (entryCustom) entryCustom.value = "";
-        } else {
-          entrySelect.value = "__custom__";
-          if (entryCustom) entryCustom.value = savedModel;
-        }
-
-        syncEntryModelInput();
-      }
-
-
-      const accountSelect =
-        document.getElementById(
-          "tradeAccount"
-        );
-
-
-      if (
-        accountSelect &&
-        trade.accountId
-      ) {
-
-        accountSelect.value =
-          trade.accountId;
-
-      }
-
-
-      const confluenceIds = [
-        "confHTFSwing", "confHTFInternal", "confMTFSwing", "confMTFInternal",
-        "confHTFDemand", "confHTFSupply", "confMTFDemand", "confMTFSupply",
-        "confPremium", "confDiscount", "confSweep", "confChoch", "confBos",
-        "confMitigation", "confRefined", "confExtreme"
-      ];
-
-      confluenceIds.forEach(id => {
-        const checkbox = document.getElementById(id);
-        if (checkbox) checkbox.checked = false;
-      });
-
-      if (
-        trade.confluences
-      ) {
-
-        const map = {
-
-          htfSwing:
-            "confHTFSwing",
-
-          htfInternal:
-            "confHTFInternal",
-
-          mtfSwing:
-            "confMTFSwing",
-
-          mtfInternal:
-            "confMTFInternal",
-
-          htfDemand:
-            "confHTFDemand",
-
-          htfSupply:
-            "confHTFSupply",
-
-          mtfDemand:
-            "confMTFDemand",
-
-          mtfSupply:
-            "confMTFSupply",
-
-          premium:
-            "confPremium",
-
-          discount:
-            "confDiscount",
-
-          sweep:
-            "confSweep",
-
-          choch:
-            "confChoch",
-
-          bos:
-            "confBos",
-
-          mitigation:
-            "confMitigation",
-
-          refined:
-            "confRefined",
-
-          extreme:
-            "confExtreme"
-
-        };
-
-
-        Object.keys(
-          trade.confluences
-        ).forEach(
-          key => {
-
-            const checkbox =
-              document.getElementById(
-                map[key]
-              );
-
-
-            if (
-              checkbox
-            ) {
-
-              checkbox.checked =
-                trade.confluences[key];
-
-            }
-
-          }
-        );
-
-      }
-
-
-      updateTradeAccountInfo();
-
-      calculateAll();
+      el.value =
+        String(trade[id]);
 
     }
 
+  });
+
+
+  /* ---------------------------------------------------------
+     ACCOUNT
+  --------------------------------------------------------- */
+
+  const accountSelect =
+    document.getElementById(
+      "tradeAccount"
+    );
+
+
+  if (
+    accountSelect &&
+    trade.accountId
+  ) {
+
+    accountSelect.value =
+      trade.accountId;
+
+  }
+
+
+  /* ---------------------------------------------------------
+     ENTRY MODEL
+  --------------------------------------------------------- */
+
+  const entrySelect =
+    document.getElementById(
+      "entryModel"
+    );
+
+
+  const entryCustom =
+    document.getElementById(
+      "entryModelCustom"
+    );
+
+
+  if (entrySelect) {
+
+    const savedModel =
+      trade.entryModel
+        ? String(trade.entryModel)
+        : "";
+
+
+    /*
+     * Check whether the saved model
+     * is one of the normal options.
+     */
+
+    const normalOption =
+      Array.from(
+        entrySelect.options
+      ).find(
+        option =>
+          option.value ===
+          savedModel
+      );
+
+
+    if (
+      normalOption &&
+      savedModel !== "__custom__"
+    ) {
+
+      entrySelect.value =
+        savedModel;
+
+
+      if (entryCustom) {
+
+        entryCustom.value =
+          "";
+
+      }
+
+    } else if (
+      savedModel
+    ) {
+
+      /*
+       * Saved value isn't one of the
+       * built-in options, therefore it
+       * was manually entered.
+       */
+
+      entrySelect.value =
+        "__custom__";
+
+
+      if (entryCustom) {
+
+        entryCustom.value =
+          savedModel;
+
+      }
+
+    }
+
+
+    syncEntryModelInput();
+
+  }
+
+
+  /* ---------------------------------------------------------
+     CONFLUENCES
+  --------------------------------------------------------- */
+
+  const confluenceMap = {
+
+    htfSwing:
+      "confHTFSwing",
+
+    htfInternal:
+      "confHTFInternal",
+
+    mtfSwing:
+      "confMTFSwing",
+
+    mtfInternal:
+      "confMTFInternal",
+
+    htfDemand:
+      "confHTFDemand",
+
+    htfSupply:
+      "confHTFSupply",
+
+    mtfDemand:
+      "confMTFDemand",
+
+    mtfSupply:
+      "confMTFSupply",
+
+    premium:
+      "confPremium",
+
+    discount:
+      "confDiscount",
+
+    sweep:
+      "confSweep",
+
+    choch:
+      "confChoch",
+
+    bos:
+      "confBos",
+
+    mitigation:
+      "confMitigation",
+
+    refined:
+      "confRefined",
+
+    extreme:
+      "confExtreme"
+
+  };
+
+
+  /*
+   * First clear all checkboxes.
+   */
+
+  Object.values(
+    confluenceMap
+  ).forEach(id => {
+
+    const checkbox =
+      document.getElementById(id);
+
+    if (checkbox) {
+
+      checkbox.checked =
+        false;
+
+    }
+
+  });
+
+
+  /*
+   * Then restore saved checkboxes.
+   */
+
+  if (
+    trade.confluences
+  ) {
+
+    Object.entries(
+      confluenceMap
+    ).forEach(
+      ([key, id]) => {
+
+        const checkbox =
+          document.getElementById(id);
+
+
+        if (!checkbox) return;
+
+
+        checkbox.checked =
+          trade.confluences[key] === true;
+
+      }
+    );
+
+  }
+
+
+  /* ---------------------------------------------------------
+     UPDATE ACCOUNT INFO
+  --------------------------------------------------------- */
+
+  updateTradeAccountInfo();
+
+
+  /* ---------------------------------------------------------
+     RECALCULATE
+  --------------------------------------------------------- */
+
+  calculateAll();
+
+
+  /* ---------------------------------------------------------
+     ENSURE SAVED VALUES REMAIN VISIBLE
+  --------------------------------------------------------- */
+
+  /*
+   * calculateAll() recalculates these fields.
+   * That is correct for risk/RR calculations.
+   *
+   * The original trade's actual values remain
+   * available in the trade object and editable
+   * fields are populated above.
+   */
+
+}
 
     /* =========================================================
        EDIT MODE
     ========================================================= */
+const urlParams =
+  new URLSearchParams(
+    window.location.search
+  );
 
-    const urlParams =
-      new URLSearchParams(
-        window.location.search
+const editId =
+  urlParams.get("edit");
+
+
+if (editId) {
+
+  editingTrade =
+    trades.find(
+      trade =>
+        String(trade.id) ===
+        String(editId)
+    );
+
+
+  if (editingTrade) {
+
+    /* Populate EVERYTHING immediately */
+    populateForm(
+      editingTrade
+    );
+
+
+    /* Change button */
+    const submitBtn =
+      document.getElementById(
+        "saveTradeBtn"
       );
 
 
-    const editId =
-      urlParams.get(
-        "edit"
-      );
+    if (submitBtn) {
 
+      submitBtn.innerHTML =
+        '<i class="fa-solid fa-pen"></i> Update Trade';
 
-    if (editId) {
-
-      editingTrade =
-        trades.find(
-          trade =>
-            trade.id ===
-            editId
-        );
-
-
-      if (
-        editingTrade
-      ) {
-
-        populateForm(
-          editingTrade
-        );
-
-
-        const submitBtn =
-          document.getElementById(
-            "saveTradeBtn"
-          );
-
-
-        if (
-          submitBtn
-        ) {
-
-          submitBtn.innerHTML =
-            '<i class="fa-solid fa-pen"></i> Update Trade';
-
-          submitBtn.className =
-            "btn-update";
-
-        }
-
-
-        const header =
-          document.querySelector(
-            ".page-header h1"
-          );
-
-
-        if (
-          header
-        ) {
-
-          header.innerHTML =
-            '<i class="fa-solid fa-pen"></i> Edit Trade';
-
-        }
-
-
-        const headerP =
-          document.querySelector(
-            ".page-header p"
-          );
-
-
-        if (
-          headerP
-        ) {
-
-          headerP.textContent =
-            "Modify trade details and save changes.";
-
-        }
-
-      }
+      submitBtn.className =
+        "btn-update";
 
     }
 
+
+    /* Change header */
+    const header =
+      document.querySelector(
+        ".page-header h1"
+      );
+
+
+    if (header) {
+
+      header.innerHTML =
+        '<i class="fa-solid fa-pen"></i> Edit Trade';
+
+    }
+
+
+    const headerP =
+      document.querySelector(
+        ".page-header p"
+      );
+
+
+    if (headerP) {
+
+      headerP.textContent =
+        "Modify trade details and save changes.";
+
+    }
+
+  } else {
+
+    console.warn(
+      "Trade not found:",
+      editId
+    );
+
+  }
+
+}
 
     /* =========================================================
        ACCOUNT MANAGER
