@@ -7297,90 +7297,403 @@ function populateForm(trade) {
     /* =========================================================
        EDIT MODE
     ========================================================= */
-const urlParams =
-  new URLSearchParams(
-    window.location.search
+/* =========================================================
+   EDIT TRADE
+========================================================= */
+
+const urlParams = new URLSearchParams(
+  window.location.search
+);
+
+const editId = urlParams.get("edit");
+
+
+function startEditTrade() {
+
+  if (!editId) {
+    return;
+  }
+
+  console.log("EDIT ID:", editId);
+  console.log("AVAILABLE TRADES:", trades);
+
+
+  /* Find the exact saved trade */
+
+  editingTrade = trades.find(
+    trade =>
+      String(trade.id) === String(editId)
   );
 
-const editId =
-  urlParams.get("edit");
 
+  if (!editingTrade) {
 
-if (editId) {
-
-  editingTrade =
-    trades.find(
-      trade =>
-        String(trade.id) ===
-        String(editId)
-    );
-
-
-  if (editingTrade) {
-
-    /* Populate EVERYTHING immediately */
-    populateForm(
-      editingTrade
-    );
-
-
-    /* Change button */
-    const submitBtn =
-      document.getElementById(
-        "saveTradeBtn"
-      );
-
-
-    if (submitBtn) {
-
-      submitBtn.innerHTML =
-        '<i class="fa-solid fa-pen"></i> Update Trade';
-
-      submitBtn.className =
-        "btn-update";
-
-    }
-
-
-    /* Change header */
-    const header =
-      document.querySelector(
-        ".page-header h1"
-      );
-
-
-    if (header) {
-
-      header.innerHTML =
-        '<i class="fa-solid fa-pen"></i> Edit Trade';
-
-    }
-
-
-    const headerP =
-      document.querySelector(
-        ".page-header p"
-      );
-
-
-    if (headerP) {
-
-      headerP.textContent =
-        "Modify trade details and save changes.";
-
-    }
-
-  } else {
-
-    console.warn(
-      "Trade not found:",
+    console.error(
+      "❌ EDIT TRADE NOT FOUND:",
       editId
     );
 
+    alert(
+      "The trade could not be found."
+    );
+
+    return;
+
   }
+
+
+  console.log(
+    "✅ EDITING TRADE:",
+    editingTrade
+  );
+
+
+  /* =======================================================
+     DATE
+  ======================================================= */
+
+  const tradeDate =
+    document.getElementById("tradeDate");
+
+  if (tradeDate) {
+
+    tradeDate.value =
+      editingTrade.date || "";
+
+  }
+
+
+  /* =======================================================
+     ALL OTHER FIELDS
+  ======================================================= */
+
+  const fieldMap = {
+
+    tradeTime: "time",
+    pair: "pair",
+    direction: "direction",
+    session: "session",
+    broker: "broker",
+
+    lotSize: "lotSize",
+
+    htfSwing: "htfSwing",
+    htfInternal: "htfInternal",
+
+    mtfSwing: "mtfSwing",
+    mtfInternal: "mtfInternal",
+
+    ltfStructure: "ltfStructure",
+    liquidity: "liquidity",
+    poi: "poi",
+
+    entryConfirmation:
+      "entryConfirmation",
+
+    tradeValid:
+      "tradeValid",
+
+    entry: "entry",
+    stopLoss: "stopLoss",
+    takeProfit: "takeProfit",
+
+    risk: "risk",
+    riskAmount: "riskAmount",
+    riskSettingAmount:
+      "riskSettingAmount",
+
+    potentialProfit:
+      "potentialProfit",
+
+    potentialLoss:
+      "potentialLoss",
+
+    rr: "rr",
+
+    profit: "profit",
+    commission: "commission",
+
+    balance: "balance",
+
+    result: "result",
+
+    confidence: "confidence",
+    emotion: "emotion",
+    discipline: "discipline",
+    patience: "patience",
+
+    tradeSummary: "tradeSummary",
+    strengths: "strengths",
+    mistakes: "mistakes",
+    lessonLearned: "lessonLearned",
+    improvementPlan:
+      "improvementPlan",
+
+    beforeChart: "beforeChart",
+    duringChart: "duringChart",
+    afterChart: "afterChart",
+
+    notes: "notes"
+
+  };
+
+
+  Object.entries(fieldMap).forEach(
+    ([elementId, tradeKey]) => {
+
+      const element =
+        document.getElementById(elementId);
+
+      if (!element) {
+        return;
+      }
+
+
+      const value =
+        editingTrade[tradeKey];
+
+
+      if (
+        value !== undefined &&
+        value !== null
+      ) {
+
+        element.value =
+          String(value);
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     ACCOUNT
+  ======================================================= */
+
+  const accountSelect =
+    document.getElementById(
+      "tradeAccount"
+    );
+
+
+  if (
+    accountSelect &&
+    editingTrade.accountId
+  ) {
+
+    accountSelect.value =
+      editingTrade.accountId;
+
+  }
+
+
+  /* =======================================================
+     ENTRY MODEL
+  ======================================================= */
+
+  const entryModel =
+    document.getElementById(
+      "entryModel"
+    );
+
+  const entryCustom =
+    document.getElementById(
+      "entryModelCustom"
+    );
+
+
+  if (entryModel) {
+
+    const savedModel =
+      editingTrade.entryModel || "";
+
+
+    const optionExists =
+      Array.from(
+        entryModel.options
+      ).some(
+        option =>
+          option.value ===
+          String(savedModel)
+      );
+
+
+    if (optionExists) {
+
+      entryModel.value =
+        String(savedModel);
+
+      if (entryCustom) {
+        entryCustom.value = "";
+      }
+
+    } else if (savedModel) {
+
+      entryModel.value =
+        "__custom__";
+
+      if (entryCustom) {
+
+        entryCustom.value =
+          String(savedModel);
+
+      }
+
+    }
+
+
+    syncEntryModelInput();
+
+  }
+
+
+  /* =======================================================
+     CONFLUENCES
+  ======================================================= */
+
+  const confluenceMap = {
+
+    htfSwing: "confHTFSwing",
+    htfInternal: "confHTFInternal",
+
+    mtfSwing: "confMTFSwing",
+    mtfInternal: "confMTFInternal",
+
+    htfDemand: "confHTFDemand",
+    htfSupply: "confHTFSupply",
+
+    mtfDemand: "confMTFDemand",
+    mtfSupply: "confMTFSupply",
+
+    premium: "confPremium",
+    discount: "confDiscount",
+
+    sweep: "confSweep",
+    choch: "confChoch",
+    bos: "confBos",
+
+    mitigation: "confMitigation",
+    refined: "confRefined",
+    extreme: "confExtreme"
+
+  };
+
+
+  Object.entries(
+    confluenceMap
+  ).forEach(
+    ([key, elementId]) => {
+
+      const checkbox =
+        document.getElementById(
+          elementId
+        );
+
+      if (!checkbox) {
+        return;
+      }
+
+
+      checkbox.checked =
+        editingTrade.confluences &&
+        editingTrade.confluences[key] === true;
+
+    }
+  );
+
+
+  /* =======================================================
+     UPDATE UI
+  ======================================================= */
+
+  updateTradeAccountInfo();
+
+  calculateAll();
+
+
+  /* =======================================================
+     EDIT BUTTON
+  ======================================================= */
+
+  const saveBtn =
+    document.getElementById(
+      "saveTradeBtn"
+    );
+
+
+  if (saveBtn) {
+
+    saveBtn.innerHTML =
+      '<i class="fa-solid fa-pen"></i> Update Trade';
+
+    saveBtn.className =
+      "btn-update";
+
+  }
+
+
+  /* =======================================================
+     HEADER
+  ======================================================= */
+
+  const header =
+    document.querySelector(
+      ".page-header h1"
+    );
+
+
+  if (header) {
+
+    header.innerHTML =
+      '<i class="fa-solid fa-pen"></i> Edit Trade';
+
+  }
+
+
+  const headerP =
+    document.querySelector(
+      ".page-header p"
+    );
+
+
+  if (headerP) {
+
+    headerP.textContent =
+      "Modify trade details and save changes.";
+
+  }
+
+
+  console.log(
+    "✅ Trade form populated successfully."
+  );
 
 }
 
+
+/* =========================================================
+   WAIT UNTIL JOURNAL INITIALIZATION HAS LOADED TRADES
+========================================================= */
+
+if (editId) {
+
+  /*
+   * Your journal loads trades inside initJournal().
+   * Therefore do NOT try to edit the trade before
+   * loadTrades() has finished.
+   */
+
+  setTimeout(
+    () => {
+
+      startEditTrade();
+
+    },
+    100
+  );
+
+}
     /* =========================================================
        ACCOUNT MANAGER
     ========================================================= */
@@ -7693,20 +8006,35 @@ if (editId) {
           event.key ===
           ACCOUNTS_KEY
         ) {
+loadAccounts();
 
-          loadAccounts();
+loadTrades();
 
-          loadTrades();
+populateAccountSelectors();
 
-          populateAccountSelectors();
+updateTradeAccountInfo();
 
-          updateTradeAccountInfo();
+calculateAll();
 
-          refreshUI();
+refreshUI();
 
-        }
 
-      }
+/* =========================================================
+   EDIT TRADE AFTER TRADES HAVE BEEN LOADED
+========================================================= */
+
+if (editId) {
+
+  setTimeout(
+    () => {
+
+      startEditTrade();
+
+    },
+    50
+  );
+
+}
     );
 
 
