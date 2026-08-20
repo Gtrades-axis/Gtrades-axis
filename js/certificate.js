@@ -8,7 +8,7 @@ const isFinal = urlParams.get("final") === "true";
 let currentUser = null;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
+  if (!user) { window.location.href = "/login"; return; }
   currentUser = user;
   await loadCertificate();
 });

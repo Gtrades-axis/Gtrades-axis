@@ -803,15 +803,6 @@ async function downloadR2File(key) {
         return;
     }
 
-  const FALLBACK_MODULES = [
-    { id: "mod_1", order: 1, title: "Introduction", description: "Welcome to GTRADES-AXIS™ Academy.", hasQuiz: true, lessons: [{ id: "lsn_1_1", title: "Welcome" }], quiz: { passingScore: 70, questions: [] } },
-    { id: "mod_2", order: 2, title: "Market Structure", description: "HTF bias, BOS, CHOCH.", hasQuiz: true, lessons: [{ id: "lsn_2_1", title: "Market Structure Basics" }], quiz: { passingScore: 70, questions: [] } }
-  ];
-
-  app.classList.add('loading');
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "login.html"; return; }
     try {
 
         const getDownloadUrl =
@@ -1228,7 +1219,6 @@ function renderDashboard() {
 
             };
 
-
     }
 
 
@@ -1636,7 +1626,6 @@ document
 
         }
     );
-
 
 </script>
 

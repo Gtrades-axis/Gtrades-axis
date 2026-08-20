@@ -1893,7 +1893,7 @@ successClose?.addEventListener(
 
 
         window.location.href =
-            "dashboard.html";
+            "/dashboard";
     }
 );
 

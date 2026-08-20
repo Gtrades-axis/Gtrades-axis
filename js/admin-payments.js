@@ -59,7 +59,7 @@ onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
 
-    window.location.href = "login.html";
+    window.location.href = "/login";
     return;
 
   }
@@ -80,7 +80,7 @@ onAuthStateChanged(auth, async (user) => {
 
       alert("Admin profile was not found.");
 
-      window.location.href = "dashboard.html";
+      window.location.href = "/dashboard";
       return;
 
     }
@@ -91,7 +91,7 @@ onAuthStateChanged(auth, async (user) => {
 
       alert("Access denied. Admins only.");
 
-      window.location.href = "dashboard.html";
+      window.location.href = "/dashboard";
       return;
 
     }

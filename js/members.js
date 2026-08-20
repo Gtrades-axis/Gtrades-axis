@@ -40,7 +40,7 @@ onAuthStateChanged(auth, async (user) => {
     console.log("🔥 members.js: onAuthStateChanged triggered. User:", user?.uid);
 
     if (!user) {
-        window.location.href = "login.html";
+        window.location.href = "/login";
         return;
     }
 

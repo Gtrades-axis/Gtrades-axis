@@ -27,7 +27,7 @@ function findModuleInFallback() {
 
 // ─── Auth ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
+  if (!user) { window.location.href = "/login"; return; }
   currentUser = user;
   await loadProgress();
   await loadLesson();
@@ -110,7 +110,7 @@ function renderLesson() {
   const prevLesson = lessonIndex > 0 ? lessons[lessonIndex - 1] : null;
   const nextLesson = lessonIndex < lessons.length - 1 ? lessons[lessonIndex + 1] : null;
   const isLast = lessonIndex === lessons.length - 1;
-  const quizLink = moduleData.hasQuiz ? `quiz.html?module=${moduleId}` : null;
+  const quizLink = moduleData.hasQuiz ? `/quiz?module=${moduleId}` : null;
 
   html += `
     <div class="lesson-actions">
@@ -118,11 +118,11 @@ function renderLesson() {
         <i class="fa-${isCompleted ? 'solid fa-check-circle' : 'solid fa-check'}"></i>
         ${isCompleted ? 'Completed' : 'Mark Complete'}
       </button>
-      <a href="premium-academy.html" class="btn btn-outline">Back to Academy</a>
+      <a href="/academy" class="btn btn-outline">Back to Academy</a>
     </div>
     <div class="nav-buttons">
-      ${prevLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${prevLesson.id}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Previous</a>` : '<span></span>'}
-      ${nextLesson ? `<a href="lesson.html?module=${moduleId}&lesson=${nextLesson.id}" class="btn btn-outline">Next <i class="fas fa-arrow-right"></i></a>` : (isLast && quizLink ? `<a href="${quizLink}" class="btn btn-primary">Take Quiz <i class="fas fa-arrow-right"></i></a>` : '')}
+      ${prevLesson ? `<a href="/lesson?module=${moduleId}&lesson=${prevLesson.id}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Previous</a>` : '<span></span>'}
+      ${nextLesson ? `<a href="/lesson?module=${moduleId}&lesson=${nextLesson.id}" class="btn btn-outline">Next <i class="fas fa-arrow-right"></i></a>` : (isLast && quizLink ? `<a href="${quizLink}" class="btn btn-primary">Take Quiz <i class="fas fa-arrow-right"></i></a>` : '')}
     </div>
   `;
   container.innerHTML = html;

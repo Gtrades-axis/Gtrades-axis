@@ -496,13 +496,13 @@
       </div>
       <nav>
         <ul class="menu">
-          <li><a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-          <li><a href="resources.html"><i class="fa-solid fa-folder-open"></i> Premium Resources</a></li>
-          <li><a href="premium-academy.html"><i class="fa-solid fa-graduation-cap"></i> Premium Academy</a></li>
-          <li><a href="videos.html"><i class="fa-solid fa-circle-play"></i> Videos</a></li>
-          <li><a href="journal.html"><i class="fa-solid fa-chart-line"></i> Trading Journal</a></li>
-          <li><a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a></li>
-          <li class="active"><a href="support.html"><i class="fa-solid fa-headset"></i> Support</a></li>
+          <li><a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+          <li><a href="/resources"><i class="fa-solid fa-folder-open"></i> Premium Resources</a></li>
+          <li><a href="/academy"><i class="fa-solid fa-graduation-cap"></i> Premium Academy</a></li>
+          <li><a href="/videos"><i class="fa-solid fa-circle-play"></i> Videos</a></li>
+          <li><a href="/journal"><i class="fa-solid fa-chart-line"></i> Trading Journal</a></li>
+          <li><a href="/profile"><i class="fa-solid fa-user"></i> My Profile</a></li>
+          <li class="active"><a href="/support"><i class="fa-solid fa-headset"></i> Support</a></li>
         </ul>
       </nav>
       <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
@@ -584,7 +584,7 @@
           <h2>Frequently Asked Questions</h2>
           <div class="faq-item">
             <div class="question"><span>How do I upgrade to Premium?</span><i class="fas fa-chevron-down"></i></div>
-            <div class="answer">You can upgrade by visiting the <a href="upgrade.html">Upgrade</a> page and following the instructions. Once your payment is verified, your account will be upgraded automatically.</div>
+            <div class="answer">You can upgrade by visiting the <a href="/upgrade">Upgrade</a> page and following the instructions. Once your payment is verified, your account will be upgraded automatically.</div>
           </div>
           <div class="faq-item">
             <div class="question"><span>What markets are covered in the Academy?</span><i class="fas fa-chevron-down"></i></div>
@@ -631,7 +631,7 @@
     // ─── AUTH GUARD ──────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        window.location.href = "login.html";
+        window.location.href = "/login";
         return;
       }
     });
@@ -640,7 +640,7 @@
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       if (confirm('Logout?')) {
         await signOut(auth);
-        window.location.href = "login.html";
+        window.location.href = "/login";
       }
     });
 

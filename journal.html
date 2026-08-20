@@ -1445,7 +1445,6 @@
         Support
       </a>
 
-
     </nav>
 
     <button id="logoutBtn" class="logout-btn">
@@ -1527,7 +1526,6 @@
             Back to Dashboard
           </a>
 
-
         </div>
 
       </div>
@@ -1572,7 +1570,6 @@
               <i class="fa-solid fa-chart-column"></i>
               Analytics
             </a>
-
 
           </div>
 
@@ -3424,91 +3421,11 @@
         return;
       }
 
-      loadTrades();
-      const trade = buildTradeFromForm(isUpdate);
-
-      if (isUpdate && editingTrade) {
-        const index = trades.findIndex(t => t.id === editingTrade.id);
-        if (index !== -1) {
-          trades[index] = trade;
-        }
-        saveTrades();
-        alert('✅ Trade updated!');
-        editingTrade = null;
-        const submitBtn = document.querySelector('#saveTradeBtn');
-        if (submitBtn) {
-          submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
-          submitBtn.className = 'btn-primary';
-        }
-        const header = document.querySelector('.page-header h1');
-        if (header) {
-          header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
-        }
-        const headerP = document.querySelector('.page-header p');
-        if (headerP) {
-          headerP.textContent = 'Record • Review • Improve • Repeat';
-        }
-        const flag = document.getElementById('updateMode');
-        if (flag) flag.remove();
-        window.location.href = 'history.html';
-      } else {
-        trades.unshift(trade);
-        saveTrades();
-        form.reset();
-        const dateInput = document.getElementById('tradeDate');
-        if (dateInput) {
-          dateInput.value = new Date().toISOString().split('T')[0];
-        }
-        // Reset balance to default
-        const balanceInput = document.getElementById('balance');
-        if (balanceInput) balanceInput.value = '1000';
-        refreshUI();
-        alert('✅ Trade saved as ' + trade.result + '.');
-      }
-    }
-
-    // ─── REFRESH UI ──────────────────────────────────────────
-    function refreshUI() {
-      loadDashboard();
-      loadRecentTrades();
-      initializeCharts();
-    }
-
-    // ─── LOAD DASHBOARD – NET PROFIT = PROFIT - COMMISSION ──
-    function loadDashboard() {
-      const all = trades;
-      const wins = all.filter(t => t.result === "Win");
-      const losses = all.filter(t => t.result === "Loss");
-      const pending = all.filter(t => t.status === "Pending" || t.result === "Pending");
-      const totalTrades = all.length;
-      const totalWins = wins.length;
-      const totalLosses = losses.length;
-      const winRate = totalTrades === 0 ? 0 : (totalWins / totalTrades) * 100;
-
-      const netProfit = all.reduce((sum, t) => {
-        const p = parseFloat(t.profit) || 0;
-        const c = parseFloat(t.commission) || 0;
-        return sum + p - c;
-      }, 0);
-
-      const avgRR = totalTrades === 0 ? 0 : all.reduce((sum, t) => sum + (parseFloat(t.rr) || 0), 0) / totalTrades;
-
-      let streak = 0;
-      const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date));
-      if (sorted.length > 0) {
-        const last = sorted[sorted.length - 1];
-        if (last.result === "Win") {
-          for (let i = sorted.length - 1; i >= 0; i--) {
-            if (sorted[i].result === "Win") streak++;
-            else break;
-          }
-        } else if (last.result === "Loss") {
-          for (let i = sorted.length - 1; i >= 0; i--) {
-            if (sorted[i].result === "Loss") streak--;
-            else break;
-          }
-        }
-
+      try {
+        accounts = JSON.parse(saved) || {};
+      } catch (error) {
+        console.error("Account data corrupted:", error);
+        accounts = {};
       }
 
       /*
