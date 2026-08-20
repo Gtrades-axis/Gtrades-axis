@@ -3290,12 +3290,18 @@
   <div class="account-modal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
     <div class="account-modal-header">
       <div>
-        <h2 id="accountModalTitle">Add Trading Account</h2>
-        <p>Create any account you trade. Nothing is hard-coded.</p>
+        <h2 id="accountModalTitle">Manage Trading Accounts</h2>
+        <p>Add, edit or delete your trading accounts.</p>
       </div>
       <button type="button" class="modal-close" id="closeAccountModal" aria-label="Close">&times;</button>
     </div>
+
+    <div id="accountManagerList" class="account-manager-list"></div>
+
+    <div class="account-form-divider">Add / Edit Account</div>
+
     <form id="accountForm">
+      <input type="hidden" id="editingAccountId" value="" />
       <div class="journal-grid">
         <div class="form-group"><label for="newAccountName">Account Name</label><input id="newAccountName" type="text" placeholder="e.g. FTMO 100K" required /></div>
         <div class="form-group"><label for="newAccountType">Account Type</label><select id="newAccountType"><option>Prop Firm</option><option>Trading Account</option><option>Personal</option><option>Demo</option><option>Other</option></select></div>
@@ -3304,12 +3310,26 @@
         <div class="form-group"><label for="newAccountCurrency">Currency</label><input id="newAccountCurrency" type="text" value="USD" placeholder="USD" required /></div>
       </div>
       <div class="modal-actions">
-        <button type="button" id="cancelAccountBtn" class="btn-secondary">Cancel</button>
-        <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Create Account</button>
+        <button type="button" id="cancelAccountBtn" class="btn-secondary">Clear</button>
+        <button type="submit" id="accountSubmitBtn" class="btn-primary"><i class="fa-solid fa-plus"></i> Create Account</button>
       </div>
     </form>
   </div>
 </div>
+
+<style>
+.account-manager-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;max-height:280px;overflow:auto;padding-right:3px}
+.account-manager-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border-color);border-radius:10px}
+.account-manager-main{min-width:0;flex:1}
+.account-manager-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-manager-meta{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.account-manager-actions{display:flex;gap:7px;flex-shrink:0}
+.account-manager-actions button{border:1px solid var(--border-color);background:transparent;color:var(--text-primary);border-radius:7px;padding:7px 10px;cursor:pointer}
+.account-manager-actions button:hover{background:rgba(255,255,255,.07)}
+.account-manager-actions .delete-account-btn{color:#ff6b6b}
+.account-form-divider{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);border-top:1px solid var(--border-color);padding-top:17px;margin-top:4px;margin-bottom:13px}
+.account-empty{padding:15px;text-align:center;color:var(--text-secondary);border:1px dashed var(--border-color);border-radius:10px}
+</style>
 
 <!-- =========================
      FIREBASE IMPORT MAP
@@ -3450,12 +3470,21 @@
     }
 
 
-    function openAccountModal() {
+    function openAccountModal(accountId = null) {
       const modal = document.getElementById("accountModal");
       if (!modal) return;
+
+      clearAccountForm();
+      renderAccountManager();
+
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
-      setTimeout(() => document.getElementById("newAccountName")?.focus(), 30);
+
+      if (accountId && accounts[accountId]) {
+        editAccount(accountId);
+      } else {
+        setTimeout(() => document.getElementById("newAccountName")?.focus(), 30);
+      }
     }
 
 
@@ -3464,12 +3493,153 @@
       if (!modal) return;
       modal.classList.remove("open");
       modal.setAttribute("aria-hidden", "true");
+      clearAccountForm();
+    }
+
+
+    function clearAccountForm() {
+      const form = document.getElementById("accountForm");
+      if (form) form.reset();
+
+      const editing = document.getElementById("editingAccountId");
+      if (editing) editing.value = "";
+
+      const risk = document.getElementById("newAccountRisk");
+      const currency = document.getElementById("newAccountCurrency");
+      const title = document.getElementById("accountModalTitle");
+      const submit = document.getElementById("accountSubmitBtn");
+
+      if (risk) risk.value = "1";
+      if (currency) currency.value = "USD";
+      if (title) title.textContent = "Manage Trading Accounts";
+      if (submit) submit.innerHTML = '<i class="fa-solid fa-plus"></i> Create Account';
+    }
+
+
+    function editAccount(accountId) {
+      const account = getAccount(accountId);
+      if (!account) return;
+
+      const editing = document.getElementById("editingAccountId");
+      const name = document.getElementById("newAccountName");
+      const type = document.getElementById("newAccountType");
+      const balance = document.getElementById("newAccountBalance");
+      const risk = document.getElementById("newAccountRisk");
+      const currency = document.getElementById("newAccountCurrency");
+      const title = document.getElementById("accountModalTitle");
+      const submit = document.getElementById("accountSubmitBtn");
+
+      if (editing) editing.value = account.id;
+      if (name) name.value = account.name || "";
+      if (type) type.value = account.type || "Other";
+      if (balance) balance.value = Number(account.startingBalance || 0).toFixed(2);
+      if (risk) risk.value = Number(account.riskPercent || 0);
+      if (currency) currency.value = account.currency || "USD";
+      if (title) title.textContent = "Edit Trading Account";
+      if (submit) submit.innerHTML = '<i class="fa-solid fa-pen"></i> Save Account';
+
+      document.getElementById("newAccountName")?.focus();
+    }
+
+
+    function deleteAccount(accountId) {
+      const account = getAccount(accountId);
+      if (!account) return;
+
+      const linkedTrades = trades.filter(trade => trade.accountId === accountId);
+
+      const message = linkedTrades.length
+        ? `Delete "${account.name}"?\\n\\n${linkedTrades.length} trade(s) are linked to this account. The trades will be kept, but they will become unassigned.`
+        : `Delete "${account.name}"?\\n\\nThis cannot be undone.`;
+
+      if (!confirm(message)) return;
+
+      linkedTrades.forEach(trade => {
+        trade.accountId = "";
+        trade.account = account.name || trade.account || "";
+      });
+
+      delete accounts[accountId];
+
+      if (selectedAccountId === accountId) {
+        selectedAccountId = "all";
+      }
+
+      saveTrades();
+      saveAccounts();
+      populateAccountSelectors();
+      renderAccountManager();
+      updateTradeAccountInfo();
+      calculateAll();
+      calculateStatistics();
+      loadRecentTrades();
+      initializeCharts();
+      updateAccountPanel();
+
+      clearAccountForm();
+      alert("✅ Account deleted successfully.");
+    }
+
+
+    function renderAccountManager() {
+      const container = document.getElementById("accountManagerList");
+      if (!container) return;
+
+      const list = Object.values(accounts);
+
+      if (!list.length) {
+        container.innerHTML = '<div class="account-empty">No accounts yet. Create your first trading account below.</div>';
+        return;
+      }
+
+      container.innerHTML = "";
+
+      list.forEach(account => {
+        const item = document.createElement("div");
+        item.className = "account-manager-item";
+
+        const main = document.createElement("div");
+        main.className = "account-manager-main";
+
+        const name = document.createElement("div");
+        name.className = "account-manager-name";
+        name.textContent = account.name || "Unnamed Account";
+
+        const meta = document.createElement("div");
+        meta.className = "account-manager-meta";
+        meta.textContent = `${account.type || "Other"} • ${account.currency || "USD"} • Starting ${money(account.startingBalance || 0)} • Risk ${Number(account.riskPercent || 0).toFixed(2)}%`;
+
+        main.appendChild(name);
+        main.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "account-manager-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit';
+        editBtn.addEventListener("click", () => editAccount(account.id));
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "delete-account-btn";
+        deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete';
+        deleteBtn.addEventListener("click", () => deleteAccount(account.id));
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        item.appendChild(main);
+        item.appendChild(actions);
+        container.appendChild(item);
+      });
     }
 
 
     function createAccountFromForm(event) {
       event.preventDefault();
 
+      const editingId = val("editingAccountId").trim();
       const name = val("newAccountName").trim();
       const startingBalance = parseFloat(val("newAccountBalance"));
       const riskPercent = parseFloat(val("newAccountRisk"));
@@ -3496,6 +3666,34 @@
         return;
       }
 
+      if (editingId && accounts[editingId]) {
+        const account = accounts[editingId];
+        const oldStarting = Number(account.startingBalance || 0);
+        const oldCurrent = Number(account.currentBalance || oldStarting);
+        const pnl = oldCurrent - oldStarting;
+
+        account.name = name;
+        account.type = type;
+        account.startingBalance = startingBalance;
+        account.currentBalance = startingBalance + pnl;
+        account.riskPercent = riskPercent;
+        account.currency = currency;
+
+        saveAccounts();
+        populateAccountSelectors();
+        renderAccountManager();
+        updateTradeAccountInfo();
+        calculateAll();
+        calculateStatistics();
+        loadRecentTrades();
+        initializeCharts();
+        updateAccountPanel();
+
+        alert("✅ Account updated successfully.");
+        clearAccountForm();
+        return;
+      }
+
       const id =
         "account-" +
         Date.now() +
@@ -3519,18 +3717,15 @@
       const tradeAccount = document.getElementById("tradeAccount");
       if (tradeAccount) tradeAccount.value = id;
 
-      closeAccountModal();
-      document.getElementById("accountForm")?.reset();
-      document.getElementById("newAccountRisk").value = "1";
-      document.getElementById("newAccountCurrency").value = "USD";
-
+      renderAccountManager();
       updateTradeAccountInfo();
+      calculateAll();
       calculateStatistics();
       updateAccountPanel();
 
       alert("✅ Account added successfully.");
+      clearAccountForm();
     }
-
 
     /* =========================================================
        TRADE STORAGE
