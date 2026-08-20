@@ -281,582 +281,781 @@ import { initPremiumLock } from './js/premium-lock.js';
 import { logoutUser } from './js/auth.js';
 
 /* =========================================================
-   LOGOUT
+   GTRADES-AXIS™ ANALYTICS
+   Reads the same journal data:
+   - trades
+   - accountId
+   - accounts
+   - status
+   - profit
+   - commission
+   - rr
+   - pair
+   - session
+   - entryModel
+   - date / closed
 ========================================================= */
 
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+let trades = [];
+let accounts = {};
+let charts = {};
 
-    if (!confirm('Logout?')) return;
+let selectedAccountId = "all";
 
-    try {
-        await logoutUser();
-    } catch (error) {
-        console.error('Logout error:', error);
-    }
+/* =========================================================
+   HELPERS
+========================================================= */
 
-});
+function getEl(id) {
+    return document.getElementById(id);
+}
+
+function setText(id, value) {
+    const el = getEl(id);
+    if (el) el.textContent = value;
+}
+
+function number(value) {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function money(value) {
+    const n = number(value);
+    return `$${n.toFixed(2)}`;
+}
+
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 
 /* =========================================================
-   ANALYTICS
+   STORAGE
 ========================================================= */
 
-function initAnalytics(userData) {
-
-    console.log('✅ Analytics unlocked – initializing...');
-
-    /* =====================================================
-       STORAGE
-    ===================================================== */
-
-    const STORAGE_KEY = 'trades';
-    const ACCOUNTS_KEY = 'tradingAccounts';
-
-    let trades = [];
-    let accounts = {};
-
-    let charts = {
-        equity: null,
-        monthly: null,
-        pair: null,
-        session: null
-    };
-
-
-    /* =====================================================
-       HELPERS
-    ===================================================== */
-
-    function getEl(id) {
-        return document.getElementById(id);
-    }
-
-
-    function setText(id, value) {
-
-        const el = getEl(id);
-
-        if (el) {
-            el.textContent = value;
-        }
-
-    }
-
-
-    function number(value) {
-
-        const n = parseFloat(value);
-
-        return Number.isFinite(n) ? n : 0;
-
-    }
-
-
-    function money(value) {
-
-        return '$' + number(value).toFixed(2);
-
-    }
-
+function findTradeStorageKey() {
 
     /*
-     * IMPORTANT:
-     *
-     * Journal stores:
-     * profit
-     * commission
-     *
-     * Analytics should therefore use:
-     *
-     * NET = profit - commission
+     * First try the normal journal key.
      */
+    const preferredKeys = [
+        "trades",
+        "gtrades_axis_trades",
+        "gtradesaxis_trades",
+        "journalTrades",
+        "tradingTrades"
+    ];
 
-    function netTradeProfit(trade) {
+    for (const key of preferredKeys) {
 
-        return (
-            number(trade.profit) -
-            number(trade.commission)
-        );
+        const raw = localStorage.getItem(key);
 
-    }
-
-
-    function isClosed(trade) {
-
-        return String(
-            trade?.status || ''
-        ).toLowerCase() === 'closed';
-
-    }
-
-
-    /*
-     * Some older trades may contain result.
-     *
-     * If result does not exist, calculate it
-     * directly from the actual P&L.
-     */
-
-    function getTradeResult(trade) {
-
-        const existing =
-            String(
-                trade?.result || ''
-            ).toLowerCase();
-
-        if (
-            existing === 'win' ||
-            existing === 'loss' ||
-            existing === 'breakeven'
-        ) {
-
-            return existing;
-
-        }
-
-
-        const pnl =
-            netTradeProfit(trade);
-
-
-        if (pnl > 0) return 'win';
-
-        if (pnl < 0) return 'loss';
-
-        return 'breakeven';
-
-    }
-
-
-    function getTradeDate(trade) {
-
-        return (
-            trade.closed ||
-            trade.tradeDate ||
-            trade.date ||
-            ''
-        );
-
-    }
-
-
-    function getAccountId(trade) {
-
-        return (
-            trade.accountId ||
-            'default'
-        );
-
-    }
-
-
-    /* =====================================================
-       LOAD ACCOUNTS
-    ===================================================== */
-
-    function loadAccounts() {
+        if (!raw) continue;
 
         try {
 
-            const raw =
-                localStorage.getItem(
-                    ACCOUNTS_KEY
-                );
+            const parsed = JSON.parse(raw);
 
-            if (!raw) {
-
-                accounts = {};
-
-                return;
-
+            if (Array.isArray(parsed)) {
+                return key;
             }
 
+        } catch (error) {}
 
-            const parsed =
-                JSON.parse(raw);
+    }
 
 
-            /*
-             * Support both:
-             *
-             * {
-             *   accountId: {...}
-             * }
-             *
-             * and
-             *
-             * [
-             *   {...}
-             * ]
-             */
+    /*
+     * If the journal uses another key,
+     * find an array containing trade objects.
+     */
+    for (let i = 0; i < localStorage.length; i++) {
+
+        const key = localStorage.key(i);
+
+        if (!key) continue;
+
+        try {
+
+            const raw = localStorage.getItem(key);
+
+            if (!raw) continue;
+
+            const parsed = JSON.parse(raw);
 
             if (
-                Array.isArray(parsed)
+                Array.isArray(parsed) &&
+                parsed.length &&
+                typeof parsed[0] === "object" &&
+                (
+                    "pair" in parsed[0] ||
+                    "profit" in parsed[0] ||
+                    "tradeDate" in parsed[0]
+                )
             ) {
 
-                accounts = {};
-
-                parsed.forEach(
-                    account => {
-
-                        if (
-                            account &&
-                            account.id
-                        ) {
-
-                            accounts[
-                                account.id
-                            ] = account;
-
-                        }
-
-                    }
-                );
-
-            } else {
-
-                accounts =
-                    parsed || {};
+                return key;
 
             }
 
-        } catch (error) {
+        } catch (error) {}
 
-            console.error(
-                'Account loading error:',
-                error
-            );
+    }
+
+    return "trades";
+}
+
+
+function findAccountsStorageKey() {
+
+    const preferredKeys = [
+        "accounts",
+        "tradingAccounts",
+        "gtrades_axis_accounts",
+        "gtradesaxis_accounts"
+    ];
+
+    for (const key of preferredKeys) {
+
+        const raw = localStorage.getItem(key);
+
+        if (!raw) continue;
+
+        try {
+
+            const parsed = JSON.parse(raw);
+
+            if (
+                parsed &&
+                typeof parsed === "object" &&
+                !Array.isArray(parsed)
+            ) {
+                return key;
+            }
+
+            if (Array.isArray(parsed)) {
+                return key;
+            }
+
+        } catch (error) {}
+
+    }
+
+    return "accounts";
+}
+
+
+/* =========================================================
+   LOAD ACCOUNTS
+========================================================= */
+
+function loadAccounts() {
+
+    const key = findAccountsStorageKey();
+
+    try {
+
+        const raw = localStorage.getItem(key);
+
+        if (!raw) {
+
+            accounts = {};
+
+            return;
+
+        }
+
+        const parsed = JSON.parse(raw);
+
+        /*
+         * Journal normally stores accounts as an object.
+         */
+        if (
+            parsed &&
+            typeof parsed === "object" &&
+            !Array.isArray(parsed)
+        ) {
+
+            accounts = parsed;
+
+        } else if (Array.isArray(parsed)) {
+
+            accounts = {};
+
+            parsed.forEach(account => {
+
+                if (!account) return;
+
+                const id =
+                    account.id ||
+                    account.accountId ||
+                    crypto.randomUUID();
+
+                accounts[id] = {
+                    ...account,
+                    id
+                };
+
+            });
+
+        } else {
 
             accounts = {};
 
         }
 
+    } catch (error) {
+
+        console.error(
+            "Analytics account loading error:",
+            error
+        );
+
+        accounts = {};
+
     }
 
-
-    /* =====================================================
-       LOAD TRADES
-    ===================================================== */
-
-    function loadTrades() {
-
-        try {
-
-            const raw =
-                localStorage.getItem(
-                    STORAGE_KEY
-                );
+}
 
 
-            trades =
-                raw
-                    ? JSON.parse(raw)
-                    : [];
+/* =========================================================
+   LOAD TRADES
+========================================================= */
 
+function loadTrades() {
 
-            if (
-                !Array.isArray(trades)
-            ) {
+    const key = findTradeStorageKey();
 
-                trades = [];
+    try {
 
-            }
+        const raw = localStorage.getItem(key);
 
-
-            trades =
-                trades.filter(
-                    trade =>
-                        trade &&
-                        typeof trade === 'object'
-                );
-
-
-        } catch (error) {
-
-            console.error(
-                'Trade loading error:',
-                error
-            );
+        if (!raw) {
 
             trades = [];
 
+            return;
+
         }
 
+        const parsed = JSON.parse(raw);
 
-        console.log(
-            '📊 Analytics loaded:',
-            trades.length,
-            'trades'
-        );
-
-
-        refreshAnalytics();
-
-    }
-
-
-    /* =====================================================
-       CLOSED TRADES
-    ===================================================== */
-
-    function getClosedTrades() {
-
-        return trades
-            .filter(isClosed)
-            .sort(
-                (a, b) =>
-                    new Date(
-                        getTradeDate(a)
-                    ) -
-                    new Date(
-                        getTradeDate(b)
-                    )
-            );
-
-    }
-
-
-    /* =====================================================
-       OVERVIEW
-    ===================================================== */
-
-    function updateOverview() {
-
-        const closed =
-            getClosedTrades();
-
-
-        const total =
-            closed.length;
-
-
-        const wins =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'win'
-            );
-
-
-        const losses =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'loss'
-            );
-
-
-        const breakevens =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'breakeven'
-            );
-
-
-        const grossProfit =
-            wins.reduce(
-                (sum, trade) =>
-                    sum +
-                    netTradeProfit(trade),
-                0
-            );
-
-
-        const grossLoss =
-            Math.abs(
-                losses.reduce(
-                    (sum, trade) =>
-                        sum +
-                        netTradeProfit(trade),
-                    0
-                )
-            );
-
-
-        const netProfit =
-            closed.reduce(
-                (sum, trade) =>
-                    sum +
-                    netTradeProfit(trade),
-                0
-            );
-
-
-        const winRate =
-            total
-                ? (
-                    wins.length /
-                    total
-                ) * 100
-                : 0;
-
-
-        const rrValues =
-            closed
-                .map(
+        trades =
+            Array.isArray(parsed)
+                ? parsed.filter(
                     trade =>
-                        number(trade.rr)
+                        trade &&
+                        typeof trade === "object"
                 )
-                .filter(
-                    rr =>
-                        rr > 0
-                );
+                : [];
 
+    } catch (error) {
 
-        const averageRR =
-            rrValues.length
-                ? rrValues.reduce(
-                    (a, b) =>
-                        a + b,
-                    0
-                ) /
-                rrValues.length
-                : 0;
-
-
-        const profitFactor =
-            grossLoss > 0
-                ? grossProfit /
-                  grossLoss
-                : grossProfit > 0
-                    ? grossProfit
-                    : 0;
-
-
-        const expectancy =
-            total
-                ? netProfit /
-                  total
-                : 0;
-
-
-        const averageWin =
-            wins.length
-                ? grossProfit /
-                  wins.length
-                : 0;
-
-
-        const averageLoss =
-            losses.length
-                ? grossLoss /
-                  losses.length
-                : 0;
-
-
-        setText(
-            'totalTrades',
-            total
+        console.error(
+            "Analytics trade loading error:",
+            error
         );
 
+        trades = [];
 
-        setText(
-            'winRate',
-            winRate.toFixed(1) + '%'
+    }
+
+}
+
+
+/* =========================================================
+   ACCOUNT SELECTOR
+========================================================= */
+
+function createAccountSelector() {
+
+    const header =
+        document.querySelector(".page-header");
+
+    if (!header) return;
+
+    /*
+     * Do not duplicate it.
+     */
+    if (document.getElementById("analyticsAccountFilter")) {
+        return;
+    }
+
+    const wrapper =
+        document.createElement("div");
+
+    wrapper.style.cssText = `
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-top:12px;
+        flex-wrap:wrap;
+    `;
+
+    const label =
+        document.createElement("span");
+
+    label.innerHTML =
+        '<i class="fa-solid fa-wallet"></i> Account:';
+
+    label.style.cssText = `
+        color:#8ea2c0;
+        font-size:13px;
+        font-weight:500;
+    `;
+
+    const select =
+        document.createElement("select");
+
+    select.id =
+        "analyticsAccountFilter";
+
+    select.style.cssText = `
+        background:#121b2f;
+        border:1px solid rgba(255,255,255,.08);
+        color:#fff;
+        padding:9px 14px;
+        border-radius:9px;
+        outline:none;
+        font-family:Poppins,sans-serif;
+        min-width:190px;
+    `;
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(select);
+
+    header
+        .querySelector("div:first-child")
+        ?.appendChild(wrapper);
+
+    select.addEventListener(
+        "change",
+        () => {
+
+            selectedAccountId =
+                select.value;
+
+            refreshAnalytics();
+
+        }
+    );
+
+    populateAccountSelector();
+
+}
+
+
+function populateAccountSelector() {
+
+    const select =
+        document.getElementById(
+            "analyticsAccountFilter"
         );
 
+    if (!select) return;
 
-        setText(
-            'averageRR',
-            averageRR.toFixed(2)
-        );
+    const previous =
+        selectedAccountId;
 
+    select.innerHTML = "";
 
-        setText(
-            'netProfit',
-            money(netProfit)
-        );
+    const allOption =
+        document.createElement("option");
 
+    allOption.value = "all";
+    allOption.textContent = "All Accounts";
 
-        setText(
-            'profitFactor',
-            profitFactor.toFixed(2)
-        );
+    select.appendChild(allOption);
 
 
-        setText(
-            'expectancy',
-            money(expectancy)
-        );
+    Object.entries(accounts).forEach(
+        ([id, account]) => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = id;
+
+            option.textContent =
+                account.name ||
+                account.accountName ||
+                id;
+
+            select.appendChild(option);
+
+        }
+    );
 
 
-        setText(
-            'averageWin',
-            money(averageWin)
-        );
+    if (
+        [...select.options]
+            .some(option =>
+                option.value === previous
+            )
+    ) {
+
+        select.value = previous;
+
+    } else {
+
+        selectedAccountId = "all";
+        select.value = "all";
+
+    }
+
+}
 
 
-        setText(
-            'averageLoss',
-            money(-averageLoss)
-        );
+/* =========================================================
+   FILTERED TRADES
+========================================================= */
+
+function getFilteredTrades() {
+
+    if (
+        selectedAccountId ===
+        "all"
+    ) {
+
+        return [...trades];
+
+    }
+
+    return trades.filter(
+        trade =>
+            String(
+                trade.accountId || ""
+            ) ===
+            String(
+                selectedAccountId
+            )
+    );
+
+}
 
 
-        /* =================================================
-           BEST / WORST TRADE
-        ================================================= */
+/* =========================================================
+   CLOSED TRADES
+========================================================= */
 
-        const pnlValues =
-            closed.map(
-                trade =>
-                    netTradeProfit(trade)
-            );
+function getClosedTrades() {
 
+    return getFilteredTrades()
+        .filter(
+            trade =>
+                String(
+                    trade.status || ""
+                ).toLowerCase() ===
+                "closed"
+        )
+        .sort(
+            (a, b) => {
 
-        const bestTrade =
-            pnlValues.length
-                ? Math.max(...pnlValues)
-                : 0;
-
-
-        const worstTrade =
-            pnlValues.length
-                ? Math.min(...pnlValues)
-                : 0;
-
-
-        /* =================================================
-           BEST / WORST PAIR
-        ================================================= */
-
-        const pairStats = {};
-
-
-        closed.forEach(
-            trade => {
-
-                const pair =
-                    trade.pair ||
-                    'Unknown';
-
-
-                pairStats[pair] =
-                    (
-                        pairStats[pair] ||
+                const dateA =
+                    new Date(
+                        a.closed ||
+                        a.date ||
+                        a.tradeDate ||
                         0
-                    ) +
-                    netTradeProfit(trade);
+                    );
+
+                const dateB =
+                    new Date(
+                        b.closed ||
+                        b.date ||
+                        b.tradeDate ||
+                        0
+                    );
+
+                return dateA - dateB;
 
             }
         );
 
-
-        let bestPair = '-';
-        let bestPairProfit = 0;
-
-        let worstPair = '-';
-        let worstPairProfit = 0;
+}
 
 
-        Object.entries(
-            pairStats
-        ).forEach(
-            ([pair, value]) => {
+/* =========================================================
+   RESULT
+   The journal may have result OR only profit.
+========================================================= */
+
+function getTradeResult(trade) {
+
+    const stored =
+        String(
+            trade.result || ""
+        ).trim().toLowerCase();
+
+    if (
+        stored === "win" ||
+        stored === "loss" ||
+        stored === "breakeven"
+    ) {
+
+        return stored;
+
+    }
+
+    const net =
+        number(trade.profit) -
+        number(trade.commission);
+
+    if (net > 0) return "win";
+
+    if (net < 0) return "loss";
+
+    return "breakeven";
+
+}
+
+
+/* =========================================================
+   NET TRADE P&L
+========================================================= */
+
+function getTradeNet(trade) {
+
+    return (
+        number(trade.profit) -
+        number(trade.commission)
+    );
+
+}
+
+
+/* =========================================================
+   ACCOUNT STARTING BALANCE
+========================================================= */
+
+function getStartingBalance() {
+
+    if (
+        selectedAccountId ===
+        "all"
+    ) {
+
+        return Object.values(accounts)
+            .reduce(
+                (sum, account) =>
+                    sum +
+                    number(
+                        account.startingBalance
+                    ),
+                0
+            );
+
+    }
+
+    const account =
+        accounts[
+            selectedAccountId
+        ];
+
+    return account
+        ? number(account.startingBalance)
+        : 0;
+
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+function calculateStatistics() {
+
+    const filtered =
+        getFilteredTrades();
+
+    const closed =
+        filtered.filter(
+            trade =>
+                String(
+                    trade.status || ""
+                ).toLowerCase() ===
+                "closed"
+        );
+
+    const total =
+        closed.length;
+
+    const wins =
+        closed.filter(
+            trade =>
+                getTradeResult(trade) ===
+                "win"
+        );
+
+    const losses =
+        closed.filter(
+            trade =>
+                getTradeResult(trade) ===
+                "loss"
+        );
+
+    const breakevens =
+        closed.filter(
+            trade =>
+                getTradeResult(trade) ===
+                "breakeven"
+        );
+
+
+    const netProfit =
+        closed.reduce(
+            (sum, trade) =>
+                sum +
+                getTradeNet(trade),
+            0
+        );
+
+
+    const grossProfit =
+        wins.reduce(
+            (sum, trade) =>
+                sum +
+                Math.max(
+                    getTradeNet(trade),
+                    0
+                ),
+            0
+        );
+
+
+    const grossLoss =
+        Math.abs(
+            losses.reduce(
+                (sum, trade) =>
+                    sum +
+                    Math.min(
+                        getTradeNet(trade),
+                        0
+                    ),
+                0
+            )
+        );
+
+
+    const winRate =
+        total
+            ? (
+                wins.length /
+                total
+            ) * 100
+            : 0;
+
+
+    const rrValues =
+        closed
+            .map(
+                trade =>
+                    number(trade.rr)
+            )
+            .filter(
+                rr =>
+                    Number.isFinite(rr) &&
+                    rr !== 0
+            );
+
+
+    const averageRR =
+        rrValues.length
+            ? rrValues.reduce(
+                (a, b) => a + b,
+                0
+            ) / rrValues.length
+            : 0;
+
+
+    const profitFactor =
+        grossLoss > 0
+            ? grossProfit / grossLoss
+            : grossProfit > 0
+                ? Infinity
+                : 0;
+
+
+    const expectancy =
+        total
+            ? netProfit / total
+            : 0;
+
+
+    const averageWin =
+        wins.length
+            ? grossProfit /
+              wins.length
+            : 0;
+
+
+    const averageLoss =
+        losses.length
+            ? grossLoss /
+              losses.length
+            : 0;
+
+
+    /* =====================================================
+       PAIRS
+    ===================================================== */
+
+    const pairStats = {};
+
+    closed.forEach(
+        trade => {
+
+            const pair =
+                trade.pair ||
+                "Unknown";
+
+            if (!pairStats[pair]) {
+
+                pairStats[pair] = {
+                    profit: 0,
+                    wins: 0,
+                    trades: 0
+                };
+
+            }
+
+            pairStats[pair].profit +=
+                getTradeNet(trade);
+
+            pairStats[pair].trades++;
+
+            if (
+                getTradeResult(trade) ===
+                "win"
+            ) {
+
+                pairStats[pair].wins++;
+
+            }
+
+        }
+    );
+
+
+    let bestPair = "-";
+    let bestPairProfit = 0;
+
+    let worstPair = "-";
+    let worstPairProfit = 0;
+
+    Object.entries(pairStats)
+        .forEach(
+            ([pair, data], index) => {
 
                 if (
-                    bestPair === '-' ||
-                    value >
+                    index === 0 ||
+                    data.profit >
                     bestPairProfit
                 ) {
 
@@ -864,14 +1063,13 @@ function initAnalytics(userData) {
                         pair;
 
                     bestPairProfit =
-                        value;
+                        data.profit;
 
                 }
 
-
                 if (
-                    worstPair === '-' ||
-                    value <
+                    index === 0 ||
+                    data.profit <
                     worstPairProfit
                 ) {
 
@@ -879,7 +1077,7 @@ function initAnalytics(userData) {
                         pair;
 
                     worstPairProfit =
-                        value;
+                        data.profit;
 
                 }
 
@@ -887,98 +1085,57 @@ function initAnalytics(userData) {
         );
 
 
-        setText(
-            'bestPair',
-            bestPair
-        );
+    /* =====================================================
+       SESSION
+    ===================================================== */
 
+    const sessionStats = {};
 
-        setText(
-            'bestPairProfit',
-            money(bestPairProfit)
-        );
+    closed.forEach(
+        trade => {
 
+            const session =
+                trade.session ||
+                "Unknown";
 
-        setText(
-            'worstPair',
-            worstPair
-        );
+            if (!sessionStats[session]) {
 
-
-        setText(
-            'worstPairProfit',
-            money(worstPairProfit)
-        );
-
-
-        /* =================================================
-           SESSION
-        ================================================= */
-
-        const sessionStats = {};
-
-
-        closed.forEach(
-            trade => {
-
-                const session =
-                    trade.session ||
-                    'Unknown';
-
-
-                if (
-                    !sessionStats[session]
-                ) {
-
-                    sessionStats[session] = {
-
-                        profit: 0,
-                        wins: 0,
-                        total: 0
-
-                    };
-
-                }
-
-
-                sessionStats[
-                    session
-                ].profit +=
-                    netTradeProfit(trade);
-
-
-                sessionStats[
-                    session
-                ].total++;
-
-
-                if (
-                    getTradeResult(trade) ===
-                    'win'
-                ) {
-
-                    sessionStats[
-                        session
-                    ].wins++;
-
-                }
+                sessionStats[session] = {
+                    profit: 0,
+                    wins: 0,
+                    trades: 0
+                };
 
             }
-        );
+
+            sessionStats[session].profit +=
+                getTradeNet(trade);
+
+            sessionStats[session].trades++;
+
+            if (
+                getTradeResult(trade) ===
+                "win"
+            ) {
+
+                sessionStats[session].wins++;
+
+            }
+
+        }
+    );
 
 
-        let bestSession = '-';
-        let bestSessionProfit = 0;
-        let bestSessionWinRate = 0;
+    let bestSession = "-";
+    let bestSessionProfit = 0;
+    let bestSessionWinrate = 0;
 
-
-        Object.entries(
-            sessionStats
-        ).forEach(
-            ([session, data]) => {
+    Object.entries(sessionStats)
+        .forEach(
+            ([session, data], index) => {
 
                 if (
-                    bestSession === '-' ||
+                    index === 0 ||
                     data.profit >
                     bestSessionProfit
                 ) {
@@ -989,11 +1146,11 @@ function initAnalytics(userData) {
                     bestSessionProfit =
                         data.profit;
 
-                    bestSessionWinRate =
-                        data.total
+                    bestSessionWinrate =
+                        data.trades
                             ? (
                                 data.wins /
-                                data.total
+                                data.trades
                             ) * 100
                             : 0;
 
@@ -1003,92 +1160,57 @@ function initAnalytics(userData) {
         );
 
 
-        setText(
-            'bestSession',
-            bestSession
-        );
+    /* =====================================================
+       ENTRY MODEL
+    ===================================================== */
 
+    const modelStats = {};
 
-        setText(
-            'bestSessionWinrate',
-            bestSession === '-'
-                ? '0%'
-                : bestSessionWinRate
-                    .toFixed(1) +
-                  '%'
-        );
+    closed.forEach(
+        trade => {
 
+            const model =
+                trade.entryModel ||
+                "Manual / Other";
 
-        /* =================================================
-           BEST ENTRY MODEL
-        ================================================= */
+            if (!modelStats[model]) {
 
-        const modelStats = {};
-
-
-        closed.forEach(
-            trade => {
-
-                /*
-                 * Use entryModel first.
-                 *
-                 * If the trader selected
-                 * Manual Entry, the manual
-                 * entry model is also respected.
-                 */
-
-                const model =
-                    trade.entryModel ||
-                    trade.manualEntryModel ||
-                    'Unknown';
-
-
-                if (
-                    !modelStats[model]
-                ) {
-
-                    modelStats[model] = {
-
-                        total: 0,
-                        wins: 0,
-                        profit: 0
-
-                    };
-
-                }
-
-
-                modelStats[model].total++;
-
-
-                modelStats[model].profit +=
-                    netTradeProfit(trade);
-
-
-                if (
-                    getTradeResult(trade) ===
-                    'win'
-                ) {
-
-                    modelStats[model].wins++;
-
-                }
+                modelStats[model] = {
+                    profit: 0,
+                    wins: 0,
+                    trades: 0
+                };
 
             }
-        );
+
+            modelStats[model].profit +=
+                getTradeNet(trade);
+
+            modelStats[model].trades++;
+
+            if (
+                getTradeResult(trade) ===
+                "win"
+            ) {
+
+                modelStats[model].wins++;
+
+            }
+
+        }
+    );
 
 
-        let bestModel = '-';
-        let bestModelProfit = -Infinity;
-        let bestModelWinRate = 0;
+    let bestModel = "-";
+    let bestModelProfit = 0;
+    let bestModelWinrate = 0;
 
-
-        Object.entries(
-            modelStats
-        ).forEach(
-            ([model, data]) => {
+    Object.entries(modelStats)
+        .forEach(
+            ([model, data], index) => {
 
                 if (
+                    index === 0 ||
                     data.profit >
                     bestModelProfit
                 ) {
@@ -1099,11 +1221,11 @@ function initAnalytics(userData) {
                     bestModelProfit =
                         data.profit;
 
-                    bestModelWinRate =
-                        data.total
+                    bestModelWinrate =
+                        data.trades
                             ? (
                                 data.wins /
-                                data.total
+                                data.trades
                             ) * 100
                             : 0;
 
@@ -1113,1532 +1235,1276 @@ function initAnalytics(userData) {
         );
 
 
-        setText(
-            'bestModel',
-            bestModel
-        );
-
-
-        setText(
-            'bestModelWinrate',
-            bestModel === '-'
-                ? '0%'
-                : bestModelWinRate
-                    .toFixed(1) +
-                  '%'
-        );
-
-    }
-
-
-    /* =====================================================
-       EQUITY CURVE
-    ===================================================== */
-
-    function buildEquityChart() {
-
-        if (!charts.equity) return;
-
-
-        const closed =
-            getClosedTrades();
-
-
-        /*
-         * Start from the combined starting
-         * balance of all accounts.
-         */
-
-        let startingBalance = 0;
-
-
-        Object.values(
-            accounts
-        ).forEach(
-            account => {
-
-                startingBalance +=
-                    number(
-                        account.startingBalance
-                    );
-
-            }
-        );
-
-
-        /*
-         * If no accounts exist,
-         * keep the chart usable.
-         */
-
-        let running =
-            startingBalance;
-
-
-        const data =
-            [running];
-
-
-        closed.forEach(
-            trade => {
-
-                running +=
-                    netTradeProfit(trade);
-
-
-                data.push(
-                    running
-                );
-
-            }
-        );
-
-
-        charts.equity.data.labels =
-            data.map(
-                (_, index) =>
-                    index === 0
-                        ? 'Start'
-                        : index
-            );
-
-
-        charts.equity.data.datasets[0]
-            .data =
-            data;
-
-
-        charts.equity.update();
-
-    }
-
-
-    /* =====================================================
-       MONTHLY
-    ===================================================== */
-
-    function buildMonthlyChart() {
-
-        if (!charts.monthly) return;
-
-
-        const monthly = {};
-
-
-        getClosedTrades()
-            .forEach(
-                trade => {
-
-                    const date =
-                        new Date(
-                            getTradeDate(trade)
-                        );
-
-
-                    if (
-                        Number.isNaN(
-                            date.getTime()
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    const key =
-                        date.getFullYear() +
-                        '-' +
-                        String(
-                            date.getMonth() + 1
-                        ).padStart(
-                            2,
-                            '0'
-                        );
-
-
-                    const label =
-                        date.toLocaleString(
-                            'default',
-                            {
-                                month: 'short',
-                                year: 'numeric'
-                            }
-                        );
-
-
-                    if (
-                        !monthly[key]
-                    ) {
-
-                        monthly[key] = {
-
-                            label,
-                            value: 0
-
-                        };
-
-                    }
-
-
-                    monthly[key].value +=
-                        netTradeProfit(
-                            trade
-                        );
-
-                }
-            );
-
-
-        const keys =
-            Object.keys(
-                monthly
-            ).sort();
-
-
-        charts.monthly.data.labels =
-            keys.map(
-                key =>
-                    monthly[key].label
-            );
-
-
-        charts.monthly.data.datasets[0]
-            .data =
-            keys.map(
-                key =>
-                    monthly[key].value
-            );
-
-
-        charts.monthly.update();
-
-    }
-
-
-    /* =====================================================
-       PAIR CHART
-    ===================================================== */
-
-    function buildPairChart() {
-
-        if (!charts.pair) return;
-
-
-        const stats = {};
-
-
-        getClosedTrades()
-            .forEach(
-                trade => {
-
-                    const pair =
-                        trade.pair ||
-                        'Unknown';
-
-
-                    stats[pair] =
-                        (
-                            stats[pair] ||
-                            0
-                        ) +
-                        netTradeProfit(trade);
-
-                }
-            );
-
-
-        const labels =
-            Object.keys(stats);
-
-
-        charts.pair.data.labels =
-            labels;
-
-
-        charts.pair.data.datasets[0]
-            .data =
-            labels.map(
-                pair =>
-                    stats[pair]
-            );
-
-
-        charts.pair.update();
-
-    }
-
-
-    /* =====================================================
-       SESSION CHART
-    ===================================================== */
-
-    function buildSessionChart() {
-
-        if (!charts.session) return;
-
-
-        const stats = {};
-
-
-        getClosedTrades()
-            .forEach(
-                trade => {
-
-                    const session =
-                        trade.session ||
-                        'Unknown';
-
-
-                    stats[session] =
-                        (
-                            stats[session] ||
-                            0
-                        ) + 1;
-
-                }
-            );
-
-
-        const labels =
-            Object.keys(stats);
-
-
-        charts.session.data.labels =
-            labels;
-
-
-        charts.session.data.datasets[0]
-            .data =
-            labels.map(
-                session =>
-                    stats[session]
-            );
-
-
-        charts.session.update();
-
-    }
-
-
     /* =====================================================
        CONSISTENCY
+       
+       Consistency here is NOT win rate.
+
+       It measures profitable trading days
+       divided by total trading days.
     ===================================================== */
 
-    function calculateConsistency() {
+    const dayStats = {};
 
-        const closed =
-            getClosedTrades();
+    closed.forEach(
+        trade => {
 
+            const rawDate =
+                trade.closed ||
+                trade.date ||
+                trade.tradeDate;
 
-        if (
-            closed.length === 0
-        ) {
+            if (!rawDate) return;
 
-            return 0;
+            const date =
+                new Date(rawDate);
 
-        }
-
-
-        /*
-         * Consistency is based on the
-         * distribution of profitable trades.
-         *
-         * It is NOT simply the win rate.
-         */
-
-        const profits =
-            closed
-                .map(
-                    trade =>
-                        netTradeProfit(trade)
+            if (
+                Number.isNaN(
+                    date.getTime()
                 )
-                .filter(
-                    value =>
-                        value > 0
-                );
+            ) return;
 
+            const day =
+                date.toISOString()
+                    .split("T")[0];
 
-        if (
-            profits.length === 0
-        ) {
+            if (!dayStats[day]) {
 
-            return 0;
+                dayStats[day] = 0;
 
-        }
+            }
 
-
-        const totalProfit =
-            profits.reduce(
-                (sum, value) =>
-                    sum + value,
-                0
-            );
-
-
-        if (
-            totalProfit <= 0
-        ) {
-
-            return 0;
+            dayStats[day] +=
+                getTradeNet(trade);
 
         }
+    );
 
 
-        const largestProfit =
-            Math.max(
-                ...profits
-            );
+    const tradingDays =
+        Object.values(dayStats);
 
+    const profitableDays =
+        tradingDays.filter(
+            value =>
+                value > 0
+        ).length;
+
+    const consistency =
+        tradingDays.length
+            ? (
+                profitableDays /
+                tradingDays.length
+            ) * 100
+            : 0;
+
+
+    /* =====================================================
+       UPDATE DOM
+    ===================================================== */
+
+    setText(
+        "totalTrades",
+        total
+    );
+
+    setText(
+        "winRate",
+        winRate.toFixed(1) + "%"
+    );
+
+    setText(
+        "averageRR",
+        averageRR.toFixed(2)
+    );
+
+    setText(
+        "netProfit",
+        money(netProfit)
+    );
+
+    setText(
+        "profitFactor",
+        Number.isFinite(profitFactor)
+            ? profitFactor.toFixed(2)
+            : "∞"
+    );
+
+    setText(
+        "expectancy",
+        money(expectancy)
+    );
+
+    setText(
+        "averageWin",
+        money(averageWin)
+    );
+
+    setText(
+        "averageLoss",
+        money(averageLoss)
+    );
+
+
+    setText(
+        "bestPair",
+        bestPair
+    );
+
+    setText(
+        "bestPairProfit",
+        money(bestPairProfit)
+    );
+
+
+    setText(
+        "worstPair",
+        worstPair
+    );
+
+    setText(
+        "worstPairProfit",
+        money(worstPairProfit)
+    );
+
+
+    setText(
+        "bestSession",
+        bestSession
+    );
+
+    setText(
+        "bestSessionWinrate",
+        bestSession === "-"
+            ? "0%"
+            : bestSessionWinrate.toFixed(1) + "%"
+    );
+
+
+    setText(
+        "bestModel",
+        bestModel
+    );
+
+    setText(
+        "bestModelWinrate",
+        bestModel === "-"
+            ? "0%"
+            : bestModelWinrate.toFixed(1) + "%"
+    );
+
+
+    /*
+     * Replace the old USD-style insight with
+     * actual consistency.
+     */
+    updateConsistencyCard(
+        consistency,
+        profitableDays,
+        tradingDays.length
+    );
+
+
+    return {
+        filtered,
+        closed,
+        total,
+        wins,
+        losses,
+        breakevens,
+        netProfit,
+        grossProfit,
+        grossLoss,
+        winRate,
+        averageRR,
+        profitFactor,
+        expectancy,
+        averageWin,
+        averageLoss,
+        pairStats,
+        sessionStats,
+        modelStats,
+        consistency,
+        profitableDays,
+        tradingDays:
+            tradingDays.length
+    };
+
+}
+
+
+/* =========================================================
+   CONSISTENCY CARD
+========================================================= */
+
+function updateConsistencyCard(
+    consistency,
+    profitableDays,
+    totalDays
+) {
+
+    /*
+     * If an old consistency element already exists,
+     * update it.
+     */
+
+    let card =
+        document.getElementById(
+            "consistencyCard"
+        );
+
+    if (!card) {
 
         /*
-         * Higher = profits distributed
-         * more consistently.
+         * Create it dynamically so the existing
+         * analytics HTML does not have to be rebuilt.
          */
 
-        return Math.max(
-            0,
-            Math.min(
-                100,
-                (
-                    1 -
-                    (
-                        largestProfit /
-                        totalProfit
-                    )
-                ) * 100
-            )
-        );
+        const stats =
+            document.getElementById(
+                "analyticsStats"
+            );
+
+        if (!stats) return;
+
+        card =
+            document.createElement("div");
+
+        card.className =
+            "stat-card";
+
+        card.id =
+            "consistencyCard";
+
+        card.innerHTML = `
+            <div class="stat-icon">
+                <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+
+            <h3>Consistency</h3>
+
+            <h1 id="consistencyValue"
+                class="value-neutral">
+                0%
+            </h1>
+
+            <p id="consistencyDetail">
+                0 / 0 profitable days
+            </p>
+        `;
+
+        stats.appendChild(card);
 
     }
 
 
-    /* =====================================================
-       INSIGHTS
-    ===================================================== */
+    setText(
+        "consistencyValue",
+        consistency.toFixed(1) + "%"
+    );
 
-    function buildInsights() {
+    setText(
+        "consistencyDetail",
+        `${profitableDays} / ${totalDays} profitable days`
+    );
 
-        const grid =
-            getEl(
-                'analyticsInsightsGrid'
+
+    const value =
+        document.getElementById(
+            "consistencyValue"
+        );
+
+    if (!value) return;
+
+    value.classList.remove(
+        "value-positive",
+        "value-negative",
+        "value-neutral"
+    );
+
+    if (consistency >= 60) {
+
+        value.classList.add(
+            "value-positive"
+        );
+
+    } else if (
+        consistency >= 40
+    ) {
+
+        value.classList.add(
+            "value-neutral"
+        );
+
+    } else {
+
+        value.classList.add(
+            "value-negative"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CHART DESTROY
+========================================================= */
+
+function destroyChart(name) {
+
+    if (charts[name]) {
+
+        try {
+            charts[name].destroy();
+        } catch (error) {}
+
+        charts[name] = null;
+
+    }
+
+}
+
+
+/* =========================================================
+   EQUITY CHART
+========================================================= */
+
+function buildEquityChart() {
+
+    const canvas =
+        getEl("equityChart");
+
+    if (!canvas) return;
+
+    destroyChart("equity");
+
+    const closed =
+        getClosedTrades();
+
+    let balance =
+        getStartingBalance();
+
+    const data = [
+        balance
+    ];
+
+    const labels = [
+        "Start"
+    ];
+
+
+    closed.forEach(
+        (trade, index) => {
+
+            balance +=
+                getTradeNet(trade);
+
+            data.push(
+                balance
             );
 
-
-        if (!grid) return;
-
-
-        const closed =
-            getClosedTrades();
-
-
-        if (
-            closed.length === 0
-        ) {
-
-            grid.innerHTML = `
-                <div class="insight-item">
-                    <h4>No Data</h4>
-                    <p>0</p>
-                </div>
-            `;
-
-            return;
+            labels.push(
+                index + 1
+            );
 
         }
+    );
 
 
-        const wins =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'win'
-            ).length;
+    charts.equity =
+        new Chart(
+            canvas,
+            {
+                type: "line",
+
+                data: {
+                    labels,
+
+                    datasets: [
+                        {
+                            label: "Equity",
+
+                            data,
+
+                            borderColor:
+                                "#0f8cff",
+
+                            backgroundColor:
+                                "rgba(15,140,255,0.15)",
+
+                            fill: true,
+
+                            tension: 0.3
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            ticks: {
+                                color:
+                                    "#94a3b8"
+                            },
+
+                            grid: {
+                                color:
+                                    "rgba(255,255,255,.05)"
+                            }
+                        },
+
+                        y: {
+                            ticks: {
+                                color:
+                                    "#94a3b8"
+                            },
+
+                            grid: {
+                                color:
+                                    "rgba(255,255,255,.05)"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+}
 
 
-        const losses =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'loss'
-            ).length;
+/* =========================================================
+   MONTHLY CHART
+========================================================= */
+
+function buildMonthlyChart() {
+
+    const canvas =
+        getEl("monthlyChart");
+
+    if (!canvas) return;
+
+    destroyChart("monthly");
+
+    const monthly = {};
+
+    getClosedTrades()
+        .forEach(
+            trade => {
+
+                const rawDate =
+                    trade.closed ||
+                    trade.date ||
+                    trade.tradeDate;
+
+                if (!rawDate) return;
+
+                const date =
+                    new Date(rawDate);
+
+                if (
+                    Number.isNaN(
+                        date.getTime()
+                    )
+                ) return;
+
+                const key =
+                    date.getFullYear() +
+                    "-" +
+                    String(
+                        date.getMonth() + 1
+                    ).padStart(2, "0");
+
+                const label =
+                    date.toLocaleString(
+                        "default",
+                        {
+                            month: "short",
+                            year: "numeric"
+                        }
+                    );
+
+                if (!monthly[key]) {
+
+                    monthly[key] = {
+                        label,
+                        value: 0
+                    };
+
+                }
+
+                monthly[key].value +=
+                    getTradeNet(trade);
+
+            }
+        );
 
 
-        const breakevens =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'breakeven'
-            ).length;
+    const keys =
+        Object.keys(monthly)
+            .sort();
 
 
-        const netProfit =
-            closed.reduce(
-                (sum, trade) =>
-                    sum +
-                    netTradeProfit(trade),
-                0
-            );
+    charts.monthly =
+        new Chart(
+            canvas,
+            {
+                type: "bar",
+
+                data: {
+
+                    labels:
+                        keys.map(
+                            key =>
+                                monthly[key]
+                                    .label
+                        ),
+
+                    datasets: [
+                        {
+                            label:
+                                "Monthly P&L",
+
+                            data:
+                                keys.map(
+                                    key =>
+                                        monthly[key]
+                                            .value
+                                ),
+
+                            backgroundColor:
+                                "#0f8cff",
+
+                            borderRadius:
+                                6
+                        }
+                    ]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            ticks: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        },
+
+                        y: {
+                            ticks: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+}
 
 
-        const winRate =
-            closed.length
-                ? (
-                    wins /
-                    closed.length
-                ) * 100
-                : 0;
+/* =========================================================
+   PAIR CHART
+========================================================= */
+
+function buildPairChart() {
+
+    const canvas =
+        getEl("pairChart");
+
+    if (!canvas) return;
+
+    destroyChart("pair");
+
+    const pairStats = {};
+
+    getClosedTrades()
+        .forEach(
+            trade => {
+
+                const pair =
+                    trade.pair ||
+                    "Unknown";
+
+                pairStats[pair] =
+                    (
+                        pairStats[pair] ||
+                        0
+                    ) +
+                    getTradeNet(trade);
+
+            }
+        );
 
 
-        const consistency =
-            calculateConsistency();
+    const labels =
+        Object.keys(pairStats);
+
+    const data =
+        labels.map(
+            pair =>
+                pairStats[pair]
+        );
 
 
-        const bestPair =
-            getEl(
-                'bestPair'
-            )?.textContent ||
-            '-';
+    charts.pair =
+        new Chart(
+            canvas,
+            {
+                type: "bar",
 
+                data: {
+
+                    labels,
+
+                    datasets: [
+                        {
+                            label:
+                                "Net P&L",
+
+                            data,
+
+                            backgroundColor:
+                                "#0f8cff",
+
+                            borderRadius:
+                                6
+                        }
+                    ]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            ticks: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        },
+
+                        y: {
+                            ticks: {
+                                color:
+                                    "#94a3b8"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+}
+
+
+/* =========================================================
+   SESSION CHART
+========================================================= */
+
+function buildSessionChart() {
+
+    const canvas =
+        getEl("sessionChart");
+
+    if (!canvas) return;
+
+    destroyChart("session");
+
+    const sessionStats = {};
+
+    getClosedTrades()
+        .forEach(
+            trade => {
+
+                const session =
+                    trade.session ||
+                    "Unknown";
+
+                sessionStats[session] =
+                    (
+                        sessionStats[session] ||
+                        0
+                    ) + 1;
+
+            }
+        );
+
+
+    const labels =
+        Object.keys(sessionStats);
+
+    const data =
+        labels.map(
+            session =>
+                sessionStats[session]
+        );
+
+
+    charts.session =
+        new Chart(
+            canvas,
+            {
+                type: "doughnut",
+
+                data: {
+
+                    labels,
+
+                    datasets: [
+                        {
+                            data,
+
+                            backgroundColor: [
+                                "#0f8cff",
+                                "#00c853",
+                                "#ffb300",
+                                "#ff4d4f",
+                                "#9c27b0",
+                                "#00bcd4"
+                            ]
+                        }
+                    ]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    plugins: {
+
+                        legend: {
+
+                            position:
+                                "bottom",
+
+                            labels: {
+                                color:
+                                    "#94a3b8",
+
+                                padding:
+                                    10
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+}
+
+
+/* =========================================================
+   BUILD ALL CHARTS
+========================================================= */
+
+function buildCharts() {
+
+    buildEquityChart();
+
+    buildMonthlyChart();
+
+    buildPairChart();
+
+    buildSessionChart();
+
+}
+
+
+/* =========================================================
+   QUICK INSIGHTS
+========================================================= */
+
+function buildInsights(stats) {
+
+    const grid =
+        getEl(
+            "analyticsInsightsGrid"
+        );
+
+    if (!grid) return;
+
+
+    if (!stats.total) {
 
         grid.innerHTML = `
-
             <div class="insight-item">
-
-                <h4>Total Trades</h4>
-
-                <p>
-                    ${closed.length}
-                </p>
-
+                <h4>📊 Total Trades</h4>
+                <p>0</p>
             </div>
-
-
-            <div class="insight-item">
-
-                <h4>Win Rate</h4>
-
-                <p>
-                    ${winRate.toFixed(1)}%
-                </p>
-
-            </div>
-
-
-            <div class="insight-item">
-
-                <h4>Wins</h4>
-
-                <p>
-                    ${wins}
-                </p>
-
-            </div>
-
-
-            <div class="insight-item">
-
-                <h4>Losses</h4>
-
-                <p>
-                    ${losses}
-                </p>
-
-            </div>
-
-
-            <div class="insight-item">
-
-                <h4>Breakeven</h4>
-
-                <p>
-                    ${breakevens}
-                </p>
-
-            </div>
-
-
-            <div class="insight-item">
-
-                <h4>Net Profit</h4>
-
-                <p>
-                    ${money(netProfit)}
-                </p>
-
-            </div>
-
-
-            <div class="insight-item">
-
-                <h4>Consistency</h4>
-
-                <p>
-                    ${consistency.toFixed(1)}%
-                </p>
-
-            </div>
-
-
-            <div class="insight-item">
-
-                <h4>Best Pair</h4>
-
-                <p>
-                    ${bestPair}
-                </p>
-
-            </div>
-
         `;
+
+        return;
 
     }
 
 
-    /* =====================================================
-       AI COACH
-    ===================================================== */
-
-    function buildAICoach() {
-
-        const container =
-            getEl(
-                'aiCoachContent'
-            );
-
-
-        if (!container) return;
-
-
-        const closed =
-            getClosedTrades();
-
-
-        if (
-            closed.length === 0
-        ) {
-
-            container.innerHTML = `
-
-                <div class="coach-loading">
-
-                    <i class="fa-regular fa-face-smile"></i>
-
-                    No closed trades yet.
-                    Start journaling to receive
-                    trading insights.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        const total =
-            closed.length;
-
-
-        const wins =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'win'
-            ).length;
-
-
-        const losses =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'loss'
-            ).length;
-
-
-        const breakevens =
-            closed.filter(
-                trade =>
-                    getTradeResult(trade) ===
-                    'breakeven'
-            ).length;
-
-
-        const winRate =
-            (
-                wins /
-                total
-            ) * 100;
-
-
-        const netProfit =
-            closed.reduce(
-                (sum, trade) =>
-                    sum +
-                    netTradeProfit(trade),
-                0
-            );
-
-
-        const rrValues =
-            closed
-                .map(
-                    trade =>
-                        number(trade.rr)
-                )
-                .filter(
-                    rr =>
-                        rr > 0
-                );
-
-
-        const avgRR =
-            rrValues.length
-                ? rrValues.reduce(
-                    (a, b) =>
-                        a + b,
-                    0
-                ) /
-                rrValues.length
-                : 0;
-
-
-        const consistency =
-            calculateConsistency();
-
-
-        let streak = 0;
-
-
-        /*
-         * Work from newest trade backwards.
-         */
-
-        const newestFirst =
-            [...closed].reverse();
-
-
-        if (
-            newestFirst.length
-        ) {
-
-            const first =
-                getTradeResult(
-                    newestFirst[0]
-                );
-
-
-            if (
-                first === 'win'
-            ) {
-
-                for (
-                    const trade
-                    of newestFirst
-                ) {
-
-                    if (
-                        getTradeResult(
-                            trade
-                        ) === 'win'
-                    ) {
-
-                        streak++;
-
-                    } else {
-
-                        break;
-
-                    }
-
-                }
-
-            }
-
-
-            if (
-                first === 'loss'
-            ) {
-
-                for (
-                    const trade
-                    of newestFirst
-                ) {
-
-                    if (
-                        getTradeResult(
-                            trade
-                        ) === 'loss'
-                    ) {
-
-                        streak--;
-
-                    } else {
-
-                        break;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-
-        const insights = [
-
-            {
-                label:
-                    'Total Trades',
-
-                value:
-                    total,
-
-                detail:
-                    `${wins}W / ${losses}L / ${breakevens}BE`
-
-            },
-
-
-            {
-                label:
-                    'Win Rate',
-
-                value:
-                    winRate.toFixed(1) + '%',
-
-                detail:
-                    winRate >= 50
-                        ? 'Above 50%'
-                        : 'Review setups'
-
-            },
-
-
-            {
-                label:
-                    'Net Profit',
-
-                value:
-                    money(netProfit),
-
-                detail:
-                    netProfit >= 0
-                        ? 'Profitable'
-                        : 'Review losses'
-
-            },
-
-
-            {
-                label:
-                    'Average RR',
-
-                value:
-                    avgRR.toFixed(2),
-
-                detail:
-                    avgRR >= 2
-                        ? 'Strong RR'
-                        : 'Review risk/reward'
-
-            },
-
-
-            {
-                label:
-                    'Consistency',
-
-                value:
-                    consistency.toFixed(1) + '%',
-
-                detail:
-                    'Profit distribution'
-
-            },
-
-
-            {
-                label:
-                    'Streak',
-
-                value:
-                    streak > 0
-                        ? '+' + streak
-                        : streak < 0
-                            ? streak
-                            : '0',
-
-                detail:
-                    streak > 0
-                        ? 'Winning streak'
-                        : streak < 0
-                            ? 'Losing streak'
-                            : 'No active streak'
-
-            }
-
-        ];
-
-
-        const recommendations = [];
-
-
-        if (
-            winRate < 50
-        ) {
-
-            recommendations.push(
-                'Review losing setups and focus on your highest-quality models.'
-            );
-
-        }
-
-
-        if (
-            avgRR < 2
-        ) {
-
-            recommendations.push(
-                'Review your risk-to-reward execution.'
-            );
-
-        }
-
-
-        if (
-            netProfit < 0
-        ) {
-
-            recommendations.push(
-                'Review your losing trades and identify repeated mistakes.'
-            );
-
-        }
-
-
-        if (
-            streak <= -3
-        ) {
-
-            recommendations.push(
-                'You have a losing streak. Review the recent trades before increasing risk.'
-            );
-
-        }
-
-
-        if (
-            recommendations.length === 0
-        ) {
-
-            recommendations.push(
-                'Keep documenting your trades and maintain the same execution discipline.'
-            );
-
-        }
-
+    grid.innerHTML = `
+
+        <div class="insight-item">
+            <h4>📊 Total Trades</h4>
+            <p>${stats.total}</p>
+        </div>
+
+        <div class="insight-item">
+            <h4>✅ Wins</h4>
+            <p class="value-positive">
+                ${stats.wins.length}
+            </p>
+        </div>
+
+        <div class="insight-item">
+            <h4>❌ Losses</h4>
+            <p class="value-negative">
+                ${stats.losses.length}
+            </p>
+        </div>
+
+        <div class="insight-item">
+            <h4>⚖️ Breakeven</h4>
+            <p class="value-neutral">
+                ${stats.breakevens.length}
+            </p>
+        </div>
+
+        <div class="insight-item">
+            <h4>💰 Net P&L</h4>
+            <p class="${
+                stats.netProfit >= 0
+                    ? "value-positive"
+                    : "value-negative"
+            }">
+                ${money(stats.netProfit)}
+            </p>
+        </div>
+
+        <div class="insight-item">
+            <h4>📅 Consistency</h4>
+            <p>
+                ${stats.consistency.toFixed(1)}%
+            </p>
+        </div>
+
+        <div class="insight-item">
+            <h4>🏆 Best Pair</h4>
+            <p>
+                ${escapeHTML(
+                    getEl("bestPair")?.textContent || "-"
+                )}
+            </p>
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   AI COACH
+========================================================= */
+
+function buildAICoach(stats) {
+
+    const container =
+        getEl(
+            "aiCoachContent"
+        );
+
+    if (!container) return;
+
+
+    if (!stats.total) {
 
         container.innerHTML = `
+            <div class="coach-loading"
+                 style="color:#facc15;">
+                <i class="fa-regular fa-face-smile"></i>
+                No closed trades yet.
+                Start journaling to receive trading insights.
+            </div>
+        `;
 
-            <div class="coach-content">
+        return;
 
-                <div class="coach-insights">
+    }
 
-                    ${insights.map(
-                        item => `
 
-                            <div class="coach-insight-item">
+    const recs = [];
 
-                                <div class="insight-label">
-                                    ${item.label}
-                                </div>
 
-                                <div class="insight-value">
-                                    ${item.value}
-                                </div>
+    if (
+        stats.winRate < 50
+    ) {
 
-                                <div class="insight-detail">
-                                    ${item.detail}
-                                </div>
+        recs.push(
+            "Focus on taking only your highest-probability setups."
+        );
 
-                            </div>
+    }
 
-                        `
-                    ).join('')}
 
+    if (
+        stats.averageRR < 2
+    ) {
+
+        recs.push(
+            "Your average RR is below 2R. Review your trade management and target selection."
+        );
+
+    }
+
+
+    if (
+        stats.netProfit < 0
+    ) {
+
+        recs.push(
+            "Your journal is currently negative. Review your losing trades before increasing risk."
+        );
+
+    }
+
+
+    if (
+        stats.consistency < 50
+    ) {
+
+        recs.push(
+            "Your profitable-day consistency is below 50%. Focus on executing the same process every trading day."
+        );
+
+    }
+
+
+    if (
+        stats.losses.length >= 3
+    ) {
+
+        recs.push(
+            "Review your recent losing trades for repeated entry or execution mistakes."
+        );
+
+    }
+
+
+    if (!recs.length) {
+
+        recs.push(
+            "Your current journal statistics are healthy. Continue following your trading process."
+        );
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="coach-content">
+
+            <div class="coach-insights">
+
+                <div class="coach-insight-item">
+                    <div class="insight-label">
+                        Total Trades
+                    </div>
+
+                    <div class="insight-value">
+                        ${stats.total}
+                    </div>
+
+                    <div class="insight-detail">
+                        ${stats.wins.length}W /
+                        ${stats.losses.length}L /
+                        ${stats.breakevens.length}BE
+                    </div>
                 </div>
 
 
-                <div class="coach-recommendations">
+                <div class="coach-insight-item">
+                    <div class="insight-label">
+                        Win Rate
+                    </div>
 
-                    <h4>
+                    <div class="insight-value">
+                        ${stats.winRate.toFixed(1)}%
+                    </div>
 
-                        <i class="fa-regular fa-comment-dots"></i>
+                    <div class="insight-detail">
+                        ${stats.winRate >= 50
+                            ? "Above 50%"
+                            : "Below 50%"
+                        }
+                    </div>
+                </div>
 
-                        Recommendations
 
-                    </h4>
+                <div class="coach-insight-item">
+                    <div class="insight-label">
+                        Net Profit
+                    </div>
+
+                    <div class="insight-value">
+                        ${money(stats.netProfit)}
+                    </div>
+
+                    <div class="insight-detail">
+                        ${
+                            stats.netProfit >= 0
+                                ? "Profitable"
+                                : "Currently negative"
+                        }
+                    </div>
+                </div>
 
 
-                    <ul>
+                <div class="coach-insight-item">
+                    <div class="insight-label">
+                        Average RR
+                    </div>
 
-                        ${recommendations.map(
-                            recommendation => `
+                    <div class="insight-value">
+                        ${stats.averageRR.toFixed(2)}
+                    </div>
 
-                                <li>
+                    <div class="insight-detail">
+                        Average recorded RR
+                    </div>
+                </div>
 
-                                    <i class="fa-solid fa-lightbulb"></i>
 
-                                    ${recommendation}
+                <div class="coach-insight-item">
+                    <div class="insight-label">
+                        Consistency
+                    </div>
 
-                                </li>
+                    <div class="insight-value">
+                        ${stats.consistency.toFixed(1)}%
+                    </div>
 
-                            `
-                        ).join('')}
+                    <div class="insight-detail">
+                        ${stats.profitableDays}
+                        profitable /
+                        ${stats.tradingDays}
+                        trading days
+                    </div>
+                </div>
 
-                    </ul>
 
+                <div class="coach-insight-item">
+                    <div class="insight-label">
+                        Expectancy
+                    </div>
+
+                    <div class="insight-value">
+                        ${money(stats.expectancy)}
+                    </div>
+
+                    <div class="insight-detail">
+                        Net P&L per closed trade
+                    </div>
                 </div>
 
             </div>
 
-        `;
 
-    }
+            <div class="coach-recommendations">
 
+                <h4>
+                    <i class="fa-regular fa-comment-dots"></i>
+                    Recommendations
+                </h4>
 
-    /* =====================================================
-       INITIALIZE CHARTS
-    ===================================================== */
+                <ul>
 
-    function initializeCharts() {
+                    ${recs.map(
+                        recommendation => `
+                            <li>
+                                <i class="fa-solid fa-lightbulb"></i>
+                                ${escapeHTML(
+                                    recommendation
+                                )}
+                            </li>
+                        `
+                    ).join("")}
 
-        const equityCanvas =
-            getEl('equityChart');
+                </ul>
 
-        const monthlyCanvas =
-            getEl('monthlyChart');
+            </div>
 
-        const pairCanvas =
-            getEl('pairChart');
+        </div>
 
-        const sessionCanvas =
-            getEl('sessionChart');
+    `;
 
+}
 
-        if (
-            !equityCanvas ||
-            !monthlyCanvas ||
-            !pairCanvas ||
-            !sessionCanvas
-        ) {
 
-            console.warn(
-                'Analytics chart canvases missing.'
-            );
+/* =========================================================
+   REFRESH
+========================================================= */
 
-            return;
-
-        }
-
-
-        /*
-         * Destroy previous charts.
-         */
-
-        Object.values(charts)
-            .forEach(
-                chart => {
-
-                    if (chart) {
-
-                        chart.destroy();
-
-                    }
-
-                }
-            );
-
-
-        charts.equity =
-            new Chart(
-                equityCanvas,
-                {
-
-                    type: 'line',
-
-                    data: {
-
-                        labels: [],
-
-                        datasets: [
-
-                            {
-
-                                label:
-                                    'Equity',
-
-                                data: [],
-
-                                borderColor:
-                                    '#0f8cff',
-
-                                backgroundColor:
-                                    'rgba(15,140,255,0.15)',
-
-                                fill: true,
-
-                                tension: 0.35
-
-                            }
-
-                        ]
-
-                    },
-
-                    options: {
-
-                        responsive: true,
-
-                        maintainAspectRatio:
-                            false,
-
-                        plugins: {
-
-                            legend: {
-
-                                labels: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            }
-
-                        },
-
-                        scales: {
-
-                            x: {
-
-                                ticks: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                },
-
-                                grid: {
-
-                                    color:
-                                        'rgba(255,255,255,0.05)'
-
-                                }
-
-                            },
-
-                            y: {
-
-                                ticks: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                },
-
-                                grid: {
-
-                                    color:
-                                        'rgba(255,255,255,0.05)'
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-            );
-
-
-        charts.monthly =
-            new Chart(
-                monthlyCanvas,
-                {
-
-                    type: 'bar',
-
-                    data: {
-
-                        labels: [],
-
-                        datasets: [
-
-                            {
-
-                                label:
-                                    'Monthly P&L',
-
-                                data: [],
-
-                                backgroundColor:
-                                    '#0f8cff',
-
-                                borderRadius:
-                                    6
-
-                            }
-
-                        ]
-
-                    },
-
-                    options: {
-
-                        responsive: true,
-
-                        maintainAspectRatio:
-                            false,
-
-                        plugins: {
-
-                            legend: {
-
-                                labels: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            }
-
-                        },
-
-                        scales: {
-
-                            x: {
-
-                                ticks: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            },
-
-                            y: {
-
-                                ticks: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-            );
-
-
-        charts.pair =
-            new Chart(
-                pairCanvas,
-                {
-
-                    type: 'bar',
-
-                    data: {
-
-                        labels: [],
-
-                        datasets: [
-
-                            {
-
-                                label:
-                                    'Profit by Pair',
-
-                                data: [],
-
-                                backgroundColor:
-                                    '#0f8cff',
-
-                                borderRadius:
-                                    6
-
-                            }
-
-                        ]
-
-                    },
-
-                    options: {
-
-                        responsive: true,
-
-                        maintainAspectRatio:
-                            false,
-
-                        plugins: {
-
-                            legend: {
-
-                                labels: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            }
-
-                        },
-
-                        scales: {
-
-                            x: {
-
-                                ticks: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            },
-
-                            y: {
-
-                                ticks: {
-
-                                    color:
-                                        '#94a3b8'
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-            );
-
-
-        charts.session =
-            new Chart(
-                sessionCanvas,
-                {
-
-                    type: 'doughnut',
-
-                    data: {
-
-                        labels: [],
-
-                        datasets: [
-
-                            {
-
-                                data: [],
-
-                                backgroundColor: [
-
-                                    '#0f8cff',
-                                    '#00c853',
-                                    '#ffb300',
-                                    '#ff4d4f',
-                                    '#9c27b0',
-                                    '#14b8a6'
-
-                                ]
-
-                            }
-
-                        ]
-
-                    },
-
-                    options: {
-
-                        responsive: true,
-
-                        maintainAspectRatio:
-                            false,
-
-                        plugins: {
-
-                            legend: {
-
-                                position:
-                                    'bottom',
-
-                                labels: {
-
-                                    color:
-                                        '#94a3b8',
-
-                                    padding:
-                                        10
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-            );
-
-    }
-
-
-    /* =====================================================
-       REFRESH
-    ===================================================== */
-
-    function refreshAnalytics() {
-
-        loadAccounts();
-
-        updateOverview();
-
-        buildEquityChart();
-
-        buildMonthlyChart();
-
-        buildPairChart();
-
-        buildSessionChart();
-
-        buildInsights();
-
-        buildAICoach();
-
-    }
-
-
-    /* =====================================================
-       STORAGE SYNC
-    ===================================================== */
-
-    window.addEventListener(
-        'storage',
-        event => {
-
-            if (
-                event.key === STORAGE_KEY ||
-                event.key === ACCOUNTS_KEY
-            ) {
-
-                loadAccounts();
-
-                loadTrades();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        'visibilitychange',
-        () => {
-
-            if (
-                !document.hidden
-            ) {
-
-                loadAccounts();
-
-                loadTrades();
-
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       SCROLL TOP
-    ===================================================== */
-
-    const scrollBtn =
-        getEl(
-            'scrollTopBtn'
-        );
-
-
-    if (scrollBtn) {
-
-        window.addEventListener(
-            'scroll',
-            () => {
-
-                scrollBtn.classList.toggle(
-                    'visible',
-                    window.scrollY > 300
-                );
-
-            }
-        );
-
-
-        scrollBtn.addEventListener(
-            'click',
-            () => {
-
-                window.scrollTo(
-                    {
-                        top: 0,
-                        behavior: 'smooth'
-                    }
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       START
-    ===================================================== */
+function refreshAnalytics() {
 
     loadAccounts();
 
     loadTrades();
 
+    populateAccountSelector();
 
-    console.log(
-        '✅ GTRADES-AXIS Analytics ready.'
+    const stats =
+        calculateStatistics();
+
+    buildCharts();
+
+    buildInsights(
+        stats
+    );
+
+    buildAICoach(
+        stats
     );
 
 }
 
 
 /* =========================================================
-   PREMIUM PROTECTION — DO NOT CHANGE
+   STORAGE SYNC
+========================================================= */
+
+window.addEventListener(
+    "storage",
+    event => {
+
+        refreshAnalytics();
+
+    }
+);
+
+
+/*
+ * When returning from Journal/History,
+ * reload the latest localStorage data.
+ */
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (!document.hidden) {
+
+            refreshAnalytics();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+document
+    .getElementById("logoutBtn")
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                confirm("Logout?")
+            ) {
+
+                try {
+
+                    await logoutUser();
+
+                } catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+                }
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   PREMIUM LOCK
+   DO NOT CHANGE THIS PROTECTION GUARD
+========================================================= */
+
+function initAnalytics(userData) {
+
+    console.log(
+        "✅ Analytics unlocked – initializing..."
+    );
+
+    createAccountSelector();
+
+    refreshAnalytics();
+
+    console.log(
+        "✅ GTRADES-AXIS™ Analytics ready."
+    );
+
+}
+
+
+/* =========================================================
+   START PREMIUM PROTECTION
 ========================================================= */
 
 initPremiumLock(
-    'app',
+    "app",
     initAnalytics
 );
 
