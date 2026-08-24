@@ -11,7 +11,10 @@ function cleanKey(key) {
     throw new Error("Invalid R2 file key.");
   }
 
-  const cleaned = key.trim().replace(/^\/+/, "");
+  let cleaned = key.trim().replace(/\\/g, "/").replace(/^\/+/, "");
+  cleaned = cleaned.replace(/\/{2,}/g, "/").replace(/^\.\//, "");
+  if (cleaned.includes("..")) throw new Error("Invalid R2 file key.");
+  cleaned = cleaned.split("/").map((part, i) => i === 0 ? part.replace(/[^a-zA-Z0-9_-]/g, "_") : part.replace(/[^a-zA-Z0-9._-]/g, "_")).filter(Boolean).join("/");
 
   if (!cleaned) {
     throw new Error("Invalid R2 file key.");
@@ -143,7 +146,7 @@ export async function getDownloadUrl(key) {
   const safeKey = cleanKey(key);
 
   return (
-    `${WORKER_URL}/file?key=` +
+    `${WORKER_URL}/?key=` +
     encodeURIComponent(safeKey)
   );
 }

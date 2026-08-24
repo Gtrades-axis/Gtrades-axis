@@ -357,7 +357,7 @@ form.addEventListener("submit", async (event) => {
 
         const videoURL =
             videoResult.url ||
-            `${WORKER_URL}/file?key=${encodeURIComponent(videoKey)}`;
+            `${WORKER_URL}/?key=${encodeURIComponent(videoKey)}`;
 
 
         // ----------------------------------------------------

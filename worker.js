@@ -9,8 +9,8 @@
 // IMPORTANT:
 // - Existing R2 objects are never deleted.
 // - POST /upload uploads files.
-// - GET /file?key=... serves files.
-// - GET /?key=... is also supported for compatibility.
+// - GET /?key=... serves files.
+// - GET /file?key=... is retained for backward compatibility.
 // ============================================================
 
 function corsHeaders() {
@@ -42,6 +42,11 @@ function normaliseKey(value) {
 
   // R2 object keys should not be sent with a leading slash.
   key = key.replace(/^\/+/, "");
+  // Reject malformed/local paths that are not valid R2 object keys.
+  key = key.replace(/\\/g, "/");
+  key = key.replace(/\/{2,}/g, "/");
+  key = key.replace(/^\.\//, "");
+  if (key.includes("..")) return "";
 
   return key;
 }
@@ -153,7 +158,7 @@ async function uploadFile(request, env) {
       contentType,
       url:
         `${new URL(request.url).origin}` +
-        `/file?key=${encodeURIComponent(key)}`
+        `/?key=${encodeURIComponent(key)}`
     });
   } catch (error) {
     console.error("R2 UPLOAD ERROR:", error);

@@ -67,7 +67,7 @@ export default {
         );
 
         const publicURL =
-          `${url.origin}/file?key=${encodeURIComponent(key)}`;
+          `${url.origin}/?key=${encodeURIComponent(key)}`;
 
         return json({
           success: true,

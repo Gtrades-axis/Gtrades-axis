@@ -13,23 +13,17 @@ const WORKER_URL =
 // ============================================================
 
 function cleanKey(key) {
-
-  if (typeof key !== "string") {
-    throw new Error("Invalid R2 file key.");
-  }
-
-  const cleaned =
-    key
-      .trim()
-      .replace(/^\/+/, "");
-
-  if (!cleaned) {
-    throw new Error("Invalid R2 file key.");
-  }
-
+  if (typeof key !== "string") throw new Error("Invalid R2 file key.");
+  let cleaned = key.trim().replace(/\\/g, "/").replace(/^\/+/, "");
+  cleaned = cleaned.replace(/\/{2,}/g, "/").replace(/^\.\//, "");
+  if (!cleaned || cleaned.includes("..")) throw new Error("Invalid R2 file key.");
+  cleaned = cleaned.split("/").map((part, i) => {
+    if (i === 0) return part.replace(/[^a-zA-Z0-9_-]/g, "_");
+    return part.replace(/[^a-zA-Z0-9._-]/g, "_");
+  }).filter(Boolean).join("/");
+  if (!cleaned) throw new Error("Invalid R2 file key.");
   return cleaned;
 }
-
 
 // ============================================================
 // UPLOAD TO CLOUDFLARE R2
@@ -320,7 +314,7 @@ export async function getDownloadUrl(
     cleanKey(key);
 
   return (
-    `${WORKER_URL}/file?key=` +
+    `${WORKER_URL}/?key=` +
     encodeURIComponent(
       safeKey
     )

@@ -1012,7 +1012,9 @@
       if(thumbFile){
         const sizeMB=(thumbFile.size/(1024*1024)).toFixed(1);
         startVideoUploadProgress('Uploading thumbnail to Cloudflare R2...',`${thumbFile.name} • ${sizeMB} MB`);
-        thumbnailKey=await uploadToR2(thumbFile,`thumbnails/${Date.now()}_${thumbFile.name}`);
+        const thumbExt=(thumbFile.name.split('.').pop()||'jpg').toLowerCase();
+        const thumbBase=thumbFile.name.replace(/\.[^.]+$/,'').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'thumbnail';
+        thumbnailKey=await uploadToR2(thumbFile,`thumbnails/${Date.now()}_${thumbBase}.${thumbExt}`);
         document.getElementById('thumbnailFileName').textContent='✅ Uploaded: '+thumbFile.name;
         document.getElementById('thumbnailPreview').style.display='none';
       }
@@ -1353,9 +1355,14 @@
         const safeName = originalName
           .replace(/[^a-zA-Z0-9._-]/g, '_')
           .replace(/_+/g, '_');
-        const safeCategory = String(category)
+        const safeCategory = String(category || 'general')
+          .trim()
           .replace(/[^a-zA-Z0-9_-]/g, '_')
-          .toLowerCase();
+          .replace(/^\/+|\/+$/g, '')
+          .replace(/_+/g, '_')
+          .toLowerCase() || 'general';
+        // Always generate a valid R2 object key. Never pass a local/Firebase
+        // storage path here. R2 keys use forward slashes only as prefixes.
         const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
 
         setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);

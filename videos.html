@@ -563,7 +563,7 @@ function buildR2URL(videoKey) {
   }
 
   return (
-    `${R2_WORKER}/file?key=` +
+    `${R2_WORKER}/?key=` +
     encodeURIComponent(videoKey)
   );
 
