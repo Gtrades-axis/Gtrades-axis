@@ -437,11 +437,13 @@ function initJournal() {
 
     setValue("pipValueDisplay", `$${pipValue.toFixed(2)} / lot`);
 
+    // Account risk
     const riskPercent = account ? Number(account.riskPercent) || 0 : 0;
     const riskSettingAmount = balance * (riskPercent / 100);
     setValue("riskSettingAmount", riskSettingAmount > 0 ? riskSettingAmount.toFixed(2) : "");
     setText("summaryRiskSetting", money(riskSettingAmount));
 
+    // Distances
     let slDistance = 0, tpDistance = 0;
     if (Number.isFinite(entry) && Number.isFinite(stopLoss)) slDistance = Math.abs(entry - stopLoss);
     if (Number.isFinite(entry) && Number.isFinite(takeProfit)) tpDistance = Math.abs(takeProfit - entry);
