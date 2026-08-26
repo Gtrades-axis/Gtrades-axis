@@ -1,7 +1,6 @@
 /* ============================================================
    GTRADES-AXIS™
-   TRADING JOURNAL
-   FIRESTORE + LOCALSTORAGE SYNC
+   TRADING JOURNAL – FIRESTORE + LOCALSTORAGE SYNC
    ============================================================ */
 
 import { auth, db } from "./firebase.js";
