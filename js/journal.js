@@ -244,8 +244,6 @@ function initJournal() {
       return;
     }
 
-    // Query trades for this user (or all trades if admin? For journal, we only load user's trades)
-    // But we want all trades that belong to the user (or if admin, all? For simplicity, load all trades)
     const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
 
     if (unsubscribeTrades) unsubscribeTrades();
@@ -256,18 +254,13 @@ function initJournal() {
         loadedTrades.push({ id: doc.id, ...doc.data() });
       });
 
-      // Update trades array
       trades = loadedTrades;
-
-      // Save to localStorage as cache
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
       console.log("📥 Trades loaded from Firestore:", trades.length);
 
-      // Refresh UI
       refreshUI();
     }, (error) => {
       console.error("Firestore listener error:", error);
-      // Fallback to localStorage if Firestore fails
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         try {
@@ -283,11 +276,9 @@ function initJournal() {
 
   // ---- Save trades to Firestore and localStorage ----
   function saveTrades() {
-    // 1. Save to localStorage (fast)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
     console.log("💾 Saved trades to localStorage:", trades.length);
 
-    // 2. Sync to Firestore (permanent)
     const user = auth.currentUser;
     if (!user) {
       console.warn("No user logged in – skipping Firestore sync.");
@@ -322,22 +313,18 @@ function initJournal() {
     });
   }
 
-  // ---- Load trades (either from cache or Firestore) ----
+  // ---- Load trades (from cache then Firestore) ----
   function loadTrades() {
-    // First, load from localStorage (fast)
     const cached = localStorage.getItem(STORAGE_KEY);
     if (cached) {
       try {
         trades = JSON.parse(cached) || [];
         console.log("📂 Loaded from localStorage cache:", trades.length);
-        // Refresh UI with cached data immediately
         refreshUI();
       } catch (e) {
         trades = [];
       }
     }
-
-    // Then, start Firestore listener (which will update trades in real-time)
     listenToTrades();
   }
 
@@ -450,13 +437,11 @@ function initJournal() {
 
     setValue("pipValueDisplay", `$${pipValue.toFixed(2)} / lot`);
 
-    // Account risk
     const riskPercent = account ? Number(account.riskPercent) || 0 : 0;
     const riskSettingAmount = balance * (riskPercent / 100);
     setValue("riskSettingAmount", riskSettingAmount > 0 ? riskSettingAmount.toFixed(2) : "");
     setText("summaryRiskSetting", money(riskSettingAmount));
 
-    // Distances
     let slDistance = 0, tpDistance = 0;
     if (Number.isFinite(entry) && Number.isFinite(stopLoss)) slDistance = Math.abs(entry - stopLoss);
     if (Number.isFinite(entry) && Number.isFinite(takeProfit)) tpDistance = Math.abs(takeProfit - entry);
@@ -743,7 +728,6 @@ function initJournal() {
     if (accSel && accountId) accSel.value = accountId;
     updateTradeAccountInfo();
     calculateAll();
-    // refreshUI is called by listener, but we can force it
     refreshUI();
     alert(`✅ Trade saved as ${trade.result}.`);
   }
@@ -999,9 +983,7 @@ function initJournal() {
   ========================================================== */
 
   function refreshUI() {
-    loadAccounts(); // Ensure accounts are fresh
-    // Trades are already in the `trades` array
-    // Re-render all UI components
+    loadAccounts();
     populateAccountSelectors();
     updateTradeAccountInfo();
     calculateAll();
@@ -1043,7 +1025,6 @@ function initJournal() {
     }
     const maxDrawdown = calculateMaxDrawdown(closed, startingBalance);
 
-    // Streak
     const sorted = [...closed].sort((a, b) => new Date(a.closed || a.date) - new Date(b.closed || b.date));
     let streak = 0;
     if (sorted.length) {
@@ -1338,18 +1319,16 @@ function initJournal() {
   ========================================================== */
 
   loadAccounts();
-  loadTrades(); // This will load from cache and start Firestore listener
+  loadTrades();
   populateAccountSelectors();
   initializeTradeDateTime();
   updateTradeAccountInfo();
   calculateAll();
   // refreshUI will be called by loadTrades after cache/Firestore loads
 
-  // Handle edit mode from URL parameter
   const params = new URLSearchParams(window.location.search);
   const editId = params.get("edit");
   if (editId) {
-    // Wait for trades to load, then find the trade
     const checkAndEdit = () => {
       const trade = trades.find(t => String(t.id) === String(editId));
       if (trade) {
@@ -1369,7 +1348,6 @@ function initJournal() {
           headerP.textContent = "Modify trade details and save changes.";
         }
       } else {
-        // Try again after a short delay if trades not loaded yet
         setTimeout(checkAndEdit, 500);
       }
     };
