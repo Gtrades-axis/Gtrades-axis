@@ -1,842 +1,699 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GTRADES-AXIS™ | Trade with Structure. Execute with Precision.</title>
-    <meta name="description" content="Professional Smart Money Trading Framework based on Market Structure, Liquidity and Supply & Demand." />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #060a14;
-            color: #e8edf5;
-            line-height: 1.6;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        header {
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo img {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            border-radius: 10px;
-            background: #0f1628;
-            padding: 6px;
-        }
-
-        .logo h1 {
-            font-size: 22px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #fff 30%, #00d4ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo h1 span {
-            -webkit-text-fill-color: #4f7cff;
-        }
-
-        .logo small {
-            font-size: 11px;
-            color: #7a88a0;
-            -webkit-text-fill-color: #7a88a0;
-            display: block;
-        }
-
-        nav {
-            display: flex;
-            gap: 28px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        nav a {
-            color: #b0bcd6;
-            font-size: 14px;
-            font-weight: 500;
-            transition: 0.3s;
-            position: relative;
-        }
-
-        nav a:hover {
-            color: #fff;
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #4f7cff;
-            transition: 0.3s;
-        }
-
-        nav a:hover::after {
-            width: 100%;
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .btn-outline {
-            padding: 8px 20px;
-            border: 1.5px solid #4f7cff;
-            border-radius: 50px;
-            color: #4f7cff;
-            font-weight: 600;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .btn-outline:hover {
-            background: #4f7cff;
-            color: #060a14;
-        }
-
-        .btn-solid {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #4f7cff, #7c3aed);
-            color: #fff;
-            font-weight: 600;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .btn-solid:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(79, 124, 255, 0.25);
-        }
-
-        .hero {
-            padding: 60px 0 40px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-
-        .hero h2 {
-            font-size: clamp(36px, 5vw, 56px);
-            font-weight: 900;
-            line-height: 1.08;
-        }
-
-        .hero h2 span {
-            color: #4f7cff;
-        }
-
-        .hero .tagline {
-            font-size: 20px;
-            color: #d0d8e8;
-            margin: 8px 0 16px;
-            font-weight: 500;
-        }
-
-        .hero p {
-            color: #96a3ba;
-            font-size: 16px;
-            max-width: 500px;
-            margin-bottom: 28px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-
-        .hero-buttons .btn-primary {
-            padding: 14px 32px;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #4f7cff, #7c3aed);
-            color: #fff;
-            font-weight: 600;
-            font-size: 15px;
-            border: none;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .hero-buttons .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(79, 124, 255, 0.25);
-        }
-
-        .hero-buttons .btn-secondary {
-            padding: 14px 32px;
-            border-radius: 50px;
-            border: 1.5px solid #4f7cff;
-            color: #fff;
-            font-weight: 600;
-            font-size: 15px;
-            background: transparent;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .hero-buttons .btn-secondary:hover {
-            background: #4f7cff;
-            color: #060a14;
-        }
-
-        .hero-right {
-            background: rgba(16, 26, 43, 0.6);
-            border: 1px solid #1f2a42;
-            border-radius: 16px;
-            padding: 30px;
-            backdrop-filter: blur(12px);
-        }
-
-        .hero-right h3 {
-            color: #4f7cff;
-            font-size: 16px;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .hero-right ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .hero-right ul li {
-            padding: 8px 0;
-            color: #b0bcd6;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .hero-right ul li:last-child {
-            border-bottom: none;
-        }
-
-        .hero-right ul li::before {
-            content: '✓';
-            color: #00c897;
-            font-weight: 700;
-        }
-
-        .features {
-            padding: 40px 0 50px;
-        }
-
-        .features .section-title {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .features .section-title h2 {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .feature-card {
-            background: #101a2b;
-            border: 1px solid #1f2a42;
-            border-radius: 12px;
-            padding: 24px 20px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            border-color: #4f7cff;
-        }
-
-        .feature-card i {
-            font-size: 32px;
-            color: #4f7cff;
-            margin-bottom: 12px;
-        }
-
-        .feature-card h3 {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .feature-card p {
-            color: #96a3ba;
-            font-size: 14px;
-        }
-
-        .trades-feed {
-            padding: 40px 0 60px;
-        }
-
-        .trades-feed .section-title {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .trades-feed .section-title h2 {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .trades-feed .section-title p {
-            color: #96a3ba;
-            margin-top: 6px;
-        }
-
-        .feed-card {
-            background: #101a2b;
-            border: 1px solid #1f2a42;
-            border-radius: 14px;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .feed-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #1a2538;
-        }
-
-        .feed-item:last-child {
-            border-bottom: none;
-        }
-
-        .feed-item .pair {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .feed-item .direction {
-            color: #96a3ba;
-            font-size: 13px;
-            margin-left: 6px;
-        }
-
-        .feed-item .rr {
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        .feed-item .rr.positive {
-            color: #00c897;
-        }
-
-        .feed-item .rr.negative {
-            color: #ff4766;
-        }
-
-        .feed-item .time {
-            color: #68748d;
-            font-size: 12px;
-        }
-
-        .feed-empty {
-            text-align: center;
-            padding: 30px 20px;
-            color: #68748d;
-        }
-
-        .feed-empty i {
-            font-size: 36px;
-            display: block;
-            margin-bottom: 10px;
-            color: #1f2a42;
-        }
-
-        .feed-empty .hint {
-            color: #4f7cff;
-            font-size: 13px;
-            margin-top: 4px;
-        }
-
-        .feed-loading {
-            text-align: center;
-            padding: 20px;
-            color: #68748d;
-        }
-
-        .feed-loading i {
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .pricing {
-            padding: 40px 0 60px;
-        }
-
-        .pricing .section-title {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .pricing .section-title h2 {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .pricing-card {
-            background: #101a2b;
-            border: 1px solid #1f2a42;
-            border-radius: 14px;
-            padding: 28px 24px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .pricing-card:hover {
-            transform: translateY(-4px);
-            border-color: #4f7cff;
-        }
-
-        .pricing-card.premium {
-            border-color: #4f7cff;
-            background: rgba(79, 124, 255, 0.03);
-        }
-
-        .pricing-card h3 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .pricing-card .price {
-            font-size: 32px;
-            font-weight: 800;
-            color: #4f7cff;
-            margin: 12px 0;
-        }
-
-        .pricing-card .price small {
-            font-size: 14px;
-            font-weight: 400;
-            color: #96a3ba;
-        }
-
-        .pricing-card ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-            margin: 16px 0;
-        }
-
-        .pricing-card ul li {
-            padding: 6px 0;
-            color: #b0bcd6;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-        }
-
-        .pricing-card ul li i {
-            color: #00c897;
-            width: 18px;
-        }
-
-        .pricing-card .btn {
-            padding: 12px 32px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-block;
-        }
-
-        .pricing-card.free .btn {
-            background: transparent;
-            border: 1.5px solid #4f7cff;
-            color: #4f7cff;
-        }
-
-        .pricing-card.free .btn:hover {
-            background: #4f7cff;
-            color: #060a14;
-        }
-
-        .pricing-card.premium .btn {
-            background: linear-gradient(135deg, #4f7cff, #7c3aed);
-            color: #fff;
-        }
-
-        .pricing-card.premium .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(79, 124, 255, 0.25);
-        }
-
-        .lifetime-banner {
-            text-align: center;
-            max-width: 800px;
-            margin: 16px auto 0;
-            padding: 12px;
-            background: rgba(79, 124, 255, 0.04);
-            border: 1px solid rgba(79, 124, 255, 0.08);
-            border-radius: 10px;
-            font-size: 14px;
-            color: #96a3ba;
-        }
-
-        .lifetime-banner strong {
-            color: #4f7cff;
-        }
-
-        .lifetime-banner a {
-            color: #00c897;
-            font-weight: 600;
-        }
-
-        footer {
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 30px 0 20px;
-            text-align: center;
-            color: #68748d;
-            font-size: 13px;
-        }
-
-        @media (max-width: 992px) {
-            .hero {
-                grid-template-columns: 1fr;
-                gap: 30px;
-                text-align: center;
-            }
-            .hero p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .hero-buttons {
-                justify-content: center;
-            }
-            .pricing-grid {
-                grid-template-columns: 1fr;
-                max-width: 400px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            nav {
-                justify-content: center;
-            }
-            .nav-actions {
-                justify-content: center;
-            }
-            .hero h2 {
-                font-size: 28px;
-            }
-            .hero .tagline {
-                font-size: 17px;
-            }
-            .feed-item {
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 14px;
-            }
-            .hero {
-                padding: 30px 0;
-            }
-            .hero-buttons {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .hero-buttons .btn-primary,
-            .hero-buttons .btn-secondary {
-                justify-content: center;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTRADES-AXIS™ | Trade with Structure. Execute with Precision.</title>
+  <meta name="description" content="Professional Smart Money Trading Framework based on Market Structure, Liquidity and Supply & Demand." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+  <style>
+    /* ─── RESET ─── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #060a14;
+      color: #e8edf5;
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #0f1628;
+      padding: 6px;
+    }
+    .logo h1 {
+      font-size: 22px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 30%, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo h1 span { -webkit-text-fill-color: #4f7cff; }
+    .logo small {
+      font-size: 11px;
+      color: #7a88a0;
+      -webkit-text-fill-color: #7a88a0;
+      display: block;
+    }
+    nav {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: #b0bcd6;
+      font-size: 14px;
+      font-weight: 500;
+      transition: 0.3s;
+      position: relative;
+    }
+    nav a:hover { color: #fff; }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #4f7cff;
+      transition: 0.3s;
+    }
+    nav a:hover::after { width: 100%; }
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-outline {
+      padding: 8px 20px;
+      border: 1.5px solid #4f7cff;
+      border-radius: 50px;
+      color: #4f7cff;
+      font-weight: 600;
+      font-size: 13px;
+      transition: 0.3s;
+    }
+    .btn-outline:hover { background: #4f7cff; color: #060a14; }
+    .btn-solid {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #4f7cff, #7c3aed);
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      transition: 0.3s;
+    }
+    .btn-solid:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(79,124,255,0.25);
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 60px 0 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+    }
+    .hero h2 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 900;
+      line-height: 1.08;
+    }
+    .hero h2 span { color: #4f7cff; }
+    .hero .tagline {
+      font-size: 20px;
+      color: #d0d8e8;
+      margin: 8px 0 16px;
+      font-weight: 500;
+    }
+    .hero p {
+      color: #96a3ba;
+      font-size: 16px;
+      max-width: 500px;
+      margin-bottom: 28px;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .hero-buttons .btn-primary {
+      padding: 14px 32px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #4f7cff, #7c3aed);
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      border: none;
+      transition: 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-buttons .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(79,124,255,0.25);
+    }
+    .hero-buttons .btn-secondary {
+      padding: 14px 32px;
+      border-radius: 50px;
+      border: 1.5px solid #4f7cff;
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      background: transparent;
+      transition: 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-buttons .btn-secondary:hover { background: #4f7cff; color: #060a14; }
+    .hero-right {
+      background: rgba(16,26,43,0.6);
+      border: 1px solid #1f2a42;
+      border-radius: 16px;
+      padding: 30px;
+      backdrop-filter: blur(12px);
+    }
+    .hero-right h3 {
+      color: #4f7cff;
+      font-size: 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-right ul { list-style: none; padding: 0; }
+    .hero-right ul li {
+      padding: 8px 0;
+      color: #b0bcd6;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .hero-right ul li:last-child { border-bottom: none; }
+    .hero-right ul li::before {
+      content: '✓';
+      color: #00c897;
+      font-weight: 700;
+    }
+
+    /* ─── FEATURES ─── */
+    .features {
+      padding: 40px 0 50px;
+    }
+    .features .section-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .features .section-title h2 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: #101a2b;
+      border: 1px solid #1f2a42;
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: #4f7cff;
+    }
+    .feature-card i {
+      font-size: 32px;
+      color: #4f7cff;
+      margin-bottom: 12px;
+    }
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .feature-card p {
+      color: #96a3ba;
+      font-size: 14px;
+    }
+
+    /* ─── TRADES FEED ─── */
+    .trades-feed {
+      padding: 40px 0 60px;
+    }
+    .trades-feed .section-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .trades-feed .section-title h2 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .trades-feed .section-title p {
+      color: #96a3ba;
+      margin-top: 6px;
+    }
+    .feed-card {
+      background: #101a2b;
+      border: 1px solid #1f2a42;
+      border-radius: 14px;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .feed-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #1a2538;
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-item .pair {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .feed-item .direction {
+      color: #96a3ba;
+      font-size: 13px;
+      margin-left: 6px;
+    }
+    .feed-item .rr {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .feed-item .rr.positive { color: #00c897; }
+    .feed-item .rr.negative { color: #ff4766; }
+    .feed-item .time {
+      color: #68748d;
+      font-size: 12px;
+    }
+    .feed-empty {
+      text-align: center;
+      padding: 30px 20px;
+      color: #68748d;
+    }
+    .feed-empty i {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 10px;
+      color: #1f2a42;
+    }
+    .feed-empty .hint {
+      color: #4f7cff;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .feed-loading {
+      text-align: center;
+      padding: 20px;
+      color: #68748d;
+    }
+    .feed-loading i {
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ─── PRICING ─── */
+    .pricing {
+      padding: 40px 0 60px;
+    }
+    .pricing .section-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .pricing .section-title h2 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      background: #101a2b;
+      border: 1px solid #1f2a42;
+      border-radius: 14px;
+      padding: 28px 24px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      border-color: #4f7cff;
+    }
+    .pricing-card.premium {
+      border-color: #4f7cff;
+      background: rgba(79,124,255,0.03);
+    }
+    .pricing-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .pricing-card .price {
+      font-size: 32px;
+      font-weight: 800;
+      color: #4f7cff;
+      margin: 12px 0;
+    }
+    .pricing-card .price small {
+      font-size: 14px;
+      font-weight: 400;
+      color: #96a3ba;
+    }
+    .pricing-card ul {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+      margin: 16px 0;
+    }
+    .pricing-card ul li {
+      padding: 6px 0;
+      color: #b0bcd6;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .pricing-card ul li i {
+      color: #00c897;
+      width: 18px;
+    }
+    .pricing-card .btn {
+      padding: 12px 32px;
+      border-radius: 50px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: inline-block;
+    }
+    .pricing-card.free .btn {
+      background: transparent;
+      border: 1.5px solid #4f7cff;
+      color: #4f7cff;
+    }
+    .pricing-card.free .btn:hover { background: #4f7cff; color: #060a14; }
+    .pricing-card.premium .btn {
+      background: linear-gradient(135deg, #4f7cff, #7c3aed);
+      color: #fff;
+    }
+    .pricing-card.premium .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(79,124,255,0.25);
+    }
+    .lifetime-banner {
+      text-align: center;
+      max-width: 800px;
+      margin: 16px auto 0;
+      padding: 12px;
+      background: rgba(79,124,255,0.04);
+      border: 1px solid rgba(79,124,255,0.08);
+      border-radius: 10px;
+      font-size: 14px;
+      color: #96a3ba;
+    }
+    .lifetime-banner strong { color: #4f7cff; }
+    .lifetime-banner a { color: #00c897; font-weight: 600; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 30px 0 20px;
+      text-align: center;
+      color: #68748d;
+      font-size: 13px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 992px) {
+      .hero { grid-template-columns: 1fr; gap: 30px; text-align: center; }
+      .hero p { margin-left: auto; margin-right: auto; }
+      .hero-buttons { justify-content: center; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+    }
+    @media (max-width: 768px) {
+      header { flex-direction: column; align-items: stretch; }
+      nav { justify-content: center; }
+      .nav-actions { justify-content: center; }
+      .hero h2 { font-size: 28px; }
+      .hero .tagline { font-size: 17px; }
+      .feed-item { flex-wrap: wrap; gap: 6px; }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 0 14px; }
+      .hero { padding: 30px 0; }
+      .hero-buttons { flex-direction: column; align-items: stretch; }
+      .hero-buttons .btn-primary, .hero-buttons .btn-secondary { justify-content: center; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <header>
-            <div class="logo">
-                <img src="images/imageslogo.png.png" alt="GTRADES-AXIS" />
-                <div>
-                    <h1>GTRADES-<span>AXIS™</span></h1>
-                    <small>Trade with Structure. Execute with Precision.</small>
-                </div>
-            </div>
-            <nav>
-                <a href="#home">Home</a>
-                <a href="#features">Features</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#trades">Community Trades</a>
-                <div class="nav-actions">
-                    <a href="/login" class="btn-outline">Login</a>
-                    <a href="/signup" class="btn-solid">Get Started</a>
-                </div>
-            </nav>
-        </header>
-
-        <section class="hero" id="home">
-            <div class="hero-left">
-                <h2>Trade with <span>Structure.</span></h2>
-                <div class="tagline">Execute with Precision.</div>
-                <p>Master institutional trading using Market Structure, Supply & Demand, Liquidity, Risk Management, and professional execution.</p>
-                <div class="hero-buttons">
-                    <a href="#pricing" class="btn-primary"><i class="fa-solid fa-rocket"></i> Start Free Trial</a>
-                    <a href="https://www.youtube.com/@GtradesAxis" target="_blank" class="btn-secondary"><i class="fa-brands fa-youtube"></i> Watch Lessons</a>
-                </div>
-            </div>
-            <div class="hero-right">
-                <h3><i class="fa-solid fa-bullseye"></i> Today's Focus</h3>
-                <ul>
-                    <li>Identify Structure (Bullish/Bearish)</li>
-                    <li>Supply & Demand Zones</li>
-                    <li>Liquidity Sweep & Inducement</li>
-                    <li>Confirmation Entry</li>
-                    <li>Risk Management</li>
-                    <li>Trade Management</li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="features" id="features">
-            <div class="section-title">
-                <h2>Why GTRADES-AXIS™</h2>
-                <p>Built for traders who value discipline and consistency</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <h3>Market Structure</h3>
-                    <p>Read bullish and bearish structure before any trade</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <h3>Supply & Demand</h3>
-                    <p>Trade only from institutional zones where probability is highest</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fa-solid fa-water"></i>
-                    <h3>Liquidity</h3>
-                    <p>Identify buy-side and sell-side liquidity where banks seek orders</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fa-solid fa-shield-alt"></i>
-                    <h3>Risk Management</h3>
-                    <p>Protect capital through strict position sizing and risk control</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="trades-feed" id="trades">
-            <div class="section-title">
-                <h2>📊 Live Community Trades</h2>
-                <p>Real trades from our members – approved by admin</p>
-            </div>
-            <div class="feed-card" id="tradeFeed">
-                <div class="feed-loading">
-                    <i class="fa-solid fa-spinner"></i> Loading trades...
-                </div>
-            </div>
-        </section>
-
-        <section class="pricing" id="pricing">
-            <div class="section-title">
-                <h2>Choose Your Plan</h2>
-                <p>Start free, upgrade when you're ready</p>
-            </div>
-            <div class="pricing-grid">
-                <div class="pricing-card free">
-                    <h3>Free</h3>
-                    <div class="price">$0 <small>/ forever</small></div>
-                    <ul>
-                        <li><i class="fa-solid fa-check"></i> Core Academy (6 modules)</li>
-                        <li><i class="fa-solid fa-check"></i> Community access</li>
-                        <li><i class="fa-solid fa-check"></i> Basic trade journal</li>
-                        <li><i class="fa-solid fa-check"></i> YouTube lessons</li>
-                    </ul>
-                    <a href="/signup" class="btn">Get Started</a>
-                </div>
-                <div class="pricing-card premium">
-                    <h3>Premium Monthly</h3>
-                    <div class="price">$50 <small>/ month</small></div>
-                    <ul>
-                        <li><i class="fa-solid fa-check"></i> All Free features</li>
-                        <li><i class="fa-solid fa-check"></i> Advanced modules (HTF/MTF/LTF)</li>
-                        <li><i class="fa-solid fa-check"></i> Full trading journal with RR analytics</li>
-                        <li><i class="fa-solid fa-check"></i> Private community & signals</li>
-                        <li><i class="fa-solid fa-check"></i> AI trade review</li>
-                    </ul>
-                    <a href="/upgrade?plan=Monthly" class="btn">Upgrade Now</a>
-                </div>
-            </div>
-            <div class="lifetime-banner">
-                🔥 <strong>Lifetime Premium</strong> also available —
-                <a href="/upgrade?plan=Lifetime">pay once $200, access forever →</a>
-            </div>
-        </section>
-
-        <footer>
-            <p>© 2026 GTRADES-AXIS™ &mdash; Trade with Structure. Execute with Precision.</p>
-            <p style="margin-top:4px;font-size:12px;color:#4f7cff;">@gtrades_axis</p>
-        </footer>
-
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="logo">
+      <img src="images/imageslogo.png.png" alt="GTRADES-AXIS" />
+      <div>
+        <h1>GTRADES-<span>AXIS™</span></h1>
+        <small>Trade with Structure. Execute with Precision.</small>
+      </div>
     </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#trades">Community Trades</a>
+      <div class="nav-actions">
+        <a href="/login" class="btn-outline">Login</a>
+        <a href="/signup" class="btn-solid">Get Started</a>
+      </div>
+    </nav>
+  </header>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-            }
-        }
-    </script>
+  <!-- ─── HERO ─── -->
+  <section class="hero" id="home">
+    <div class="hero-left">
+      <h2>Trade with <span>Structure.</span></h2>
+      <div class="tagline">Execute with Precision.</div>
+      <p>Master institutional trading using Market Structure, Supply & Demand, Liquidity, Risk Management, and professional execution.</p>
+      <div class="hero-buttons">
+        <a href="#pricing" class="btn-primary"><i class="fa-solid fa-rocket"></i> Start Free Trial</a>
+        <a href="https://www.youtube.com/@GtradesAxis" target="_blank" class="btn-secondary"><i class="fa-brands fa-youtube"></i> Watch Lessons</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <h3><i class="fa-solid fa-bullseye"></i> Today's Focus</h3>
+      <ul>
+        <li>Identify Structure (Bullish/Bearish)</li>
+        <li>Supply & Demand Zones</li>
+        <li>Liquidity Sweep & Inducement</li>
+        <li>Confirmation Entry</li>
+        <li>Risk Management</li>
+        <li>Trade Management</li>
+      </ul>
+    </div>
+  </section>
 
-    <script type="module">
-        import { db } from "/js/firebase.js";
-        import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+  <!-- ─── FEATURES ─── -->
+  <section class="features" id="features">
+    <div class="section-title">
+      <h2>Why GTRADES-AXIS™</h2>
+      <p>Built for traders who value discipline and consistency</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <i class="fa-solid fa-chart-line"></i>
+        <h3>Market Structure</h3>
+        <p>Read bullish and bearish structure before any trade</p>
+      </div>
+      <div class="feature-card">
+        <i class="fa-solid fa-layer-group"></i>
+        <h3>Supply & Demand</h3>
+        <p>Trade only from institutional zones where probability is highest</p>
+      </div>
+      <div class="feature-card">
+        <i class="fa-solid fa-water"></i>
+        <h3>Liquidity</h3>
+        <p>Identify buy-side and sell-side liquidity where banks seek orders</p>
+      </div>
+      <div class="feature-card">
+        <i class="fa-solid fa-shield-alt"></i>
+        <h3>Risk Management</h3>
+        <p>Protect capital through strict position sizing and risk control</p>
+      </div>
+    </div>
+  </section>
 
-        const feedContainer = document.getElementById('tradeFeed');
+  <!-- ─── TRADES FEED ─── -->
+  <section class="trades-feed" id="trades">
+    <div class="section-title">
+      <h2>📊 Live Community Trades</h2>
+      <p>Real trades from our members – approved by admin</p>
+    </div>
+    <div class="feed-card" id="tradeFeed">
+      <div class="feed-loading">
+        <i class="fa-solid fa-spinner"></i> Loading trades...
+      </div>
+    </div>
+  </section>
 
-        async function loadPublicTrades() {
-            try {
-                const q = query(
-                    collection(db, "trades"),
-                    where("public", "==", true),
-                    orderBy("createdAt", "desc"),
-                    limit(6)
-                );
-                const snapshot = await getDocs(q);
-                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            } catch (error) {
-                console.error("Error loading public trades:", error);
-                return [];
-            }
-        }
+  <!-- ─── PRICING ─── -->
+  <section class="pricing" id="pricing">
+    <div class="section-title">
+      <h2>Choose Your Plan</h2>
+      <p>Start free, upgrade when you're ready</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card free">
+        <h3>Free</h3>
+        <div class="price">$0 <small>/ forever</small></div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> Core Academy (6 modules)</li>
+          <li><i class="fa-solid fa-check"></i> Community access</li>
+          <li><i class="fa-solid fa-check"></i> Basic trade journal</li>
+          <li><i class="fa-solid fa-check"></i> YouTube lessons</li>
+        </ul>
+        <a href="/signup" class="btn">Get Started</a>
+      </div>
+      <div class="pricing-card premium">
+        <h3>Premium Monthly</h3>
+        <div class="price">$50 <small>/ month</small></div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> All Free features</li>
+          <li><i class="fa-solid fa-check"></i> Advanced modules (HTF/MTF/LTF)</li>
+          <li><i class="fa-solid fa-check"></i> Full trading journal with RR analytics</li>
+          <li><i class="fa-solid fa-check"></i> Private community & signals</li>
+          <li><i class="fa-solid fa-check"></i> AI trade review</li>
+        </ul>
+        <a href="/upgrade?plan=Monthly" class="btn">Upgrade Now</a>
+      </div>
+    </div>
+    <div class="lifetime-banner">
+      🔥 <strong>Lifetime Premium</strong> also available —
+      <a href="/upgrade?plan=Lifetime">pay once $200, access forever →</a>
+    </div>
+  </section>
 
-        function timeAgo(date) {
-            if (!date) return 'recent';
-            const d = date.toDate ? date.toDate() : new Date(date);
-            const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
-            if (seconds < 60) return 'now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return minutes + 'm ago';
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return hours + 'h ago';
-            const days = Math.floor(hours / 24);
-            return days + 'd ago';
-        }
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <p>© 2026 GTRADES-AXIS™ &mdash; Trade with Structure. Execute with Precision.</p>
+    <p style="margin-top:4px;font-size:12px;color:#4f7cff;">@gtrades_axis</p>
+  </footer>
 
-        async function renderTrades() {
-            const trades = await loadPublicTrades();
+</div>
 
-            if (trades.length === 0) {
-                feedContainer.innerHTML = `
-                    <div class="feed-empty">
-                        <i class="fa-solid fa-inbox"></i>
-                        <p>No public trades yet. Check back soon!</p>
-                        <div class="hint">Admins can publish trades from the admin panel.</div>
-                    </div>
-                `;
-                return;
-            }
+<!-- ─── FIREBASE IMPORTS ─── -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+  }
+}
+</script>
 
-            feedContainer.innerHTML = trades.map(t => {
-                const rr = Number(t.rr) || 0;
-                const rrClass = rr >= 0 ? 'positive' : 'negative';
-                const sign = rr >= 0 ? '+' : '';
-                const timeStr = timeAgo(t.closed || t.createdAt);
-                return `
-                    <div class="feed-item">
-                        <div>
-                            <span class="pair">${t.pair || '??'}</span>
-                            <span class="direction">${t.direction || ''}</span>
-                        </div>
-                        <span class="rr ${rrClass}">${sign}${rr.toFixed(1)}R</span>
-                        <span class="time">${timeStr}</span>
-                    </div>
-                `;
-            }).join('');
-        }
+<script type="module">
+  // ─── IMPORTS ──────────────────────────────────────────────────────
+  import { db } from "/js/firebase.js";
+  import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 
-        renderTrades();
-        console.log('✅ Homepage loaded – fetching public trades...');
-    </script>
+  const feedContainer = document.getElementById('tradeFeed');
+
+  async function loadPublicTrades() {
+    try {
+      const q = query(
+        collection(db, "trades"),
+        where("public", "==", true),
+        orderBy("createdAt", "desc"),
+        limit(6)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error("Error loading public trades:", error);
+      return [];
+    }
+  }
+
+  function timeAgo(date) {
+    if (!date) return 'recent';
+    const d = date.toDate ? date.toDate() : new Date(date);
+    const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (seconds < 60) return 'now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + 'm ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    const days = Math.floor(hours / 24);
+    return days + 'd ago';
+  }
+
+  async function renderTrades() {
+    const trades = await loadPublicTrades();
+
+    if (trades.length === 0) {
+      feedContainer.innerHTML = `
+        <div class="feed-empty">
+          <i class="fa-solid fa-inbox"></i>
+          <p>No public trades yet. Check back soon!</p>
+          <div class="hint">Admins can publish trades from the admin panel.</div>
+        </div>
+      `;
+      return;
+    }
+
+    feedContainer.innerHTML = trades.map(t => {
+      const rr = Number(t.rr) || 0;
+      const rrClass = rr >= 0 ? 'positive' : 'negative';
+      const sign = rr >= 0 ? '+' : '';
+      const timeStr = timeAgo(t.closed || t.createdAt);
+      return `
+        <div class="feed-item">
+          <div>
+            <span class="pair">${t.pair || '??'}</span>
+            <span class="direction">${t.direction || ''}</span>
+          </div>
+          <span class="rr ${rrClass}">${sign}${rr.toFixed(1)}R</span>
+          <span class="time">${timeStr}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderTrades();
+  console.log('✅ Homepage loaded – fetching public trades...');
+</script>
 
 </body>
 </html>
