@@ -1034,3 +1034,34 @@ onAuthStateChanged(auth, async user => {
     initJournal();
   }
 });
+document.getElementById('syncBtn')?.addEventListener('click', async () => {
+  const { auth, db } = await import("./firebase.js");
+  const { collection, doc, setDoc, getDocs } = await import("firebase/firestore");
+  
+  // Load trades from localStorage
+  const trades = JSON.parse(localStorage.getItem('trades') || '[]');
+  
+  if (!trades.length) {
+    alert('No trades in localStorage.');
+    return;
+  }
+  
+  let count = 0;
+  for (const trade of trades) {
+    try {
+      const tradeRef = doc(db, "trades", trade.id);
+      const data = { ...trade };
+      if (data.public === undefined) data.public = false;
+      data.updatedAt = new Date().toISOString();
+      if (!data.createdAt) data.createdAt = data.updatedAt;
+      // Ensure userId exists
+      if (!data.userId) data.userId = auth.currentUser?.uid || '';
+      await setDoc(tradeRef, data, { merge: true });
+      count++;
+    } catch (e) {
+      console.error('Sync error for trade', trade.id, e);
+    }
+  }
+  alert(`✅ Synced ${count} trades to Firestore.`);
+  console.log('✅ Sync complete.');
+});
