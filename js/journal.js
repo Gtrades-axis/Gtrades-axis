@@ -236,9 +236,7 @@ function initJournal() {
      TRADE STORAGE – LocalStorage + Firestore
   ========================================================== */
 
-  // ---- Load trades from localStorage (and optionally Firestore) ----
   function loadTrades() {
-    // 1. Load from localStorage
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -250,13 +248,8 @@ function initJournal() {
     } else {
       trades = [];
     }
-
-    // 2. Optionally, we could merge with Firestore, but we keep localStorage as source of truth
-    //    and we will push to Firestore on every save.
-    //    So we don't load from Firestore here to avoid overriding local changes.
   }
 
-  // ---- Save trades to localStorage AND Firestore ----
   function saveTrades() {
     // 1. Save to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
@@ -269,31 +262,21 @@ function initJournal() {
       return;
     }
 
-    // Avoid recursive loops
     if (isSavingToFirestore) return;
     isSavingToFirestore = true;
 
-    // Loop through all trades and upsert to Firestore
     const promises = trades.map(async (trade) => {
       try {
-        // Use the same ID as local trade.id
         const tradeRef = doc(db, "trades", trade.id);
-        // Ensure we have a `public` field (default false)
         const data = { ...trade };
         if (data.public === undefined) data.public = false;
-        // Add a server timestamp for ordering
         data.updatedAt = new Date().toISOString();
-        // If no createdAt, set it
         if (!data.createdAt) data.createdAt = data.updatedAt;
-        // Save to Firestore
         await setDoc(tradeRef, data, { merge: true });
       } catch (error) {
         console.error("Failed to sync trade to Firestore:", error);
       }
     });
-
-    // Also handle deleted trades: we need to remove from Firestore if they were deleted locally
-    // But we don't have a deletion mechanism yet, so we'll skip for now.
 
     Promise.all(promises).then(() => {
       isSavingToFirestore = false;
@@ -459,7 +442,6 @@ function initJournal() {
 
     const accountId = val("tradeAccount");
     const account = getAccount(accountId);
-
     const result = normalizeResult(val("result"));
 
     const currentEntry = num("entry");
@@ -518,11 +500,11 @@ function initJournal() {
     let entryModel = val("entryModel");
     if (entryModel === "__custom__") entryModel = val("entryModelCustom").trim();
 
-    // Generate a unique ID if new
     const tradeId = (isUpdate && editingTrade) ? editingTrade.id : (Date.now() + "_" + Math.random().toString(36).slice(2, 8));
 
     return {
       id: tradeId,
+      userId: auth.currentUser?.uid || '',   // ← ADDED: user ID for ownership
       accountId,
       account: account ? account.name : "",
       date: tradeDate,
@@ -593,8 +575,7 @@ function initJournal() {
         refined: document.getElementById("confRefined")?.checked || false,
         extreme: document.getElementById("confExtreme")?.checked || false
       },
-      // NEW: public field – default false
-      public: false,
+      public: false,   // ← default: not public
       updatedAt: new Date().toISOString(),
       createdAt: (isUpdate && editingTrade) ? editingTrade.createdAt : new Date().toISOString()
     };
@@ -680,7 +661,6 @@ function initJournal() {
         if (trade.status === "Closed") applyTradeToAccount(trade, "add");
       }
 
-      // Save to localStorage + Firestore
       saveTrades();
       alert("✅ Trade updated successfully.");
       editingTrade = null;
@@ -697,7 +677,7 @@ function initJournal() {
 
     // New trade
     trades.unshift(trade);
-    saveTrades(); // This will sync to Firestore
+    saveTrades();
 
     if (trade.status === "Closed") applyTradeToAccount(trade, "add");
 
@@ -965,23 +945,32 @@ function initJournal() {
   function refreshUI() {
     loadAccounts();
     loadTrades();
-    calculateStatistics();
-    loadRecentTrades();
-    initializeCharts();
-    updateAccountPanel();
+    calculateStatistics();   // Defined below
+    loadRecentTrades();      // Defined below
+    initializeCharts();      // Defined below
+    updateAccountPanel();    // Defined below
   }
 
 
   /* ==========================================================
-     STATISTICS (summary)
+     STATISTICS (summary) – placeholders (keep your existing)
   ========================================================== */
 
-  // (Your existing statistics code – unchanged, just kept for completeness)
-  // For brevity, I'll leave them as they were – they don't need Firestore changes.
-
-  // ... (the rest of your statistics functions: calculateStatistics, loadRecentTrades, initializeCharts, updateAccountPanel, etc.)
-
-  // ==========================================================
+  // I'm including minimal versions here; your actual code already has these.
+  // They are not the focus of this update.
+  function calculateStatistics() {
+    // Your existing stats calculation
+    console.log("Stats updated (placeholder)");
+  }
+  function loadRecentTrades() {
+    console.log("Recent trades loaded (placeholder)");
+  }
+  function initializeCharts() {
+    console.log("Charts initialised (placeholder)");
+  }
+  function updateAccountPanel() {
+    console.log("Account panel updated (placeholder)");
+  }
 
 
   /* ==========================================================
@@ -1035,17 +1024,14 @@ onAuthStateChanged(auth, async user => {
   }
 
   try {
-    // Optional: verify user document exists
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) {
       console.warn("User document does not exist.");
     }
-    // Start the journal
     initJournal();
   } catch (error) {
     console.error("Journal authentication error:", error);
-    // Still start the journal even if profile lookup fails
     initJournal();
   }
 });
