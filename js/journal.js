@@ -1,6 +1,6 @@
 /* ============================================================
    GTRADES-AXIS™
-   TRADING JOURNAL – FIRESTORE SYNC (FIXED)
+   TRADING JOURNAL – FIRESTORE FIRST (PERMANENT STORAGE)
    ============================================================ */
 
 import { auth, db } from "./firebase.js";
@@ -21,7 +21,8 @@ import {
   where,
   getDocs,
   orderBy,
-  limit
+  limit,
+  onSnapshot
 } from "firebase/firestore";
 
 
@@ -31,7 +32,7 @@ import {
 
 function initJournal() {
 
-  console.log("✅ GTRADES-AXIS Journal initializing...");
+  console.log("✅ GTRADES-AXIS Journal initializing (Firestore First)...");
 
   const STORAGE_KEY = "trades";
   const ACCOUNTS_KEY = "gtrades_axis_accounts";
@@ -45,9 +46,8 @@ function initJournal() {
   let editingTrade = null;
   let selectedAccountId = "all";
 
-  // ---- Flag to avoid duplicate Firestore writes ----
   let isSavingToFirestore = false;
-  let syncQueue = [];
+  let unsubscribeTrades = null;
 
   /* ==========================================================
      HELPERS
@@ -233,40 +233,71 @@ function initJournal() {
 
 
   /* ==========================================================
-     TRADE STORAGE – LocalStorage + Firestore
+     TRADE STORAGE – FIRESTORE FIRST
   ========================================================== */
 
-  function loadTrades() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        trades = JSON.parse(saved) || [];
-      } catch (error) {
-        console.error("Trade data corrupted:", error);
-        trades = [];
-      }
-    } else {
-      trades = [];
-    }
-  }
-
-  // ---- Core sync function ----
-  async function syncTradesToFirestore(tradesToSync) {
+  // ---- Load trades from Firestore (listens in real-time) ----
+  function listenToTrades() {
     const user = auth.currentUser;
     if (!user) {
-      console.warn("No user logged in – cannot sync to Firestore.");
-      // Queue the sync for later when user logs in
-      if (tradesToSync) {
-        syncQueue = tradesToSync;
+      console.warn("No user – cannot listen to trades.");
+      return;
+    }
+
+    // Query trades for this user (or all trades if admin? For journal, we only load user's trades)
+    // But we want all trades that belong to the user (or if admin, all? For simplicity, load all trades)
+    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
+
+    if (unsubscribeTrades) unsubscribeTrades();
+
+    unsubscribeTrades = onSnapshot(q, (snapshot) => {
+      const loadedTrades = [];
+      snapshot.forEach(doc => {
+        loadedTrades.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Update trades array
+      trades = loadedTrades;
+
+      // Save to localStorage as cache
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+      console.log("📥 Trades loaded from Firestore:", trades.length);
+
+      // Refresh UI
+      refreshUI();
+    }, (error) => {
+      console.error("Firestore listener error:", error);
+      // Fallback to localStorage if Firestore fails
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (cached) {
+        try {
+          trades = JSON.parse(cached) || [];
+          console.log("⚠️ Using cached trades from localStorage:", trades.length);
+          refreshUI();
+        } catch (e) {
+          trades = [];
+        }
       }
+    });
+  }
+
+  // ---- Save trades to Firestore and localStorage ----
+  function saveTrades() {
+    // 1. Save to localStorage (fast)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+    console.log("💾 Saved trades to localStorage:", trades.length);
+
+    // 2. Sync to Firestore (permanent)
+    const user = auth.currentUser;
+    if (!user) {
+      console.warn("No user logged in – skipping Firestore sync.");
       return;
     }
 
     if (isSavingToFirestore) return;
     isSavingToFirestore = true;
 
-    const list = tradesToSync || trades;
-    const promises = list.map(async (trade) => {
+    const promises = trades.map(async (trade) => {
       try {
         const tradeRef = doc(db, "trades", trade.id);
         const data = { ...trade };
@@ -282,40 +313,33 @@ function initJournal() {
       }
     });
 
-    try {
-      const results = await Promise.all(promises);
-      const count = results.filter(r => r === true).length;
-      console.log(`✅ Synced ${count}/${list.length} trades to Firestore.`);
-    } catch (error) {
-      console.error("Firestore sync error:", error);
-    } finally {
+    Promise.all(promises).then(() => {
       isSavingToFirestore = false;
-      // If there are queued trades, process them
-      if (syncQueue.length > 0 && auth.currentUser) {
-        const queue = syncQueue;
-        syncQueue = [];
-        await syncTradesToFirestore(queue);
+      console.log("✅ Trades synced to Firestore.");
+    }).catch((error) => {
+      console.error("Firestore sync error:", error);
+      isSavingToFirestore = false;
+    });
+  }
+
+  // ---- Load trades (either from cache or Firestore) ----
+  function loadTrades() {
+    // First, load from localStorage (fast)
+    const cached = localStorage.getItem(STORAGE_KEY);
+    if (cached) {
+      try {
+        trades = JSON.parse(cached) || [];
+        console.log("📂 Loaded from localStorage cache:", trades.length);
+        // Refresh UI with cached data immediately
+        refreshUI();
+      } catch (e) {
+        trades = [];
       }
     }
+
+    // Then, start Firestore listener (which will update trades in real-time)
+    listenToTrades();
   }
-
-  function saveTrades() {
-    // 1. Save to localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-    console.log("💾 Saved trades to localStorage:", trades.length);
-
-    // 2. Sync to Firestore (async)
-    syncTradesToFirestore(trades);
-  }
-
-  // ---- Retry sync when user logs in ----
-  onAuthStateChanged(auth, (user) => {
-    if (user && syncQueue.length > 0) {
-      const queue = syncQueue;
-      syncQueue = [];
-      syncTradesToFirestore(queue);
-    }
-  });
 
 
   /* ==========================================================
@@ -719,6 +743,7 @@ function initJournal() {
     if (accSel && accountId) accSel.value = accountId;
     updateTradeAccountInfo();
     calculateAll();
+    // refreshUI is called by listener, but we can force it
     refreshUI();
     alert(`✅ Trade saved as ${trade.result}.`);
   }
@@ -974,8 +999,12 @@ function initJournal() {
   ========================================================== */
 
   function refreshUI() {
-    loadAccounts();
-    loadTrades();
+    loadAccounts(); // Ensure accounts are fresh
+    // Trades are already in the `trades` array
+    // Re-render all UI components
+    populateAccountSelectors();
+    updateTradeAccountInfo();
+    calculateAll();
     calculateStatistics();
     loadRecentTrades();
     initializeCharts();
@@ -1309,37 +1338,45 @@ function initJournal() {
   ========================================================== */
 
   loadAccounts();
-  loadTrades();
+  loadTrades(); // This will load from cache and start Firestore listener
   populateAccountSelectors();
   initializeTradeDateTime();
   updateTradeAccountInfo();
   calculateAll();
-  refreshUI();
+  // refreshUI will be called by loadTrades after cache/Firestore loads
 
   // Handle edit mode from URL parameter
   const params = new URLSearchParams(window.location.search);
   const editId = params.get("edit");
   if (editId) {
-    editingTrade = trades.find(trade => String(trade.id) === String(editId));
-    if (editingTrade) {
-      populateForm(editingTrade);
-      const submitBtn = document.getElementById("saveTradeBtn");
-      if (submitBtn) {
-        submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
-        submitBtn.className = "btn-update";
+    // Wait for trades to load, then find the trade
+    const checkAndEdit = () => {
+      const trade = trades.find(t => String(t.id) === String(editId));
+      if (trade) {
+        editingTrade = trade;
+        populateForm(trade);
+        const submitBtn = document.getElementById("saveTradeBtn");
+        if (submitBtn) {
+          submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
+          submitBtn.className = "btn-update";
+        }
+        const header = document.querySelector(".page-header h1");
+        if (header) {
+          header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+        }
+        const headerP = document.querySelector(".page-header p");
+        if (headerP) {
+          headerP.textContent = "Modify trade details and save changes.";
+        }
+      } else {
+        // Try again after a short delay if trades not loaded yet
+        setTimeout(checkAndEdit, 500);
       }
-      const header = document.querySelector(".page-header h1");
-      if (header) {
-        header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
-      }
-      const headerP = document.querySelector(".page-header p");
-      if (headerP) {
-        headerP.textContent = "Modify trade details and save changes.";
-      }
-    }
+    };
+    checkAndEdit();
   }
 
-  console.log("✅ GTRADES-AXIS Journal ready (Firestore sync fixed).");
+  console.log("✅ GTRADES-AXIS Journal ready (Firestore-first).");
 }
 
 

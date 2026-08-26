@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,13 +38,9 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  
+
   <style>
-    /* ------------------------------------------------------------
-       ALL YOUR EXISTING STYLES – KEEP THEM AS IS
-       (I'm including a minimal set here for brevity, but you can
-       copy your existing styles – they are long and unchanged)
-    ------------------------------------------------------------ */
+    /* ─── ALL YOUR EXISTING STYLES – UNCHANGED ─── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -101,6 +96,7 @@
     .sidebar nav ul li a {
       display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 8px;
       color: var(--text-secondary); transition: 0.2s; font-size: 0.875rem; font-weight: 500; border-left: 3px solid transparent;
+      cursor: pointer;
     }
     .sidebar nav ul li a:hover { background: var(--bg-card); color: #fff; }
     .sidebar nav ul li.active a { background: rgba(79,124,255,0.12); color: var(--accent-blue); border-left-color: var(--accent-blue); }
@@ -125,14 +121,35 @@
     .sidebar .logout-btn:hover { background: rgba(255,71,102,0.18); }
 
     .admin-main { flex: 1; padding: 28px 36px 40px; max-width: 1440px; margin: 0 auto; width: 100%; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
     .admin-header h1 { font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, #fff 30%, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .admin-header p { color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px; }
     .admin-header .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     #liveDate { color: var(--text-secondary); font-size: 0.875rem; padding: 6px 18px; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; margin-bottom: 28px; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px 22px; display: flex; align-items: center; gap: 16px; transition: 0.25s; }
+    /* ─── TAB CONTENT ─── */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── STATS (only on dashboard) ─── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 18px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius); padding: 20px 22px;
+      display: flex; align-items: center; gap: 16px; transition: 0.25s;
+    }
     .stat-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
     .stat-card .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
     .stat-card .stat-icon.blue { background: rgba(79,124,255,0.15); color: var(--accent-blue); }
@@ -143,34 +160,68 @@
     .stat-card div h2 { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
     .stat-card div p { color: var(--text-secondary); font-size: 0.8rem; margin-top: 2px; }
 
-    .quick-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
-    .quick-actions button { padding: 10px 22px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card); color: var(--text-primary); font-weight: 500; font-size: 0.875rem; transition: 0.25s; display: inline-flex; align-items: center; gap: 8px; }
+    .quick-actions {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
+    }
+    .quick-actions button {
+      padding: 10px 22px; border: 1px solid var(--border-color); border-radius: 8px;
+      background: var(--bg-card); color: var(--text-primary); font-weight: 500;
+      font-size: 0.875rem; transition: 0.25s; display: inline-flex; align-items: center; gap: 8px;
+    }
     .quick-actions button:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); }
     .quick-actions button i { color: var(--accent-blue); }
 
-    .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 28px; }
-    .dashboard-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 22px 24px; }
-    .dashboard-card h2 { font-size: 1.125rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .dashboard-grid {
+      display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 28px;
+    }
+    .dashboard-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius); padding: 22px 24px;
+    }
+    .dashboard-card h2 {
+      font-size: 1.125rem; font-weight: 600; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
     .dashboard-card h2 i { color: var(--accent-blue); }
     .dashboard-card.large { grid-column: 1; }
 
-    .card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+    }
     .card-header p { color: var(--text-secondary); font-size: 0.8rem; }
-    .card-header input, .card-header select { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.8rem; font-family: 'Poppins', sans-serif; outline: none; min-width: 160px; }
+    .card-header input, .card-header select {
+      background: var(--bg-primary); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.8rem;
+      font-family: 'Poppins', sans-serif; outline: none; min-width: 160px;
+    }
     .card-header input:focus, .card-header select:focus { border-color: var(--accent-blue); }
 
     .table-container { overflow-x: auto; margin-top: 4px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 700px; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 700px;
+    }
     thead { border-bottom: 2px solid var(--border-color); }
-    thead th { padding: 12px 12px 10px 12px; text-align: left; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+    thead th {
+      padding: 12px 12px 10px 12px; text-align: left; font-weight: 600;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);
+    }
     tbody tr { border-bottom: 1px solid var(--border-color); transition: 0.2s; }
     tbody tr:hover { background: var(--bg-card-hover); }
     tbody td { padding: 10px 12px; vertical-align: middle; }
 
     .user-cell { display: flex; align-items: center; gap: 12px; }
-    .user-cell .avatar-small { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; flex-shrink: 0; }
+    .user-cell .avatar-small {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent-blue); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.8rem; flex-shrink: 0;
+    }
 
-    .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+    .badge {
+      display: inline-block; padding: 2px 12px; border-radius: 20px;
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+    }
     .badge.member { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
     .badge.admin { background: rgba(245,166,35,0.12); color: var(--gold); }
     .badge.premium { background: rgba(0,200,151,0.12); color: var(--green); }
@@ -183,20 +234,35 @@
     .badge.published { background: rgba(0,200,151,0.12); color: var(--green); }
     .badge.draft { background: rgba(245,166,35,0.12); color: var(--gold); }
 
-    .manage-btn { padding: 4px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: 0.2s; }
+    .manage-btn {
+      padding: 4px 14px; border: 1px solid var(--border-color); border-radius: 6px;
+      background: transparent; color: var(--text-secondary);
+      font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: 0.2s;
+    }
     .manage-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
 
     .right-panel { display: flex; flex-direction: column; gap: 20px; }
     .empty-card { text-align: center; padding: 24px 12px; color: var(--text-secondary); }
     .empty-card i { font-size: 2rem; color: var(--border-color); display: block; margin-bottom: 8px; }
 
-    .overview-list { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
-    .overview-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-color); }
+    .overview-list {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px;
+    }
+    .overview-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; border-bottom: 1px solid var(--border-color);
+    }
     .overview-item span { color: var(--text-secondary); font-size: 0.8rem; }
     .overview-item strong { font-size: 1rem; font-weight: 600; }
 
-    .activity-feed .activity-item { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-    .activity-item .activity-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .activity-feed .activity-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 0; border-bottom: 1px solid var(--border-color);
+    }
+    .activity-item .activity-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+    }
     .activity-icon.blue { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
     .activity-info { flex: 1; }
     .activity-item h4 { font-size: 0.875rem; }
@@ -205,56 +271,130 @@
     .manager-section { margin-top: 24px; }
     .manager-section .dashboard-card { margin-bottom: 24px; }
 
-    .manager-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .manager-form {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
     .manager-form .full-width { grid-column: 1 / -1; }
-    .manager-form label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
-    .manager-form input, .manager-form select, .manager-form textarea { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.8rem; font-family: 'Poppins', sans-serif; outline: none; width: 100%; }
-    .manager-form input:focus, .manager-form select:focus, .manager-form textarea:focus { border-color: var(--accent-blue); }
+    .manager-form label {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.3px; color: var(--text-secondary); display: block; margin-bottom: 4px;
+    }
+    .manager-form input, .manager-form select, .manager-form textarea {
+      background: var(--bg-primary); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 0.8rem;
+      font-family: 'Poppins', sans-serif; outline: none; width: 100%;
+    }
+    .manager-form input:focus, .manager-form select:focus, .manager-form textarea:focus {
+      border-color: var(--accent-blue);
+    }
     .manager-form textarea { min-height: 100px; resize: vertical; }
-    .manager-form .checkbox-group { display: flex; align-items: center; gap: 10px; }
-    .manager-form .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
-    .manager-form .form-actions { grid-column: 1 / -1; display: flex; gap: 12px; }
-    .manager-form .form-actions button { padding: 10px 22px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.875rem; transition: 0.25s; flex: 1; }
+    .manager-form .checkbox-group {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .manager-form .checkbox-group input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--accent-blue);
+    }
+    .manager-form .form-actions {
+      grid-column: 1 / -1; display: flex; gap: 12px;
+    }
+    .manager-form .form-actions button {
+      padding: 10px 22px; border: none; border-radius: 8px;
+      font-weight: 600; font-size: 0.875rem; transition: 0.25s; flex: 1;
+    }
     .manager-form .form-actions .save-btn { background: var(--accent-blue); color: #fff; }
-    .manager-form .form-actions .cancel-btn { background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+    .manager-form .form-actions .cancel-btn {
+      background: var(--bg-primary); color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
 
     .module-status-toggle { cursor: pointer; transition: 0.2s; }
     .module-status-toggle:hover { opacity: 0.7; }
 
-    .payments-stats { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
-    .payments-stats .p-stat { background: var(--bg-primary); padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); font-size: 0.8rem; }
+    .payments-stats {
+      display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;
+    }
+    .payments-stats .p-stat {
+      background: var(--bg-primary); padding: 8px 18px; border-radius: 20px;
+      border: 1px solid var(--border-color); font-size: 0.8rem;
+    }
     .p-stat span { font-weight: 700; }
     .p-stat .pending { color: var(--gold); }
     .p-stat .approved { color: var(--green); }
     .p-stat .rejected { color: var(--red); }
-    
-    .btn-approve { background: rgba(0,200,151,0.12); color: var(--green); border: none; padding: 4px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+
+    .btn-approve {
+      background: rgba(0,200,151,0.12); color: var(--green);
+      border: none; padding: 4px 14px; border-radius: 6px;
+      cursor: pointer; transition: 0.2s; font-weight: 600;
+    }
     .btn-approve:hover { background: var(--green); color: #fff; }
-    .btn-reject { background: rgba(255,71,102,0.12); color: var(--red); border: none; padding: 4px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+    .btn-reject {
+      background: rgba(255,71,102,0.12); color: var(--red);
+      border: none; padding: 4px 14px; border-radius: 6px;
+      cursor: pointer; transition: 0.2s; font-weight: 600;
+    }
     .btn-reject:hover { background: var(--red); color: #fff; }
-    .btn-view-proof { background: rgba(79,124,255,0.12); color: var(--accent-blue); padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; border: none; cursor: pointer; }
+    .btn-view-proof {
+      background: rgba(79,124,255,0.12); color: var(--accent-blue);
+      padding: 4px 12px; border-radius: 4px; text-decoration: none;
+      font-size: 0.75rem; border: none; cursor: pointer;
+    }
     .btn-view-proof:hover { background: var(--accent-blue); color: #fff; }
 
-    .member-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .member-modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+    }
     .member-modal.active { display: flex; }
-    .member-modal-content { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); max-width: 520px; width: 92%; padding: 30px 26px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
-    .member-modal-content .close-modal { position: absolute; top: 16px; right: 20px; font-size: 28px; color: var(--text-secondary); cursor: pointer; background: none; border: none; transition: 0.2s; }
+    .member-modal-content {
+      background: var(--bg-secondary); border: 1px solid var(--border-color);
+      border-radius: var(--radius); max-width: 520px; width: 92%;
+      padding: 30px 26px; position: relative; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    .member-modal-content .close-modal {
+      position: absolute; top: 16px; right: 20px; font-size: 28px;
+      color: var(--text-secondary); cursor: pointer; background: none; border: none; transition: 0.2s;
+    }
     .member-modal-content .close-modal:hover { color: #fff; }
-    .member-modal-content h2 { font-size: 1.375rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .member-modal-content h2 {
+      font-size: 1.375rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
     .member-modal-content h2 i { color: var(--accent-blue); }
 
-    .member-profile { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
-    .member-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
+    .member-profile {
+      display: flex; align-items: center; gap: 18px;
+      margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+    }
+    .member-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--accent-blue); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 700; flex-shrink: 0;
+    }
     .member-profile h3 { font-size: 1.125rem; }
     .member-profile p { color: var(--text-secondary); font-size: 0.875rem; }
 
-    .member-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
-    .detail-box { background: var(--bg-primary); border-radius: 8px; padding: 12px 14px; }
-    .detail-box label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; display: block; }
+    .member-details {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px;
+    }
+    .detail-box {
+      background: var(--bg-primary); border-radius: 8px; padding: 12px 14px;
+    }
+    .detail-box label {
+      font-size: 0.65rem; text-transform: uppercase; color: var(--text-secondary);
+      letter-spacing: 0.5px; display: block;
+    }
     .detail-box span { font-size: 1rem; font-weight: 600; display: block; margin-top: 2px; }
 
-    .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .modal-actions button { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; flex: 1 0 auto; justify-content: center; cursor: pointer; }
+    .modal-actions {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .modal-actions button {
+      padding: 8px 16px; border: none; border-radius: 6px;
+      font-weight: 600; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;
+      transition: 0.2s; flex: 1 0 auto; justify-content: center; cursor: pointer;
+    }
     .approve-btn { background: rgba(0,200,151,0.12); color: var(--green); }
     .approve-btn:hover { background: var(--green); color: #fff; }
     .premium-btn { background: rgba(245,166,35,0.12); color: var(--gold); }
@@ -283,7 +423,7 @@
       .right-panel { grid-template-columns: 1fr; } .manager-form { grid-template-columns: 1fr; }
     }
     .admin-footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
-    
+
     .file-picker { display: flex; flex-direction: column; gap: 6px; }
     .file-picker input[type="file"] { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; color: #fff; }
     .file-picker .file-name { color: var(--text-secondary); font-size: 0.8rem; }
@@ -293,7 +433,6 @@
 
     .video-preview { margin-top: 10px; max-width: 300px; }
     .video-preview video { width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
-    /* VIDEO UPLOAD FEEDBACK */
     .upload-status { display:none; margin-top:14px; padding:14px 16px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-primary); }
     .upload-status.show { display:block; }
     .upload-status-row { display:flex; align-items:center; gap:10px; font-size:.82rem; font-weight:600; }
@@ -317,178 +456,330 @@
   <div class="logo"><img src="images/imageslogo.png.png" alt="Logo" /><h2>GTRADES <span>AXIS™</span></h2></div>
   <nav>
     <ul>
-      <li class="active"><a href="#dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
-      <li><a href="#members"><i class="fa-solid fa-users"></i> Members</a></li>
-      <li><a href="#academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
-      <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
-      <li><a href="#videos"><i class="fa-solid fa-video"></i> Videos</a></li>
-      <li><a href="/admin-payments" class="sidebar-link">
-    <i class="fa-solid fa-credit-card"></i>
-    <span>Payments</span>
-</a>
+      <li class="active" data-tab="dashboard"><a onclick="showTab('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li data-tab="members"><a onclick="showTab('members')"><i class="fa-solid fa-users"></i> Members</a></li>
+      <li data-tab="academy"><a onclick="showTab('academy')"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
+      <li data-tab="resources"><a onclick="showTab('resources')"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
+      <li data-tab="videos"><a onclick="showTab('videos')"><i class="fa-solid fa-video"></i> Videos</a></li>
+      <li data-tab="trades"><a onclick="showTab('trades')"><i class="fa-solid fa-chart-simple"></i> Trades</a></li>
+      <li data-tab="payments"><a onclick="showTab('payments')"><i class="fa-solid fa-credit-card"></i> Payments</a></li>
+    </ul>
   </nav>
   <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
 </aside>
 
 <!-- ===== MAIN ===== -->
 <main class="admin-main">
+
+  <!-- HEADER -->
   <header class="admin-header">
-    <div><h1>GTRADES-AXIS ADMIN</h1><p>Manage Members • Academy • Resources</p></div>
+    <div>
+      <h1>GTRADES-AXIS ADMIN</h1>
+      <p id="tabSubtitle">Dashboard</p>
+    </div>
     <div class="header-right"><div id="liveDate"></div></div>
   </header>
 
-  <!-- STATS -->
-  <section class="stats-grid">
-    <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-users"></i></div><div><h2 id="totalMembers">0</h2><p>Total Members</p></div></div>
-    <div class="stat-card"><div class="stat-icon gold"><i class="fa-solid fa-crown"></i></div><div><h2 id="premiumMembers">0</h2><p>Premium Members</p></div></div>
-    <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-graduation-cap"></i></div><div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div></div>
-    <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-video"></i></div><div><h2 id="videoCount">0</h2><p>Videos</p></div></div>
-    <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-clock"></i></div><div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div></div>
-  </section>
+  <!-- ===== TAB: DASHBOARD ===== -->
+  <div id="tab-dashboard" class="tab-content active">
 
-  <!-- QUICK ACTIONS -->
-  <section class="quick-actions">
-    <button onclick="document.getElementById('academy').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-book-medical"></i> Manage Modules</button>
-    <button onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-video-plus"></i> Add Video</button>
-    <button onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
-    <button onclick="document.getElementById('payments').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-credit-card"></i> View Payments</button>
-  </section>
+    <!-- STATS -->
+    <section class="stats-grid">
+      <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-users"></i></div><div><h2 id="totalMembers">0</h2><p>Total Members</p></div></div>
+      <div class="stat-card"><div class="stat-icon gold"><i class="fa-solid fa-crown"></i></div><div><h2 id="premiumMembers">0</h2><p>Premium Members</p></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-graduation-cap"></i></div><div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-video"></i></div><div><h2 id="videoCount">0</h2><p>Videos</p></div></div>
+      <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-clock"></i></div><div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div></div>
+    </section>
 
-  <!-- DASHBOARD GRID -->
-  <div class="dashboard-grid">
-    <div class="dashboard-card large" id="members">
-      <div class="card-header"><div><h2><i class="fa-solid fa-users"></i> Members Management</h2></div><input type="text" id="memberSearch" placeholder="🔍 Search member..." /></div>
-      <div class="table-container"><table class="members-table"><thead><tr><th>User Email</th><th>Membership</th><th>Status</th><th>Payment</th><th>Joined</th><th>Management</th></tr></thead><tbody id="membersTable"><tr><td colspan="5"><div class="empty-card">Loading members...</div></td></tr></tbody></table></div>
-    </div>
-    <div class="right-panel">
-      <div class="dashboard-card"><h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2><div id="recentMembers"><div class="empty-card">No members yet.</div></div></div>
-      <div class="dashboard-card"><h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2><div class="overview-list"><div class="overview-item"><span>Academy Modules</span><strong id="moduleOverview">0</strong></div><div class="overview-item"><span>Videos</span><strong id="videoOverview">0</strong></div><div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div></div></div>
-      <div class="dashboard-card"><h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2><div class="activity-feed" id="activityFeed"></div></div>
+    <!-- QUICK ACTIONS -->
+    <section class="quick-actions">
+      <button onclick="showTab('academy')"><i class="fa-solid fa-book-medical"></i> Manage Modules</button>
+      <button onclick="showTab('videos')"><i class="fa-solid fa-video-plus"></i> Add Video</button>
+      <button onclick="showTab('resources')"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
+      <button onclick="showTab('payments')"><i class="fa-solid fa-credit-card"></i> View Payments</button>
+      <button onclick="showTab('trades')"><i class="fa-solid fa-chart-simple"></i> Manage Trades</button>
+    </section>
+
+    <!-- DASHBOARD GRID -->
+    <div class="dashboard-grid">
+      <div class="dashboard-card large" id="members">
+        <div class="card-header">
+          <div><h2><i class="fa-solid fa-users"></i> Members Management</h2></div>
+          <input type="text" id="memberSearch" placeholder="🔍 Search member..." />
+        </div>
+        <div class="table-container">
+          <table class="members-table">
+            <thead>
+              <tr><th>User Email</th><th>Membership</th><th>Status</th><th>Payment</th><th>Joined</th><th>Management</th></tr>
+            </thead>
+            <tbody id="membersTable"><tr><td colspan="5"><div class="empty-card">Loading members...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="dashboard-card">
+          <h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2>
+          <div id="recentMembers"><div class="empty-card">No members yet.</div></div>
+        </div>
+        <div class="dashboard-card">
+          <h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2>
+          <div class="overview-list">
+            <div class="overview-item"><span>Academy Modules</span><strong id="moduleOverview">0</strong></div>
+            <div class="overview-item"><span>Videos</span><strong id="videoOverview">0</strong></div>
+            <div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div>
+          </div>
+        </div>
+        <div class="dashboard-card">
+          <h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2>
+          <div class="activity-feed" id="activityFeed"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- ========================================================== ACADEMY MANAGER -->
-  <section class="manager-section" id="academy">
+  <!-- ===== TAB: MEMBERS ===== -->
+  <div id="tab-members" class="tab-content">
     <div class="dashboard-card">
       <div class="card-header">
-        <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules.</p></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
-          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples</button>
-        </div>
-      </div>
-      <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules...</div></td></tr></tbody></table></div></div>
-      <div id="moduleFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="moduleFormTitle">Add New Module</h3>
-        <form id="moduleForm" class="manager-form">
-          <div><label>Module Number</label><input type="number" id="moduleOrder" placeholder="e.g. 1" required min="1" /></div>
-          <div><label>Module Title</label><input type="text" id="moduleTitle" placeholder="e.g. Market Structure" required /></div>
-          <div class="full-width"><label>Description</label><textarea id="moduleDescription" rows="2"></textarea></div>
-          <div class="full-width"><label>Content (HTML)</label><textarea id="moduleContent" rows="10"></textarea></div>
-          <div class="full-width"><label>Module File (PDF/Video)</label><div class="file-picker"><input type="file" id="moduleFilePicker" accept=".pdf,.mp4,.mov,.avi" /><div class="file-name" id="moduleFileName">No file chosen</div></div></div>
-          <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label>Has Quiz</label></div>
-          <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label>Published</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveModuleBtn">Save Module</button><button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button></div>
-          <input type="hidden" id="editingModuleId" />
-          <input type="hidden" id="existingModuleFileKey" />
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================================== PAYMENTS MANAGER -->
-  <section class="manager-section" id="payments">
-    <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
-      <div class="payments-stats">
-        <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
-        <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
-        <div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div>
+        <div><h2><i class="fa-solid fa-users"></i> All Members</h2></div>
+        <input type="text" id="memberSearchFull" placeholder="🔍 Search member..." />
       </div>
       <div class="table-container">
-        <table class="members-table" id="paymentsTable">
-          <thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody>
+        <table class="members-table">
+          <thead>
+            <tr><th>User Email</th><th>Membership</th><th>Status</th><th>Payment</th><th>Joined</th><th>Management</th></tr>
+          </thead>
+          <tbody id="membersTableFull"><tr><td colspan="6"><div class="empty-card">Loading members...</div></td></tr></tbody>
         </table>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ========================================================== VIDEO MANAGER (FILE UPLOAD) -->
-  <section class="manager-section" id="videos">
-    <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Upload video files (MP4, MOV, etc.) to Cloudflare R2.</p></div>
-        <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Video</button>
-      </div>
-      <div id="videoListContainer"><div class="table-container"><table class="members-table" id="videoTable"><thead><tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody id="videoTableBody"><tr><td colspan="6"><div class="empty-card">No videos yet. Upload one above!</div></td></tr></tbody></table></div></div>
-      <div id="videoFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="videoFormTitle">Upload Video File</h3>
-        <form id="videoForm" class="manager-form">
-          <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required /></div>
-          <div><label>Category</label><select id="videoCategory"><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
-          <div><label>Duration</label><input type="text" id="videoDuration" placeholder="e.g. 12:45" /></div>
-          <div class="full-width"><label>Video File (MP4, MOV, AVI, etc.)</label>
-            <div class="file-picker">
-              <input type="file" id="videoFilePicker" accept="video/*" required />
-              <div class="file-name" id="videoFileName">No file chosen</div>
-              <div class="video-preview" id="videoPreview" style="display:none;"><video id="videoPreviewEl" controls style="width:100%; max-height:200px;"></video></div>
+  <!-- ===== TAB: ACADEMY ===== -->
+  <div id="tab-academy" class="tab-content">
+    <section class="manager-section">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:6px 16px;">
+              <i class="fa-solid fa-plus"></i> Add Module
+            </button>
+            <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:6px 16px;">
+              <i class="fa-solid fa-copy"></i> Add Samples
+            </button>
+          </div>
+        </div>
+        <div id="moduleListContainer">
+          <div class="table-container">
+            <table class="members-table" id="moduleTable">
+              <thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules...</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="moduleFormContainer" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
+          <h3 id="moduleFormTitle">Add New Module</h3>
+          <form id="moduleForm" class="manager-form">
+            <div><label>Module Number</label><input type="number" id="moduleOrder" placeholder="e.g. 1" required min="1" /></div>
+            <div><label>Module Title</label><input type="text" id="moduleTitle" placeholder="e.g. Market Structure" required /></div>
+            <div class="full-width"><label>Description</label><textarea id="moduleDescription" rows="2"></textarea></div>
+            <div class="full-width"><label>Content (HTML)</label><textarea id="moduleContent" rows="10"></textarea></div>
+            <div class="full-width"><label>Module File (PDF/Video)</label>
+              <div class="file-picker">
+                <input type="file" id="moduleFilePicker" accept=".pdf,.mp4,.mov,.avi" />
+                <div class="file-name" id="moduleFileName">No file chosen</div>
+              </div>
             </div>
-            <small style="color:var(--text-secondary);">Select a video file from your device. It will be uploaded to Cloudflare R2.</small>
-          </div>
-          <div class="full-width"><label>Thumbnail Image (Optional)</label>
-            <div class="file-picker">
-              <input type="file" id="videoThumbnailFile" accept="image/*" />
-              <div class="file-name" id="thumbnailFileName">No file chosen</div>
-              <div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div>
+            <div class="checkbox-group"><input type="checkbox" id="moduleHasQuiz" checked /><label>Has Quiz</label></div>
+            <div class="checkbox-group"><input type="checkbox" id="modulePublished" checked /><label>Published</label></div>
+            <div class="form-actions">
+              <button type="submit" class="save-btn" id="saveModuleBtn">Save Module</button>
+              <button type="button" class="cancel-btn" id="cancelModuleBtn">Cancel</button>
             </div>
-          </div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-upload"></i> Upload Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
-          <div id="videoUploadStatus" class="upload-status" aria-live="polite">
-            <div class="upload-status-row"><i id="videoUploadStatusIcon" class="fa-solid fa-cloud-arrow-up"></i><span id="videoUploadStatusText">Ready to upload.</span></div>
-            <div id="videoUploadStatusDetail" class="upload-status-detail"></div>
-            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
-          </div>
-          <input type="hidden" id="editingVideoId" />
-          <input type="hidden" id="existingVideoKey" />
-          <input type="hidden" id="existingThumbnailKey" />
-        </form>
+            <input type="hidden" id="editingModuleId" />
+            <input type="hidden" id="existingModuleFileKey" />
+          </form>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- ========================================================== RESOURCE MANAGER -->
-  <section class="manager-section" id="resources">
-    <div class="dashboard-card">
-      <div class="card-header"><div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage PDFs, indicators, journals (stored in R2).</p></div>
-        <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Resource</button>
-      </div>
-      <div id="resourceListContainer"><div class="table-container"><table class="members-table" id="resourceTable"><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody></table></div></div>
-      <div id="resourceFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
-        <h3 id="resourceFormTitle">Add New Resource</h3>
-        <form id="resourceForm" class="manager-form">
-          <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
-          <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option><option value="General">General</option><option value="Other">Other / Custom</option></select><input type="text" id="resourceCustomCategory" placeholder="Enter custom category" style="display:none;margin-top:8px;" maxlength="50" /></div>
-          <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
-          <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
-          <div id="resourceUploadProgress" style="display:none;margin:14px 0;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
-            <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#94a3b8;font-size:13px;">
-              <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
-            </div>
-            <div style="width:100%;height:8px;background:#172033;border-radius:20px;overflow:hidden;">
-              <div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div>
-            </div>
+  <!-- ===== TAB: RESOURCES ===== -->
+  <div id="tab-resources" class="tab-content">
+    <section class="manager-section">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2></div>
+          <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:6px 16px;">
+            <i class="fa-solid fa-plus"></i> Add Resource
+          </button>
+        </div>
+        <div id="resourceListContainer">
+          <div class="table-container">
+            <table class="members-table" id="resourceTable">
+              <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody>
+            </table>
           </div>
-          <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
-          <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
-          <input type="hidden" id="editingResourceId" />
-        </form>
+        </div>
+        <div id="resourceFormContainer" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
+          <h3 id="resourceFormTitle">Add New Resource</h3>
+          <form id="resourceForm" class="manager-form">
+            <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
+            <div><label>Category</label>
+              <select id="resourceCategory">
+                <option value="PDF">PDF</option>
+                <option value="Indicator">Indicator</option>
+                <option value="Journal">Journal</option>
+                <option value="Strategy">Strategy</option>
+                <option value="Video">Video</option>
+                <option value="General">General</option>
+                <option value="Other">Other / Custom</option>
+              </select>
+              <input type="text" id="resourceCustomCategory" placeholder="Enter custom category" style="display:none;margin-top:6px;" maxlength="50" />
+            </div>
+            <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
+            <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
+            <div id="resourceUploadProgress" style="display:none;margin:12px 0;padding:12px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
+              <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#94a3b8;font-size:12px;">
+                <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
+              </div>
+              <div style="width:100%;height:6px;background:#172033;border-radius:20px;overflow:hidden;">
+                <div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div>
+              </div>
+            </div>
+            <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
+            <div class="form-actions">
+              <button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button>
+              <button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button>
+            </div>
+            <input type="hidden" id="editingResourceId" />
+          </form>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <footer class="admin-footer"><p>© <span id="year"></span> GTRADES AXIS™ | Professional Trading Platform</p></footer>
+  <!-- ===== TAB: VIDEOS ===== -->
+  <div id="tab-videos" class="tab-content">
+    <section class="manager-section">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div><h2><i class="fa-solid fa-video"></i> Video Manager</h2></div>
+          <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:6px 16px;">
+            <i class="fa-solid fa-plus"></i> Add Video
+          </button>
+        </div>
+        <div id="videoListContainer">
+          <div class="table-container">
+            <table class="members-table" id="videoTable">
+              <thead><tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="videoTableBody"><tr><td colspan="6"><div class="empty-card">No videos yet. Upload one above!</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="videoFormContainer" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
+          <h3 id="videoFormTitle">Upload Video File</h3>
+          <form id="videoForm" class="manager-form">
+            <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required /></div>
+            <div><label>Category</label>
+              <select id="videoCategory">
+                <option value="Market Structure">Market Structure</option>
+                <option value="Supply & Demand">Supply & Demand</option>
+                <option value="Liquidity">Liquidity</option>
+                <option value="Entries">Entries</option>
+                <option value="Psychology">Psychology</option>
+              </select>
+            </div>
+            <div><label>Duration</label><input type="text" id="videoDuration" placeholder="e.g. 12:45" /></div>
+            <div class="full-width"><label>Video File (MP4, MOV, AVI, etc.)</label>
+              <div class="file-picker">
+                <input type="file" id="videoFilePicker" accept="video/*" required />
+                <div class="file-name" id="videoFileName">No file chosen</div>
+                <div class="video-preview" id="videoPreview" style="display:none;">
+                  <video id="videoPreviewEl" controls style="width:100%; max-height:200px;"></video>
+                </div>
+              </div>
+              <small style="color:var(--text-secondary);">Select a video file from your device. It will be uploaded to Cloudflare R2.</small>
+            </div>
+            <div class="full-width"><label>Thumbnail Image (Optional)</label>
+              <div class="file-picker">
+                <input type="file" id="videoThumbnailFile" accept="image/*" />
+                <div class="file-name" id="thumbnailFileName">No file chosen</div>
+                <div id="thumbnailPreview" style="margin-top:6px; max-width:120px; display:none;">
+                  <img id="thumbnailPreviewImg" style="width:100%; border-radius:6px; border:1px solid var(--border-color);" />
+                </div>
+              </div>
+            </div>
+            <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
+            <div class="form-actions">
+              <button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-upload"></i> Upload Video</button>
+              <button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button>
+            </div>
+            <div id="videoUploadStatus" class="upload-status">
+              <div class="upload-status-row"><i id="videoUploadStatusIcon" class="fa-solid fa-cloud-arrow-up"></i><span id="videoUploadStatusText">Ready to upload.</span></div>
+              <div id="videoUploadStatusDetail" class="upload-status-detail"></div>
+              <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+            </div>
+            <input type="hidden" id="editingVideoId" />
+            <input type="hidden" id="existingVideoKey" />
+            <input type="hidden" id="existingThumbnailKey" />
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== TAB: TRADES ===== -->
+  <div id="tab-trades" class="tab-content">
+    <section class="manager-section">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div>
+            <h2><i class="fa-solid fa-chart-simple"></i> Manage Trades (Public/Private)</h2>
+            <p style="color:var(--text-secondary); font-size:12px;">Toggle trades to show on the homepage feed.</p>
+          </div>
+          <div>
+            <span id="tradeCount" style="color:var(--text-secondary);font-size:13px;">0 trades</span>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="members-table" id="tradesTable">
+            <thead>
+              <tr><th>Pair</th><th>Direction</th><th>RR</th><th>Date</th><th>Status</th><th>Public</th><th>Action</th></tr>
+            </thead>
+            <tbody id="tradesTableBody"><tr><td colspan="7"><div class="empty-card">Loading trades...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== TAB: PAYMENTS ===== -->
+  <div id="tab-payments" class="tab-content">
+    <section class="manager-section">
+      <div class="dashboard-card">
+        <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
+        <div class="payments-stats">
+          <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
+          <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
+          <div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div>
+        </div>
+        <div class="table-container">
+          <table class="members-table" id="paymentsTable">
+            <thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="admin-footer">
+    <p>© <span id="year"></span> GTRADES AXIS™ | Professional Trading Platform</p>
+  </footer>
 </main>
 
 <!-- ===== MEMBER MODAL ===== -->
@@ -496,27 +787,41 @@
   <div class="member-modal-content">
     <button class="close-modal" id="closeModal">&times;</button>
     <h2><i class="fa-solid fa-user"></i> Member Details</h2>
-    <div class="member-profile"><div class="member-avatar" id="memberAvatar">U</div><div><h3 id="modalName">Member Name</h3><p id="modalEmail">member@email.com</p></div></div>
+    <div class="member-profile">
+      <div class="member-avatar" id="memberAvatar">U</div>
+      <div><h3 id="modalName">Member Name</h3><p id="modalEmail">member@email.com</p></div>
+    </div>
     <div class="member-details">
       <div class="detail-box"><label>Membership</label><span id="modalRole">MEMBER</span></div>
       <div class="detail-box"><label>Status</label><span id="modalStatus">PENDING</span></div>
       <div class="detail-box"><label>Payment</label><span id="modalPayment">UNPAID</span></div>
       <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
     </div>
-    <div class="modal-control-group"><h4><i class="fa-solid fa-crown"></i> Membership</h4><div class="modal-actions">
-      <button id="memberBtn" class="member-btn"><i class="fa-solid fa-user"></i> Member</button>
-      <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
-      <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-shield-halved"></i> Admin</button>
-    </div></div>
-    <div class="modal-control-group"><h4><i class="fa-solid fa-user-check"></i> Status</h4><div class="modal-actions">
-      <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-check"></i> Activate</button>
-      <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
-    </div></div>
-    <div class="modal-control-group"><h4><i class="fa-solid fa-money-bill-wave"></i> Payment</h4><div class="modal-actions">
-      <button id="paidBtn" class="paid-btn"><i class="fa-solid fa-check-circle"></i> Paid</button>
-      <button id="unpaidBtn" class="unpaid-btn"><i class="fa-solid fa-circle-xmark"></i> Unpaid</button>
-    </div></div>
-    <div class="modal-danger"><button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete Member</button></div>
+    <div class="modal-control-group">
+      <h4><i class="fa-solid fa-crown"></i> Membership</h4>
+      <div class="modal-actions">
+        <button id="memberBtn" class="member-btn"><i class="fa-solid fa-user"></i> Member</button>
+        <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
+        <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-shield-halved"></i> Admin</button>
+      </div>
+    </div>
+    <div class="modal-control-group">
+      <h4><i class="fa-solid fa-user-check"></i> Status</h4>
+      <div class="modal-actions">
+        <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-check"></i> Activate</button>
+        <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
+      </div>
+    </div>
+    <div class="modal-control-group">
+      <h4><i class="fa-solid fa-money-bill-wave"></i> Payment</h4>
+      <div class="modal-actions">
+        <button id="paidBtn" class="paid-btn"><i class="fa-solid fa-check-circle"></i> Paid</button>
+        <button id="unpaidBtn" class="unpaid-btn"><i class="fa-solid fa-circle-xmark"></i> Unpaid</button>
+      </div>
+    </div>
+    <div class="modal-danger">
+      <button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete Member</button>
+    </div>
   </div>
 </div>
 
@@ -532,12 +837,34 @@
 </script>
 
 <script type="module">
+  // ─── TAB SWITCHING ──────────────────────────────────────────────────────
+  window.showTab = function(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('tab-' + tabId);
+    if (target) target.classList.add('active');
+
+    document.querySelectorAll('.sidebar nav ul li').forEach(li => li.classList.remove('active'));
+    const tabLi = document.querySelector(`.sidebar nav ul li[data-tab="${tabId}"]`);
+    if (tabLi) tabLi.classList.add('active');
+
+    const subtitles = {
+      dashboard: 'Dashboard',
+      members: 'Members Management',
+      academy: 'Academy Module Manager',
+      resources: 'Resource Manager',
+      videos: 'Video Manager',
+      trades: 'Trades Management',
+      payments: 'Payment Approvals'
+    };
+    document.getElementById('tabSubtitle').textContent = subtitles[tabId] || tabId;
+  };
+
   // ─── IMPORTS ──────────────────────────────────────────────────────────────
   import { auth, db } from "./js/firebase.js";
   import { signOut, onAuthStateChanged } from "firebase/auth";
-  import { 
-    collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, 
-    onSnapshot, serverTimestamp, addDoc 
+  import {
+    collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc,
+    onSnapshot, serverTimestamp, addDoc
   } from "firebase/firestore";
   import { uploadToR2, getDownloadUrl } from "./js/upload.js";
 
@@ -549,7 +876,9 @@
 
   // ─── DOM REFS ─────────────────────────────────────────────────────────────
   const membersTableBody = document.getElementById('membersTable');
+  const membersTableFull = document.getElementById('membersTableFull');
   const memberSearch = document.getElementById('memberSearch');
+  const memberSearchFull = document.getElementById('memberSearchFull');
   const memberModal = document.getElementById('memberModal');
   const closeModal = document.getElementById('closeModal');
   const modalName = document.getElementById('modalName');
@@ -559,11 +888,6 @@
   const modalPayment = document.getElementById('modalPayment');
   const modalJoined = document.getElementById('modalJoined');
   const modalAvatar = document.getElementById('memberAvatar');
-  const modalApproveBtn = document.getElementById('approveBtn');
-  const modalPremiumBtn = document.getElementById('premiumBtn');
-  const modalAdminBtn = document.getElementById('adminBtn');
-  const modalSuspendBtn = document.getElementById('suspendBtn');
-  const modalDeleteBtn = document.getElementById('deleteBtn');
 
   // ─── LOGOUT & CLOCK ──────────────────────────────────────────────────────
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
@@ -572,8 +896,8 @@
 
   function updateClock() {
     const el = document.getElementById("liveDate");
-    if (el) el.textContent = new Date().toLocaleString("en-GB", { 
-      weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" 
+    if (el) el.textContent = new Date().toLocaleString("en-GB", {
+      weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
     });
   }
   updateClock(); setInterval(updateClock, 1000);
@@ -591,7 +915,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  1. MEMBERS — FULL MANAGEMENT
+  // 1. MEMBERS — FULL MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
   function timestampToDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();if(v.seconds!==undefined)return new Date(v.seconds*1000);const d=new Date(v);return Number.isNaN(d.getTime())?null:d;}
   function formatJoined(v){const d=timestampToDate(v);return d?d.toLocaleDateString('en-GB'):'--';}
@@ -599,26 +923,109 @@
   function getStatus(u){return u.status||'pending';}
   function getPaymentStatus(u){return u.paymentStatus||(u.payment==='paid'?'paid':'unpaid');}
   function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
-  function listenMembers(){const q=query(collection(db,'users'),orderBy('createdAt','desc'));onSnapshot(q,s=>{allMembers=[];s.forEach(d=>allMembers.push({id:d.id,...d.data()}));renderMembersTable(allMembers);updateMemberStats(allMembers);renderRecentMembers(allMembers);},e=>{console.error(e);membersTableBody.innerHTML=`<tr><td colspan="6"><div class="empty-card">Unable to load members: ${e.message}</div></td></tr>`;});}
-  function updateMemberStats(m){if(document.getElementById('totalMembers'))document.getElementById('totalMembers').textContent=m.length;if(document.getElementById('premiumMembers'))document.getElementById('premiumMembers').textContent=m.filter(x=>getMembership(x)==='premium').length;}
-  function renderRecentMembers(m){const c=document.getElementById('recentMembers');if(!c)return;const r=m.slice(0,5);c.innerHTML=r.length?r.map(x=>{const n=x.displayName||x.name||x.email||'Member';return `<div class="recent-member"><div class="avatar-small">${escapeHtml(n[0].toUpperCase())}</div><div class="member-info"><h4>${escapeHtml(n)}</h4><p>${getMembership(x).toUpperCase()}</p></div></div>`}).join(''):'<div class="empty-card">No members yet.</div>';}
-  function renderMembersTable(m){const term=(memberSearch?.value||'').toLowerCase().trim();const f=m.filter(x=>String(x.email||'').toLowerCase().includes(term)||String(x.displayName||x.name||'').toLowerCase().includes(term));if(!f.length){membersTableBody.innerHTML='<tr><td colspan="6"><div class="empty-card">No members found.</div></td></tr>';return;}membersTableBody.innerHTML=f.map(x=>{const n=x.displayName||x.name||x.email||'Member',mem=getMembership(x),st=getStatus(x),pay=getPaymentStatus(x);return `<tr><td><div class="user-cell"><div class="avatar-small">${escapeHtml(n[0].toUpperCase())}</div><div class="user-info"><strong>${escapeHtml(x.email||'--')}</strong><small>${escapeHtml(n)}</small></div></div></td><td><span class="badge ${mem}">${mem.toUpperCase()}</span></td><td><span class="badge ${st}">${st.toUpperCase()}</span></td><td><span class="badge ${pay}">${pay.toUpperCase()}</span></td><td>${formatJoined(x.createdAt)}</td><td><button class="manage-btn manage-member-btn" data-id="${escapeHtml(x.id)}"><i class="fa-solid fa-sliders"></i> Manage</button></td></tr>`}).join('');document.querySelectorAll('.manage-member-btn').forEach(b=>b.onclick=()=>{const u=allMembers.find(x=>x.id===b.dataset.id);if(u)openModal(u);});}
-  memberSearch?.addEventListener('input',()=>renderMembersTable(allMembers));
-  function openModal(u){selectedUser=u;const n=u.displayName||u.name||u.email||'Member';modalName.textContent=n;modalEmail.textContent=u.email||'N/A';modalRole.textContent=getMembership(u).toUpperCase();modalStatus.textContent=getStatus(u).toUpperCase();modalPayment.textContent=getPaymentStatus(u).toUpperCase();modalJoined.textContent=formatJoined(u.createdAt);modalAvatar.textContent=n[0].toUpperCase();memberModal.classList.add('active');}
-  function closeModalFunc(){selectedUser=null;memberModal.classList.remove('active');}
-  closeModal?.addEventListener('click',closeModalFunc);memberModal?.addEventListener('click',e=>{if(e.target===memberModal)closeModalFunc();});
-  async function updateSelectedUser(changes,text,confirmText=''){if(!selectedUser)return alert('No user selected.');if(confirmText&&!confirm(confirmText))return;try{await updateDoc(doc(db,'users',selectedUser.id),{...changes,updatedAt:serverTimestamp()});addActivity(text||`Updated ${selectedUser.email||'member'}`);closeModalFunc();}catch(e){console.error(e);alert('Error updating member: '+e.message);}}
-  document.getElementById('memberBtn')?.addEventListener('click',()=>updateSelectedUser({role:'member',membership:'free'},`Changed ${selectedUser?.email||'member'} to Member.`,`Move ${selectedUser?.email||'this member'} back to ordinary Member?`));
-  document.getElementById('premiumBtn')?.addEventListener('click',()=>updateSelectedUser({role:'member',membership:'premium'},`Upgraded ${selectedUser?.email||'member'} to Premium.`,`Make ${selectedUser?.email||'this member'} a Premium member?`));
-  document.getElementById('adminBtn')?.addEventListener('click',()=>updateSelectedUser({role:'admin',membership:'premium'},`Promoted ${selectedUser?.email||'member'} to Admin.`,`Give ${selectedUser?.email||'this member'} Admin access?`));
-  document.getElementById('approveBtn')?.addEventListener('click',()=>updateSelectedUser({status:'active'},`Activated ${selectedUser?.email||'member'}.`));
-  document.getElementById('suspendBtn')?.addEventListener('click',()=>updateSelectedUser({status:'suspended'},`Suspended ${selectedUser?.email||'member'}.`,`Suspend ${selectedUser?.email||'this member'}?`));
-  document.getElementById('paidBtn')?.addEventListener('click',()=>updateSelectedUser({paymentStatus:'paid'},`Marked ${selectedUser?.email||'member'} as Paid.`));
-  document.getElementById('unpaidBtn')?.addEventListener('click',()=>updateSelectedUser({paymentStatus:'unpaid'},`Marked ${selectedUser?.email||'member'} as Unpaid.`));
-  document.getElementById('deleteBtn')?.addEventListener('click',async()=>{if(!selectedUser)return;const e=selectedUser.email||'this member';if(!confirm(`Permanently delete ${e}? This cannot be undone.`))return;try{await deleteDoc(doc(db,'users',selectedUser.id));addActivity(`Deleted member ${e}`);closeModalFunc();}catch(err){alert('Error deleting member: '+err.message);}});
+
+  function listenMembers() {
+    const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, s => {
+      allMembers = [];
+      s.forEach(d => allMembers.push({ id: d.id, ...d.data() }));
+      renderMembersTable(allMembers, membersTableBody, memberSearch);
+      renderMembersTable(allMembers, membersTableFull, memberSearchFull);
+      updateMemberStats(allMembers);
+      renderRecentMembers(allMembers);
+    }, e => {
+      console.error(e);
+      membersTableBody.innerHTML = `<tr><td colspan="6"><div class="empty-card">Unable to load members: ${e.message}</div></td></tr>`;
+      if (membersTableFull) membersTableFull.innerHTML = `<tr><td colspan="6"><div class="empty-card">Unable to load members: ${e.message}</div></td></tr>`;
+    });
+  }
+
+  function updateMemberStats(m) {
+    if (document.getElementById('totalMembers')) document.getElementById('totalMembers').textContent = m.length;
+    if (document.getElementById('premiumMembers')) document.getElementById('premiumMembers').textContent = m.filter(x => getMembership(x) === 'premium').length;
+  }
+
+  function renderRecentMembers(m) {
+    const c = document.getElementById('recentMembers');
+    if (!c) return;
+    const r = m.slice(0, 5);
+    c.innerHTML = r.length ? r.map(x => {
+      const n = x.displayName || x.name || x.email || 'Member';
+      return `<div class="recent-member"><div class="avatar-small">${escapeHtml(n[0].toUpperCase())}</div><div class="member-info"><h4>${escapeHtml(n)}</h4><p>${getMembership(x).toUpperCase()}</p></div></div>`;
+    }).join('') : '<div class="empty-card">No members yet.</div>';
+  }
+
+  function renderMembersTable(m, tbody, searchInput) {
+    if (!tbody) return;
+    const term = (searchInput?.value || '').toLowerCase().trim();
+    const f = m.filter(x => String(x.email || '').toLowerCase().includes(term) || String(x.displayName || x.name || '').toLowerCase().includes(term));
+    if (!f.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-card">No members found.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = f.map(x => {
+      const n = x.displayName || x.name || x.email || 'Member',
+        mem = getMembership(x),
+        st = getStatus(x),
+        pay = getPaymentStatus(x);
+      return `<tr><td><div class="user-cell"><div class="avatar-small">${escapeHtml(n[0].toUpperCase())}</div><div class="user-info"><strong>${escapeHtml(x.email||'--')}</strong><small>${escapeHtml(n)}</small></div></div></td><td><span class="badge ${mem}">${mem.toUpperCase()}</span></td><td><span class="badge ${st}">${st.toUpperCase()}</span></td><td><span class="badge ${pay}">${pay.toUpperCase()}</span></td><td>${formatJoined(x.createdAt)}</td><td><button class="manage-btn manage-member-btn" data-id="${escapeHtml(x.id)}"><i class="fa-solid fa-sliders"></i> Manage</button></td></tr>`;
+    }).join('');
+    tbody.querySelectorAll('.manage-member-btn').forEach(b => b.onclick = () => {
+      const u = allMembers.find(x => x.id === b.dataset.id);
+      if (u) openModal(u);
+    });
+  }
+
+  memberSearch?.addEventListener('input', () => renderMembersTable(allMembers, membersTableBody, memberSearch));
+  memberSearchFull?.addEventListener('input', () => renderMembersTable(allMembers, membersTableFull, memberSearchFull));
+
+  function openModal(u) {
+    selectedUser = u;
+    const n = u.displayName || u.name || u.email || 'Member';
+    modalName.textContent = n;
+    modalEmail.textContent = u.email || 'N/A';
+    modalRole.textContent = getMembership(u).toUpperCase();
+    modalStatus.textContent = getStatus(u).toUpperCase();
+    modalPayment.textContent = getPaymentStatus(u).toUpperCase();
+    modalJoined.textContent = formatJoined(u.createdAt);
+    modalAvatar.textContent = n[0].toUpperCase();
+    memberModal.classList.add('active');
+  }
+
+  function closeModalFunc() { selectedUser = null; memberModal.classList.remove('active'); }
+  closeModal?.addEventListener('click', closeModalFunc);
+  memberModal?.addEventListener('click', e => { if (e.target === memberModal) closeModalFunc(); });
+
+  async function updateSelectedUser(changes, text, confirmText = '') {
+    if (!selectedUser) return alert('No user selected.');
+    if (confirmText && !confirm(confirmText)) return;
+    try {
+      await updateDoc(doc(db, 'users', selectedUser.id), { ...changes, updatedAt: serverTimestamp() });
+      addActivity(text || `Updated ${selectedUser.email||'member'}`);
+      closeModalFunc();
+    } catch (e) { console.error(e); alert('Error updating member: ' + e.message); }
+  }
+
+  document.getElementById('memberBtn')?.addEventListener('click', () => updateSelectedUser({ role: 'member', membership: 'free' }, `Changed ${selectedUser?.email||'member'} to Member.`, `Move ${selectedUser?.email||'this member'} back to ordinary Member?`));
+  document.getElementById('premiumBtn')?.addEventListener('click', () => updateSelectedUser({ role: 'member', membership: 'premium' }, `Upgraded ${selectedUser?.email||'member'} to Premium.`, `Make ${selectedUser?.email||'this member'} a Premium member?`));
+  document.getElementById('adminBtn')?.addEventListener('click', () => updateSelectedUser({ role: 'admin', membership: 'premium' }, `Promoted ${selectedUser?.email||'member'} to Admin.`, `Give ${selectedUser?.email||'this member'} Admin access?`));
+  document.getElementById('approveBtn')?.addEventListener('click', () => updateSelectedUser({ status: 'active' }, `Activated ${selectedUser?.email||'member'}.`));
+  document.getElementById('suspendBtn')?.addEventListener('click', () => updateSelectedUser({ status: 'suspended' }, `Suspended ${selectedUser?.email||'member'}.`, `Suspend ${selectedUser?.email||'this member'}?`));
+  document.getElementById('paidBtn')?.addEventListener('click', () => updateSelectedUser({ paymentStatus: 'paid' }, `Marked ${selectedUser?.email||'member'} as Paid.`));
+  document.getElementById('unpaidBtn')?.addEventListener('click', () => updateSelectedUser({ paymentStatus: 'unpaid' }, `Marked ${selectedUser?.email||'member'} as Unpaid.`));
+  document.getElementById('deleteBtn')?.addEventListener('click', async () => {
+    if (!selectedUser) return;
+    const e = selectedUser.email || 'this member';
+    if (!confirm(`Permanently delete ${e}? This cannot be undone.`)) return;
+    try {
+      await deleteDoc(doc(db, 'users', selectedUser.id));
+      addActivity(`Deleted member ${e}`);
+      closeModalFunc();
+    } catch (err) { alert('Error deleting member: ' + err.message); }
+  });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  2. ACADEMY MODULES (Full)
+  // 2. ACADEMY MODULES (Full)
   // ═══════════════════════════════════════════════════════════════════════════
   const MODULES_COLLECTION = "academy_modules";
   function getSampleModules() {
@@ -741,7 +1148,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  3. PAYMENTS (Full)
+  // 3. PAYMENTS (Full)
   // ═══════════════════════════════════════════════════════════════════════════
   function listenPayments() {
     const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
@@ -801,7 +1208,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  4. VIDEOS (File Upload) – Full
+  // 4. VIDEOS (File Upload) – Full
   // ═══════════════════════════════════════════════════════════════════════════
   function listenVideos() {
     const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
@@ -882,7 +1289,7 @@
       btn.addEventListener('click', async function() {
         const id = this.dataset.id;
         if (confirm('Delete this video permanently?')) {
-          try { await deleteDoc(doc(db, "videos", id)); addActivity('Deleted a video.'); } 
+          try { await deleteDoc(doc(db, "videos", id)); addActivity('Deleted a video.'); }
           catch (e) { alert('Error deleting video.'); }
         }
       });
@@ -906,11 +1313,10 @@
       container.scrollIntoView({ behavior: 'smooth' });
     } else { container.style.display = 'none'; }
   });
-  document.getElementById('cancelVideoBtn')?.addEventListener('click', function() { 
-    document.getElementById('videoFormContainer').style.display = 'none'; 
+  document.getElementById('cancelVideoBtn')?.addEventListener('click', function() {
+    document.getElementById('videoFormContainer').style.display = 'none';
   });
 
-  // Video file preview
   document.getElementById('videoFilePicker')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -924,14 +1330,13 @@
     }
   });
 
-  // Thumbnail preview
   document.getElementById('videoThumbnailFile')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
       document.getElementById('thumbnailFileName').textContent = file.name;
-      const reader = new FileReader(); reader.onload = function(event) { 
-        document.getElementById('thumbnailPreviewImg').src = event.target.result; 
-        document.getElementById('thumbnailPreview').style.display = 'block'; 
+      const reader = new FileReader(); reader.onload = function(event) {
+        document.getElementById('thumbnailPreviewImg').src = event.target.result;
+        document.getElementById('thumbnailPreview').style.display = 'block';
       }; reader.readAsDataURL(file);
     } else {
       document.getElementById('thumbnailFileName').textContent = 'No file chosen';
@@ -939,120 +1344,9 @@
     }
   });
 
-  // VIDEO UPLOAD FEEDBACK
-  const videoUploadStatus = document.getElementById('videoUploadStatus');
-  const videoUploadStatusIcon = document.getElementById('videoUploadStatusIcon');
-  const videoUploadStatusText = document.getElementById('videoUploadStatusText');
-  const videoUploadStatusDetail = document.getElementById('videoUploadStatusDetail');
-  const saveVideoBtn = document.getElementById('saveVideoBtn');
-  let videoUploadTimer = null;
-  let videoUploadStartedAt = 0;
-
-  function setVideoUploadStatus(type, text, detail='') {
-    if (!videoUploadStatus) return;
-    videoUploadStatus.className = 'upload-status show' + (type === 'success' ? ' success' : type === 'error' ? ' error' : '');
-    if (videoUploadStatusIcon) videoUploadStatusIcon.className = type === 'success' ? 'fa-solid fa-circle-check' : type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-cloud-arrow-up';
-    if (videoUploadStatusText) videoUploadStatusText.textContent = text;
-    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = detail;
-  }
-  function clearVideoUploadStatus() {
-    if (videoUploadTimer) clearInterval(videoUploadTimer);
-    videoUploadTimer = null;
-    if (videoUploadStatus) videoUploadStatus.className = 'upload-status';
-    if (videoUploadStatusText) videoUploadStatusText.textContent = 'Ready to upload.';
-    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = '';
-  }
-  function formatElapsed(ms) {
-    const s=Math.max(0,Math.floor(ms/1000)), m=Math.floor(s/60), sec=s%60;
-    return m ? `${m}m ${String(sec).padStart(2,'0')}s` : `${sec}s`;
-  }
-  function startVideoUploadProgress(message, detail) {
-    videoUploadStartedAt=Date.now();
-    setVideoUploadStatus('working',message,detail);
-    if (videoUploadTimer) clearInterval(videoUploadTimer);
-    videoUploadTimer=setInterval(()=>{
-      if (videoUploadStatusDetail) videoUploadStatusDetail.textContent=`${detail} • Elapsed ${formatElapsed(Date.now()-videoUploadStartedAt)}`;
-    },1000);
-  }
-  function stopVideoUploadProgress() { if(videoUploadTimer) clearInterval(videoUploadTimer); videoUploadTimer=null; }
-
-  document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (saveVideoBtn?.disabled) return;
-
-    const id=document.getElementById('editingVideoId').value || 'vid-'+Date.now();
-    const title=document.getElementById('videoTitle').value.trim();
-    const category=document.getElementById('videoCategory').value;
-    const duration=document.getElementById('videoDuration').value.trim();
-    const premiumOnly=document.getElementById('videoPremiumOnly').checked;
-    const videoFile=document.getElementById('videoFilePicker').files[0];
-    const thumbFile=document.getElementById('videoThumbnailFile').files[0];
-    const existingVideoKey=document.getElementById('existingVideoKey').value;
-    const existingThumbKey=document.getElementById('existingThumbnailKey').value;
-    const isEditing=Boolean(document.getElementById('editingVideoId').value);
-
-    if(!title){ setVideoUploadStatus('error','Video title is required.','Enter a title and try again.'); return; }
-    if(!videoFile && !existingVideoKey){ setVideoUploadStatus('error','No video file selected.','Choose a video file before uploading.'); return; }
-
-    try {
-      if(saveVideoBtn){ saveVideoBtn.disabled=true; saveVideoBtn.classList.add('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Uploading...'; }
-      let videoKey=existingVideoKey;
-      let thumbnailKey=existingThumbKey;
-
-      if(videoFile){
-        const ext=(videoFile.name.split('.').pop()||'mp4').toLowerCase();
-        const safeTitle=title.replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'video';
-        videoKey=`videos/${Date.now()}_${safeTitle}.${ext}`;
-        const sizeMB=(videoFile.size/(1024*1024)).toFixed(1);
-        startVideoUploadProgress('Uploading video to Cloudflare R2...',`${videoFile.name} • ${sizeMB} MB`);
-        await uploadToR2(videoFile,videoKey);
-        document.getElementById('videoFileName').textContent='✅ Uploaded: '+videoFile.name;
-        setVideoUploadStatus('working','Video upload complete.','Preparing video record in Firestore...');
-      }
-
-      if(thumbFile){
-        const sizeMB=(thumbFile.size/(1024*1024)).toFixed(1);
-        startVideoUploadProgress('Uploading thumbnail to Cloudflare R2...',`${thumbFile.name} • ${sizeMB} MB`);
-        thumbnailKey=await uploadToR2(thumbFile,`thumbnails/${Date.now()}_${thumbFile.name}`);
-        document.getElementById('thumbnailFileName').textContent='✅ Uploaded: '+thumbFile.name;
-        document.getElementById('thumbnailPreview').style.display='none';
-      }
-
-      stopVideoUploadProgress();
-      setVideoUploadStatus('working','Saving video information...','Writing the video record to Firestore.');
-      const data={title,category,duration,premiumOnly,videoKey,thumbnailKey,updatedAt:serverTimestamp()};
-      if(!isEditing){ data.createdAt=serverTimestamp(); await addDoc(collection(db,'videos'),data); }
-      else { await updateDoc(doc(db,'videos',id),data); }
-
-      stopVideoUploadProgress();
-      setVideoUploadStatus('success',isEditing?'✅ Video updated successfully!':'✅ Video uploaded successfully!',`Cloudflare R2 + Firestore saved. Completed in ${formatElapsed(Date.now()-videoUploadStartedAt)}.`);
-      addActivity(isEditing?`Updated video "${title}"`:`Uploaded video "${title}"`);
-      document.getElementById('videoForm').reset();
-      document.getElementById('videoPreview').style.display='none';
-      document.getElementById('thumbnailPreview').style.display='none';
-      document.getElementById('videoFileName').textContent='No file chosen';
-      document.getElementById('thumbnailFileName').textContent='No file chosen';
-      document.getElementById('editingVideoId').value='';
-      document.getElementById('existingVideoKey').value='';
-      document.getElementById('existingThumbnailKey').value='';
-      document.getElementById('videoFormTitle').textContent='Upload Video File';
-      setTimeout(()=>{ document.getElementById('videoFormContainer').style.display='none'; clearVideoUploadStatus(); },1800);
-    } catch(error) {
-      stopVideoUploadProgress();
-      console.error('VIDEO UPLOAD ERROR:',error);
-      setVideoUploadStatus('error','❌ Video upload failed.',error?.message||'Unknown error. Check the browser console.');
-      addActivity(`Video upload failed: ${title||'Untitled video'}`);
-    } finally {
-      if(saveVideoBtn){ saveVideoBtn.disabled=false; saveVideoBtn.classList.remove('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-upload"></i> Upload Video'; }
-    }
-  });
-
   // ═══════════════════════════════════════════════════════════════════════════
-  //  5. RESOURCES — CLOUDFLARE R2 + FIRESTORE (FIXED)
+  // 5. RESOURCES — CLOUDFLARE R2 + FIRESTORE
   // ═══════════════════════════════════════════════════════════════════════════
-
-  // IMPORTANT: Resource uploads use a dedicated uploader here so this page
-  // does NOT depend on the old upload.js implementation for resources.
   const RESOURCE_R2_WORKER = "https://r2-uploader.davidthuku574.workers.dev";
 
   function resourceUploadToR2(file, key, onProgress) {
@@ -1080,7 +1374,6 @@
           reject(new Error(`Cloudflare R2 upload failed (${xhr.status}). ${xhr.responseText || ''}`));
           return;
         }
-
         let result;
         try {
           result = JSON.parse(xhr.responseText || '{}');
@@ -1088,16 +1381,13 @@
           reject(new Error('Cloudflare Worker returned an invalid JSON response.'));
           return;
         }
-
         if (!result.success) {
           reject(new Error(result.message || result.error || 'Cloudflare R2 upload failed.'));
           return;
         }
-
         const returnedKey = result.key || result.fileKey || key;
         resolve(returnedKey);
       };
-
       xhr.onerror = () => reject(new Error('Network/CORS error while uploading to Cloudflare R2.'));
       xhr.onabort = () => reject(new Error('Upload was cancelled.'));
       xhr.ontimeout = () => reject(new Error('Upload timed out.'));
@@ -1106,80 +1396,100 @@
     });
   }
 
-  function resetResourceForm() {
-    const form = document.getElementById('resourceForm');
-    if (form) form.reset();
-    const ids = ['editingResourceId'];
-    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    const fileName = document.getElementById('resourceFileName');
-    if (fileName) fileName.textContent = 'No file chosen';
-    if(document.getElementById('resourceCustomCategory')) document.getElementById('resourceCustomCategory').value='';
-    syncCustomResourceCategory();
-    const progress = document.getElementById('resourceUploadProgress');
-    const bar = document.getElementById('resourceUploadProgressBar');
-    const text = document.getElementById('resourceUploadProgressText');
-    if (progress) progress.style.display = 'none';
-    if (bar) bar.style.width = '0%';
-    if (text) text.textContent = 'Preparing upload...';
-  }
-
-  function setResourceUploadProgress(percent, message) {
-    const progress = document.getElementById('resourceUploadProgress');
-    const bar = document.getElementById('resourceUploadProgressBar');
-    const text = document.getElementById('resourceUploadProgressText');
-    if (progress) progress.style.display = 'block';
-    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
-    if (text) text.textContent = message || `Uploading ${percent}%...`;
-  }
-
   function listenResources() {
     const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'));
-
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('resourceTableBody');
       const overviewEl = document.getElementById('resourceOverview');
       if (!tbody) return;
-
       if (snapshot.empty) {
         tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr>`;
         if (overviewEl) overviewEl.textContent = '0';
         return;
       }
-
-      let html = '';
-      let count = 0;
-
+      let html = '', count = 0;
       snapshot.forEach(resourceDoc => {
         count++;
         const r = { id: resourceDoc.id, ...resourceDoc.data() };
         const key = r.fileKey || r.resourceKey || r.r2Key || '';
-        const safeTitle = String(r.title || 'Untitled Resource');
-        const safeDescription = String(r.description || '');
-        const safeCategory = String(r.category || 'PDF');
-
         html += `
           <tr>
+            <td><strong>${r.title}</strong><br><small style="color:#9aa4bf;">${r.description || ''}</small></td>
+            <td>${r.category || 'PDF'}</td>
+            <td><span class="badge ${r.premiumOnly ? 'premium' : 'free'}">${r.premiumOnly ? 'Premium' : 'Free'}</span> ${key ? `<button class="btn-view-proof download-resource-btn" data-key="${key}">Download</button>` : ''}</td>
             <td>
-              <strong>${safeTitle}</strong><br>
-              <small style="color:#9aa4bf;">${safeDescription}</small>
-            </td>
-            <td>${safeCategory}</td>
-            <td>
-              <span class="badge ${r.premiumOnly ? 'premium' : 'free'}">
-                ${r.premiumOnly ? 'Premium' : 'Free'}
-              </span>
-              ${key ? `<button class="btn-view-proof download-resource-btn" data-key="${key}">Download</button>` : ' — '}
-            </td>
-            <td>
-              <button class="manage-btn edit-resource" data-id="${r.id}">
-                <i class="fa-solid fa-pen"></i> Edit
-              </button>
+              <button class="manage-btn edit-resource" data-id="${r.id}"><i class="fa-solid fa-pen"></i> Edit</button>
               <button class="manage-btn toggle-resource" data-id="${r.id}" style="color:var(--gold);border-color:var(--gold);">
                 <i class="fa-solid fa-${r.premiumOnly ? 'lock' : 'unlock'}"></i>
                 ${r.premiumOnly ? 'Make Free' : 'Make Premium'}
               </button>
-              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);">
-                <i class="fa-solid fa-trash"></i> Delete
+              <button class="manage-btn delete-resource" data-id="${r.id}" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+      if (overviewEl) overviewEl.textContent = String(count);
+    });
+  }
+
+  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
+    const container = document.getElementById('resourceFormContainer');
+    if (!container) return;
+    if (container.style.display === 'none' || !container.style.display) {
+      container.style.display = 'block';
+      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
+      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
+      container.style.display = 'block';
+      container.scrollIntoView({ behavior: 'smooth' });
+    } else { container.style.display = 'none'; }
+  });
+
+  document.getElementById('cancelResourceBtn')?.addEventListener('click', function() {
+    document.getElementById('resourceFormContainer').style.display = 'none';
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 6. TRADES MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════════════════
+  function listenTrades() {
+    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const tbody = document.getElementById('tradesTableBody');
+      const countEl = document.getElementById('tradeCount');
+      let total = 0;
+
+      if (snapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No trades found.</div></td></tr>`;
+        if (countEl) countEl.textContent = '0 trades';
+        return;
+      }
+
+      let html = '';
+      snapshot.forEach(doc => {
+        const t = { id: doc.id, ...doc.data() };
+        total++;
+        const isPublic = t.public === true;
+        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.date || t.createdAt || '—';
+        const rr = Number(t.rr) || 0;
+        const statusDisplay = t.status || 'Pending';
+        const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
+
+        html += `
+          <tr>
+            <td><strong>${t.pair || '??'}</strong></td>
+            <td>${t.direction || '—'}</td>
+            <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
+            <td>${dateStr}</td>
+            <td><span class="badge ${statusBadge}">${statusDisplay}</span></td>
+            <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
+            <td>
+              <button class="manage-btn toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}"
+                      data-id="${t.id}"
+                      data-public="${isPublic}"
+                      style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
+                <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
+                ${isPublic ? 'Hide' : 'Show'}
               </button>
             </td>
           </tr>
@@ -1187,238 +1497,38 @@
       });
 
       tbody.innerHTML = html;
-      if (overviewEl) overviewEl.textContent = String(count);
+      if (countEl) countEl.textContent = `${total} trades`;
 
-      document.querySelectorAll('.download-resource-btn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const key = this.dataset.key;
-          if (!key) return alert('This resource has no R2 file key.');
+      document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const tradeId = this.dataset.id;
+          const currentPublic = this.dataset.public === 'true';
+          const newPublic = !currentPublic;
+          const originalHTML = this.innerHTML;
+
+          this.disabled = true;
+          this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
           try {
-            const url = await getDownloadUrl(key);
-            if (!url) throw new Error('No download URL was returned.');
-            window.open(url, '_blank', 'noopener,noreferrer');
+            await updateDoc(doc(db, "trades", tradeId), { public: newPublic });
+            addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
           } catch (error) {
-            console.error('RESOURCE DOWNLOAD ERROR:', error);
-            alert('Download failed: ' + error.message);
-          }
-        });
-      });
-
-      document.querySelectorAll('.edit-resource').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.dataset.id;
-          try {
-            const snap = await getDoc(doc(db, 'resources', id));
-            if (!snap.exists()) return alert('Resource no longer exists.');
-
-            const data = snap.data();
-            document.getElementById('editingResourceId').value = id;
-            document.getElementById('resourceTitle').value = data.title || '';
-            const known=['PDF','Indicator','Journal','Strategy','Video','General'];
-            document.getElementById('resourceCategory').value=known.includes(data.category)?data.category:'Other';
-            document.getElementById('resourceCustomCategory').value=known.includes(data.category)?'':(data.category||'');
-            syncCustomResourceCategory();
-            document.getElementById('resourceDescription').value = data.description || '';
-            document.getElementById('premiumOnly').checked = data.premiumOnly === true;
-            document.getElementById('resourceFileName').textContent =
-              data.fileKey || data.resourceKey || data.r2Key ? 'Existing file saved — choose a new file only if replacing it.' : 'No file chosen';
-            document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
-            document.getElementById('saveResourceBtn').textContent = 'Update Resource';
-            document.getElementById('resourceFormContainer').style.display = 'block';
-            document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
-          } catch (error) {
-            console.error('RESOURCE EDIT ERROR:', error);
-            alert('Error loading resource: ' + error.message);
-          }
-        });
-      });
-
-      document.querySelectorAll('.delete-resource').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.dataset.id;
-          if (!confirm('Delete this resource record?')) return;
-          try {
-            await deleteDoc(doc(db, 'resources', id));
-            addActivity('Deleted a resource.');
-          } catch (error) {
-            console.error('RESOURCE DELETE ERROR:', error);
-            alert('Error deleting resource: ' + error.message);
-          }
-        });
-      });
-
-      document.querySelectorAll('.toggle-resource').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const id = this.dataset.id;
-          try {
-            const snap = await getDoc(doc(db, 'resources', id));
-            if (!snap.exists()) return;
-            const current = snap.data().premiumOnly === true;
-            await updateDoc(doc(db, 'resources', id), {
-              premiumOnly: !current,
-              updatedAt: serverTimestamp()
-            });
-            addActivity(`Changed resource access to ${!current ? 'Premium' : 'Free'}.`);
-          } catch (error) {
-            console.error('RESOURCE STATUS ERROR:', error);
-            alert('Error updating status: ' + error.message);
+            console.error("Toggle error:", error);
+            alert('Failed to update trade status.');
+            this.innerHTML = originalHTML;
+            this.disabled = false;
           }
         });
       });
     }, (error) => {
-      console.error('RESOURCE LISTENER ERROR:', error);
-      const tbody = document.getElementById('resourceTableBody');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">Unable to load resources: ${error.message}</div></td></tr>`;
+      console.error("TRADES LISTENER ERROR:", error);
+      const tbody = document.getElementById('tradesTableBody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
     });
   }
 
-  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function () {
-    const container = document.getElementById('resourceFormContainer');
-    if (!container) return;
-
-    if (container.style.display === 'none' || !container.style.display) {
-      container.style.display = 'block';
-      document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
-      document.getElementById('saveResourceBtn').textContent = 'Save Resource';
-      resetResourceForm();
-      container.style.display = 'block';
-      container.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      container.style.display = 'none';
-    }
-  });
-
-  document.getElementById('cancelResourceBtn')?.addEventListener('click', function () {
-    document.getElementById('resourceFormContainer').style.display = 'none';
-    resetResourceForm();
-  });
-
-  const resourceCategorySelect=document.getElementById('resourceCategory');
-  const resourceCustomCategory=document.getElementById('resourceCustomCategory');
-  function syncCustomResourceCategory(){if(!resourceCategorySelect||!resourceCustomCategory)return;const custom=resourceCategorySelect.value==='Other';resourceCustomCategory.style.display=custom?'block':'none';resourceCustomCategory.required=custom;if(!custom)resourceCustomCategory.value='';}
-  resourceCategorySelect?.addEventListener('change',syncCustomResourceCategory);syncCustomResourceCategory();
-
-  document.getElementById('resourceFilePicker')?.addEventListener('change', function () {
-    const file = this.files?.[0];
-    const fileNameEl = document.getElementById('resourceFileName');
-    if (!file) {
-      if (fileNameEl) fileNameEl.textContent = 'No file chosen';
-      return;
-    }
-    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-    if (fileNameEl) fileNameEl.textContent = `${file.name} — ${sizeMB} MB`;
-  });
-
-  document.getElementById('resourceForm')?.addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const form = this;
-    if (form.dataset.uploading === 'true') return;
-
-    const saveButton = document.getElementById('saveResourceBtn');
-    const filePicker = document.getElementById('resourceFilePicker');
-    const editingId = document.getElementById('editingResourceId').value.trim();
-    const title = document.getElementById('resourceTitle').value.trim();
-    const selectedCategory = document.getElementById('resourceCategory').value || 'PDF';
-    const customCategory = document.getElementById('resourceCustomCategory')?.value.trim() || '';
-    const category = selectedCategory === 'Other' ? customCategory : selectedCategory;
-    if (selectedCategory === 'Other' && !customCategory) return alert('Please enter a custom resource category.');
-    const description = document.getElementById('resourceDescription').value.trim();
-    const premiumOnly = document.getElementById('premiumOnly').checked;
-    const file = filePicker?.files?.[0] || null;
-
-    if (!title) return alert('Please enter a resource title.');
-    if (!editingId && !file) return alert('Please choose a file to upload.');
-
-    form.dataset.uploading = 'true';
-    if (saveButton) {
-      saveButton.disabled = true;
-      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
-    }
-
-    try {
-      let fileKey = null;
-      let oldData = null;
-
-      // Editing: keep the existing R2 key when no new file was selected.
-      if (editingId) {
-        const existingSnap = await getDoc(doc(db, 'resources', editingId));
-        if (!existingSnap.exists()) throw new Error('Resource no longer exists.');
-        oldData = existingSnap.data();
-        fileKey = oldData.fileKey || oldData.resourceKey || oldData.r2Key || null;
-      }
-
-      // New file: upload FIRST, then write Firestore.
-      if (file) {
-        const originalName = file.name || 'resource';
-        const safeName = originalName
-          .replace(/[^a-zA-Z0-9._-]/g, '_')
-          .replace(/_+/g, '_');
-        const safeCategory = String(category)
-          .replace(/[^a-zA-Z0-9_-]/g, '_')
-          .toLowerCase();
-        const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
-
-        setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);
-
-        fileKey = await resourceUploadToR2(file, key, (percent) => {
-          setResourceUploadProgress(percent, `Uploading ${percent}% — ${originalName}`);
-        });
-
-        if (!fileKey) throw new Error('Cloudflare R2 did not return a file key.');
-        setResourceUploadProgress(100, 'Upload complete — saving resource information...');
-      }
-
-      if (!fileKey) {
-        throw new Error('No R2 file key is available for this resource.');
-      }
-
-      const data = {
-        title,
-        category,
-        description,
-        premiumOnly,
-        fileKey,
-        resourceKey: fileKey,
-        r2Key: fileKey,
-        fileName: file?.name || oldData?.fileName || fileKey.split('/').pop(),
-        type: file?.type || oldData?.type || category,
-        updatedAt: serverTimestamp()
-      };
-
-      if (editingId) {
-        await updateDoc(doc(db, 'resources', editingId), data);
-        addActivity(`Updated resource "${title}"`);
-      } else {
-        data.createdAt = serverTimestamp();
-        const created = await addDoc(collection(db, 'resources'), data);
-        console.log('RESOURCE CREATED:', created.id, data);
-        addActivity(`Uploaded resource "${title}"`);
-      }
-
-      setResourceUploadProgress(100, '100% — Resource saved successfully.');
-      alert(editingId ? '✅ Resource updated successfully!' : '✅ Resource uploaded to Cloudflare R2 successfully!');
-
-      setTimeout(() => {
-        document.getElementById('resourceFormContainer').style.display = 'none';
-        resetResourceForm();
-      }, 700);
-
-    } catch (error) {
-      console.error('RESOURCE UPLOAD ERROR:', error);
-      setResourceUploadProgress(0, '❌ Upload failed.');
-      alert('❌ Resource upload failed:\n\n' + (error?.message || error));
-    } finally {
-      form.dataset.uploading = 'false';
-      if (saveButton) {
-        saveButton.disabled = false;
-        saveButton.innerHTML = editingId ? 'Update Resource' : 'Save Resource';
-      }
-    }
-  });
-
   // ═══════════════════════════════════════════════════════════════════════════
-  //  6. INIT
+  // 7. INIT
   // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -1427,12 +1537,13 @@
       listenPayments();
       listenVideos();
       listenResources();
+      listenTrades();
     } else {
       window.location.href = "/login";
     }
   });
 
-  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Video Upload) – All features included.');
+  console.log('✅ GTRADES AXIS Admin – Tabbed interface with all data preserved.');
 </script>
 </body>
 </html>
