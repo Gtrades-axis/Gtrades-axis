@@ -40,11 +40,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   
   <style>
-    /* ------------------------------------------------------------
-       ALL YOUR EXISTING STYLES – KEEP THEM AS IS
-       (I'm including a minimal set here for brevity, but you can
-       copy your existing styles – they are long and unchanged)
-    ------------------------------------------------------------ */
+    /* ===== YOUR EXISTING STYLES – UNCHANGED ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -294,7 +290,6 @@
 
     .video-preview { margin-top: 10px; max-width: 300px; }
     .video-preview video { width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
-    /* VIDEO UPLOAD FEEDBACK */
     .upload-status { display:none; margin-top:14px; padding:14px 16px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-primary); }
     .upload-status.show { display:block; }
     .upload-status-row { display:flex; align-items:center; gap:10px; font-size:.82rem; font-weight:600; }
@@ -324,10 +319,8 @@
       <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
       <li><a href="#videos"><i class="fa-solid fa-video"></i> Videos</a></li>
       <li><a href="#trades"><i class="fa-solid fa-chart-simple"></i> Trades</a></li>
-      <li><a href="/admin-payments" class="sidebar-link">
-    <i class="fa-solid fa-credit-card"></i>
-    <span>Payments</span>
-</a>
+      <li><a href="/admin-payments" class="sidebar-link"><i class="fa-solid fa-credit-card"></i> Payments</a></li>
+    </ul>
   </nav>
   <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
 </aside>
@@ -346,7 +339,6 @@
     <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-graduation-cap"></i></div><div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div></div>
     <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-video"></i></div><div><h2 id="videoCount">0</h2><p>Videos</p></div></div>
     <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-clock"></i></div><div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div></div>
-    <!-- New stat: Public Trades -->
     <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-chart-simple"></i></div><div><h2 id="publicTradesCount">0</h2><p>Public Trades</p></div></div>
   </section>
 
@@ -375,12 +367,8 @@
   <!-- ========================================================== ACADEMY MANAGER -->
   <section class="manager-section" id="academy">
     <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2><p>Manage all academy modules.</p></div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
-          <button id="addSampleModulesBtn" class="manage-btn" style="background:var(--gold);color:#0b0d15;border:none;padding:8px 20px;"><i class="fa-solid fa-copy"></i> Add Samples</button>
-        </div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-graduation-cap"></i> Academy Module Manager</h2></div>
+        <button id="toggleModuleFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Module</button>
       </div>
       <div id="moduleListContainer"><div class="table-container"><table class="members-table" id="moduleTable"><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody id="moduleTableBody"><tr><td colspan="4"><div class="empty-card">Loading modules...</div></td></tr></tbody></table></div></div>
       <div id="moduleFormContainer" style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px;">
@@ -405,33 +393,22 @@
   <section class="manager-section" id="payments">
     <div class="dashboard-card">
       <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
-      <div class="payments-stats">
-        <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
-        <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
-        <div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div>
-      </div>
-      <div class="table-container">
-        <table class="members-table" id="paymentsTable">
-          <thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody>
-        </table>
-      </div>
+      <div class="payments-stats"><div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div><div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div><div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div></div>
+      <div class="table-container"><table class="members-table" id="paymentsTable"><thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead><tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody></table></div>
     </div>
   </section>
 
-  <!-- ========================================================== TRADES MANAGER (NEW) -->
+  <!-- ========================================================== TRADES MANAGER (FIXED) -->
   <section class="manager-section" id="trades">
     <div class="dashboard-card">
       <div class="card-header">
         <div><h2><i class="fa-solid fa-chart-simple"></i> Manage Trades (Public/Private)</h2><p>Toggle trades to show on the homepage feed.</p></div>
-        <div>
-          <span id="tradeCount" style="color:var(--text-secondary);font-size:0.85rem;">0 trades</span>
-        </div>
+        <div><span id="tradeCount" style="color:var(--text-secondary);font-size:0.85rem;">0 trades</span></div>
       </div>
       <div class="table-container">
         <table class="members-table" id="tradesTable">
-          <thead><tr><th>Pair</th><th>Direction</th><th>RR</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="tradesTableBody"><tr><td colspan="6"><div class="empty-card">Loading trades...</div></td></tr></tbody>
+          <thead><tr><th>Pair</th><th>Direction</th><th>RR</th><th>Date</th><th>Status</th><th>Public</th><th>Actions</th></tr></thead>
+          <tbody id="tradesTableBody"><tr><td colspan="7"><div class="empty-card">Loading trades...</div></td></tr></tbody>
         </table>
       </div>
     </div>
@@ -440,8 +417,7 @@
   <!-- ========================================================== VIDEO MANAGER -->
   <section class="manager-section" id="videos">
     <div class="dashboard-card">
-      <div class="card-header">
-        <div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Upload video files (MP4, MOV, etc.) to Cloudflare R2.</p></div>
+      <div class="card-header"><div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Upload video files (MP4, MOV, etc.) to Cloudflare R2.</p></div>
         <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;"><i class="fa-solid fa-plus"></i> Add Video</button>
       </div>
       <div id="videoListContainer"><div class="table-container"><table class="members-table" id="videoTable"><thead><tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead><tbody id="videoTableBody"><tr><td colspan="6"><div class="empty-card">No videos yet. Upload one above!</div></td></tr></tbody></table></div></div>
@@ -451,28 +427,11 @@
           <div class="full-width"><label>Video Title</label><input type="text" id="videoTitle" placeholder="e.g. Market Structure Basics" required /></div>
           <div><label>Category</label><select id="videoCategory"><option value="Market Structure">Market Structure</option><option value="Supply & Demand">Supply & Demand</option><option value="Liquidity">Liquidity</option><option value="Entries">Entries</option><option value="Psychology">Psychology</option></select></div>
           <div><label>Duration</label><input type="text" id="videoDuration" placeholder="e.g. 12:45" /></div>
-          <div class="full-width"><label>Video File (MP4, MOV, AVI, etc.)</label>
-            <div class="file-picker">
-              <input type="file" id="videoFilePicker" accept="video/*" required />
-              <div class="file-name" id="videoFileName">No file chosen</div>
-              <div class="video-preview" id="videoPreview" style="display:none;"><video id="videoPreviewEl" controls style="width:100%; max-height:200px;"></video></div>
-            </div>
-            <small style="color:var(--text-secondary);">Select a video file from your device. It will be uploaded to Cloudflare R2.</small>
-          </div>
-          <div class="full-width"><label>Thumbnail Image (Optional)</label>
-            <div class="file-picker">
-              <input type="file" id="videoThumbnailFile" accept="image/*" />
-              <div class="file-name" id="thumbnailFileName">No file chosen</div>
-              <div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div>
-            </div>
-          </div>
+          <div class="full-width"><label>Video File (MP4, MOV, AVI, etc.)</label><div class="file-picker"><input type="file" id="videoFilePicker" accept="video/*" required /><div class="file-name" id="videoFileName">No file chosen</div><div class="video-preview" id="videoPreview" style="display:none;"><video id="videoPreviewEl" controls style="width:100%; max-height:200px;"></video></div></div><small style="color:var(--text-secondary);">Select a video file from your device. It will be uploaded to Cloudflare R2.</small></div>
+          <div class="full-width"><label>Thumbnail Image (Optional)</label><div class="file-picker"><input type="file" id="videoThumbnailFile" accept="image/*" /><div class="file-name" id="thumbnailFileName">No file chosen</div><div id="thumbnailPreview" style="margin-top:8px; max-width:150px; display:none;"><img id="thumbnailPreviewImg" style="width:100%; border-radius:8px; border:1px solid var(--border-color);" /></div></div></div>
           <div class="checkbox-group full-width"><input type="checkbox" id="videoPremiumOnly" /><label>Premium Only</label></div>
           <div class="form-actions"><button type="submit" class="save-btn" id="saveVideoBtn"><i class="fa-solid fa-upload"></i> Upload Video</button><button type="button" class="cancel-btn" id="cancelVideoBtn">Cancel</button></div>
-          <div id="videoUploadStatus" class="upload-status" aria-live="polite">
-            <div class="upload-status-row"><i id="videoUploadStatusIcon" class="fa-solid fa-cloud-arrow-up"></i><span id="videoUploadStatusText">Ready to upload.</span></div>
-            <div id="videoUploadStatusDetail" class="upload-status-detail"></div>
-            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
-          </div>
+          <div id="videoUploadStatus" class="upload-status"><div class="upload-status-row"><i id="videoUploadStatusIcon" class="fa-solid fa-cloud-arrow-up"></i><span id="videoUploadStatusText">Ready to upload.</span></div><div id="videoUploadStatusDetail" class="upload-status-detail"></div><div class="upload-progress"><div class="upload-progress-bar"></div></div></div>
           <input type="hidden" id="editingVideoId" />
           <input type="hidden" id="existingVideoKey" />
           <input type="hidden" id="existingThumbnailKey" />
@@ -495,14 +454,7 @@
           <div><label>Category</label><select id="resourceCategory"><option value="PDF">PDF</option><option value="Indicator">Indicator</option><option value="Journal">Journal</option><option value="Strategy">Strategy</option><option value="Video">Video</option><option value="General">General</option><option value="Other">Other / Custom</option></select><input type="text" id="resourceCustomCategory" placeholder="Enter custom category" style="display:none;margin-top:8px;" maxlength="50" /></div>
           <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
           <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
-          <div id="resourceUploadProgress" style="display:none;margin:14px 0;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
-            <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#94a3b8;font-size:13px;">
-              <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
-            </div>
-            <div style="width:100%;height:8px;background:#172033;border-radius:20px;overflow:hidden;">
-              <div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div>
-            </div>
-          </div>
+          <div id="resourceUploadProgress" style="display:none;margin:14px 0;padding:14px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;"><div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#94a3b8;font-size:13px;"><span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span></div><div style="width:100%;height:8px;background:#172033;border-radius:20px;overflow:hidden;"><div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div></div></div>
           <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
           <div class="form-actions"><button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button><button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button></div>
           <input type="hidden" id="editingResourceId" />
@@ -520,30 +472,15 @@
     <button class="close-modal" id="closeModal">&times;</button>
     <h2><i class="fa-solid fa-user"></i> Member Details</h2>
     <div class="member-profile"><div class="member-avatar" id="memberAvatar">U</div><div><h3 id="modalName">Member Name</h3><p id="modalEmail">member@email.com</p></div></div>
-    <div class="member-details">
-      <div class="detail-box"><label>Membership</label><span id="modalRole">MEMBER</span></div>
-      <div class="detail-box"><label>Status</label><span id="modalStatus">PENDING</span></div>
-      <div class="detail-box"><label>Payment</label><span id="modalPayment">UNPAID</span></div>
-      <div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div>
-    </div>
-    <div class="modal-control-group"><h4><i class="fa-solid fa-crown"></i> Membership</h4><div class="modal-actions">
-      <button id="memberBtn" class="member-btn"><i class="fa-solid fa-user"></i> Member</button>
-      <button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button>
-      <button id="adminBtn" class="admin-btn"><i class="fa-solid fa-shield-halved"></i> Admin</button>
-    </div></div>
-    <div class="modal-control-group"><h4><i class="fa-solid fa-user-check"></i> Status</h4><div class="modal-actions">
-      <button id="approveBtn" class="approve-btn"><i class="fa-solid fa-check"></i> Activate</button>
-      <button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button>
-    </div></div>
-    <div class="modal-control-group"><h4><i class="fa-solid fa-money-bill-wave"></i> Payment</h4><div class="modal-actions">
-      <button id="paidBtn" class="paid-btn"><i class="fa-solid fa-check-circle"></i> Paid</button>
-      <button id="unpaidBtn" class="unpaid-btn"><i class="fa-solid fa-circle-xmark"></i> Unpaid</button>
-    </div></div>
+    <div class="member-details"><div class="detail-box"><label>Membership</label><span id="modalRole">MEMBER</span></div><div class="detail-box"><label>Status</label><span id="modalStatus">PENDING</span></div><div class="detail-box"><label>Payment</label><span id="modalPayment">UNPAID</span></div><div class="detail-box"><label>Joined</label><span id="modalJoined">--</span></div></div>
+    <div class="modal-control-group"><h4><i class="fa-solid fa-crown"></i> Membership</h4><div class="modal-actions"><button id="memberBtn" class="member-btn"><i class="fa-solid fa-user"></i> Member</button><button id="premiumBtn" class="premium-btn"><i class="fa-solid fa-crown"></i> Premium</button><button id="adminBtn" class="admin-btn"><i class="fa-solid fa-shield-halved"></i> Admin</button></div></div>
+    <div class="modal-control-group"><h4><i class="fa-solid fa-user-check"></i> Status</h4><div class="modal-actions"><button id="approveBtn" class="approve-btn"><i class="fa-solid fa-check"></i> Activate</button><button id="suspendBtn" class="suspend-btn"><i class="fa-solid fa-ban"></i> Suspend</button></div></div>
+    <div class="modal-control-group"><h4><i class="fa-solid fa-money-bill-wave"></i> Payment</h4><div class="modal-actions"><button id="paidBtn" class="paid-btn"><i class="fa-solid fa-check-circle"></i> Paid</button><button id="unpaidBtn" class="unpaid-btn"><i class="fa-solid fa-circle-xmark"></i> Unpaid</button></div></div>
     <div class="modal-danger"><button id="deleteBtn" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete Member</button></div>
   </div>
 </div>
 
-<!-- ========================================================== SCRIPTS (ALL FEATURES) -->
+<!-- ========================================================== SCRIPTS -->
 <script type="importmap">
 {
   "imports": {
@@ -1385,8 +1322,6 @@
           .replace(/^\/+|\/+$/g, '')
           .replace(/_+/g, '_')
           .toLowerCase() || 'general';
-        // Always generate a valid R2 object key. Never pass a local/Firebase
-        // storage path here. R2 keys use forward slashes only as prefixes.
         const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
 
         setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);
@@ -1448,10 +1383,11 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  6. TRADES MANAGEMENT (NEW)
+  //  6. TRADES MANAGEMENT (FIXED – SHOWS ALL TRADES)
   // ═══════════════════════════════════════════════════════════════════════════
   function listenTrades() {
-    const q = query(collection(db, "trades"), where("status", "==", "Closed"), orderBy("closed", "desc"));
+    // 🔥 FIXED: Show ALL trades, sorted by createdAt (no status filter)
+    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
       const tbody = document.getElementById('tradesTableBody');
       const countEl = document.getElementById('tradeCount');
@@ -1460,7 +1396,7 @@
       let total = 0, publicCount = 0;
 
       if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">No closed trades found.</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No trades found.</div></td></tr>`;
         if (countEl) countEl.textContent = '0 trades';
         if (publicCountEl) publicCountEl.textContent = '0';
         if (publicOverviewEl) publicOverviewEl.textContent = '0';
@@ -1473,14 +1409,16 @@
         total++;
         if (t.public === true) publicCount++;
         const isPublic = t.public === true;
-        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.closed || t.date || '—';
+        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.date || t.createdAt || '—';
         const rr = Number(t.rr) || 0;
+        const statusDisplay = t.status || 'Pending';
         html += `
           <tr>
             <td><strong>${t.pair || '??'}</strong></td>
             <td>${t.direction || '—'}</td>
             <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
             <td>${dateStr}</td>
+            <td><span class="badge ${statusDisplay === 'Closed' ? 'published' : 'pending'}">${statusDisplay}</span></td>
             <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
             <td>
               <button class="manage-btn toggle-trade-public" data-id="${t.id}" data-public="${isPublic}" style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
@@ -1497,17 +1435,16 @@
       if (publicCountEl) publicCountEl.textContent = publicCount;
       if (publicOverviewEl) publicOverviewEl.textContent = publicCount;
 
-      // Toggle logic
+      // Attach toggle listeners
       document.querySelectorAll('.toggle-trade-public').forEach(btn => {
         btn.addEventListener('click', async function() {
           const tradeId = this.dataset.id;
           const currentPublic = this.dataset.public === 'true';
           const newPublic = !currentPublic;
-
           try {
             await updateDoc(doc(db, "trades", tradeId), { public: newPublic });
             addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
-            // The snapshot will refresh automatically
+            // Snapshot auto-refreshes
           } catch (error) {
             console.error("Error toggling trade public status:", error);
             alert("Failed to update trade status. Check console.");
@@ -1517,7 +1454,7 @@
     }, (error) => {
       console.error("TRADES LISTENER ERROR:", error);
       const tbody = document.getElementById('tradesTableBody');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
     });
   }
 
@@ -1531,13 +1468,13 @@
       listenPayments();
       listenVideos();
       listenResources();
-      listenTrades(); // NEW
+      listenTrades(); // Fixed – now shows all trades
     } else {
       window.location.href = "/login";
     }
   });
 
-  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Video Upload) + Trade Management – All features included.');
+  console.log('✅ GTRADES AXIS Admin – All features included (Trades fixed).');
 </script>
 </body>
 </html>
