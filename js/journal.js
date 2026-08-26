@@ -1,6 +1,6 @@
 /* ============================================================
    GTRADES-AXIS™
-   TRADING JOURNAL – FIRESTORE + LOCALSTORAGE SYNC
+   TRADING JOURNAL – FIRESTORE SYNC (FIXED)
    ============================================================ */
 
 import { auth, db } from "./firebase.js";
@@ -47,6 +47,7 @@ function initJournal() {
 
   // ---- Flag to avoid duplicate Firestore writes ----
   let isSavingToFirestore = false;
+  let syncQueue = [];
 
   /* ==========================================================
      HELPERS
@@ -249,41 +250,72 @@ function initJournal() {
     }
   }
 
-  function saveTrades() {
-    // 1. Save to localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-    console.log("💾 Saved trades to localStorage:", trades.length);
-
-    // 2. Sync to Firestore (only if user is logged in)
+  // ---- Core sync function ----
+  async function syncTradesToFirestore(tradesToSync) {
     const user = auth.currentUser;
     if (!user) {
-      console.warn("No user logged in – skipping Firestore sync.");
+      console.warn("No user logged in – cannot sync to Firestore.");
+      // Queue the sync for later when user logs in
+      if (tradesToSync) {
+        syncQueue = tradesToSync;
+      }
       return;
     }
 
     if (isSavingToFirestore) return;
     isSavingToFirestore = true;
 
-    const promises = trades.map(async (trade) => {
+    const list = tradesToSync || trades;
+    const promises = list.map(async (trade) => {
       try {
         const tradeRef = doc(db, "trades", trade.id);
         const data = { ...trade };
         if (data.public === undefined) data.public = false;
         data.updatedAt = new Date().toISOString();
         if (!data.createdAt) data.createdAt = data.updatedAt;
+        if (!data.userId) data.userId = user.uid;
         await setDoc(tradeRef, data, { merge: true });
+        return true;
       } catch (error) {
-        console.error("Failed to sync trade to Firestore:", error);
+        console.error("Failed to sync trade to Firestore:", trade.id, error);
+        return false;
       }
     });
 
-    Promise.all(promises).then(() => {
-      isSavingToFirestore = false;
-    }).catch((error) => {
+    try {
+      const results = await Promise.all(promises);
+      const count = results.filter(r => r === true).length;
+      console.log(`✅ Synced ${count}/${list.length} trades to Firestore.`);
+    } catch (error) {
       console.error("Firestore sync error:", error);
+    } finally {
       isSavingToFirestore = false;
-    });
+      // If there are queued trades, process them
+      if (syncQueue.length > 0 && auth.currentUser) {
+        const queue = syncQueue;
+        syncQueue = [];
+        await syncTradesToFirestore(queue);
+      }
+    }
   }
+
+  function saveTrades() {
+    // 1. Save to localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+    console.log("💾 Saved trades to localStorage:", trades.length);
+
+    // 2. Sync to Firestore (async)
+    syncTradesToFirestore(trades);
+  }
+
+  // ---- Retry sync when user logs in ----
+  onAuthStateChanged(auth, (user) => {
+    if (user && syncQueue.length > 0) {
+      const queue = syncQueue;
+      syncQueue = [];
+      syncTradesToFirestore(queue);
+    }
+  });
 
 
   /* ==========================================================
@@ -503,7 +535,7 @@ function initJournal() {
 
     return {
       id: tradeId,
-      userId: auth.currentUser?.uid || '',   // ← ADDED: user ID for ownership
+      userId: auth.currentUser?.uid || '',
       accountId,
       account: account ? account.name : "",
       date: tradeDate,
@@ -574,7 +606,7 @@ function initJournal() {
         refined: document.getElementById("confRefined")?.checked || false,
         extreme: document.getElementById("confExtreme")?.checked || false
       },
-      public: false,   // ← default: not public
+      public: false,
       updatedAt: new Date().toISOString(),
       createdAt: (isUpdate && editingTrade) ? editingTrade.createdAt : new Date().toISOString()
     };
@@ -944,31 +976,331 @@ function initJournal() {
   function refreshUI() {
     loadAccounts();
     loadTrades();
-    calculateStatistics();   // Defined below
-    loadRecentTrades();      // Defined below
-    initializeCharts();      // Defined below
-    updateAccountPanel();    // Defined below
+    calculateStatistics();
+    loadRecentTrades();
+    initializeCharts();
+    updateAccountPanel();
   }
 
 
   /* ==========================================================
-     STATISTICS (summary) – placeholders (keep your existing)
+     STATISTICS (summary)
   ========================================================== */
 
-  // I'm including minimal versions here; your actual code already has these.
-  // They are not the focus of this update.
   function calculateStatistics() {
-    // Your existing stats calculation
-    console.log("Stats updated (placeholder)");
+    const filtered = getFilteredTrades();
+    const closed = filtered.filter(t => t.status === "Closed");
+    const wins = closed.filter(t => t.result === "Win");
+    const losses = closed.filter(t => t.result === "Loss");
+    const pending = filtered.filter(t => t.status === "Pending" || t.result === "Pending");
+
+    const totalTrades = filtered.length;
+    const totalWins = wins.length;
+    const totalLosses = losses.length;
+    const winRate = closed.length === 0 ? 0 : (totalWins / closed.length) * 100;
+
+    const netProfit = closed.reduce((sum, t) => sum + (Number(t.profit) || 0) - (Number(t.commission) || 0), 0);
+    const grossProfit = wins.reduce((sum, t) => sum + Math.max(Number(t.profit) || 0, 0), 0);
+    const grossLoss = losses.reduce((sum, t) => sum + Math.abs(Math.min(Number(t.profit) || 0, 0)), 0);
+    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
+    const averageRR = closed.length === 0 ? 0 : closed.reduce((s, t) => s + (Number(t.rr) || 0), 0) / closed.length;
+
+    let startingBalance = 0;
+    if (selectedAccountId === "all") {
+      startingBalance = Object.values(accounts).reduce((s, a) => s + (Number(a.startingBalance) || 0), 0);
+    } else {
+      const account = getSelectedAccount();
+      startingBalance = account ? (Number(account.startingBalance) || 0) : 0;
+    }
+    const maxDrawdown = calculateMaxDrawdown(closed, startingBalance);
+
+    // Streak
+    const sorted = [...closed].sort((a, b) => new Date(a.closed || a.date) - new Date(b.closed || b.date));
+    let streak = 0;
+    if (sorted.length) {
+      const last = sorted[sorted.length - 1];
+      if (last.result === "Win") {
+        for (let i = sorted.length - 1; i >= 0; i--) {
+          if (sorted[i].result === "Win") streak++;
+          else break;
+        }
+      } else if (last.result === "Loss") {
+        for (let i = sorted.length - 1; i >= 0; i--) {
+          if (sorted[i].result === "Loss") streak--;
+          else break;
+        }
+      }
+    }
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthCount = filtered.filter(t => t.date && new Date(t.date) >= monthStart).length;
+
+    setText("totalTrades", totalTrades);
+    setText("wins", totalWins);
+    setText("losses", totalLosses);
+    setText("pendingCount", pending.length);
+    setText("winRate", winRate.toFixed(1) + "%");
+    setText("averageRR", averageRR.toFixed(2));
+    setText("netProfit", signedMoney(netProfit));
+    setText("profitFactor", profitFactor === Infinity ? "∞" : profitFactor.toFixed(2));
+    setText("maxDrawdown", money(maxDrawdown));
+    setText("streak", streak > 0 ? "+" + streak : streak < 0 ? streak : "0");
+    const consistencyScore = calculateConsistencyScore(closed);
+    setText("consistencyScore", consistencyScore.toFixed(1) + "%");
+    applyConsistencyClass(document.getElementById("consistencyScore"), consistencyScore);
+    setText("monthCount", monthCount);
+
+    const winEl = document.getElementById("winRate");
+    if (winEl) winEl.className = winRate >= 50 ? "value-positive" : winRate > 0 ? "value-neutral" : "value-negative";
+    const profitEl = document.getElementById("netProfit");
+    if (profitEl) profitEl.className = netProfit > 0 ? "value-positive" : netProfit < 0 ? "value-negative" : "value-neutral";
+
+    updateAccountPanel();
   }
+
+
+  /* ==========================================================
+     HELPER FUNCTIONS
+  ========================================================== */
+
+  function getFilteredTrades() {
+    if (selectedAccountId === "all") return [...trades];
+    return trades.filter(t => t.accountId === selectedAccountId);
+  }
+
+  function calculateMaxDrawdown(closedTrades, startingBalance) {
+    if (!closedTrades.length) return 0;
+    let balance = startingBalance;
+    let peak = startingBalance;
+    let maxDrawdown = 0;
+    closedTrades.forEach(trade => {
+      const profit = Number(trade.profit) || 0;
+      const commission = Number(trade.commission) || 0;
+      balance += profit - commission;
+      if (balance > peak) peak = balance;
+      const drawdown = peak - balance;
+      if (drawdown > maxDrawdown) maxDrawdown = drawdown;
+    });
+    return maxDrawdown;
+  }
+
+  function calculateConsistencyScore(sourceTrades) {
+    const closed = (sourceTrades || []).filter(t => t.status === "Closed");
+    if (!closed.length) return 0;
+    const scoreMap = { Excellent: 10, Good: 8, Average: 5, Poor: 2 };
+    const emotionMap = { Calm: 10, Confident: 10, Fear: 4, Greed: 3, FOMO: 2, Revenge: 1 };
+    let total = 0;
+    closed.forEach(trade => {
+      const account = getAccount(trade.accountId);
+      const plannedRisk = account ? (Number(account.riskPercent) || 0) : 0;
+      const actualRisk = Number(trade.risk) || 0;
+      const followedPlan = trade.tradeValid === "Yes" ? 10 : 0;
+      const patience = scoreMap[trade.patience] ?? 5;
+      const discipline = scoreMap[trade.discipline] ?? 5;
+      const emotionalControl = emotionMap[trade.emotion] ?? 5;
+      const riskManagement = plannedRisk <= 0 || actualRisk <= plannedRisk ? 10 : actualRisk <= plannedRisk * 1.25 ? 6 : 2;
+      const exitRules = trade.stopLoss !== undefined && trade.takeProfit !== undefined &&
+        Number(trade.stopLoss) !== 0 && Number(trade.takeProfit) !== 0 ? 10 : 3;
+      const journalCompleted = [trade.tradeSummary, trade.lessonLearned, trade.improvementPlan].filter(Boolean).length >= 2 ? 10 : [trade.tradeSummary, trade.lessonLearned, trade.improvementPlan].filter(Boolean).length === 1 ? 6 : 2;
+      total += (followedPlan + patience + discipline + emotionalControl + riskManagement + exitRules + journalCompleted) / 7;
+    });
+    return Math.max(0, Math.min(100, (total / closed.length) * 10));
+  }
+
+  function applyConsistencyClass(el, score) {
+    if (!el) return;
+    el.classList.remove("consistency-good", "consistency-mid", "consistency-low");
+    el.classList.add(score >= 80 ? "consistency-good" : score >= 60 ? "consistency-mid" : "consistency-low");
+  }
+
   function loadRecentTrades() {
-    console.log("Recent trades loaded (placeholder)");
+    const container = document.getElementById("recentTrades");
+    if (!container) return;
+    const filtered = getFilteredTrades();
+    const pending = filtered.filter(t => t.status === "Pending" || t.result === "Pending");
+    const display = pending.slice(0, 4);
+    if (display.length === 0) {
+      container.innerHTML = `<div style="padding:12px 0;color:var(--text-secondary);">No pending trades.</div>`;
+      return;
+    }
+    container.innerHTML = "";
+    display.forEach(trade => {
+      const account = getAccount(trade.accountId);
+      const row = document.createElement("div");
+      row.className = "trade-row";
+      row.innerHTML = `
+        <div><strong>${trade.pair || "?"}</strong><br><span style="font-size:12px;color:var(--text-secondary);">${trade.direction || ""}</span></div>
+        <div>${account ? account.name : trade.account || "-"}</div>
+        <div>${trade.entryModel || "-"}</div>
+        <div><span class="status pending">Pending</span></div>
+        <div><button onclick="window.closeTrade('${trade.id}')" class="btn">Close</button></div>
+      `;
+      container.appendChild(row);
+    });
   }
+
   function initializeCharts() {
-    console.log("Charts initialised (placeholder)");
+    if (typeof Chart === "undefined") return;
+    destroyAllCharts();
+    buildEquityChart();
+    buildMonthlyChart();
   }
+
+  function destroyAllCharts() {
+    if (equityChartInstance) { equityChartInstance.destroy();
+      equityChartInstance = null; }
+    if (monthlyChartInstance) { monthlyChartInstance.destroy();
+      monthlyChartInstance = null; }
+  }
+
+  function buildEquityChart() {
+    const canvas = document.getElementById("equityChart");
+    if (!canvas) return;
+    const filtered = getFilteredTrades();
+    const closed = filtered.filter(t => t.status === "Closed").sort((a, b) => new Date(a.closed || a.date) - new Date(b.closed || b.date));
+    let startingBalance = 0;
+    if (selectedAccountId === "all") {
+      startingBalance = Object.values(accounts).reduce((s, a) => s + (Number(a.startingBalance) || 0), 0);
+    } else {
+      const account = getSelectedAccount();
+      startingBalance = account ? (Number(account.startingBalance) || 0) : 0;
+    }
+    let balance = startingBalance;
+    const data = [balance];
+    closed.forEach(trade => {
+      balance += (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
+      data.push(balance);
+    });
+    equityChartInstance = new Chart(canvas, {
+      type: "line",
+      data: {
+        labels: data.map((_, i) => i === 0 ? "Start" : i),
+        datasets: [{ label: "Equity", data, borderColor: "#4f7cff", backgroundColor: "rgba(79,124,255,0.15)", fill: true, tension: 0.3 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+    });
+  }
+
+  function buildMonthlyChart() {
+    const canvas = document.getElementById("monthlyChart");
+    if (!canvas) return;
+    const filtered = getFilteredTrades();
+    const monthly = {};
+    filtered.filter(t => t.status === "Closed").forEach(trade => {
+      const date = new Date(trade.closed || trade.date);
+      const key = date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
+      const label = date.toLocaleString("default", { month: "short", year: "numeric" });
+      if (!monthly[key]) monthly[key] = { label, value: 0 };
+      monthly[key].value += (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
+    });
+    const keys = Object.keys(monthly).sort();
+    monthlyChartInstance = new Chart(canvas, {
+      type: "bar",
+      data: {
+        labels: keys.map(k => monthly[k].label),
+        datasets: [{ label: "Monthly P&L", data: keys.map(k => monthly[k].value), backgroundColor: "#4f7cff", borderRadius: 6 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  }
+
   function updateAccountPanel() {
-    console.log("Account panel updated (placeholder)");
+    const account = getSelectedAccount();
+    if (!account) {
+      const allStarting = Object.values(accounts).reduce((s, a) => s + (Number(a.startingBalance) || 0), 0);
+      const allCurrent = Object.values(accounts).reduce((s, a) => s + (Number(a.currentBalance) || 0), 0);
+      const allPnL = allCurrent - allStarting;
+      setText("accountStartingBalance", money(allStarting));
+      setText("accountCurrentBalance", money(allCurrent));
+      setText("accountRiskSetting", "Multiple");
+      setText("accountConsistency", calculateConsistencyScore(trades).toFixed(1) + "%");
+      setText("accountPnL", signedMoney(allPnL));
+    } else {
+      const starting = Number(account.startingBalance) || 0;
+      const current = Number(account.currentBalance) || starting;
+      const pnl = current - starting;
+      setText("accountStartingBalance", money(starting));
+      setText("accountCurrentBalance", money(current));
+      setText("accountRiskSetting", account.riskPercent.toFixed(2) + "%");
+      setText("accountConsistency", calculateConsistencyScore(trades.filter(t => t.accountId === account.id)).toFixed(1) + "%");
+      setText("accountPnL", signedMoney(pnl));
+    }
+    const consistencyEl = document.getElementById("accountConsistency");
+    const score = account ? calculateConsistencyScore(trades.filter(t => t.accountId === account.id)) : calculateConsistencyScore(trades);
+    applyConsistencyClass(consistencyEl, score);
+    const pnlEl = document.getElementById("accountPnL");
+    if (pnlEl) {
+      const val = account ? (Number(account.currentBalance) || 0) - (Number(account.startingBalance) || 0) : 0;
+      pnlEl.className = "value " + (val > 0 ? "green" : val < 0 ? "" : "");
+    }
+  }
+
+
+  /* ==========================================================
+     CLOSE TRADE (global)
+  ========================================================== */
+
+  window.closeTrade = function(id) {
+    const trade = trades.find(t => t.id === id);
+    if (!trade) return;
+    if (trade.status === "Closed") { viewTrade(trade); return; }
+    const outcome = prompt("Result?\n\nWin\nLoss\nBreakeven");
+    if (!outcome) return;
+    const normalized = outcome.trim().toLowerCase();
+    let result = normalized === "win" ? "Win" : normalized === "loss" ? "Loss" : "Breakeven";
+    let profit = parseFloat(prompt("Profit/Loss ($)", "0")) || 0;
+    const commission = parseFloat(prompt("Commission ($)", "0")) || 0;
+    if (result === "Loss" && profit > 0) profit = -profit;
+
+    let exitPrice = 0;
+    let partialPercent = 0;
+    if (result === "Win" || result === "Partial") {
+      exitPrice = parseFloat(prompt("Exit price (for actual RR)", "0")) || 0;
+      if (result === "Partial") {
+        partialPercent = parseFloat(prompt("Partial % (0-100)", "50")) || 0;
+      }
+    } else if (result === "Loss") {
+      exitPrice = parseFloat(prompt("Exit price (optional)", "0")) || 0;
+    }
+
+    trade.status = "Closed";
+    trade.closed = new Date().toISOString();
+    trade.result = result;
+    trade.profit = profit;
+    trade.commission = commission;
+    trade.exitPrice = exitPrice;
+    trade.partialPercent = partialPercent;
+
+    const riskAmount = Number(trade.riskAmount) || 0;
+    const plannedRR = Number(trade.plannedRR) || 0;
+    const entry = Number(trade.originalEntry) || Number(trade.entry) || 0;
+    const stopLoss = Number(trade.originalStopLoss) || Number(trade.stopLoss) || 0;
+    const direction = trade.direction || "BUY";
+    const outcomeRR = calculateOutcomeRR({
+      result,
+      actualProfit: profit,
+      riskAmount,
+      plannedRR,
+      entry,
+      stopLoss,
+      exitPrice,
+      direction,
+      partialPercent
+    });
+    trade.rr = outcomeRR;
+
+    applyTradeToAccount(trade, "add");
+    saveTrades();
+    refreshUI();
+    alert("✅ Trade closed successfully.\n\nAccount: " + (getAccount(trade.accountId)?.name || trade.account || "-") + "\nNet P/L: " + signedMoney(profit - commission) + "\nActual RR: " + outcomeRR.toFixed(2));
+  };
+
+  function viewTrade(trade) {
+    const net = (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
+    alert(
+      `PAIR          : ${trade.pair}\nACCOUNT       : ${getAccount(trade.accountId)?.name || trade.account || "-"}\nSTATUS        : ${trade.status}\nRESULT        : ${trade.result}\nPROFIT        : ${money(trade.profit)}\nCOMMISSION    : ${money(trade.commission)}\nNET P/L       : ${signedMoney(net)}\nRISK AMOUNT   : ${money(trade.riskAmount)}\nRISK %        : ${trade.risk || 0}%\nPROJECTED RR  : ${(trade.plannedRR || 0).toFixed(2)}\nACTUAL RR     : ${(trade.rr || 0).toFixed(2)}\nLESSON        : ${trade.lessonLearned || "-"}\nIMPROVEMENT   : ${trade.improvementPlan || "-"}`
+    );
   }
 
 
@@ -1007,7 +1339,7 @@ function initJournal() {
     }
   }
 
-  console.log("✅ GTRADES-AXIS Journal ready (Firestore sync enabled).");
+  console.log("✅ GTRADES-AXIS Journal ready (Firestore sync fixed).");
 }
 
 
@@ -1016,7 +1348,6 @@ function initJournal() {
 ============================================================ */
 
 onAuthStateChanged(auth, async user => {
-
   if (!user) {
     window.location.href = "/login";
     return;
@@ -1033,35 +1364,4 @@ onAuthStateChanged(auth, async user => {
     console.error("Journal authentication error:", error);
     initJournal();
   }
-});
-document.getElementById('syncBtn')?.addEventListener('click', async () => {
-  const { auth, db } = await import("./firebase.js");
-  const { collection, doc, setDoc, getDocs } = await import("firebase/firestore");
-  
-  // Load trades from localStorage
-  const trades = JSON.parse(localStorage.getItem('trades') || '[]');
-  
-  if (!trades.length) {
-    alert('No trades in localStorage.');
-    return;
-  }
-  
-  let count = 0;
-  for (const trade of trades) {
-    try {
-      const tradeRef = doc(db, "trades", trade.id);
-      const data = { ...trade };
-      if (data.public === undefined) data.public = false;
-      data.updatedAt = new Date().toISOString();
-      if (!data.createdAt) data.createdAt = data.updatedAt;
-      // Ensure userId exists
-      if (!data.userId) data.userId = auth.currentUser?.uid || '';
-      await setDoc(tradeRef, data, { merge: true });
-      count++;
-    } catch (e) {
-      console.error('Sync error for trade', trade.id, e);
-    }
-  }
-  alert(`✅ Synced ${count} trades to Firestore.`);
-  console.log('✅ Sync complete.');
 });
