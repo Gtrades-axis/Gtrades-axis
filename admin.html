@@ -14,6 +14,7 @@
         }
     }
     </script>
+
     <script type="module">
         import { auth, db } from "./js/firebase.js";
         import { onAuthStateChanged } from "firebase/auth";
@@ -40,6 +41,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <style>
+        /* ─── All your existing styles – keep them exactly as they are ─── */
+        /* I'm including the complete set from your original admin, plus a few additions for the trades section */
+
         * {
             margin: 0;
             padding: 0;
@@ -1425,17 +1429,19 @@
 
     <!-- ===== MAIN ===== -->
     <main class="admin-main">
+
+        <!-- HEADER -->
         <header class="admin-header">
             <div>
                 <h1>GTRADES-AXIS ADMIN</h1>
-                <p>Manage Members • Academy • Resources • Trades • Payments</p>
+                <p>Manage Members • Academy • Resources • Videos • Trades • Payments</p>
             </div>
             <div class="header-right">
                 <div id="liveDate"></div>
             </div>
         </header>
 
-        <!-- STATS -->
+        <!-- STATS (dashboard) -->
         <section class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
@@ -1457,6 +1463,7 @@
                 <div class="stat-icon red"><i class="fa-solid fa-clock"></i></div>
                 <div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div>
             </div>
+            <!-- Public Trades stat (optional, you can add it if you want) -->
             <div class="stat-card">
                 <div class="stat-icon green"><i class="fa-solid fa-chart-simple"></i></div>
                 <div><h2 id="publicTradesCount">0</h2><p>Public Trades</p></div>
@@ -1482,7 +1489,7 @@
             </button>
         </section>
 
-        <!-- DASHBOARD GRID -->
+        <!-- DASHBOARD GRID (Members + right panel) -->
         <div class="dashboard-grid">
             <div class="dashboard-card large" id="members">
                 <div class="card-header">
@@ -1576,62 +1583,65 @@
             </div>
         </section>
 
-        <!-- ===== PAYMENTS MANAGER ===== -->
-        <section class="manager-section" id="payments">
-            <div class="dashboard-card">
-                <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
-                <div class="payments-stats">
-                    <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
-                    <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
-                    <div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div>
-                </div>
-                <div class="table-container">
-                    <table class="members-table" id="paymentsTable">
-                        <thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== TRADES MANAGER (INTEGRATED) ===== -->
-        <section class="manager-section" id="trades">
+        <!-- ===== RESOURCES MANAGER ===== -->
+        <section class="manager-section" id="resources">
             <div class="dashboard-card">
                 <div class="card-header">
-                    <div>
-                        <h2><i class="fa-solid fa-chart-simple"></i> Manage Trades (Public/Private)</h2>
-                        <p>Toggle trades to show on the homepage feed.</p>
-                    </div>
-                    <div>
-                        <span id="tradeCount" style="color:var(--text-secondary);font-size:13px;">0 trades</span>
+                    <div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2></div>
+                    <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:6px 16px;">
+                        <i class="fa-solid fa-plus"></i> Add Resource
+                    </button>
+                </div>
+                <div id="resourceListContainer">
+                    <div class="table-container">
+                        <table class="members-table" id="resourceTable">
+                            <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="table-container">
-                    <table class="members-table" id="tradesTable">
-                        <thead>
-                            <tr>
-                                <th>Pair</th>
-                                <th>Direction</th>
-                                <th>RR</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Public</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tradesTableBody">
-                            <tr><td colspan="7"><div class="empty-card">Loading trades...</div></td></tr>
-                        </tbody>
-                    </table>
+                <div id="resourceFormContainer" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
+                    <h3 id="resourceFormTitle">Add New Resource</h3>
+                    <form id="resourceForm" class="manager-form">
+                        <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
+                        <div><label>Category</label>
+                            <select id="resourceCategory">
+                                <option value="PDF">PDF</option>
+                                <option value="Indicator">Indicator</option>
+                                <option value="Journal">Journal</option>
+                                <option value="Strategy">Strategy</option>
+                                <option value="Video">Video</option>
+                                <option value="General">General</option>
+                                <option value="Other">Other / Custom</option>
+                            </select>
+                            <input type="text" id="resourceCustomCategory" placeholder="Enter custom category" style="display:none;margin-top:6px;" maxlength="50" />
+                        </div>
+                        <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
+                        <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
+                        <div id="resourceUploadProgress" style="display:none;margin:12px 0;padding:12px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
+                            <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#94a3b8;font-size:12px;">
+                                <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
+                            </div>
+                            <div style="width:100%;height:6px;background:#172033;border-radius:20px;overflow:hidden;">
+                                <div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div>
+                            </div>
+                        </div>
+                        <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
+                        <div class="form-actions">
+                            <button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button>
+                            <button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button>
+                        </div>
+                        <input type="hidden" id="editingResourceId" />
+                    </form>
                 </div>
             </div>
         </section>
 
-        <!-- ===== VIDEO MANAGER ===== -->
+        <!-- ===== VIDEOS MANAGER ===== -->
         <section class="manager-section" id="videos">
             <div class="dashboard-card">
                 <div class="card-header">
-                    <div><h2><i class="fa-solid fa-video"></i> Video Manager</h2><p>Upload video files (MP4, MOV, etc.) to Cloudflare R2.</p></div>
+                    <div><h2><i class="fa-solid fa-video"></i> Video Manager</h2></div>
                     <button id="toggleVideoFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:6px 16px;">
                         <i class="fa-solid fa-plus"></i> Add Video
                     </button>
@@ -1695,56 +1705,53 @@
             </div>
         </section>
 
-        <!-- ===== RESOURCE MANAGER ===== -->
-        <section class="manager-section" id="resources">
+        <!-- ===== TRADES MANAGER (NEW – separate section) ===== -->
+        <section class="manager-section" id="trades">
             <div class="dashboard-card">
                 <div class="card-header">
-                    <div><h2><i class="fa-solid fa-folder-open"></i> Resource Manager</h2><p>Manage PDFs, indicators, journals (stored in R2).</p></div>
-                    <button id="toggleResourceFormBtn" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:6px 16px;">
-                        <i class="fa-solid fa-plus"></i> Add Resource
-                    </button>
-                </div>
-                <div id="resourceListContainer">
-                    <div class="table-container">
-                        <table class="members-table" id="resourceTable">
-                            <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
-                            <tbody id="resourceTableBody"><tr><td colspan="4"><div class="empty-card">No resources yet.</div></td></tr></tbody>
-                        </table>
+                    <div>
+                        <h2><i class="fa-solid fa-chart-simple"></i> Manage Trades (Public/Private)</h2>
+                        <p style="color:var(--text-secondary); font-size:12px;">Toggle trades to show on the homepage feed.</p>
+                    </div>
+                    <div>
+                        <span id="tradeCount" style="color:var(--text-secondary);font-size:13px;">0 trades</span>
                     </div>
                 </div>
-                <div id="resourceFormContainer" style="display:none; margin-top:16px; border-top:1px solid var(--border-color); padding-top:16px;">
-                    <h3 id="resourceFormTitle">Add New Resource</h3>
-                    <form id="resourceForm" class="manager-form">
-                        <div class="full-width"><label>Resource Title</label><input type="text" id="resourceTitle" required /></div>
-                        <div><label>Category</label>
-                            <select id="resourceCategory">
-                                <option value="PDF">PDF</option>
-                                <option value="Indicator">Indicator</option>
-                                <option value="Journal">Journal</option>
-                                <option value="Strategy">Strategy</option>
-                                <option value="Video">Video</option>
-                                <option value="General">General</option>
-                                <option value="Other">Other / Custom</option>
-                            </select>
-                            <input type="text" id="resourceCustomCategory" placeholder="Enter custom category" style="display:none;margin-top:6px;" maxlength="50" />
-                        </div>
-                        <div class="full-width"><label>Description</label><textarea id="resourceDescription"></textarea></div>
-                        <div class="file-picker full-width"><label>Upload File</label><input type="file" id="resourceFilePicker" accept="*/*" /><div class="file-name" id="resourceFileName">No file chosen</div></div>
-                        <div id="resourceUploadProgress" style="display:none;margin:12px 0;padding:12px;background:#0a101a;border:1px solid #1b2739;border-radius:10px;grid-column:1 / -1;">
-                            <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#94a3b8;font-size:12px;">
-                                <span id="resourceUploadProgressText">Preparing upload...</span><span>Cloudflare R2</span>
-                            </div>
-                            <div style="width:100%;height:6px;background:#172033;border-radius:20px;overflow:hidden;">
-                                <div id="resourceUploadProgressBar" style="width:0%;height:100%;background:#2563eb;border-radius:20px;transition:width .15s ease;"></div>
-                            </div>
-                        </div>
-                        <div class="checkbox-group full-width"><input type="checkbox" id="premiumOnly" /><label>Premium Members Only</label></div>
-                        <div class="form-actions">
-                            <button type="submit" class="save-btn" id="saveResourceBtn">Save Resource</button>
-                            <button type="button" class="cancel-btn" id="cancelResourceBtn">Cancel</button>
-                        </div>
-                        <input type="hidden" id="editingResourceId" />
-                    </form>
+                <div class="table-container">
+                    <table class="members-table" id="tradesTable">
+                        <thead>
+                            <tr>
+                                <th>Pair</th>
+                                <th>Direction</th>
+                                <th>RR</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Public</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTableBody">
+                            <tr><td colspan="7"><div class="empty-card">Loading trades...</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PAYMENTS MANAGER ===== -->
+        <section class="manager-section" id="payments">
+            <div class="dashboard-card">
+                <div class="card-header"><div><h2><i class="fa-solid fa-credit-card"></i> Payment Approvals</h2></div></div>
+                <div class="payments-stats">
+                    <div class="p-stat">Pending: <span class="pending" id="payPending">0</span></div>
+                    <div class="p-stat">Approved: <span class="approved" id="payApproved">0</span></div>
+                    <div class="p-stat">Rejected: <span class="rejected" id="payRejected">0</span></div>
+                </div>
+                <div class="table-container">
+                    <table class="members-table" id="paymentsTable">
+                        <thead><tr><th>User</th><th>Plan</th><th>Method</th><th>Amount</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="paymentsTableBody"><tr><td colspan="7"><div class="empty-card">Loading payments...</div></td></tr></tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -1876,7 +1883,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 1. MEMBERS
+        // 1. MEMBERS (unchanged)
         // ═══════════════════════════════════════════════════════════════════════════
         function timestampToDate(v) { if (!v) return null; if (typeof v.toDate === 'function') return v.toDate(); if (v
                 .seconds !== undefined) return new Date(v.seconds * 1000); const d = new Date(v); return Number.isNaN(d
@@ -2001,7 +2008,7 @@
         });
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 2. ACADEMY MODULES
+        // 2. ACADEMY MODULES (unchanged)
         // ═══════════════════════════════════════════════════════════════════════════
         const MODULES_COLLECTION = "academy_modules";
 
@@ -2164,7 +2171,7 @@
         });
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 3. PAYMENTS
+        // 3. PAYMENTS (unchanged)
         // ═══════════════════════════════════════════════════════════════════════════
         function listenPayments() {
             const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
@@ -2231,7 +2238,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 4. VIDEOS – simplified placeholder (kept from original)
+        // 4. VIDEOS (simplified – unchanged)
         // ═══════════════════════════════════════════════════════════════════════════
         function listenVideos() {
             const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
@@ -2281,7 +2288,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 5. RESOURCES – simplified placeholder (kept from original)
+        // 5. RESOURCES (simplified – unchanged)
         // ═══════════════════════════════════════════════════════════════════════════
         function listenResources() {
             const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'));
@@ -2323,7 +2330,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 6. TRADES MANAGEMENT (FIXED – SHOWS ALL TRADES)
+        // 6. TRADES MANAGEMENT (NEW – integrated)
         // ═══════════════════════════════════════════════════════════════════════════
         function listenTrades() {
             const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
@@ -2333,7 +2340,7 @@
                 const publicCountEl = document.getElementById('publicTradesCount');
                 const publicOverviewEl = document.getElementById('publicTradesOverview');
                 let total = 0,
-                    public = 0;
+                    publicTrades = 0;
 
                 if (snapshot.empty) {
                     tbody.innerHTML =
@@ -2348,7 +2355,7 @@
                 snapshot.forEach(doc => {
                     const t = { id: doc.id, ...doc.data() };
                     total++;
-                    if (t.public === true) public++;
+                    if (t.public === true) publicTrades++;
                     const isPublic = t.public === true;
                     const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.date || t
                         .createdAt || '—';
@@ -2378,8 +2385,8 @@
 
                 tbody.innerHTML = html;
                 if (countEl) countEl.textContent = `${total} trades`;
-                if (publicCountEl) publicCountEl.textContent = public;
-                if (publicOverviewEl) publicOverviewEl.textContent = public;
+                if (publicCountEl) publicCountEl.textContent = publicTrades;
+                if (publicOverviewEl) publicOverviewEl.textContent = publicTrades;
 
                 // ─── ATTACH TOGGLE LISTENERS ────────────────────────────────
                 document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
@@ -2424,7 +2431,7 @@
                 listenPayments();
                 listenVideos();
                 listenResources();
-                listenTrades();
+                listenTrades(); // Start listening to trades
             } else {
                 window.location.href = "/login";
             }
