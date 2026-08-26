@@ -1344,6 +1344,114 @@
     }
   });
 
+  // VIDEO UPLOAD FEEDBACK
+  const videoUploadStatus = document.getElementById('videoUploadStatus');
+  const videoUploadStatusIcon = document.getElementById('videoUploadStatusIcon');
+  const videoUploadStatusText = document.getElementById('videoUploadStatusText');
+  const videoUploadStatusDetail = document.getElementById('videoUploadStatusDetail');
+  const saveVideoBtn = document.getElementById('saveVideoBtn');
+  let videoUploadTimer = null;
+  let videoUploadStartedAt = 0;
+
+  function setVideoUploadStatus(type, text, detail='') {
+    if (!videoUploadStatus) return;
+    videoUploadStatus.className = 'upload-status show' + (type === 'success' ? ' success' : type === 'error' ? ' error' : '');
+    if (videoUploadStatusIcon) videoUploadStatusIcon.className = type === 'success' ? 'fa-solid fa-circle-check' : type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-cloud-arrow-up';
+    if (videoUploadStatusText) videoUploadStatusText.textContent = text;
+    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = detail;
+  }
+  function clearVideoUploadStatus() {
+    if (videoUploadTimer) clearInterval(videoUploadTimer);
+    videoUploadTimer = null;
+    if (videoUploadStatus) videoUploadStatus.className = 'upload-status';
+    if (videoUploadStatusText) videoUploadStatusText.textContent = 'Ready to upload.';
+    if (videoUploadStatusDetail) videoUploadStatusDetail.textContent = '';
+  }
+  function formatElapsed(ms) {
+    const s=Math.max(0,Math.floor(ms/1000)), m=Math.floor(s/60), sec=s%60;
+    return m ? `${m}m ${String(sec).padStart(2,'0')}s` : `${sec}s`;
+  }
+  function startVideoUploadProgress(message, detail) {
+    videoUploadStartedAt=Date.now();
+    setVideoUploadStatus('working',message,detail);
+    if (videoUploadTimer) clearInterval(videoUploadTimer);
+    videoUploadTimer=setInterval(()=>{
+      if (videoUploadStatusDetail) videoUploadStatusDetail.textContent=`${detail} • Elapsed ${formatElapsed(Date.now()-videoUploadStartedAt)}`;
+    },1000);
+  }
+  function stopVideoUploadProgress() { if(videoUploadTimer) clearInterval(videoUploadTimer); videoUploadTimer=null; }
+
+  document.getElementById('videoForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (saveVideoBtn?.disabled) return;
+
+    const id=document.getElementById('editingVideoId').value || 'vid-'+Date.now();
+    const title=document.getElementById('videoTitle').value.trim();
+    const category=document.getElementById('videoCategory').value;
+    const duration=document.getElementById('videoDuration').value.trim();
+    const premiumOnly=document.getElementById('videoPremiumOnly').checked;
+    const videoFile=document.getElementById('videoFilePicker').files[0];
+    const thumbFile=document.getElementById('videoThumbnailFile').files[0];
+    const existingVideoKey=document.getElementById('existingVideoKey').value;
+    const existingThumbKey=document.getElementById('existingThumbnailKey').value;
+    const isEditing=Boolean(document.getElementById('editingVideoId').value);
+
+    if(!title){ setVideoUploadStatus('error','Video title is required.','Enter a title and try again.'); return; }
+    if(!videoFile && !existingVideoKey){ setVideoUploadStatus('error','No video file selected.','Choose a video file before uploading.'); return; }
+
+    try {
+      if(saveVideoBtn){ saveVideoBtn.disabled=true; saveVideoBtn.classList.add('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Uploading...'; }
+      let videoKey=existingVideoKey;
+      let thumbnailKey=existingThumbKey;
+
+      if(videoFile){
+        const ext=(videoFile.name.split('.').pop()||'mp4').toLowerCase();
+        const safeTitle=title.replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'video';
+        videoKey=`videos/${Date.now()}_${safeTitle}.${ext}`;
+        const sizeMB=(videoFile.size/(1024*1024)).toFixed(1);
+        startVideoUploadProgress('Uploading video to Cloudflare R2...',`${videoFile.name} • ${sizeMB} MB`);
+        await uploadToR2(videoFile,videoKey);
+        document.getElementById('videoFileName').textContent='✅ Uploaded: '+videoFile.name;
+        setVideoUploadStatus('working','Video upload complete.','Preparing video record in Firestore...');
+      }
+
+      if(thumbFile){
+        const sizeMB=(thumbFile.size/(1024*1024)).toFixed(1);
+        startVideoUploadProgress('Uploading thumbnail to Cloudflare R2...',`${thumbFile.name} • ${sizeMB} MB`);
+        thumbnailKey=await uploadToR2(thumbFile,`thumbnails/${Date.now()}_${thumbFile.name}`);
+        document.getElementById('thumbnailFileName').textContent='✅ Uploaded: '+thumbFile.name;
+        document.getElementById('thumbnailPreview').style.display='none';
+      }
+
+      stopVideoUploadProgress();
+      setVideoUploadStatus('working','Saving video information...','Writing the video record to Firestore.');
+      const data={title,category,duration,premiumOnly,videoKey,thumbnailKey,updatedAt:serverTimestamp()};
+      if(!isEditing){ data.createdAt=serverTimestamp(); await addDoc(collection(db,'videos'),data); }
+      else { await updateDoc(doc(db,'videos',id),data); }
+
+      stopVideoUploadProgress();
+      setVideoUploadStatus('success',isEditing?'✅ Video updated successfully!':'✅ Video uploaded successfully!',`Cloudflare R2 + Firestore saved. Completed in ${formatElapsed(Date.now()-videoUploadStartedAt)}.`);
+      addActivity(isEditing?`Updated video "${title}"`:`Uploaded video "${title}"`);
+      document.getElementById('videoForm').reset();
+      document.getElementById('videoPreview').style.display='none';
+      document.getElementById('thumbnailPreview').style.display='none';
+      document.getElementById('videoFileName').textContent='No file chosen';
+      document.getElementById('thumbnailFileName').textContent='No file chosen';
+      document.getElementById('editingVideoId').value='';
+      document.getElementById('existingVideoKey').value='';
+      document.getElementById('existingThumbnailKey').value='';
+      document.getElementById('videoFormTitle').textContent='Upload Video File';
+      setTimeout(()=>{ document.getElementById('videoFormContainer').style.display='none'; clearVideoUploadStatus(); },1800);
+    } catch(error) {
+      stopVideoUploadProgress();
+      console.error('VIDEO UPLOAD ERROR:',error);
+      setVideoUploadStatus('error','❌ Video upload failed.',error?.message||'Unknown error. Check the browser console.');
+      addActivity(`Video upload failed: ${title||'Untitled video'}`);
+    } finally {
+      if(saveVideoBtn){ saveVideoBtn.disabled=false; saveVideoBtn.classList.remove('uploading'); saveVideoBtn.innerHTML='<i class="fa-solid fa-upload"></i> Upload Video'; }
+    }
+  });
+
   // ═══════════════════════════════════════════════════════════════════════════
   // 5. RESOURCES — CLOUDFLARE R2 + FIRESTORE
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1396,6 +1504,32 @@
     });
   }
 
+  function resetResourceForm() {
+    const form = document.getElementById('resourceForm');
+    if (form) form.reset();
+    const ids = ['editingResourceId'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    const fileName = document.getElementById('resourceFileName');
+    if (fileName) fileName.textContent = 'No file chosen';
+    if(document.getElementById('resourceCustomCategory')) document.getElementById('resourceCustomCategory').value='';
+    syncCustomResourceCategory();
+    const progress = document.getElementById('resourceUploadProgress');
+    const bar = document.getElementById('resourceUploadProgressBar');
+    const text = document.getElementById('resourceUploadProgressText');
+    if (progress) progress.style.display = 'none';
+    if (bar) bar.style.width = '0%';
+    if (text) text.textContent = 'Preparing upload...';
+  }
+
+  function setResourceUploadProgress(percent, message) {
+    const progress = document.getElementById('resourceUploadProgress');
+    const bar = document.getElementById('resourceUploadProgressBar');
+    const text = document.getElementById('resourceUploadProgressText');
+    if (progress) progress.style.display = 'block';
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    if (text) text.textContent = message || `Uploading ${percent}%...`;
+  }
+
   function listenResources() {
     const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
@@ -1430,23 +1564,230 @@
       });
       tbody.innerHTML = html;
       if (overviewEl) overviewEl.textContent = String(count);
+
+      document.querySelectorAll('.download-resource-btn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const key = this.dataset.key;
+          if (!key) return alert('This resource has no R2 file key.');
+          try {
+            const url = await getDownloadUrl(key);
+            if (!url) throw new Error('No download URL was returned.');
+            window.open(url, '_blank', 'noopener,noreferrer');
+          } catch (error) {
+            console.error('RESOURCE DOWNLOAD ERROR:', error);
+            alert('Download failed: ' + error.message);
+          }
+        });
+      });
+
+      document.querySelectorAll('.edit-resource').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          try {
+            const snap = await getDoc(doc(db, 'resources', id));
+            if (!snap.exists()) return alert('Resource no longer exists.');
+
+            const data = snap.data();
+            document.getElementById('editingResourceId').value = id;
+            document.getElementById('resourceTitle').value = data.title || '';
+            const known=['PDF','Indicator','Journal','Strategy','Video','General'];
+            document.getElementById('resourceCategory').value=known.includes(data.category)?data.category:'Other';
+            document.getElementById('resourceCustomCategory').value=known.includes(data.category)?'':(data.category||'');
+            syncCustomResourceCategory();
+            document.getElementById('resourceDescription').value = data.description || '';
+            document.getElementById('premiumOnly').checked = data.premiumOnly === true;
+            document.getElementById('resourceFileName').textContent =
+              data.fileKey || data.resourceKey || data.r2Key ? 'Existing file saved — choose a new file only if replacing it.' : 'No file chosen';
+            document.getElementById('resourceFormTitle').textContent = 'Edit Resource';
+            document.getElementById('saveResourceBtn').textContent = 'Update Resource';
+            document.getElementById('resourceFormContainer').style.display = 'block';
+            document.getElementById('resourceFormContainer').scrollIntoView({ behavior: 'smooth' });
+          } catch (error) {
+            console.error('RESOURCE EDIT ERROR:', error);
+            alert('Error loading resource: ' + error.message);
+          }
+        });
+      });
+
+      document.querySelectorAll('.delete-resource').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          if (!confirm('Delete this resource record?')) return;
+          try {
+            await deleteDoc(doc(db, 'resources', id));
+            addActivity('Deleted a resource.');
+          } catch (error) {
+            console.error('RESOURCE DELETE ERROR:', error);
+            alert('Error deleting resource: ' + error.message);
+          }
+        });
+      });
+
+      document.querySelectorAll('.toggle-resource').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const id = this.dataset.id;
+          try {
+            const snap = await getDoc(doc(db, 'resources', id));
+            if (!snap.exists()) return;
+            const current = snap.data().premiumOnly === true;
+            await updateDoc(doc(db, 'resources', id), {
+              premiumOnly: !current,
+              updatedAt: serverTimestamp()
+            });
+            addActivity(`Changed resource access to ${!current ? 'Premium' : 'Free'}.`);
+          } catch (error) {
+            console.error('RESOURCE STATUS ERROR:', error);
+            alert('Error updating status: ' + error.message);
+          }
+        });
+      });
+    }, (error) => {
+      console.error('RESOURCE LISTENER ERROR:', error);
+      const tbody = document.getElementById('resourceTableBody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="4"><div class="empty-card">Unable to load resources: ${error.message}</div></td></tr>`;
     });
   }
 
-  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function() {
+  document.getElementById('toggleResourceFormBtn')?.addEventListener('click', function () {
     const container = document.getElementById('resourceFormContainer');
     if (!container) return;
     if (container.style.display === 'none' || !container.style.display) {
       container.style.display = 'block';
       document.getElementById('resourceFormTitle').textContent = 'Add New Resource';
       document.getElementById('saveResourceBtn').textContent = 'Save Resource';
+      resetResourceForm();
       container.style.display = 'block';
       container.scrollIntoView({ behavior: 'smooth' });
     } else { container.style.display = 'none'; }
   });
 
-  document.getElementById('cancelResourceBtn')?.addEventListener('click', function() {
+  document.getElementById('cancelResourceBtn')?.addEventListener('click', function () {
     document.getElementById('resourceFormContainer').style.display = 'none';
+    resetResourceForm();
+  });
+
+  const resourceCategorySelect=document.getElementById('resourceCategory');
+  const resourceCustomCategory=document.getElementById('resourceCustomCategory');
+  function syncCustomResourceCategory(){if(!resourceCategorySelect||!resourceCustomCategory)return;const custom=resourceCategorySelect.value==='Other';resourceCustomCategory.style.display=custom?'block':'none';resourceCustomCategory.required=custom;if(!custom)resourceCustomCategory.value='';}
+  resourceCategorySelect?.addEventListener('change',syncCustomResourceCategory);syncCustomResourceCategory();
+
+  document.getElementById('resourceFilePicker')?.addEventListener('change', function () {
+    const file = this.files?.[0];
+    const fileNameEl = document.getElementById('resourceFileName');
+    if (!file) {
+      if (fileNameEl) fileNameEl.textContent = 'No file chosen';
+      return;
+    }
+    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+    if (fileNameEl) fileNameEl.textContent = `${file.name} — ${sizeMB} MB`;
+  });
+
+  document.getElementById('resourceForm')?.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const form = this;
+    if (form.dataset.uploading === 'true') return;
+
+    const saveButton = document.getElementById('saveResourceBtn');
+    const filePicker = document.getElementById('resourceFilePicker');
+    const editingId = document.getElementById('editingResourceId').value.trim();
+    const title = document.getElementById('resourceTitle').value.trim();
+    const selectedCategory = document.getElementById('resourceCategory').value || 'PDF';
+    const customCategory = document.getElementById('resourceCustomCategory')?.value.trim() || '';
+    const category = selectedCategory === 'Other' ? customCategory : selectedCategory;
+    if (selectedCategory === 'Other' && !customCategory) return alert('Please enter a custom resource category.');
+    const description = document.getElementById('resourceDescription').value.trim();
+    const premiumOnly = document.getElementById('premiumOnly').checked;
+    const file = filePicker?.files?.[0] || null;
+
+    if (!title) return alert('Please enter a resource title.');
+    if (!editingId && !file) return alert('Please choose a file to upload.');
+
+    form.dataset.uploading = 'true';
+    if (saveButton) {
+      saveButton.disabled = true;
+      saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+    }
+
+    try {
+      let fileKey = null;
+      let oldData = null;
+
+      // Editing: keep the existing R2 key when no new file was selected.
+      if (editingId) {
+        const existingSnap = await getDoc(doc(db, 'resources', editingId));
+        if (!existingSnap.exists()) throw new Error('Resource no longer exists.');
+        oldData = existingSnap.data();
+        fileKey = oldData.fileKey || oldData.resourceKey || oldData.r2Key || null;
+      }
+
+      // New file: upload FIRST, then write Firestore.
+      if (file) {
+        const originalName = file.name || 'resource';
+        const safeName = originalName
+          .replace(/[^a-zA-Z0-9._-]/g, '_')
+          .replace(/_+/g, '_');
+        const safeCategory = String(category)
+          .replace(/[^a-zA-Z0-9_-]/g, '_')
+          .toLowerCase();
+        const key = `resources/${safeCategory}/${Date.now()}_${safeName}`;
+
+        setResourceUploadProgress(0, `Uploading 0% — ${originalName}`);
+
+        fileKey = await resourceUploadToR2(file, key, (percent) => {
+          setResourceUploadProgress(percent, `Uploading ${percent}% — ${originalName}`);
+        });
+
+        if (!fileKey) throw new Error('Cloudflare R2 did not return a file key.');
+        setResourceUploadProgress(100, 'Upload complete — saving resource information...');
+      }
+
+      if (!fileKey) {
+        throw new Error('No R2 file key is available for this resource.');
+      }
+
+      const data = {
+        title,
+        category,
+        description,
+        premiumOnly,
+        fileKey,
+        resourceKey: fileKey,
+        r2Key: fileKey,
+        fileName: file?.name || oldData?.fileName || fileKey.split('/').pop(),
+        type: file?.type || oldData?.type || category,
+        updatedAt: serverTimestamp()
+      };
+
+      if (editingId) {
+        await updateDoc(doc(db, 'resources', editingId), data);
+        addActivity(`Updated resource "${title}"`);
+      } else {
+        data.createdAt = serverTimestamp();
+        const created = await addDoc(collection(db, 'resources'), data);
+        console.log('RESOURCE CREATED:', created.id, data);
+        addActivity(`Uploaded resource "${title}"`);
+      }
+
+      setResourceUploadProgress(100, '100% — Resource saved successfully.');
+      alert(editingId ? '✅ Resource updated successfully!' : '✅ Resource uploaded to Cloudflare R2 successfully!');
+
+      setTimeout(() => {
+        document.getElementById('resourceFormContainer').style.display = 'none';
+        resetResourceForm();
+      }, 700);
+
+    } catch (error) {
+      console.error('RESOURCE UPLOAD ERROR:', error);
+      setResourceUploadProgress(0, '❌ Upload failed.');
+      alert('❌ Resource upload failed:\n\n' + (error?.message || error));
+    } finally {
+      form.dataset.uploading = 'false';
+      if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.innerHTML = editingId ? 'Update Resource' : 'Save Resource';
+      }
+    }
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
