@@ -1164,7 +1164,7 @@
                         <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-list"></i></div><h3>Total Trades</h3><h1 id="totalTrades">0</h1></div>
                         <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-shield-heart"></i></div><h3>Consistency</h3><h1 id="consistencyScore" class="value-neutral">0.0%</h1></div>
                         <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-percent"></i></div><h3>Win Rate</h3><h1 id="winRate" class="value-positive">0%</h1></div>
-                        <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div><h3>Average RR</h3><h1 id="averageRR">0.00</h1></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div><h3>Avg RR (Actual)</h3><h1 id="averageRR">0.00</h1></div>
                         <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div><h3>Net Profit</h3><h1 id="netProfit" class="value-positive">$0.00</h1></div>
                         <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div><h3>Profit Factor</h3><h1 id="profitFactor">0.00</h1></div>
                         <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-arrow-down"></i></div><h3>Max Drawdown</h3><h1 id="maxDrawdown" class="value-negative">$0.00</h1></div>
@@ -1198,7 +1198,7 @@
                         <div class="card-header">
                             <div>
                                 <h2><i class="fa-solid fa-pen-to-square"></i> New Trade</h2>
-                                <p>RR, Risk %, Risk Amount, Potential Profit, Potential Loss and Pip Value are automatically calculated.</p>
+                                <p>Projected RR is calculated from Entry/SL/TP. Actual RR is based on your exit (profit/loss and exit price).</p>
                             </div>
                             <div class="card-badge"><i class="fa-solid fa-circle"></i> Ready</div>
                         </div>
@@ -1293,7 +1293,7 @@
                             <!-- EXECUTION & RISK -->
                             <div class="journal-section">
                                 <div class="section-title"><i class="fa-solid fa-bullseye"></i><h3>Execution & Risk</h3></div>
-                                <p class="section-description">All risk calculations update automatically using the selected account, pair, entry, stop loss, take profit and lot size.</p>
+                                <p class="section-description">All risk calculations update automatically. Enter your exit price for actual RR (optional for pending).</p>
                                 <div class="journal-grid">
                                     <div class="form-group"><label for="entry">Entry Price</label><input type="number" step="any" id="entry" placeholder="0.00000" /></div>
                                     <div class="form-group"><label for="stopLoss">Stop Loss</label><input type="number" step="any" id="stopLoss" placeholder="0.00000" /></div>
@@ -1303,15 +1303,18 @@
                                     <div class="form-group"><label for="riskSettingAmount" class="calculated-label">Risk Setting Amount</label><input type="number" step="0.01" id="riskSettingAmount" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="riskAmount" class="calculated-label">Actual Risk Amount</label><input type="number" step="0.01" id="riskAmount" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="risk" class="calculated-label">Risk %</label><input type="number" step="0.01" id="risk" class="calculated-field" readonly /></div>
-                                    <div class="form-group"><label for="rr" class="calculated-label">RR</label><input type="number" step="0.01" id="rr" class="calculated-field" readonly /></div>
+                                    <!-- Projected RR (planned) -->
+                                    <div class="form-group"><label for="projectedRR" class="calculated-label">Projected RR (Plan)</label><input type="number" step="0.01" id="projectedRR" class="calculated-field" readonly /></div>
+                                    <!-- Actual RR (based on exit) -->
+                                    <div class="form-group"><label for="rr" class="calculated-label">Actual RR (Outcome)</label><input type="number" step="0.01" id="rr" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="potentialProfit" class="calculated-label">Potential Profit</label><input type="number" step="0.01" id="potentialProfit" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="potentialLoss" class="calculated-label">Potential Loss</label><input type="number" step="0.01" id="potentialLoss" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="profit">Actual Profit / Loss ($)</label><input type="number" step="0.01" id="profit" placeholder="0.00" /></div>
                                     <div class="form-group"><label for="commission">Commission ($)</label><input type="number" step="0.01" id="commission" placeholder="0.00" /></div>
                                     <div class="form-group"><label for="result">Result</label><select id="result"><option>Win</option><option>Loss</option><option>Breakeven</option><option>Pending</option></select></div>
-                                    <!-- hidden fields for exitPrice and partialPercent (used by journal engine) -->
-                                    <input type="hidden" id="exitPrice" value="" />
-                                    <input type="hidden" id="partialPercent" value="" />
+                                    <!-- Exit price and partial % for actual RR -->
+                                    <div class="form-group"><label for="exitPrice">Exit Price (for actual RR)</label><input type="number" step="any" id="exitPrice" placeholder="0.00000" /></div>
+                                    <div class="form-group"><label for="partialPercent">Partial % (0-100)</label><input type="number" step="1" id="partialPercent" placeholder="100" /></div>
                                 </div>
 
                                 <!-- RISK SUMMARY -->
@@ -1323,7 +1326,8 @@
                                         <div class="risk-summary-item"><small>Risk %</small><strong id="summaryRiskPercent">0.00%</strong></div>
                                         <div class="risk-summary-item"><small>Reward</small><strong id="summaryPotentialProfit">$0.00</strong></div>
                                         <div class="risk-summary-item"><small>Loss</small><strong id="summaryPotentialLoss">$0.00</strong></div>
-                                        <div class="risk-summary-item"><small>Risk : Reward</small><strong id="summaryRR">0.00</strong></div>
+                                        <div class="risk-summary-item"><small>Projected RR</small><strong id="summaryProjectedRR">0.00</strong></div>
+                                        <div class="risk-summary-item"><small>Actual RR</small><strong id="summaryRR">0.00</strong></div>
                                     </div>
                                 </div>
                             </div>
@@ -1528,13 +1532,15 @@
 
                 if (result === "Pending") return 0;
                 if (result === "Breakeven") return 0;
-                if (result === "Win") return plannedRR;
-
+                if (result === "Win") {
+                    // For a win, we keep the planned RR (full reward)
+                    return plannedRR;
+                }
                 if (result === "Loss") {
                     if (riskAmount <= 0) return 0;
+                    // Actual loss ratio: negative of (actual loss / risk)
                     return -(Math.abs(actualProfit) / riskAmount);
                 }
-
                 if (result === "Partial") {
                     if (!Number.isFinite(entry) || !Number.isFinite(stopLoss) || !Number.isFinite(exitPrice)) return 0;
                     const priceRR = calculatePriceRR(entry, stopLoss, exitPrice, direction);
@@ -1699,22 +1705,49 @@
                 const actualRiskPercent = balance > 0 ? (actualRisk / balance) * 100 : 0;
                 setValue("risk", actualRisk > 0 ? actualRiskPercent.toFixed(2) : "");
 
-                const plannedRR = slDistance > 0 ? tpDistance / slDistance : 0;
-                let displayRR = plannedRR;
+                // Projected RR (planned)
+                const projectedRR = slDistance > 0 ? tpDistance / slDistance : 0;
+                setValue("projectedRR", projectedRR !== 0 ? projectedRR.toFixed(2) : "");
+                setText("summaryProjectedRR", projectedRR.toFixed(2));
+
+                // Actual RR: if editing a closed trade, we use stored rr; otherwise for pending we use projectedRR
+                let actualRR = projectedRR;
                 if (editingTrade && editingTrade.status === "Closed") {
-                    displayRR = Number.isFinite(Number(editingTrade.rr)) ? Number(editingTrade.rr) : plannedRR;
+                    actualRR = Number.isFinite(Number(editingTrade.rr)) ? Number(editingTrade.rr) : projectedRR;
+                } else {
+                    // For pending or new, we might compute from exitPrice if available
+                    const exitPrice = parseFloat(val("exitPrice"));
+                    const result = normalizeResult(val("result"));
+                    const profit = parseFloat(val("profit")) || 0;
+                    if (result !== "Pending" && Number.isFinite(exitPrice) && exitPrice !== 0) {
+                        // compute actual RR based on exit
+                        const direction = val("direction");
+                        const rrFromExit = calculatePriceRR(entry, stopLoss, exitPrice, direction);
+                        if (result === "Win") {
+                            actualRR = rrFromExit;
+                        } else if (result === "Loss") {
+                            actualRR = - (Math.abs(profit) / (actualRisk || 1));
+                        } else if (result === "Partial") {
+                            const partial = parseFloat(val("partialPercent")) || 0;
+                            actualRR = rrFromExit * (partial / 100);
+                        } else {
+                            actualRR = rrFromExit;
+                        }
+                    } else {
+                        actualRR = projectedRR;
+                    }
                 }
-                setValue("rr", displayRR !== 0 ? displayRR.toFixed(2) : "");
+                setValue("rr", actualRR !== 0 ? actualRR.toFixed(2) : "");
+                setText("summaryRR", actualRR.toFixed(2));
 
                 setValue("potentialLoss", actualRisk > 0 ? actualRisk.toFixed(2) : "");
-                const potentialProfit = actualRisk * plannedRR;
+                const potentialProfit = actualRisk * projectedRR;
                 setValue("potentialProfit", potentialProfit > 0 ? potentialProfit.toFixed(2) : "");
 
                 setText("summaryRiskAmount", money(actualRisk));
                 setText("summaryRiskPercent", `${actualRiskPercent.toFixed(2)}%`);
                 setText("summaryPotentialProfit", money(potentialProfit));
                 setText("summaryPotentialLoss", money(actualRisk));
-                setText("summaryRR", displayRR.toFixed(2));
             }
 
             // ----- BUILD TRADE -----
@@ -1726,6 +1759,8 @@
                 const currentEntry = num("entry");
                 const currentSL = num("stopLoss");
                 const currentTP = num("takeProfit");
+                const exitPrice = num("exitPrice");
+                const partialPercent = num("partialPercent");
 
                 const closedExisting = isUpdate && editingTrade && editingTrade.status === "Closed";
 
@@ -1749,20 +1784,18 @@
                     "riskAmount")) :
                     num("riskAmount");
 
-                const originalPlannedRR = closedExisting ?
+                const plannedRR = closedExisting ?
                     (Number.isFinite(Number(editingTrade.plannedRR)) ? Number(editingTrade.plannedRR) :
                         calculatePriceRR(originalEntry, originalStopLoss, originalTakeProfit, val("direction"))) :
                     calculatePriceRR(currentEntry, currentSL, currentTP, val("direction"));
 
                 const actualProfit = num("profit");
-                const exitPrice = num("exitPrice");
-                const partialPercent = num("partialPercent");
 
-                const calculatedRR = calculateOutcomeRR({
+                const outcomeRR = calculateOutcomeRR({
                     result,
                     actualProfit,
                     riskAmount: originalRiskAmount,
-                    plannedRR: originalPlannedRR,
+                    plannedRR,
                     entry: originalEntry,
                     stopLoss: originalStopLoss,
                     exitPrice,
@@ -1770,7 +1803,8 @@
                     partialPercent
                 });
 
-                const finalRR = result === "Pending" ? originalPlannedRR : calculatedRR;
+                // For pending trades, outcomeRR is 0, we set rr to plannedRR
+                const finalRR = result === "Pending" ? plannedRR : outcomeRR;
 
                 let tradeDate = val("tradeDate");
                 let tradeTime = val("tradeTime");
@@ -1794,7 +1828,7 @@
                     originalEntry,
                     originalStopLoss,
                     originalTakeProfit,
-                    plannedRR: originalPlannedRR,
+                    plannedRR,
                     riskAmount: originalRiskAmount,
                     entry: currentEntry,
                     stopLoss: currentSL,
@@ -1896,11 +1930,13 @@
                         const oldTrade = trades[index];
                         if (oldTrade.status === "Closed") applyTradeToAccount(oldTrade, "remove");
 
+                        // Preserve original plan if closed
                         if (oldTrade.status === "Closed") {
                             trade.originalEntry = oldTrade.originalEntry ?? oldTrade.entry;
                             trade.originalStopLoss = oldTrade.originalStopLoss ?? oldTrade.stopLoss;
                             trade.originalTakeProfit = oldTrade.originalTakeProfit ?? oldTrade.takeProfit;
                             trade.plannedRR = oldTrade.plannedRR ?? trade.plannedRR;
+                            // Recalculate outcome RR using new exit info
                             trade.rr = calculateOutcomeRR({
                                 result: trade.result,
                                 actualProfit: trade.profit,
@@ -2025,6 +2061,12 @@
                     const cb = document.getElementById(id);
                     if (cb) cb.checked = !!(trade.confluences && trade.confluences[key]);
                 });
+
+                // Set projectedRR and rr fields
+                setValue("projectedRR", trade.plannedRR ? trade.plannedRR.toFixed(2) : "");
+                setValue("rr", trade.rr ? trade.rr.toFixed(2) : "");
+                setText("summaryProjectedRR", trade.plannedRR ? trade.plannedRR.toFixed(2) : "0.00");
+                setText("summaryRR", trade.rr ? trade.rr.toFixed(2) : "0.00");
 
                 updateTradeAccountInfo();
                 calculateAll();
@@ -2248,27 +2290,58 @@
                 const commission = parseFloat(prompt("Commission ($)", "0")) || 0;
                 if (result === "Loss" && profit > 0) profit = -profit;
 
+                // Ask for exit price and partial % if needed
+                let exitPrice = 0;
+                let partialPercent = 0;
+                if (result === "Win" || result === "Partial") {
+                    exitPrice = parseFloat(prompt("Exit price (for actual RR)", "0")) || 0;
+                    if (result === "Partial") {
+                        partialPercent = parseFloat(prompt("Partial % (0-100)", "50")) || 0;
+                    }
+                } else if (result === "Loss") {
+                    // For loss, exit price is not needed for RR, but we store it optionally
+                    exitPrice = parseFloat(prompt("Exit price (optional)", "0")) || 0;
+                }
+
                 trade.status = "Closed";
                 trade.closed = new Date().toISOString();
                 trade.result = result;
                 trade.profit = profit;
                 trade.commission = commission;
+                trade.exitPrice = exitPrice;
+                trade.partialPercent = partialPercent;
 
+                // Recalculate actual RR
                 const riskAmount = Number(trade.riskAmount) || 0;
-                if (riskAmount > 0) trade.rr = Math.round((profit / riskAmount) * 100) / 100;
+                const plannedRR = Number(trade.plannedRR) || 0;
+                const entry = Number(trade.entry) || 0;
+                const stopLoss = Number(trade.stopLoss) || 0;
+                const direction = trade.direction || "BUY";
+                const outcomeRR = calculateOutcomeRR({
+                    result,
+                    actualProfit: profit,
+                    riskAmount,
+                    plannedRR,
+                    entry,
+                    stopLoss,
+                    exitPrice,
+                    direction,
+                    partialPercent
+                });
+                trade.rr = outcomeRR;
 
                 applyTradeToAccount(trade, "add");
                 saveTrades();
                 saveAccounts();
                 refreshUI();
                 alert("✅ Trade closed successfully.\n\nAccount: " + (getAccount(trade.accountId)?.name || trade.account ||
-                    "-") + "\nNet P/L: " + signedMoney(profit - commission));
+                    "-") + "\nNet P/L: " + signedMoney(profit - commission) + "\nActual RR: " + outcomeRR.toFixed(2));
             };
 
             function viewTrade(trade) {
                 const net = (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
                 alert(
-                    `PAIR          : ${trade.pair}\nACCOUNT       : ${getAccount(trade.accountId)?.name || trade.account || "-"}\nSTATUS        : ${trade.status}\nRESULT        : ${trade.result}\nPROFIT        : ${money(trade.profit)}\nCOMMISSION    : ${money(trade.commission)}\nNET P/L       : ${signedMoney(net)}\nRISK AMOUNT   : ${money(trade.riskAmount)}\nRISK %        : ${trade.risk || 0}%\nRR            : ${trade.rr || 0}\nLESSON        : ${trade.lessonLearned || "-"}\nIMPROVEMENT   : ${trade.improvementPlan || "-"}`
+                    `PAIR          : ${trade.pair}\nACCOUNT       : ${getAccount(trade.accountId)?.name || trade.account || "-"}\nSTATUS        : ${trade.status}\nRESULT        : ${trade.result}\nPROFIT        : ${money(trade.profit)}\nCOMMISSION    : ${money(trade.commission)}\nNET P/L       : ${signedMoney(net)}\nRISK AMOUNT   : ${money(trade.riskAmount)}\nRISK %        : ${trade.risk || 0}%\nPROJECTED RR  : ${(trade.plannedRR || 0).toFixed(2)}\nACTUAL RR     : ${(trade.rr || 0).toFixed(2)}\nLESSON        : ${trade.lessonLearned || "-"}\nIMPROVEMENT   : ${trade.improvementPlan || "-"}`
                     );
             }
 
@@ -2563,8 +2636,10 @@
                 });
             }
 
-            // Auto-calc listeners
-            const calcFields = ["pair", "entry", "stopLoss", "takeProfit", "lotSize"];
+            // Auto-calc listeners including exitPrice and partialPercent
+            const calcFields = ["pair", "entry", "stopLoss", "takeProfit", "lotSize", "exitPrice", "partialPercent",
+                "result", "profit"
+            ];
             calcFields.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
