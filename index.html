@@ -1601,7 +1601,7 @@
     </div>
   </div>
 
-  <!-- ===== STICKY CTA (appears on scroll) ===== -->
+  <!-- ===== STICKY CTA ===== -->
   <div id="stickyCta" class="sticky-cta">
     <span>🚀 Join 500+ traders mastering Smart Money</span>
     <a href="#pricing" class="btn">Start Free Trial</a>
@@ -1631,7 +1631,7 @@
       <div class="hero-right">
         <!-- Rotating concept carousel -->
         <div class="concept-carousel">
-          <h3>📌 Today’s Focus</h3>
+          <h3>📌 Today's Focus</h3>
           <div class="carousel-track" id="carouselTrack">
             <div class="carousel-slide active">
               <i class="fas fa-chart-line"></i>
@@ -1772,7 +1772,7 @@
     </div>
   </section>
 
-  <!-- ===== PRICING (Free vs Premium) ===== -->
+  <!-- ===== PRICING ===== -->
   <section class="pricing" id="pricing">
     <div class="container">
       <div class="section-title">
@@ -1807,15 +1807,16 @@
     </div>
   </section>
 
-  <!-- ===== LIVE TRADES FEED ===== -->
+  <!-- ===== LIVE TRADES FEED (REAL DATA FROM FIRESTORE) ===== -->
   <section class="live-trades" id="live-trades">
     <div class="container">
       <div class="section-title">
         <h2>📊 Live Community Trades</h2>
-        <p>Real trades from our members (simulated for demo).</p>
+        <p>Real trades from our members – approved by admin.</p>
       </div>
       <div class="trade-feed" id="tradeFeed">
-        <!-- populated by JS -->
+        <!-- JavaScript populates this -->
+        <div style="text-align:center; color:#9aa4bf; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading trades...</div>
       </div>
     </div>
   </section>
@@ -1950,9 +1951,208 @@
   <!-- ===== SCROLL TO TOP ===== -->
   <button id="scrollTopBtn" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== SCRIPTS ===== -->
-  <script>
-    // ─── Mobile overlay ──────────────────────────────────────────
+  <!-- ===== IMPORTS ===== -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+      }
+    }
+  </script>
+
+  <!-- ===== MAIN SCRIPT ===== -->
+  <script type="module">
+    // ----- IMPORTS -----
+    import { auth, db } from "/js/firebase.js";
+    import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+    import { onAuthStateChanged } from "firebase/auth";
+
+    // ----- LOAD PUBLIC TRADES FROM FIRESTORE -----
+    async function loadPublicTrades() {
+      try {
+        const q = query(
+          collection(db, "trades"),
+          where("public", "==", true),
+          orderBy("closed", "desc"),
+          limit(6)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error("Error loading public trades:", error);
+        return [];
+      }
+    }
+
+    function timeAgo(date) {
+      if (!date) return 'recent';
+      const d = date.toDate ? date.toDate() : new Date(date);
+      const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
+      if (seconds < 60) return 'now';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return minutes + 'm ago';
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return hours + 'h ago';
+      const days = Math.floor(hours / 24);
+      return days + 'd ago';
+    }
+
+    async function renderTrades() {
+      const container = document.getElementById('tradeFeed');
+      if (!container) return;
+      const trades = await loadPublicTrades();
+      if (trades.length === 0) {
+        container.innerHTML = '<p style="color:#9aa4bf; text-align:center;">No public trades yet.</p>';
+        return;
+      }
+      container.innerHTML = trades.map(t => {
+        const rr = Number(t.rr) || 0;
+        const rrClass = rr >= 0 ? 'positive' : 'negative';
+        const sign = rr >= 0 ? '+' : '';
+        const timeStr = timeAgo(t.closed);
+        return `
+          <div class="trade-feed-item">
+            <span class="pair">${t.pair || '??'} <span style="color:#9aa4bf;font-size:0.8rem;">${t.direction || ''}</span></span>
+            <span class="rr ${rrClass}">${sign}${rr.toFixed(1)}R</span>
+            <span class="time">${timeStr}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ----- AUTH BUTTONS -----
+    onAuthStateChanged(auth, user => {
+      const loginBtn = document.getElementById('loginBtn');
+      const dashboardBtn = document.getElementById('dashboardBtn');
+      const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+      const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
+      if (user) {
+        loginBtn.style.display = 'none';
+        dashboardBtn.style.display = 'inline-flex';
+        mobileLoginBtn.style.display = 'none';
+        mobileDashboardBtn.style.display = 'block';
+      } else {
+        loginBtn.style.display = 'inline-flex';
+        dashboardBtn.style.display = 'none';
+        mobileLoginBtn.style.display = 'block';
+        mobileDashboardBtn.style.display = 'none';
+      }
+    });
+
+    // ----- INIT -----
+    renderTrades();
+
+    // ----- CAROUSEL (rotating concepts) -----
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dotsContainer = document.getElementById('carouselDots');
+    let currentSlide = 0;
+    let interval;
+
+    if (slides.length) {
+      slides.forEach((_, i) => {
+        const dot = document.createElement('span');
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+      });
+      const dots = dotsContainer.querySelectorAll('span');
+
+      function goToSlide(index) {
+        slides.forEach((s, i) => {
+          s.classList.toggle('active', i === index);
+          dots[i].classList.toggle('active', i === index);
+        });
+        currentSlide = index;
+      }
+
+      function nextSlide() {
+        goToSlide((currentSlide + 1) % slides.length);
+      }
+
+      function startCarousel() {
+        interval = setInterval(nextSlide, 4000);
+      }
+      function stopCarousel() {
+        clearInterval(interval);
+      }
+
+      const carousel = document.querySelector('.concept-carousel');
+      carousel.addEventListener('mouseenter', stopCarousel);
+      carousel.addEventListener('mouseleave', startCarousel);
+      startCarousel();
+    }
+
+    // ----- STICKY CTA -----
+    const stickyCta = document.getElementById('stickyCta');
+    let ctaVisible = false;
+    window.addEventListener('scroll', () => {
+      const heroHeight = document.querySelector('.hero').offsetHeight;
+      const scrollY = window.scrollY;
+      if (scrollY > heroHeight * 0.6 && !ctaVisible) {
+        stickyCta.classList.add('visible');
+        ctaVisible = true;
+      } else if (scrollY <= heroHeight * 0.5 && ctaVisible) {
+        stickyCta.classList.remove('visible');
+        ctaVisible = false;
+      }
+    }, { passive: true });
+
+    // ----- ANIMATED COUNTERS -----
+    const counters = document.querySelectorAll('.stat-number');
+    let animated = false;
+
+    function animateCounters() {
+      if (animated) return;
+      counters.forEach(counter => {
+        const target = parseFloat(counter.getAttribute('data-count'));
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function update(time) {
+          const elapsed = time - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          let current = (target * eased);
+          if (target % 1 !== 0) {
+            current = current.toFixed(1);
+          } else {
+            current = Math.floor(current);
+          }
+          counter.textContent = current;
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            counter.textContent = target;
+          }
+        }
+        requestAnimationFrame(update);
+      });
+      animated = true;
+    }
+
+    const statsSection = document.getElementById('stats');
+    if (statsSection) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          animateCounters();
+          observer.disconnect();
+        }
+      }, { threshold: 0.3 });
+      observer.observe(statsSection);
+    }
+
+    // ----- FAQ ACCORDION -----
+    window.toggleFaq = function(el) {
+      const item = el.closest('.faq-item');
+      if (!item) return;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(f => f.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    };
+
+    // ----- MOBILE OVERLAY -----
     const toggleBtn = document.getElementById('menuToggle');
     const overlay = document.getElementById('mobileOverlay');
     const closeBtn = document.getElementById('mobileCloseBtn');
@@ -1976,137 +2176,7 @@
     overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
 
-    // ─── Sticky CTA ─────────────────────────────────────────────
-    const stickyCta = document.getElementById('stickyCta');
-    let ctaVisible = false;
-    window.addEventListener('scroll', () => {
-      const heroHeight = document.querySelector('.hero').offsetHeight;
-      const scrollY = window.scrollY;
-      if (scrollY > heroHeight * 0.6 && !ctaVisible) {
-        stickyCta.classList.add('visible');
-        ctaVisible = true;
-      } else if (scrollY <= heroHeight * 0.5 && ctaVisible) {
-        stickyCta.classList.remove('visible');
-        ctaVisible = false;
-      }
-    }, { passive: true });
-
-    // ─── Concept Carousel ──────────────────────────────────────
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dotsContainer = document.getElementById('carouselDots');
-    let currentSlide = 0;
-    let interval;
-
-    // Build dots
-    slides.forEach((_, i) => {
-      const dot = document.createElement('span');
-      if (i === 0) dot.classList.add('active');
-      dot.addEventListener('click', () => goToSlide(i));
-      dotsContainer.appendChild(dot);
-    });
-    const dots = dotsContainer.querySelectorAll('span');
-
-    function goToSlide(index) {
-      slides.forEach((s, i) => {
-        s.classList.toggle('active', i === index);
-        dots[i].classList.toggle('active', i === index);
-      });
-      currentSlide = index;
-    }
-
-    function nextSlide() {
-      goToSlide((currentSlide + 1) % slides.length);
-    }
-
-    function startCarousel() {
-      interval = setInterval(nextSlide, 4000);
-    }
-    function stopCarousel() {
-      clearInterval(interval);
-    }
-
-    // Pause on hover
-    const carousel = document.querySelector('.concept-carousel');
-    carousel.addEventListener('mouseenter', stopCarousel);
-    carousel.addEventListener('mouseleave', startCarousel);
-
-    startCarousel();
-
-    // ─── Live Trades Feed (simulated) ──────────────────────────
-    const feedData = [
-      { pair: 'EURUSD', rr: 2.3, direction: 'BUY', time: '5 min ago' },
-      { pair: 'XAUUSD', rr: -1.2, direction: 'SELL', time: '23 min ago' },
-      { pair: 'GBPJPY', rr: 1.8, direction: 'BUY', time: '1 hour ago' },
-      { pair: 'US30', rr: 0.9, direction: 'SELL', time: '2 hours ago' },
-      { pair: 'BTCUSD', rr: 3.5, direction: 'BUY', time: '3 hours ago' },
-    ];
-    const feedContainer = document.getElementById('tradeFeed');
-    feedContainer.innerHTML = feedData.map(t => `
-      <div class="trade-feed-item">
-        <span class="pair">${t.pair} <span style="color:#9aa4bf;font-size:0.8rem;">${t.direction}</span></span>
-        <span class="rr ${t.rr >= 0 ? 'positive' : 'negative'}">${t.rr >= 0 ? '+' : ''}${t.rr.toFixed(1)}R</span>
-        <span class="time">${t.time}</span>
-      </div>
-    `).join('');
-
-    // ─── Animated Counters ──────────────────────────────────────
-    const counters = document.querySelectorAll('.stat-number');
-    let animated = false;
-
-    function animateCounters() {
-      if (animated) return;
-      counters.forEach(counter => {
-        const target = parseFloat(counter.getAttribute('data-count'));
-        const duration = 2000;
-        const startTime = performance.now();
-        const startVal = 0;
-
-        function update(time) {
-          const elapsed = time - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          // easeOutExpo
-          const eased = 1 - Math.pow(1 - progress, 3);
-          let current = startVal + (target - startVal) * eased;
-          if (target % 1 !== 0) {
-            current = current.toFixed(1);
-          } else {
-            current = Math.floor(current);
-          }
-          counter.textContent = current;
-          if (progress < 1) {
-            requestAnimationFrame(update);
-          } else {
-            counter.textContent = target;
-          }
-        }
-        requestAnimationFrame(update);
-      });
-      animated = true;
-    }
-
-    // Intersection Observer for stats section
-    const statsSection = document.getElementById('stats');
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        animateCounters();
-        observer.disconnect();
-      }
-    }, { threshold: 0.3 });
-    observer.observe(statsSection);
-
-    // ─── FAQ Accordion ──────────────────────────────────────────
-    function toggleFaq(el) {
-      const item = el.closest('.faq-item');
-      if (!item) return;
-      const isOpen = item.classList.contains('open');
-      // Close all
-      document.querySelectorAll('.faq-item.open').forEach(f => f.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
-    }
-    // Make toggle function global
-    window.toggleFaq = toggleFaq;
-
-    // ─── Scroll to Top ──────────────────────────────────────────
+    // ----- SCROLL TO TOP -----
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
       scrollBtn.classList.toggle('visible', window.scrollY > 300);
@@ -2115,26 +2185,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ─── Auth Buttons ──────────────────────────────────────────
-    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
-    const loginBtn = document.getElementById('loginBtn');
-    const dashboardBtn = document.getElementById('dashboardBtn');
-    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
-    const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
-
-    if (isLoggedIn) {
-      loginBtn.style.display = 'none';
-      dashboardBtn.style.display = 'inline-flex';
-      mobileLoginBtn.style.display = 'none';
-      mobileDashboardBtn.style.display = 'block';
-    } else {
-      loginBtn.style.display = 'inline-flex';
-      dashboardBtn.style.display = 'none';
-      mobileLoginBtn.style.display = 'block';
-      mobileDashboardBtn.style.display = 'none';
-    }
-
-    console.log('GTRADES-AXIS™ ready.');
+    console.log('GTRADES-AXIS™ Homepage loaded with live public trades.');
   </script>
 </body>
 </html>
