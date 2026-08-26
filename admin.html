@@ -181,6 +181,8 @@
     .badge.unpaid { background: rgba(255,71,102,0.12); color: var(--red); }
     .badge.published { background: rgba(0,200,151,0.12); color: var(--green); }
     .badge.draft { background: rgba(245,166,35,0.12); color: var(--gold); }
+    .badge.public { background: rgba(0,200,151,0.12); color: var(--green); }
+    .badge.private { background: rgba(255,71,102,0.12); color: var(--red); }
 
     .manage-btn { padding: 4px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: 0.2s; }
     .manage-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
@@ -321,6 +323,7 @@
       <li><a href="#academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a></li>
       <li><a href="#resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
       <li><a href="#videos"><i class="fa-solid fa-video"></i> Videos</a></li>
+      <li><a href="#trades"><i class="fa-solid fa-chart-simple"></i> Trades</a></li>
       <li><a href="/admin-payments" class="sidebar-link">
     <i class="fa-solid fa-credit-card"></i>
     <span>Payments</span>
@@ -343,6 +346,8 @@
     <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-graduation-cap"></i></div><div><h2 id="lessonCount">0</h2><p>Academy Lessons</p></div></div>
     <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-video"></i></div><div><h2 id="videoCount">0</h2><p>Videos</p></div></div>
     <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-clock"></i></div><div><h2 id="pendingLessons">0</h2><p>Draft Lessons</p></div></div>
+    <!-- New stat: Public Trades -->
+    <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-chart-simple"></i></div><div><h2 id="publicTradesCount">0</h2><p>Public Trades</p></div></div>
   </section>
 
   <!-- QUICK ACTIONS -->
@@ -351,6 +356,7 @@
     <button onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-video-plus"></i> Add Video</button>
     <button onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-folder-plus"></i> New Resource</button>
     <button onclick="document.getElementById('payments').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-credit-card"></i> View Payments</button>
+    <button onclick="document.getElementById('trades').scrollIntoView({behavior:'smooth'})"><i class="fa-solid fa-chart-simple"></i> Manage Trades</button>
   </section>
 
   <!-- DASHBOARD GRID -->
@@ -361,7 +367,7 @@
     </div>
     <div class="right-panel">
       <div class="dashboard-card"><h2><i class="fa-solid fa-user-clock"></i> Recent Members</h2><div id="recentMembers"><div class="empty-card">No members yet.</div></div></div>
-      <div class="dashboard-card"><h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2><div class="overview-list"><div class="overview-item"><span>Academy Modules</span><strong id="moduleOverview">0</strong></div><div class="overview-item"><span>Videos</span><strong id="videoOverview">0</strong></div><div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div></div></div>
+      <div class="dashboard-card"><h2><i class="fa-solid fa-chart-column"></i> Platform Overview</h2><div class="overview-list"><div class="overview-item"><span>Academy Modules</span><strong id="moduleOverview">0</strong></div><div class="overview-item"><span>Videos</span><strong id="videoOverview">0</strong></div><div class="overview-item"><span>Resources</span><strong id="resourceOverview">0</strong></div><div class="overview-item"><span>Public Trades</span><strong id="publicTradesOverview">0</strong></div></div></div>
       <div class="dashboard-card"><h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2><div class="activity-feed" id="activityFeed"></div></div>
     </div>
   </div>
@@ -413,7 +419,25 @@
     </div>
   </section>
 
-  <!-- ========================================================== VIDEO MANAGER (FILE UPLOAD) -->
+  <!-- ========================================================== TRADES MANAGER (NEW) -->
+  <section class="manager-section" id="trades">
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div><h2><i class="fa-solid fa-chart-simple"></i> Manage Trades (Public/Private)</h2><p>Toggle trades to show on the homepage feed.</p></div>
+        <div>
+          <span id="tradeCount" style="color:var(--text-secondary);font-size:0.85rem;">0 trades</span>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="members-table" id="tradesTable">
+          <thead><tr><th>Pair</th><th>Direction</th><th>RR</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="tradesTableBody"><tr><td colspan="6"><div class="empty-card">Loading trades...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================== VIDEO MANAGER -->
   <section class="manager-section" id="videos">
     <div class="dashboard-card">
       <div class="card-header">
@@ -536,7 +560,7 @@
   import { signOut, onAuthStateChanged } from "firebase/auth";
   import { 
     collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc, 
-    onSnapshot, serverTimestamp, addDoc 
+    onSnapshot, serverTimestamp, addDoc, where 
   } from "firebase/firestore";
   import { uploadToR2, getDownloadUrl } from "./js/upload.js";
 
@@ -1424,7 +1448,81 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  6. INIT
+  //  6. TRADES MANAGEMENT (NEW)
+  // ═══════════════════════════════════════════════════════════════════════════
+  function listenTrades() {
+    const q = query(collection(db, "trades"), where("status", "==", "Closed"), orderBy("closed", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const tbody = document.getElementById('tradesTableBody');
+      const countEl = document.getElementById('tradeCount');
+      const publicCountEl = document.getElementById('publicTradesCount');
+      const publicOverviewEl = document.getElementById('publicTradesOverview');
+      let total = 0, publicCount = 0;
+
+      if (snapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">No closed trades found.</div></td></tr>`;
+        if (countEl) countEl.textContent = '0 trades';
+        if (publicCountEl) publicCountEl.textContent = '0';
+        if (publicOverviewEl) publicOverviewEl.textContent = '0';
+        return;
+      }
+
+      let html = '';
+      snapshot.forEach(doc => {
+        const t = { id: doc.id, ...doc.data() };
+        total++;
+        if (t.public === true) publicCount++;
+        const isPublic = t.public === true;
+        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.closed || t.date || '—';
+        const rr = Number(t.rr) || 0;
+        html += `
+          <tr>
+            <td><strong>${t.pair || '??'}</strong></td>
+            <td>${t.direction || '—'}</td>
+            <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
+            <td>${dateStr}</td>
+            <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
+            <td>
+              <button class="manage-btn toggle-trade-public" data-id="${t.id}" data-public="${isPublic}" style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
+                <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
+                ${isPublic ? 'Hide' : 'Show on Homepage'}
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      if (countEl) countEl.textContent = `${total} trades`;
+      if (publicCountEl) publicCountEl.textContent = publicCount;
+      if (publicOverviewEl) publicOverviewEl.textContent = publicCount;
+
+      // Toggle logic
+      document.querySelectorAll('.toggle-trade-public').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const tradeId = this.dataset.id;
+          const currentPublic = this.dataset.public === 'true';
+          const newPublic = !currentPublic;
+
+          try {
+            await updateDoc(doc(db, "trades", tradeId), { public: newPublic });
+            addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
+            // The snapshot will refresh automatically
+          } catch (error) {
+            console.error("Error toggling trade public status:", error);
+            alert("Failed to update trade status. Check console.");
+          }
+        });
+      });
+    }, (error) => {
+      console.error("TRADES LISTENER ERROR:", error);
+      const tbody = document.getElementById('tradesTableBody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  7. INIT
   // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -1433,12 +1531,13 @@
       listenPayments();
       listenVideos();
       listenResources();
+      listenTrades(); // NEW
     } else {
       window.location.href = "/login";
     }
   });
 
-  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Video Upload) – All features included.');
+  console.log('✅ GTRADES AXIS Admin + Cloudflare R2 (Video Upload) + Trade Management – All features included.');
 </script>
 </body>
 </html>
