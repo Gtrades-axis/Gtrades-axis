@@ -41,7 +41,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
-    /* ─── ALL YOUR EXISTING STYLES – UNCHANGED ─── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -132,20 +131,10 @@
     .admin-header .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     #liveDate { color: var(--text-secondary); font-size: 0.875rem; padding: 6px 18px; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); }
 
-    /* ─── TAB CONTENT ─── */
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ─── STATS (only on dashboard) ─── */
     .stats-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 18px; margin-bottom: 28px;
@@ -240,6 +229,7 @@
     .badge.draft { background: rgba(245,166,35,0.12); color: var(--gold); }
     .badge.public { background: rgba(0,200,151,0.12); color: var(--green); }
     .badge.private { background: rgba(255,71,102,0.12); color: var(--red); }
+    .badge.closed { background: rgba(79,124,255,0.12); color: var(--accent-blue); }
 
     .manage-btn {
       padding: 4px 14px; border: 1px solid var(--border-color); border-radius: 6px;
@@ -766,7 +756,7 @@
         <div class="table-container">
           <table class="members-table" id="tradesTable">
             <thead>
-              <tr><th>Pair</th><th>Direction</th><th>RR</th><th>Date</th><th>Status</th><th>Public</th><th>Action</th></tr>
+              <tr><th>User</th><th>Pair</th><th>Direction</th><th>RR</th><th>Date</th><th>Status</th><th>Action</th></tr>
             </thead>
             <tbody id="tradesTableBody"><tr><td colspan="7"><div class="empty-card">Loading trades...</div></td></tr></tbody>
           </table>
@@ -933,7 +923,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 1. MEMBERS – FULL MANAGEMENT
+  // 1. MEMBERS
   // ═══════════════════════════════════════════════════════════════════════════
   function timestampToDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();if(v.seconds!==undefined)return new Date(v.seconds*1000);const d=new Date(v);return Number.isNaN(d.getTime())?null:d;}
   function formatJoined(v){const d=timestampToDate(v);return d?d.toLocaleDateString('en-GB'):'--';}
@@ -1043,7 +1033,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 2. ACADEMY MODULES (Full)
+  // 2. ACADEMY MODULES
   // ═══════════════════════════════════════════════════════════════════════════
   const MODULES_COLLECTION = "academy_modules";
   function getSampleModules() {
@@ -1166,7 +1156,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 3. PAYMENTS (Full)
+  // 3. PAYMENTS
   // ═══════════════════════════════════════════════════════════════════════════
   function listenPayments() {
     const q = query(collection(db, "payments"), orderBy("createdAt", "desc"));
@@ -1226,7 +1216,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 4. VIDEOS (File Upload) – Full
+  // 4. VIDEOS
   // ═══════════════════════════════════════════════════════════════════════════
   function listenVideos() {
     const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
@@ -1362,7 +1352,7 @@
     }
   });
 
-  // VIDEO UPLOAD FEEDBACK
+  // ─── VIDEO UPLOAD FEEDBACK ──────────────────────────────────────────────
   const videoUploadStatus = document.getElementById('videoUploadStatus');
   const videoUploadStatusIcon = document.getElementById('videoUploadStatusIcon');
   const videoUploadStatusText = document.getElementById('videoUploadStatusText');
@@ -1471,7 +1461,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 5. RESOURCES — CLOUDFLARE R2 + FIRESTORE
+  // 5. RESOURCES
   // ═══════════════════════════════════════════════════════════════════════════
   const RESOURCE_R2_WORKER = "https://r2-uploader.davidthuku574.workers.dev";
 
@@ -1602,81 +1592,241 @@
     document.getElementById('resourceFormContainer').style.display = 'none';
   });
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 6. TRADES MANAGEMENT
-  // ═══════════════════════════════════════════════════════════════════════════
-  function listenTrades() {
-    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      const tbody = document.getElementById('tradesTableBody');
-      const countEl = document.getElementById('tradeCount');
-      let total = 0;
+  // ─── RESOURCES CATEGORY SYNC ─────────────────────────────────────────────
+  function syncCustomResourceCategory() {
+    const select = document.getElementById('resourceCategory');
+    const custom = document.getElementById('resourceCustomCategory');
+    if (!select || !custom) return;
+    if (select.value === 'Other') {
+      custom.style.display = 'block';
+      custom.required = true;
+    } else {
+      custom.style.display = 'none';
+      custom.required = false;
+      custom.value = '';
+    }
+  }
+  document.getElementById('resourceCategory')?.addEventListener('change', syncCustomResourceCategory);
+  syncCustomResourceCategory();
 
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No trades found.</div></td></tr>`;
-        if (countEl) countEl.textContent = '0 trades';
-        return;
+  // ─── RESOURCE UPLOAD PROGRESS ────────────────────────────────────────────
+  const resourceUploadProgress = document.getElementById('resourceUploadProgress');
+  const resourceUploadProgressBar = document.getElementById('resourceUploadProgressBar');
+  const resourceUploadProgressText = document.getElementById('resourceUploadProgressText');
+
+  function showResourceUploadProgress(percent, message) {
+    if (resourceUploadProgress) resourceUploadProgress.style.display = 'block';
+    if (resourceUploadProgressBar) resourceUploadProgressBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    if (resourceUploadProgressText) resourceUploadProgressText.textContent = message || `Uploading ${percent}%...`;
+  }
+
+  function hideResourceUploadProgress() {
+    if (resourceUploadProgress) resourceUploadProgress.style.display = 'none';
+    if (resourceUploadProgressBar) resourceUploadProgressBar.style.width = '0%';
+    if (resourceUploadProgressText) resourceUploadProgressText.textContent = 'Preparing upload...';
+  }
+
+  document.getElementById('resourceForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const editingId = document.getElementById('editingResourceId').value;
+    const title = document.getElementById('resourceTitle').value.trim();
+    const categorySelect = document.getElementById('resourceCategory');
+    const customCategory = document.getElementById('resourceCustomCategory');
+    let category = categorySelect.value;
+    if (category === 'Other' && customCategory) {
+      category = customCategory.value.trim() || 'Other';
+    }
+    const description = document.getElementById('resourceDescription').value.trim();
+    const premiumOnly = document.getElementById('premiumOnly').checked;
+    const file = document.getElementById('resourceFilePicker').files[0];
+    const saveBtn = document.getElementById('saveResourceBtn');
+
+    if (!title) { alert('Please enter a resource title.'); return; }
+
+    try {
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
       }
 
-      let html = '';
-      snapshot.forEach(doc => {
-        const t = { id: doc.id, ...doc.data() };
-        total++;
-        const isPublic = t.public === true;
-        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.date || t.createdAt || '—';
-        const rr = Number(t.rr) || 0;
-        const statusDisplay = t.status || 'Pending';
-        const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
-
-        html += `
-          <tr>
-            <td><strong>${t.pair || '??'}</strong></td>
-            <td>${t.direction || '—'}</td>
-            <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
-            <td>${dateStr}</td>
-            <td><span class="badge ${statusBadge}">${statusDisplay}</span></td>
-            <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
-            <td>
-              <button class="manage-btn toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}"
-                      data-id="${t.id}"
-                      data-public="${isPublic}"
-                      style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
-                <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
-                ${isPublic ? 'Hide' : 'Show'}
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-
-      tbody.innerHTML = html;
-      if (countEl) countEl.textContent = `${total} trades`;
-
-      document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const tradeId = this.dataset.id;
-          const currentPublic = this.dataset.public === 'true';
-          const newPublic = !currentPublic;
-          const originalHTML = this.innerHTML;
-
-          this.disabled = true;
-          this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-          try {
-            await updateDoc(doc(db, "trades", tradeId), { public: newPublic });
-            addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
-          } catch (error) {
-            console.error("Toggle error:", error);
-            alert('Failed to update trade status.');
-            this.innerHTML = originalHTML;
-            this.disabled = false;
-          }
+      let fileKey = null;
+      if (file) {
+        const key = `resources/${Date.now()}_${file.name}`;
+        showResourceUploadProgress(0, 'Starting upload...');
+        await resourceUploadToR2(file, key, (percent) => {
+          showResourceUploadProgress(percent, `Uploading... ${percent}%`);
         });
+        fileKey = key;
+        showResourceUploadProgress(100, 'Upload complete!');
+        setTimeout(hideResourceUploadProgress, 1000);
+      }
+
+      const resourceData = {
+        title,
+        category,
+        description,
+        premiumOnly,
+        fileKey,
+        updatedAt: serverTimestamp()
+      };
+
+      if (editingId) {
+        await updateDoc(doc(db, 'resources', editingId), resourceData);
+        addActivity(`Updated resource: ${title}`);
+      } else {
+        resourceData.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'resources'), resourceData);
+        addActivity(`Added resource: ${title}`);
+      }
+
+      alert('✅ Resource saved successfully!');
+      document.getElementById('resourceForm').reset();
+      document.getElementById('editingResourceId').value = '';
+      document.getElementById('resourceFormContainer').style.display = 'none';
+      document.getElementById('resourceFileName').textContent = 'No file chosen';
+
+    } catch (error) {
+      console.error('Resource save error:', error);
+      alert('Error saving resource: ' + error.message);
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save Resource';
+      }
+      hideResourceUploadProgress();
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 6. TRADES MANAGEMENT - FIXED TO READ FROM backtestTrades
+  // ═══════════════════════════════════════════════════════════════════════════
+  function listenTrades() {
+    const tbody = document.getElementById('tradesTableBody');
+    const countEl = document.getElementById('tradeCount');
+    
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Loading trades from all users...</div></td></tr>`;
+    
+    const usersRef = collection(db, "users");
+    
+    getDocs(usersRef).then(async (usersSnapshot) => {
+      const allTrades = [];
+      
+      for (const userDoc of usersSnapshot.docs) {
+        const userId = userDoc.id;
+        const userData = userDoc.data();
+        const userEmail = userData.email || 'Unknown';
+        
+        try {
+          const tradesRef = collection(db, "users", userId, "backtestTrades");
+          const tradesSnapshot = await getDocs(query(tradesRef, orderBy("createdAt", "desc")));
+          
+          tradesSnapshot.forEach(tradeDoc => {
+            const data = tradeDoc.data();
+            allTrades.push({
+              id: tradeDoc.id,
+              userId: userId,
+              userEmail: userEmail,
+              ...data
+            });
+          });
+        } catch (error) {
+          // User may not have backtestTrades collection - skip silently
+        }
+      }
+      
+      // Sort by date (newest first)
+      allTrades.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(a.created || 0);
+        const dateB = b.createdAt?.toDate?.() || new Date(b.created || 0);
+        return dateB - dateA;
       });
-    }, (error) => {
-      console.error("TRADES LISTENER ERROR:", error);
-      const tbody = document.getElementById('tradesTableBody');
+      
+      renderAdminTrades(allTrades);
+      
+    }).catch(error => {
+      console.error("Failed to load trades:", error);
       if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
+    });
+  }
+
+  function renderAdminTrades(trades) {
+    const tbody = document.getElementById('tradesTableBody');
+    const countEl = document.getElementById('tradeCount');
+    
+    if (!tbody) return;
+    
+    if (!trades || trades.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No trades found. Users need to create trades first.</div></td></tr>`;
+      if (countEl) countEl.textContent = '0 trades';
+      return;
+    }
+    
+    if (countEl) countEl.textContent = `${trades.length} trades`;
+    
+    let html = '';
+    trades.forEach(t => {
+      const isPublic = t.public === true;
+      const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : 
+                     t.date || t.createdAt || '—';
+      const rr = Number(t.rr) || 0;
+      const statusDisplay = t.status || 'Pending';
+      const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
+      
+      html += `
+        <tr>
+          <td>
+            <div style="display:flex;flex-direction:column;">
+              <strong style="font-size:12px;">${escapeHtml(t.userEmail || 'Unknown')}</strong>
+              <small style="color:var(--text-secondary);font-size:10px;">${escapeHtml(t.userId || '')}</small>
+            </div>
+          </td>
+          <td><strong>${escapeHtml(t.pair || '??')}</strong></td>
+          <td>${escapeHtml(t.direction || '—')}</td>
+          <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
+          <td>${escapeHtml(dateStr)}</td>
+          <td><span class="badge ${statusBadge}">${escapeHtml(statusDisplay)}</span></td>
+          <td>
+            <button class="manage-btn toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}"
+                    data-id="${t.id}"
+                    data-user="${t.userId}"
+                    data-public="${isPublic}"
+                    style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
+              <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
+              ${isPublic ? 'Hide' : 'Show'}
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+    
+    tbody.innerHTML = html;
+    
+    // Add toggle event listeners
+    document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const tradeId = this.dataset.id;
+        const userId = this.dataset.user;
+        const currentPublic = this.dataset.public === 'true';
+        const newPublic = !currentPublic;
+        
+        const originalHTML = this.innerHTML;
+        this.disabled = true;
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        
+        try {
+          const tradeRef = doc(db, "users", userId, "backtestTrades", tradeId);
+          await updateDoc(tradeRef, { public: newPublic });
+          addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
+          // Refresh trades
+          listenTrades();
+        } catch (error) {
+          console.error("Toggle error:", error);
+          alert('Failed to update trade status: ' + error.message);
+          this.innerHTML = originalHTML;
+          this.disabled = false;
+        }
+      });
     });
   }
 
@@ -1691,11 +1841,15 @@
       listenVideos();
       listenResources();
       listenTrades();
+      
+      // Refresh trades every 30 seconds
+      setInterval(listenTrades, 30000);
     } else {
       window.location.href = "/login";
     }
   });
-  console.log('✅ GTRADES AXIS Admin – Tabbed interface with all data preserved.');
+  
+  console.log('✅ GTRADES AXIS Admin – Reading trades from backtestTrades collections.');
 </script>
 </body>
 </html>

@@ -18,7 +18,8 @@ import {
     query,
     orderBy,
     serverTimestamp,
-    where
+    addDoc,
+    writeBatch
 } from "firebase/firestore";
 
 // --------------------------------------------------------------
@@ -36,16 +37,28 @@ let monthlyChartInstance = null;
 // COLLECTION HELPERS
 // --------------------------------------------------------------
 
-// TOP-LEVEL trades collection (where admin panel reads from)
-function tradesCollection() {
+// Trades stored at: users/{userId}/trades/
+function getTradesCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
-    return collection(db, "trades");
+    return collection(db, "users", currentUser.uid, "trades");
 }
 
-// Accounts stored under user for privacy
-function accountsCollection() {
+// Accounts stored at: users/{userId}/journalAccounts/
+function getAccountsCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
     return collection(db, "users", currentUser.uid, "journalAccounts");
+}
+
+// Account document reference
+function getAccountDoc(accountId) {
+    if (!currentUser) throw new Error("User is not authenticated.");
+    return doc(db, "users", currentUser.uid, "journalAccounts", accountId);
+}
+
+// Trade document reference
+function getTradeDoc(tradeId) {
+    if (!currentUser) throw new Error("User is not authenticated.");
+    return doc(db, "users", currentUser.uid, "trades", tradeId);
 }
 
 // --------------------------------------------------------------
@@ -185,7 +198,7 @@ function cleanFirestoreData(value) {
 async function loadAccounts() {
     if (!currentUser) return;
     try {
-        const snapshot = await getDocs(accountsCollection());
+        const snapshot = await getDocs(getAccountsCollection());
         accounts = {};
         snapshot.forEach(item => {
             accounts[item.id] = { id: item.id, ...item.data() };
@@ -196,13 +209,16 @@ async function loadAccounts() {
         updateAccountPanel();
     } catch (error) {
         console.error("❌ Failed loading accounts:", error);
-        alert("Unable to load your trading accounts.");
+        accounts = {};
+        populateAccountSelectors();
+        updateTradeAccountInfo();
+        updateAccountPanel();
     }
 }
 
 async function saveAccount(account) {
     if (!currentUser) throw new Error("User not authenticated.");
-    const accountRef = doc(db, "users", currentUser.uid, "journalAccounts", account.id);
+    const accountRef = getAccountDoc(account.id);
     const cleanData = cleanFirestoreData({
         ...account,
         userId: currentUser.uid,
@@ -224,8 +240,7 @@ async function deleteAccount(accountId) {
     if (!confirm(message)) return;
 
     try {
-        // Just delete the account, keep trades
-        await deleteDoc(doc(db, "users", currentUser.uid, "journalAccounts", accountId));
+        await deleteDoc(getAccountDoc(accountId));
         delete accounts[accountId];
         if (selectedAccountId === accountId) selectedAccountId = "all";
 
@@ -249,38 +264,32 @@ function getSelectedAccount() {
 }
 
 // --------------------------------------------------------------
-// TRADE OPERATIONS - SAVING TO TOP-LEVEL "trades" COLLECTION
+// TRADE OPERATIONS
 // --------------------------------------------------------------
 async function loadTrades() {
     if (!currentUser) return;
     trades = [];
 
     try {
-        // Load trades from top-level collection
-        const snapshot = await getDocs(query(tradesCollection(), orderBy("created", "desc")));
+        const snapshot = await getDocs(query(getTradesCollection(), orderBy("created", "desc")));
         snapshot.forEach(item => {
-            const data = item.data();
-            // Only load trades belonging to this user
-            if (data.userId === currentUser.uid) {
-                trades.push({ id: item.id, ...data });
-            }
+            trades.push({ id: item.id, ...item.data() });
         });
-        console.log("✅ Firestore trades loaded:", trades.length);
+        console.log("✅ Trades loaded:", trades.length);
     } catch (error) {
-        console.error("❌ Firestore trade loading failed:", error);
-        alert("Unable to load your trades.\n\n" + error.message);
+        console.log("ℹ️ No trades found yet, starting fresh.");
+        trades = [];
     }
 }
 
-async function addTradeToFirestore(trade) {
+async function saveTradeToFirestore(trade) {
     if (!currentUser) throw new Error("User is not authenticated.");
 
     const cleanTrade = cleanFirestoreData(trade);
     delete cleanTrade.id;
 
     const tradeId = "trade-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-
-    const tradeRef = doc(db, "trades", tradeId);
+    const tradeRef = getTradeDoc(tradeId);
 
     await setDoc(tradeRef, {
         ...cleanTrade,
@@ -293,7 +302,7 @@ async function addTradeToFirestore(trade) {
         createdAt: serverTimestamp()
     });
 
-    console.log("✅ TRADE WRITTEN TO FIRESTORE:", tradeId);
+    console.log("✅ Trade saved:", tradeId);
     return tradeId;
 }
 
@@ -303,7 +312,7 @@ async function updateTradeInFirestore(tradeId, trade) {
     const cleanTrade = cleanFirestoreData(trade);
     delete cleanTrade.id;
 
-    const tradeRef = doc(db, "trades", tradeId);
+    const tradeRef = getTradeDoc(tradeId);
     await updateDoc(tradeRef, {
         ...cleanTrade,
         updated: new Date().toISOString()
@@ -313,7 +322,7 @@ async function updateTradeInFirestore(tradeId, trade) {
 
 async function deleteTradeFromFirestore(tradeId) {
     if (!currentUser) throw new Error("User is not authenticated.");
-    await deleteDoc(doc(db, "trades", tradeId));
+    await deleteDoc(getTradeDoc(tradeId));
     console.log("✅ Trade deleted:", tradeId);
 }
 
@@ -498,7 +507,7 @@ async function saveTrade(e) {
         }
 
         // New trade
-        const firestoreId = await addTradeToFirestore(trade);
+        const firestoreId = await saveTradeToFirestore(trade);
         const savedTrade = { ...trade, id: firestoreId };
         trades.unshift(savedTrade);
 
@@ -1490,13 +1499,15 @@ function setupEvents() {
 // --------------------------------------------------------------
 function startApp() {
     const app = document.getElementById("app");
-    app.classList.add("loading");
+    if (app) app.classList.add("loading");
 
     onAuthStateChanged(auth, async user => {
         if (!user) {
             currentUser = null;
-            app.classList.remove("loading");
-            app.classList.add("locked");
+            if (app) {
+                app.classList.remove("loading");
+                app.classList.add("locked");
+            }
             return;
         }
 
@@ -1505,8 +1516,10 @@ function startApp() {
         try {
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists()) {
-                app.classList.remove("loading");
-                app.classList.add("locked");
+                if (app) {
+                    app.classList.remove("loading");
+                    app.classList.add("locked");
+                }
                 return;
             }
 
@@ -1515,14 +1528,14 @@ function startApp() {
             const membership = data.membership || "free";
             const hasPremium = role === "admin" || membership === "premium";
 
-            app.classList.remove("loading");
+            if (app) app.classList.remove("loading");
 
             if (!hasPremium) {
-                app.classList.add("locked");
+                if (app) app.classList.add("locked");
                 return;
             }
 
-            app.classList.remove("locked");
+            if (app) app.classList.remove("locked");
 
             await loadAccounts();
             await loadTrades();
@@ -1543,8 +1556,10 @@ function startApp() {
 
         } catch (error) {
             console.error("❌ Journal initialization failed:", error);
-            app.classList.remove("loading");
-            app.classList.add("locked");
+            if (app) {
+                app.classList.remove("loading");
+                app.classList.add("locked");
+            }
             alert("Journal could not connect to Firebase.\n\n" + error.message);
         }
     });
@@ -1560,4 +1575,4 @@ if (appContainer) {
     document.addEventListener("DOMContentLoaded", startApp);
 }
 
-console.log("✅ Journal lock script loaded.");
+console.log("✅ Journal script loaded.");
