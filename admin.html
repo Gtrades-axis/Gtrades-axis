@@ -1699,7 +1699,7 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 6. TRADES MANAGEMENT - FIXED TO READ FROM backtestTrades
+  // 6. TRADES MANAGEMENT - FIXED: Reads from users/{userId}/backtestTrades
   // ═══════════════════════════════════════════════════════════════════════════
   function listenTrades() {
     const tbody = document.getElementById('tradesTableBody');
@@ -1718,6 +1718,7 @@
         const userEmail = userData.email || 'Unknown';
         
         try {
+          // Read from backtestTrades collection for each user
           const tradesRef = collection(db, "users", userId, "backtestTrades");
           const tradesSnapshot = await getDocs(query(tradesRef, orderBy("createdAt", "desc")));
           

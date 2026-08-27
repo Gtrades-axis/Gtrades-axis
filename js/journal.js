@@ -1574,5 +1574,4 @@ if (appContainer) {
 } else {
     document.addEventListener("DOMContentLoaded", startApp);
 }
-
 console.log("✅ Journal script loaded.");
