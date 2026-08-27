@@ -16,6 +16,7 @@
         updateDoc,
         deleteDoc,
         query,
+        where,
         orderBy,
         serverTimestamp
     } from "firebase/firestore";
@@ -32,16 +33,26 @@
     let monthlyChartInstance = null;
 
     // --------------------------------------------------------------
-    // COLLECTION HELPERS
+    // COLLECTION HELPERS - MATCHING FIRESTORE RULES
     // --------------------------------------------------------------
-    function tradesCollection() {
-        if (!currentUser) throw new Error("User is not authenticated.");
-        return collection(db, "users", currentUser.uid, "trades");
-    }
-
+    
+    // For accounts - using journalAccounts as per your rules
     function accountsCollection() {
         if (!currentUser) throw new Error("User is not authenticated.");
-        return collection(db, "users", currentUser.uid, "accounts");
+        return collection(db, "users", currentUser.uid, "journalAccounts");
+    }
+
+    // For trades - using the account subcollection path
+    function tradesCollection(accountId) {
+        if (!currentUser) throw new Error("User is not authenticated.");
+        if (!accountId) throw new Error("Account ID is required.");
+        return collection(db, "users", currentUser.uid, "journalAccounts", accountId, "trades");
+    }
+
+    // Legacy trades collection (if you want to support both)
+    function legacyTradesCollection() {
+        if (!currentUser) throw new Error("User is not authenticated.");
+        return collection(db, "users", currentUser.uid, "trades");
     }
 
     // --------------------------------------------------------------
@@ -190,6 +201,7 @@
             snapshot.forEach(item => {
                 accounts[item.id] = { id: item.id, ...item.data() };
             });
+            console.log("✅ Accounts loaded:", Object.keys(accounts).length);
             populateAccountSelectors();
             updateTradeAccountInfo();
             updateAccountPanel();
@@ -201,9 +213,14 @@
 
     async function saveAccount(account) {
         if (!currentUser) throw new Error("User not authenticated.");
-        const accountRef = doc(db, "users", currentUser.uid, "accounts", account.id);
-        const cleanData = cleanFirestoreData({ ...account, userId: currentUser.uid, updated: serverTimestamp() });
+        const accountRef = doc(db, "users", currentUser.uid, "journalAccounts", account.id);
+        const cleanData = cleanFirestoreData({ 
+            ...account, 
+            userId: currentUser.uid, 
+            updated: serverTimestamp() 
+        });
         await setDoc(accountRef, cleanData, { merge: true });
+        console.log("✅ Account saved:", account.id);
     }
 
     async function deleteAccount(accountId) {
@@ -217,21 +234,26 @@
 
         if (!confirm(message)) return;
 
-        // Unlink trades
-        for (const trade of linkedTrades) {
-            const tradeRef = doc(db, "users", currentUser.uid, "trades", trade.id);
-            await updateDoc(tradeRef, { accountId: "", account: account.name || "" });
+        try {
+            // Delete all trades in this account's subcollection
+            const tradesSnap = await getDocs(tradesCollection(accountId));
+            for (const docSnap of tradesSnap.docs) {
+                await deleteDoc(doc(db, "users", currentUser.uid, "journalAccounts", accountId, "trades", docSnap.id));
+            }
+
+            // Delete the account
+            await deleteDoc(doc(db, "users", currentUser.uid, "journalAccounts", accountId));
+            delete accounts[accountId];
+            if (selectedAccountId === accountId) selectedAccountId = "all";
+
+            await loadTrades();
+            await loadAccounts();
+            refreshUI();
+            alert("✅ Account and all associated trades deleted successfully.");
+        } catch (error) {
+            console.error("❌ Delete account error:", error);
+            alert("Failed to delete account: " + error.message);
         }
-
-        // Delete account
-        await deleteDoc(doc(db, "users", currentUser.uid, "accounts", accountId));
-        delete accounts[accountId];
-        if (selectedAccountId === accountId) selectedAccountId = "all";
-
-        await loadTrades();
-        await loadAccounts();
-        refreshUI();
-        alert("✅ Account deleted successfully.");
     }
 
     function getAccount(id) {
@@ -248,35 +270,58 @@
     // --------------------------------------------------------------
     async function loadTrades() {
         if (!currentUser) return;
+        trades = [];
+
         try {
-            const snapshot = await getDocs(query(tradesCollection(), orderBy("created", "desc")));
-            trades = [];
-            snapshot.forEach(item => {
-                trades.push({ id: item.id, ...item.data() });
-            });
+            // Load trades from each account's subcollection
+            const accountIds = Object.keys(accounts);
+            for (const accountId of accountIds) {
+                try {
+                    const snapshot = await getDocs(
+                        query(tradesCollection(accountId), orderBy("created", "desc"))
+                    );
+                    snapshot.forEach(item => {
+                        trades.push({ id: item.id, accountId: accountId, ...item.data() });
+                    });
+                } catch (error) {
+                    console.warn(`Failed to load trades for account ${accountId}:`, error);
+                }
+            }
+
+            // Also load legacy trades if they exist (for backward compatibility)
+            try {
+                const legacySnapshot = await getDocs(query(legacyTradesCollection(), orderBy("created", "desc")));
+                legacySnapshot.forEach(item => {
+                    const data = item.data();
+                    // Only add if not already loaded from account subcollection
+                    if (!trades.find(t => t.id === item.id)) {
+                        trades.push({ id: item.id, ...data });
+                    }
+                });
+            } catch (error) {
+                console.warn("Legacy trades may not exist:", error);
+            }
+
+            // Sort all trades by date
+            trades.sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
             console.log("✅ Firestore trades loaded:", trades.length);
         } catch (error) {
-            console.warn("Ordered query failed, loading without order:", error);
-            try {
-                const snapshot = await getDocs(tradesCollection());
-                trades = [];
-                snapshot.forEach(item => {
-                    trades.push({ id: item.id, ...item.data() });
-                });
-                trades.sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
-            } catch (secondError) {
-                console.error("❌ Firestore trade loading failed:", secondError);
-                alert("Unable to load your trades.\n\n" + secondError.message);
-            }
+            console.error("❌ Firestore trade loading failed:", error);
+            alert("Unable to load your trades.\n\n" + error.message);
         }
     }
 
     async function addTradeToFirestore(trade) {
         if (!currentUser) throw new Error("User is not authenticated.");
+        if (!trade.accountId) throw new Error("Account ID is required.");
+
         const cleanTrade = cleanFirestoreData(trade);
         delete cleanTrade.id;
+        delete cleanTrade.accountId; // Account ID is in the path
+
         const tradeId = "trade-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-        const tradeRef = doc(db, "users", currentUser.uid, "trades", tradeId);
+        const tradeRef = doc(db, "users", currentUser.uid, "journalAccounts", trade.accountId, "trades", tradeId);
+        
         await setDoc(tradeRef, {
             ...cleanTrade,
             id: tradeId,
@@ -284,20 +329,30 @@
             created: cleanTrade.created || new Date().toISOString(),
             updated: new Date().toISOString()
         });
+        
         console.log("✅ TRADE WRITTEN TO FIRESTORE:", tradeId);
         return tradeId;
     }
 
     async function updateTradeInFirestore(tradeId, trade) {
         if (!currentUser) throw new Error("User is not authenticated.");
+        if (!trade.accountId) throw new Error("Account ID is required.");
+
         const cleanTrade = cleanFirestoreData(trade);
         delete cleanTrade.id;
-        await updateDoc(doc(db, "users", currentUser.uid, "trades", tradeId), cleanTrade);
+        delete cleanTrade.accountId;
+
+        const tradeRef = doc(db, "users", currentUser.uid, "journalAccounts", trade.accountId, "trades", tradeId);
+        await updateDoc(tradeRef, cleanTrade);
+        console.log("✅ Trade updated:", tradeId);
     }
 
-    async function deleteTradeFromFirestore(tradeId) {
+    async function deleteTradeFromFirestore(tradeId, accountId) {
         if (!currentUser) throw new Error("User is not authenticated.");
-        await deleteDoc(doc(db, "users", currentUser.uid, "trades", tradeId));
+        if (!accountId) throw new Error("Account ID is required.");
+
+        await deleteDoc(doc(db, "users", currentUser.uid, "journalAccounts", accountId, "trades", tradeId));
+        console.log("✅ Trade deleted:", tradeId);
     }
 
     // --------------------------------------------------------------
@@ -349,6 +404,7 @@
 
         return {
             id: isUpdate && existing.id ? existing.id : undefined,
+            accountId: accountId,
             userId: currentUser.uid,
             date: val("tradeDate") || getLocalDate(),
             time: val("tradeTime") || getLocalTime(),
@@ -356,7 +412,6 @@
             direction: val("direction"),
             session: val("session"),
             broker: val("broker"),
-            accountId: accountId,
             account: account?.name || "",
             accountBalance: num("tradeAccountBalance"),
             accountRiskSetting: val("tradeRiskSetting"),
@@ -474,7 +529,9 @@
 
                 alert("✅ Trade updated successfully.");
                 editingTrade = null;
-                window.location.href = "/history";
+                // Optionally redirect or stay
+                refreshUI();
+                resetTradeForm();
                 return;
             }
 
@@ -516,7 +573,7 @@
         }
 
         try {
-            await deleteTradeFromFirestore(tradeId);
+            await deleteTradeFromFirestore(tradeId, trade.accountId);
             trades = trades.filter(t => t.id !== tradeId);
 
             if (trade.accountId) {
@@ -645,6 +702,9 @@
             button.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
             button.className = "btn-primary";
         }
+
+        const header = document.querySelector(".page-header h1");
+        if (header) header.innerHTML = '<i class="fa-solid fa-chart-line"></i> Trading Journal';
     }
 
     function setDefaultDateTime() {
@@ -981,7 +1041,10 @@
     // CHARTS
     // --------------------------------------------------------------
     function initializeCharts() {
-        if (typeof Chart === "undefined") return;
+        if (typeof Chart === "undefined") {
+            console.warn("Chart.js not loaded");
+            return;
+        }
         destroyAllCharts();
         buildEquityChart();
         buildMonthlyChart();
@@ -1029,8 +1092,9 @@
                     data: data,
                     tension: 0.3,
                     borderWidth: 2,
-                    fill: false,
-                    borderColor: "#4f7cff"
+                    fill: true,
+                    borderColor: "#4f7cff",
+                    backgroundColor: "rgba(79,124,255,0.15)"
                 }]
             },
             options: {
@@ -1040,8 +1104,8 @@
                     legend: { display: true, labels: { color: "#e8edf5" } }
                 },
                 scales: {
-                    y: { grid: { color: "rgba(255,255,255,0.05)" } },
-                    x: { grid: { color: "rgba(255,255,255,0.05)" } }
+                    y: { grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "#9aa4bf" } },
+                    x: { grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "#9aa4bf", maxTicksLimit: 20 } }
                 }
             }
         });
@@ -1082,8 +1146,8 @@
                     legend: { display: true, labels: { color: "#e8edf5" } }
                 },
                 scales: {
-                    y: { grid: { color: "rgba(255,255,255,0.05)" } },
-                    x: { grid: { color: "rgba(255,255,255,0.05)" } }
+                    y: { grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "#9aa4bf" } },
+                    x: { grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "#9aa4bf" } }
                 }
             }
         });
