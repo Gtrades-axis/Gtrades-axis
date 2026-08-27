@@ -922,6 +922,9 @@
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
 
+  // ─── ESCAPE HTML ──────────────────────────────────────────────────────────
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+
   // ═══════════════════════════════════════════════════════════════════════════
   // 1. MEMBERS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -930,7 +933,6 @@
   function getMembership(u){if(u.role==='admin')return'admin';return u.membership==='premium'?'premium':'member';}
   function getStatus(u){return u.status||'pending';}
   function getPaymentStatus(u){return u.paymentStatus||(u.payment==='paid'?'paid':'unpaid');}
-  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 
   function listenMembers() {
     const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
@@ -1697,44 +1699,43 @@
       hideResourceUploadProgress();
     }
   });
-// ═══════════════════════════════════════════════════════════════════════════
-// 6. TRADES MANAGEMENT - DEBUG VERSION
-// ═══════════════════════════════════════════════════════════════════════════
-function listenTrades() {
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 6. TRADES MANAGEMENT - FIXED: Reads from users/{userId}/backtestTrades
+  // ═══════════════════════════════════════════════════════════════════════════
+  let tradesCache = [];
+
+  function listenTrades() {
     const tbody = document.getElementById('tradesTableBody');
     const countEl = document.getElementById('tradeCount');
     
-    if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">🔍 Scanning all users for trades...</div></td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">🔍 Loading trades from all users...</div></td></tr>`;
     
     const usersRef = collection(db, "users");
     
     getDocs(usersRef).then(async (usersSnapshot) => {
-      console.log(`📊 Found ${usersSnapshot.docs.length} users in database`);
+      console.log(`📊 Found ${usersSnapshot.docs.length} users`);
       
       const allTrades = [];
-      let totalUsersWithTrades = 0;
+      let userCount = 0;
       
       for (const userDoc of usersSnapshot.docs) {
         const userId = userDoc.id;
         const userData = userDoc.data();
         const userEmail = userData.email || 'Unknown';
         
-        console.log(`🔍 Checking user: ${userEmail} (${userId})`);
-        
         try {
-          // Try to read from backtestTrades collection
+          // Read from backtestTrades collection
           const tradesRef = collection(db, "users", userId, "backtestTrades");
           const tradesSnapshot = await getDocs(query(tradesRef, orderBy("createdAt", "desc")));
           
-          console.log(`   📊 Found ${tradesSnapshot.docs.length} trades in backtestTrades for ${userEmail}`);
-          
           if (tradesSnapshot.docs.length > 0) {
-            totalUsersWithTrades++;
+            userCount++;
+            console.log(`📊 ${userEmail} has ${tradesSnapshot.docs.length} trades in backtestTrades`);
           }
           
           tradesSnapshot.forEach(tradeDoc => {
             const data = tradeDoc.data();
-            console.log(`   📝 Trade: ${data.pair || '??'} | ${data.direction || '—'} | RR: ${data.rr || 0}`);
             allTrades.push({
               id: tradeDoc.id,
               userId: userId,
@@ -1743,34 +1744,9 @@ function listenTrades() {
             });
           });
         } catch (error) {
-          console.log(`   ❌ No backtestTrades for ${userEmail}: ${error.message}`);
-        }
-        
-        // Also try alternative paths
-        try {
-          // Try trades collection
-          const altTradesRef = collection(db, "users", userId, "trades");
-          const altSnapshot = await getDocs(query(altTradesRef, orderBy("createdAt", "desc")));
-          
-          if (altSnapshot.docs.length > 0) {
-            console.log(`   📊 Found ${altSnapshot.docs.length} trades in 'trades' for ${userEmail}`);
-            altSnapshot.forEach(tradeDoc => {
-              const data = tradeDoc.data();
-              allTrades.push({
-                id: tradeDoc.id,
-                userId: userId,
-                userEmail: userEmail,
-                source: 'trades',
-                ...data
-              });
-            });
-          }
-        } catch (error) {
-          // Skip
+          // User may not have backtestTrades collection - skip
         }
       }
-      
-      console.log(`✅ Total trades found: ${allTrades.length} from ${totalUsersWithTrades} users`);
       
       // Sort by date (newest first)
       allTrades.sort((a, b) => {
@@ -1779,6 +1755,8 @@ function listenTrades() {
         return dateB - dateA;
       });
       
+      console.log(`✅ Total trades found: ${allTrades.length} from ${userCount} users`);
+      tradesCache = allTrades;
       renderAdminTrades(allTrades);
       
     }).catch(error => {
@@ -1798,8 +1776,8 @@ function listenTrades() {
         <i class="fa-solid fa-database" style="font-size:2rem;color:var(--gold);display:block;margin-bottom:10px;"></i>
         <strong>No trades found in any user's collections.</strong><br>
         <span style="font-size:12px;color:var(--text-secondary);">
-          Checked: users/{userId}/backtestTrades and users/{userId}/trades<br>
-          Make sure your journal is saving trades to the correct location.
+          Checked: users/{userId}/backtestTrades<br>
+          Run the path checker in console to debug.
         </span>
         <br><br>
         <button onclick="listenTrades()" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;">
@@ -1816,19 +1794,17 @@ function listenTrades() {
     trades.forEach(t => {
       const isPublic = t.public === true;
       const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : 
-                     t.date || t.createdAt || '—';
+                     t.date || (t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : '—');
       const rr = Number(t.rr) || 0;
       const statusDisplay = t.status || 'Pending';
       const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
-      const source = t.source || 'backtestTrades';
       
       html += `
         <tr>
           <td>
             <div style="display:flex;flex-direction:column;">
               <strong style="font-size:12px;">${escapeHtml(t.userEmail || 'Unknown')}</strong>
-              <small style="color:var(--text-secondary);font-size:9px;">${escapeHtml(t.userId || '')}</small>
-              <small style="color:var(--gold);font-size:8px;">📁 ${source}</small>
+              <small style="color:var(--text-secondary);font-size:9px;">${escapeHtml(t.userId ? t.userId.slice(0,12) + '...' : '')}</small>
             </div>
           </td>
           <td><strong>${escapeHtml(t.pair || '??')}</strong></td>
@@ -1865,17 +1841,9 @@ function listenTrades() {
         this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         
         try {
-          // Try backtestTrades first
-          try {
-            const tradeRef = doc(db, "users", userId, "backtestTrades", tradeId);
-            await updateDoc(tradeRef, { public: newPublic });
-          } catch (e) {
-            // Try trades collection
-            const tradeRef = doc(db, "users", userId, "trades", tradeId);
-            await updateDoc(tradeRef, { public: newPublic });
-          }
+          const tradeRef = doc(db, "users", userId, "backtestTrades", tradeId);
+          await updateDoc(tradeRef, { public: newPublic });
           addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
-          // Refresh trades
           listenTrades();
         } catch (error) {
           console.error("Toggle error:", error);
@@ -1886,17 +1854,25 @@ function listenTrades() {
       });
     });
   }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // 7. INIT
   // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      console.log('✅ Admin logged in, initializing...');
+      
       listenMembers();
       renderModules();
       listenPayments();
       listenVideos();
       listenResources();
-      listenTrades();
+      
+      // Load trades after a short delay to ensure everything is ready
+      setTimeout(() => {
+        console.log('🔄 Loading trades...');
+        listenTrades();
+      }, 1000);
       
       // Refresh trades every 30 seconds
       setInterval(listenTrades, 30000);
