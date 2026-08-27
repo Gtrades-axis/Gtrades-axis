@@ -1,5 +1,6 @@
 // ============================================================
 // GTRADES-AXIS™ JOURNAL ENGINE - FIRESTORE VERSION
+// Saves to top-level "trades" collection
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -18,8 +19,7 @@ import {
     query,
     orderBy,
     serverTimestamp,
-    addDoc,
-    writeBatch
+    where
 } from "firebase/firestore";
 
 // --------------------------------------------------------------
@@ -34,13 +34,13 @@ let equityChartInstance = null;
 let monthlyChartInstance = null;
 
 // --------------------------------------------------------------
-// COLLECTION HELPERS
+// COLLECTION HELPERS - TOP-LEVEL TRADES
 // --------------------------------------------------------------
 
-// Trades stored at: users/{userId}/trades/
+// Trades stored at: trades/{tradeId} (top-level for admin access)
 function getTradesCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
-    return collection(db, "users", currentUser.uid, "trades");
+    return collection(db, "trades");
 }
 
 // Accounts stored at: users/{userId}/journalAccounts/
@@ -58,7 +58,7 @@ function getAccountDoc(accountId) {
 // Trade document reference
 function getTradeDoc(tradeId) {
     if (!currentUser) throw new Error("User is not authenticated.");
-    return doc(db, "users", currentUser.uid, "trades", tradeId);
+    return doc(db, "trades", tradeId);
 }
 
 // --------------------------------------------------------------
@@ -264,16 +264,20 @@ function getSelectedAccount() {
 }
 
 // --------------------------------------------------------------
-// TRADE OPERATIONS
+// TRADE OPERATIONS - SAVING TO TOP-LEVEL "trades"
 // --------------------------------------------------------------
 async function loadTrades() {
     if (!currentUser) return;
     trades = [];
 
     try {
+        // Load trades from top-level collection
         const snapshot = await getDocs(query(getTradesCollection(), orderBy("created", "desc")));
         snapshot.forEach(item => {
-            trades.push({ id: item.id, ...item.data() });
+            const data = item.data();
+            if (data.userId === currentUser.uid) {
+                trades.push({ id: item.id, ...data });
+            }
         });
         console.log("✅ Trades loaded:", trades.length);
     } catch (error) {
@@ -302,7 +306,7 @@ async function saveTradeToFirestore(trade) {
         createdAt: serverTimestamp()
     });
 
-    console.log("✅ Trade saved:", tradeId);
+    console.log("✅ Trade saved to top-level trades:", tradeId);
     return tradeId;
 }
 
@@ -1574,4 +1578,5 @@ if (appContainer) {
 } else {
     document.addEventListener("DOMContentLoaded", startApp);
 }
+
 console.log("✅ Journal script loaded.");
