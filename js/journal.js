@@ -1021,45 +1021,57 @@ function buildTradeFromForm(
 
 /* ============================================================
    ADD TRADE TO FIRESTORE
-   ============================================================ */
-
-async function addTradeToFirestore(
-    trade
-) {
+  async function addTradeToFirestore(trade) {
 
     if (!currentUser) {
-
-        throw new Error(
-            "User is not authenticated."
-        );
+        throw new Error("User is not authenticated.");
     }
 
-
-    /*
-     * Do not send undefined values.
-     */
-
-    const cleanTrade =
-        cleanFirestoreData(
-            trade
-        );
-
-
-    /*
-     * Remove local ID when creating.
-     */
+    const cleanTrade = cleanFirestoreData(trade);
 
     delete cleanTrade.id;
 
+    const tradeId =
+        "trade-" +
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2, 8);
 
-    const reference =
-        await addDoc(
-            tradesCollection(),
-            cleanTrade
-        );
+    const tradeRef = doc(
+        db,
+        "users",
+        currentUser.uid,
+        "trades",
+        tradeId
+    );
 
+    await setDoc(
+        tradeRef,
+        {
+            ...cleanTrade,
 
-    return reference.id;
+            id: tradeId,
+
+            userId:
+                currentUser.uid,
+
+            created:
+                cleanTrade.created ||
+                new Date().toISOString(),
+
+            updated:
+                new Date().toISOString()
+        }
+    );
+
+    console.log(
+        "✅ TRADE WRITTEN TO FIRESTORE:",
+        tradeId
+    );
+
+    return tradeId;
 }
 
 
@@ -4635,3 +4647,63 @@ onAuthStateChanged(
         }
     }
 );
+async function testFirestoreConnection() {
+
+    if (!currentUser) {
+        console.error(
+            "❌ No authenticated user."
+        );
+        return;
+    }
+
+    try {
+
+        const testRef = doc(
+            db,
+            "users",
+            currentUser.uid,
+            "trades",
+            "__connection_test__"
+        );
+
+        await setDoc(
+            testRef,
+            {
+                userId:
+                    currentUser.uid,
+
+                test:
+                    true,
+
+                created:
+                    serverTimestamp()
+            }
+        );
+
+        console.log(
+            "✅ FIRESTORE CONNECTION TEST PASSED"
+        );
+
+        await deleteDoc(
+            testRef
+        );
+
+        console.log(
+            "✅ FIRESTORE TEST DOCUMENT DELETED"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ FIRESTORE CONNECTION TEST FAILED",
+            error
+        );
+
+        alert(
+            "Firestore test failed:\n\n" +
+            error.code +
+            "\n\n" +
+            error.message
+        );
+    }
+}
