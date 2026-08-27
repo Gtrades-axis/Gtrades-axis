@@ -42,15 +42,10 @@ function tradesCollection() {
     return collection(db, "trades");
 }
 
-// Accounts stored under user (for journal management)
+// Accounts stored under user for privacy
 function accountsCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
     return collection(db, "users", currentUser.uid, "journalAccounts");
-}
-
-// Or optionally use top-level accounts if you prefer
-function topLevelAccountsCollection() {
-    return collection(db, "journalAccounts");
 }
 
 // --------------------------------------------------------------
@@ -185,7 +180,7 @@ function cleanFirestoreData(value) {
 }
 
 // --------------------------------------------------------------
-// ACCOUNT OPERATIONS (stored under user for privacy)
+// ACCOUNT OPERATIONS
 // --------------------------------------------------------------
 async function loadAccounts() {
     if (!currentUser) return;
@@ -201,19 +196,7 @@ async function loadAccounts() {
         updateAccountPanel();
     } catch (error) {
         console.error("❌ Failed loading accounts:", error);
-        // Try top-level accounts as fallback
-        try {
-            const snap = await getDocs(collection(db, "journalAccounts"));
-            accounts = {};
-            snap.forEach(item => {
-                accounts[item.id] = { id: item.id, ...item.data() };
-            });
-            populateAccountSelectors();
-            updateTradeAccountInfo();
-            updateAccountPanel();
-        } catch (e) {
-            console.error("❌ Fallback failed:", e);
-        }
+        alert("Unable to load your trading accounts.");
     }
 }
 
@@ -241,7 +224,7 @@ async function deleteAccount(accountId) {
     if (!confirm(message)) return;
 
     try {
-        // Delete account
+        // Just delete the account, keep trades
         await deleteDoc(doc(db, "users", currentUser.uid, "journalAccounts", accountId));
         delete accounts[accountId];
         if (selectedAccountId === accountId) selectedAccountId = "all";
@@ -273,11 +256,11 @@ async function loadTrades() {
     trades = [];
 
     try {
-        // Load trades from top-level collection (where admin reads from)
+        // Load trades from top-level collection
         const snapshot = await getDocs(query(tradesCollection(), orderBy("created", "desc")));
         snapshot.forEach(item => {
             const data = item.data();
-            // Only load trades belonging to this user (for security)
+            // Only load trades belonging to this user
             if (data.userId === currentUser.uid) {
                 trades.push({ id: item.id, ...data });
             }
@@ -297,7 +280,6 @@ async function addTradeToFirestore(trade) {
 
     const tradeId = "trade-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
 
-    // Save to top-level trades collection
     const tradeRef = doc(db, "trades", tradeId);
 
     await setDoc(tradeRef, {
@@ -305,13 +287,13 @@ async function addTradeToFirestore(trade) {
         id: tradeId,
         userId: currentUser.uid,
         userEmail: currentUser.email || "",
-        public: false, // Default to private
+        public: false,
         created: cleanTrade.created || new Date().toISOString(),
         updated: new Date().toISOString(),
         createdAt: serverTimestamp()
     });
 
-    console.log("✅ TRADE WRITTEN TO FIRESTORE (top-level):", tradeId);
+    console.log("✅ TRADE WRITTEN TO FIRESTORE:", tradeId);
     return tradeId;
 }
 
@@ -506,7 +488,6 @@ async function saveTrade(e) {
             await updateTradeInFirestore(editingTrade.id, trade);
             trades[index] = { ...trade, id: editingTrade.id };
 
-            // Recalculate account balance
             await recalculateAccountBalance(trade.accountId);
 
             alert("✅ Trade updated successfully.");
@@ -516,7 +497,7 @@ async function saveTrade(e) {
             return;
         }
 
-        // New trade - save to Firestore
+        // New trade
         const firestoreId = await addTradeToFirestore(trade);
         const savedTrade = { ...trade, id: firestoreId };
         trades.unshift(savedTrade);
@@ -594,7 +575,6 @@ async function closeTrade(tradeId) {
     if (profit > 0) result = "Win";
     else if (profit < 0) result = "Loss";
 
-    // Calculate actual RR
     let actualRR = 0;
     const plannedRR = Number(trade.initialRR ?? trade.plannedRR ?? trade.rr) || 0;
 
@@ -813,8 +793,7 @@ function calculateAll() {
     setValue("riskSettingAmount", riskSettingAmount > 0 ? riskSettingAmount.toFixed(2) : "");
     setText("summaryRiskSetting", money(riskSettingAmount));
 
-    let slDistance = 0,
-        tpDistance = 0;
+    let slDistance = 0, tpDistance = 0;
     if (entry && stopLoss) slDistance = Math.abs(entry - stopLoss);
     if (entry && takeProfit) tpDistance = Math.abs(takeProfit - entry);
 
@@ -829,7 +808,6 @@ function calculateAll() {
     setValue("projectedRR", projectedRR !== 0 ? projectedRR.toFixed(2) : "");
     setText("summaryProjectedRR", projectedRR.toFixed(2));
 
-    // Actual RR
     let actualRR = projectedRR;
     const exitPrice = parseFloat(val("exitPrice")) || 0;
     const result = normalizeResult(val("result"));
@@ -934,7 +912,6 @@ function calculateStatistics() {
 
     const maxDrawdown = calculateMaxDrawdown(closed, startingBalance);
 
-    // Streak
     const sorted = [...closed].sort((a, b) => new Date(a.closed || a.date) - new Date(b.closed || b.date));
     let streak = 0;
     if (sorted.length) {
@@ -1030,10 +1007,8 @@ function initializeCharts() {
 }
 
 function destroyAllCharts() {
-    if (equityChartInstance) { equityChartInstance.destroy();
-        equityChartInstance = null; }
-    if (monthlyChartInstance) { monthlyChartInstance.destroy();
-        monthlyChartInstance = null; }
+    if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
+    if (monthlyChartInstance) { monthlyChartInstance.destroy(); monthlyChartInstance = null; }
 }
 
 function buildEquityChart() {
@@ -1499,7 +1474,6 @@ function setupEvents() {
         }
     });
 
-    // Scroll top
     const scrollBtn = document.getElementById("scrollTopBtn");
     if (scrollBtn) {
         window.addEventListener("scroll", () => {
@@ -1529,7 +1503,6 @@ function startApp() {
         currentUser = user;
 
         try {
-            // Check premium access
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists()) {
                 app.classList.remove("loading");
@@ -1551,7 +1524,6 @@ function startApp() {
 
             app.classList.remove("locked");
 
-            // Load everything from Firebase
             await loadAccounts();
             await loadTrades();
 
