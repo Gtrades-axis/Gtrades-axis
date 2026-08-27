@@ -617,7 +617,7 @@ function initJournal() {
         refined: document.getElementById("confRefined")?.checked || false,
         extreme: document.getElementById("confExtreme")?.checked || false
       },
-      public: false,
+      public: (isUpdate && editingTrade) ? Boolean(editingTrade.public) : false,
       updatedAt: new Date().toISOString(),
       createdAt: (isUpdate && editingTrade) ? editingTrade.createdAt : new Date().toISOString()
     };

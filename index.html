@@ -1960,11 +1960,16 @@
         const q = query(
           collection(db, "trades"),
           where("public", "==", true),
-          orderBy("createdAt", "desc"),
-          limit(6)
+          limit(50)
         );
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const trades = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        trades.sort((a, b) => {
+          const av = a.closed?.toDate ? a.closed.toDate().getTime() : Date.parse(a.closed || a.updatedAt || a.createdAt || a.date || "") || 0;
+          const bv = b.closed?.toDate ? b.closed.toDate().getTime() : Date.parse(b.closed || b.updatedAt || b.createdAt || b.date || "") || 0;
+          return bv - av;
+        });
+        return trades.slice(0, 6);
       } catch (error) {
         console.error("Error loading public trades:", error);
         return [];
