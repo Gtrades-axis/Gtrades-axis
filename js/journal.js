@@ -1355,7 +1355,6 @@ function initJournal() {
     };
     checkAndEdit();
   }
-
   console.log("✅ GTRADES-AXIS Journal ready (Firestore-first).");
 }
 
