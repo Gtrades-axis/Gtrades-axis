@@ -1,427 +1,96 @@
 /* ============================================================
-   GTRADES-AXIS™
-   TRADING JOURNAL – FIRESTORE FIRST (PERMANENT STORAGE)
+   GTRADES-AXIS™ – TRADING JOURNAL (FIRESTORE AUTO-SYNC)
    ============================================================ */
-
 import { auth, db } from "./firebase.js";
-
 import {
-  onAuthStateChanged,
-  signOut
+  onAuthStateChanged, signOut
 } from "firebase/auth";
-
 import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  limit,
-  onSnapshot
+  doc, getDoc, setDoc, updateDoc, deleteDoc,
+  collection, query, where, getDocs, orderBy, limit, onSnapshot
 } from "firebase/firestore";
 
-
-/* ============================================================
-   JOURNAL SYSTEM
-============================================================ */
-
 function initJournal() {
-
-  console.log("✅ GTRADES-AXIS Journal initializing (Firestore First)...");
-
+  console.log("✅ Journal initializing...");
   const STORAGE_KEY = "trades";
   const ACCOUNTS_KEY = "gtrades_axis_accounts";
-
   let trades = [];
   let accounts = {};
+  let equityChartInstance = null, monthlyChartInstance = null;
+  let editingTrade = null, selectedAccountId = "all";
+  let isSaving = false, unsubscribeTrades = null;
 
-  let equityChartInstance = null;
-  let monthlyChartInstance = null;
-
-  let editingTrade = null;
-  let selectedAccountId = "all";
-
-  let isSavingToFirestore = false;
-  let unsubscribeTrades = null;
-
-  /* ==========================================================
-     HELPERS
-  ========================================================== */
-
-  function val(id) {
-    const el = document.getElementById(id);
-    return el ? el.value : "";
-  }
-
-  function num(id) {
-    const n = parseFloat(val(id));
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function setValue(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.value = value;
-  }
-
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  }
-
-  function money(value) {
-    const n = Number(value) || 0;
-    return "$" + n.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
-
-  function signedMoney(value) {
-    const n = Number(value) || 0;
-    return (n >= 0 ? "+" : "-") +
-      "$" +
-      Math.abs(n).toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-  }
-
-
-  /* ==========================================================
-     LOCAL DATE / TIME
-  ========================================================== */
-
-  function getLocalDate() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
-
-  function getLocalTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }
-
-
-  function initializeTradeDateTime() {
-    const dateInput = document.getElementById("tradeDate");
-    const timeInput = document.getElementById("tradeTime");
-    if (dateInput && !dateInput.value) {
-      dateInput.value = getLocalDate();
-    }
-    if (timeInput && !timeInput.value) {
-      timeInput.value = getLocalTime();
-    }
-  }
-
-
-  /* ==========================================================
-     RESULT NORMALIZATION
-  ========================================================== */
-
-  function normalizeResult(value) {
-    const v = String(value || "Pending").trim().toLowerCase();
-    if (v === "win") return "Win";
-    if (v === "loss") return "Loss";
-    if (v === "breakeven" || v === "break even" || v === "break-even") return "Breakeven";
-    if (v === "partial") return "Partial";
-    return "Pending";
-  }
-
-
-  /* ==========================================================
-     PRICE-BASED RR
-  ========================================================== */
-
-  function calculatePriceRR(entry, stopLoss, exitPrice, direction) {
-    entry = Number(entry);
-    stopLoss = Number(stopLoss);
-    exitPrice = Number(exitPrice);
-    if (!Number.isFinite(entry) || !Number.isFinite(stopLoss) || !Number.isFinite(exitPrice)) return 0;
-    let riskDistance = Math.abs(entry - stopLoss);
-    if (riskDistance <= 0) return 0;
-    let rewardDistance = (direction === "SELL") ? (entry - exitPrice) : (exitPrice - entry);
-    return rewardDistance / riskDistance;
-  }
-
-
-  /* ==========================================================
-     OUTCOME RR
-  ========================================================== */
-
-  function calculateOutcomeRR({
-    result,
-    actualProfit,
-    riskAmount,
-    plannedRR,
-    entry,
-    stopLoss,
-    exitPrice,
-    direction,
-    partialPercent
-  }) {
-    result = normalizeResult(result);
-    actualProfit = Number(actualProfit) || 0;
-    riskAmount = Number(riskAmount) || 0;
-    plannedRR = Number(plannedRR) || 0;
-    exitPrice = Number(exitPrice) || 0;
-
-    if (result === "Pending") return 0;
-    if (result === "Breakeven") return 0;
-    if (result === "Win") return plannedRR;
-    if (result === "Loss") {
-      if (riskAmount <= 0) return 0;
-      return -(Math.abs(actualProfit) / riskAmount);
-    }
-    if (result === "Partial") {
-      if (!Number.isFinite(entry) || !Number.isFinite(stopLoss) || !Number.isFinite(exitPrice)) return 0;
-      const priceRR = calculatePriceRR(entry, stopLoss, exitPrice, direction);
-      const percentage = Math.min(100, Math.max(0, Number(partialPercent) || 0));
-      if (percentage <= 0) return priceRR;
-      return priceRR * (percentage / 100);
-    }
+  // ─── HELPERS ──────────────────────────────────────────────
+  function val(id) { return document.getElementById(id)?.value || ""; }
+  function num(id) { const n = parseFloat(val(id)); return isFinite(n) ? n : 0; }
+  function setValue(id, v) { const el = document.getElementById(id); if (el) el.value = v; }
+  function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function money(v) { const n = Number(v) || 0; return "$" + n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function signedMoney(v) { const n = Number(v) || 0; return (n>=0?"+":"-") + "$" + Math.abs(n).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function getLocalDate() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+  function getLocalTime() { const d = new Date(); return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); }
+  function normalizeResult(v) { const s = String(v || "Pending").trim().toLowerCase(); if (s==="win") return "Win"; if (s==="loss") return "Loss"; if (s==="breakeven"||s==="break even"||s==="break-even") return "Breakeven"; if (s==="partial") return "Partial"; return "Pending"; }
+  function calculatePriceRR(entry, sl, exit, dir) { entry=Number(entry); sl=Number(sl); exit=Number(exit); if(!isFinite(entry)||!isFinite(sl)||!isFinite(exit)) return 0; const risk=Math.abs(entry-sl); if(risk<=0) return 0; const reward = (dir==="SELL") ? (entry-exit) : (exit-entry); return reward/risk; }
+  function calculateOutcomeRR({result, actualProfit, riskAmount, plannedRR, entry, stopLoss, exitPrice, direction, partialPercent}) {
+    result = normalizeResult(result); actualProfit = Number(actualProfit)||0; riskAmount=Number(riskAmount)||0; plannedRR=Number(plannedRR)||0; exitPrice=Number(exitPrice)||0;
+    if(result==="Pending") return 0; if(result==="Breakeven") return 0; if(result==="Win") return plannedRR;
+    if(result==="Loss") { if(riskAmount<=0) return 0; return -(Math.abs(actualProfit)/riskAmount); }
+    if(result==="Partial") { if(!isFinite(entry)||!isFinite(stopLoss)||!isFinite(exitPrice)) return 0; const priceRR = calculatePriceRR(entry,stopLoss,exitPrice,direction); const pct = Math.min(100, Math.max(0, Number(partialPercent)||0)); if(pct<=0) return priceRR; return priceRR*(pct/100); }
     return 0;
   }
 
+  // ─── ACCOUNTS ──────────────────────────────────────────────
+  function loadAccounts() { try { accounts = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)||"{}")||{}; } catch(e){ accounts={}; } saveAccounts(); }
+  function saveAccounts() { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); }
+  function getAccount(id) { return accounts[id]||null; }
+  function getSelectedAccount() { if(selectedAccountId==="all") return null; return getAccount(selectedAccountId); }
 
-  /* ==========================================================
-     ACCOUNT STORAGE
-  ========================================================== */
-
-  function loadAccounts() {
-    const saved = localStorage.getItem(ACCOUNTS_KEY);
-    if (!saved) {
-      accounts = {};
-      return;
-    }
-    try {
-      accounts = JSON.parse(saved) || {};
-    } catch (error) {
-      console.error("Account data corrupted:", error);
-      accounts = {};
-    }
-    Object.keys(accounts).forEach(id => {
-      const account = accounts[id];
-      if (!account || !account.id || !account.name) {
-        delete accounts[id];
-      }
-    });
-    saveAccounts();
-  }
-
-  function saveAccounts() {
-    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-  }
-
-  function getAccount(id) {
-    return accounts[id] || null;
-  }
-
-  function getSelectedAccount() {
-    if (selectedAccountId === "all") return null;
-    return getAccount(selectedAccountId);
-  }
-
-
-  /* ==========================================================
-     TRADE STORAGE – FIRESTORE FIRST
-  ========================================================== */
-
-  // ---- Load trades from Firestore (listens in real-time) ----
+  // ─── TRADE STORAGE ──────────────────────────────────────────
   function listenToTrades() {
     const user = auth.currentUser;
-    if (!user) {
-      console.warn("No user – cannot listen to trades.");
-      return;
-    }
-
-    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
-
+    if (!user) return;
     if (unsubscribeTrades) unsubscribeTrades();
-
+    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
     unsubscribeTrades = onSnapshot(q, (snapshot) => {
-      const loadedTrades = [];
-      snapshot.forEach(doc => {
-        loadedTrades.push({ id: doc.id, ...doc.data() });
-      });
-
-      trades = loadedTrades;
+      const loaded = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      trades = loaded;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-      console.log("📥 Trades loaded from Firestore:", trades.length);
-
+      console.log("📥 Trades from Firestore:", trades.length);
       refreshUI();
     }, (error) => {
       console.error("Firestore listener error:", error);
       const cached = localStorage.getItem(STORAGE_KEY);
-      if (cached) {
-        try {
-          trades = JSON.parse(cached) || [];
-          console.log("⚠️ Using cached trades from localStorage:", trades.length);
-          refreshUI();
-        } catch (e) {
-          trades = [];
-        }
-      }
+      if (cached) try { trades = JSON.parse(cached)||[]; console.log("⚠️ Using cached trades:", trades.length); refreshUI(); } catch(e){ trades=[]; }
     });
   }
 
-  // ---- Save trades to Firestore and localStorage ----
   function saveTrades() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-    console.log("💾 Saved trades to localStorage:", trades.length);
-
+    console.log("💾 Saved to localStorage:", trades.length);
     const user = auth.currentUser;
-    if (!user) {
-      console.warn("No user logged in – skipping Firestore sync.");
-      return;
-    }
-
-    if (isSavingToFirestore) return;
-    isSavingToFirestore = true;
-
+    if (!user) { console.warn("No user – skipping Firestore sync"); return; }
+    if (isSaving) return;
+    isSaving = true;
     const promises = trades.map(async (trade) => {
       try {
-        const tradeRef = doc(db, "trades", trade.id);
-        const data = { ...trade };
-        if (data.public === undefined) data.public = false;
-        data.updatedAt = new Date().toISOString();
+        const ref = doc(db, "trades", trade.id);
+        const data = { ...trade, public: trade.public===true, updatedAt: new Date().toISOString(), userId: user.uid };
         if (!data.createdAt) data.createdAt = data.updatedAt;
-        if (!data.userId) data.userId = user.uid;
-        await setDoc(tradeRef, data, { merge: true });
+        await setDoc(ref, data, { merge: true });
         return true;
-      } catch (error) {
-        console.error("Failed to sync trade to Firestore:", trade.id, error);
-        return false;
-      }
+      } catch(e) { console.error("Sync error:", trade.id, e); return false; }
     });
-
-    Promise.all(promises).then(() => {
-      isSavingToFirestore = false;
-      console.log("✅ Trades synced to Firestore.");
-    }).catch((error) => {
-      console.error("Firestore sync error:", error);
-      isSavingToFirestore = false;
-    });
+    Promise.all(promises).then(() => { isSaving = false; console.log("✅ Synced to Firestore."); })
+      .catch(e => { isSaving = false; console.error("Sync failed:", e); });
   }
 
-  // ---- Load trades (from cache then Firestore) ----
   function loadTrades() {
     const cached = localStorage.getItem(STORAGE_KEY);
-    if (cached) {
-      try {
-        trades = JSON.parse(cached) || [];
-        console.log("📂 Loaded from localStorage cache:", trades.length);
-        refreshUI();
-      } catch (e) {
-        trades = [];
-      }
-    }
+    if (cached) try { trades = JSON.parse(cached)||[]; console.log("📂 Cache loaded:", trades.length); refreshUI(); } catch(e){ trades=[]; }
     listenToTrades();
   }
 
-
-  /* ==========================================================
-     ACCOUNT SELECTORS
-  ========================================================== */
-
-  function populateAccountSelectors() {
-    const filter = document.getElementById("accountFilter");
-    const tradeAccount = document.getElementById("tradeAccount");
-    const list = Object.values(accounts);
-
-    if (filter) {
-      filter.innerHTML = `<option value="all">All Accounts</option>`;
-      list.forEach(account => {
-        const option = document.createElement("option");
-        option.value = account.id;
-        option.textContent = account.name;
-        filter.appendChild(option);
-      });
-      if (selectedAccountId !== "all" && !accounts[selectedAccountId]) {
-        selectedAccountId = "all";
-      }
-      filter.value = selectedAccountId;
-    }
-
-    if (tradeAccount) {
-      const current = tradeAccount.value;
-      tradeAccount.innerHTML = `<option value="">Select an account</option>`;
-      list.forEach(account => {
-        const option = document.createElement("option");
-        option.value = account.id;
-        option.textContent = account.name;
-        tradeAccount.appendChild(option);
-      });
-      let target = "";
-      if (current && accounts[current]) target = current;
-      else if (selectedAccountId !== "all" && accounts[selectedAccountId]) target = selectedAccountId;
-      else if (list.length) target = list[0].id;
-      tradeAccount.value = target;
-    }
-  }
-
-
-  /* ==========================================================
-     ACCOUNT INFO
-  ========================================================== */
-
-  function updateTradeAccountInfo() {
-    const accountId = val("tradeAccount");
-    const account = getAccount(accountId);
-
-    if (!account) {
-      setValue("tradeAccountBalance", "");
-      setValue("tradeRiskSetting", "");
-      setValue("currencyDisplay", "");
-      setValue("balance", "");
-      calculateAll();
-      return;
-    }
-
-    const balance = Number(account.currentBalance) || Number(account.startingBalance) || 0;
-
-    setValue("tradeAccountBalance", money(balance));
-    setValue("tradeRiskSetting", `${Number(account.riskPercent || 0).toFixed(2)}%`);
-    setValue("currencyDisplay", account.currency || "USD");
-    setValue("balance", balance.toFixed(2));
-    calculateAll();
-  }
-
-
-  /* ==========================================================
-     PIP SETTINGS
-  ========================================================== */
-
-  function getPipSize(pair) {
-    pair = String(pair || "").toUpperCase();
-    if (pair.includes("JPY")) return 0.01;
-    if (pair.includes("XAU")) return 0.01;
-    if (pair.includes("XAG")) return 0.01;
-    return 0.0001;
-  }
-
-  function getPipValue(pair) {
-    pair = String(pair || "").toUpperCase();
-    if (pair.includes("XAU")) return 1;
-    if (pair.includes("XAG")) return 5;
-    if (pair.includes("JPY")) return 6.7;
-    return 10;
-  }
-
-
-  /* ==========================================================
-     AUTOMATIC CALCULATIONS
-  ========================================================== */
-
+  // ─── CALCULATIONS ────────────────────────────────────────────
   function calculateAll() {
     const pair = val("pair") || "EURUSD";
     const entry = parseFloat(val("entry"));
@@ -432,21 +101,19 @@ function initJournal() {
     const accountId = val("tradeAccount");
     const account = getAccount(accountId);
 
-    const pipSize = getPipSize(pair);
-    const pipValue = getPipValue(pair);
+    const pipSize = (pair.includes("JPY")||pair.includes("XAU")||pair.includes("XAG")) ? 0.01 : 0.0001;
+    const pipValue = (pair.includes("XAU")) ? 1 : (pair.includes("XAG")) ? 5 : (pair.includes("JPY")) ? 6.7 : 10;
 
     setValue("pipValueDisplay", `$${pipValue.toFixed(2)} / lot`);
 
-    // Account risk
     const riskPercent = account ? Number(account.riskPercent) || 0 : 0;
     const riskSettingAmount = balance * (riskPercent / 100);
     setValue("riskSettingAmount", riskSettingAmount > 0 ? riskSettingAmount.toFixed(2) : "");
     setText("summaryRiskSetting", money(riskSettingAmount));
 
-    // Distances
     let slDistance = 0, tpDistance = 0;
-    if (Number.isFinite(entry) && Number.isFinite(stopLoss)) slDistance = Math.abs(entry - stopLoss);
-    if (Number.isFinite(entry) && Number.isFinite(takeProfit)) tpDistance = Math.abs(takeProfit - entry);
+    if (isFinite(entry) && isFinite(stopLoss)) slDistance = Math.abs(entry - stopLoss);
+    if (isFinite(entry) && isFinite(takeProfit)) tpDistance = Math.abs(takeProfit - entry);
 
     const slPips = slDistance / pipSize;
     const tpPips = tpDistance / pipSize;
@@ -459,9 +126,8 @@ function initJournal() {
     const plannedRR = slDistance > 0 ? tpDistance / slDistance : 0;
     let displayRR = plannedRR;
     if (editingTrade && editingTrade.status === "Closed") {
-      displayRR = Number.isFinite(Number(editingTrade.rr)) ? Number(editingTrade.rr) : plannedRR;
+      displayRR = isFinite(Number(editingTrade.rr)) ? Number(editingTrade.rr) : plannedRR;
     }
-
     setValue("rr", displayRR !== 0 ? displayRR.toFixed(2) : "");
     setText("summaryRR", displayRR.toFixed(2));
 
@@ -475,13 +141,7 @@ function initJournal() {
     setText("summaryPotentialLoss", money(actualRisk));
   }
 
-
-  /* ==========================================================
-     BUILD TRADE OBJECT
-  ========================================================== */
-
   function buildTradeFromForm(isUpdate = false) {
-
     const accountId = val("tradeAccount");
     const account = getAccount(accountId);
     const result = normalizeResult(val("result"));
@@ -493,26 +153,26 @@ function initJournal() {
     const closedExisting = isUpdate && editingTrade && editingTrade.status === "Closed";
 
     const originalEntry = closedExisting ?
-      (Number.isFinite(Number(editingTrade.originalEntry)) ? Number(editingTrade.originalEntry) :
+      (isFinite(Number(editingTrade.originalEntry)) ? Number(editingTrade.originalEntry) :
         Number(editingTrade.entry) || currentEntry) :
       currentEntry;
 
     const originalStopLoss = closedExisting ?
-      (Number.isFinite(Number(editingTrade.originalStopLoss)) ? Number(editingTrade.originalStopLoss) :
+      (isFinite(Number(editingTrade.originalStopLoss)) ? Number(editingTrade.originalStopLoss) :
         Number(editingTrade.stopLoss) || currentSL) :
       currentSL;
 
     const originalTakeProfit = closedExisting ?
-      (Number.isFinite(Number(editingTrade.originalTakeProfit)) ? Number(editingTrade.originalTakeProfit) :
+      (isFinite(Number(editingTrade.originalTakeProfit)) ? Number(editingTrade.originalTakeProfit) :
         Number(editingTrade.takeProfit) || currentTP) :
       currentTP;
 
     const originalRiskAmount = closedExisting ?
-      (Number.isFinite(Number(editingTrade.riskAmount)) ? Number(editingTrade.riskAmount) : num("riskAmount")) :
+      (isFinite(Number(editingTrade.riskAmount)) ? Number(editingTrade.riskAmount) : num("riskAmount")) :
       num("riskAmount");
 
     const originalPlannedRR = closedExisting ?
-      (Number.isFinite(Number(editingTrade.plannedRR)) ? Number(editingTrade.plannedRR) :
+      (isFinite(Number(editingTrade.plannedRR)) ? Number(editingTrade.plannedRR) :
         calculatePriceRR(originalEntry, originalStopLoss, originalTakeProfit, val("direction"))) :
       calculatePriceRR(currentEntry, currentSL, currentTP, val("direction"));
 
@@ -534,10 +194,8 @@ function initJournal() {
 
     const finalRR = result === "Pending" ? originalPlannedRR : calculatedRR;
 
-    let tradeDate = val("tradeDate");
-    let tradeTime = val("tradeTime");
-    if (!tradeDate) tradeDate = getLocalDate();
-    if (!tradeTime) tradeTime = getLocalTime();
+    let tradeDate = val("tradeDate") || getLocalDate();
+    let tradeTime = val("tradeTime") || getLocalTime();
 
     let entryModel = val("entryModel");
     if (entryModel === "__custom__") entryModel = val("entryModelCustom").trim();
@@ -623,48 +281,24 @@ function initJournal() {
     };
   }
 
-
-  /* ==========================================================
-     ACCOUNT BALANCE
-  ========================================================== */
-
   function applyTradeToAccount(trade, action) {
     const account = getAccount(trade.accountId);
     if (!account) return;
-
     const profit = Number(trade.profit) || 0;
     const commission = Number(trade.commission) || 0;
     const net = profit - commission;
     const current = Number(account.currentBalance) || Number(account.startingBalance) || 0;
-
-    if (action === "add") {
-      account.currentBalance = current + net;
-    } else {
-      account.currentBalance = current - net;
-    }
-
+    account.currentBalance = action === "add" ? current + net : current - net;
     saveAccounts();
   }
-
-
-  /* ==========================================================
-     SAVE TRADE
-  ========================================================== */
 
   function saveTrade(event) {
     event.preventDefault();
 
-    let date = val("tradeDate");
-    if (!date) {
-      date = getLocalDate();
-      setValue("tradeDate", date);
-    }
-
-    let time = val("tradeTime");
-    if (!time) {
-      time = getLocalTime();
-      setValue("tradeTime", time);
-    }
+    let date = val("tradeDate") || getLocalDate();
+    setValue("tradeDate", date);
+    let time = val("tradeTime") || getLocalTime();
+    setValue("tradeTime", time);
 
     const accountId = val("tradeAccount");
     if (!accountId || !getAccount(accountId)) {
@@ -680,7 +314,6 @@ function initJournal() {
       if (index !== -1) {
         const oldTrade = trades[index];
         if (oldTrade.status === "Closed") applyTradeToAccount(oldTrade, "remove");
-
         if (oldTrade.status === "Closed") {
           trade.originalEntry = oldTrade.originalEntry ?? oldTrade.entry;
           trade.originalStopLoss = oldTrade.originalStopLoss ?? oldTrade.stopLoss;
@@ -698,21 +331,17 @@ function initJournal() {
             partialPercent: trade.partialPercent
           });
         }
-
         trades[index] = trade;
         if (trade.status === "Closed") applyTradeToAccount(trade, "add");
       }
-
       saveTrades();
       alert("✅ Trade updated successfully.");
       editingTrade = null;
-
       const submitBtn = document.getElementById("saveTradeBtn");
       if (submitBtn) {
         submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Trade';
         submitBtn.className = "btn-primary";
       }
-
       window.location.href = "/history";
       return;
     }
@@ -734,14 +363,8 @@ function initJournal() {
     alert(`✅ Trade saved as ${trade.result}.`);
   }
 
-
-  /* ==========================================================
-     EDIT MODE – populate form
-  ========================================================== */
-
   function populateForm(trade) {
     if (!trade) return;
-
     setValue("tradeDate", trade.date || getLocalDate());
     setValue("tradeTime", trade.time || getLocalTime());
     setValue("pair", trade.pair || "");
@@ -765,20 +388,13 @@ function initJournal() {
     setValue("ltfStructure", trade.ltfStructure || "Bullish BOS");
     setValue("liquidity", trade.liquidity || "None");
     setValue("poi", trade.poi || "Demand");
-
     const em = document.getElementById("entryModel");
     const cm = document.getElementById("entryModelCustom");
     if (em) {
       const known = ["LC-2A", "LC-1", "LTF RE", "MTF RE"];
-      if (known.includes(trade.entryModel)) {
-        em.value = trade.entryModel;
-        if (cm) { cm.style.display = "none"; }
-      } else {
-        em.value = "__custom__";
-        if (cm) { cm.style.display = "block"; cm.value = trade.entryModel || ""; }
-      }
+      if (known.includes(trade.entryModel)) { em.value = trade.entryModel; if (cm) cm.style.display = "none"; }
+      else { em.value = "__custom__"; if (cm) { cm.style.display = "block"; cm.value = trade.entryModel || ""; } }
     }
-
     setValue("entryConfirmation", trade.entryConfirmation || "CHOCH");
     setValue("tradeValid", trade.tradeValid || "Yes");
     setValue("confidence", trade.confidence || "High");
@@ -794,214 +410,26 @@ function initJournal() {
     setValue("beforeChart", trade.beforeChart || "");
     setValue("duringChart", trade.duringChart || "");
     setValue("afterChart", trade.afterChart || "");
-
     const map = {
-      htfSwing: "confHTFSwing",
-      htfInternal: "confHTFInternal",
-      mtfSwing: "confMTFSwing",
-      mtfInternal: "confMTFInternal",
-      htfDemand: "confHTFDemand",
-      htfSupply: "confHTFSupply",
-      mtfDemand: "confMTFDemand",
-      mtfSupply: "confMTFSupply",
-      premium: "confPremium",
-      discount: "confDiscount",
-      sweep: "confSweep",
-      choch: "confChoch",
-      bos: "confBos",
-      mitigation: "confMitigation",
-      refined: "confRefined",
-      extreme: "confExtreme"
+      htfSwing: "confHTFSwing", htfInternal: "confHTFInternal",
+      mtfSwing: "confMTFSwing", mtfInternal: "confMTFInternal",
+      htfDemand: "confHTFDemand", htfSupply: "confHTFSupply",
+      mtfDemand: "confMTFDemand", mtfSupply: "confMTFSupply",
+      premium: "confPremium", discount: "confDiscount",
+      sweep: "confSweep", choch: "confChoch", bos: "confBos",
+      mitigation: "confMitigation", refined: "confRefined", extreme: "confExtreme"
     };
     Object.entries(map).forEach(([key, id]) => {
       const cb = document.getElementById(id);
       if (cb) cb.checked = !!(trade.confluences && trade.confluences[key]);
     });
-
     updateTradeAccountInfo();
     calculateAll();
   }
 
-
-  /* ==========================================================
-     ENTRY MODEL CUSTOM
-  ========================================================== */
-
-  const entryModel = document.getElementById("entryModel");
-  const entryModelCustom = document.getElementById("entryModelCustom");
-
-  if (entryModel) {
-    entryModel.addEventListener("change", () => {
-      if (entryModel.value === "__custom__") {
-        if (entryModelCustom) {
-          entryModelCustom.style.display = "block";
-          entryModelCustom.focus();
-        }
-      } else {
-        if (entryModelCustom) {
-          entryModelCustom.style.display = "none";
-          entryModelCustom.value = "";
-        }
-      }
-    });
-  }
-
-
-  /* ==========================================================
-     FORM CALCULATION LISTENERS
-  ========================================================== */
-
-  const calculationFields = [
-    "pair",
-    "entry",
-    "stopLoss",
-    "takeProfit",
-    "lotSize",
-    "tradeAccount"
-  ];
-
-  calculationFields.forEach(id => {
-    const element = document.getElementById(id);
-    if (!element) return;
-
-    element.addEventListener("input", () => {
-      if (id === "tradeAccount") {
-        updateTradeAccountInfo();
-      } else {
-        calculateAll();
-      }
-    });
-
-    element.addEventListener("change", () => {
-      if (id === "tradeAccount") {
-        updateTradeAccountInfo();
-      } else {
-        calculateAll();
-      }
-    });
-  });
-
-
-  /* ==========================================================
-     DATE/TIME LISTENERS
-  ========================================================== */
-
-  const dateInput = document.getElementById("tradeDate");
-  const timeInput = document.getElementById("tradeTime");
-
-  if (dateInput) {
-    dateInput.addEventListener("change", () => {
-      console.log("Trade date:", dateInput.value);
-    });
-  }
-
-  if (timeInput) {
-    timeInput.addEventListener("change", () => {
-      console.log("Trade time:", timeInput.value);
-    });
-  }
-
-
-  /* ==========================================================
-     RESULT CHANGE
-  ========================================================== */
-
-  const resultInput = document.getElementById("result");
-  if (resultInput) {
-    resultInput.addEventListener("change", () => {
-      calculateAll();
-    });
-  }
-
-
-  /* ==========================================================
-     FORM SUBMIT
-  ========================================================== */
-
-  const form = document.getElementById("tradeForm");
-  if (form) {
-    form.addEventListener("submit", saveTrade);
-  }
-
-
-  /* ==========================================================
-     ACCOUNT FILTER
-  ========================================================== */
-
-  const accountFilter = document.getElementById("accountFilter");
-
-  if (accountFilter) {
-    accountFilter.addEventListener("change", () => {
-      selectedAccountId = accountFilter.value;
-      populateAccountSelectors();
-      updateTradeAccountInfo();
-      calculateAll();
-    });
-  }
-
-
-  /* ==========================================================
-     LOGOUT
-  ========================================================== */
-
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        window.location.href = "/login";
-      } catch (error) {
-        console.error(error);
-        alert("Unable to logout.");
-      }
-    });
-  }
-
-
-  /* ==========================================================
-     SCROLL TOP
-  ========================================================== */
-
-  const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-  if (scrollTopBtn) {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 300) {
-        scrollTopBtn.classList.add("visible");
-      } else {
-        scrollTopBtn.classList.remove("visible");
-      }
-    });
-
-    scrollTopBtn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
-
-
-  /* ==========================================================
-     REFRESH UI
-  ========================================================== */
-
-  function refreshUI() {
-    loadAccounts();
-    populateAccountSelectors();
-    updateTradeAccountInfo();
-    calculateAll();
-    calculateStatistics();
-    loadRecentTrades();
-    initializeCharts();
-    updateAccountPanel();
-  }
-
-
-  /* ==========================================================
-     STATISTICS (summary)
-  ========================================================== */
-
+  // ─── STATISTICS & CHARTS ─────────────────────────────────────
   function calculateStatistics() {
-    const filtered = getFilteredTrades();
+    const filtered = selectedAccountId === "all" ? trades : trades.filter(t => t.accountId === selectedAccountId);
     const closed = filtered.filter(t => t.status === "Closed");
     const wins = closed.filter(t => t.result === "Win");
     const losses = closed.filter(t => t.result === "Loss");
@@ -1025,22 +453,26 @@ function initJournal() {
       const account = getSelectedAccount();
       startingBalance = account ? (Number(account.startingBalance) || 0) : 0;
     }
-    const maxDrawdown = calculateMaxDrawdown(closed, startingBalance);
+    const maxDrawdown = (() => {
+      if (!closed.length) return 0;
+      let bal = startingBalance, peak = startingBalance, maxDD = 0;
+      closed.forEach(t => {
+        bal += (Number(t.profit)||0) - (Number(t.commission)||0);
+        if (bal > peak) peak = bal;
+        const dd = peak - bal;
+        if (dd > maxDD) maxDD = dd;
+      });
+      return maxDD;
+    })();
 
-    const sorted = [...closed].sort((a, b) => new Date(a.closed || a.date) - new Date(b.closed || b.date));
+    const sorted = [...closed].sort((a,b) => new Date(a.closed||a.date) - new Date(b.closed||b.date));
     let streak = 0;
     if (sorted.length) {
-      const last = sorted[sorted.length - 1];
+      const last = sorted[sorted.length-1];
       if (last.result === "Win") {
-        for (let i = sorted.length - 1; i >= 0; i--) {
-          if (sorted[i].result === "Win") streak++;
-          else break;
-        }
+        for (let i=sorted.length-1; i>=0; i--) { if (sorted[i].result === "Win") streak++; else break; }
       } else if (last.result === "Loss") {
-        for (let i = sorted.length - 1; i >= 0; i--) {
-          if (sorted[i].result === "Loss") streak--;
-          else break;
-        }
+        for (let i=sorted.length-1; i>=0; i--) { if (sorted[i].result === "Loss") streak--; else break; }
       }
     }
 
@@ -1058,78 +490,19 @@ function initJournal() {
     setText("profitFactor", profitFactor === Infinity ? "∞" : profitFactor.toFixed(2));
     setText("maxDrawdown", money(maxDrawdown));
     setText("streak", streak > 0 ? "+" + streak : streak < 0 ? streak : "0");
-    const consistencyScore = calculateConsistencyScore(closed);
-    setText("consistencyScore", consistencyScore.toFixed(1) + "%");
-    applyConsistencyClass(document.getElementById("consistencyScore"), consistencyScore);
     setText("monthCount", monthCount);
 
     const winEl = document.getElementById("winRate");
     if (winEl) winEl.className = winRate >= 50 ? "value-positive" : winRate > 0 ? "value-neutral" : "value-negative";
     const profitEl = document.getElementById("netProfit");
     if (profitEl) profitEl.className = netProfit > 0 ? "value-positive" : netProfit < 0 ? "value-negative" : "value-neutral";
-
     updateAccountPanel();
-  }
-
-
-  /* ==========================================================
-     HELPER FUNCTIONS
-  ========================================================== */
-
-  function getFilteredTrades() {
-    if (selectedAccountId === "all") return [...trades];
-    return trades.filter(t => t.accountId === selectedAccountId);
-  }
-
-  function calculateMaxDrawdown(closedTrades, startingBalance) {
-    if (!closedTrades.length) return 0;
-    let balance = startingBalance;
-    let peak = startingBalance;
-    let maxDrawdown = 0;
-    closedTrades.forEach(trade => {
-      const profit = Number(trade.profit) || 0;
-      const commission = Number(trade.commission) || 0;
-      balance += profit - commission;
-      if (balance > peak) peak = balance;
-      const drawdown = peak - balance;
-      if (drawdown > maxDrawdown) maxDrawdown = drawdown;
-    });
-    return maxDrawdown;
-  }
-
-  function calculateConsistencyScore(sourceTrades) {
-    const closed = (sourceTrades || []).filter(t => t.status === "Closed");
-    if (!closed.length) return 0;
-    const scoreMap = { Excellent: 10, Good: 8, Average: 5, Poor: 2 };
-    const emotionMap = { Calm: 10, Confident: 10, Fear: 4, Greed: 3, FOMO: 2, Revenge: 1 };
-    let total = 0;
-    closed.forEach(trade => {
-      const account = getAccount(trade.accountId);
-      const plannedRisk = account ? (Number(account.riskPercent) || 0) : 0;
-      const actualRisk = Number(trade.risk) || 0;
-      const followedPlan = trade.tradeValid === "Yes" ? 10 : 0;
-      const patience = scoreMap[trade.patience] ?? 5;
-      const discipline = scoreMap[trade.discipline] ?? 5;
-      const emotionalControl = emotionMap[trade.emotion] ?? 5;
-      const riskManagement = plannedRisk <= 0 || actualRisk <= plannedRisk ? 10 : actualRisk <= plannedRisk * 1.25 ? 6 : 2;
-      const exitRules = trade.stopLoss !== undefined && trade.takeProfit !== undefined &&
-        Number(trade.stopLoss) !== 0 && Number(trade.takeProfit) !== 0 ? 10 : 3;
-      const journalCompleted = [trade.tradeSummary, trade.lessonLearned, trade.improvementPlan].filter(Boolean).length >= 2 ? 10 : [trade.tradeSummary, trade.lessonLearned, trade.improvementPlan].filter(Boolean).length === 1 ? 6 : 2;
-      total += (followedPlan + patience + discipline + emotionalControl + riskManagement + exitRules + journalCompleted) / 7;
-    });
-    return Math.max(0, Math.min(100, (total / closed.length) * 10));
-  }
-
-  function applyConsistencyClass(el, score) {
-    if (!el) return;
-    el.classList.remove("consistency-good", "consistency-mid", "consistency-low");
-    el.classList.add(score >= 80 ? "consistency-good" : score >= 60 ? "consistency-mid" : "consistency-low");
   }
 
   function loadRecentTrades() {
     const container = document.getElementById("recentTrades");
     if (!container) return;
-    const filtered = getFilteredTrades();
+    const filtered = selectedAccountId === "all" ? trades : trades.filter(t => t.accountId === selectedAccountId);
     const pending = filtered.filter(t => t.status === "Pending" || t.result === "Pending");
     const display = pending.slice(0, 4);
     if (display.length === 0) {
@@ -1160,34 +533,32 @@ function initJournal() {
   }
 
   function destroyAllCharts() {
-    if (equityChartInstance) { equityChartInstance.destroy();
-      equityChartInstance = null; }
-    if (monthlyChartInstance) { monthlyChartInstance.destroy();
-      monthlyChartInstance = null; }
+    if (equityChartInstance) { equityChartInstance.destroy(); equityChartInstance = null; }
+    if (monthlyChartInstance) { monthlyChartInstance.destroy(); monthlyChartInstance = null; }
   }
 
   function buildEquityChart() {
     const canvas = document.getElementById("equityChart");
     if (!canvas) return;
-    const filtered = getFilteredTrades();
-    const closed = filtered.filter(t => t.status === "Closed").sort((a, b) => new Date(a.closed || a.date) - new Date(b.closed || b.date));
+    const filtered = selectedAccountId === "all" ? trades : trades.filter(t => t.accountId === selectedAccountId);
+    const closed = filtered.filter(t => t.status === "Closed").sort((a,b) => new Date(a.closed||a.date) - new Date(b.closed||b.date));
     let startingBalance = 0;
     if (selectedAccountId === "all") {
-      startingBalance = Object.values(accounts).reduce((s, a) => s + (Number(a.startingBalance) || 0), 0);
+      startingBalance = Object.values(accounts).reduce((s,a) => s + (Number(a.startingBalance)||0), 0);
     } else {
       const account = getSelectedAccount();
-      startingBalance = account ? (Number(account.startingBalance) || 0) : 0;
+      startingBalance = account ? (Number(account.startingBalance)||0) : 0;
     }
     let balance = startingBalance;
     const data = [balance];
-    closed.forEach(trade => {
-      balance += (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
+    closed.forEach(t => {
+      balance += (Number(t.profit)||0) - (Number(t.commission)||0);
       data.push(balance);
     });
     equityChartInstance = new Chart(canvas, {
       type: "line",
       data: {
-        labels: data.map((_, i) => i === 0 ? "Start" : i),
+        labels: data.map((_,i) => i === 0 ? "Start" : i),
         datasets: [{ label: "Equity", data, borderColor: "#4f7cff", backgroundColor: "rgba(79,124,255,0.15)", fill: true, tension: 0.3 }]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
@@ -1197,14 +568,14 @@ function initJournal() {
   function buildMonthlyChart() {
     const canvas = document.getElementById("monthlyChart");
     if (!canvas) return;
-    const filtered = getFilteredTrades();
+    const filtered = selectedAccountId === "all" ? trades : trades.filter(t => t.accountId === selectedAccountId);
     const monthly = {};
-    filtered.filter(t => t.status === "Closed").forEach(trade => {
-      const date = new Date(trade.closed || trade.date);
-      const key = date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
+    filtered.filter(t => t.status === "Closed").forEach(t => {
+      const date = new Date(t.closed || t.date);
+      const key = date.getFullYear() + "-" + String(date.getMonth()+1).padStart(2,"0");
       const label = date.toLocaleString("default", { month: "short", year: "numeric" });
       if (!monthly[key]) monthly[key] = { label, value: 0 };
-      monthly[key].value += (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
+      monthly[key].value += (Number(t.profit)||0) - (Number(t.commission)||0);
     });
     const keys = Object.keys(monthly).sort();
     monthlyChartInstance = new Chart(canvas, {
@@ -1220,13 +591,12 @@ function initJournal() {
   function updateAccountPanel() {
     const account = getSelectedAccount();
     if (!account) {
-      const allStarting = Object.values(accounts).reduce((s, a) => s + (Number(a.startingBalance) || 0), 0);
-      const allCurrent = Object.values(accounts).reduce((s, a) => s + (Number(a.currentBalance) || 0), 0);
+      const allStarting = Object.values(accounts).reduce((s,a) => s + (Number(a.startingBalance)||0), 0);
+      const allCurrent = Object.values(accounts).reduce((s,a) => s + (Number(a.currentBalance)||0), 0);
       const allPnL = allCurrent - allStarting;
       setText("accountStartingBalance", money(allStarting));
       setText("accountCurrentBalance", money(allCurrent));
       setText("accountRiskSetting", "Multiple");
-      setText("accountConsistency", calculateConsistencyScore(trades).toFixed(1) + "%");
       setText("accountPnL", signedMoney(allPnL));
     } else {
       const starting = Number(account.startingBalance) || 0;
@@ -1235,24 +605,79 @@ function initJournal() {
       setText("accountStartingBalance", money(starting));
       setText("accountCurrentBalance", money(current));
       setText("accountRiskSetting", account.riskPercent.toFixed(2) + "%");
-      setText("accountConsistency", calculateConsistencyScore(trades.filter(t => t.accountId === account.id)).toFixed(1) + "%");
       setText("accountPnL", signedMoney(pnl));
-    }
-    const consistencyEl = document.getElementById("accountConsistency");
-    const score = account ? calculateConsistencyScore(trades.filter(t => t.accountId === account.id)) : calculateConsistencyScore(trades);
-    applyConsistencyClass(consistencyEl, score);
-    const pnlEl = document.getElementById("accountPnL");
-    if (pnlEl) {
-      const val = account ? (Number(account.currentBalance) || 0) - (Number(account.startingBalance) || 0) : 0;
-      pnlEl.className = "value " + (val > 0 ? "green" : val < 0 ? "" : "");
     }
   }
 
+  function updateTradeAccountInfo() {
+    const accountId = val("tradeAccount");
+    const account = getAccount(accountId);
+    if (!account) {
+      setValue("tradeAccountBalance", "");
+      setValue("tradeRiskSetting", "");
+      setValue("currencyDisplay", "");
+      setValue("balance", "");
+      calculateAll();
+      return;
+    }
+    const balance = Number(account.currentBalance) || Number(account.startingBalance) || 0;
+    setValue("tradeAccountBalance", money(balance));
+    setValue("tradeRiskSetting", `${Number(account.riskPercent||0).toFixed(2)}%`);
+    setValue("currencyDisplay", account.currency || "USD");
+    setValue("balance", balance.toFixed(2));
+    calculateAll();
+  }
 
-  /* ==========================================================
-     CLOSE TRADE (global)
-  ========================================================== */
+  function populateAccountSelectors() {
+    const filter = document.getElementById("accountFilter");
+    const tradeAccount = document.getElementById("tradeAccount");
+    const list = Object.values(accounts);
+    if (filter) {
+      filter.innerHTML = `<option value="all">All Accounts</option>`;
+      list.forEach(a => {
+        const o = document.createElement("option");
+        o.value = a.id; o.textContent = a.name;
+        filter.appendChild(o);
+      });
+      if (selectedAccountId !== "all" && !accounts[selectedAccountId]) selectedAccountId = "all";
+      filter.value = selectedAccountId;
+    }
+    if (tradeAccount) {
+      const current = tradeAccount.value;
+      tradeAccount.innerHTML = `<option value="">Select an account</option>`;
+      list.forEach(a => {
+        const o = document.createElement("option");
+        o.value = a.id; o.textContent = a.name;
+        tradeAccount.appendChild(o);
+      });
+      let target = "";
+      if (current && accounts[current]) target = current;
+      else if (selectedAccountId !== "all" && accounts[selectedAccountId]) target = selectedAccountId;
+      else if (list.length) target = list[0].id;
+      tradeAccount.value = target;
+    }
+  }
 
+  function initializeTradeDateTime() {
+    const dateInput = document.getElementById("tradeDate");
+    const timeInput = document.getElementById("tradeTime");
+    if (dateInput && !dateInput.value) dateInput.value = getLocalDate();
+    if (timeInput && !timeInput.value) timeInput.value = getLocalTime();
+  }
+
+  // ─── REFRESH UI ──────────────────────────────────────────────
+  function refreshUI() {
+    loadAccounts();
+    populateAccountSelectors();
+    updateTradeAccountInfo();
+    calculateAll();
+    calculateStatistics();
+    loadRecentTrades();
+    initializeCharts();
+    updateAccountPanel();
+  }
+
+  // ─── CLOSE TRADE (global) ────────────────────────────────────
   window.closeTrade = function(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
@@ -1264,18 +689,13 @@ function initJournal() {
     let profit = parseFloat(prompt("Profit/Loss ($)", "0")) || 0;
     const commission = parseFloat(prompt("Commission ($)", "0")) || 0;
     if (result === "Loss" && profit > 0) profit = -profit;
-
-    let exitPrice = 0;
-    let partialPercent = 0;
+    let exitPrice = 0, partialPercent = 0;
     if (result === "Win" || result === "Partial") {
       exitPrice = parseFloat(prompt("Exit price (for actual RR)", "0")) || 0;
-      if (result === "Partial") {
-        partialPercent = parseFloat(prompt("Partial % (0-100)", "50")) || 0;
-      }
+      if (result === "Partial") partialPercent = parseFloat(prompt("Partial % (0-100)", "50")) || 0;
     } else if (result === "Loss") {
       exitPrice = parseFloat(prompt("Exit price (optional)", "0")) || 0;
     }
-
     trade.status = "Closed";
     trade.closed = new Date().toISOString();
     trade.result = result;
@@ -1290,94 +710,61 @@ function initJournal() {
     const stopLoss = Number(trade.originalStopLoss) || Number(trade.stopLoss) || 0;
     const direction = trade.direction || "BUY";
     const outcomeRR = calculateOutcomeRR({
-      result,
-      actualProfit: profit,
-      riskAmount,
-      plannedRR,
-      entry,
-      stopLoss,
-      exitPrice,
-      direction,
-      partialPercent
+      result, actualProfit: profit, riskAmount, plannedRR,
+      entry, stopLoss, exitPrice, direction, partialPercent
     });
     trade.rr = outcomeRR;
-
     applyTradeToAccount(trade, "add");
     saveTrades();
     refreshUI();
-    alert("✅ Trade closed successfully.\n\nAccount: " + (getAccount(trade.accountId)?.name || trade.account || "-") + "\nNet P/L: " + signedMoney(profit - commission) + "\nActual RR: " + outcomeRR.toFixed(2));
+    alert("✅ Trade closed.\nNet P/L: " + signedMoney(profit - commission) + "\nActual RR: " + outcomeRR.toFixed(2));
   };
 
   function viewTrade(trade) {
-    const net = (Number(trade.profit) || 0) - (Number(trade.commission) || 0);
+    const net = (Number(trade.profit)||0) - (Number(trade.commission)||0);
     alert(
-      `PAIR          : ${trade.pair}\nACCOUNT       : ${getAccount(trade.accountId)?.name || trade.account || "-"}\nSTATUS        : ${trade.status}\nRESULT        : ${trade.result}\nPROFIT        : ${money(trade.profit)}\nCOMMISSION    : ${money(trade.commission)}\nNET P/L       : ${signedMoney(net)}\nRISK AMOUNT   : ${money(trade.riskAmount)}\nRISK %        : ${trade.risk || 0}%\nPROJECTED RR  : ${(trade.plannedRR || 0).toFixed(2)}\nACTUAL RR     : ${(trade.rr || 0).toFixed(2)}\nLESSON        : ${trade.lessonLearned || "-"}\nIMPROVEMENT   : ${trade.improvementPlan || "-"}`
+      `PAIR: ${trade.pair}\nRESULT: ${trade.result}\nNET P/L: ${signedMoney(net)}\nACTUAL RR: ${(trade.rr||0).toFixed(2)}`
     );
   }
 
-
-  /* ==========================================================
-     INITIALIZE
-  ========================================================== */
-
+  // ─── INIT ────────────────────────────────────────────────────
   loadAccounts();
   loadTrades();
   populateAccountSelectors();
   initializeTradeDateTime();
   updateTradeAccountInfo();
   calculateAll();
-  // refreshUI will be called by loadTrades after cache/Firestore loads
+  refreshUI();
 
+  // Edit mode from URL
   const params = new URLSearchParams(window.location.search);
   const editId = params.get("edit");
   if (editId) {
-    const checkAndEdit = () => {
+    const check = () => {
       const trade = trades.find(t => String(t.id) === String(editId));
       if (trade) {
         editingTrade = trade;
         populateForm(trade);
-        const submitBtn = document.getElementById("saveTradeBtn");
-        if (submitBtn) {
-          submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade';
-          submitBtn.className = "btn-update";
-        }
-        const header = document.querySelector(".page-header h1");
-        if (header) {
-          header.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
-        }
-        const headerP = document.querySelector(".page-header p");
-        if (headerP) {
-          headerP.textContent = "Modify trade details and save changes.";
-        }
-      } else {
-        setTimeout(checkAndEdit, 500);
-      }
+        const btn = document.getElementById("saveTradeBtn");
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Trade'; btn.className = "btn-update"; }
+        const h1 = document.querySelector(".page-header h1");
+        if (h1) h1.innerHTML = '<i class="fa-solid fa-pen"></i> Edit Trade';
+        const p = document.querySelector(".page-header p");
+        if (p) p.textContent = "Modify trade details and save changes.";
+      } else setTimeout(check, 500);
     };
-    checkAndEdit();
+    check();
   }
-  console.log("✅ GTRADES-AXIS Journal ready (Firestore-first).");
+
+  console.log("✅ Journal ready (Firestore auto-sync)");
 }
 
-
-/* ============================================================
-   AUTHENTICATION
-============================================================ */
-
+// ─── AUTH ──────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
-  if (!user) {
-    window.location.href = "/login";
-    return;
-  }
-
+  if (!user) { window.location.href = "/login"; return; }
   try {
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      console.warn("User document does not exist.");
-    }
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists()) console.warn("User doc missing.");
     initJournal();
-  } catch (error) {
-    console.error("Journal authentication error:", error);
-    initJournal();
-  }
+  } catch(e) { console.error(e); initJournal(); }
 });
