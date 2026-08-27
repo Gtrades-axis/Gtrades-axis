@@ -22,15 +22,163 @@
 </div>
 <script type="importmap">{ "imports": { "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js" } }</script>
 <script type="module">
-import {auth,db} from "/js/firebase.js";
-import {onAuthStateChanged} from "firebase/auth";
-import {collection,getDocs,updateDoc,doc} from "firebase/firestore";
-const list=document.getElementById('tradeList'); let allTrades=[];
-function dateValue(v){if(!v)return 0;if(typeof v?.toDate==='function')return v.toDate().getTime();const n=Date.parse(v);return Number.isNaN(n)?0:n}
-function fmtDate(t){const d=t.closed||t.updatedAt||t.date; if(t.closed?.toDate)return t.closed.toDate().toLocaleString(); if(t.date){return (t.date+' '+(t.time||'')).trim()} return d||'—'}
-function money(n){return (Number(n)||0).toFixed(2)}
-function render(){const sf=document.getElementById('statusFilter').value,pf=document.getElementById('publicFilter').value;let rows=allTrades.filter(t=>(sf==='all'||t.status===sf)&&(pf==='all'||(pf==='public'?t.public===true:t.public!==true)));rows.sort((a,b)=>dateValue(b.closed||b.updatedAt||b.createdAt)-dateValue(a.closed||a.updatedAt||a.createdAt));document.getElementById('total').textContent=allTrades.length;document.getElementById('closedCount').textContent=allTrades.filter(t=>t.status==='Closed').length;document.getElementById('pendingCount').textContent=allTrades.filter(t=>t.status==='Pending'||t.result==='Pending').length;document.getElementById('publicCount').textContent=allTrades.filter(t=>t.public===true).length;if(!rows.length){list.innerHTML='<div class="empty">No journal trades match this filter.</div>';return}list.innerHTML='<div class="table-wrap"><table><thead><tr><th>Date / Time</th><th>Account</th><th>Pair</th><th>Direction</th><th>Result</th><th>RR</th><th>P/L</th><th>Risk %</th><th>Visibility</th><th>Action</th></tr></thead><tbody>'+rows.map(t=>{const pub=t.public===true;const rr=Number(t.rr)||0;const pl=(Number(t.profit)||0)-(Number(t.commission)||0);return '<tr><td>'+fmtDate(t)+'</td><td>'+(t.account||t.accountId||'—')+'</td><td><strong>'+(t.pair||'—')+'</strong></td><td>'+(t.direction||'—')+'</td><td><span class="badge '+(t.status==='Closed'?'closed':'pending')+'">'+(t.result||t.status||'—')+'</span></td><td class="'+(rr>=0?'positive':'negative')+'">'+rr.toFixed(2)+'R</td><td class="'+(pl>=0?'positive':'negative')+'">'+(pl>=0?'+':'')+'$'+money(pl)+'</td><td>'+money(t.risk)+'%</td><td><span class="badge '+(pub?'public':'private')+'">'+(pub?'Public':'Private')+'</span></td><td><button class="action" data-id="'+String(t.id).replace(/"/g,'&quot;')+'" data-public="'+pub+'">'+(pub?'Hide':'Show')+'</button></td></tr>'}).join('')+'</tbody></table></div>';document.querySelectorAll('.action').forEach(b=>b.onclick=async()=>{try{b.disabled=true;await updateDoc(doc(db,'trades',b.dataset.id),{public:b.dataset.public!=='true'});await loadTrades()}catch(e){console.error(e);alert('Could not update visibility: '+e.message)}finally{b.disabled=false}})}
-async function loadTrades(){list.innerHTML='<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Reading journal trades...</div>';try{const snap=await getDocs(collection(db,'trades'));allTrades=snap.docs.map(d=>({id:d.id,...d.data()}));render()}catch(e){console.error('Journal trades read failed:',e);list.innerHTML='<div class="empty error">Failed to read the Journal trades.<br><span class="muted">'+e.message+'</span></div>'}}
-document.getElementById('refreshBtn').onclick=loadTrades;document.getElementById('statusFilter').onchange=render;document.getElementById('publicFilter').onchange=render;onAuthStateChanged(auth,user=>{if(!user){list.innerHTML='<div class="empty error"><i class="fa-solid fa-lock"></i> Please log in.</div>';return}loadTrades()});
+import { auth, db } from "/js/firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  collection, getDocs, getDoc, updateDoc, doc
+} from "firebase/firestore";
+
+const list = document.getElementById("tradeList");
+let allTrades = [];
+let currentUser = null;
+
+const esc = (v) => String(v ?? "")
+  .replaceAll("&","&amp;").replaceAll("<","&lt;")
+  .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+const dateValue = (v) => {
+  if (!v) return 0;
+  if (typeof v?.toDate === "function") return v.toDate().getTime();
+  const n = Date.parse(String(v));
+  return Number.isNaN(n) ? 0 : n;
+};
+
+const fmtDate = (t) => {
+  if (t.date) return `${esc(t.date)} ${esc(t.time || "")}`.trim();
+  if (t.closed?.toDate) return t.closed.toDate().toLocaleString();
+  return esc(t.closed || t.updated || "—");
+};
+
+const money = (n) => (Number(n) || 0).toFixed(2);
+
+function render() {
+  const sf = document.getElementById("statusFilter").value;
+  const pf = document.getElementById("publicFilter").value;
+
+  let rows = allTrades.filter(t =>
+    (sf === "all" || t.status === sf) &&
+    (pf === "all" || (pf === "public" ? t.public === true : t.public !== true))
+  );
+
+  rows.sort((a,b) =>
+    dateValue(b.closed || b.updated || b.created || b.date) -
+    dateValue(a.closed || a.updated || a.created || a.date)
+  );
+
+  document.getElementById("total").textContent = allTrades.length;
+  document.getElementById("closedCount").textContent =
+    allTrades.filter(t => t.status === "Closed").length;
+  document.getElementById("pendingCount").textContent =
+    allTrades.filter(t => t.status === "Pending" || t.result === "Pending").length;
+  document.getElementById("publicCount").textContent =
+    allTrades.filter(t => t.public === true).length;
+
+  if (!rows.length) {
+    list.innerHTML = '<div class="empty">No journal trades match this filter.</div>';
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Date / Time</th><th>Student</th><th>Account</th><th>Pair</th>
+          <th>Direction</th><th>Result</th><th>RR</th><th>P/L</th>
+          <th>Risk %</th><th>Visibility</th><th>Action</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(t => {
+            const pub = t.public === true;
+            const rr = Number(t.rr) || 0;
+            const pl = (Number(t.profit)||0) - (Number(t.commission)||0);
+            return `<tr>
+              <td>${fmtDate(t)}</td>
+              <td><span class="muted">${esc(t.userId || "—")}</span></td>
+              <td>${esc(t.account || t.accountId || "—")}</td>
+              <td><strong>${esc(t.pair || "—")}</strong></td>
+              <td>${esc(t.direction || "—")}</td>
+              <td><span class="badge ${t.status === "Closed" ? "closed" : "pending"}">${esc(t.result || t.status || "—")}</span></td>
+              <td class="${rr >= 0 ? "positive" : "negative"}">${rr.toFixed(2)}R</td>
+              <td class="${pl >= 0 ? "positive" : "negative"}">${pl >= 0 ? "+" : ""}$${money(pl)}</td>
+              <td>${money(t.risk)}%</td>
+              <td><span class="badge ${pub ? "public" : "private"}">${pub ? "Public" : "Private"}</span></td>
+              <td><button class="action" data-uid="${esc(t.userId)}" data-id="${esc(t.id)}" data-public="${pub}">${pub ? "Hide" : "Show"}</button></td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.querySelectorAll(".action").forEach(btn => {
+    btn.onclick = async () => {
+      try {
+        btn.disabled = true;
+        const ref = doc(db, "users", btn.dataset.uid, "trades", btn.dataset.id);
+        await updateDoc(ref, { public: btn.dataset.public !== "true" });
+        await loadTrades();
+      } catch (e) {
+        console.error(e);
+        alert("Could not update visibility: " + e.message);
+      } finally {
+        btn.disabled = false;
+      }
+    };
+  });
+}
+
+async function loadTrades() {
+  list.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Reading journal trades...</div>';
+
+  try {
+    const usersSnap = await getDocs(collection(db, "users"));
+    const result = [];
+
+    for (const userDoc of usersSnap.docs) {
+      const tradesSnap = await getDocs(collection(db, "users", userDoc.id, "trades"));
+      tradesSnap.forEach(tradeDoc => {
+        result.push({
+          id: tradeDoc.id,
+          userId: userDoc.id,
+          ...tradeDoc.data()
+        });
+      });
+    }
+
+    allTrades = result;
+    render();
+  } catch (e) {
+    console.error("Journal trades read failed:", e);
+    list.innerHTML = `<div class="empty error">
+      Failed to read the Journal trades.<br>
+      <span class="muted">${esc(e.message)}</span>
+    </div>`;
+  }
+}
+
+document.getElementById("refreshBtn").onclick = loadTrades;
+document.getElementById("statusFilter").onchange = render;
+document.getElementById("publicFilter").onchange = render;
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    list.innerHTML = '<div class="empty error"><i class="fa-solid fa-lock"></i> Please log in.</div>';
+    return;
+  }
+
+  currentUser = user;
+
+  try {
+    const me = await getDoc(doc(db, "users", user.uid));
+    if (me.data()?.role !== "admin") {
+      list.innerHTML = '<div class="empty error"><i class="fa-solid fa-lock"></i> Admin access required.</div>';
+      return;
+    }
+    await loadTrades();
+  } catch (e) {
+    list.innerHTML = `<div class="empty error">${esc(e.message)}</div>`;
+  }
+});
 </script>
-</body></html>
+</body>
+</html>

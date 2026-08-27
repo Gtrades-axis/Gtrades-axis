@@ -878,6 +878,26 @@ function buildTradeFromForm(
         takeProfit:
             num("takeProfit"),
 
+        exitPrice:
+            num("exitPrice"),
+
+        // Preserve the original execution prices for later
+        // partial/close calculations.
+        initialEntry:
+            existing.initialEntry ?? num("entry"),
+
+        initialStopLoss:
+            existing.initialStopLoss ?? num("stopLoss"),
+
+        initialTakeProfit:
+            existing.initialTakeProfit ?? num("takeProfit"),
+
+        initialRR:
+            existing.initialRR ?? num("rr"),
+
+        plannedRR:
+            existing.plannedRR ?? num("rr"),
+
         lotSize:
             num("lotSize"),
 
@@ -1580,6 +1600,15 @@ async function closeTrade(
             commissionInput
         ) || 0;
 
+    const exitPriceInput = prompt(
+        "Exit / Close Price (leave blank if not applicable):",
+        String(trade.exitPrice || "")
+    );
+
+    const exitPrice = exitPriceInput === null
+        ? Number(trade.exitPrice) || 0
+        : (Number(exitPriceInput) || 0);
+
 
     const riskAmount =
         Number(
@@ -1602,49 +1631,56 @@ async function closeTrade(
 
 
     /*
-     * Actual RR after close.
+     * CLOSED RR
      *
      * WIN:
-     * actual profit / original risk
+     * Keep the ORIGINAL planned RR.
      *
      * LOSS:
-     * actual loss / original risk
-     * as a negative RR
+     * Use the ACTUAL loss divided by the
+     * original risk amount. This prevents a
+     * -0.42R loss from being displayed as -4R.
      *
-     * BE:
-     * 0
+     * BREAKEVEN:
+     * Always 0R.
+     *
+     * PARTIAL:
+     * If an exitPrice exists, calculate the
+     * realized R from the original entry/SL.
+     * Otherwise fall back to actual P/L ÷ risk.
      */
-
     let actualRR = 0;
 
+    const plannedRR = Number(
+        trade.initialRR ??
+        trade.plannedRR ??
+        trade.rr
+    ) || 0;
 
-    if (
-        riskAmount > 0
-    ) {
+    if (result === "Win") {
+        actualRR = Math.abs(plannedRR);
+    } else if (result === "Loss") {
+        actualRR = riskAmount > 0
+            ? -(Math.abs(profit) / riskAmount)
+            : 0;
+    } else if (result === "Breakeven") {
+        actualRR = 0;
+    } else if (result === "Partial") {
+        const exitPrice = Number(trade.exitPrice) || 0;
+        const originalEntry = Number(trade.initialEntry ?? trade.entry) || 0;
+        const originalSL = Number(trade.initialStopLoss ?? trade.stopLoss) || 0;
+        const priceRisk = Math.abs(originalEntry - originalSL);
 
-        actualRR =
-            profit /
-            riskAmount;
+        if (exitPrice && originalEntry && priceRisk) {
+            const move = trade.direction === "SELL"
+                ? originalEntry - exitPrice
+                : exitPrice - originalEntry;
 
-
-        actualRR =
-            Math.round(
-                actualRR * 100
-            ) / 100;
-    }
-
-
-    /*
-     * If BE, force zero.
-     */
-
-    if (
-        result ===
-        "Breakeven"
-    ) {
-
-        actualRR =
-            0;
+            actualRR = move / priceRisk;
+        } else if (riskAmount > 0) {
+            actualRR = profit / riskAmount;
+        }
+        actualRR = Math.round(actualRR * 100) / 100;
     }
 
 
@@ -1655,6 +1691,8 @@ async function closeTrade(
         profit,
 
         commission,
+
+        exitPrice,
 
         result,
 
@@ -3389,6 +3427,11 @@ function populateForm(
     setValue(
         "takeProfit",
         trade.takeProfit
+    );
+
+    setValue(
+        "exitPrice",
+        trade.exitPrice ?? ""
     );
 
     setValue(

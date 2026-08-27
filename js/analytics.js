@@ -32,15 +32,24 @@ onAuthStateChanged(auth, (user) => {
 // ─── LOAD FROM FIRESTORE ──────────────────────────────────────
 function loadTradesRealtime() {
   const tradesRef = collection(db, "users", currentUser.uid, "trades");
-  const q = query(tradesRef, orderBy("tradeDate", "desc"));
+  const q = query(tradesRef, orderBy("date", "desc"));
   onSnapshot(q, (snapshot) => {
     trades = [];
     snapshot.forEach((doc) => trades.push({ id: doc.id, ...doc.data() }));
     console.log(`📊 Analytics: ${trades.length} trades loaded`);
     refreshAnalytics();
   }, (error) => {
-    console.error("Firestore error:", error);
-    alert("Error loading trades: " + error.message);
+    console.warn("Ordered analytics query failed; retrying without order:", error);
+    onSnapshot(tradesRef, (snapshot) => {
+      trades = [];
+      snapshot.forEach((doc) => trades.push({ id: doc.id, ...doc.data() }));
+      trades.sort((a,b) => String(b.date || "").localeCompare(String(a.date || "")));
+      console.log(`📊 Analytics: ${trades.length} trades loaded`);
+      refreshAnalytics();
+    }, (fallbackError) => {
+      console.error("Firestore error:", fallbackError);
+      alert("Error loading trades: " + fallbackError.message);
+    });
   });
 }
 
