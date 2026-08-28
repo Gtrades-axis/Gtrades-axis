@@ -1,7 +1,7 @@
 // ============================================================
-// GTRADES-AXIS™ JOURNAL ENGINE - STUDENT VERSION
-// Saves to: users/{userId}/backtestTrades/ AND trades/
-// Students only see their own trades
+// GTRADES-AXIS™ JOURNAL ENGINE
+// Saves to: users/{userId}/backtestTrades/
+// Works for ALL users (students AND admin)
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -19,8 +19,7 @@ import {
     deleteDoc,
     query,
     orderBy,
-    serverTimestamp,
-    where
+    serverTimestamp
 } from "firebase/firestore";
 
 // --------------------------------------------------------------
@@ -38,16 +37,10 @@ let monthlyChartInstance = null;
 // COLLECTION HELPERS
 // --------------------------------------------------------------
 
-// User's own trades (for student view)
-function getUserTradesCollection() {
+// Trades stored at: users/{userId}/backtestTrades/
+function getTradesCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
     return collection(db, "users", currentUser.uid, "backtestTrades");
-}
-
-// Top-level trades (for admin, also saved for backup)
-function getTopLevelTradesCollection() {
-    if (!currentUser) throw new Error("User is not authenticated.");
-    return collection(db, "trades");
 }
 
 // Accounts stored at: users/{userId}/journalAccounts/
@@ -62,16 +55,10 @@ function getAccountDoc(accountId) {
     return doc(db, "users", currentUser.uid, "journalAccounts", accountId);
 }
 
-// Trade document reference (user's own)
-function getUserTradeDoc(tradeId) {
+// Trade document reference
+function getTradeDoc(tradeId) {
     if (!currentUser) throw new Error("User is not authenticated.");
     return doc(db, "users", currentUser.uid, "backtestTrades", tradeId);
-}
-
-// Top-level trade document reference
-function getTopLevelTradeDoc(tradeId) {
-    if (!currentUser) throw new Error("User is not authenticated.");
-    return doc(db, "trades", tradeId);
 }
 
 // --------------------------------------------------------------
@@ -277,19 +264,18 @@ function getSelectedAccount() {
 }
 
 // --------------------------------------------------------------
-// TRADE OPERATIONS - STUDENT VIEW (Only user's own trades)
+// TRADE OPERATIONS
 // --------------------------------------------------------------
 async function loadTrades() {
     if (!currentUser) return;
     trades = [];
 
     try {
-        // Load ONLY the current user's trades from their subcollection
-        const snapshot = await getDocs(query(getUserTradesCollection(), orderBy("created", "desc")));
+        const snapshot = await getDocs(query(getTradesCollection(), orderBy("created", "desc")));
         snapshot.forEach(item => {
             trades.push({ id: item.id, ...item.data() });
         });
-        console.log("✅ User's trades loaded:", trades.length);
+        console.log("✅ Trades loaded:", trades.length);
     } catch (error) {
         console.log("ℹ️ No trades found yet, starting fresh.");
         trades = [];
@@ -303,10 +289,9 @@ async function saveTradeToFirestore(trade) {
     delete cleanTrade.id;
 
     const tradeId = "trade-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-    
-    // 1. Save to user's own subcollection (student view)
-    const userTradeRef = getUserTradeDoc(tradeId);
-    await setDoc(userTradeRef, {
+    const tradeRef = getTradeDoc(tradeId);
+
+    await setDoc(tradeRef, {
         ...cleanTrade,
         id: tradeId,
         userId: currentUser.uid,
@@ -317,20 +302,7 @@ async function saveTradeToFirestore(trade) {
         createdAt: serverTimestamp()
     });
 
-    // 2. Save to top-level trades collection (admin view)
-    const topLevelRef = getTopLevelTradeDoc(tradeId);
-    await setDoc(topLevelRef, {
-        ...cleanTrade,
-        id: tradeId,
-        userId: currentUser.uid,
-        userEmail: currentUser.email || "",
-        public: false,
-        created: cleanTrade.created || new Date().toISOString(),
-        updated: new Date().toISOString(),
-        createdAt: serverTimestamp()
-    });
-
-    console.log("✅ Trade saved to both locations:", tradeId);
+    console.log("✅ Trade saved:", tradeId);
     return tradeId;
 }
 
@@ -340,41 +312,17 @@ async function updateTradeInFirestore(tradeId, trade) {
     const cleanTrade = cleanFirestoreData(trade);
     delete cleanTrade.id;
 
-    // Update user's own trade
-    const userTradeRef = getUserTradeDoc(tradeId);
-    await updateDoc(userTradeRef, {
+    const tradeRef = getTradeDoc(tradeId);
+    await updateDoc(tradeRef, {
         ...cleanTrade,
         updated: new Date().toISOString()
     });
-
-    // Update top-level trade
-    try {
-        const topLevelRef = getTopLevelTradeDoc(tradeId);
-        await updateDoc(topLevelRef, {
-            ...cleanTrade,
-            updated: new Date().toISOString()
-        });
-    } catch (error) {
-        // Top-level might not exist yet, that's fine
-        console.log("Top-level trade update skipped (may not exist)");
-    }
-
     console.log("✅ Trade updated:", tradeId);
 }
 
 async function deleteTradeFromFirestore(tradeId) {
     if (!currentUser) throw new Error("User is not authenticated.");
-    
-    // Delete from user's subcollection
-    await deleteDoc(getUserTradeDoc(tradeId));
-    
-    // Delete from top-level
-    try {
-        await deleteDoc(getTopLevelTradeDoc(tradeId));
-    } catch (error) {
-        console.log("Top-level trade deletion skipped (may not exist)");
-    }
-    
+    await deleteDoc(getTradeDoc(tradeId));
     console.log("✅ Trade deleted:", tradeId);
 }
 

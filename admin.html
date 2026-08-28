@@ -1712,6 +1712,9 @@
   // ═══════════════════════════════════════════════════════════════════════════
 // 6. TRADES MANAGEMENT - ADMIN VIEW (Sees ALL users' trades)
 // ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN TRADES - Reads ALL users' backtestTrades
+// ═══════════════════════════════════════════════════════════════════════════
 
 window.listenTrades = function() {
   const tbody = document.getElementById('tradesTableBody');
@@ -1719,27 +1722,55 @@ window.listenTrades = function() {
   
   if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card"><i class="fa-solid fa-spinner fa-spin" style="font-size:24px;color:var(--accent-blue);"></i><br>Loading all users' trades...</div></td></tr>`;
   
-  // Read from top-level trades collection (where ALL trades are saved)
-  const tradesRef = collection(db, "trades");
+  // Get ALL users
+  const usersRef = collection(db, "users");
   
-  getDocs(query(tradesRef, orderBy("createdAt", "desc"))).then((snapshot) => {
+  getDocs(usersRef).then(async (usersSnapshot) => {
     const allTrades = [];
     
-    console.log(`📊 Found ${snapshot.docs.length} trades in top-level collection`);
+    console.log(`📊 Found ${usersSnapshot.docs.length} users`);
     
-    snapshot.forEach(tradeDoc => {
-      const data = tradeDoc.data();
-      allTrades.push({
-        id: tradeDoc.id,
-        ...data
-      });
+    for (const userDoc of usersSnapshot.docs) {
+      const userId = userDoc.id;
+      const userData = userDoc.data();
+      const userEmail = userData.email || 'Unknown';
+      
+      try {
+        // Read from each user's backtestTrades
+        const tradesRef = collection(db, "users", userId, "backtestTrades");
+        const tradesSnapshot = await getDocs(query(tradesRef, orderBy("createdAt", "desc")));
+        
+        if (tradesSnapshot.docs.length > 0) {
+          console.log(`📊 ${userEmail} has ${tradesSnapshot.docs.length} trades`);
+        }
+        
+        tradesSnapshot.forEach(tradeDoc => {
+          const data = tradeDoc.data();
+          allTrades.push({
+            id: tradeDoc.id,
+            userId: userId,
+            userEmail: userEmail,
+            ...data
+          });
+        });
+      } catch (error) {
+        // User may not have backtestTrades collection - skip
+      }
+    }
+    
+    // Sort by date (newest first)
+    allTrades.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.created || 0);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.created || 0);
+      return dateB - dateA;
     });
     
+    console.log(`✅ Total trades found: ${allTrades.length}`);
     renderAdminTrades(allTrades);
     
-  }).catch((error) => {
-    console.error('Failed to load trades:', error);
-    renderAdminTrades([]);
+  }).catch(error => {
+    console.error("Failed to load trades:", error);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">❌ Error loading trades: ${error.message}</div></td></tr>`;
   });
 };
 
@@ -1752,7 +1783,7 @@ function renderAdminTrades(trades) {
   if (!trades || trades.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">
       <i class="fa-solid fa-database" style="font-size:2rem;color:var(--gold);display:block;margin-bottom:10px;"></i>
-      <strong>No trades found</strong><br>
+      <strong>No trades found across any users</strong><br>
       <span style="font-size:12px;color:var(--text-secondary);">Users need to save trades in their journal</span>
       <br><br>
       <button onclick="window.listenTrades()" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;cursor:pointer;">
@@ -1788,7 +1819,14 @@ function renderAdminTrades(trades) {
         <td><span class="badge ${statusBadge}">${escapeHtml(statusDisplay)}</span></td>
         <td>
           <span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span>
-          ${t.userId ? `<button class="toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}" style="margin-top:4px;padding:2px 8px;font-size:9px;display:block;" data-id="${t.id}" data-user="${t.userId}" data-public="${isPublic}"><i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i> ${isPublic ? 'Hide' : 'Show'}</button>` : ''}
+          <button class="toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}" 
+                  style="margin-top:4px;padding:2px 8px;font-size:9px;display:block;width:100%;"
+                  data-id="${t.id}" 
+                  data-user="${t.userId}" 
+                  data-public="${isPublic}">
+            <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i> 
+            ${isPublic ? 'Hide' : 'Show'}
+          </button>
         </td>
       </tr>
     `;
@@ -1809,7 +1847,7 @@ function renderAdminTrades(trades) {
       this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
       
       try {
-        const tradeRef = doc(db, "trades", tradeId);
+        const tradeRef = doc(db, "users", userId, "backtestTrades", tradeId);
         await updateDoc(tradeRef, { public: newPublic });
         addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
         window.listenTrades();
@@ -1822,31 +1860,6 @@ function renderAdminTrades(trades) {
     });
   });
 }
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 7. INIT
-  // ═══════════════════════════════════════════════════════════════════════════
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      console.log('✅ Admin logged in, initializing...');
-      
-      listenMembers();
-      renderModules();
-      listenPayments();
-      listenVideos();
-      listenResources();
-      
-      // Load trades after a delay
-      setTimeout(() => {
-        console.log('🔄 Loading trades...');
-        window.listenTrades();
-      }, 1000);
-      
-      // Refresh trades every 30 seconds
-      setInterval(window.listenTrades, 30000);
-    } else {
-      window.location.href = "/login";
-    }
-  });
   
   console.log('✅ GTRADES AXIS Admin – Reading trades from backtestTrades collections.');
 </script>
