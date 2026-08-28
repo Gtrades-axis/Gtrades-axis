@@ -43,29 +43,27 @@ service cloud.firestore {
       allow delete: if isAdmin();
 
       // CANONICAL JOURNAL STORAGE
-      // Student journal writes here. Admin reads every student's trades.
-      // Public homepage can read ONLY trades explicitly published by an admin.
+      // Student owns the trade. Admins can read/manage all student trades.
+      // Public visitors may read only trades explicitly published by an admin.
       match /trades/{tradeId} {
         allow read:
-          if isOwner(userId)
-          || isAdmin()
-          || resource.data.public == true;
+          if isAdmin() || isOwner(userId) || resource.data.public == true;
 
         allow create:
           if isOwner(userId)
-          && request.resource.data.userId == userId
+          && request.resource.data.userId == request.auth.uid
           && request.resource.data.public == false;
 
         allow update:
           if isAdmin()
           || (
             isOwner(userId)
-            && request.resource.data.userId == userId
+            && request.resource.data.userId == request.auth.uid
             && request.resource.data.public == resource.data.public
           );
 
         allow delete:
-          if isOwner(userId) || isAdmin();
+          if isAdmin() || isOwner(userId);
       }
 
       // Current journal account storage. Existing account documents are preserved.
@@ -104,7 +102,10 @@ service cloud.firestore {
 
     // Legacy/top-level trade feed retained. Nothing is migrated automatically.
     match /trades/{tradeId} {
-      allow read: if resource.data.public == true || isAdmin();
+      // Legacy compatibility: the owner may read their own old trade records.
+      allow read: if resource.data.public == true
+        || isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
       allow create:
         if signedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete:

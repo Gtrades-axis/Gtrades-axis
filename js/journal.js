@@ -33,23 +33,18 @@ let equityChartInstance = null;
 let monthlyChartInstance = null;
 
 // --------------------------------------------------------------
-// COLLECTION HELPERS — CANONICAL JOURNAL STORAGE
+// COLLECTION HELPERS
 // --------------------------------------------------------------
-// Every student's trades live ONLY at:
+
+// Canonical student journal trade collection.
+// EVERY trade belongs to the student who created it:
 // users/{uid}/trades/{tradeId}
-// This is the single source of truth used by the student journal,
-// Admin Journal Trades, Admin dashboard, and public homepage feed.
 function tradesCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
     return collection(db, "users", currentUser.uid, "trades");
 }
 
-function tradeDocRef(tradeId) {
-    if (!currentUser) throw new Error("User is not authenticated.");
-    return doc(db, "users", currentUser.uid, "trades", tradeId);
-}
-
-// Accounts remain private to the signed-in student.
+// Accounts stored under user for privacy
 function accountsCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
     return collection(db, "users", currentUser.uid, "journalAccounts");
@@ -256,18 +251,64 @@ function getSelectedAccount() {
 }
 
 // --------------------------------------------------------------
-// TRADE OPERATIONS — users/{uid}/trades
+// TRADE OPERATIONS - SAVING TO TOP-LEVEL "trades" COLLECTION
 // --------------------------------------------------------------
+async function migrateLegacyTrades() {
+    if (!currentUser) return;
+
+    try {
+        // Older versions stored trades in /trades. Copy this student's old
+        // records into the canonical users/{uid}/trades collection once.
+        const legacyQuery = query(
+            collection(db, "trades"),
+            where("userId", "==", currentUser.uid)
+        );
+        const legacySnapshot = await getDocs(legacyQuery);
+
+        for (const legacyDoc of legacySnapshot.docs) {
+            const target = doc(db, "users", currentUser.uid, "trades", legacyDoc.id);
+            const targetSnapshot = await getDoc(target);
+            if (!targetSnapshot.exists()) {
+                await setDoc(target, cleanFirestoreData({
+                    ...legacyDoc.data(),
+                    id: legacyDoc.id,
+                    userId: currentUser.uid,
+                    public: legacyDoc.data().public === true,
+                    migratedFromLegacy: true,
+                    migratedAt: new Date().toISOString()
+                }));
+            }
+        }
+
+        if (legacySnapshot.size) {
+            console.log("✅ Legacy trades migrated:", legacySnapshot.size);
+        }
+    } catch (error) {
+        // Migration must never prevent the journal itself from opening.
+        console.warn("Legacy trade migration skipped:", error.message);
+    }
+}
+
 async function loadTrades() {
     if (!currentUser) return;
     trades = [];
 
     try {
-        const snapshot = await getDocs(query(tradesCollection(), orderBy("created", "desc")));
+        await migrateLegacyTrades();
+        // IMPORTANT: read ONLY the signed-in student's canonical journal.
+        const snapshot = await getDocs(tradesCollection());
         snapshot.forEach(item => {
-            trades.push({ id: item.id, ...item.data() });
+            const data = item.data();
+            trades.push({ id: item.id, ...data, userId: currentUser.uid });
         });
-        console.log("✅ Student trades loaded:", trades.length);
+
+        trades.sort((a, b) => {
+            const av = Date.parse(a.updated || a.created || a.date || "") || 0;
+            const bv = Date.parse(b.updated || b.created || b.date || "") || 0;
+            return bv - av;
+        });
+
+        console.log("✅ Student journal trades loaded:", trades.length);
     } catch (error) {
         console.error("❌ Firestore trade loading failed:", error);
         alert("Unable to load your trades.\n\n" + error.message);
@@ -281,6 +322,7 @@ async function addTradeToFirestore(trade) {
     delete cleanTrade.id;
 
     const tradeId = "trade-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+
     const tradeRef = doc(db, "users", currentUser.uid, "trades", tradeId);
 
     await setDoc(tradeRef, {
@@ -288,13 +330,13 @@ async function addTradeToFirestore(trade) {
         id: tradeId,
         userId: currentUser.uid,
         userEmail: currentUser.email || "",
-        public: cleanTrade.public === true,
+        public: false,
         created: cleanTrade.created || new Date().toISOString(),
         updated: new Date().toISOString(),
         createdAt: serverTimestamp()
     });
 
-    console.log("✅ TRADE WRITTEN TO users/%s/trades/%s", currentUser.uid, tradeId);
+    console.log("✅ TRADE WRITTEN TO FIRESTORE:", tradeId);
     return tradeId;
 }
 
@@ -303,13 +345,10 @@ async function updateTradeInFirestore(tradeId, trade) {
 
     const cleanTrade = cleanFirestoreData(trade);
     delete cleanTrade.id;
-    delete cleanTrade.userId;
-    delete cleanTrade.userEmail;
 
-    await updateDoc(tradeDocRef(tradeId), {
+    const tradeRef = doc(db, "users", currentUser.uid, "trades", tradeId);
+    await updateDoc(tradeRef, {
         ...cleanTrade,
-        userId: currentUser.uid,
-        userEmail: currentUser.email || "",
         updated: new Date().toISOString()
     });
     console.log("✅ Trade updated:", tradeId);
@@ -317,7 +356,7 @@ async function updateTradeInFirestore(tradeId, trade) {
 
 async function deleteTradeFromFirestore(tradeId) {
     if (!currentUser) throw new Error("User is not authenticated.");
-    await deleteDoc(tradeDocRef(tradeId));
+    await deleteDoc(doc(db, "users", currentUser.uid, "trades", tradeId));
     console.log("✅ Trade deleted:", tradeId);
 }
 

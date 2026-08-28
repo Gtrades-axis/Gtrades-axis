@@ -1606,101 +1606,72 @@
   // 6. TRADES MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
   function listenTrades() {
-    const tbody = document.getElementById('tradesTableBody');
-    const countEl = document.getElementById('tradeCount');
-
-    // Canonical source: every student's journal subcollection.
-    const q = collectionGroup(db, "trades");
+    // IMPORTANT: student trades live at users/{uid}/trades/{tradeId}.
+    // collectionGroup("trades") watches ALL student journals in real time.
+    const q = query(collectionGroup(db, "trades"));
 
     onSnapshot(q, (snapshot) => {
-      const trades = snapshot.docs.map(tradeDoc => ({
-        id: tradeDoc.id,
-        path: tradeDoc.ref.path,
-        ...tradeDoc.data()
-      }));
+      const tbody = document.getElementById('tradesTableBody');
+      const countEl = document.getElementById('tradeCount');
+      if (!tbody) return;
 
-      trades.sort((a, b) => {
-        const toMs = v => {
-          if (!v) return 0;
-          if (typeof v?.toDate === 'function') return v.toDate().getTime();
-          if (v?.seconds) return Number(v.seconds) * 1000;
-          const n = Date.parse(String(v));
-          return Number.isNaN(n) ? 0 : n;
-        };
-        return toMs(b.closed || b.updated || b.created || b.date) -
-               toMs(a.closed || a.updated || a.created || a.date);
+      const rows = snapshot.docs.map(snap => {
+        const parent = snap.ref.parent.parent;
+        const data = snap.data();
+        return { id: snap.id, userId: parent?.id || data.userId || '', ...data };
       });
 
-      if (!trades.length) {
+      rows.sort((a, b) => {
+        const av = Date.parse(a.updated || a.created || a.date || '') || 0;
+        const bv = Date.parse(b.updated || b.created || b.date || '') || 0;
+        return bv - av;
+      });
+
+      if (!rows.length) {
         tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No student journal trades found.</div></td></tr>`;
         if (countEl) countEl.textContent = '0 trades';
         return;
       }
 
-      tbody.innerHTML = trades.map(t => {
+      tbody.innerHTML = rows.map(t => {
         const isPublic = t.public === true;
         const rr = Number(t.rr) || 0;
-        const dateStr = t.closed?.toDate
-          ? t.closed.toDate().toLocaleDateString()
-          : (t.date || t.created || '—');
-        const statusDisplay = t.status || t.result || 'Pending';
-        const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
-
-        return `
-          <tr>
-            <td><strong>${escapeHtml(t.pair || '??')}</strong></td>
-            <td>${escapeHtml(t.direction || '—')}</td>
-            <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
-            <td>${escapeHtml(dateStr)}</td>
-            <td><span class="badge ${statusBadge}">${escapeHtml(statusDisplay)}</span></td>
-            <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
-            <td>
-              <button class="manage-btn toggle-trade-btn"
-                      data-path="${escapeHtml(t.path)}"
-                      data-public="${isPublic}"
-                      style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
-                <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
-                ${isPublic ? 'Hide' : 'Show'}
-              </button>
-            </td>
-          </tr>`;
+        const dateStr = t.date ? `${t.date} ${t.time || ''}`.trim() : (t.updated || t.created || '—');
+        return `<tr>
+          <td><strong>${escapeHtml(t.pair || '??')}</strong></td>
+          <td>${escapeHtml(t.direction || '—')}</td>
+          <td>${rr.toFixed(2)}R</td>
+          <td>${escapeHtml(dateStr)}</td>
+          <td><span class="badge ${t.status === 'Closed' ? 'closed' : 'pending'}">${escapeHtml(t.status || t.result || 'Pending')}</span></td>
+          <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
+          <td><button class="manage-btn toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}" data-uid="${escapeHtml(t.userId)}" data-id="${escapeHtml(t.id)}" data-public="${isPublic}"><i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i> ${isPublic ? 'Hide' : 'Show'}</button></td>
+        </tr>`;
       }).join('');
 
-      if (countEl) countEl.textContent = `${trades.length} trades`;
+      if (countEl) countEl.textContent = `${rows.length} trades`;
 
       document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const path = this.dataset.path;
-          const parts = path.split('/');
-
-          if (parts.length !== 4 || parts[0] !== 'users' || parts[2] !== 'trades') {
-            alert('Invalid journal trade path.');
-            return;
-          }
-
-          const currentPublic = this.dataset.public === 'true';
-          const newPublic = !currentPublic;
-          const originalHTML = this.innerHTML;
-
+        btn.addEventListener('click', async function () {
+          const uid = this.dataset.uid;
+          const tradeId = this.dataset.id;
+          const newPublic = this.dataset.public !== 'true';
+          const original = this.innerHTML;
           this.disabled = true;
           this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
           try {
-            await updateDoc(doc(db, ...parts), {
-              public: newPublic,
-              updated: new Date().toISOString()
-            });
-            addActivity(`Journal trade ${parts[3]} set to ${newPublic ? 'public' : 'private'}`);
+            await updateDoc(doc(db, 'users', uid, 'trades', tradeId), { public: newPublic });
+            addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
           } catch (error) {
             console.error('Toggle error:', error);
-            alert('Failed to update trade visibility: ' + error.message);
-            this.innerHTML = originalHTML;
+            alert('Failed to update trade status: ' + error.message);
+            this.innerHTML = original;
             this.disabled = false;
           }
         });
       });
     }, (error) => {
       console.error('TRADES LISTENER ERROR:', error);
+      const tbody = document.getElementById('tradesTableBody');
       if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading student trades: ${escapeHtml(error.message)}</div></td></tr>`;
     });
   }
@@ -1709,27 +1680,15 @@
   // 7. INIT
   // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "/login";
-      return;
-    }
-
-    try {
-      const me = await getDoc(doc(db, "users", user.uid));
-      if (me.data()?.role !== "admin") {
-        window.location.href = "/access-denied";
-        return;
-      }
-
+    if (user) {
       listenMembers();
       renderModules();
       listenPayments();
       listenVideos();
       listenResources();
       listenTrades();
-    } catch (error) {
-      console.error("Admin authorization failed:", error);
-      window.location.href = "/access-denied";
+    } else {
+      window.location.href = "/login";
     }
   });
   console.log('✅ GTRADES AXIS Admin – Tabbed interface with all data preserved.');
