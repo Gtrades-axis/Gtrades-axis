@@ -881,7 +881,7 @@
   import { auth, db } from "./js/firebase.js";
   import { signOut, onAuthStateChanged } from "firebase/auth";
   import {
-    collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc,
+    collection, collectionGroup, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc,
     onSnapshot, serverTimestamp, addDoc, where
   } from "firebase/firestore";
   import { uploadToR2, getDownloadUrl } from "./js/upload.js";
@@ -1606,55 +1606,78 @@
   // 6. TRADES MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
   function listenTrades() {
-    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      const tbody = document.getElementById('tradesTableBody');
-      const countEl = document.getElementById('tradeCount');
-      let total = 0;
+    const tbody = document.getElementById('tradesTableBody');
+    const countEl = document.getElementById('tradeCount');
 
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No trades found.</div></td></tr>`;
+    // Canonical source: every student's journal subcollection.
+    const q = collectionGroup(db, "trades");
+
+    onSnapshot(q, (snapshot) => {
+      const trades = snapshot.docs.map(tradeDoc => ({
+        id: tradeDoc.id,
+        path: tradeDoc.ref.path,
+        ...tradeDoc.data()
+      }));
+
+      trades.sort((a, b) => {
+        const toMs = v => {
+          if (!v) return 0;
+          if (typeof v?.toDate === 'function') return v.toDate().getTime();
+          if (v?.seconds) return Number(v.seconds) * 1000;
+          const n = Date.parse(String(v));
+          return Number.isNaN(n) ? 0 : n;
+        };
+        return toMs(b.closed || b.updated || b.created || b.date) -
+               toMs(a.closed || a.updated || a.created || a.date);
+      });
+
+      if (!trades.length) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No student journal trades found.</div></td></tr>`;
         if (countEl) countEl.textContent = '0 trades';
         return;
       }
 
-      let html = '';
-      snapshot.forEach(doc => {
-        const t = { id: doc.id, ...doc.data() };
-        total++;
+      tbody.innerHTML = trades.map(t => {
         const isPublic = t.public === true;
-        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.date || t.createdAt || '—';
         const rr = Number(t.rr) || 0;
-        const statusDisplay = t.status || 'Pending';
+        const dateStr = t.closed?.toDate
+          ? t.closed.toDate().toLocaleDateString()
+          : (t.date || t.created || '—');
+        const statusDisplay = t.status || t.result || 'Pending';
         const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
 
-        html += `
+        return `
           <tr>
-            <td><strong>${t.pair || '??'}</strong></td>
-            <td>${t.direction || '—'}</td>
+            <td><strong>${escapeHtml(t.pair || '??')}</strong></td>
+            <td>${escapeHtml(t.direction || '—')}</td>
             <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
-            <td>${dateStr}</td>
-            <td><span class="badge ${statusBadge}">${statusDisplay}</span></td>
+            <td>${escapeHtml(dateStr)}</td>
+            <td><span class="badge ${statusBadge}">${escapeHtml(statusDisplay)}</span></td>
             <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
             <td>
-              <button class="manage-btn toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}"
-                      data-id="${t.id}"
+              <button class="manage-btn toggle-trade-btn"
+                      data-path="${escapeHtml(t.path)}"
                       data-public="${isPublic}"
                       style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
                 <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
                 ${isPublic ? 'Hide' : 'Show'}
               </button>
             </td>
-          </tr>
-        `;
-      });
+          </tr>`;
+      }).join('');
 
-      tbody.innerHTML = html;
-      if (countEl) countEl.textContent = `${total} trades`;
+      if (countEl) countEl.textContent = `${trades.length} trades`;
 
       document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
-          const tradeId = this.dataset.id;
+          const path = this.dataset.path;
+          const parts = path.split('/');
+
+          if (parts.length !== 4 || parts[0] !== 'users' || parts[2] !== 'trades') {
+            alert('Invalid journal trade path.');
+            return;
+          }
+
           const currentPublic = this.dataset.public === 'true';
           const newPublic = !currentPublic;
           const originalHTML = this.innerHTML;
@@ -1663,20 +1686,22 @@
           this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
           try {
-            await updateDoc(doc(db, "trades", tradeId), { public: newPublic });
-            addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
+            await updateDoc(doc(db, ...parts), {
+              public: newPublic,
+              updated: new Date().toISOString()
+            });
+            addActivity(`Journal trade ${parts[3]} set to ${newPublic ? 'public' : 'private'}`);
           } catch (error) {
-            console.error("Toggle error:", error);
-            alert('Failed to update trade status.');
+            console.error('Toggle error:', error);
+            alert('Failed to update trade visibility: ' + error.message);
             this.innerHTML = originalHTML;
             this.disabled = false;
           }
         });
       });
     }, (error) => {
-      console.error("TRADES LISTENER ERROR:", error);
-      const tbody = document.getElementById('tradesTableBody');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
+      console.error('TRADES LISTENER ERROR:', error);
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading student trades: ${escapeHtml(error.message)}</div></td></tr>`;
     });
   }
 
@@ -1684,15 +1709,27 @@
   // 7. INIT
   // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
-    if (user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const me = await getDoc(doc(db, "users", user.uid));
+      if (me.data()?.role !== "admin") {
+        window.location.href = "/access-denied";
+        return;
+      }
+
       listenMembers();
       renderModules();
       listenPayments();
       listenVideos();
       listenResources();
       listenTrades();
-    } else {
-      window.location.href = "/login";
+    } catch (error) {
+      console.error("Admin authorization failed:", error);
+      window.location.href = "/access-denied";
     }
   });
   console.log('✅ GTRADES AXIS Admin – Tabbed interface with all data preserved.');

@@ -42,9 +42,29 @@ service cloud.firestore {
 
       allow delete: if isAdmin();
 
-      // Current journal storage. Existing trade documents are preserved.
+      // CANONICAL JOURNAL STORAGE
+      // Student journal writes here. Admin reads every student's trades.
+      // Public homepage can read ONLY trades explicitly published by an admin.
       match /trades/{tradeId} {
-        allow read, create, update, delete:
+        allow read:
+          if isOwner(userId)
+          || isAdmin()
+          || resource.data.public == true;
+
+        allow create:
+          if isOwner(userId)
+          && request.resource.data.userId == userId
+          && request.resource.data.public == false;
+
+        allow update:
+          if isAdmin()
+          || (
+            isOwner(userId)
+            && request.resource.data.userId == userId
+            && request.resource.data.public == resource.data.public
+          );
+
+        allow delete:
           if isOwner(userId) || isAdmin();
       }
 

@@ -1951,35 +1951,29 @@
   <script type="module">
     // ----- IMPORTS -----
     import { auth, db } from "/js/firebase.js";
-    import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+    import {
+      collectionGroup, query, where, limit, onSnapshot
+    } from "firebase/firestore";
     import { onAuthStateChanged } from "firebase/auth";
 
-    // ----- LOAD PUBLIC TRADES FROM FIRESTORE -----
-    async function loadPublicTrades() {
-      try {
-        const q = query(
-          collection(db, "trades"),
-          where("public", "==", true),
-          limit(50)
-        );
-        const snapshot = await getDocs(q);
-        const trades = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        trades.sort((a, b) => {
-          const av = a.closed?.toDate ? a.closed.toDate().getTime() : Date.parse(a.closed || a.updatedAt || a.createdAt || a.date || "") || 0;
-          const bv = b.closed?.toDate ? b.closed.toDate().getTime() : Date.parse(b.closed || b.updatedAt || b.createdAt || b.date || "") || 0;
-          return bv - av;
-        });
-        return trades.slice(0, 6);
-      } catch (error) {
-        console.error("Error loading public trades:", error);
-        return [];
-      }
+    // ----- LIVE PUBLIC TRADES FROM STUDENT JOURNALS -----
+    // The homepage reads the same canonical documents used by the
+    // student journal and admin panel: users/{uid}/trades/{tradeId}.
+    // Only trades explicitly marked public are returned by this query.
+    let unsubscribePublicTrades = null;
+
+    function toMillis(value) {
+      if (!value) return 0;
+      if (typeof value?.toDate === 'function') return value.toDate().getTime();
+      if (value?.seconds) return Number(value.seconds) * 1000;
+      const n = Date.parse(String(value));
+      return Number.isNaN(n) ? 0 : n;
     }
 
     function timeAgo(date) {
-      if (!date) return 'recent';
-      const d = date.toDate ? date.toDate() : new Date(date);
-      const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
+      const ms = toMillis(date);
+      if (!ms) return 'recent';
+      const seconds = Math.max(0, Math.floor((Date.now() - ms) / 1000));
       if (seconds < 60) return 'now';
       const minutes = Math.floor(seconds / 60);
       if (minutes < 60) return minutes + 'm ago';
@@ -1989,27 +1983,78 @@
       return days + 'd ago';
     }
 
-    async function renderTrades() {
+    function escapeTradeText(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function renderPublicTrades(trades) {
       const container = document.getElementById('tradeFeed');
       if (!container) return;
-      const trades = await loadPublicTrades();
-      if (trades.length === 0) {
-        container.innerHTML = '<p style="color:#9aa4bf; text-align:center;">No public trades yet.</p>';
+
+      const rows = [...trades]
+        .sort((a, b) =>
+          toMillis(b.closed || b.updated || b.created || b.date) -
+          toMillis(a.closed || a.updated || a.created || a.date)
+        )
+        .slice(0, 6);
+
+      if (!rows.length) {
+        container.innerHTML =
+          '<p style="color:#9aa4bf;text-align:center;">No public trades yet.</p>';
         return;
       }
-      container.innerHTML = trades.map(t => {
+
+      container.innerHTML = rows.map(t => {
         const rr = Number(t.rr) || 0;
         const rrClass = rr >= 0 ? 'positive' : 'negative';
         const sign = rr >= 0 ? '+' : '';
-        const timeStr = timeAgo(t.closed || t.createdAt);
         return `
           <div class="trade-feed-item">
-            <span class="pair">${t.pair || '??'} <span style="color:#9aa4bf;font-size:0.8rem;">${t.direction || ''}</span></span>
+            <span class="pair">
+              ${escapeTradeText(t.pair || '??')}
+              <span style="color:#9aa4bf;font-size:0.8rem;">
+                ${escapeTradeText(t.direction || '')}
+              </span>
+            </span>
             <span class="rr ${rrClass}">${sign}${rr.toFixed(1)}R</span>
-            <span class="time">${timeStr}</span>
-          </div>
-        `;
+            <span class="time">${timeAgo(t.closed || t.updated || t.created || t.date)}</span>
+          </div>`;
       }).join('');
+    }
+
+    function listenPublicTrades() {
+      const container = document.getElementById('tradeFeed');
+      if (!container) return;
+
+      if (unsubscribePublicTrades) unsubscribePublicTrades();
+
+      container.innerHTML =
+        '<p style="color:#9aa4bf;text-align:center;">Loading live trades...</p>';
+
+      // Collection-group query across every student's trade subcollection.
+      // Firestore rules only permit documents where public == true.
+      const q = query(
+        collectionGroup(db, 'trades'),
+        where('public', '==', true),
+        limit(50)
+      );
+
+      unsubscribePublicTrades = onSnapshot(q, snapshot => {
+        const trades = snapshot.docs.map(d => ({
+          id: d.id,
+          ...d.data()
+        }));
+        renderPublicTrades(trades);
+      }, error => {
+        console.error('Live public trades listener failed:', error);
+        container.innerHTML =
+          '<p style="color:#9aa4bf;text-align:center;">Trade feed temporarily unavailable.</p>';
+      });
     }
 
     // ----- AUTH BUTTONS -----
@@ -2032,7 +2077,7 @@
     });
 
     // ----- INIT -----
-    renderTrades();
+    listenPublicTrades();
 
     // ----- CAROUSEL (rotating concepts) -----
     const slides = document.querySelectorAll('.carousel-slide');

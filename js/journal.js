@@ -33,16 +33,23 @@ let equityChartInstance = null;
 let monthlyChartInstance = null;
 
 // --------------------------------------------------------------
-// COLLECTION HELPERS
+// COLLECTION HELPERS — CANONICAL JOURNAL STORAGE
 // --------------------------------------------------------------
-
-// TOP-LEVEL trades collection (where admin panel reads from)
+// Every student's trades live ONLY at:
+// users/{uid}/trades/{tradeId}
+// This is the single source of truth used by the student journal,
+// Admin Journal Trades, Admin dashboard, and public homepage feed.
 function tradesCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
-    return collection(db, "trades");
+    return collection(db, "users", currentUser.uid, "trades");
 }
 
-// Accounts stored under user for privacy
+function tradeDocRef(tradeId) {
+    if (!currentUser) throw new Error("User is not authenticated.");
+    return doc(db, "users", currentUser.uid, "trades", tradeId);
+}
+
+// Accounts remain private to the signed-in student.
 function accountsCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
     return collection(db, "users", currentUser.uid, "journalAccounts");
@@ -249,23 +256,18 @@ function getSelectedAccount() {
 }
 
 // --------------------------------------------------------------
-// TRADE OPERATIONS - SAVING TO TOP-LEVEL "trades" COLLECTION
+// TRADE OPERATIONS — users/{uid}/trades
 // --------------------------------------------------------------
 async function loadTrades() {
     if (!currentUser) return;
     trades = [];
 
     try {
-        // Load trades from top-level collection
         const snapshot = await getDocs(query(tradesCollection(), orderBy("created", "desc")));
         snapshot.forEach(item => {
-            const data = item.data();
-            // Only load trades belonging to this user
-            if (data.userId === currentUser.uid) {
-                trades.push({ id: item.id, ...data });
-            }
+            trades.push({ id: item.id, ...item.data() });
         });
-        console.log("✅ Firestore trades loaded:", trades.length);
+        console.log("✅ Student trades loaded:", trades.length);
     } catch (error) {
         console.error("❌ Firestore trade loading failed:", error);
         alert("Unable to load your trades.\n\n" + error.message);
@@ -279,21 +281,20 @@ async function addTradeToFirestore(trade) {
     delete cleanTrade.id;
 
     const tradeId = "trade-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-
-    const tradeRef = doc(db, "trades", tradeId);
+    const tradeRef = doc(db, "users", currentUser.uid, "trades", tradeId);
 
     await setDoc(tradeRef, {
         ...cleanTrade,
         id: tradeId,
         userId: currentUser.uid,
         userEmail: currentUser.email || "",
-        public: false,
+        public: cleanTrade.public === true,
         created: cleanTrade.created || new Date().toISOString(),
         updated: new Date().toISOString(),
         createdAt: serverTimestamp()
     });
 
-    console.log("✅ TRADE WRITTEN TO FIRESTORE:", tradeId);
+    console.log("✅ TRADE WRITTEN TO users/%s/trades/%s", currentUser.uid, tradeId);
     return tradeId;
 }
 
@@ -302,10 +303,13 @@ async function updateTradeInFirestore(tradeId, trade) {
 
     const cleanTrade = cleanFirestoreData(trade);
     delete cleanTrade.id;
+    delete cleanTrade.userId;
+    delete cleanTrade.userEmail;
 
-    const tradeRef = doc(db, "trades", tradeId);
-    await updateDoc(tradeRef, {
+    await updateDoc(tradeDocRef(tradeId), {
         ...cleanTrade,
+        userId: currentUser.uid,
+        userEmail: currentUser.email || "",
         updated: new Date().toISOString()
     });
     console.log("✅ Trade updated:", tradeId);
@@ -313,7 +317,7 @@ async function updateTradeInFirestore(tradeId, trade) {
 
 async function deleteTradeFromFirestore(tradeId) {
     if (!currentUser) throw new Error("User is not authenticated.");
-    await deleteDoc(doc(db, "trades", tradeId));
+    await deleteDoc(tradeDocRef(tradeId));
     console.log("✅ Trade deleted:", tradeId);
 }
 

@@ -15,9 +15,11 @@
 <body>
 <div class="container">
 <h1><i class="fa-solid fa-database"></i> Journal Trades</h1>
-<p class="sub">This panel reads the same <strong>trades</strong> collection written by the GTRADES-AXIS Trading Journal. No trade data is copied or moved.</p>
+<p class="sub">This panel reads the live <strong>users/{studentUid}/trades</strong> collections written by every student journal. No separate admin trade database is used.</p>
 <div class="stats"><div class="stat"><small>Total</small><strong id="total">0</strong></div><div class="stat"><small>Closed</small><strong id="closedCount">0</strong></div><div class="stat"><small>Pending</small><strong id="pendingCount">0</strong></div><div class="stat"><small>Public</small><strong id="publicCount">0</strong></div></div>
-<div class="toolbar"><button id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button><select id="statusFilter"><option value="all">All Status</option><option value="Closed">Closed</option><option value="Pending">Pending</option></select><select id="publicFilter"><option value="all">All Visibility</option><option value="public">Public</option><option value="private">Private</option></select></div>
+<div class="toolbar">
+<button id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+<button id="migrateBtn" title="Copy legacy top-level /trades records into the canonical student journal path"><i class="fa-solid fa-database"></i> Import Legacy Trades</button><select id="statusFilter"><option value="all">All Status</option><option value="Closed">Closed</option><option value="Pending">Pending</option></select><select id="publicFilter"><option value="all">All Visibility</option><option value="public">Public</option><option value="private">Private</option></select></div>
 <div id="tradeList"><div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Reading journal...</div></div>
 </div>
 <script type="importmap">{ "imports": { "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js" } }</script>
@@ -25,12 +27,12 @@
 import { auth, db } from "/js/firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 import {
-  collection, getDocs, getDoc, updateDoc, doc
+  collection, collectionGroup, getDocs, getDoc, setDoc, updateDoc, doc, onSnapshot
 } from "firebase/firestore";
 
 const list = document.getElementById("tradeList");
 let allTrades = [];
-let currentUser = null;
+let unsubscribeTrades = null;
 
 const esc = (v) => String(v ?? "")
   .replaceAll("&","&amp;").replaceAll("<","&lt;")
@@ -40,14 +42,14 @@ const esc = (v) => String(v ?? "")
 const dateValue = (v) => {
   if (!v) return 0;
   if (typeof v?.toDate === "function") return v.toDate().getTime();
+  if (v?.seconds) return Number(v.seconds) * 1000;
   const n = Date.parse(String(v));
   return Number.isNaN(n) ? 0 : n;
 };
 
 const fmtDate = (t) => {
   if (t.date) return `${esc(t.date)} ${esc(t.time || "")}`.trim();
-  if (t.closed?.toDate) return t.closed.toDate().toLocaleString();
-  return esc(t.closed || t.updated || "—");
+  return esc(t.closed || t.updated || t.created || "—");
 };
 
 const money = (n) => (Number(n) || 0).toFixed(2);
@@ -56,15 +58,15 @@ function render() {
   const sf = document.getElementById("statusFilter").value;
   const pf = document.getElementById("publicFilter").value;
 
-  let rows = allTrades.filter(t =>
-    (sf === "all" || t.status === sf) &&
-    (pf === "all" || (pf === "public" ? t.public === true : t.public !== true))
-  );
-
-  rows.sort((a,b) =>
-    dateValue(b.closed || b.updated || b.created || b.date) -
-    dateValue(a.closed || a.updated || a.created || a.date)
-  );
+  const rows = allTrades
+    .filter(t =>
+      (sf === "all" || t.status === sf || (sf === "Pending" && t.result === "Pending")) &&
+      (pf === "all" || (pf === "public" ? t.public === true : t.public !== true))
+    )
+    .sort((a,b) =>
+      dateValue(b.closed || b.updated || b.created || b.date) -
+      dateValue(a.closed || a.updated || a.created || a.date)
+    );
 
   document.getElementById("total").textContent = allTrades.length;
   document.getElementById("closedCount").textContent =
@@ -92,9 +94,10 @@ function render() {
             const pub = t.public === true;
             const rr = Number(t.rr) || 0;
             const pl = (Number(t.profit)||0) - (Number(t.commission)||0);
+            const userId = t.userId || (t.pathUserId || "");
             return `<tr>
               <td>${fmtDate(t)}</td>
-              <td><span class="muted">${esc(t.userId || "—")}</span></td>
+              <td><span class="muted">${esc(t.userEmail || userId || "—")}</span></td>
               <td>${esc(t.account || t.accountId || "—")}</td>
               <td><strong>${esc(t.pair || "—")}</strong></td>
               <td>${esc(t.direction || "—")}</td>
@@ -103,7 +106,7 @@ function render() {
               <td class="${pl >= 0 ? "positive" : "negative"}">${pl >= 0 ? "+" : ""}$${money(pl)}</td>
               <td>${money(t.risk)}%</td>
               <td><span class="badge ${pub ? "public" : "private"}">${pub ? "Public" : "Private"}</span></td>
-              <td><button class="action" data-uid="${esc(t.userId)}" data-id="${esc(t.id)}" data-public="${pub}">${pub ? "Hide" : "Show"}</button></td>
+              <td><button class="action" data-path="${esc(t._path)}" data-public="${pub}">${pub ? "Hide" : "Show"}</button></td>
             </tr>`;
           }).join("")}
         </tbody>
@@ -114,9 +117,15 @@ function render() {
     btn.onclick = async () => {
       try {
         btn.disabled = true;
-        const ref = doc(db, "users", btn.dataset.uid, "trades", btn.dataset.id);
-        await updateDoc(ref, { public: btn.dataset.public !== "true" });
-        await loadTrades();
+        const pathParts = btn.dataset.path.split("/");
+        // Expected: users/{uid}/trades/{tradeId}
+        if (pathParts.length !== 4 || pathParts[0] !== "users" || pathParts[2] !== "trades") {
+          throw new Error("Invalid trade path.");
+        }
+        await updateDoc(doc(db, ...pathParts), {
+          public: btn.dataset.public !== "true",
+          updated: new Date().toISOString()
+        });
       } catch (e) {
         console.error(e);
         alert("Could not update visibility: " + e.message);
@@ -127,36 +136,97 @@ function render() {
   });
 }
 
-async function loadTrades() {
-  list.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Reading journal trades...</div>';
+async function migrateLegacyTrades() {
+  if (!confirm(
+    "Import old top-level /trades records into users/{uid}/trades?\n\n" +
+    "This is NON-DESTRUCTIVE: old records are not deleted. Existing canonical records are skipped."
+  )) return;
+
+  const button = document.getElementById("migrateBtn");
+  const original = button?.innerHTML || "";
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importing...';
+  }
 
   try {
-    const usersSnap = await getDocs(collection(db, "users"));
-    const result = [];
+    const snapshot = await getDocs(collection(db, "trades"));
+    let imported = 0;
+    let skipped = 0;
 
-    for (const userDoc of usersSnap.docs) {
-      const tradesSnap = await getDocs(collection(db, "users", userDoc.id, "trades"));
-      tradesSnap.forEach(tradeDoc => {
-        result.push({
-          id: tradeDoc.id,
-          userId: userDoc.id,
-          ...tradeDoc.data()
-        });
+    for (const oldDoc of snapshot.docs) {
+      const data = oldDoc.data();
+      const uid = data.userId;
+      if (!uid) {
+        skipped++;
+        continue;
+      }
+
+      const target = doc(db, "users", uid, "trades", oldDoc.id);
+      const existing = await getDoc(target);
+
+      if (existing.exists()) {
+        skipped++;
+        continue;
+      }
+
+      await setDoc(target, {
+        ...data,
+        id: oldDoc.id,
+        userId: uid,
+        public: data.public === true,
+        migratedFromTopLevel: true,
+        migratedAt: new Date().toISOString()
       });
+      imported++;
     }
 
-    allTrades = result;
-    render();
-  } catch (e) {
-    console.error("Journal trades read failed:", e);
-    list.innerHTML = `<div class="empty error">
-      Failed to read the Journal trades.<br>
-      <span class="muted">${esc(e.message)}</span>
-    </div>`;
+    alert(`Legacy trade import complete.\n\nImported: ${imported}\nSkipped: ${skipped}\n\nOld /trades records were NOT deleted.`);
+  } catch (error) {
+    console.error("Legacy trade import failed:", error);
+    alert("Legacy trade import failed: " + error.message);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = original;
+    }
   }
 }
 
-document.getElementById("refreshBtn").onclick = loadTrades;
+function listenTrades() {
+  if (unsubscribeTrades) unsubscribeTrades();
+
+  list.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Listening for student trades...</div>';
+
+  // Collection-group listener reads users/{uid}/trades/{tradeId}
+  // in real time. Admin rules authorize this query.
+  const q = collectionGroup(db, "trades");
+
+  unsubscribeTrades = onSnapshot(q, snapshot => {
+    allTrades = snapshot.docs.map(tradeDoc => {
+      const data = tradeDoc.data();
+      const path = tradeDoc.ref.path.split("/");
+      return {
+        id: tradeDoc.id,
+        _path: tradeDoc.ref.path,
+        pathUserId: path[1] || "",
+        ...data
+      };
+    });
+    render();
+  }, error => {
+    console.error("Journal trades listener failed:", error);
+    list.innerHTML = `<div class="empty error">
+      Failed to read student journal trades.<br>
+      <span class="muted">${esc(error.message)}</span>
+    </div>`;
+  });
+}
+
+document.getElementById("refreshBtn").onclick = () => {
+  render();
+};
+document.getElementById("migrateBtn").onclick = migrateLegacyTrades;
 document.getElementById("statusFilter").onchange = render;
 document.getElementById("publicFilter").onchange = render;
 
@@ -166,16 +236,15 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  currentUser = user;
-
   try {
     const me = await getDoc(doc(db, "users", user.uid));
     if (me.data()?.role !== "admin") {
       list.innerHTML = '<div class="empty error"><i class="fa-solid fa-lock"></i> Admin access required.</div>';
       return;
     }
-    await loadTrades();
+    listenTrades();
   } catch (e) {
+    console.error(e);
     list.innerHTML = `<div class="empty error">${esc(e.message)}</div>`;
   }
 });
