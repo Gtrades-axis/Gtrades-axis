@@ -875,15 +875,6 @@
       payments: 'Payment Approvals'
     };
     document.getElementById('tabSubtitle').textContent = subtitles[tabId] || tabId;
-
-    // Refresh trades when Trades tab is clicked
-    if (tabId === 'trades') {
-      setTimeout(() => {
-        if (typeof window.listenTrades === 'function') {
-          window.listenTrades();
-        }
-      }, 200);
-    }
   };
 
   // ─── IMPORTS ──────────────────────────────────────────────────────────────
@@ -891,7 +882,7 @@
   import { signOut, onAuthStateChanged } from "firebase/auth";
   import {
     collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, getDoc, updateDoc,
-    onSnapshot, serverTimestamp, addDoc
+    onSnapshot, serverTimestamp, addDoc, where
   } from "firebase/firestore";
   import { uploadToR2, getDownloadUrl } from "./js/upload.js";
 
@@ -941,9 +932,6 @@
     while (feed.children.length > 10) feed.removeChild(feed.lastChild);
   }
 
-  // ─── ESCAPE HTML ──────────────────────────────────────────────────────────
-  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
-
   // ═══════════════════════════════════════════════════════════════════════════
   // 1. MEMBERS – FULL MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
@@ -952,6 +940,7 @@
   function getMembership(u){if(u.role==='admin')return'admin';return u.membership==='premium'?'premium':'member';}
   function getStatus(u){return u.status||'pending';}
   function getPaymentStatus(u){return u.paymentStatus||(u.payment==='paid'?'paid':'unpaid');}
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 
   function listenMembers() {
     const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
@@ -1614,153 +1603,84 @@
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 6. TRADES MANAGEMENT - ADMIN VIEW (Sees ALL users' trades)
+  // 6. TRADES MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ADMIN TRADES - Reads ALL users' backtestTrades
-  // ═══════════════════════════════════════════════════════════════════════════
+  function listenTrades() {
+    const q = query(collection(db, "trades"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const tbody = document.getElementById('tradesTableBody');
+      const countEl = document.getElementById('tradeCount');
+      let total = 0;
 
-  window.listenTrades = function() {
-    const tbody = document.getElementById('tradesTableBody');
-    const countEl = document.getElementById('tradeCount');
-
-    if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card"><i class="fa-solid fa-spinner fa-spin" style="font-size:24px;color:var(--accent-blue);"></i><br>Loading all users' trades...</div></td></tr>`;
-
-    const usersRef = collection(db, "users");
-
-    getDocs(usersRef).then(async (usersSnapshot) => {
-      const allTrades = [];
-
-      console.log(`📊 Found ${usersSnapshot.docs.length} users`);
-
-      for (const userDoc of usersSnapshot.docs) {
-        const userId = userDoc.id;
-        const userData = userDoc.data();
-        const userEmail = userData.email || 'Unknown';
-
-        try {
-          const tradesRef = collection(db, "users", userId, "backtestTrades");
-          const tradesSnapshot = await getDocs(query(tradesRef, orderBy("createdAt", "desc")));
-
-          if (tradesSnapshot.docs.length > 0) {
-            console.log(`📊 ${userEmail} has ${tradesSnapshot.docs.length} trades`);
-          }
-
-          tradesSnapshot.forEach(tradeDoc => {
-            const data = tradeDoc.data();
-            allTrades.push({
-              id: tradeDoc.id,
-              userId: userId,
-              userEmail: userEmail,
-              ...data
-            });
-          });
-        } catch (error) {
-          // User may not have backtestTrades collection - skip
-        }
+      if (snapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">No trades found.</div></td></tr>`;
+        if (countEl) countEl.textContent = '0 trades';
+        return;
       }
 
-      allTrades.sort((a, b) => {
-        const dateA = a.createdAt?.toDate?.() || new Date(a.created || 0);
-        const dateB = b.createdAt?.toDate?.() || new Date(b.created || 0);
-        return dateB - dateA;
+      let html = '';
+      snapshot.forEach(doc => {
+        const t = { id: doc.id, ...doc.data() };
+        total++;
+        const isPublic = t.public === true;
+        const dateStr = t.closed?.toDate ? t.closed.toDate().toLocaleDateString() : t.date || t.createdAt || '—';
+        const rr = Number(t.rr) || 0;
+        const statusDisplay = t.status || 'Pending';
+        const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
+
+        html += `
+          <tr>
+            <td><strong>${t.pair || '??'}</strong></td>
+            <td>${t.direction || '—'}</td>
+            <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
+            <td>${dateStr}</td>
+            <td><span class="badge ${statusBadge}">${statusDisplay}</span></td>
+            <td><span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span></td>
+            <td>
+              <button class="manage-btn toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}"
+                      data-id="${t.id}"
+                      data-public="${isPublic}"
+                      style="${isPublic ? 'color:var(--red);border-color:var(--red);' : 'color:var(--green);border-color:var(--green);'}">
+                <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
+                ${isPublic ? 'Hide' : 'Show'}
+              </button>
+            </td>
+          </tr>
+        `;
       });
 
-      console.log(`✅ Total trades found: ${allTrades.length}`);
-      renderAdminTrades(allTrades);
+      tbody.innerHTML = html;
+      if (countEl) countEl.textContent = `${total} trades`;
 
-    }).catch(error => {
-      console.error("Failed to load trades:", error);
-      if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">❌ Error loading trades: ${error.message}</div></td></tr>`;
-    });
-  };
+      document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const tradeId = this.dataset.id;
+          const currentPublic = this.dataset.public === 'true';
+          const newPublic = !currentPublic;
+          const originalHTML = this.innerHTML;
 
-  function renderAdminTrades(trades) {
-    const tbody = document.getElementById('tradesTableBody');
-    const countEl = document.getElementById('tradeCount');
+          this.disabled = true;
+          this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
-    if (!tbody) return;
-
-    if (!trades || trades.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">
-        <i class="fa-solid fa-database" style="font-size:2rem;color:var(--gold);display:block;margin-bottom:10px;"></i>
-        <strong>No trades found across any users</strong><br>
-        <span style="font-size:12px;color:var(--text-secondary);">Users need to save trades in their journal</span>
-        <br><br>
-        <button onclick="window.listenTrades()" class="manage-btn" style="background:var(--accent-blue);color:#fff;border:none;padding:8px 20px;cursor:pointer;">
-          <i class="fa-solid fa-rotate"></i> Refresh
-        </button>
-      </div></td></tr>`;
-      if (countEl) countEl.textContent = '0 trades';
-      return;
-    }
-
-    if (countEl) countEl.textContent = `${trades.length} trades`;
-
-    let html = '';
-    trades.forEach(t => {
-      const isPublic = t.public === true;
-      const dateStr = t.date || (t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : '—');
-      const rr = Number(t.rr) || 0;
-      const statusDisplay = t.status || 'Pending';
-      const statusBadge = statusDisplay === 'Closed' ? 'closed' : 'pending';
-
-      html += `
-        <tr>
-          <td>
-            <div style="display:flex;flex-direction:column;">
-              <strong style="font-size:11px;color:var(--accent-blue);">${escapeHtml(t.userEmail || 'Unknown')}</strong>
-              <small style="color:var(--text-secondary);font-size:8px;">${escapeHtml(t.userId ? t.userId.slice(0,10) + '...' : '')}</small>
-            </div>
-          </td>
-          <td><strong>${escapeHtml(t.pair || '??')}</strong></td>
-          <td>${escapeHtml(t.direction || '—')}</td>
-          <td>${rr ? rr.toFixed(2) + 'R' : '—'}</td>
-          <td>${escapeHtml(dateStr)}</td>
-          <td><span class="badge ${statusBadge}">${escapeHtml(statusDisplay)}</span></td>
-          <td>
-            <span class="badge ${isPublic ? 'public' : 'private'}">${isPublic ? 'Public' : 'Private'}</span>
-            <button class="toggle-trade-btn ${isPublic ? 'make-private' : 'make-public'}"
-                    style="margin-top:4px;padding:2px 8px;font-size:9px;display:block;width:100%;"
-                    data-id="${t.id}"
-                    data-user="${t.userId}"
-                    data-public="${isPublic}">
-              <i class="fa-solid fa-${isPublic ? 'eye-slash' : 'eye'}"></i>
-              ${isPublic ? 'Hide' : 'Show'}
-            </button>
-          </td>
-        </tr>
-      `;
-    });
-
-    tbody.innerHTML = html;
-
-    document.querySelectorAll('.toggle-trade-btn').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const tradeId = this.dataset.id;
-        const userId = this.dataset.user;
-        const currentPublic = this.dataset.public === 'true';
-        const newPublic = !currentPublic;
-
-        const originalHTML = this.innerHTML;
-        this.disabled = true;
-        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-        try {
-          const tradeRef = doc(db, "users", userId, "backtestTrades", tradeId);
-          await updateDoc(tradeRef, { public: newPublic });
-          addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
-          window.listenTrades();
-        } catch (error) {
-          console.error("Toggle error:", error);
-          alert('Failed to update trade status: ' + error.message);
-          this.innerHTML = originalHTML;
-          this.disabled = false;
-        }
+          try {
+            await updateDoc(doc(db, "trades", tradeId), { public: newPublic });
+            addActivity(`Trade ${tradeId} set to ${newPublic ? 'public' : 'private'}`);
+          } catch (error) {
+            console.error("Toggle error:", error);
+            alert('Failed to update trade status.');
+            this.innerHTML = originalHTML;
+            this.disabled = false;
+          }
+        });
       });
+    }, (error) => {
+      console.error("TRADES LISTENER ERROR:", error);
+      const tbody = document.getElementById('tradesTableBody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7"><div class="empty-card">Error loading trades: ${error.message}</div></td></tr>`;
     });
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
   // 7. INIT
   // ═══════════════════════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
@@ -1775,7 +1695,7 @@
       window.location.href = "/login";
     }
   });
-  console.log('✅ GTRADES AXIS Admin – Reading trades from backtestTrades collections.');
+  console.log('✅ GTRADES AXIS Admin – Tabbed interface with all data preserved.');
 </script>
 </body>
 </html>

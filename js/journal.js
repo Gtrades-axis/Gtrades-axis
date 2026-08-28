@@ -1,7 +1,5 @@
 // ============================================================
-// GTRADES-AXIS™ JOURNAL ENGINE
-// Saves to: users/{userId}/backtestTrades/
-// Works for ALL users (students AND admin)
+// GTRADES-AXIS™ JOURNAL ENGINE - FIRESTORE VERSION
 // ============================================================
 
 import { auth, db } from "./firebase.js";
@@ -21,7 +19,6 @@ import {
     orderBy,
     serverTimestamp,
     where
-
 } from "firebase/firestore";
 
 // --------------------------------------------------------------
@@ -42,14 +39,7 @@ let monthlyChartInstance = null;
 // TOP-LEVEL trades collection (where admin panel reads from)
 function tradesCollection() {
     if (!currentUser) throw new Error("User is not authenticated.");
-    return collection(db, "users", currentUser.uid, "backtestTrades");
-}
-
-// Trades stored at: users/{userId}/backtestTrades/
-function getTradesCollection() {
-    if (!currentUser) throw new Error("User is not authenticated.");
-    return collection(db, "users", currentUser.uid, "backtestTrades");
-}
+    return collection(db, "trades");
 }
 
 // Accounts stored under user for privacy
@@ -58,17 +48,6 @@ function accountsCollection() {
     return collection(db, "users", currentUser.uid, "journalAccounts");
 }
 
-// Account document reference
-function getAccountDoc(accountId) {
-    if (!currentUser) throw new Error("User is not authenticated.");
-    return doc(db, "users", currentUser.uid, "journalAccounts", accountId);
-}
-
-// Trade document reference
-function getTradeDoc(tradeId) {
-    if (!currentUser) throw new Error("User is not authenticated.");
-    return doc(db, "users", currentUser.uid, "backtestTrades", tradeId);
-}
 // --------------------------------------------------------------
 // HELPERS
 // --------------------------------------------------------------
@@ -1581,4 +1560,4 @@ if (appContainer) {
     document.addEventListener("DOMContentLoaded", startApp);
 }
 
-console.log("✅ Journal script loaded.");
+console.log("✅ Journal lock script loaded.");
