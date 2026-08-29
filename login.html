@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | GTRADES-AXIS™</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="css/login.css" />
+    <style>
+        .password-group { position: relative; }
+        .password-group input { padding-right: 48px; }
+        .toggle-pw {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: #888;
+            font-size: 1.1rem; padding: 0;
+        }
+        .toggle-pw:hover { color: #333; }
+        .google-btn {
+            width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 30px;
+            background: #fff; font-weight: 500; font-size: 1rem; color: #333;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            cursor: pointer; transition: background 0.2s, box-shadow 0.2s; margin-bottom: 16px;
+        }
+        .google-btn:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .google-btn i { font-size: 1.3rem; }
+        .divider-or {
+            display: flex; align-items: center; gap: 16px; color: #aaa;
+            font-size: 0.85rem; margin: 0 0 20px 0;
+        }
+        .divider-or::before, .divider-or::after { content: ""; flex: 1; height: 1px; background: #ddd; }
+        .msg.error {
+            background: rgba(255, 71, 102, 0.15); color: #ff4766;
+            border: 1px solid #ff4766; padding: 10px 14px; border-radius: 8px;
+            margin-bottom: 16px; font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-wrapper">
+                <img src="images/imageslogo.png.png" alt="GTRADES-AXIS Logo" class="login-logo" draggable="false" />
+            </div>
+            <h1>Welcome <span class="gradient-text">Back</span></h1>
+            <p class="subtitle">Login to access your Academy Resources</p>
+
+            <button class="google-btn" id="googleLoginBtn">
+                <i class="fa-brands fa-google"></i> Sign in with Google
+            </button>
+
+            <div class="divider-or">or</div>
+
+            <div id="errorMsg" class="msg error" style="display:none;"></div>
+
+            <form id="loginForm">
+                <div class="input-group"><i class="fa-regular fa-envelope"></i><input type="email" id="email" placeholder="Email Address" required /></div>
+                <div class="input-group password-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required />
+                    <button type="button" class="toggle-pw" id="togglePassword"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <div class="forgot-row"><a href="#" id="forgotPasswordLink" class="forgot-link">Forgot password?</a></div>
+                <button type="submit" class="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Log In</span></button>
+            </form>
+
+            <div class="divider"><span class="divider-line"></span><span class="divider-text">secure access</span><span class="divider-line"></span></div>
+            <div class="login-links">
+                Don't have an account? <a href="/register">Create one</a>
+            </div>
+            <a class="back-home" href="/"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+      }
+    }
+    </script>
+
+    <script type="module">
+        import { auth, db } from "./js/firebase.js";
+        import { 
+            signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, sendPasswordResetEmail 
+        } from "firebase/auth";
+        import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+
+        const googleBtn = document.getElementById('googleLoginBtn');
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg');
+        const forgotLink = document.getElementById('forgotPasswordLink');
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+
+        function showError(message) { errorMsg.textContent = message; errorMsg.style.display = 'block'; }
+        function hideError() { errorMsg.style.display = 'none'; }
+
+        // ─── 1. GOOGLE SIGN IN (CREATES USER IF NEW) ──────────
+        googleBtn.addEventListener('click', async function() {
+            hideError();
+            const provider = new GoogleAuthProvider();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                console.log("✅ Google Auth User Created:", user.uid);
+
+                // Check if user exists in Firestore. If not, register them!
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    console.log("🆕 New Google User. Creating Firestore Record...");
+                    try {
+                        await setDoc(userRef, {
+                            uid: user.uid,
+                            displayName: user.displayName || user.email || "Google User",
+                            email: user.email,
+                            role: 'member',        // Default role
+                            membership: 'free',    // Default membership
+                            status: 'active',      // Default status
+                            paymentStatus: 'unpaid',
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                        console.log("✅ Firestore User Document Created.");
+                    } catch (firestoreError) {
+                        console.error("❌ FIRESTORE WRITE ERROR:", firestoreError);
+                        return showError("Failed to register Google user in database: " + firestoreError.message);
+                    }
+                } else {
+                    console.log("✅ Existing User Found in Firestore.");
+                }
+
+                // 🔽 FIXED: Redirects to the HTML file, not the route
+                window.location.href = '/dashboard';
+
+            } catch (error) {
+                console.error("Google Login Error:", error);
+                if (error.code === 'auth/popup-blocked') {
+                    showError("Popup was blocked by your browser. Please allow popups for this site.");
+                } else {
+                    showError("Google Login failed: " + error.message);
+                }
+            }
+        });
+
+        // ─── 2. EMAIL SIGN IN ──────────────────────────────────
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideError();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            if (!email || !password) return showError("Please enter both email and password.");
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // 🔽 FIXED: Redirects to the HTML file, not the route
+                window.location.href = '/dashboard'; 
+            } catch (error) {
+                console.error("Email Login Error:", error);
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    showError("Invalid email or password.");
+                } else {
+                    showError("Login failed: " + error.message);
+                }
+            }
+        });
+
+        // ─── 3. FORGOT PASSWORD ──────────────────────────────
+        forgotLink.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if (!email) return showError("Please enter your email address first.");
+            if (!confirm(`Send password reset to ${email}?`)) return;
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Password reset email sent! Check your inbox.");
+                hideError();
+            } catch (error) {
+                showError("Failed to send reset email: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

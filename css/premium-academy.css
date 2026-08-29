@@ -1,0 +1,484 @@
+/* ======================================================
+   GTRADES-AXIS™ ACADEMY DESIGN SYSTEM
+====================================================== */
+
+:root {
+  --bg: #070b12;
+  --bg2: #0d1320;
+  --card: #121927;
+  --card2: #182338;
+  --blue: #1d9bf0;
+  --blue2: #4db6ff;
+  --green: #00c853;
+  --gold: #ffb300;
+  --border: rgba(255,255,255,0.08);
+  --text: #ffffff;
+  --text2: #aab7c8;
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ─── */
+.academy-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR ─── */
+.academy-sidebar {
+  width: 220px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.academy-sidebar .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+.academy-sidebar .logo img {
+  width: 36px;
+}
+.academy-sidebar .logo h2 {
+  font-size: 1.1rem;
+  color: var(--text);
+}
+.academy-sidebar .logo h2 span {
+  background: linear-gradient(135deg, var(--blue), var(--green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.academy-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.academy-sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.academy-sidebar nav a i {
+  width: 20px;
+  text-align: center;
+}
+.academy-sidebar nav a:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.academy-sidebar nav a.active {
+  background: rgba(29, 155, 240, 0.12);
+  color: var(--blue);
+  border-left: 3px solid var(--blue);
+}
+.academy-sidebar .logout-btn {
+  background: none;
+  border: none;
+  color: #ff4d4f;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-top: 20px;
+  border-radius: 10px;
+  transition: 0.2s;
+  width: 100%;
+}
+.academy-sidebar .logout-btn:hover {
+  background: rgba(255,77,79,0.1);
+}
+
+/* ─── MAIN ─── */
+.academy-main {
+  flex: 1;
+  padding: 24px 32px 40px;
+  overflow-x: hidden;
+}
+
+/* ─── HEADER ─── */
+.academy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.academy-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.academy-header h1 i {
+  -webkit-text-fill-color: var(--blue);
+}
+.academy-header p {
+  color: var(--text2);
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.role-badge {
+  font-size: 0.7rem;
+  padding: 2px 12px;
+  border-radius: 20px;
+  background: rgba(0, 200, 83, 0.15);
+  color: var(--green);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.btn {
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: 0.2s;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-outline {
+  background: rgba(255,255,255,0.05);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  color: #fff;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* ─── WELCOME ─── */
+.welcome-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.welcome-section .greeting {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.welcome-section .greeting span {
+  color: var(--blue);
+}
+.welcome-section .date {
+  color: var(--text2);
+  font-size: 0.8rem;
+}
+
+/* ─── CONTINUE LEARNING ─── */
+.continue-learning {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.continue-learning .info .module-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.continue-learning .info .lesson-name {
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+.continue-learning .btn-primary {
+  padding: 8px 24px;
+  font-size: 0.85rem;
+}
+
+/* ─── OVERALL PROGRESS ─── */
+.overall-progress {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  margin-bottom: 16px;
+}
+.overall-progress .label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text2);
+}
+.overall-progress .bar {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.overall-progress .bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* ─── MODULE GRID ─── */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.module-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  transition: 0.25s ease;
+}
+.module-card:hover {
+  border-color: rgba(29, 155, 240, 0.3);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+.module-card .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.module-card .header .title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.module-card .header .status {
+  font-size: 0.6rem;
+  padding: 2px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.module-card .header .status.completed {
+  background: rgba(0, 200, 83, 0.15);
+  color: var(--green);
+}
+.module-card .header .status.active {
+  background: rgba(29, 155, 240, 0.15);
+  color: var(--blue);
+}
+.module-card .header .status.locked {
+  background: rgba(255,255,255,0.05);
+  color: var(--text2);
+}
+.module-card .desc {
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin: 6px 0 10px;
+  line-height: 1.4;
+}
+.module-card .progress-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.module-card .progress-mini .mini-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.module-card .progress-mini .mini-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  width: 0%;
+}
+.module-card .btn-module {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(29, 155, 240, 0.12);
+  color: var(--blue);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: 0.2s;
+}
+.module-card .btn-module:hover {
+  background: rgba(29, 155, 240, 0.25);
+}
+.module-card .btn-module.locked {
+  background: rgba(255,255,255,0.03);
+  color: var(--text2);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.module-card .quiz-link {
+  margin-left: 6px;
+  font-size: 0.7rem;
+  color: var(--gold);
+  text-decoration: none;
+}
+.module-card .quiz-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── ACHIEVEMENTS ─── */
+.achievements {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.achievements .badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text2);
+}
+.achievements .badge i {
+  color: var(--gold);
+}
+
+/* ─── SCROLL TO TOP ─── */
+#scrollTopBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--green));
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(29, 155, 240, 0.3);
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+}
+#scrollTopBtn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+#scrollTopBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(29, 155, 240, 0.4);
+}
+
+/* ─── LOADING SPINNER ─── */
+.loading-spinner {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--text2);
+}
+.loading-spinner i {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+  color: var(--blue);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .academy-sidebar {
+    display: none;
+  }
+  .academy-main {
+    padding: 16px 16px 30px;
+  }
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+  .welcome-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .continue-learning {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .continue-learning .btn-primary {
+    text-align: center;
+  }
+  .academy-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@media (max-width: 480px) {
+  .module-card {
+    padding: 12px 14px;
+  }
+  .module-card .header .title {
+    font-size: 0.85rem;
+  }
+  .module-card .desc {
+    font-size: 0.7rem;
+  }
+}

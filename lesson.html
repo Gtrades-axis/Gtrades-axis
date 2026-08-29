@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="premium-academy.css">
+  <style>
+    /* ─── Lesson Player overrides ─── */
+    .lesson-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: rgba(0,0,0,0.3); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    .pdf-download { margin: 10px 0; }
+    .pdf-download a { color: #1d9bf0; text-decoration: none; font-weight: 500; }
+    .notes-box { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 16px 0; white-space: pre-wrap; line-height: 1.6; }
+    .lesson-actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+    .lesson-actions .btn { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, #1d9bf0, #4db6ff); color: #fff; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: rgba(255,255,255,0.05); color: #aab7c8; border: 1px solid rgba(255,255,255,0.08); }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: 24px; gap: 12px; }
+    .back-link { color: #1d9bf0; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="academy-container">
+  <aside class="sidebar">
+    <div class="logo"><h2>GTRADES <span>AXIS™</span></h2><p>Premium Academy</p></div>
+    <nav>
+      <ul>
+        <li><i class="fas fa-house"></i> Dashboard</li>
+        <li class="active"><i class="fas fa-book-open"></i> Modules</li>
+        <li><i class="fas fa-folder-open"></i> Resources</li>
+        <li><i class="fas fa-brain"></i> AI Review</li>
+        <li><i class="fas fa-award"></i> Certificates</li>
+        <li><i class="fas fa-user"></i> Profile</li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="content">
+    <header class="topbar">
+      <div><h1 id="lessonTitle">Loading...</h1><p id="moduleTitle">Loading module...</p></div>
+      <div class="user-box"><img src="images/avatar.png" alt=""><div><h4>Student</h4><p>Premium Member</p></div></div>
+    </header>
+    <div class="lesson-container" id="lessonContent">
+      <div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> Loading lesson…</div>
+    </div>
+  </div>
+</div>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/lesson.js"></script>
+</body>
+</html>

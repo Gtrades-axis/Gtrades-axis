@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="r2-worker-endpoint" content="https://r2-uploader.davidthuku574.workers.dev">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GTRADES-AXIS™ | Admin Dashboard</title>
+<link rel="icon" href="/images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="/css/admin-overhaul.css">
+<script type="importmap">{"imports":{"firebase":"https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js","firebase/auth":"https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js","firebase/firestore":"https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"}}</script>
+</head>
+<body>
+<div class="admin-app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><img src="/images/imageslogo.png.png" alt="GTRADES-AXIS™"><div><strong>GTRADES</strong><span>AXIS™</span></div></div>
+    <nav class="side-nav" id="sideNav">
+      <button class="nav-item active" data-tab="dashboard"><i class="fa-solid fa-house"></i><span>Dashboard</span></button>
+      <button class="nav-item" data-tab="members"><i class="fa-solid fa-users"></i><span>Members</span><b id="membersBadge">0</b></button>
+      <button class="nav-item" data-tab="academy"><i class="fa-solid fa-graduation-cap"></i><span>Academy</span><b id="academyBadge">0</b></button>
+      <button class="nav-item" data-tab="resources"><i class="fa-solid fa-folder-open"></i><span>Resources</span><b id="resourcesBadge">0</b></button>
+      <button class="nav-item" data-tab="videos"><i class="fa-solid fa-circle-play"></i><span>Videos</span><b id="videosBadge">0</b></button>
+      <button class="nav-item" data-tab="trades"><i class="fa-solid fa-chart-line"></i><span>Trades</span><b id="tradesBadge">0</b></button>
+      <button class="nav-item" data-tab="payments"><i class="fa-solid fa-credit-card"></i><span>Payments</span><b id="paymentsBadge">0</b></button>
+    </nav>
+    <div class="side-bottom"><a href="/dashboard"><i class="fa-solid fa-arrow-left"></i> Student Dashboard</a><button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><button id="menuBtn" class="icon-btn"><i class="fa-solid fa-bars"></i></button><div><h1>GTRADES-AXIS™ Admin</h1><p id="welcomeText">Loading platform data...</p></div><div class="admin-chip"><i class="fa-solid fa-shield-halved"></i><span id="adminName">Administrator</span></div></header>
+    <div id="errorBox" class="error-box hidden"></div>
+    <section id="tab-dashboard" class="tab active"><div class="page-title"><div><h2>Dashboard</h2><p>Live overview of the entire platform.</p></div></div><div class="stats-grid" id="dashboardStats"></div><div class="two-col"><div class="panel"><div class="panel-head"><h3>Recent Members</h3><button class="text-btn" data-open-tab="members">View all</button></div><div id="recentMembers"></div></div><div class="panel"><div class="panel-head"><h3>Recent Payments</h3><button class="text-btn" data-open-tab="payments">View all</button></div><div id="recentPayments"></div></div></div><div class="panel"><div class="panel-head"><h3>Latest Trades</h3><button class="text-btn" data-open-tab="trades">View all</button></div><div id="recentTrades"></div></div></section>
+    <section id="tab-members" class="tab"><div class="page-title"><div><h2>Members</h2><p>All users from <code>/users</code>.</p></div><a class="manage-btn" href="/admin-members"><i class="fa-solid fa-sliders"></i> Full Member Manager</a></div><div class="toolbar"><input id="memberSearch" placeholder="Search name or email..."><select id="memberFilter"><option value="all">All</option><option value="premium">Premium</option><option value="admin">Admins</option><option value="pending">Pending</option><option value="active">Active</option><option value="suspended">Suspended</option></select></div><div class="panel table-panel"><div id="membersTable"></div></div></section>
+    <section id="tab-academy" class="tab"><div class="page-title"><div><h2>Academy</h2><p>All academy modules from <code>/academy_modules</code>.</p></div><a class="manage-btn" href="/academy-admin"><i class="fa-solid fa-pen"></i> Manage Academy</a></div><div class="panel table-panel"><div id="academyTable"></div></div></section>
+    <section id="tab-resources" class="tab"><div class="page-title"><div><h2>Resources</h2><p>All resources from <code>/resources</code>.</p></div><a class="manage-btn" href="/resources"><i class="fa-solid fa-pen"></i> Manage Resources</a></div><div class="panel table-panel"><div id="resourcesTable"></div></div></section>
+    <section id="tab-videos" class="tab"><div class="page-title"><div><h2>Videos</h2><p>All video records from <code>/videos</code>.</p></div><div class="actions"><a class="manage-btn" href="/admin-video-upload"><i class="fa-solid fa-upload"></i> Upload</a><a class="manage-btn" href="/admin-videos"><i class="fa-solid fa-pen"></i> Manage</a></div></div><div class="panel table-panel"><div id="videosTable"></div></div></section>
+    <section id="tab-trades" class="tab"><div class="page-title"><div><h2>Trades</h2><p>Live journal data. Reads every <code>users/{uid}/trades</code> record through a collection-group query.</p></div><a class="manage-btn" href="/admin-trades"><i class="fa-solid fa-up-right-from-square"></i> Detailed Trades</a></div><div class="toolbar"><input id="tradeSearch" placeholder="Search student, pair, account..."><select id="tradeStatus"><option value="all">All results</option><option value="Win">Win</option><option value="Loss">Loss</option><option value="Breakeven">Breakeven</option><option value="Partial">Partial</option><option value="Pending">Pending</option></select><select id="tradeVisibility"><option value="all">All visibility</option><option value="public">Public</option><option value="private">Private</option></select></div><div class="panel table-panel"><div id="tradesTable"></div></div></section>
+    <section id="tab-payments" class="tab"><div class="page-title"><div><h2>Payments</h2><p>All payment records from <code>/payments</code>, including older field formats.</p></div><a class="manage-btn" href="/admin-payments"><i class="fa-solid fa-receipt"></i> Full Payment Manager</a></div><div class="stats-grid mini" id="paymentStats"></div><div class="toolbar"><input id="paymentSearch" placeholder="Search email, transaction, plan..."><select id="paymentStatus"><option value="all">All status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><div class="panel table-panel"><div id="paymentsTable"></div></div></section>
+    <footer>© 2026 GTRADES-AXIS™ | Professional Trading Platform</footer>
+  </main>
+</div>
+<script type="module" src="/js/admin-overhaul.js?v=20260829-4"></script>
+</body>
+</html>

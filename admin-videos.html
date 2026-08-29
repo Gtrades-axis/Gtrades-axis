@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GTRADES-AXIS™ | Video Upload</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(0, 119, 255, 0.12), transparent 35%),
+        #05070b;
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 30px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .header {
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #1597ff;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #8d98a8;
+      font-size: 14px;
+    }
+
+    .card {
+      background: rgba(13, 18, 27, 0.96);
+      border: 1px solid #202a38;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #dce4ee;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid #293545;
+      background: #080c12;
+      color: #fff;
+      padding: 13px 14px;
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #1597ff;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 5px 0 20px;
+    }
+
+    .checkbox input {
+      width: auto;
+    }
+
+    .checkbox label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .preview-box {
+      margin-top: 15px;
+      display: none;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #263142;
+    }
+
+    #preview {
+      width: 100%;
+      max-height: 420px;
+      display: block;
+    }
+
+    .progress-box {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background: #080c12;
+      border: 1px solid #202a38;
+      border-radius: 12px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #aab5c5;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 9px;
+      background: #1b2430;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    #bar {
+      height: 100%;
+      width: 0%;
+      background: #1597ff;
+      transition: width .15s ease;
+    }
+
+    #percent {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    #status {
+      display: none;
+      margin-top: 15px;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    #status.success {
+      display: block;
+      background: rgba(0, 190, 120, .12);
+      border: 1px solid rgba(0, 190, 120, .35);
+      color: #52e6ae;
+    }
+
+    #status.error {
+      display: block;
+      background: rgba(255, 70, 70, .12);
+      border: 1px solid rgba(255, 70, 70, .35);
+      color: #ff7777;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 11px;
+      padding: 15px;
+      background: #1597ff;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    button:hover {
+      background: #087ed8;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .back {
+      display: inline-block;
+      margin-top: 18px;
+      color: #8d98a8;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .back:hover {
+      color: #1597ff;
+    }
+
+    @media (max-width: 650px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <header class="header">
+      <div class="brand">GTRADES-AXIS™ ADMIN</div>
+      <h1>Upload Academy Video</h1>
+      <p class="subtitle">
+        Upload videos directly to Cloudflare R2 and publish them to the student portal.
+      </p>
+    </header>
+
+    <section class="card">
+
+      <form id="videoUploadForm">
+
+        <div class="field">
+          <label for="videoTitle">Video Title</label>
+          <input
+            type="text"
+            id="videoTitle"
+            placeholder="e.g. Market Structure"
+            required
+          >
+        </div>
+
+        <div class="row">
+
+          <div class="field">
+            <label for="videoCategory">Category</label>
+
+            <select id="videoCategory">
+              <option value="Market Structure">Market Structure</option>
+              <option value="Liquidity">Liquidity</option>
+              <option value="Supply & Demand">Supply & Demand</option>
+              <option value="Trade Entries">Trade Entries</option>
+              <option value="Risk Management">Risk Management</option>
+              <option value="Trading Psychology">Trading Psychology</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="videoDuration">Duration</label>
+
+            <input
+              type="text"
+              id="videoDuration"
+              placeholder="e.g. 12:45"
+            >
+          </div>
+
+        </div>
+
+        <div class="field">
+          <label for="videoFile">Video File</label>
+
+          <input
+            type="file"
+            id="videoFile"
+            accept="video/*"
+            required
+          >
+
+          <div class="preview-box" id="previewBox">
+            <video
+              id="preview"
+              controls
+              playsinline
+            ></video>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="videoThumbnail">
+            Thumbnail — Optional
+          </label>
+
+          <input
+            type="file"
+            id="videoThumbnail"
+            accept="image/*"
+          >
+        </div>
+
+        <div class="checkbox">
+
+          <input
+            type="checkbox"
+            id="premiumOnly"
+            checked
+          >
+
+          <label for="premiumOnly">
+            Premium members only
+          </label>
+
+        </div>
+
+        <button
+          type="submit"
+          id="uploadVideoBtn"
+        >
+          ☁ Upload Video
+        </button>
+
+        <div
+          class="progress-box"
+          id="progressBox"
+        >
+
+          <div class="progress-top">
+
+            <span id="progressText">
+              Preparing upload...
+            </span>
+
+            <span id="percent">
+              0%
+            </span>
+
+          </div>
+
+          <div class="progress-track">
+            <div id="bar"></div>
+          </div>
+
+        </div>
+
+        <div id="status"></div>
+
+      </form>
+
+      <a
+        href="/admin"
+        class="back"
+      >
+        ← Back to Admin
+      </a>
+
+    </section>
+
+  </main>
+
+  <script type="module" src="./js/admin-video.js"></script>
+
+</body>
+</html>
