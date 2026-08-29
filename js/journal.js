@@ -33,6 +33,34 @@ let equityChartInstance = null;
 let monthlyChartInstance = null;
 
 // --------------------------------------------------------------
+// PROFESSIONAL JOURNAL NOTIFICATIONS
+// Keep public-facing messages concise and free of technical details.
+// Detailed errors remain in the browser console for diagnostics.
+// --------------------------------------------------------------
+let journalToastTimer = null;
+
+function showJournalNotification(message, type = "info") {
+    let toast = document.getElementById("journalNotification");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "journalNotification";
+        toast.className = "journal-notification";
+        toast.setAttribute("role", "status");
+        toast.setAttribute("aria-live", "polite");
+        document.body.appendChild(toast);
+    }
+
+    toast.className = `journal-notification ${type}`;
+    toast.textContent = message;
+    requestAnimationFrame(() => toast.classList.add("show"));
+
+    if (journalToastTimer) clearTimeout(journalToastTimer);
+    journalToastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3200);
+}
+
+// --------------------------------------------------------------
 // COLLECTION HELPERS
 // --------------------------------------------------------------
 
@@ -198,7 +226,7 @@ async function loadAccounts() {
         updateAccountPanel();
     } catch (error) {
         console.error("❌ Failed loading accounts:", error);
-        alert("Unable to load your trading accounts.");
+        showJournalNotification("Unable to load trading accounts.", "error");
     }
 }
 
@@ -234,10 +262,10 @@ async function deleteAccount(accountId) {
         await loadTrades();
         await loadAccounts();
         refreshUI();
-        alert("✅ Account deleted successfully.");
+        showJournalNotification("Trading account deleted.", "success");
     } catch (error) {
         console.error("❌ Delete account error:", error);
-        alert("Failed to delete account: " + error.message);
+        showJournalNotification("Unable to delete trading account.", "error");
     }
 }
 
@@ -311,7 +339,7 @@ async function loadTrades() {
         console.log("✅ Student journal trades loaded:", trades.length);
     } catch (error) {
         console.error("❌ Firestore trade loading failed:", error);
-        alert("Unable to load your trades.\n\n" + error.message);
+        showJournalNotification("Unable to load journal entries.", "error");
     }
 }
 
@@ -497,14 +525,14 @@ function buildTradeFromForm(isUpdate = false) {
 // --------------------------------------------------------------
 async function saveTrade(e) {
     e.preventDefault();
-    if (!currentUser) { alert("You must be signed in."); return; }
+    if (!currentUser) { showJournalNotification("Please sign in to continue.", "error"); return; }
 
     const date = val("tradeDate");
-    if (!date) { alert("Please select a date."); return; }
+    if (!date) { showJournalNotification("Please select a trade date.", "error"); return; }
 
     const accountId = val("tradeAccount");
     if (!accountId || !getAccount(accountId)) {
-        alert("Please add/select a trading account before saving.");
+        showJournalNotification("Please select a trading account.", "error");
         return;
     }
 
@@ -533,7 +561,7 @@ async function saveTrade(e) {
 
             await recalculateAccountBalance(trade.accountId);
 
-            alert("✅ Trade updated successfully.");
+            showJournalNotification("Trade updated successfully.", "success");
             editingTrade = null;
             refreshUI();
             resetTradeForm();
@@ -549,7 +577,7 @@ async function saveTrade(e) {
             await recalculateAccountBalance(savedTrade.accountId);
         }
 
-        alert("✅ Trade saved permanently to Firebase.");
+        showJournalNotification("Trade saved successfully.", "success");
         resetTradeForm();
         await loadTrades();
         await loadAccounts();
@@ -557,7 +585,7 @@ async function saveTrade(e) {
 
     } catch (error) {
         console.error("❌ TRADE SAVE ERROR:", error);
-        alert("❌ Trade was NOT saved.\n\n" + error.message);
+        showJournalNotification("Unable to save trade. Please try again.", "error");
     } finally {
         if (button) {
             button.disabled = false;
@@ -571,7 +599,7 @@ async function saveTrade(e) {
 // --------------------------------------------------------------
 async function deleteTrade(tradeId) {
     const trade = trades.find(t => t.id === tradeId);
-    if (!trade) { alert("Trade not found."); return; }
+    if (!trade) { showJournalNotification("Trade could not be found.", "error"); return; }
 
     if (!confirm(`Delete ${trade.pair || "this trade"}?\n\nThis will permanently remove the trade from Firebase.`)) {
         return;
@@ -588,10 +616,10 @@ async function deleteTrade(tradeId) {
         await loadTrades();
         await loadAccounts();
         refreshUI();
-        alert("✅ Trade permanently deleted.");
+        showJournalNotification("Trade deleted.", "success");
     } catch (error) {
         console.error("❌ DELETE TRADE ERROR:", error);
-        alert("❌ Trade could not be deleted.\n\n" + error.message);
+        showJournalNotification("Unable to delete trade. Please try again.", "error");
     }
 }
 
@@ -600,7 +628,7 @@ async function deleteTrade(tradeId) {
 // --------------------------------------------------------------
 async function closeTrade(tradeId) {
     const trade = trades.find(t => t.id === tradeId);
-    if (!trade) { alert("Trade not found."); return; }
+    if (!trade) { showJournalNotification("Trade could not be found.", "error"); return; }
 
     const profitInput = prompt("Enter actual Profit / Loss:", "0");
     if (profitInput === null) return;
@@ -647,10 +675,10 @@ async function closeTrade(tradeId) {
         await loadTrades();
         await loadAccounts();
         refreshUI();
-        alert("✅ Trade closed and saved permanently.");
+        showJournalNotification("Trade closed successfully.", "success");
     } catch (error) {
         console.error("❌ CLOSE TRADE ERROR:", error);
-        alert("❌ Trade could not be closed.\n\n" + error.message);
+        showJournalNotification("Unable to close trade. Please try again.", "error");
     }
 }
 
@@ -1248,7 +1276,7 @@ function closeAccountModal() {
 
 async function createAccountFromForm(e) {
     e.preventDefault();
-    if (!currentUser) { alert("Please sign in first."); return; }
+    if (!currentUser) { showJournalNotification("Please sign in to continue.", "error"); return; }
 
     const name = val("newAccountName").trim();
     const type = val("newAccountType");
@@ -1256,8 +1284,8 @@ async function createAccountFromForm(e) {
     const riskPercent = Number(val("newAccountRisk")) || 0;
     const currency = val("newAccountCurrency").trim().toUpperCase();
 
-    if (!name) { alert("Please enter an account name."); return; }
-    if (startingBalance < 0) { alert("Starting balance cannot be negative."); return; }
+    if (!name) { showJournalNotification("Please enter an account name.", "error"); return; }
+    if (startingBalance < 0) { showJournalNotification("Starting balance cannot be negative.", "error"); return; }
 
     const editingId = val("editingAccountId");
 
@@ -1283,7 +1311,7 @@ async function createAccountFromForm(e) {
 
             await saveAccount(updatedAccount);
             accounts[editingId] = updatedAccount;
-            alert("✅ Account updated successfully.");
+            showJournalNotification("Trading account updated.", "success");
         } else {
             const accountId = "account-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
             const account = {
@@ -1301,7 +1329,7 @@ async function createAccountFromForm(e) {
             await saveAccount(account);
             accounts[accountId] = account;
             selectedAccountId = accountId;
-            alert("✅ Account added successfully.");
+            showJournalNotification("Trading account added.", "success");
         }
 
         clearAccountForm();
@@ -1316,7 +1344,7 @@ async function createAccountFromForm(e) {
 
     } catch (error) {
         console.error("❌ Account save failed:", error);
-        alert("Account could not be saved.\n\n" + error.message);
+        showJournalNotification("Unable to save trading account. Please try again.", "error");
     }
 }
 
@@ -1588,7 +1616,7 @@ function startApp() {
             console.error("❌ Journal initialization failed:", error);
             app.classList.remove("loading");
             app.classList.add("locked");
-            alert("Journal could not connect to Firebase.\n\n" + error.message);
+            showJournalNotification("Journal is temporarily unavailable. Please try again.", "error");
         }
     });
 }

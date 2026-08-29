@@ -1139,7 +1139,7 @@
     }
     .community-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       margin-top: 40px;
     }
@@ -1209,12 +1209,32 @@
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
     .trade-feed-item {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1.35fr .8fr .9fr .75fr .75fr;
+      gap: 12px;
       align-items: center;
-      padding: 12px 0;
+      padding: 13px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
+    .trade-feed-head {
+      display: grid;
+      grid-template-columns: 1.35fr .8fr .9fr .75fr .75fr;
+      gap: 12px;
+      padding: 0 0 10px;
+      color: #9aa4bf;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .trade-feed-item .position,
+    .trade-feed-item .outcome {
+      font-weight: 600;
+    }
+    .trade-feed-item .position { color: #c9d3dd; }
+    .trade-feed-item .outcome.win { color: #00c897; }
+    .trade-feed-item .outcome.loss { color: #ff4766; }
+    .trade-feed-item .outcome.other { color: #f5a623; }
     .trade-feed-item:last-child {
       border-bottom: none;
     }
@@ -1271,6 +1291,10 @@
       .stats-grid {
         grid-template-columns: 1fr 1fr;
       }
+      .trade-feed-item, .trade-feed-head {
+        grid-template-columns: 1.2fr .8fr .8fr .7fr;
+      }
+      .trade-feed-item .time, .trade-feed-head .time-head { display:none; }
     }
     @media (max-width: 480px) {
       .stats-grid {
@@ -1810,10 +1834,9 @@
   <section class="stats-section" id="stats">
     <div class="container">
       <div class="stats-grid">
-        <div class="stat-card"><span class="stat-number" data-count="500">0</span><p>Active Members</p></div>
-        <div class="stat-card"><span class="stat-number" data-count="1200">0</span><p>Trades Logged</p></div>
-        <div class="stat-card"><span class="stat-number" data-count="87">0</span><p>% Win Rate (avg)</p></div>
-        <div class="stat-card"><span class="stat-number" data-count="2.4">0.0</span><p>Avg RR (actual)</p></div>
+        <div class="stat-card"><span class="stat-number" id="publicTradesCount">0</span><p>Trades Logged</p></div>
+        <div class="stat-card"><span class="stat-number" id="publicWinRate">0%</span><p>% Win Rate (avg)</p></div>
+        <div class="stat-card"><span class="stat-number" id="publicAvgRR">0.00R</span><p>Avg RR (actual)</p></div>
       </div>
     </div>
   </section>
@@ -1978,30 +2001,75 @@
       return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
     }
 
+    function normalizeOutcome(value) {
+      const v = String(value || 'Pending').trim().toLowerCase();
+      if (v === 'win' || v === 'won' || v === 'profit') return 'Win';
+      if (v === 'loss' || v === 'lost') return 'Loss';
+      if (v === 'breakeven' || v === 'break even' || v === 'be') return 'Breakeven';
+      if (v === 'partial') return 'Partial';
+      return 'Pending';
+    }
+
+    function updatePublicStats(trades) {
+      const countEl = document.getElementById('publicTradesCount');
+      const winEl = document.getElementById('publicWinRate');
+      const rrEl = document.getElementById('publicAvgRR');
+      const closed = trades.filter(t => normalizeOutcome(t.result || t.outcome || t.status) !== 'Pending');
+      const wins = closed.filter(t => normalizeOutcome(t.result || t.outcome || t.status) === 'Win').length;
+      const rrValues = trades.map(t => Number(t.rr)).filter(Number.isFinite);
+      const avgRR = rrValues.length ? rrValues.reduce((a,b) => a+b, 0) / rrValues.length : 0;
+      if (countEl) countEl.textContent = String(trades.length);
+      if (winEl) winEl.textContent = (closed.length ? ((wins / closed.length) * 100).toFixed(0) : '0') + '%';
+      if (rrEl) rrEl.textContent = avgRR.toFixed(2) + 'R';
+    }
+
     function renderPublicTrades(snapshot) {
       if (!tradeFeed) return;
-      const trades = snapshot.docs.map(d => { const data=d.data(); const owner=d.ref.parent.parent; return { id:d.id, userId:data.userId || owner?.id || '', ...data }; });
+      const trades = snapshot.docs.map(d => {
+        const data = d.data();
+        const owner = d.ref.parent.parent;
+        return { id: d.id, userId: data.userId || owner?.id || '', ...data };
+      });
       trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
-      const latest = trades.slice(0, 6);
+      const latest = trades.slice(0, 8);
+      updatePublicStats(trades);
 
       if (!latest.length) {
-        tradeFeed.innerHTML = '<p style="color:#9aa4bf;text-align:center;">No public trades yet.</p>';
+        tradeFeed.innerHTML = '<p style="color:#9aa4bf;text-align:center;padding:12px 0;">No approved community trades yet.</p>';
         return;
       }
 
-      tradeFeed.innerHTML = latest.map(t => {
-        const rr = Number(t.rr) || 0;
-        const rrClass = rr >= 0 ? 'positive' : 'negative';
-        const sign = rr >= 0 ? '+' : '';
-        return `<div class="trade-feed-item"><span class="pair">${escapeHtml(t.pair || '??')} <span style="color:#9aa4bf;font-size:.8rem;">${escapeHtml(t.direction || '')}</span></span><span class="rr ${rrClass}">${sign}${rr.toFixed(1)}R</span><span class="time">${timeAgo(t.updated || t.closed || t.created || t.date)}</span></div>`;
+      const rows = latest.map(t => {
+        const rr = Number(t.rr);
+        const safeRR = Number.isFinite(rr) ? rr : 0;
+        const rrClass = safeRR >= 0 ? 'positive' : 'negative';
+        const sign = safeRR >= 0 ? '+' : '';
+        const outcome = normalizeOutcome(t.result || t.outcome || t.status);
+        const outcomeClass = outcome === 'Win' ? 'win' : outcome === 'Loss' ? 'loss' : 'other';
+        const position = t.position || t.direction || t.side || '—';
+        return `<div class="trade-feed-item">
+          <span class="pair">${escapeHtml(t.pair || t.symbol || '—')}</span>
+          <span class="position">${escapeHtml(position)}</span>
+          <span class="rr ${rrClass}">${sign}${safeRR.toFixed(2)}R</span>
+          <span class="outcome ${outcomeClass}">${escapeHtml(outcome)}</span>
+          <span class="time">${timeAgo(t.updated || t.closed || t.created || t.date)}</span>
+        </div>`;
       }).join('');
+
+      tradeFeed.innerHTML = `<div class="trade-feed-head"><span>Pair</span><span>Position</span><span>RR</span><span>Outcome</span><span class="time-head">When</span></div>${rows}`;
     }
 
     // LIVE PUBLIC FEED: only trades an admin has approved.
     const publicTradesQuery = query(collectionGroup(db, 'trades'), where('public', '==', true));
     onSnapshot(publicTradesQuery, renderPublicTrades, error => {
       console.error('Public trades live listener failed:', error);
-      if (tradeFeed) tradeFeed.innerHTML = '<p style="color:#ff4766;text-align:center;">Unable to load live trades. Check Firestore rules.</p>';
+      if (tradeFeed) tradeFeed.innerHTML = '<p style="color:#9aa4bf;text-align:center;padding:12px 0;">Community trades are temporarily unavailable.</p>';
+      const countEl = document.getElementById('publicTradesCount');
+      const winEl = document.getElementById('publicWinRate');
+      const rrEl = document.getElementById('publicAvgRR');
+      if (countEl) countEl.textContent = '—';
+      if (winEl) winEl.textContent = '—';
+      if (rrEl) rrEl.textContent = '—';
     });
 
     onAuthStateChanged(auth, user => {
