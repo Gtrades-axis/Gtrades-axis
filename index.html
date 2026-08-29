@@ -1980,7 +1980,7 @@
 
     function renderPublicTrades(snapshot) {
       if (!tradeFeed) return;
-      const trades = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const trades = snapshot.docs.map(d => { const data=d.data(); const owner=d.ref.parent.parent; return { id:d.id, userId:data.userId || owner?.id || '', ...data }; });
       trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
       const latest = trades.slice(0, 6);
 
@@ -2001,7 +2001,7 @@
     const publicTradesQuery = query(collectionGroup(db, 'trades'), where('public', '==', true));
     onSnapshot(publicTradesQuery, renderPublicTrades, error => {
       console.error('Public trades live listener failed:', error);
-      if (tradeFeed) tradeFeed.innerHTML = '<p style="color:#ff4766;text-align:center;">Unable to load live trades.</p>';
+      if (tradeFeed) tradeFeed.innerHTML = '<p style="color:#ff4766;text-align:center;">Unable to load live trades. Check Firestore rules.</p>';
     });
 
     onAuthStateChanged(auth, user => {
