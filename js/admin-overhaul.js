@@ -1,98 +1,1890 @@
-import {auth,db} from "/js/firebase.js";
-import {onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import {collection,collectionGroup,onSnapshot,query,doc,getDoc} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { auth, db } from "/js/firebase.js";
 
-const $=id=>document.getElementById(id); const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const n=v=>Number(v)||0;
-function millis(v){if(!v)return 0;if(v?.toDate)return v.toDate().getTime();if(v?.seconds)return v.seconds*1000;const x=Date.parse(String(v));return Number.isFinite(x)?x:0}
-function date(v){const t=millis(v);return t?new Date(t).toLocaleString():"—"}
-function status(v){const x=String(v||"pending").trim().toLowerCase();return ["paid","complete","completed","success","successful"].includes(x)?"approved":x==="rejected"||x==="declined"||x==="failed"?"rejected":x}
-function money(v){return n(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
-const state={users:[],academy:[],resources:[],videos:[],payments:[],trades:[]};
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-// Firestore can contain data created by several generations of the site.
-// The admin dashboard intentionally reads ALL supported legacy/current
-// collections and normalises them for display without changing any data.
-const SOURCES={
-  academy:["academy_modules","premium_academy"],
-  resources:["resources","premium_resources"],
-  videos:["videos","premium_videos"],
-  payments:["payments","paymentLogs"]
+import {
+  collection,
+  collectionGroup,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+const $ = id => document.getElementById(id);
+
+const esc = value =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char])
+  );
+
+const n = value => Number(value) || 0;
+
+
+function millis(value) {
+  if (!value) return 0;
+
+  if (value?.toDate) {
+    return value.toDate().getTime();
+  }
+
+  if (value?.seconds) {
+    return value.seconds * 1000;
+  }
+
+  const parsed = Date.parse(String(value));
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+
+function date(value) {
+  const timestamp = millis(value);
+
+  return timestamp
+    ? new Date(timestamp).toLocaleString()
+    : "—";
+}
+
+
+function status(value) {
+  const x = String(value || "pending")
+    .trim()
+    .toLowerCase();
+
+  if (
+    [
+      "paid",
+      "complete",
+      "completed",
+      "success",
+      "successful"
+    ].includes(x)
+  ) {
+    return "approved";
+  }
+
+  if (
+    [
+      "rejected",
+      "declined",
+      "failed"
+    ].includes(x)
+  ) {
+    return "rejected";
+  }
+
+  return x;
+}
+
+
+function money(value) {
+  return n(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+
+// ============================================================
+// APPLICATION STATE
+// ============================================================
+
+const state = {
+  users: [],
+  academy: [],
+  resources: [],
+  videos: [],
+  payments: [],
+  trades: []
 };
 
-function normaliseDocs(snap,source){
-  return snap.docs.map(d=>({id:d.id,_source:source,...d.data()}));
+
+// ============================================================
+// FIRESTORE SOURCES
+// ============================================================
+
+const SOURCES = {
+  academy: [
+    "academy_modules",
+    "premium_academy"
+  ],
+
+  resources: [
+    "resources",
+    "premium_resources"
+  ],
+
+  videos: [
+    "videos",
+    "premium_videos"
+  ],
+
+  payments: [
+    "payments",
+    "paymentLogs"
+  ]
+};
+
+
+// ============================================================
+// FIRESTORE NORMALISATION
+// ============================================================
+
+function normaliseDocs(snapshot, source) {
+  return snapshot.docs.map(docSnap => ({
+    id: docSnap.id,
+    _source: source,
+    ...docSnap.data()
+  }));
 }
 
-function listenMany(names,key,renderer){
-  const unsubscribers=[];
-  const buckets=new Map();
-  for(const name of names){
-    const u=onSnapshot(collection(db,name),snap=>{
-      buckets.set(name,normaliseDocs(snap,name));
-      state[key]=names.flatMap(n=>buckets.get(n)||[]);
-      // Keep duplicate records out of the UI when an old and new collection
-      // contain the same document id. Prefer the current collection.
-      const seen=new Set();
-      state[key]=state[key].filter(x=>{
-        const k=`${x.id}`;
-        if(seen.has(k)) return false;
-        seen.add(k); return true;
-      });
-      renderer();
-    },e=>{
-      console.error(`Firestore ${name} listener failed`,e);
-      showError(e, name);
-    });
-    unsubscribers.push(u);
+
+// ============================================================
+// ERROR DISPLAY
+// ============================================================
+
+function showError(error, source = "Firestore") {
+  const box = $("errorBox");
+
+  if (!box) {
+    console.error(source, error);
+    return;
   }
-  return ()=>unsubscribers.forEach(u=>u());
+
+  box.classList.remove("hidden");
+
+  box.textContent =
+    `${source}: ${error?.code || "error"} — ${error?.message || error}`;
 }
 
-function showError(e,source="Firestore"){const box=$("errorBox");box.classList.remove("hidden");box.textContent=`${source}: ${e?.code||"error"} — ${e?.message||e}`;}
-function listen(col,key,renderer){return onSnapshot(collection(db,col),s=>{state[key]=s.docs.map(d=>({id:d.id,...d.data()}));renderer();},e=>{console.error(col,e);showError(e)})}
-function start(){
-  listenMany(["users"],"users",renderAll);
-  listenMany(SOURCES.academy,"academy",renderAll);
-  listenMany(SOURCES.resources,"resources",renderAll);
-  listenMany(SOURCES.videos,"videos",renderAll);
-  listenMany(SOURCES.payments,"payments",renderAll);
 
-  // One collection-group listener reads every collection named `trades`,
-  // including users/{uid}/trades and account/journalAccounts/trades.
-  onSnapshot(collectionGroup(db,"trades"),snap=>{
-    state.trades=snap.docs.map(d=>{
-      const data=d.data();
-      const parent=d.ref.parent.parent;
-      const ownerId=data.userId || parent?.id || "";
-      return {id:d.id,userId:ownerId,_path:d.ref.path,...data};
+// ============================================================
+// LISTEN TO MULTIPLE COLLECTIONS
+// ============================================================
+
+function listenMany(names, key, renderer) {
+  const unsubscribers = [];
+  const buckets = new Map();
+
+  for (const name of names) {
+
+    const unsubscribe = onSnapshot(
+      collection(db, name),
+
+      snapshot => {
+
+        buckets.set(
+          name,
+          normaliseDocs(snapshot, name)
+        );
+
+        state[key] = names.flatMap(
+          collectionName =>
+            buckets.get(collectionName) || []
+        );
+
+
+        // Remove duplicate document IDs.
+        // Current collection appears first in SOURCES,
+        // therefore it wins over legacy collections.
+
+        const seen = new Set();
+
+        state[key] = state[key].filter(item => {
+
+          const id = String(item.id);
+
+          if (seen.has(id)) {
+            return false;
+          }
+
+          seen.add(id);
+
+          return true;
+        });
+
+
+        renderer();
+      },
+
+      error => {
+        console.error(
+          `Firestore ${name} listener failed`,
+          error
+        );
+
+        showError(error, name);
+      }
+    );
+
+    unsubscribers.push(unsubscribe);
+  }
+
+  return () => {
+    unsubscribers.forEach(unsubscribe => {
+      try {
+        unsubscribe();
+      } catch (error) {
+        console.error(error);
+      }
     });
-    renderAll();
-  },e=>{
-    console.error("Firestore collectionGroup(trades) failed",e);
-    showError(e,"Trades");
-  });
+  };
+}
+
+
+// ============================================================
+// START APPLICATION
+// ============================================================
+
+function start() {
+
+  // USERS
+  listenMany(
+    ["users"],
+    "users",
+    renderAll
+  );
+
+
+  // ACADEMY
+  listenMany(
+    SOURCES.academy,
+    "academy",
+    renderAll
+  );
+
+
+  // RESOURCES
+  listenMany(
+    SOURCES.resources,
+    "resources",
+    renderAll
+  );
+
+
+  // VIDEOS
+  listenMany(
+    SOURCES.videos,
+    "videos",
+    renderAll
+  );
+
+
+  // PAYMENTS
+  listenMany(
+    SOURCES.payments,
+    "payments",
+    renderAll
+  );
+
+
+  // ==========================================================
+  // TRADES
+  // ==========================================================
+
+  onSnapshot(
+    collectionGroup(db, "trades"),
+
+    snapshot => {
+
+      state.trades = snapshot.docs.map(docSnap => {
+
+        const data = docSnap.data();
+
+        const parent =
+          docSnap.ref.parent.parent;
+
+        const ownerId =
+          data.userId ||
+          parent?.id ||
+          "";
+
+        return {
+          id: docSnap.id,
+          userId: ownerId,
+          _path: docSnap.ref.path,
+          ...data
+        };
+      });
+
+
+      renderAll();
+    },
+
+    error => {
+
+      console.error(
+        "Firestore collectionGroup(trades) failed",
+        error
+      );
+
+      showError(error, "Trades");
+    }
+  );
+
 
   bind();
+
   renderAll();
 }
-function bind(){document.querySelectorAll(".nav-item").forEach(b=>b.onclick=()=>openTab(b.dataset.tab));document.querySelectorAll("[data-open-tab]").forEach(b=>b.onclick=()=>openTab(b.dataset.openTab));$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");$("logoutBtn").onclick=async()=>{await signOut(auth);location.href="/login"};["memberSearch","memberFilter","tradeSearch","tradeStatus","tradeVisibility","paymentSearch","paymentStatus"].forEach(id=>$(id)?.addEventListener("input",renderAll));}
-function openTab(tab){document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("active",s.id==="tab-"+tab));$("sidebar").classList.remove("open");}
-function renderAll(){
-  const s=state;$("welcomeText").textContent=`Live data • ${s.users.length} members • ${s.trades.length} journal trades • ${s.payments.length} payments`;
-  ["members","academy","resources","videos","trades","payments"].forEach(k=>$(k+"Badge").textContent=s[k].length);
-  $("dashboardStats").innerHTML=[stat("fa-users",s.users.length,"Total Members"),stat("fa-star",s.users.filter(x=>String(x.membership||"").toLowerCase()==="premium").length,"Premium Members"),stat("fa-graduation-cap",s.academy.length,"Academy Lessons"),stat("fa-circle-play",s.videos.length,"Videos"),stat("fa-chart-line",s.trades.length,"Journal Trades")].join("");
-  const approved=s.payments.filter(x=>status(x.status)==="approved");const revenue=approved.reduce((a,x)=>a+n(x.amountUSD??x.amount??x.amountPaidUSD),0);$("paymentStats").innerHTML=[stat("fa-receipt",s.payments.length,"Payments"),stat("fa-clock",s.payments.filter(x=>status(x.status)==="pending").length,"Pending"),stat("fa-dollar-sign",`$${money(revenue)}`,"Approved Revenue")].join("");
-  renderMembers();renderAcademy();renderResources();renderVideos();renderTrades();renderPayments();renderRecent();
+
+
+// ============================================================
+// EVENT BINDINGS
+// ============================================================
+
+function bind() {
+
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(button => {
+
+      button.onclick = () => {
+        openTab(button.dataset.tab);
+      };
+
+    });
+
+
+  document
+    .querySelectorAll("[data-open-tab]")
+    .forEach(button => {
+
+      button.onclick = () => {
+        openTab(button.dataset.openTab);
+      };
+
+    });
+
+
+  const menuButton = $("menuBtn");
+
+  if (menuButton) {
+    menuButton.onclick = () => {
+      $("sidebar")?.classList.toggle("open");
+    };
+  }
+
+
+  const logoutButton = $("logoutBtn");
+
+  if (logoutButton) {
+
+    logoutButton.onclick = async () => {
+
+      try {
+
+        await signOut(auth);
+
+        location.href = "/login";
+
+      } catch (error) {
+
+        console.error(
+          "Logout failed:",
+          error
+        );
+
+        showError(error, "Logout");
+      }
+
+    };
+  }
+
+
+  [
+    "memberSearch",
+    "memberFilter",
+    "tradeSearch",
+    "tradeStatus",
+    "tradeVisibility",
+    "paymentSearch",
+    "paymentStatus"
+  ].forEach(id => {
+
+    const element = $(id);
+
+    if (element) {
+      element.addEventListener(
+        "input",
+        renderAll
+      );
+    }
+
+  });
 }
-function stat(icon,value,label){return `<div class="stat-card"><div class="icon"><i class="fa-solid ${icon}"></i></div><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`}
-function renderRecent(){const users=[...state.users].sort((a,b)=>millis(b.createdAt||b.joinedAt||b.created)-millis(a.createdAt||a.joinedAt||a.created)).slice(0,5);$("recentMembers").innerHTML=`<div class="list">${users.length?users.map(x=>`<div class="list-row"><div><strong>${esc(x.name||x.fullName||x.email||"Member")}</strong><small>${esc(x.email||"")}</small></div><span class="badge ${String(x.membership||"").toLowerCase()==="premium"?"gold":""}">${esc(x.membership||"free")}</span></div>`).join(""):empty()}</div>`;const ps=[...state.payments].sort((a,b)=>millis(b.submittedAt||b.createdAt||b.created)-millis(a.submittedAt||a.createdAt||a.created)).slice(0,5);$("recentPayments").innerHTML=`<div class="list">${ps.length?ps.map(x=>`<div class="list-row"><div><strong>${esc(x.name||x.fullName||x.email||"Payment")}</strong><small>${esc(x.plan||x.package||"—")} • ${esc(x.transactionId||x.transaction||x.mpesaCode||"")}</small></div><span class="badge ${status(x.status)==="approved"?"green":status(x.status)==="rejected"?"red":"gold"}">${esc(x.status||"pending")}</span></div>`).join(""):empty()}</div>`;const ts=[...state.trades].sort((a,b)=>millis(b.updated||b.created||b.date)-millis(a.updated||a.created||a.date)).slice(0,8);$("recentTrades").innerHTML=ts.length?`<div class="list">${ts.map(x=>`<div class="list-row"><div><strong>${esc(x.pair||"Trade")} ${esc(x.direction||"")}</strong><small>${esc(x.userEmail||x.userId||"")} • ${date(x.updated||x.created||x.date)}</small></div><span class="value ${n(x.rr)>=0?"positive":"negative"}">${n(x.rr)>=0?"+":""}${n(x.rr).toFixed(2)}R</span></div>`).join("")}</div>`:empty()}
+
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+
+function openTab(tab) {
+
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.tab === tab
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(section => {
+
+      section.classList.toggle(
+        "active",
+        section.id === `tab-${tab}`
+      );
+
+    });
+
+
+  $("sidebar")?.classList.remove("open");
 }
-function empty(){return `<div class="empty">No data found.</div>`}
-function renderMembers(){let a=state.users;const q=$("memberSearch").value.toLowerCase();const f=$("memberFilter").value;a=a.filter(x=>(!q||`${x.name||""} ${x.email||""}`.toLowerCase().includes(q))&&(f==="all"||(f==="premium"&&String(x.membership||"").toLowerCase()==="premium")||(f==="admin"&&x.role==="admin")||(f==="pending"&&(!x.active||x.status==="pending"))||(f==="active"&&x.active===true)||(f==="suspended"&&x.status==="suspended")));$("membersTable").innerHTML=a.length?table(["User","Email","Membership","Role","Status","Joined"],a.map(x=>[`<strong>${esc(x.name||"—")}</strong>`,esc(x.email||"—"),badge(x.membership||"free",String(x.membership||"").toLowerCase()==="premium"?"gold":""),badge(x.role||"member",x.role==="admin"?"blue":""),badge(x.status||((x.active===false)?"pending":"active"),x.active===false?"gold":"green"),date(x.createdAt||x.joinedAt||x.created)])):empty()}
-function renderAcademy(){const a=[...state.academy].sort((x,y)=>n(x.order)-n(y.order));$("academyTable").innerHTML=a.length?table(["Title","Module","Order","Status","Source","Updated"],a.map(x=>[esc(x.title||x.name||x.lessonTitle||"Untitled"),esc(x.module||x.moduleTitle||x.category||x.section||"—"),esc(x.order??x.position??"—"),badge(x.status||((x.published===false)?"draft":"published"),String(x.status||"").toLowerCase()==="draft"||x.published===false?"gold":"green"),badge(x._source||"academy",x._source==="premium_academy"?"gold":""),date(x.updatedAt||x.updated||x.createdAt||x.created)])):empty()}
-function renderResources(){const a=state.resources;$("resourcesTable").innerHTML=a.length?table(["Title","Category","Type","Premium","Source","Updated"],a.map(x=>[esc(x.title||x.name||x.resourceName||"Untitled"),esc(x.category||x.section||"—"),esc(x.type||x.fileType||x.mimeType||"—"),badge(x.premium===true||x.premiumOnly===true||x._source==="premium_resources"?"Premium":"Free",x.premium===true||x.premiumOnly===true||x._source==="premium_resources"?"gold":"green"),badge(x._source||"resources",x._source==="premium_resources"?"gold":""),date(x.updatedAt||x.createdAt||x.created)])):empty()}
-function renderVideos(){const a=state.videos;$("videosTable").innerHTML=a.length?table(["Title","Category","Duration","Premium","Published","Source"],a.map(x=>[esc(x.title||x.name||x.videoTitle||"Untitled"),esc(x.category||x.section||"—"),esc(x.duration||x.length||"—"),badge(x.premiumOnly===true||x.premium===true||x._source==="premium_videos"?"Premium":"Free",x.premiumOnly===true||x.premium===true||x._source==="premium_videos"?"gold":"green"),badge(x.published===false||x.status==="draft"?"Draft":"Published",x.published===false||x.status==="draft"?"gold":"green"),badge(x._source||"videos",x._source==="premium_videos"?"gold":"")] )):empty()}
-function renderTrades(){let a=state.trades;const q=$("tradeSearch").value.toLowerCase(),sf=$("tradeStatus").value,vf=$("tradeVisibility").value;a=a.filter(x=>(!q||`${x.userEmail||""} ${x.userId||""} ${x.pair||""} ${x.account||x.accountId||""}`.toLowerCase().includes(q))&&(sf==="all"||String(x.result||x.status||"Pending").toLowerCase()===sf.toLowerCase())&&(vf==="all"||(vf==="public"&&x.public===true)||(vf==="private"&&x.public!==true)));$("tradesTable").innerHTML=a.length?table(["Date / Time","Student","Account","Pair","Direction","Result","RR","P/L","Visibility"],a.sort((x,y)=>millis(y.updated||y.created||y.date)-millis(x.updated||x.created||x.date)).map(x=>{const pl=n(x.profit)-n(x.commission);return[date(x.updated||x.created||x.date),esc(x.userEmail||x.userId||"—"),esc(x.account||x.accountId||"—"),`<strong>${esc(x.pair||"—")}</strong>`,esc(x.direction||"—"),badge(x.result||x.status||"Pending",(x.result||x.status)==="Win"?"green":(x.result||x.status)==="Loss"?"red":"gold"),`<span class="${n(x.rr)>=0?"positive":"negative"}">${n(x.rr).toFixed(2)}R</span>`,`<span class="${pl>=0?"positive":"negative"}">${pl>=0?"+":"-"}$${money(Math.abs(pl))}</span>`,badge(x.public===true?"Public":"Private",x.public===true?"blue":"")]})):empty()}
-function renderPayments(){let a=state.payments;const q=$("paymentSearch").value.toLowerCase(),sf=$("paymentStatus").value;a=a.filter(x=>(!q||`${x.name||""} ${x.fullName||""} ${x.email||""} ${x.transactionId||""} ${x.transaction||""} ${x.mpesaCode||""} ${x.plan||x.package||""}`.toLowerCase().includes(q))&&(sf==="all"||status(x.status)===sf));$("paymentsTable").innerHTML=a.length?table(["Student","Plan","Method","Amount","Transaction","Status","Date"],a.sort((x,y)=>millis(y.submittedAt||y.createdAt||y.created)-millis(x.submittedAt||x.createdAt||x.created)).map(x=>[`${esc(x.name||x.fullName||"—")}<small class="muted">${esc(x.email||"")}</small>`,esc(x.plan||x.package||x.membershipPlan||"—"),esc(x.paymentMethod||x.method||x.payment_method||"—"),`$${money(x.amountUSD??x.amount??x.amountPaidUSD)}`,esc(x.transactionId||x.transaction||x.mpesaCode||x.reference||"—"),badge(x.status||"pending",status(x.status)==="approved"?"green":status(x.status)==="rejected"?"red":"gold"),date(x.submittedAt||x.createdAt||x.created)])):empty()}
-function badge(v,c=""){return `<span class="badge ${c}">${esc(v)}</span>`}function table(head,rows){return `<table class="data-table"><thead><tr>${head.map(x=>`<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+
+
+// ============================================================
+// MAIN RENDER
+// ============================================================
+
+function renderAll() {
+
+  const s = state;
+
+
+  const welcomeText = $("welcomeText");
+
+  if (welcomeText) {
+
+    welcomeText.textContent =
+      `Live data • ${s.users.length} members • ` +
+      `${s.trades.length} journal trades • ` +
+      `${s.payments.length} payments`;
+
+  }
+
+
+  [
+    "members",
+    "academy",
+    "resources",
+    "videos",
+    "trades",
+    "payments"
+  ].forEach(key => {
+
+    const badgeElement = $(`${key}Badge`);
+
+    if (badgeElement) {
+      badgeElement.textContent =
+        s[key].length;
+    }
+
+  });
+
+
+  // ==========================================================
+  // DASHBOARD STATISTICS
+  // ==========================================================
+
+  const dashboardStats = $("dashboardStats");
+
+  if (dashboardStats) {
+
+    dashboardStats.innerHTML = [
+
+      stat(
+        "fa-users",
+        s.users.length,
+        "Total Members"
+      ),
+
+      stat(
+        "fa-star",
+        s.users.filter(
+          user =>
+            String(
+              user.membership || ""
+            ).toLowerCase() === "premium"
+        ).length,
+        "Premium Members"
+      ),
+
+      stat(
+        "fa-graduation-cap",
+        s.academy.length,
+        "Academy Lessons"
+      ),
+
+      stat(
+        "fa-circle-play",
+        s.videos.length,
+        "Videos"
+      ),
+
+      stat(
+        "fa-chart-line",
+        s.trades.length,
+        "Journal Trades"
+      )
+
+    ].join("");
+  }
+
+
+  // ==========================================================
+  // PAYMENT STATISTICS
+  // ==========================================================
+
+  const approvedPayments =
+    s.payments.filter(
+      payment =>
+        status(payment.status) === "approved"
+    );
+
+
+  const revenue =
+    approvedPayments.reduce(
+      (total, payment) =>
+        total +
+        n(
+          payment.amountUSD ??
+          payment.amount ??
+          payment.amountPaidUSD
+        ),
+      0
+    );
+
+
+  const paymentStats = $("paymentStats");
+
+  if (paymentStats) {
+
+    paymentStats.innerHTML = [
+
+      stat(
+        "fa-receipt",
+        s.payments.length,
+        "Payments"
+      ),
+
+      stat(
+        "fa-clock",
+        s.payments.filter(
+          payment =>
+            status(payment.status) === "pending"
+        ).length,
+        "Pending"
+      ),
+
+      stat(
+        "fa-dollar-sign",
+        `$${money(revenue)}`,
+        "Approved Revenue"
+      )
+
+    ].join("");
+  }
+
+
+  // ==========================================================
+  // TABLES
+  // ==========================================================
+
+  renderMembers();
+  renderAcademy();
+  renderResources();
+  renderVideos();
+  renderTrades();
+  renderPayments();
+  renderRecent();
+}
+
+
+// ============================================================
+// STAT CARD
+// ============================================================
+
+function stat(icon, value, label) {
+
+  return `
+    <div class="stat-card">
+      <div class="icon">
+        <i class="fa-solid ${esc(icon)}"></i>
+      </div>
+
+      <strong>${esc(value)}</strong>
+
+      <span>${esc(label)}</span>
+    </div>
+  `;
+}
+
+
+// ============================================================
+// RECENT ACTIVITY
+// ============================================================
+
+function renderRecent() {
+
+  // ==========================================================
+  // RECENT MEMBERS
+  // ==========================================================
+
+  const users = [...state.users]
+    .sort(
+      (a, b) =>
+        millis(
+          b.createdAt ||
+          b.joinedAt ||
+          b.created
+        ) -
+        millis(
+          a.createdAt ||
+          a.joinedAt ||
+          a.created
+        )
+    )
+    .slice(0, 5);
+
+
+  const recentMembers = $("recentMembers");
+
+  if (recentMembers) {
+
+    recentMembers.innerHTML = `
+      <div class="list">
+
+        ${
+          users.length
+
+            ? users
+                .map(
+                  user => `
+                    <div class="list-row">
+
+                      <div>
+
+                        <strong>
+                          ${esc(
+                            user.name ||
+                            user.fullName ||
+                            user.email ||
+                            "Member"
+                          )}
+                        </strong>
+
+                        <small>
+                          ${esc(user.email || "")}
+                        </small>
+
+                      </div>
+
+                      <span class="badge ${
+                        String(
+                          user.membership || ""
+                        ).toLowerCase() === "premium"
+                          ? "gold"
+                          : ""
+                      }">
+
+                        ${esc(
+                          user.membership ||
+                          "free"
+                        )}
+
+                      </span>
+
+                    </div>
+                  `
+                )
+                .join("")
+
+            : empty()
+        }
+
+      </div>
+    `;
+  }
+
+
+  // ==========================================================
+  // RECENT PAYMENTS
+  // ==========================================================
+
+  const payments = [...state.payments]
+    .sort(
+      (a, b) =>
+        millis(
+          b.submittedAt ||
+          b.createdAt ||
+          b.created
+        ) -
+        millis(
+          a.submittedAt ||
+          a.createdAt ||
+          a.created
+        )
+    )
+    .slice(0, 5);
+
+
+  const recentPayments = $("recentPayments");
+
+  if (recentPayments) {
+
+    recentPayments.innerHTML = `
+      <div class="list">
+
+        ${
+          payments.length
+
+            ? payments
+                .map(payment => {
+
+                  const paymentStatus =
+                    status(payment.status);
+
+                  const badgeClass =
+                    paymentStatus === "approved"
+                      ? "green"
+                      : paymentStatus === "rejected"
+                        ? "red"
+                        : "gold";
+
+
+                  return `
+                    <div class="list-row">
+
+                      <div>
+
+                        <strong>
+                          ${esc(
+                            payment.name ||
+                            payment.fullName ||
+                            payment.email ||
+                            "Payment"
+                          )}
+                        </strong>
+
+                        <small>
+                          ${esc(
+                            payment.plan ||
+                            payment.package ||
+                            "—"
+                          )}
+
+                          •
+
+                          ${esc(
+                            payment.transactionId ||
+                            payment.transaction ||
+                            payment.mpesaCode ||
+                            ""
+                          )}
+                        </small>
+
+                      </div>
+
+                      <span class="badge ${badgeClass}">
+                        ${esc(
+                          payment.status ||
+                          "pending"
+                        )}
+                      </span>
+
+                    </div>
+                  `;
+                })
+                .join("")
+
+            : empty()
+        }
+
+      </div>
+    `;
+  }
+
+
+  // ==========================================================
+  // RECENT TRADES
+  // ==========================================================
+
+  const trades = [...state.trades]
+    .sort(
+      (a, b) =>
+        millis(
+          b.updated ||
+          b.created ||
+          b.date
+        ) -
+        millis(
+          a.updated ||
+          a.created ||
+          a.date
+        )
+    )
+    .slice(0, 8);
+
+
+  const recentTrades = $("recentTrades");
+
+  if (recentTrades) {
+
+    recentTrades.innerHTML = trades.length
+
+      ? `
+        <div class="list">
+
+          ${trades
+            .map(
+              trade => `
+                <div class="list-row">
+
+                  <div>
+
+                    <strong>
+                      ${esc(
+                        trade.pair ||
+                        "Trade"
+                      )}
+
+                      ${esc(
+                        trade.direction ||
+                        ""
+                      )}
+                    </strong>
+
+                    <small>
+
+                      ${esc(
+                        trade.userEmail ||
+                        trade.userId ||
+                        ""
+                      )}
+
+                      •
+
+                      ${date(
+                        trade.updated ||
+                        trade.created ||
+                        trade.date
+                      )}
+
+                    </small>
+
+                  </div>
+
+                  <span class="value ${
+                    n(trade.rr) >= 0
+                      ? "positive"
+                      : "negative"
+                  }">
+
+                    ${
+                      n(trade.rr) >= 0
+                        ? "+"
+                        : ""
+                    }
+
+                    ${n(trade.rr).toFixed(2)}R
+
+                  </span>
+
+                </div>
+              `
+            )
+            .join("")}
+
+        </div>
+      `
+
+      : empty();
+  }
+}
+
+
+// ============================================================
+// MEMBERS
+// ============================================================
+
+function renderMembers() {
+
+  const tableElement = $("membersTable");
+
+  if (!tableElement) return;
+
+
+  let members = state.users;
+
+
+  const searchElement = $("memberSearch");
+  const filterElement = $("memberFilter");
+
+
+  const queryText =
+    searchElement?.value
+      ?.toLowerCase()
+      .trim() || "";
+
+
+  const filter =
+    filterElement?.value || "all";
+
+
+  members = members.filter(user => {
+
+    const matchesSearch =
+      !queryText ||
+      `${user.name || ""} ${user.email || ""}`
+        .toLowerCase()
+        .includes(queryText);
+
+
+    const matchesFilter =
+      filter === "all" ||
+
+      (
+        filter === "premium" &&
+        String(
+          user.membership || ""
+        ).toLowerCase() === "premium"
+      ) ||
+
+      (
+        filter === "admin" &&
+        user.role === "admin"
+      ) ||
+
+      (
+        filter === "pending" &&
+        (
+          !user.active ||
+          user.status === "pending"
+        )
+      ) ||
+
+      (
+        filter === "active" &&
+        user.active === true
+      ) ||
+
+      (
+        filter === "suspended" &&
+        user.status === "suspended"
+      );
+
+
+    return (
+      matchesSearch &&
+      matchesFilter
+    );
+  });
+
+
+  tableElement.innerHTML = members.length
+
+    ? table(
+        [
+          "User",
+          "Email",
+          "Membership",
+          "Role",
+          "Status",
+          "Joined"
+        ],
+
+        members.map(user => [
+
+          `<strong>${esc(
+            user.name || "—"
+          )}</strong>`,
+
+          esc(
+            user.email || "—"
+          ),
+
+          badge(
+            user.membership || "free",
+
+            String(
+              user.membership || ""
+            ).toLowerCase() === "premium"
+              ? "gold"
+              : ""
+          ),
+
+          badge(
+            user.role || "member",
+
+            user.role === "admin"
+              ? "blue"
+              : ""
+          ),
+
+          badge(
+            user.status ||
+            (
+              user.active === false
+                ? "pending"
+                : "active"
+            ),
+
+            user.active === false
+              ? "gold"
+              : "green"
+          ),
+
+          date(
+            user.createdAt ||
+            user.joinedAt ||
+            user.created
+          )
+
+        ])
+      )
+
+    : empty();
+}
+
+
+// ============================================================
+// ACADEMY
+// ============================================================
+
+function renderAcademy() {
+
+  const tableElement = $("academyTable");
+
+  if (!tableElement) return;
+
+
+  const academy = [...state.academy]
+    .sort(
+      (a, b) =>
+        n(a.order) -
+        n(b.order)
+    );
+
+
+  tableElement.innerHTML = academy.length
+
+    ? table(
+
+        [
+          "Title",
+          "Module",
+          "Order",
+          "Status",
+          "Source",
+          "Updated"
+        ],
+
+        academy.map(item => [
+
+          esc(
+            item.title ||
+            item.name ||
+            item.lessonTitle ||
+            "Untitled"
+          ),
+
+          esc(
+            item.module ||
+            item.moduleTitle ||
+            item.category ||
+            item.section ||
+            "—"
+          ),
+
+          esc(
+            item.order ??
+            item.position ??
+            "—"
+          ),
+
+          badge(
+            item.status ||
+            (
+              item.published === false
+                ? "draft"
+                : "published"
+            ),
+
+            String(
+              item.status || ""
+            ).toLowerCase() === "draft" ||
+            item.published === false
+              ? "gold"
+              : "green"
+          ),
+
+          badge(
+            item._source ||
+            "academy",
+
+            item._source ===
+            "premium_academy"
+              ? "gold"
+              : ""
+          ),
+
+          date(
+            item.updatedAt ||
+            item.updated ||
+            item.createdAt ||
+            item.created
+          )
+
+        ])
+
+      )
+
+    : empty();
+}
+
+
+// ============================================================
+// RESOURCES
+// ============================================================
+
+function renderResources() {
+
+  const tableElement = $("resourcesTable");
+
+  if (!tableElement) return;
+
+
+  const resources =
+    state.resources;
+
+
+  tableElement.innerHTML = resources.length
+
+    ? table(
+
+        [
+          "Title",
+          "Category",
+          "Type",
+          "Premium",
+          "Source",
+          "Updated"
+        ],
+
+        resources.map(item => {
+
+          const isPremium =
+            item.premium === true ||
+            item.premiumOnly === true ||
+            item._source ===
+              "premium_resources";
+
+
+          return [
+
+            esc(
+              item.title ||
+              item.name ||
+              item.resourceName ||
+              "Untitled"
+            ),
+
+            esc(
+              item.category ||
+              item.section ||
+              "—"
+            ),
+
+            esc(
+              item.type ||
+              item.fileType ||
+              item.mimeType ||
+              "—"
+            ),
+
+            badge(
+              isPremium
+                ? "Premium"
+                : "Free",
+
+              isPremium
+                ? "gold"
+                : "green"
+            ),
+
+            badge(
+              item._source ||
+              "resources",
+
+              item._source ===
+              "premium_resources"
+                ? "gold"
+                : ""
+            ),
+
+            date(
+              item.updatedAt ||
+              item.createdAt ||
+              item.created
+            )
+
+          ];
+        })
+
+      )
+
+    : empty();
+}
+
+
+// ============================================================
+// VIDEOS
+// ============================================================
+
+function renderVideos() {
+
+  const tableElement = $("videosTable");
+
+  if (!tableElement) return;
+
+
+  const videos =
+    state.videos;
+
+
+  tableElement.innerHTML = videos.length
+
+    ? table(
+
+        [
+          "Title",
+          "Category",
+          "Duration",
+          "Premium",
+          "Published",
+          "Source"
+        ],
+
+        videos.map(item => {
+
+          const isPremium =
+            item.premiumOnly === true ||
+            item.premium === true ||
+            item._source ===
+              "premium_videos";
+
+
+          const isDraft =
+            item.published === false ||
+            item.status === "draft";
+
+
+          return [
+
+            esc(
+              item.title ||
+              item.name ||
+              item.videoTitle ||
+              "Untitled"
+            ),
+
+            esc(
+              item.category ||
+              item.section ||
+              "—"
+            ),
+
+            esc(
+              item.duration ||
+              item.length ||
+              "—"
+            ),
+
+            badge(
+              isPremium
+                ? "Premium"
+                : "Free",
+
+              isPremium
+                ? "gold"
+                : "green"
+            ),
+
+            badge(
+              isDraft
+                ? "Draft"
+                : "Published",
+
+              isDraft
+                ? "gold"
+                : "green"
+            ),
+
+            badge(
+              item._source ||
+              "videos",
+
+              item._source ===
+              "premium_videos"
+                ? "gold"
+                : ""
+            )
+
+          ];
+        })
+
+      )
+
+    : empty();
+}
+
+
+// ============================================================
+// TRADES
+// ============================================================
+
+function renderTrades() {
+
+  const tableElement = $("tradesTable");
+
+  if (!tableElement) return;
+
+
+  let trades =
+    state.trades;
+
+
+  const searchElement =
+    $("tradeSearch");
+
+  const statusElement =
+    $("tradeStatus");
+
+  const visibilityElement =
+    $("tradeVisibility");
+
+
+  const search =
+    searchElement?.value
+      ?.toLowerCase()
+      .trim() || "";
+
+
+  const selectedStatus =
+    statusElement?.value ||
+    "all";
+
+
+  const selectedVisibility =
+    visibilityElement?.value ||
+    "all";
+
+
+  trades = trades.filter(trade => {
+
+    const searchMatches =
+      !search ||
+
+      `
+        ${trade.userEmail || ""}
+        ${trade.userId || ""}
+        ${trade.pair || ""}
+        ${trade.account || ""}
+        ${trade.accountId || ""}
+      `
+        .toLowerCase()
+        .includes(search);
+
+
+    const tradeResult =
+      String(
+        trade.result ||
+        trade.status ||
+        "Pending"
+      ).toLowerCase();
+
+
+    const statusMatches =
+      selectedStatus === "all" ||
+      tradeResult ===
+        selectedStatus.toLowerCase();
+
+
+    const visibilityMatches =
+      selectedVisibility === "all" ||
+
+      (
+        selectedVisibility === "public" &&
+        trade.public === true
+      ) ||
+
+      (
+        selectedVisibility === "private" &&
+        trade.public !== true
+      );
+
+
+    return (
+      searchMatches &&
+      statusMatches &&
+      visibilityMatches
+    );
+  });
+
+
+  trades.sort(
+    (a, b) =>
+      millis(
+        b.updated ||
+        b.created ||
+        b.date
+      ) -
+      millis(
+        a.updated ||
+        a.created ||
+        a.date
+      )
+  );
+
+
+  tableElement.innerHTML = trades.length
+
+    ? table(
+
+        [
+          "Date / Time",
+          "Student",
+          "Account",
+          "Pair",
+          "Direction",
+          "Result",
+          "RR",
+          "P/L",
+          "Visibility"
+        ],
+
+        trades.map(trade => {
+
+          const profit =
+            n(trade.profit);
+
+          const commission =
+            n(trade.commission);
+
+          const pl =
+            profit -
+            commission;
+
+
+          const result =
+            trade.result ||
+            trade.status ||
+            "Pending";
+
+
+          const resultLower =
+            String(result)
+              .toLowerCase();
+
+
+          const resultClass =
+            resultLower === "win"
+              ? "green"
+              : resultLower === "loss"
+                ? "red"
+                : "gold";
+
+
+          return [
+
+            date(
+              trade.updated ||
+              trade.created ||
+              trade.date
+            ),
+
+            esc(
+              trade.userEmail ||
+              trade.userId ||
+              "—"
+            ),
+
+            esc(
+              trade.account ||
+              trade.accountId ||
+              "—"
+            ),
+
+            `<strong>${esc(
+              trade.pair ||
+              "—"
+            )}</strong>`,
+
+            esc(
+              trade.direction ||
+              "—"
+            ),
+
+            badge(
+              result,
+              resultClass
+            ),
+
+            `
+              <span class="${
+                n(trade.rr) >= 0
+                  ? "positive"
+                  : "negative"
+              }">
+
+                ${n(trade.rr).toFixed(2)}R
+
+              </span>
+            `,
+
+            `
+              <span class="${
+                pl >= 0
+                  ? "positive"
+                  : "negative"
+              }">
+
+                ${pl >= 0 ? "+" : "-"}$
+                ${money(Math.abs(pl))}
+
+              </span>
+            `,
+
+            badge(
+              trade.public === true
+                ? "Public"
+                : "Private",
+
+              trade.public === true
+                ? "blue"
+                : ""
+            )
+
+          ];
+        })
+
+      )
+
+    : empty();
+}
+
+
+// ============================================================
+// PAYMENTS
+// ============================================================
+
+function renderPayments() {
+
+  const tableElement =
+    $("paymentsTable");
+
+  if (!tableElement) return;
+
+
+  let payments =
+    state.payments;
+
+
+  const searchElement =
+    $("paymentSearch");
+
+  const statusElement =
+    $("paymentStatus");
+
+
+  const search =
+    searchElement?.value
+      ?.toLowerCase()
+      .trim() || "";
+
+
+  const selectedStatus =
+    statusElement?.value ||
+    "all";
+
+
+  payments =
+    payments.filter(payment => {
+
+      const searchMatches =
+        !search ||
+
+        `
+          ${payment.name || ""}
+          ${payment.fullName || ""}
+          ${payment.email || ""}
+          ${payment.transactionId || ""}
+          ${payment.transaction || ""}
+          ${payment.mpesaCode || ""}
+          ${payment.plan || ""}
+          ${payment.package || ""}
+        `
+          .toLowerCase()
+          .includes(search);
+
+
+      const statusMatches =
+        selectedStatus === "all" ||
+        status(payment.status) ===
+          selectedStatus;
+
+
+      return (
+        searchMatches &&
+        statusMatches
+      );
+    });
+
+
+  payments.sort(
+    (a, b) =>
+      millis(
+        b.submittedAt ||
+        b.createdAt ||
+        b.created
+      ) -
+      millis(
+        a.submittedAt ||
+        a.createdAt ||
+        a.created
+      )
+  );
+
+
+  tableElement.innerHTML = payments.length
+
+    ? table(
+
+        [
+          "Student",
+          "Plan",
+          "Method",
+          "Amount",
+          "Transaction",
+          "Status",
+          "Date"
+        ],
+
+        payments.map(payment => {
+
+          const paymentStatus =
+            status(payment.status);
+
+
+          const badgeClass =
+            paymentStatus === "approved"
+              ? "green"
+              : paymentStatus === "rejected"
+                ? "red"
+                : "gold";
+
+
+          return [
+
+            `
+              ${esc(
+                payment.name ||
+                payment.fullName ||
+                "—"
+              )}
+
+              <small class="muted">
+                ${esc(
+                  payment.email ||
+                  ""
+                )}
+              </small>
+            `,
+
+            esc(
+              payment.plan ||
+              payment.package ||
+              payment.membershipPlan ||
+              "—"
+            ),
+
+            esc(
+              payment.paymentMethod ||
+              payment.method ||
+              payment.payment_method ||
+              "—"
+            ),
+
+            `
+              $${money(
+                payment.amountUSD ??
+                payment.amount ??
+                payment.amountPaidUSD
+              )}
+            `,
+
+            esc(
+              payment.transactionId ||
+              payment.transaction ||
+              payment.mpesaCode ||
+              payment.reference ||
+              "—"
+            ),
+
+            badge(
+              payment.status ||
+              "pending",
+
+              badgeClass
+            ),
+
+            date(
+              payment.submittedAt ||
+              payment.createdAt ||
+              payment.created
+            )
+
+          ];
+        })
+
+      )
+
+    : empty();
+}
+
+
+// ============================================================
+// EMPTY STATE
+// ============================================================
+
+function empty() {
+
+  return `
+    <div class="empty">
+      No data found.
+    </div>
+  `;
+}
+
+
+// ============================================================
+// BADGE
+// ============================================================
+
+function badge(value, className = "") {
+
+  return `
+    <span class="badge ${esc(className)}">
+      ${esc(value)}
+    </span>
+  `;
+}
+
+
+// ============================================================
+// TABLE BUILDER
+// ============================================================
+
+function table(head, rows) {
+
+  return `
+    <table class="data-table">
+
+      <thead>
+        <tr>
+
+          ${head
+            .map(
+              heading =>
+                `<th>${esc(heading)}</th>`
+            )
+            .join("")}
+
+        </tr>
+      </thead>
+
+
+      <tbody>
+
+        ${rows
+          .map(
+            row => `
+              <tr>
+
+                ${row
+                  .map(
+                    cell =>
+                      `<td>${cell}</td>`
+                  )
+                  .join("")}
+
+              </tr>
+            `
+          )
+          .join("")}
+
+      </tbody>
+
+    </table>
+  `;
+}
+
+
+// ============================================================
+// AUTHENTICATION
+// ============================================================
+
+onAuthStateChanged(
+  auth,
+  user => {
+
+    if (!user) {
+
+      location.href = "/login";
+
+      return;
+    }
+
+
+    console.log(
+      "Admin authenticated:",
+      user.email
+    );
+
+
+    start();
+  },
+
+  error => {
+
+    console.error(
+      "Authentication state error:",
+      error
+    );
+
+    showError(
+      error,
+      "Authentication"
+    );
+  }
+);
