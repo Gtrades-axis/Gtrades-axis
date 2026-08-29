@@ -4648,18 +4648,19 @@ async function uploadSingle(
     );
 
 
-  await uploadWithProgress(
-    uploadURL,
-    item.file,
-    key,
-    progress => {
+  const uploadResult =
+    await uploadWithProgress(
+      uploadURL,
+      item.file,
+      key,
+      progress => {
 
-      item.progress =
-        progress;
+        item.progress =
+          progress;
 
-      renderUploadQueue();
-    }
-  );
+        renderUploadQueue();
+      }
+    );
 
 
   /*
@@ -4671,7 +4672,7 @@ async function uploadSingle(
   const metadata =
     buildMetadata(
       item,
-      key
+      uploadResult?.key || key
     );
 
 
@@ -4681,12 +4682,20 @@ async function uploadSingle(
       : "resources";
 
 
+  const cleanMetadata = stripUndefined(metadata);
+
+  // Hard guard: video records never use resource file keys.
+  if (item.type === "videos") {
+    delete cleanMetadata.fileKey;
+    delete cleanMetadata.resourceKey;
+  }
+
   await addDoc(
     collection(
       db,
       collectionName
     ),
-    metadata
+    cleanMetadata
   );
 
 
@@ -4776,7 +4785,41 @@ function uploadWithProgress(
               100
             );
 
-            resolve();
+            let response = {};
+
+            try {
+              response = xhr.responseText
+                ? JSON.parse(xhr.responseText)
+                : {};
+            } catch (parseError) {
+              reject(
+                new Error(
+                  "R2 Worker returned an invalid JSON response."
+                )
+              );
+              return;
+            }
+
+            if (response.success === false) {
+              reject(
+                new Error(
+                  response.error ||
+                  "R2 Worker rejected the upload."
+                )
+              );
+              return;
+            }
+
+            if (response.key && response.key !== key) {
+              reject(
+                new Error(
+                  "R2 Worker returned an unexpected file key."
+                )
+              );
+              return;
+            }
+
+            resolve(response);
 
           } else {
 
@@ -4829,6 +4872,30 @@ function uploadWithProgress(
 // ============================================================
 // BUILD FIRESTORE METADATA
 // ============================================================
+
+// ============================================================
+// FIRESTORE DATA SANITIZER
+// ============================================================
+// Firestore rejects undefined values. Keep null/false/0, but strip
+// undefined recursively so one optional field can never abort a save.
+function stripUndefined(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map(stripUndefined)
+      .filter(item => item !== undefined);
+  }
+
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (item !== undefined) out[key] = stripUndefined(item);
+    }
+    return out;
+  }
+
+  return value;
+}
+
 
 function buildMetadata(
   item,
@@ -4888,12 +4955,6 @@ function buildMetadata(
 
     r2Key:
       key,
-
-    fileKey:
-      isVideo ? undefined : key,
-
-    resourceKey:
-      isVideo ? undefined : key,
 
     fileType:
       item.file.type ||
@@ -4958,11 +5019,23 @@ function buildMetadata(
 
   };
 
+  const publicURL =
+    `${R2_WORKER_ENDPOINT.replace(/\/+$/, "")}/?key=${encodeURIComponent(key)}`;
+
   if (isVideo) {
+    // Videos must NOT contain fileKey/resourceKey at all.
+    // Older builds accidentally emitted undefined fileKey values,
+    // which makes Firestore reject addDoc().
     metadata.videoKey = key;
+    metadata.videoUrl = publicURL;
+    metadata.videoURL = publicURL;
+    metadata.url = publicURL;
   } else {
     metadata.fileKey = key;
     metadata.resourceKey = key;
+    metadata.resourceUrl = publicURL;
+    metadata.resourceURL = publicURL;
+    metadata.url = publicURL;
   }
 
 
