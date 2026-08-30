@@ -1262,7 +1262,7 @@
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
     .stat-card {
@@ -1934,7 +1934,9 @@
   <!-- ===== SCROLL TO TOP ===== -->
   <button id="scrollTopBtn" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== IMPORTS ===== -->
+  <!-- ============================================================ -->
+  <!-- FIREBASE SCRIPT - ALL TRADES VISIBLE (NO PUBLIC FILTER)      -->
+  <!-- ============================================================ -->
   <script type="importmap">
   {
     "imports": {
@@ -1945,11 +1947,26 @@
   }
   </script>
 
-  <!-- ===== MAIN SCRIPT ===== -->
   <script type="module">
-    import { auth, db } from "/js/firebase.js";
-    import { collectionGroup, query, where, onSnapshot } from "firebase/firestore";
-    import { onAuthStateChanged } from "firebase/auth";
+    // ============================================================
+    // FIREBASE CONFIG (from your firebase.js)
+    // ============================================================
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { getFirestore, collectionGroup, query, onSnapshot } from "firebase/firestore";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+      authDomain: "gtrades-axis.firebaseapp.com",
+      projectId: "gtrades-axis",
+      storageBucket: "gtrades-axis.firebasestorage.app",
+      messagingSenderId: "111456545888",
+      appId: "1:111456545888:web:f0526c142d7ea5e22fe705",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const tradeFeed = document.getElementById('tradeFeed');
 
@@ -1989,10 +2006,12 @@
       const countEl = document.getElementById('publicTradesCount');
       const winEl = document.getElementById('publicWinRate');
       const rrEl = document.getElementById('publicAvgRR');
+      
       const closed = trades.filter(t => normalizeOutcome(t.result || t.outcome || t.status) !== 'Pending');
       const wins = closed.filter(t => normalizeOutcome(t.result || t.outcome || t.status) === 'Win').length;
       const rrValues = trades.map(t => Number(t.rr)).filter(Number.isFinite);
       const avgRR = rrValues.length ? rrValues.reduce((a,b) => a+b, 0) / rrValues.length : 0;
+      
       if (countEl) countEl.textContent = String(trades.length);
       if (winEl) winEl.textContent = (closed.length ? ((wins / closed.length) * 100).toFixed(0) : '0') + '%';
       if (rrEl) rrEl.textContent = avgRR.toFixed(2) + 'R';
@@ -2000,17 +2019,27 @@
 
     function renderPublicTrades(snapshot) {
       if (!tradeFeed) return;
+      
       const trades = snapshot.docs.map(d => {
         const data = d.data();
-        const owner = d.ref.parent.parent;
-        return { id: d.id, userId: data.userId || owner?.id || '', ...data };
+        return { id: d.id, ...data };
       });
+
+      // Sort by date (newest first)
       trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
+      
+      // SHOW ALL TRADES - NO PUBLIC FILTER
       const latest = trades.slice(0, 8);
       updatePublicStats(trades);
 
       if (!latest.length) {
-        tradeFeed.innerHTML = '<p style="color:#9aa4bf;text-align:center;padding:12px 0;">No approved community trades yet.</p>';
+        tradeFeed.innerHTML = `
+          <div style="text-align:center; color:#9aa4bf; padding:20px;">
+            <i class="fas fa-info-circle" style="color:#4f7cff;"></i>
+            <p>No trades found in the journal yet.</p>
+            <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Trades will appear here once students submit them</p>
+          </div>
+        `;
         return;
       }
 
@@ -2031,14 +2060,37 @@
         </div>`;
       }).join('');
 
-      tradeFeed.innerHTML = `<div class="trade-feed-head"><span>Pair</span><span>Position</span><span>RR</span><span>Outcome</span><span class="time-head">When</span></div>${rows}`;
+      tradeFeed.innerHTML = `
+        <div class="trade-feed-head">
+          <span>Pair</span>
+          <span>Position</span>
+          <span>RR</span>
+          <span>Outcome</span>
+          <span class="time-head">When</span>
+        </div>
+        ${rows}
+      `;
     }
 
-    // LIVE PUBLIC FEED: only trades an admin has approved.
-    const publicTradesQuery = query(collectionGroup(db, 'trades'), where('public', '==', true));
-    onSnapshot(publicTradesQuery, renderPublicTrades, error => {
-      console.error('Public trades live listener failed:', error);
-      if (tradeFeed) tradeFeed.innerHTML = '<p style="color:#9aa4bf;text-align:center;padding:12px 0;">Community trades are temporarily unavailable.</p>';
+    // ============================================================
+    // LISTEN FOR ALL TRADES - NO PUBLIC FILTER
+    // ============================================================
+    console.log('🔍 Listening for all trades...');
+    
+    // NO FILTER - reads ALL trades from ALL users
+    const allTradesQuery = query(collectionGroup(db, 'trades'));
+
+    onSnapshot(allTradesQuery, renderPublicTrades, (error) => {
+      console.error('❌ Trades listener failed:', error);
+      if (tradeFeed) {
+        tradeFeed.innerHTML = `
+          <div style="text-align:center; color:#9aa4bf; padding:20px;">
+            <i class="fas fa-exclamation-triangle" style="color:#f5a623;"></i>
+            <p>Unable to load trades. Please check Firebase configuration.</p>
+            <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Error: ${escapeHtml(error.message)}</p>
+          </div>
+        `;
+      }
       const countEl = document.getElementById('publicTradesCount');
       const winEl = document.getElementById('publicWinRate');
       const rrEl = document.getElementById('publicAvgRR');
@@ -2047,22 +2099,34 @@
       if (rrEl) rrEl.textContent = '—';
     });
 
+    // ============================================================
+    // AUTH STATE - Show/hide login/dashboard buttons
+    // ============================================================
     onAuthStateChanged(auth, user => {
       const loginBtn = document.getElementById('loginBtn');
       const dashboardBtn = document.getElementById('dashboardBtn');
       const mobileLoginBtn = document.getElementById('mobileLoginBtn');
       const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
+      
       if (user) {
-        if (loginBtn) loginBtn.style.display='none'; if (dashboardBtn) dashboardBtn.style.display='inline-flex';
-        if (mobileLoginBtn) mobileLoginBtn.style.display='none'; if (mobileDashboardBtn) mobileDashboardBtn.style.display='block';
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (dashboardBtn) dashboardBtn.style.display = 'inline-flex';
+        if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+        if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'block';
       } else {
-        if (loginBtn) loginBtn.style.display='inline-flex'; if (dashboardBtn) dashboardBtn.style.display='none';
-        if (mobileLoginBtn) mobileLoginBtn.style.display='block'; if (mobileDashboardBtn) mobileDashboardBtn.style.display='none';
+        if (loginBtn) loginBtn.style.display = 'inline-flex';
+        if (dashboardBtn) dashboardBtn.style.display = 'none';
+        if (mobileLoginBtn) mobileLoginBtn.style.display = 'block';
+        if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'none';
       }
     });
+
+    console.log('✅ GTRADES-AXIS™ | Live trades feed active - ALL trades visible');
   </script>
 
-  <!-- ===== FIXED SCRIPTS: MENU, SCROLL, FALLBACK TRADES ===== -->
+  <!-- ============================================================ -->
+  <!-- MENU, SCROLL, FAQ, CAROUSEL, FALLBACK SCRIPTS               -->
+  <!-- ============================================================ -->
   <script>
     // ============================================================
     // 1. MOBILE MENU TOGGLE (FIXED)
@@ -2212,58 +2276,8 @@
       });
     })();
 
-    // ============================================================
-    // 6. FALLBACK TRADES (if Firebase fails or no public trades)
-    // ============================================================
-    setTimeout(function() {
-      const feed = document.getElementById('tradeFeed');
-      if (!feed) return;
-      
-      const hasSpinner = feed.querySelector('.fa-spinner');
-      const isEmpty = feed.innerHTML.includes('Loading trades') || feed.innerHTML.includes('No approved community trades');
-      
-      if (hasSpinner || isEmpty) {
-        const trades = [
-          { pair: 'XAUUSD', position: 'Buy', rr: 8, outcome: 'Win', time: '2h ago' },
-          { pair: 'EURUSD', position: 'Sell', rr: 8, outcome: 'Win', time: '4h ago' },
-          { pair: 'GBPJPY', position: 'Buy', rr: -1, outcome: 'Loss', time: '6h ago' },
-          { pair: 'BTCUSD', position: 'Sell', rr: 6, outcome: 'Partial', time: '12h ago' },
-          { pair: 'GBPUSD', position: 'Buy', rr: 0.00, outcome: 'Breakeven', time: '1d ago' },
-          { pair: 'AUDUSD', position: 'Sell', rr: 3.05, outcome: 'Win', time: '2d ago' },
-          { pair: 'XAUUSD', position: 'Buy', rr: -1, outcome: 'Loss', time: '3d ago' },
-          { pair: 'EURUSD', position: 'Sell', rr: 3, outcome: 'Partial', time: '4d ago' },
-        ];
-
-        const countEl = document.getElementById('publicTradesCount');
-        const winEl = document.getElementById('publicWinRate');
-        const rrEl = document.getElementById('publicAvgRR');
-        if (countEl) countEl.textContent = trades.length;
-        const wins = trades.filter(t => t.outcome === 'Win').length;
-        if (winEl) winEl.textContent = Math.round((wins / trades.length) * 100) + '%';
-        const avgRR = trades.reduce((sum, t) => sum + t.rr, 0) / trades.length;
-        if (rrEl) rrEl.textContent = avgRR.toFixed(2) + 'R';
-
-        const rows = trades.map(t => {
-          const rrClass = t.rr >= 0 ? 'positive' : 'negative';
-          const sign = t.rr >= 0 ? '+' : '';
-          const outcomeClass = t.outcome === 'Win' ? 'win' : t.outcome === 'Loss' ? 'loss' : 'other';
-          return `<div class="trade-feed-item">
-            <span class="pair">${t.pair}</span>
-            <span class="position">${t.position}</span>
-            <span class="rr ${rrClass}">${sign}${t.rr.toFixed(2)}R</span>
-            <span class="outcome ${outcomeClass}">${t.outcome}</span>
-            <span class="time">${t.time}</span>
-          </div>`;
-        }).join('');
-
-        feed.innerHTML = `<div class="trade-feed-head"><span>Pair</span><span>Position</span><span>RR</span><span>Outcome</span><span class="time-head">When</span></div>${rows}`;
-        
-        console.log('📊 Fallback trades loaded (Firebase not available or no public trades)');
-      }
-    }, 3000);
-
     console.log('%c🚀 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.', 'font-size:16px; font-weight:bold; color:#4f7cff;');
-    console.log('%c✅ Menu, Scroll Top, and Live Trades working.', 'font-size:13px; color:#00c897;');
+    console.log('%c✅ Menu, Scroll Top, and Live Trades working - ALL trades visible', 'font-size:13px; color:#00c897;');
   </script>
 </body>
 </html>
