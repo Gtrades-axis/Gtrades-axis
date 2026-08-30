@@ -1935,349 +1935,194 @@
   <button id="scrollTopBtn" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
 
   <!-- ============================================================ -->
-  <!-- FIREBASE SCRIPT - ALL TRADES VISIBLE (NO PUBLIC FILTER)      -->
-  <!-- ============================================================ -->
-  <script type="importmap">
-  {
-    "imports": {
-      "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-    }
+<!-- ============================================================ -->
+<!-- FIREBASE SCRIPT - ADMIN CONTROLS VISIBILITY                  -->
+<!-- ============================================================ -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
   }
-  </script>
+}
+</script>
 
-  <script type="module">
-    // ============================================================
-    // FIREBASE CONFIG (from your firebase.js)
-    // ============================================================
-    import { initializeApp } from "firebase/app";
-    import { getAuth, onAuthStateChanged } from "firebase/auth";
-    import { getFirestore, collectionGroup, query, onSnapshot } from "firebase/firestore";
+<script type="module">
+  // ============================================================
+  // FIREBASE IMPORTS - Using importmap
+  // ============================================================
+  import { initializeApp } from "firebase";
+  import { getAuth, onAuthStateChanged } from "firebase/auth";
+  import { getFirestore, collectionGroup, query, where, onSnapshot } from "firebase/firestore";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
-      authDomain: "gtrades-axis.firebaseapp.com",
-      projectId: "gtrades-axis",
-      storageBucket: "gtrades-axis.firebasestorage.app",
-      messagingSenderId: "111456545888",
-      appId: "1:111456545888:web:f0526c142d7ea5e22fe705",
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
+    authDomain: "gtrades-axis.firebaseapp.com",
+    projectId: "gtrades-axis",
+    storageBucket: "gtrades-axis.firebasestorage.app",
+    messagingSenderId: "111456545888",
+    appId: "1:111456545888:web:f0526c142d7ea5e22fe705",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const tradeFeed = document.getElementById('tradeFeed');
+  const tradeFeed = document.getElementById('tradeFeed');
 
-    function toMillis(value) {
-      if (!value) return 0;
-      if (typeof value.toDate === 'function') return value.toDate().getTime();
-      const n = Date.parse(String(value));
-      return Number.isNaN(n) ? 0 : n;
-    }
+  function toMillis(value) {
+    if (!value) return 0;
+    if (typeof value.toDate === 'function') return value.toDate().getTime();
+    const n = Date.parse(String(value));
+    return Number.isNaN(n) ? 0 : n;
+  }
 
-    function timeAgo(value) {
-      const ms = toMillis(value);
-      if (!ms) return 'recent';
-      const seconds = Math.max(0, Math.floor((Date.now() - ms) / 1000));
-      if (seconds < 60) return 'now';
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return minutes + 'm ago';
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return hours + 'h ago';
-      return Math.floor(hours / 24) + 'd ago';
-    }
+  function timeAgo(value) {
+    const ms = toMillis(value);
+    if (!ms) return 'recent';
+    const seconds = Math.max(0, Math.floor((Date.now() - ms) / 1000));
+    if (seconds < 60) return 'now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + 'm ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    return Math.floor(hours / 24) + 'd ago';
+  }
 
-    function escapeHtml(v) {
-      return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-    }
+  function escapeHtml(v) {
+    return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+  }
 
-    function normalizeOutcome(value) {
-      const v = String(value || 'Pending').trim().toLowerCase();
-      if (v === 'win' || v === 'won' || v === 'profit') return 'Win';
-      if (v === 'loss' || v === 'lost') return 'Loss';
-      if (v === 'breakeven' || v === 'break even' || v === 'be') return 'Breakeven';
-      if (v === 'partial') return 'Partial';
-      return 'Pending';
-    }
+  function normalizeOutcome(value) {
+    const v = String(value || 'Pending').trim().toLowerCase();
+    if (v === 'win' || v === 'won' || v === 'profit') return 'Win';
+    if (v === 'loss' || v === 'lost') return 'Loss';
+    if (v === 'breakeven' || v === 'break even' || v === 'be') return 'Breakeven';
+    if (v === 'partial') return 'Partial';
+    return 'Pending';
+  }
 
-    function updatePublicStats(trades) {
-      const countEl = document.getElementById('publicTradesCount');
-      const winEl = document.getElementById('publicWinRate');
-      const rrEl = document.getElementById('publicAvgRR');
-      
-      const closed = trades.filter(t => normalizeOutcome(t.result || t.outcome || t.status) !== 'Pending');
-      const wins = closed.filter(t => normalizeOutcome(t.result || t.outcome || t.status) === 'Win').length;
-      const rrValues = trades.map(t => Number(t.rr)).filter(Number.isFinite);
-      const avgRR = rrValues.length ? rrValues.reduce((a,b) => a+b, 0) / rrValues.length : 0;
-      
-      if (countEl) countEl.textContent = String(trades.length);
-      if (winEl) winEl.textContent = (closed.length ? ((wins / closed.length) * 100).toFixed(0) : '0') + '%';
-      if (rrEl) rrEl.textContent = avgRR.toFixed(2) + 'R';
-    }
+  function updatePublicStats(trades) {
+    const countEl = document.getElementById('publicTradesCount');
+    const winEl = document.getElementById('publicWinRate');
+    const rrEl = document.getElementById('publicAvgRR');
+    
+    const closed = trades.filter(t => normalizeOutcome(t.result || t.outcome || t.status) !== 'Pending');
+    const wins = closed.filter(t => normalizeOutcome(t.result || t.outcome || t.status) === 'Win').length;
+    const rrValues = trades.map(t => Number(t.rr)).filter(Number.isFinite);
+    const avgRR = rrValues.length ? rrValues.reduce((a,b) => a+b, 0) / rrValues.length : 0;
+    
+    if (countEl) countEl.textContent = String(trades.length);
+    if (winEl) winEl.textContent = (closed.length ? ((wins / closed.length) * 100).toFixed(0) : '0') + '%';
+    if (rrEl) rrEl.textContent = avgRR.toFixed(2) + 'R';
+  }
 
-    function renderPublicTrades(snapshot) {
-      if (!tradeFeed) return;
-      
-      const trades = snapshot.docs.map(d => {
-        const data = d.data();
-        return { id: d.id, ...data };
-      });
+  function renderPublicTrades(snapshot) {
+    if (!tradeFeed) return;
+    
+    const trades = snapshot.docs.map(d => {
+      const data = d.data();
+      return { id: d.id, ...data };
+    });
 
-      // Sort by date (newest first)
-      trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
-      
-      // SHOW ALL TRADES - NO PUBLIC FILTER
-      const latest = trades.slice(0, 8);
-      updatePublicStats(trades);
+    trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
+    
+    const latest = trades.slice(0, 8);
+    updatePublicStats(trades);
 
-      if (!latest.length) {
-        tradeFeed.innerHTML = `
-          <div style="text-align:center; color:#9aa4bf; padding:20px;">
-            <i class="fas fa-info-circle" style="color:#4f7cff;"></i>
-            <p>No trades found in the journal yet.</p>
-            <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Trades will appear here once students submit them</p>
-          </div>
-        `;
-        return;
-      }
-
-      const rows = latest.map(t => {
-        const rr = Number(t.rr);
-        const safeRR = Number.isFinite(rr) ? rr : 0;
-        const rrClass = safeRR >= 0 ? 'positive' : 'negative';
-        const sign = safeRR >= 0 ? '+' : '';
-        const outcome = normalizeOutcome(t.result || t.outcome || t.status);
-        const outcomeClass = outcome === 'Win' ? 'win' : outcome === 'Loss' ? 'loss' : 'other';
-        const position = t.position || t.direction || t.side || '—';
-        return `<div class="trade-feed-item">
-          <span class="pair">${escapeHtml(t.pair || t.symbol || '—')}</span>
-          <span class="position">${escapeHtml(position)}</span>
-          <span class="rr ${rrClass}">${sign}${safeRR.toFixed(2)}R</span>
-          <span class="outcome ${outcomeClass}">${escapeHtml(outcome)}</span>
-          <span class="time">${timeAgo(t.updated || t.closed || t.created || t.date)}</span>
-        </div>`;
-      }).join('');
-
+    if (!latest.length) {
       tradeFeed.innerHTML = `
-        <div class="trade-feed-head">
-          <span>Pair</span>
-          <span>Position</span>
-          <span>RR</span>
-          <span>Outcome</span>
-          <span class="time-head">When</span>
+        <div style="text-align:center; color:#9aa4bf; padding:20px;">
+          <i class="fas fa-info-circle" style="color:#4f7cff;"></i>
+          <p>No public trades available yet.</p>
+          <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Admin needs to approve trades and mark them as "Public"</p>
         </div>
-        ${rows}
+      `;
+      return;
+    }
+
+    const rows = latest.map(t => {
+      const rr = Number(t.rr);
+      const safeRR = Number.isFinite(rr) ? rr : 0;
+      const rrClass = safeRR >= 0 ? 'positive' : 'negative';
+      const sign = safeRR >= 0 ? '+' : '';
+      const outcome = normalizeOutcome(t.result || t.outcome || t.status);
+      const outcomeClass = outcome === 'Win' ? 'win' : outcome === 'Loss' ? 'loss' : 'other';
+      const position = t.position || t.direction || t.side || '—';
+      return `<div class="trade-feed-item">
+        <span class="pair">${escapeHtml(t.pair || t.symbol || '—')}</span>
+        <span class="position">${escapeHtml(position)}</span>
+        <span class="rr ${rrClass}">${sign}${safeRR.toFixed(2)}R</span>
+        <span class="outcome ${outcomeClass}">${escapeHtml(outcome)}</span>
+        <span class="time">${timeAgo(t.updated || t.closed || t.created || t.date)}</span>
+      </div>`;
+    }).join('');
+
+    tradeFeed.innerHTML = `
+      <div class="trade-feed-head">
+        <span>Pair</span>
+        <span>Position</span>
+        <span>RR</span>
+        <span>Outcome</span>
+        <span class="time-head">When</span>
+      </div>
+      ${rows}
+    `;
+  }
+
+  // ============================================================
+  // LISTEN FOR PUBLIC TRADES ONLY (admin-approved)
+  // ============================================================
+  console.log('🔍 Listening for public trades (admin-approved)...');
+  
+  const publicTradesQuery = query(
+    collectionGroup(db, 'trades'),
+    where('public', '==', true)
+  );
+
+  onSnapshot(publicTradesQuery, renderPublicTrades, (error) => {
+    console.error('❌ Public trades listener failed:', error);
+    if (tradeFeed) {
+      tradeFeed.innerHTML = `
+        <div style="text-align:center; color:#9aa4bf; padding:20px;">
+          <i class="fas fa-exclamation-triangle" style="color:#f5a623;"></i>
+          <p>Unable to load trades. Please check Firebase configuration.</p>
+          <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Error: ${escapeHtml(error.message)}</p>
+        </div>
       `;
     }
+    const countEl = document.getElementById('publicTradesCount');
+    const winEl = document.getElementById('publicWinRate');
+    const rrEl = document.getElementById('publicAvgRR');
+    if (countEl) countEl.textContent = '—';
+    if (winEl) winEl.textContent = '—';
+    if (rrEl) rrEl.textContent = '—';
+  });
 
-    // ============================================================
-    // LISTEN FOR ALL TRADES - NO PUBLIC FILTER
-    // ============================================================
-    console.log('🔍 Listening for all trades...');
+  // ============================================================
+  // AUTH STATE - Show/hide login/dashboard buttons
+  // ============================================================
+  onAuthStateChanged(auth, user => {
+    const loginBtn = document.getElementById('loginBtn');
+    const dashboardBtn = document.getElementById('dashboardBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
     
-    // NO FILTER - reads ALL trades from ALL users
-    const allTradesQuery = query(collectionGroup(db, 'trades'));
-
-    onSnapshot(allTradesQuery, renderPublicTrades, (error) => {
-      console.error('❌ Trades listener failed:', error);
-      if (tradeFeed) {
-        tradeFeed.innerHTML = `
-          <div style="text-align:center; color:#9aa4bf; padding:20px;">
-            <i class="fas fa-exclamation-triangle" style="color:#f5a623;"></i>
-            <p>Unable to load trades. Please check Firebase configuration.</p>
-            <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Error: ${escapeHtml(error.message)}</p>
-          </div>
-        `;
-      }
-      const countEl = document.getElementById('publicTradesCount');
-      const winEl = document.getElementById('publicWinRate');
-      const rrEl = document.getElementById('publicAvgRR');
-      if (countEl) countEl.textContent = '—';
-      if (winEl) winEl.textContent = '—';
-      if (rrEl) rrEl.textContent = '—';
-    });
-
-    // ============================================================
-    // AUTH STATE - Show/hide login/dashboard buttons
-    // ============================================================
-    onAuthStateChanged(auth, user => {
-      const loginBtn = document.getElementById('loginBtn');
-      const dashboardBtn = document.getElementById('dashboardBtn');
-      const mobileLoginBtn = document.getElementById('mobileLoginBtn');
-      const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
-      
-      if (user) {
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (dashboardBtn) dashboardBtn.style.display = 'inline-flex';
-        if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
-        if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'block';
-      } else {
-        if (loginBtn) loginBtn.style.display = 'inline-flex';
-        if (dashboardBtn) dashboardBtn.style.display = 'none';
-        if (mobileLoginBtn) mobileLoginBtn.style.display = 'block';
-        if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'none';
-      }
-    });
-
-    console.log('✅ GTRADES-AXIS™ | Live trades feed active - ALL trades visible');
-  </script>
-
-  <!-- ============================================================ -->
-  <!-- MENU, SCROLL, FAQ, CAROUSEL, FALLBACK SCRIPTS               -->
-  <!-- ============================================================ -->
-  <script>
-    // ============================================================
-    // 1. MOBILE MENU TOGGLE (FIXED)
-    // ============================================================
-    (function() {
-      const menuToggle = document.getElementById('menuToggle');
-      const mobileOverlay = document.getElementById('mobileOverlay');
-      const mobileCloseBtn = document.getElementById('mobileCloseBtn');
-      const mobileLinks = document.querySelectorAll('[data-close]');
-
-      function openMenu() {
-        mobileOverlay.classList.add('open');
-        menuToggle.classList.add('active');
-        document.body.classList.add('no-scroll');
-      }
-
-      function closeMenu() {
-        mobileOverlay.classList.remove('open');
-        menuToggle.classList.remove('active');
-        document.body.classList.remove('no-scroll');
-      }
-
-      if (menuToggle) {
-        menuToggle.addEventListener('click', function(e) {
-          e.stopPropagation();
-          if (mobileOverlay.classList.contains('open')) {
-            closeMenu();
-          } else {
-            openMenu();
-          }
-        });
-      }
-
-      if (mobileCloseBtn) {
-        mobileCloseBtn.addEventListener('click', closeMenu);
-      }
-
-      mobileLinks.forEach(link => {
-        link.addEventListener('click', closeMenu);
-      });
-
-      // Close on overlay background click
-      if (mobileOverlay) {
-        mobileOverlay.addEventListener('click', function(e) {
-          if (e.target === this) closeMenu();
-        });
-      }
-
-      // Close on Escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && mobileOverlay.classList.contains('open')) {
-          closeMenu();
-        }
-      });
-    })();
-
-    // ============================================================
-    // 2. SCROLL TO TOP BUTTON
-    // ============================================================
-    (function() {
-      const btn = document.getElementById('scrollTopBtn');
-      window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 600) {
-          btn.classList.add('visible');
-        } else {
-          btn.classList.remove('visible');
-        }
-      });
-      btn.addEventListener('click', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    })();
-
-    // ============================================================
-    // 3. FAQ ACCORDION
-    // ============================================================
-    function toggleFaq(el) {
-      const item = el.closest('.faq-item');
-      if (!item) return;
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(f => f.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+    if (user) {
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (dashboardBtn) dashboardBtn.style.display = 'inline-flex';
+      if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+      if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'block';
+    } else {
+      if (loginBtn) loginBtn.style.display = 'inline-flex';
+      if (dashboardBtn) dashboardBtn.style.display = 'none';
+      if (mobileLoginBtn) mobileLoginBtn.style.display = 'block';
+      if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'none';
     }
+  });
 
-    // ============================================================
-    // 4. CAROUSEL
-    // ============================================================
-    (function() {
-      const slides = document.querySelectorAll('.carousel-slide');
-      const dotsContainer = document.getElementById('carouselDots');
-      let current = 0;
-      let interval;
-
-      if (!slides.length || !dotsContainer) return;
-
-      slides.forEach((_, i) => {
-        const dot = document.createElement('span');
-        if (i === 0) dot.classList.add('active');
-        dot.dataset.index = i;
-        dot.addEventListener('click', function() {
-          goTo(parseInt(this.dataset.index));
-        });
-        dotsContainer.appendChild(dot);
-      });
-
-      const dots = dotsContainer.querySelectorAll('span');
-
-      function goTo(index) {
-        slides.forEach(s => s.classList.remove('active'));
-        dots.forEach(d => d.classList.remove('active'));
-        slides[index].classList.add('active');
-        dots[index].classList.add('active');
-        current = index;
-        resetInterval();
-      }
-
-      function next() {
-        goTo((current + 1) % slides.length);
-      }
-
-      function resetInterval() {
-        if (interval) clearInterval(interval);
-        interval = setInterval(next, 5000);
-      }
-
-      const carousel = document.querySelector('.concept-carousel');
-      if (carousel) {
-        carousel.addEventListener('mouseenter', () => clearInterval(interval));
-        carousel.addEventListener('mouseleave', resetInterval);
-      }
-
-      resetInterval();
-    })();
-
-    // ============================================================
-    // 5. STICKY CTA
-    // ============================================================
-    (function() {
-      const stickyCta = document.getElementById('stickyCta');
-      window.addEventListener('scroll', function() {
-        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-        if (currentScroll > 500) {
-          stickyCta.classList.add('visible');
-        } else {
-          stickyCta.classList.remove('visible');
-        }
-      });
-    })();
-
-    console.log('%c🚀 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.', 'font-size:16px; font-weight:bold; color:#4f7cff;');
-    console.log('%c✅ Menu, Scroll Top, and Live Trades working - ALL trades visible', 'font-size:13px; color:#00c897;');
-  </script>
+  console.log('✅ GTRADES-AXIS™ | Live trades feed active - showing only admin-approved public trades');
+</script>
 </body>
 </html>
