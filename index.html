@@ -1917,7 +1917,7 @@
   <button id="scrollTopBtn" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
 
   <!-- ============================================================ -->
-  <!-- FIREBASE SCRIPT - ADMIN CONTROLS VISIBILITY                  -->
+  <!-- FIREBASE SCRIPT - ADMIN REGULATED TRADES                     -->
   <!-- ============================================================ -->
   <script type="importmap">
   {
@@ -1935,7 +1935,7 @@
     // ============================================================
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged } from "firebase/auth";
-    import { getFirestore, collectionGroup, query, where, onSnapshot } from "firebase/firestore";
+    import { getFirestore, collectionGroup, query, onSnapshot } from "firebase/firestore";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
@@ -2009,15 +2009,18 @@
 
       trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
       
-      const latest = trades.slice(0, 8);
-      updatePublicStats(trades);
+      // ADMIN REGULATED: ONLY show trades with public: true
+      const publicTrades = trades.filter(t => t.public === true);
+      const latest = publicTrades.slice(0, 8);
+      
+      updatePublicStats(publicTrades);
 
       if (!latest.length) {
         tradeFeed.innerHTML = `
-          <div style="text-align:center; color:#9aa4bf; padding:20px;">
-            <i class="fas fa-info-circle" style="color:#4f7cff;"></i>
-            <p>No public trades available yet.</p>
-            <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Admin needs to approve trades and mark them as "Public"</p>
+          <div style="text-align:center; color:#9aa4bf; padding:30px 20px;">
+            <i class="fas fa-chart-line" style="font-size:36px; color:#4f7cff; margin-bottom:16px; display:block;"></i>
+            <p style="font-size:1.1rem; font-weight:500;">Community Trades</p>
+            <p style="font-size:0.9rem; margin-top:8px; color:#6a7a8a;">No public trades available yet. Admin will approve trades soon!</p>
           </div>
         `;
         return;
@@ -2053,23 +2056,32 @@
     }
 
     // ============================================================
-    // LISTEN FOR PUBLIC TRADES ONLY (admin-approved)
+    // LISTEN FOR ALL TRADES - FILTER FOR PUBLIC IN JAVASCRIPT
+    // ADMIN REGULATED - NO INDEX NEEDED
     // ============================================================
-    console.log('🔍 Listening for public trades (admin-approved)...');
-    
-    const publicTradesQuery = query(
-      collectionGroup(db, 'trades'),
-      where('public', '==', true)
-    );
+    console.log('🔍 Connecting to trade feed...');
 
-    onSnapshot(publicTradesQuery, renderPublicTrades, (error) => {
-      console.error('❌ Public trades listener failed:', error);
+    if (tradeFeed) {
+      tradeFeed.innerHTML = `
+        <div style="text-align:center; color:#9aa4bf; padding:30px 20px;">
+          <i class="fas fa-spinner fa-spin" style="font-size:28px; color:#4f7cff; margin-bottom:12px; display:block;"></i>
+          <p style="font-size:1rem;">Loading trades...</p>
+        </div>
+      `;
+    }
+
+    // Get ALL trades, then filter for public:true in JavaScript
+    const allTradesQuery = query(collectionGroup(db, 'trades'));
+
+    onSnapshot(allTradesQuery, renderPublicTrades, (error) => {
+      // User-friendly message - NO technical errors shown
+      console.error('❌ Trades listener failed:', error);
       if (tradeFeed) {
         tradeFeed.innerHTML = `
-          <div style="text-align:center; color:#9aa4bf; padding:20px;">
-            <i class="fas fa-exclamation-triangle" style="color:#f5a623;"></i>
-            <p>Unable to load trades. Please check Firebase configuration.</p>
-            <p style="font-size:0.8rem; margin-top:8px; color:#6a7a8a;">Error: ${escapeHtml(error.message)}</p>
+          <div style="text-align:center; color:#9aa4bf; padding:30px 20px;">
+            <i class="fas fa-chart-line" style="font-size:36px; color:#4f7cff; margin-bottom:16px; display:block;"></i>
+            <p style="font-size:1.1rem; font-weight:500;">Community Trades</p>
+            <p style="font-size:0.9rem; margin-top:8px; color:#6a7a8a;">Check back soon for live trades from our community!</p>
           </div>
         `;
       }
@@ -2103,7 +2115,7 @@
       }
     });
 
-    console.log('✅ GTRADES-AXIS™ | Live trades feed active - showing only admin-approved public trades');
+    console.log('✅ GTRADES-AXIS™ | Live trades feed active - Admin regulated');
   </script>
 
   <!-- ============================================================ -->
@@ -2257,7 +2269,7 @@
     })();
 
     console.log('%c🚀 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.', 'font-size:16px; font-weight:bold; color:#4f7cff;');
-    console.log('%c✅ Menu, Scroll Top, Carousel, and Live Trades working - showing only admin-approved public trades', 'font-size:13px; color:#00c897;');
+    console.log('%c✅ Admin regulated - Only public:true trades shown', 'font-size:13px; color:#00c897;');
   </script>
 </body>
 </html>
