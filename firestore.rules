@@ -1,0 +1,539 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // GLOBAL FUNCTIONS
+    // ============================================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn()
+        && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == "admin";
+    }
+
+    function isPremium() {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.membership == "premium";
+    }
+
+    function hasPremiumAccess() {
+      return isAdmin() || isPremium();
+    }
+
+
+    // ============================================================
+    // USERS
+    // ============================================================
+
+    match /users/{userId} {
+
+      allow create:
+        if isOwner(userId);
+
+      allow read:
+        if isOwner(userId) || isAdmin();
+
+      allow update:
+        if isAdmin()
+        ||
+        (
+          isOwner(userId)
+          &&
+          request.resource.data.role == resource.data.role
+          &&
+          request.resource.data.membership == resource.data.membership
+        );
+
+      allow delete:
+        if isAdmin();
+
+
+      // ==========================================================
+      // USER TRADES
+      // ==========================================================
+
+      match /trades/{tradeId} {
+
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+
+      // ==========================================================
+      // BACKTEST TRADES
+      // ==========================================================
+
+      match /backtestTrades/{tradeId} {
+
+        allow read:
+          if isOwner(userId) || isAdmin();
+
+        allow create:
+          if isOwner(userId)
+          && request.resource.data.userId == request.auth.uid;
+
+        allow update:
+          if isAdmin()
+          ||
+          (
+            isOwner(userId)
+            &&
+            resource.data.userId == request.auth.uid
+            &&
+            request.resource.data.userId == request.auth.uid
+          );
+
+        allow delete:
+          if isAdmin()
+          ||
+          (
+            isOwner(userId)
+            &&
+            resource.data.userId == request.auth.uid
+          );
+      }
+
+
+      // ==========================================================
+      // JOURNAL ACCOUNTS
+      // ==========================================================
+
+      match /journalAccounts/{accountId} {
+
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+
+        match /trades/{tradeId} {
+
+          allow read, create, update, delete:
+            if isOwner(userId) || isAdmin();
+        }
+      }
+
+
+      // ==========================================================
+      // ACCOUNTS
+      // ==========================================================
+
+      match /accounts/{accountId} {
+
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+
+        match /trades/{tradeId} {
+
+          allow read, create, update, delete:
+            if isOwner(userId) || isAdmin();
+        }
+      }
+
+
+      // ==========================================================
+      // LEGACY TRADING ACCOUNTS
+      // ==========================================================
+
+      match /tradingAccounts/{accountId} {
+
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+
+        match /trades/{tradeId} {
+
+          allow read, create, update, delete:
+            if isOwner(userId) || isAdmin();
+        }
+      }
+    }
+
+
+    // ============================================================
+    // TRADES COLLECTION-GROUP
+    // ============================================================
+    //
+    // IMPORTANT:
+    //
+    // This rule supports:
+    //
+    // collectionGroup(db, "trades")
+    //
+    // used by the ADMIN PANEL.
+    //
+    // It covers every collection named "trades", regardless of
+    // whether it is directly under users or nested under an
+    // account/journalAccounts/tradingAccounts collection.
+    //
+    // ADMIN:
+    //   Can read all trades.
+    //   Can update/delete all trades.
+    //
+    // USERS:
+    //   Can read/update/delete their own trades.
+    //   Can create only their own trades.
+    //
+    // ============================================================
+
+    match /{path=**}/trades/{tradeId} {
+
+      // ----------------------------------------------------------
+      // READ
+      // ----------------------------------------------------------
+
+      // Public website feed: an unauthenticated visitor may read only
+      // trades that have explicitly been approved for public display.
+      // Keep this query-compatible for collectionGroup(db, "trades").
+      allow list:
+        if resource.data.public == true
+        || isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+        );
+
+      allow get:
+        if resource.data.public == true
+        || isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+        );
+
+
+      // ----------------------------------------------------------
+      // CREATE
+      // ----------------------------------------------------------
+
+      allow create:
+        if signedIn()
+        &&
+        request.resource.data.userId == request.auth.uid;
+
+
+      // ----------------------------------------------------------
+      // UPDATE
+      // ----------------------------------------------------------
+
+      allow update:
+        if isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+          &&
+          request.resource.data.userId == request.auth.uid
+        );
+
+
+      // ----------------------------------------------------------
+      // DELETE
+      // ----------------------------------------------------------
+
+      allow delete:
+        if isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+        );
+    }
+
+
+    // ============================================================
+    // BACKTEST TRADES COLLECTION-GROUP
+    // ============================================================
+
+    match /{path=**}/backtestTrades/{tradeId} {
+
+      allow read:
+        if resource.data.public == true
+        || isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+        );
+
+      allow create:
+        if signedIn()
+        &&
+        request.resource.data.userId == request.auth.uid;
+
+      allow update:
+        if isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+          &&
+          request.resource.data.userId == request.auth.uid
+        );
+
+      allow delete:
+        if isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+        );
+    }
+
+
+    // ============================================================
+    // TOP-LEVEL TRADES
+    // ============================================================
+
+    match /trades/{tradeId} {
+
+      // Public trade feed.
+      allow read:
+        if resource.data.public == true;
+
+      // Admin.
+      allow read, create, update, delete:
+        if isAdmin();
+
+      // User creates own trade.
+      allow create:
+        if signedIn()
+        &&
+        request.resource.data.userId == request.auth.uid;
+
+      // User updates own trade.
+      allow update:
+        if signedIn()
+        &&
+        resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.userId == request.auth.uid;
+
+      // User deletes own trade.
+      allow delete:
+        if signedIn()
+        &&
+        resource.data.userId == request.auth.uid;
+    }
+
+
+    // ============================================================
+    // ACADEMY MODULES
+    // ============================================================
+
+    match /academy_modules/{moduleId} {
+
+      allow read:
+        if signedIn();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // FREE RESOURCES
+    // ============================================================
+
+    match /resources/{resourceId} {
+
+      allow read:
+        if signedIn();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // VIDEOS
+    // ============================================================
+
+    match /videos/{videoId} {
+
+      allow read:
+        if hasPremiumAccess();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // PREMIUM RESOURCES
+    // ============================================================
+
+    match /premium_resources/{resourceId} {
+
+      allow read:
+        if hasPremiumAccess();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // PREMIUM VIDEOS
+    // ============================================================
+
+    match /premium_videos/{videoId} {
+
+      allow read:
+        if hasPremiumAccess();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // PREMIUM ACADEMY
+    // ============================================================
+
+    match /premium_academy/{moduleId} {
+
+      allow read:
+        if hasPremiumAccess();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // USER PROGRESS
+    // ============================================================
+
+    match /user_progress/{userId} {
+
+      allow read, write:
+        if isOwner(userId) || isAdmin();
+    }
+
+
+    // ============================================================
+    // ANNOUNCEMENTS
+    // ============================================================
+
+    match /announcements/{announcementId} {
+
+      allow read:
+        if signedIn();
+
+      allow write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // PAYMENTS
+    // ============================================================
+
+    match /payments/{paymentId} {
+
+      allow create:
+        if signedIn()
+        &&
+        (
+          (
+            request.resource.data.userId != null
+            &&
+            request.resource.data.userId == request.auth.uid
+          )
+          ||
+          (
+            request.resource.data.uid != null
+            &&
+            request.resource.data.uid == request.auth.uid
+          )
+        );
+
+      allow read:
+        if isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          (
+            (
+              resource.data.userId != null
+              &&
+              resource.data.userId == request.auth.uid
+            )
+            ||
+            (
+              resource.data.uid != null
+              &&
+              resource.data.uid == request.auth.uid
+            )
+          )
+        );
+
+      allow update, delete:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // PAYMENT LOGS
+    // ============================================================
+
+    match /paymentLogs/{logId} {
+
+      allow create, read:
+        if isAdmin();
+
+      allow update, delete:
+        if false;
+    }
+
+
+    // ============================================================
+    // ADMIN LOGS
+    // ============================================================
+
+    match /admin_logs/{logId} {
+
+      allow read, write:
+        if isAdmin();
+    }
+
+
+    // ============================================================
+    // DEFAULT DENY
+    // ============================================================
+
+    match /{document=**} {
+
+      allow read, write:
+        if false;
+    }
+  }
+}

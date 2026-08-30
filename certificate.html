@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="premium-academy.css">
+  <style>
+    .cert-wrapper { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .cert-container { background: linear-gradient(145deg, #121927, #070b12); border: 2px solid rgba(255,215,0,0.3); border-radius: 20px; padding: 40px; text-align: center; }
+    .cert-container .logo { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #1d9bf0, #00c853); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .cert-container .cert-title { font-size: 2rem; font-weight: 700; color: #ffb300; margin: 16px 0; }
+    .cert-container .name { font-size: 2.2rem; font-weight: 700; color: #fff; margin: 8px 0; }
+    .cert-container .module-name { font-size: 1.4rem; font-weight: 600; color: #fff; margin: 12px 0; }
+    .cert-container .footer { margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; font-size: 0.8rem; color: #64748b; display: flex; justify-content: space-between; align-items: center; }
+    .cert-actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    .btn-gold { background: linear-gradient(135deg, #ffb300, #f57c00); color: #fff; padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+    .btn-gold:hover { opacity: 0.9; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+<div class="academy-container">
+  <aside class="sidebar">
+    <div class="logo"><h2>GTRADES <span>AXIS™</span></h2><p>Premium Academy</p></div>
+    <nav>
+      <ul>
+        <li><i class="fas fa-house"></i> Dashboard</li>
+        <li class="active"><i class="fas fa-book-open"></i> Modules</li>
+        <li><i class="fas fa-folder-open"></i> Resources</li>
+        <li><i class="fas fa-brain"></i> AI Review</li>
+        <li><i class="fas fa-award"></i> Certificates</li>
+        <li><i class="fas fa-user"></i> Profile</li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="content">
+    <header class="topbar">
+      <div><h1>Certificate</h1><p>Congratulations!</p></div>
+      <div class="user-box"><img src="images/avatar.png" alt=""><div><h4>Student</h4><p>Premium Member</p></div></div>
+    </header>
+    <div class="cert-wrapper">
+      <div id="certContainer" class="cert-container">
+        <div class="logo">GTRADES‑AXIS™</div>
+        <div class="cert-title">🏆 Certificate of Completion</div>
+        <div style="color:#aab7c8;">This certifies that</div>
+        <div class="name" id="userName">Loading...</div>
+        <div style="color:#aab7c8;">has successfully completed</div>
+        <div class="module-name" id="moduleTitle">—</div>
+        <div style="color:#64748b; margin-top:12px;" id="issueDate"></div>
+        <div class="footer">
+          <span>Issued by GTRADES-AXIS™ Academy</span>
+          <span id="certId">#GTRADES-001</span>
+        </div>
+      </div>
+      <div class="cert-actions">
+        <button class="btn btn-primary" id="downloadPngBtn"><i class="fas fa-image"></i> Download PNG</button>
+        <button class="btn-gold" id="downloadPdfBtn"><i class="fas fa-file-pdf"></i> Download PDF</button>
+        <a href="/academy" class="btn btn-outline" style="padding:10px 20px;">Back</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/certificate.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "gtrades-axis"
+  },
+  "targets": {
+    "gtrades-axis": {
+      "hosting": {
+        "gtrades-axis": [
+          "gtrades-axis"
+        ]
+      }
+    }
+  }
+}
