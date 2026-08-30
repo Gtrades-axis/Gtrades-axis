@@ -250,26 +250,136 @@
       transform: rotate(-45deg) translate(5px, -5px);
     }
 
-   <!-- ===== MOBILE OVERLAY ===== -->
-<div id="mobileOverlay" class="mobile-overlay">
-  <button class="mobile-close-btn" id="mobileCloseBtn" aria-label="Close menu">
-    <i class="fas fa-times"></i>
-  </button>
-  <div class="mobile-overlay-inner">
-    <ul class="mobile-nav-list">
-      <li><a href="#home" class="mobile-link" data-close>Home</a></li>
-      <li><a href="#about" class="mobile-link" data-close>About</a></li>
-      <li><a href="#academy" class="mobile-link" data-close>Academy</a></li>
-      <li><a href="strategy.html" class="mobile-link" data-close>Strategy</a></li>
-      <li><a href="#community" class="mobile-link" data-close>Community</a></li>
-      <li><a href="#contact" class="mobile-link" data-close>Contact</a></li>
-    </ul>
-    <div class="mobile-actions">
-      <a href="/login" class="mobile-login" id="mobileLoginBtn">Login</a>
-      <a href="/dashboard" class="mobile-dashboard" id="mobileDashboardBtn" style="display:none;">Dashboard</a>
-    </div>
-  </div>
-</div>
+    /* ─── MOBILE OVERLAY ─── */
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(2, 8, 24, 0.97);
+      backdrop-filter: blur(24px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 40px 30px;
+      overflow-y: auto;
+    }
+    .mobile-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-close-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .mobile-close-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(90deg);
+    }
+
+    .mobile-overlay-inner {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      padding: 20px 0;
+    }
+    .mobile-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    .mobile-nav-list li {
+      opacity: 0;
+      transform: translateY(24px) scale(0.95);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-overlay.open .mobile-nav-list li {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .mobile-nav-list li:nth-child(1) { transition-delay: 0.05s; }
+    .mobile-nav-list li:nth-child(2) { transition-delay: 0.10s; }
+    .mobile-nav-list li:nth-child(3) { transition-delay: 0.15s; }
+    .mobile-nav-list li:nth-child(4) { transition-delay: 0.20s; }
+    .mobile-nav-list li:nth-child(5) { transition-delay: 0.25s; }
+    .mobile-nav-list li:nth-child(6) { transition-delay: 0.30s; }
+
+    .mobile-link {
+      display: block;
+      font-size: 34px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.3s;
+    }
+    .mobile-link:hover {
+      color: #fff;
+    }
+
+    .mobile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+    .mobile-overlay.open .mobile-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .mobile-login,
+    .mobile-dashboard {
+      width: 100%;
+      padding: 16px;
+      text-align: center;
+      border-radius: 18px;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      background: transparent;
+      transition: background 0.3s;
+    }
+    .mobile-login:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .mobile-dashboard {
+      background: #fff;
+      color: #000;
+      border: none;
+      font-weight: 600;
+    }
+    .mobile-dashboard:hover {
+      background: #e8e8e8;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+    }
+
     /* ─── RESPONSIVE BREAKPOINT ─── */
     @media (max-width: 1024px) {
       header {
@@ -1452,7 +1562,7 @@
           <li><a href="#home">Home</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#academy">Academy</a></li>
-          <li><a href="strategy.html">Strategy</a></li>
+          <li><a href="/strategy">Strategy</a></li>
           <li><a href="#community">Community</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -1951,131 +2061,5 @@
       }
     });
   </script>
-  <script>
-  // ============================================================
-  // 1. MOBILE MENU TOGGLE (FIXED)
-  // ============================================================
-  (function() {
-    const menuToggle = document.getElementById('menuToggle');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-    const mobileCloseBtn = document.getElementById('mobileCloseBtn');
-    const mobileLinks = document.querySelectorAll('[data-close]');
-
-    function openMenu() {
-      mobileOverlay.classList.add('open');
-      menuToggle.classList.add('active');
-      document.body.classList.add('no-scroll');
-    }
-
-    function closeMenu() {
-      mobileOverlay.classList.remove('open');
-      menuToggle.classList.remove('active');
-      document.body.classList.remove('no-scroll');
-    }
-
-    if (menuToggle) {
-      menuToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (mobileOverlay.classList.contains('open')) {
-          closeMenu();
-        } else {
-          openMenu();
-        }
-      });
-    }
-
-    if (mobileCloseBtn) {
-      mobileCloseBtn.addEventListener('click', closeMenu);
-    }
-
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', closeMenu);
-    });
-
-    // Close on overlay background click
-    if (mobileOverlay) {
-      mobileOverlay.addEventListener('click', function(e) {
-        if (e.target === this) closeMenu();
-      });
-    }
-
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && mobileOverlay.classList.contains('open')) {
-        closeMenu();
-      }
-    });
-  })();
-
-  // ============================================================
-  // 2. SCROLL TO TOP BUTTON
-  // ============================================================
-  (function() {
-    const btn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', function() {
-      if (window.pageYOffset > 600) {
-        btn.classList.add('visible');
-      } else {
-        btn.classList.remove('visible');
-      }
-    });
-    btn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-
-  // ============================================================
-  // 3. LIVE TRADES FEED (FIXED)
-  // ============================================================
-  (function() {
-    const feed = document.getElementById('tradeFeed');
-    if (!feed) return;
-
-    // Check if Firebase is available
-    if (typeof db !== 'undefined') {
-      // Firebase is available - use real data
-      console.log('✅ Firebase connected. Loading live trades...');
-    } else {
-      // Fallback demo data
-      
-      const trades = [
-        { pair: 'XAUUSD', position: 'Buy', rr: 8, outcome: 'Win', time: '2h ago' },
-        { pair: 'EURUSD', position: 'Sell', rr: 8, outcome: 'Win', time: '4h ago' },
-        { pair: 'GBPJPY', position: 'Buy', rr: -1, outcome: 'Loss', time: '6h ago' },
-        { pair: 'BTCUSD', position: 'Sell', rr: 6, outcome: 'Partial', time: '12h ago' },
-        { pair: 'GBPUSD', position: 'Buy', rr: 0.00, outcome: 'Breakeven', time: '1d ago' },
-        { pair: 'AUDUSD', position: 'Sell', rr: 3.05, outcome: 'Win', time: '2d ago' },
-        { pair: 'XAUUSD', position: 'Buy', rr: -1, outcome: 'Loss', time: '3d ago' },
-        { pair: 'EURUSD', position: 'Sell', rr: 3, outcome: 'Partials', time: '4d ago' },
-      ];
-
-      // Update stats
-      const countEl = document.getElementById('publicTradesCount');
-      const winEl = document.getElementById('publicWinRate');
-      const rrEl = document.getElementById('publicAvgRR');
-      if (countEl) countEl.textContent = trades.length;
-      const wins = trades.filter(t => t.outcome === 'Win').length;
-      if (winEl) winEl.textContent = Math.round((wins / trades.length) * 100) + '%';
-      const avgRR = trades.reduce((sum, t) => sum + t.rr, 0) / trades.length;
-      if (rrEl) rrEl.textContent = avgRR.toFixed(2) + 'R';
-
-      // Render feed
-      const rows = trades.map(t => {
-        const rrClass = t.rr >= 0 ? 'positive' : 'negative';
-        const sign = t.rr >= 0 ? '+' : '';
-        const outcomeClass = t.outcome === 'Win' ? 'win' : t.outcome === 'Loss' ? 'loss' : 'other';
-        return `<div class="trade-feed-item">
-          <span class="pair">${t.pair}</span>
-          <span class="position">${t.position}</span>
-          <span class="rr ${rrClass}">${sign}${t.rr.toFixed(2)}R</span>
-          <span class="outcome ${outcomeClass}">${t.outcome}</span>
-          <span class="time">${t.time}</span>
-        </div>`;
-      }).join('');
-
-      feed.innerHTML = `<div class="trade-feed-head"><span>Pair</span><span>Position</span><span>RR</span><span>Outcome</span><span class="time-head">When</span></div>${rows}`;
-    }
-  })();
-</script>
 </body>
 </html>
