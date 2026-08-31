@@ -2582,3 +2582,149 @@ background:#5a1010;
 color:#ff5555;
 
 }
+/* ==========================================================
+   ADMIN MEMBERS — LAYOUT COMPATIBILITY FIX
+   ========================================================== */
+
+/* Main content used by admin-members.html */
+.main-content {
+    margin-left: 270px;
+    width: calc(100% - 270px);
+    min-width: 0;
+    padding: 35px;
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   SIDEBAR COMPATIBILITY
+   HTML uses <ul> directly inside .sidebar
+   ========================================================== */
+
+.sidebar > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar > ul li {
+    list-style: none;
+    margin-bottom: 8px;
+}
+
+.sidebar > ul li a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 18px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 14px;
+    transition: .30s;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.sidebar > ul li a:hover {
+    background: rgba(255,255,255,.08);
+    transform: translateX(5px);
+}
+
+.sidebar > ul li.active a {
+    background: var(--primary);
+}
+
+.sidebar > ul li a i {
+    width: 22px;
+    text-align: center;
+}
+
+/* ==========================================================
+   MEMBERS PAGE
+   ========================================================== */
+
+.main-content .page-header {
+    width: 100%;
+}
+
+.main-content .stats-grid {
+    width: 100%;
+}
+
+.main-content .toolbar {
+    width: 100%;
+}
+
+.main-content .members-grid {
+    width: 100%;
+}
+
+/* ==========================================================
+   DESKTOP MEMBERS GRID
+   ========================================================== */
+
+@media (min-width: 1200px) {
+    .main-content .members-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================================
+   TABLET
+   ========================================================== */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 90px;
+        padding: 20px 10px;
+    }
+
+    .sidebar .logo h2,
+    .sidebar .logo p {
+        display: none;
+    }
+
+    .sidebar > ul li a {
+        justify-content: center;
+        padding: 15px 8px;
+    }
+
+    .sidebar > ul li a i {
+        width: auto;
+    }
+
+    .main-content {
+        margin-left: 90px;
+        width: calc(100% - 90px);
+        padding: 25px;
+    }
+}
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        min-height: auto;
+    }
+
+    .sidebar .logo h2,
+    .sidebar .logo p {
+        display: block;
+    }
+
+    .sidebar > ul li a {
+        justify-content: flex-start;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+}
