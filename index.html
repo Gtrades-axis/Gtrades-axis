@@ -1936,7 +1936,7 @@
     // ============================================================
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged } from "firebase/auth";
-    import { getFirestore, collectionGroup, query, where, onSnapshot } from "firebase/firestore";
+    import { getFirestore, collectionGroup, query, onSnapshot } from "firebase/firestore";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
@@ -2010,7 +2010,7 @@
 
       trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
       
-      // Firestore already returns only admin-approved public trades.
+      // ADMIN REGULATED: ONLY show trades with public: true
       const publicTrades = trades.filter(t => t.public === true);
       const latest = publicTrades.slice(0, 8);
       
@@ -2071,14 +2071,8 @@
       `;
     }
 
-    // PUBLIC HOMEPAGE FEED: query Firestore for approved trades only.
-    // This is intentionally public and does not require the visitor to be logged in.
-    // Filtering in JavaScript after reading ALL trades is NOT allowed because
-    // Firestore rules correctly reject unauthenticated reads of private trades.
-    const allTradesQuery = query(
-      collectionGroup(db, 'trades'),
-      where('public', '==', true)
-    );
+    // Get ALL trades, then filter for public:true in JavaScript
+    const allTradesQuery = query(collectionGroup(db, 'trades'));
 
     onSnapshot(allTradesQuery, renderPublicTrades, (error) => {
       // User-friendly message - NO technical errors shown
@@ -2276,7 +2270,7 @@
     })();
 
     console.log('%c🚀 GTRADES-AXIS™ | Trade with Structure. Execute with Precision.', 'font-size:16px; font-weight:bold; color:#4f7cff;');
-    console.log('%c✅ Public community feed connected - only admin-approved public:true trades are readable', 'font-size:13px; color:#00c897;');
+    console.log('%c✅ Admin regulated - Only public:true trades shown', 'font-size:13px; color:#00c897;');
   </script>
 </body>
 </html>
