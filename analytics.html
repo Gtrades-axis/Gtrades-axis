@@ -154,7 +154,7 @@
         @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .stat-card { padding: 18px; } .stat-card h1 { font-size: 24px; } .coach-insights { grid-template-columns: 1fr 1fr; } .page-header { flex-direction: column; align-items: flex-start; gap: 16px; } .header-actions { width: 100%; } .header-actions .btn { flex: 1; justify-content: center; } }
         @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr 1fr; } .coach-insights { grid-template-columns: 1fr; } .ai-coach-container { padding: 18px 16px; } .coach-avatar { width: 40px; height: 40px; font-size: 18px; } .ai-coach-header h2 { font-size: 18px; } }
     </style>
-    <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
 
@@ -239,6 +239,7 @@
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-list"></i></div><h3>Total Trades</h3><h1 id="totalTrades">0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-percent"></i></div><h3>Win Rate</h3><h1 id="winRate" class="value-positive">0%</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div><h3>Average RR</h3><h1 id="averageRR">0.0</h1></div>
+                <div class="stat-card current-balance-card"><div class="stat-icon"><i class="fa-solid fa-scale-balanced"></i></div><h3>Current Balance</h3><h1 id="currentBalance">$0.00</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div><h3>Net Profit</h3><h1 id="netProfit" class="value-positive">$0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div><h3>Profit Factor</h3><h1 id="profitFactor">0.0</h1></div>
                 <div class="stat-card"><div class="stat-icon"><i class="fa-solid fa-arrow-right"></i></div><h3>Expectancy</h3><h1 id="expectancy" class="value-neutral">$0</h1></div>
@@ -280,6 +281,9 @@
 <script type="module">
 import { initPremiumLock } from './js/premium-lock.js';
 import { logoutUser } from './js/auth.js';
+import { auth, db } from './js/firebase.js';
+import { collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js';
 
 /* =========================================================
    GTRADES-AXIS™ ANALYTICS
@@ -302,6 +306,7 @@ let accounts = {};
 let charts = {};
 
 let selectedAccountId = "all";
+let currentUser = null;
 
 /* =========================================================
    HELPERS
@@ -456,260 +461,40 @@ function findAccountsStorageKey() {
    LOAD ACCOUNTS
 ========================================================= */
 
-function loadAccounts() {
-
-    const key = findAccountsStorageKey();
-
-    try {
-
-        const raw = localStorage.getItem(key);
-
-        if (!raw) {
-
-            accounts = {};
-
-            return;
-
-        }
-
-        const parsed = JSON.parse(raw);
-
-        /*
-         * Journal normally stores accounts as an object.
-         */
-        if (
-            parsed &&
-            typeof parsed === "object" &&
-            !Array.isArray(parsed)
-        ) {
-
-            accounts = parsed;
-
-        } else if (Array.isArray(parsed)) {
-
-            accounts = {};
-
-            parsed.forEach(account => {
-
-                if (!account) return;
-
-                const id =
-                    account.id ||
-                    account.accountId ||
-                    crypto.randomUUID();
-
-                accounts[id] = {
-                    ...account,
-                    id
-                };
-
-            });
-
-        } else {
-
-            accounts = {};
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Analytics account loading error:",
-            error
-        );
-
-        accounts = {};
-
+function loadAccounts(snapshotData) {
+    accounts = {};
+    if (snapshotData && typeof snapshotData === "object") {
+        Object.entries(snapshotData).forEach(([id, account]) => {
+            if (account && typeof account === "object") accounts[id] = { ...account, id };
+        });
     }
-
 }
 
-
-/* =========================================================
-   LOAD TRADES
-========================================================= */
-
-function loadTrades() {
-
-    const key = findTradeStorageKey();
-
-    try {
-
-        const raw = localStorage.getItem(key);
-
-        if (!raw) {
-
-            trades = [];
-
-            return;
-
-        }
-
-        const parsed = JSON.parse(raw);
-
-        trades =
-            Array.isArray(parsed)
-                ? parsed.filter(
-                    trade =>
-                        trade &&
-                        typeof trade === "object"
-                )
-                : [];
-
-    } catch (error) {
-
-        console.error(
-            "Analytics trade loading error:",
-            error
-        );
-
-        trades = [];
-
-    }
-
+function loadTrades(snapshotData) {
+    trades = Array.isArray(snapshotData) ? snapshotData.filter(t => t && typeof t === "object") : [];
+    trades.sort((a,b) => String(b.closed || b.date || b.tradeDate || "").localeCompare(String(a.closed || a.date || a.tradeDate || "")));
 }
 
+function subscribeJournalData() {
+    if (!currentUser) return;
+    const uid = currentUser.uid;
+    const tradesRef = collection(db, "users", uid, "trades");
+    const accountsRef = collection(db, "users", uid, "journalAccounts");
 
-/* =========================================================
-   ACCOUNT SELECTOR
-========================================================= */
+    onSnapshot(accountsRef, (snapshot) => {
+        const data = {};
+        snapshot.forEach(d => data[d.id] = { id: d.id, ...d.data() });
+        loadAccounts(data);
+        populateAccountSelector();
+        refreshAnalytics();
+    }, (error) => console.error("Analytics accounts error:", error));
 
-function createAccountSelector() {
-
-    const header =
-        document.querySelector(".page-header");
-
-    if (!header) return;
-
-    /*
-     * Do not duplicate it.
-     */
-    if (document.getElementById("analyticsAccountFilter")) {
-        return;
-    }
-
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.style.cssText = `
-        display:flex;
-        align-items:center;
-        gap:10px;
-        margin-top:12px;
-        flex-wrap:wrap;
-    `;
-
-    const label =
-        document.createElement("span");
-
-    label.innerHTML =
-        '<i class="fa-solid fa-wallet"></i> Account:';
-
-    label.style.cssText = `
-        color:#8ea2c0;
-        font-size:13px;
-        font-weight:500;
-    `;
-
-    const select =
-        document.createElement("select");
-
-    select.id =
-        "analyticsAccountFilter";
-
-    select.style.cssText = `
-        background:#121b2f;
-        border:1px solid rgba(255,255,255,.08);
-        color:#fff;
-        padding:9px 14px;
-        border-radius:9px;
-        outline:none;
-        font-family:Poppins,sans-serif;
-        min-width:190px;
-    `;
-
-    wrapper.appendChild(label);
-    wrapper.appendChild(select);
-
-    header
-        .querySelector("div:first-child")
-        ?.appendChild(wrapper);
-
-    select.addEventListener(
-        "change",
-        () => {
-
-            selectedAccountId =
-                select.value;
-
-            refreshAnalytics();
-
-        }
-    );
-
-    populateAccountSelector();
-
-}
-
-
-function populateAccountSelector() {
-
-    const select =
-        document.getElementById(
-            "analyticsAccountFilter"
-        );
-
-    if (!select) return;
-
-    const previous =
-        selectedAccountId;
-
-    select.innerHTML = "";
-
-    const allOption =
-        document.createElement("option");
-
-    allOption.value = "all";
-    allOption.textContent = "All Accounts";
-
-    select.appendChild(allOption);
-
-
-    Object.entries(accounts).forEach(
-        ([id, account]) => {
-
-            const option =
-                document.createElement("option");
-
-            option.value = id;
-
-            option.textContent =
-                account.name ||
-                account.accountName ||
-                id;
-
-            select.appendChild(option);
-
-        }
-    );
-
-
-    if (
-        [...select.options]
-            .some(option =>
-                option.value === previous
-            )
-    ) {
-
-        select.value = previous;
-
-    } else {
-
-        selectedAccountId = "all";
-        select.value = "all";
-
-    }
-
+    onSnapshot(tradesRef, (snapshot) => {
+        const data = [];
+        snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
+        loadTrades(data);
+        refreshAnalytics();
+    }, (error) => console.error("Analytics trades error:", error));
 }
 
 
@@ -887,6 +672,11 @@ function calculateStatistics() {
     const total =
         closed.length;
 
+    const currentBalance = selectedAccountId === "all"
+        ? Object.values(accounts).reduce((sum, account) => sum + number(account.currentBalance ?? account.startingBalance), 0)
+        : number(accounts[selectedAccountId]?.currentBalance ?? accounts[selectedAccountId]?.startingBalance);
+    setText("currentBalance", money(currentBalance));
+
     const wins =
         closed.filter(
             trade =>
@@ -957,7 +747,7 @@ function calculateStatistics() {
         closed
             .map(
                 trade =>
-                    number(trade.rr)
+                    number(trade.actualRR ?? trade.rr ?? trade.plannedRR)
             )
             .filter(
                 rr =>
@@ -2391,10 +2181,6 @@ function buildAICoach(stats) {
 
 function refreshAnalytics() {
 
-    loadAccounts();
-
-    loadTrades();
-
     populateAccountSelector();
 
     const stats =
@@ -2493,12 +2279,19 @@ function initAnalytics(userData) {
 
     refreshAnalytics();
 
+    if (currentUser) subscribeJournalData();
+
     console.log(
         "✅ GTRADES-AXIS™ Analytics ready."
     );
 
 }
 
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) subscribeJournalData();
+});
 
 /* =========================================================
    START PREMIUM PROTECTION

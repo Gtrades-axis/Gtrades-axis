@@ -16,6 +16,8 @@ import {
   getDoc,
   updateDoc,
   serverTimestamp,
+  collection,
+  onSnapshot,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ─── DOM REFS ──────────────────────────────────────────────
@@ -40,6 +42,7 @@ const upgradeBtn = document.getElementById("upgradeBtn");
 const totalTrades = document.getElementById("totalTrades");
 const winRate = document.getElementById("winRate");
 const profit = document.getElementById("profit");
+const currentBalance = document.getElementById("currentBalance");
 const rrAverage = document.getElementById("rrAverage");
 const currentStreak = document.getElementById("currentStreak");
 const profitFactor = document.getElementById("profitFactor");
@@ -81,6 +84,10 @@ const downloadDataBtn = document.getElementById("downloadDataBtn");
 
 let currentUser = null;
 let currentUserData = null;
+let journalTrades = [];
+let journalAccounts = {};
+let tradesUnsubscribe = null;
+let accountsUnsubscribe = null;
 
 // ─── AUTH ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -90,7 +97,10 @@ onAuthStateChanged(auth, async (user) => {
   }
   currentUser = user;
   await loadProfile();
-  loadAllStats();
+  subscribeJournalData();
+  loadAcademy();
+  loadAIReview();
+  loadPsychology();
 });
 
 // ─── LOAD PROFILE ──────────────────────────────────────────
@@ -163,182 +173,74 @@ function updateMembershipCard(user) {
   upgradeBtn.style.display = "inline-flex";
 }
 
-// ─── LOAD TRADING STATISTICS ──────────────────────────────
-function loadTradingStatistics() {
-  const saved = localStorage.getItem("trades");
-  if (!saved) {
-    resetStatistics();
-    return;
-  }
-  try {
-    const trades = JSON.parse(saved);
-    calculateStatistics(trades);
-  } catch (e) {
-    resetStatistics();
-  }
+// ─── JOURNAL DATA (SAME FIRESTORE SOURCE AS JOURNAL) ────────
+function normalizeTrade(trade) {
+  const t = trade || {};
+  const pnl = Number(t.profit ?? t.pnl ?? 0) || 0;
+  let result = String(t.result ?? t.outcome ?? "").trim().toLowerCase();
+  if (result === "break even" || result === "break-even" || result === "breakeven") result = "breakeven";
+  if (!result) result = pnl > 0 ? "win" : pnl < 0 ? "loss" : "breakeven";
+  let rr = Number(t.actualRR);
+  if (!Number.isFinite(rr)) rr = Number(t.rr);
+  if (!Number.isFinite(rr)) rr = Number(t.plannedRR);
+  if (!Number.isFinite(rr)) rr = 0;
+  return { ...t, profit: pnl, result, actualRR: rr, rr };
+}
+
+function subscribeJournalData() {
+  if (!currentUser) return;
+  if (tradesUnsubscribe) tradesUnsubscribe();
+  if (accountsUnsubscribe) accountsUnsubscribe();
+
+  const tradesRef = collection(db, "users", currentUser.uid, "trades");
+  const accountsRef = collection(db, "users", currentUser.uid, "journalAccounts");
+
+  tradesUnsubscribe = onSnapshot(tradesRef, (snapshot) => {
+    journalTrades = [];
+    snapshot.forEach(snap => journalTrades.push(normalizeTrade({ id: snap.id, ...snap.data() })));
+    journalTrades.sort((a,b) => String(b.closed || b.date || b.tradeDate || "").localeCompare(String(a.closed || a.date || a.tradeDate || "")));
+    calculateStatistics(journalTrades);
+    loadJournalSummary(journalTrades);
+    unlockAchievements(journalTrades);
+  }, (error) => console.error("Profile trades error:", error));
+
+  accountsUnsubscribe = onSnapshot(accountsRef, (snapshot) => {
+    journalAccounts = {};
+    snapshot.forEach(snap => journalAccounts[snap.id] = { id: snap.id, ...snap.data() });
+    const balance = Object.values(journalAccounts).reduce((sum, a) => sum + Number(a.currentBalance ?? a.startingBalance ?? 0), 0);
+    if (currentBalance) currentBalance.textContent = "$" + balance.toFixed(2);
+  }, (error) => console.error("Profile accounts error:", error));
 }
 
 // ─── CALCULATE STATISTICS ──────────────────────────────────
 function calculateStatistics(trades) {
-  if (!trades || trades.length === 0) {
-    resetStatistics();
-    return;
-  }
-
-  let wins = 0,
-    losses = 0;
-  let totalProfit = 0;
-  let grossProfit = 0,
-    grossLoss = 0;
-  let rrTotal = 0;
-  let largestRRTrade = 0;
-  let best = -Infinity,
-    worst = Infinity;
-  let winTotal = 0,
-    lossTotal = 0;
-  let streak = 0,
-    maxStreak = 0;
-
-  trades.forEach((trade) => {
-    const pnl = Number(trade.profit) || 0;
-    const rr = Number(trade.rr) || 0;
-
-    totalProfit += pnl;
-    rrTotal += rr;
-
-    if (rr > largestRRTrade) largestRRTrade = rr;
-    if (pnl > best) best = pnl;
-    if (pnl < worst) worst = pnl;
-
-    if (pnl > 0) {
-      wins++;
-      grossProfit += pnl;
-      winTotal += pnl;
-      streak++;
-      if (streak > maxStreak) maxStreak = streak;
-    } else if (pnl < 0) {
-      losses++;
-      grossLoss += Math.abs(pnl);
-      lossTotal += Math.abs(pnl);
-      streak = 0;
-    }
+  if (!trades || trades.length === 0) { resetStatistics(); return; }
+  let wins=0, losses=0, totalProfit=0, grossProfit=0, grossLoss=0, rrTotal=0, largestRRTrade=0, best=-Infinity, worst=Infinity, winTotal=0, lossTotal=0, streak=0, maxStreak=0;
+  trades.forEach(raw => {
+    const trade = normalizeTrade(raw), pnl = trade.profit, rr = trade.actualRR;
+    totalProfit += pnl; rrTotal += rr; if (rr > largestRRTrade) largestRRTrade = rr; if (pnl > best) best=pnl; if (pnl < worst) worst=pnl;
+    if (trade.result === "win" || pnl > 0) { wins++; grossProfit += Math.max(0,pnl); winTotal += Math.max(0,pnl); streak++; maxStreak=Math.max(maxStreak,streak); }
+    else if (trade.result === "loss" || pnl < 0) { losses++; grossLoss += Math.abs(Math.min(0,pnl)); lossTotal += Math.abs(Math.min(0,pnl)); streak=0; }
+    else streak=0;
   });
-
-  totalTrades.textContent = trades.length;
-  profit.textContent = "$" + totalProfit.toFixed(2);
-  winRate.textContent = ((wins / trades.length) * 100).toFixed(1) + "%";
-  rrAverage.textContent = (rrTotal / trades.length).toFixed(2);
-  currentStreak.textContent = maxStreak;
-
-  if (grossLoss === 0) {
-    profitFactor.textContent = grossProfit.toFixed(2);
-  } else {
-    profitFactor.textContent = (grossProfit / grossLoss).toFixed(2);
-  }
-
-  bestTrade.textContent = best === -Infinity ? "$0.00" : "$" + best.toFixed(2);
-  worstTrade.textContent = worst === Infinity ? "$0.00" : "$" + worst.toFixed(2);
-
-  avgWin.textContent = wins === 0 ? "$0.00" : "$" + (winTotal / wins).toFixed(2);
-  avgLoss.textContent = losses === 0 ? "$0.00" : "$" + (lossTotal / losses).toFixed(2);
-  largestRR.textContent = largestRRTrade.toFixed(2) + "R";
-  expectancy.textContent = (totalProfit / trades.length).toFixed(2);
-
-  profit.style.color = totalProfit >= 0 ? "#16c784" : "#ea3943";
+  if (totalTrades) totalTrades.textContent=trades.length;
+  if (profit) profit.textContent="$"+totalProfit.toFixed(2);
+  const decisive=wins+losses;
+  if (winRate) winRate.textContent=(decisive ? wins/decisive*100 : 0).toFixed(1)+"%";
+  if (rrAverage) rrAverage.textContent=(rrTotal/trades.length).toFixed(2);
+  if (currentStreak) currentStreak.textContent=maxStreak;
+  if (profitFactor) profitFactor.textContent=(grossLoss ? grossProfit/grossLoss : grossProfit).toFixed(2);
+  if (bestTrade) bestTrade.textContent=best===-Infinity?"$0.00":"$"+best.toFixed(2);
+  if (worstTrade) worstTrade.textContent=worst===Infinity?"$0.00":"$"+worst.toFixed(2);
+  if (avgWin) avgWin.textContent=wins?"$"+(winTotal/wins).toFixed(2):"$0.00";
+  if (avgLoss) avgLoss.textContent=losses?"$"+(lossTotal/losses).toFixed(2):"$0.00";
+  if (largestRR) largestRR.textContent=largestRRTrade.toFixed(2)+"R";
+  if (expectancy) expectancy.textContent=(totalProfit/trades.length).toFixed(2);
 }
 
 function resetStatistics() {
-  totalTrades.textContent = "0";
-  winRate.textContent = "0%";
-  profit.textContent = "$0.00";
-  rrAverage.textContent = "0.00";
-  currentStreak.textContent = "0";
-  profitFactor.textContent = "0.00";
-  bestTrade.textContent = "$0.00";
-  worstTrade.textContent = "$0.00";
-  avgWin.textContent = "$0.00";
-  avgLoss.textContent = "$0.00";
-  largestRR.textContent = "0R";
-  expectancy.textContent = "0";
+  if (totalTrades) totalTrades.textContent="0"; if (winRate) winRate.textContent="0%"; if (profit) profit.textContent="$0.00"; if (rrAverage) rrAverage.textContent="0.00"; if (currentStreak) currentStreak.textContent="0"; if (profitFactor) profitFactor.textContent="0.00"; if (bestTrade) bestTrade.textContent="$0.00"; if (worstTrade) worstTrade.textContent="$0.00"; if (avgWin) avgWin.textContent="$0.00"; if (avgLoss) avgLoss.textContent="$0.00"; if (largestRR) largestRR.textContent="0R"; if (expectancy) expectancy.textContent="0.00";
 }
-
-// ─── LOAD GOALS ──────────────────────────────────────────────
-function loadGoals(user) {
-  if (!user) return;
-  dailyGoal.value = user.dailyGoal || "";
-  weeklyGoal.value = user.weeklyGoal || "";
-  monthlyGoal.value = user.monthlyGoal || "";
-  riskTrade.value = user.riskTrade || "";
-  maxLoss.value = user.maxLoss || "";
-}
-
-// ─── SAVE GOALS ──────────────────────────────────────────────
-saveGoals?.addEventListener("click", async () => {
-  if (!currentUser) return;
-  try {
-    await updateDoc(doc(db, "users", currentUser.uid), {
-      dailyGoal: Number(dailyGoal.value) || 0,
-      weeklyGoal: Number(weeklyGoal.value) || 0,
-      monthlyGoal: Number(monthlyGoal.value) || 0,
-      riskTrade: Number(riskTrade.value) || 0,
-      maxLoss: Number(maxLoss.value) || 0,
-    });
-    currentUserData.dailyGoal = Number(dailyGoal.value) || 0;
-    currentUserData.weeklyGoal = Number(weeklyGoal.value) || 0;
-    currentUserData.monthlyGoal = Number(monthlyGoal.value) || 0;
-    currentUserData.riskTrade = Number(riskTrade.value) || 0;
-    currentUserData.maxLoss = Number(maxLoss.value) || 0;
-
-    saveGoals.innerHTML = '<i class="fa-solid fa-check"></i> Goals Saved';
-    saveGoals.style.background = "#16c784";
-    setTimeout(() => {
-      saveGoals.innerHTML = "Save Goals";
-      saveGoals.style.background = "#0094ff";
-    }, 2000);
-  } catch (error) {
-    console.error(error);
-    alert("Failed to save goals.");
-  }
-});
-
-// ─── EDIT PROFILE ──────────────────────────────────────────
-document.getElementById("editProfileBtn")?.addEventListener("click", async () => {
-  if (!currentUser) {
-    alert("Please login first.");
-    return;
-  }
-
-  const currentName = currentUserData?.name || "";
-  const newName = prompt("Enter your full name:", currentName);
-
-  if (newName === null) return; // User cancelled
-
-  const trimmedName = newName.trim();
-  if (!trimmedName) {
-    alert("Name cannot be empty.");
-    return;
-  }
-
-  try {
-    // Update Firebase Auth profile
-    await updateProfile(currentUser, { displayName: trimmedName });
-
-    // Update Firestore
-    await updateDoc(doc(db, "users", currentUser.uid), {
-      name: trimmedName,
-      updatedAt: serverTimestamp(),
-    });
-
-    // Update local data
-    currentUserData.name = trimmedName;
-    populateProfile(currentUserData);
-
-    alert("✅ Profile updated successfully!");
-  } catch (error) {
-    console.error("Edit profile error:", error);
-    alert("Failed to update profile: " + error.message);
-  }
-});
 
 // ─── CHANGE PASSWORD ──────────────────────────────────────
 document.getElementById("changePasswordBtn")?.addEventListener("click", async () => {
@@ -405,32 +307,20 @@ document.getElementById("changePasswordBtn")?.addEventListener("click", async ()
 });
 
 // ─── JOURNAL SUMMARY ──────────────────────────────────────
-function loadJournalSummary() {
-  const saved = localStorage.getItem("trades");
-  const trades = saved ? JSON.parse(saved) : [];
-  journalEntries.textContent = trades.length;
-
-  let wins = 0,
-    losses = 0,
-    rrSum = 0;
-  trades.forEach((t) => {
-    const pnl = Number(t.profit) || 0;
-    const rr = Number(t.rr) || 0;
-    rrSum += rr;
-    if (pnl > 0) wins++;
-    else if (pnl < 0) losses++;
-  });
-  journalWins.textContent = wins;
-  journalLosses.textContent = losses;
-  journalRR.textContent = trades.length ? (rrSum / trades.length).toFixed(2) + "R" : "0R";
+function loadJournalSummary(trades = journalTrades) {
+  const data = trades.map(normalizeTrade);
+  if (journalEntries) journalEntries.textContent=data.length;
+  let wins=0, losses=0, rrSum=0;
+  data.forEach(t=>{ rrSum+=t.actualRR; if(t.result==="win"||t.profit>0) wins++; else if(t.result==="loss"||t.profit<0) losses++; });
+  if (journalWins) journalWins.textContent=wins; if (journalLosses) journalLosses.textContent=losses; if (journalRR) journalRR.textContent=data.length?(rrSum/data.length).toFixed(2)+"R":"0R";
 }
 
 // ─── ACHIEVEMENTS ──────────────────────────────────────────
-function unlockAchievements() {
-  const trades = JSON.parse(localStorage.getItem("trades") || "[]");
+function unlockAchievements(trades = journalTrades) {
+  const data = trades || [];
   const achievements = document.querySelectorAll(".achievement");
-  if (trades.length > 0) achievements[0]?.classList.add("unlocked");
-  if (trades.length >= 100) achievements[2]?.classList.add("unlocked");
+  if (data.length > 0) achievements[0]?.classList.add("unlocked");
+  if (data.length >= 100) achievements[2]?.classList.add("unlocked");
 }
 
 // ─── ACADEMY PROGRESS ──────────────────────────────────────
@@ -484,7 +374,7 @@ function loadPsychology() {
 downloadDataBtn?.addEventListener("click", () => {
   const data = {
     profile: currentUserData,
-    trades: JSON.parse(localStorage.getItem("trades") || "[]"),
+    trades: journalTrades.map(normalizeTrade),
     goals: {
       daily: dailyGoal.value,
       weekly: weeklyGoal.value,
@@ -522,9 +412,9 @@ if (savedPhoto) profileImage.src = savedPhoto;
 
 // ─── LOAD ALL STATS ──────────────────────────────────────────
 function loadAllStats() {
-  loadTradingStatistics();
-  loadJournalSummary();
-  unlockAchievements();
+  calculateStatistics(journalTrades);
+  loadJournalSummary(journalTrades);
+  unlockAchievements(journalTrades);
   loadAcademy();
   loadAIReview();
   loadPsychology();
