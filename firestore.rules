@@ -168,25 +168,6 @@ service cloud.firestore {
 
 
     // ============================================================
-    // PUBLIC USER JOURNAL TRADES
-    // ============================================================
-    // This explicit path makes public trades readable without login
-    // while keeping private journal records protected.
-    match /users/{userId}/trades/{tradeId} {
-      allow read:
-        if resource.data.public == true
-        || isAdmin()
-        || (signedIn() && request.auth.uid == userId);
-
-      allow create:
-        if signedIn() && request.auth.uid == userId;
-
-      allow update, delete:
-        if isAdmin() || (signedIn() && request.auth.uid == userId);
-    }
-
-
-    // ============================================================
     // TRADES COLLECTION-GROUP
     // ============================================================
     //
@@ -221,11 +202,17 @@ service cloud.firestore {
       // Public website feed: an unauthenticated visitor may read only
       // trades that have explicitly been approved for public display.
       // Keep this query-compatible for collectionGroup(db, "trades").
-      // `read` covers both single-document reads and queries, including
-      // collectionGroup(db, "trades"). The public homepage query includes
-      // where("public", "==", true), so anonymous visitors can only receive
-      // explicitly approved public trades.
-      allow read:
+      allow list:
+        if resource.data.public == true
+        || isAdmin()
+        ||
+        (
+          signedIn()
+          &&
+          resource.data.userId == request.auth.uid
+        );
+
+      allow get:
         if resource.data.public == true
         || isAdmin()
         ||

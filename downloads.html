@@ -1,2 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Resources | GTRADES-AXIS™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    /* ── Reset & Sidebar (same as before, but with lock styles) ── */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0a0e17; color:#e2e8f0; padding:6px; }
+    .dashboard-container { display:flex; min-height:100vh; }
+    .sidebar { width:200px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.06); padding:14px 10px; flex-shrink:0; }
+    .sidebar .logo { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+    .sidebar .logo img { width:32px; }
+    .sidebar .logo h2 { font-size:1rem; color:#f1f5f9; }
+    .sidebar .logo h2 span { background:linear-gradient(135deg,#0f8cff,#00c853); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .sidebar nav a { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; color:#94a3b8; text-decoration:none; font-size:0.8rem; font-weight:500; transition:0.2s; }
+    .sidebar nav a:hover { background:rgba(255,255,255,0.05); color:#e2e8f0; }
+    .sidebar nav a.active { background:rgba(15,140,255,0.12); color:#0f8cff; border-left:3px solid #0f8cff; }
+    .main-content { flex:1; padding:12px 16px 24px; }
 
-<script type="module" src="js/auth.js"></script>
+    /* ── Lock Overlay ── */
+    #lockOverlay {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    #lockOverlay .lock-icon {
+      font-size: 4rem;
+      color: #f5a623;
+      background: rgba(245, 166, 35, 0.15);
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+    }
+    #lockOverlay h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+    #lockOverlay .subtitle { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto 32px; line-height: 1.6; }
+    #lockOverlay .feature-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; text-align: left; margin: 0 auto 36px; max-width: 480px; }
+    #lockOverlay .feature-list .feature-item { display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 0.95rem; }
+    #lockOverlay .feature-list .feature-item i { color: #00c897; font-size: 1.1rem; width: 20px; text-align: center; }
+    #lockOverlay .lock-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    #lockOverlay .lock-buttons a { display: inline-block; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.25s; }
+    #lockOverlay .lock-buttons .btn-upgrade { background: linear-gradient(135deg, #f5a623, #f7c948); color: #0b0d15; }
+    #lockOverlay .lock-buttons .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3); }
+    #lockOverlay .lock-buttons .btn-dashboard { background: #1a1f2f; color: #94a3b8; border: 1px solid #2a3450; }
+    #lockOverlay .lock-buttons .btn-dashboard:hover { background: #2a3450; color: #fff; }
+    .locked-content { display: block; }
+    .locked .locked-content { display: none; }
+    .locked #lockOverlay { display: block; }
+
+    /* ── Original resource styles ── */
+    .page-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:8px; flex-wrap:wrap; gap:6px; }
+    .page-header h1 { font-size:1.2rem; font-weight:700; background:linear-gradient(135deg,#f1f5f9,#94a3b8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .page-header p { color:#94a3b8; font-size:0.75rem; }
+    .header-actions .btn { padding:4px 10px; border-radius:6px; border:none; background:rgba(255,255,255,0.05); color:#94a3b8; text-decoration:none; font-weight:500; font-size:0.7rem; transition:0.2s; display:inline-flex; align-items:center; gap:4px; }
+    .header-actions .btn:hover { background:rgba(255,255,255,0.1); color:#f1f5f9; }
+    .resource-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin-top:8px; }
+    .resource-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; transition:0.2s; text-align:center; }
+    .resource-card:hover { border-color:rgba(15,140,255,0.25); background:rgba(255,255,255,0.06); transform:translateY(-2px); }
+    .resource-card .icon { font-size:2.2rem; color:#0f8cff; margin-bottom:6px; }
+    .resource-card .title { font-size:0.9rem; font-weight:600; color:#f1f5f9; margin-bottom:4px; }
+    .resource-card .desc { font-size:0.7rem; color:#94a3b8; margin-bottom:8px; }
+    .resource-card .btn-download { padding:4px 14px; background:rgba(15,140,255,0.12); color:#0f8cff; border:none; border-radius:6px; font-size:0.7rem; cursor:pointer; transition:0.2s; text-decoration:none; display:inline-block; }
+    .resource-card .btn-download:hover { background:rgba(15,140,255,0.25); }
+    .category-tag { display:inline-block; font-size:0.55rem; padding:1px 8px; border-radius:4px; background:rgba(255,255,255,0.05); color:#94a3b8; margin-bottom:4px; }
+    #scrollTopBtn { position:fixed; bottom:16px; right:16px; z-index:999; width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,#0f8cff,#00c853); color:#fff; font-size:0.9rem; cursor:pointer; box-shadow:0 2px 12px rgba(15,140,255,0.3); transition:all 0.3s ease; opacity:0; visibility:hidden; transform:translateY(12px); }
+    #scrollTopBtn.visible { opacity:1; visibility:visible; transform:translateY(0); }
+    @media (max-width:768px){ .sidebar{display:none;} .main-content{padding:8px;} .resource-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));} }
+  </style>
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="logo"><img src="images/logo.png" alt="Logo"><h2>GTRADES <span>AXIS™</span></h2></div>
+    <nav>
+      <a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a>
+      <a href="/academy"><i class="fa-solid fa-graduation-cap"></i> Academy</a>
+      <a class="active" href="/premium-resources"><i class="fa-solid fa-folder-open"></i> Premium Resources</a>
+      <a href="/videos"><i class="fa-solid fa-video"></i> Videos</a>
+      <a href="/journal"><i class="fa-solid fa-book"></i> Journal</a>
+      <a href="/analytics"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+      <a href="/history"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+      <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+    </nav>
+    <button id="logoutBtn" style="background:none;border:none;color:#ff4d4f;cursor:pointer;margin-top:20px;text-align:left;font-size:0.8rem;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </aside>
+  <main class="main-content">
+    <div id="app">
+      <!-- LOCK OVERLAY -->
+      <div id="lockOverlay">
+        <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
+        <h2>Premium Members Only</h2>
+        <p class="subtitle">
+          This feature is available exclusively to GTRADES-AXIS™ Premium Members.
+          Upgrade your membership to unlock advanced trading tools and educational content.
+        </p>
+        <div class="feature-list">
+          <div class="feature-item"><i class="fa-solid fa-check"></i> Professional Trading Journal</div>
+          <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Trading Academy</div>
+          <div class="feature-item"><i class="fa-solid fa-check"></i> AI Trade Review</div>
+          <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Resources</div>
+          <div class="feature-item"><i class="fa-solid fa-check"></i> Private Videos</div>
+        </div>
+        <div class="lock-buttons">
+          <a href="/upgrade" class="btn-upgrade">Upgrade Membership</a>
+          <a href="/dashboard" class="btn-dashboard">Back to Dashboard</a>
+        </div>
+      </div>
+
+      <!-- RESOURCES CONTENT -->
+      <div class="locked-content">
+        <div class="page-header">
+          <div><h1><i class="fa-solid fa-folder-open"></i> Premium Resources</h1><p>Download tools, templates, and guides to enhance your trading.</p></div>
+          <div class="header-actions"><span id="userRole" style="font-size:0.7rem;color:#94a3b8;margin-right:6px;"></span><a href="/dashboard" class="btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
+        </div>
+        <div id="resourcesContainer" class="resource-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">Loading resources...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<button id="scrollTopBtn" title="Go to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+<script type="importmap">
+  {
+    "imports": {
+      "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
+    }
+  }
+</script>
+<script type="module">
+  import { initPremiumLock } from './js/premium-lock.js';
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+  import { db } from './js/firebase.js';
+  import { logoutUser } from './js/auth.js';
+
+  // Logout button
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    if (confirm('Logout?')) {
+      await logoutUser();
+    }
+  });
+
+  // This runs when unlocked
+  function initResources(userData) {
+    console.log('✅ Resources unlocked – loading resources...');
+    const container = document.getElementById('resourcesContainer');
+
+    // Static resources (example)
+    const resources = [
+      { title: 'Trading Plan Template', desc: 'Structure your trading plan in 30 minutes.', icon: 'fa-file-pdf', url: '#' },
+      { title: 'Journal Spreadsheet', desc: 'Track every trade with precision.', icon: 'fa-table', url: '#' },
+      { title: 'Risk Management Calculator', desc: 'Optimize your position sizing.', icon: 'fa-calculator', url: '#' },
+      { title: 'Market Structure Checklist', desc: 'Evaluate HTF/MTF/LTF alignment.', icon: 'fa-list-check', url: '#' },
+    ];
+
+    container.innerHTML = resources.map(r => `
+      <div class="resource-card">
+        <div class="icon"><i class="fa-solid ${r.icon}"></i></div>
+        <div class="title">${r.title}</div>
+        <div class="desc">${r.desc}</div>
+        <a href="${r.url}" class="btn-download" download>Download</a>
+      </div>
+    `).join('');
+  }
+
+  initPremiumLock('app', initResources);
+</script>
+</body>
+</html>

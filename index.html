@@ -1936,7 +1936,7 @@
     // ============================================================
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged } from "firebase/auth";
-    import { getFirestore, collectionGroup, query, where, onSnapshot } from "firebase/firestore";
+    import { getFirestore, collectionGroup, query, onSnapshot } from "firebase/firestore";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
@@ -1992,7 +1992,7 @@
       
       const closed = trades.filter(t => normalizeOutcome(t.result || t.outcome || t.status) !== 'Pending');
       const wins = closed.filter(t => normalizeOutcome(t.result || t.outcome || t.status) === 'Win').length;
-      const rrValues = trades.map(t => { const v = Number(t.actualRR); return Number.isFinite(v) ? v : Number(t.rr); }).filter(Number.isFinite);
+      const rrValues = trades.map(t => Number(t.rr)).filter(Number.isFinite);
       const avgRR = rrValues.length ? rrValues.reduce((a,b) => a+b, 0) / rrValues.length : 0;
       
       if (countEl) countEl.textContent = String(trades.length);
@@ -2028,7 +2028,7 @@
       }
 
       const rows = latest.map(t => {
-        const rr = Number.isFinite(Number(t.actualRR)) ? Number(t.actualRR) : Number(t.rr);
+        const rr = Number(t.rr);
         const safeRR = Number.isFinite(rr) ? rr : 0;
         const rrClass = safeRR >= 0 ? 'positive' : 'negative';
         const sign = safeRR >= 0 ? '+' : '';
@@ -2057,8 +2057,8 @@
     }
 
     // ============================================================
-    // LISTEN ONLY FOR ADMIN-APPROVED PUBLIC TRADES
-    // This query is safe for anonymous homepage visitors.
+    // LISTEN FOR ALL TRADES - FILTER FOR PUBLIC IN JAVASCRIPT
+    // ADMIN REGULATED - NO INDEX NEEDED
     // ============================================================
     console.log('🔍 Connecting to trade feed...');
 
@@ -2071,11 +2071,8 @@
       `;
     }
 
-    // Read only admin-approved public trades. Firestore rules require the query to match public:true.
-    const allTradesQuery = query(
-      collectionGroup(db, 'trades'),
-      where('public', '==', true)
-    );
+    // Get ALL trades, then filter for public:true in JavaScript
+    const allTradesQuery = query(collectionGroup(db, 'trades'));
 
     onSnapshot(allTradesQuery, renderPublicTrades, (error) => {
       // User-friendly message - NO technical errors shown
