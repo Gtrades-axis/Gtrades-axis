@@ -1936,7 +1936,7 @@
     // ============================================================
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged } from "firebase/auth";
-    import { getFirestore, collectionGroup, query, onSnapshot } from "firebase/firestore";
+    import { getFirestore, collectionGroup, query, where, onSnapshot } from "firebase/firestore";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZmsLm64PyEL9jifi32bpgvWfhluIWCZM",
@@ -2072,9 +2072,12 @@
     }
 
     // Get ALL trades, then filter for public:true in JavaScript
-    const allTradesQuery = query(collectionGroup(db, 'trades'));
+    const publicTradesQuery = query(
+      collectionGroup(db, 'trades'),
+      where('public', '==', true)
+    );
 
-    onSnapshot(allTradesQuery, renderPublicTrades, (error) => {
+    onSnapshot(publicTradesQuery, renderPublicTrades, (error) => {
       // User-friendly message - NO technical errors shown
       console.error('❌ Trades listener failed:', error);
       if (tradeFeed) {
