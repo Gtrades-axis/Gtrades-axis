@@ -104,6 +104,106 @@ function getContentType(object, key) {
   );
 }
 
+
+
+// ============================================================
+// R2 MULTIPART UPLOADS
+// Large files are uploaded in <= 50 MiB requests so the browser
+// never sends the entire video through one Cloudflare request.
+// ============================================================
+const MULTIPART_CHUNK_SIZE = 50 * 1024 * 1024;
+
+async function createMultipartUpload(request, env) {
+  try {
+    const body = await request.json();
+    const key = normaliseKey(body?.key);
+    const contentType = body?.contentType || guessContentType(key);
+
+    if (!key) return json({ success: false, error: "No R2 object key provided." }, 400);
+
+    const upload = await env.GTRADES_ASSETS.createMultipartUpload(key, {
+      httpMetadata: {
+        contentType,
+        cacheControl: "public, max-age=31536000"
+      }
+    });
+
+    return json({
+      success: true,
+      key,
+      uploadId: upload.uploadId,
+      chunkSize: MULTIPART_CHUNK_SIZE
+    });
+  } catch (error) {
+    console.error("R2 MULTIPART CREATE ERROR:", error);
+    return json({
+      success: false,
+      error: error?.message || "Could not start multipart upload."
+    }, 500);
+  }
+}
+
+async function uploadMultipartPart(request, env) {
+  try {
+    const url = new URL(request.url);
+    const key = normaliseKey(url.searchParams.get("key"));
+    const uploadId = url.searchParams.get("uploadId") || "";
+    const partNumber = Number(url.searchParams.get("partNumber"));
+
+    if (!key || !uploadId || !Number.isInteger(partNumber) || partNumber < 1) {
+      return json({ success: false, error: "Missing or invalid multipart parameters." }, 400);
+    }
+
+    const part = await env.GTRADES_ASSETS.resumeMultipartUpload(key, uploadId);
+    const uploadedPart = await part.uploadPart(partNumber, request.body);
+
+    return json({
+      success: true,
+      partNumber,
+      etag: uploadedPart.etag
+    });
+  } catch (error) {
+    console.error("R2 MULTIPART PART ERROR:", error);
+    return json({
+      success: false,
+      error: error?.message || "Could not upload multipart chunk."
+    }, 500);
+  }
+}
+
+async function completeMultipartUpload(request, env) {
+  try {
+    const body = await request.json();
+    const key = normaliseKey(body?.key);
+    const uploadId = body?.uploadId || "";
+    const parts = Array.isArray(body?.parts) ? body.parts : [];
+
+    if (!key || !uploadId || !parts.length) {
+      return json({ success: false, error: "Missing multipart completion data." }, 400);
+    }
+
+    const upload = await env.GTRADES_ASSETS.resumeMultipartUpload(key, uploadId);
+    const object = await upload.complete(parts.map(part => ({
+      partNumber: Number(part.partNumber),
+      etag: part.etag
+    })));
+
+    return json({
+      success: true,
+      key,
+      size: object.size,
+      etag: object.etag,
+      url: `${new URL(request.url).origin}/?key=${encodeURIComponent(key)}`
+    });
+  } catch (error) {
+    console.error("R2 MULTIPART COMPLETE ERROR:", error);
+    return json({
+      success: false,
+      error: error?.message || "Could not complete multipart upload."
+    }, 500);
+  }
+}
+
 async function uploadFile(request, env) {
   try {
     const formData = await request.formData();
@@ -362,6 +462,18 @@ export default {
     // ----------------------------------------------------------
     // UPLOAD
     // ----------------------------------------------------------
+    if (request.method === "POST" && url.pathname === "/multipart/create") {
+      return createMultipartUpload(request, env);
+    }
+
+    if (request.method === "PUT" && url.pathname === "/multipart/part") {
+      return uploadMultipartPart(request, env);
+    }
+
+    if (request.method === "POST" && url.pathname === "/multipart/complete") {
+      return completeMultipartUpload(request, env);
+    }
+
     if (
       request.method === "POST" &&
       url.pathname === "/upload"
