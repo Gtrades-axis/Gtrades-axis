@@ -350,6 +350,8 @@
         <option value="name-desc">Name — Z to A</option>
         <option value="category-asc">Category — A to Z</option>
         <option value="category-desc">Category — Z to A</option>
+            <option value="updated-newest">Last updated — newest first</option>
+            <option value="updated-oldest">Last updated — oldest first</option>
       </select>
     </div>
 
@@ -723,15 +725,13 @@ async function loadVideos() {
     videos.sort(
       (a, b) => {
 
-        const aTime =
-          getTimestamp(
-            a.createdAt
-          );
+        const aTime = getTimestamp(
+          a.createdAt || a.uploadedAt || a.updatedAt
+        );
 
-        const bTime =
-          getTimestamp(
-            b.createdAt
-          );
+        const bTime = getTimestamp(
+          b.createdAt || b.uploadedAt || b.updatedAt
+        );
 
         return bTime - aTime;
 
@@ -931,6 +931,10 @@ function renderVideos() {
       case "category-desc":
         return textValue(b.category || "General").localeCompare(textValue(a.category || "General")) ||
           textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "updated-newest":
+        return updateTime(b) - updateTime(a);
+      case "updated-oldest":
+        return updateTime(a) - updateTime(b);
       case "newest":
       default:
         return uploadTime(b) - uploadTime(a);
@@ -1103,7 +1107,7 @@ function createVideoCard(
       </div>
 
       <div class="video-upload-date">
-        Uploaded ${escapeHTML(formatUploadDate(video))}
+        Uploaded ${escapeHTML(formatUploadDate(video))} · Updated ${escapeHTML(formatUpdateDate(video))}
       </div>
 
     </div>
@@ -1318,6 +1322,24 @@ function showPlayerError(
     "show"
   );
 
+}
+
+
+function updateTime(video) {
+  return getTimestamp(
+    video.updatedAt ||
+    video.modifiedAt ||
+    video.createdAt ||
+    video.uploadedAt
+  );
+}
+
+function formatUpdateDate(video) {
+  const millis = updateTime(video);
+  if (!millis) return "date unavailable";
+  return new Date(millis).toLocaleDateString("en-US", {
+    year: "numeric", month: "short", day: "numeric"
+  });
 }
 
 

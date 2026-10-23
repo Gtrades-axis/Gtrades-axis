@@ -892,7 +892,8 @@
         padding: 18px 15px;
       }
     }
-  </style>
+  .resource-updated-date { opacity: .78; }
+</style>
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 
@@ -1056,6 +1057,8 @@
             <option value="name-desc">Name — Z to A</option>
             <option value="category-asc">Category — A to Z</option>
             <option value="category-desc">Category — Z to A</option>
+            <option value="updated-newest">Last updated — newest first</option>
+            <option value="updated-oldest">Last updated — oldest first</option>
           </select>
         </div>
 
@@ -1741,6 +1744,24 @@
     }
 
 
+    function resourceUpdateTime(resource) {
+      return getTimestampValue(
+        resource.updatedAt ||
+        resource.modifiedAt ||
+        resource.createdAt ||
+        resource.uploadedAt
+      );
+    }
+
+    function formatResourceUpdateDate(resource) {
+      const millis = resourceUpdateTime(resource);
+      if (!millis) return "date unavailable";
+      return new Date(millis).toLocaleDateString("en-US", {
+        year: "numeric", month: "short", day: "numeric"
+      });
+    }
+
+
     function formatResourceUploadDate(resource) {
       const millis = resourceUploadTime(resource);
       if (!millis) return "date unavailable";
@@ -1824,6 +1845,10 @@
             return textValue(a.category || "General").localeCompare(textValue(b.category || "General")) || textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
           case "category-desc":
             return textValue(b.category || "General").localeCompare(textValue(a.category || "General")) || textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+          case "updated-newest":
+            return resourceUpdateTime(b) - resourceUpdateTime(a);
+          case "updated-oldest":
+            return resourceUpdateTime(a) - resourceUpdateTime(b);
           case "newest":
           default:
             return resourceUploadTime(b) - resourceUploadTime(a);
@@ -2024,6 +2049,7 @@
 
         <div class="resource-upload-date">
           Uploaded ${escapeHTML(formatResourceUploadDate(resource))}
+          <span class="resource-updated-date"> · Updated ${escapeHTML(formatResourceUpdateDate(resource))}</span>
         </div>
 
 
