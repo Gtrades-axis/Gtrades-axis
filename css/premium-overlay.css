@@ -1,0 +1,350 @@
+/* ==========================================================
+GTRADES-AXIS™
+PREMIUM OVERLAY
+========================================================== */
+
+body.premium-locked{
+
+overflow:hidden;
+
+}
+
+/* ==========================================================
+BLUR BACKGROUND
+========================================================== */
+
+body.premium-locked>*:not(#premiumOverlay){
+
+filter:blur(8px);
+
+opacity:.45;
+
+transition:.35s;
+
+}
+
+/* ==========================================================
+OVERLAY
+========================================================== */
+
+#premiumOverlay{
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:100%;
+
+background:rgba(6,10,18,.72);
+
+backdrop-filter:blur(8px);
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:30px;
+
+z-index:999999;
+
+animation:fadeIn .35s ease;
+
+}
+
+/* ==========================================================
+CARD
+========================================================== */
+
+.premium-overlay-card{
+
+width:100%;
+
+max-width:620px;
+
+background:#111827;
+
+border:1px solid rgba(0,140,255,.25);
+
+border-radius:24px;
+
+padding:45px;
+
+text-align:center;
+
+box-shadow:
+
+0 25px 60px rgba(0,0,0,.45);
+
+animation:popup .4s ease;
+
+}
+
+/* ==========================================================
+ICON
+========================================================== */
+
+.premium-lock-icon{
+
+width:110px;
+
+height:110px;
+
+margin:auto;
+
+border-radius:50%;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+background:linear-gradient(
+
+135deg,
+
+#0ea5ff,
+
+#2563eb
+
+);
+
+margin-bottom:25px;
+
+}
+
+.premium-lock-icon i{
+
+font-size:52px;
+
+color:#fff;
+
+}
+
+/* ==========================================================
+TITLE
+========================================================== */
+
+.premium-overlay-card h1{
+
+font-size:38px;
+
+margin-bottom:18px;
+
+color:#fff;
+
+}
+
+.premium-overlay-card p{
+
+font-size:17px;
+
+line-height:1.8;
+
+color:#cbd5e1;
+
+margin-bottom:35px;
+
+}
+
+.premium-overlay-card strong{
+
+color:#0ea5ff;
+
+}
+
+/* ==========================================================
+FEATURES
+========================================================== */
+
+.premium-feature-list{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:15px;
+
+margin-bottom:40px;
+
+}
+
+.premium-feature-list div{
+
+background:#0f172a;
+
+padding:16px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.05);
+
+font-weight:600;
+
+color:#fff;
+
+}
+
+/* ==========================================================
+BUTTONS
+========================================================== */
+
+.premium-buttons{
+
+display:flex;
+
+justify-content:center;
+
+gap:18px;
+
+flex-wrap:wrap;
+
+}
+
+.upgrade-btn,
+
+.dashboard-btn{
+
+text-decoration:none;
+
+padding:16px 32px;
+
+border-radius:12px;
+
+font-weight:700;
+
+font-size:16px;
+
+transition:.30s;
+
+}
+
+.upgrade-btn{
+
+background:linear-gradient(
+
+135deg,
+
+#0ea5ff,
+
+#2563eb
+
+);
+
+color:#fff;
+
+}
+
+.upgrade-btn:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+
+0 12px 30px rgba(37,99,235,.35);
+
+}
+
+.dashboard-btn{
+
+background:#1f2937;
+
+color:#fff;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+.dashboard-btn:hover{
+
+background:#374151;
+
+transform:translateY(-3px);
+
+}
+
+/* ==========================================================
+ANIMATIONS
+========================================================== */
+
+@keyframes fadeIn{
+
+from{
+
+opacity:0;
+
+}
+
+to{
+
+opacity:1;
+
+}
+
+}
+
+@keyframes popup{
+
+from{
+
+opacity:0;
+
+transform:translateY(40px) scale(.9);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0) scale(1);
+
+}
+
+}
+
+/* ==========================================================
+RESPONSIVE
+========================================================== */
+
+@media(max-width:768px){
+
+.premium-overlay-card{
+
+padding:30px;
+
+}
+
+.premium-overlay-card h1{
+
+font-size:30px;
+
+}
+
+.premium-feature-list{
+
+grid-template-columns:1fr;
+
+}
+
+.premium-buttons{
+
+flex-direction:column;
+
+}
+
+.upgrade-btn,
+
+.dashboard-btn{
+
+width:100%;
+
+}
+
+}

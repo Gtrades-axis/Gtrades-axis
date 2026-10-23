@@ -1,0 +1,1742 @@
+/* ============================================================
+   GTRADES AXIS™
+   UPGRADE PAGE
+============================================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+:root {
+
+    --bg:
+        #0b1017;
+
+    --card:
+        #1a2331;
+
+    --input:
+        #101827;
+
+    --border:
+        #2b3748;
+
+    --blue:
+        #0095ff;
+
+    --blue-dark:
+        #0077cc;
+
+    --text:
+        #f5f7fa;
+
+    --muted:
+        #9ca8b9;
+
+    --success:
+        #27c981;
+
+    --danger:
+        #ff5b68;
+
+    --readonly:
+        #252d39;
+
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    background:
+        var(--bg);
+
+    color:
+        var(--text);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    line-height:
+        1.5;
+
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.topbar {
+
+    width: 100%;
+
+    min-height: 72px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        0 6%;
+
+    border-bottom:
+        1px solid #1d2734;
+
+    background:
+        #0d131c;
+
+}
+
+
+.brand {
+
+    font-size:
+        22px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        -0.5px;
+
+}
+
+
+.brand-main {
+
+    color:
+        #ffffff;
+
+}
+
+
+.brand-axis {
+
+    color:
+        var(--blue);
+
+    margin-left:
+        4px;
+
+}
+
+
+.back-btn {
+
+    text-decoration:
+        none;
+
+    color:
+        #dce4ef;
+
+    font-size:
+        14px;
+
+    font-weight:
+        600;
+
+    padding:
+        10px 16px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        8px;
+
+    transition:
+        0.2s ease;
+
+}
+
+
+.back-btn:hover {
+
+    border-color:
+        var(--blue);
+
+    color:
+        #ffffff;
+
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.page-container {
+
+    width:
+        100%;
+
+    max-width:
+        1050px;
+
+    margin:
+        42px auto;
+
+    padding:
+        0 20px 70px;
+
+}
+
+
+.payment-card {
+
+    background:
+        var(--card);
+
+    border:
+        1px solid #293548;
+
+    border-radius:
+        18px;
+
+    padding:
+        42px;
+
+    box-shadow:
+        0 20px 60px rgba(
+            0,
+            0,
+            0,
+            0.35
+        );
+
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.payment-header {
+
+    text-align:
+        center;
+
+    margin-bottom:
+        40px;
+
+}
+
+
+.payment-icon {
+
+    width:
+        58px;
+
+    height:
+        58px;
+
+    margin:
+        0 auto 18px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(
+            0,
+            149,
+            255,
+            0.12
+        );
+
+    border:
+        1px solid rgba(
+            0,
+            149,
+            255,
+            0.35
+        );
+
+    color:
+        var(--blue);
+
+    font-size:
+        26px;
+
+    font-weight:
+        800;
+
+}
+
+
+.payment-header h1 {
+
+    font-size:
+        34px;
+
+    font-weight:
+        800;
+
+    margin-bottom:
+        10px;
+
+}
+
+
+.payment-header p {
+
+    max-width:
+        650px;
+
+    margin:
+        0 auto;
+
+    color:
+        var(--muted);
+
+    font-size:
+        15px;
+
+    line-height:
+        1.7;
+
+}
+
+
+/* ============================================================
+   FORM
+============================================================ */
+
+.form-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        20px;
+
+}
+
+
+.form-group {
+
+    margin-bottom:
+        22px;
+
+}
+
+
+.form-group label {
+
+    display:
+        block;
+
+    margin-bottom:
+        8px;
+
+    color:
+        #f2f5f8;
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+
+}
+
+
+input,
+select,
+textarea {
+
+    width:
+        100%;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        10px;
+
+    background:
+        var(--input);
+
+    color:
+        #ffffff;
+
+    font-size:
+        14px;
+
+    outline:
+        none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+input,
+select {
+
+    height:
+        48px;
+
+    padding:
+        0 14px;
+
+}
+
+
+textarea {
+
+    padding:
+        14px;
+
+    resize:
+        vertical;
+
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+
+    border-color:
+        var(--blue);
+
+    box-shadow:
+        0 0 0 3px rgba(
+            0,
+            149,
+            255,
+            0.10
+        );
+
+}
+
+
+input::placeholder,
+textarea::placeholder {
+
+    color:
+        #697587;
+
+}
+
+
+select {
+
+    cursor:
+        pointer;
+
+}
+
+
+/* ============================================================
+   READONLY INPUTS
+============================================================ */
+
+input[readonly] {
+
+    background:
+        var(--readonly);
+
+    color:
+        #aeb7c4;
+
+    border-color:
+        #394555;
+
+    cursor:
+        not-allowed;
+
+    user-select:
+        none;
+
+}
+
+
+input[readonly]:focus {
+
+    border-color:
+        #394555;
+
+    box-shadow:
+        none;
+
+}
+
+
+/* ============================================================
+   AMOUNT SECTION
+============================================================ */
+
+.amount-section {
+
+    margin:
+        8px 0 28px;
+
+    padding:
+        24px;
+
+    background:
+        #111a27;
+
+    border:
+        1px solid #2d3b4f;
+
+    border-radius:
+        14px;
+
+}
+
+
+.amount-header {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap:
+        20px;
+
+    margin-bottom:
+        20px;
+
+}
+
+
+.small-label {
+
+    display:
+        block;
+
+    color:
+        #7f8ca0;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1px;
+
+    margin-bottom:
+        4px;
+
+}
+
+
+.amount-header h3 {
+
+    font-size:
+        22px;
+
+}
+
+
+.payment-badge {
+
+    padding:
+        7px 12px;
+
+    border-radius:
+        7px;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.5px;
+
+    background:
+        #303946;
+
+    color:
+        #cbd3de;
+
+}
+
+
+.mpesa-badge {
+
+    background:
+        rgba(
+            39,
+            201,
+            129,
+            0.12
+        );
+
+    color:
+        #55d89d;
+
+    border:
+        1px solid rgba(
+            39,
+            201,
+            129,
+            0.25
+        );
+
+}
+
+
+.paypal-badge {
+
+    background:
+        rgba(
+            0,
+            149,
+            255,
+            0.12
+        );
+
+    color:
+        #54b9ff;
+
+    border:
+        1px solid rgba(
+            0,
+            149,
+            255,
+            0.25
+        );
+
+}
+
+
+/* ============================================================
+   BASE PRICE
+============================================================ */
+
+.base-price-row {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    padding:
+        14px 0;
+
+    border-top:
+        1px solid #293548;
+
+    border-bottom:
+        1px solid #293548;
+
+    color:
+        var(--muted);
+
+    font-size:
+        14px;
+
+}
+
+
+.base-price-row strong {
+
+    color:
+        #ffffff;
+
+    font-size:
+        17px;
+
+}
+
+
+/* ============================================================
+   M-PESA CONVERSION BOX
+============================================================ */
+
+.conversion-box {
+
+    margin-top:
+        18px;
+
+    padding:
+        20px;
+
+    border:
+        1px solid rgba(
+            39,
+            201,
+            129,
+            0.25
+        );
+
+    background:
+        rgba(
+            39,
+            201,
+            129,
+            0.05
+        );
+
+    border-radius:
+        12px;
+
+}
+
+
+.conversion-top {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap:
+        20px;
+
+    margin-bottom:
+        18px;
+
+}
+
+
+.conversion-label {
+
+    display:
+        block;
+
+    color:
+        #5bdba3;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.8px;
+
+}
+
+
+.conversion-top h4 {
+
+    margin-top:
+        3px;
+
+    font-size:
+        17px;
+
+}
+
+
+.rate-display {
+
+    text-align:
+        right;
+
+}
+
+
+.rate-display span {
+
+    display:
+        block;
+
+    color:
+        #7f8c9d;
+
+    font-size:
+        11px;
+
+    margin-bottom:
+        3px;
+
+}
+
+
+.rate-display strong {
+
+    color:
+        #ffffff;
+
+    font-size:
+        13px;
+
+}
+
+
+.conversion-calculation {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 50px 1fr;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+}
+
+
+.currency-block {
+
+    padding:
+        16px;
+
+    border:
+        1px solid #334052;
+
+    border-radius:
+        10px;
+
+    background:
+        #101925;
+
+}
+
+
+.currency-block span {
+
+    display:
+        block;
+
+    color:
+        #7f8ca0;
+
+    font-size:
+        11px;
+
+    margin-bottom:
+        5px;
+
+}
+
+
+.currency-block strong {
+
+    color:
+        #ffffff;
+
+    font-size:
+        19px;
+
+}
+
+
+.kes-block {
+
+    border-color:
+        rgba(
+            39,
+            201,
+            129,
+            0.3
+        );
+
+}
+
+
+.kes-block strong {
+
+    color:
+        #55d89d;
+
+}
+
+
+.conversion-arrow {
+
+    text-align:
+        center;
+
+    color:
+        var(--blue);
+
+    font-size:
+        22px;
+
+    font-weight:
+        800;
+
+}
+
+
+/* ============================================================
+   PAYPAL BOX
+============================================================ */
+
+.paypal-box {
+
+    margin-top:
+        18px;
+
+    padding:
+        18px 20px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    border:
+        1px solid rgba(
+            0,
+            149,
+            255,
+            0.3
+        );
+
+    background:
+        rgba(
+            0,
+            149,
+            255,
+            0.05
+        );
+
+    border-radius:
+        12px;
+
+}
+
+
+.paypal-info span {
+
+    display:
+        block;
+
+}
+
+
+.paypal-label {
+
+    color:
+        #54b9ff;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.8px;
+
+    margin-bottom:
+        4px;
+
+}
+
+
+.paypal-info span:last-child {
+
+    color:
+        #8895a7;
+
+    font-size:
+        13px;
+
+}
+
+
+.paypal-box > strong {
+
+    color:
+        #ffffff;
+
+    font-size:
+        21px;
+
+    white-space:
+        nowrap;
+
+}
+
+
+/* ============================================================
+   FINAL AMOUNT
+============================================================ */
+
+.final-amount {
+
+    margin-top:
+        20px;
+
+}
+
+
+.final-amount label {
+
+    display:
+        block;
+
+    color:
+        #ffffff;
+
+    font-size:
+        14px;
+
+    font-weight:
+        800;
+
+    margin-bottom:
+        8px;
+
+}
+
+
+.amount-input-wrapper {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    width:
+        100%;
+
+    height:
+        58px;
+
+    background:
+        #252d39;
+
+    border:
+        1px solid #3b4656;
+
+    border-radius:
+        10px;
+
+    overflow:
+        hidden;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+.amount-input-wrapper span {
+
+    padding:
+        0 16px;
+
+    color:
+        #8894a4;
+
+    font-weight:
+        700;
+
+}
+
+
+.amount-input-wrapper input {
+
+    flex:
+        1;
+
+    height:
+        100%;
+
+    border:
+        none !important;
+
+    border-radius:
+        0;
+
+    background:
+        transparent !important;
+
+    box-shadow:
+        none !important;
+
+    color:
+        #aeb8c6;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+    padding:
+        0;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+.final-amount small {
+
+    display:
+        block;
+
+    margin-top:
+        7px;
+
+    color:
+        #737f91;
+
+    font-size:
+        11px;
+
+}
+
+
+/* ============================================================
+   INSTRUCTIONS
+============================================================ */
+
+.instructions {
+
+    display:
+        flex;
+
+    gap:
+        16px;
+
+    margin:
+        4px 0 25px;
+
+    padding:
+        20px;
+
+    border:
+        1px solid #344052;
+
+    border-radius:
+        12px;
+
+    background:
+        #111925;
+
+}
+
+
+.instruction-icon {
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    min-width:
+        42px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(
+            39,
+            201,
+            129,
+            0.12
+        );
+
+    color:
+        #55d89d;
+
+    font-size:
+        20px;
+
+    font-weight:
+        900;
+
+}
+
+
+.paypal-icon {
+
+    background:
+        rgba(
+            0,
+            149,
+            255,
+            0.12
+        );
+
+    color:
+        #54b9ff;
+
+}
+
+
+.instructions h3 {
+
+    margin-bottom:
+        5px;
+
+    font-size:
+        16px;
+
+}
+
+
+.instructions p {
+
+    color:
+        #8d99aa;
+
+    font-size:
+        13px;
+
+}
+
+
+.pay-number {
+
+    margin:
+        12px 0;
+
+    padding:
+        10px 12px;
+
+    background:
+        #0d1520;
+
+    border-radius:
+        7px;
+
+    color:
+        #9ca8b8;
+
+    font-size:
+        13px;
+
+}
+
+
+.pay-number strong {
+
+    color:
+        #ffffff;
+
+    margin-left:
+        4px;
+
+}
+
+
+.instruction-note {
+
+    font-size:
+        12px !important;
+
+}
+
+
+/* ============================================================
+   FILE UPLOAD
+============================================================ */
+
+input[type="file"] {
+
+    height:
+        auto;
+
+    padding:
+        10px;
+
+    cursor:
+        pointer;
+
+}
+
+
+.file-note {
+
+    display:
+        block;
+
+    margin-top:
+        6px;
+
+    color:
+        #707d90;
+
+    font-size:
+        11px;
+
+}
+
+
+.optional {
+
+    color:
+        #718096;
+
+    font-size:
+        10px;
+
+    margin-left:
+        5px;
+
+    font-weight:
+        600;
+
+}
+
+
+/* ============================================================
+   SUBMIT
+============================================================ */
+
+.submit-btn {
+
+    width:
+        100%;
+
+    height:
+        52px;
+
+    margin-top:
+        10px;
+
+    border:
+        none;
+
+    border-radius:
+        10px;
+
+    background:
+        var(--blue);
+
+    color:
+        #ffffff;
+
+    font-size:
+        15px;
+
+    font-weight:
+        800;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.2s ease;
+
+}
+
+
+.submit-btn:hover {
+
+    background:
+        var(--blue-dark);
+
+    transform:
+        translateY(-1px);
+
+}
+
+
+.submit-btn:disabled {
+
+    opacity:
+        0.6;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+
+}
+
+
+/* ============================================================
+   LOADER
+============================================================ */
+
+.loader {
+
+    display:
+        inline-block;
+
+    width:
+        18px;
+
+    height:
+        18px;
+
+    border:
+        2px solid rgba(
+            255,
+            255,
+            255,
+            0.35
+        );
+
+    border-top-color:
+        #ffffff;
+
+    border-radius:
+        50%;
+
+    animation:
+        spin 0.8s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* ============================================================
+   MESSAGES
+============================================================ */
+
+.form-message {
+
+    margin-top:
+        18px;
+
+    padding:
+        14px 16px;
+
+    border-radius:
+        9px;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.5;
+
+}
+
+
+.form-message.success {
+
+    background:
+        rgba(
+            39,
+            201,
+            129,
+            0.10
+        );
+
+    border:
+        1px solid rgba(
+            39,
+            201,
+            129,
+            0.3
+        );
+
+    color:
+        #58dba5;
+
+}
+
+
+.form-message.error {
+
+    background:
+        rgba(
+            255,
+            91,
+            104,
+            0.10
+        );
+
+    border:
+        1px solid rgba(
+            255,
+            91,
+            104,
+            0.3
+        );
+
+    color:
+        #ff7c86;
+
+}
+
+
+/* ============================================================
+   UTILITY
+============================================================ */
+
+.hidden {
+
+    display:
+        none !important;
+
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (
+    max-width: 760px
+) {
+
+    .topbar {
+
+        padding:
+            0 20px;
+
+    }
+
+
+    .brand {
+
+        font-size:
+            18px;
+
+    }
+
+
+    .back-btn {
+
+        font-size:
+            12px;
+
+        padding:
+            8px 11px;
+
+    }
+
+
+    .page-container {
+
+        margin-top:
+            20px;
+
+        padding:
+            0 12px 40px;
+
+    }
+
+
+    .payment-card {
+
+        padding:
+            24px 18px;
+
+        border-radius:
+            14px;
+
+    }
+
+
+    .payment-header h1 {
+
+        font-size:
+            26px;
+
+    }
+
+
+    .form-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            0;
+
+    }
+
+
+    .amount-header {
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .conversion-top {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+    }
+
+
+    .rate-display {
+
+        text-align:
+            left;
+
+    }
+
+
+    .conversion-calculation {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .conversion-arrow {
+
+        transform:
+            rotate(90deg);
+
+    }
+
+
+    .paypal-box {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+    }
+
+
+    .paypal-box > strong {
+
+        font-size:
+            19px;
+
+    }
+
+}
+
+
+/* ============================================================
+   VERY SMALL SCREENS
+============================================================ */
+
+@media (
+    max-width: 430px
+) {
+
+    .topbar {
+
+        min-height:
+            62px;
+
+    }
+
+
+    .payment-card {
+
+        padding:
+            20px 14px;
+
+    }
+
+
+    .payment-header {
+
+        margin-bottom:
+            28px;
+
+    }
+
+
+    .payment-header h1 {
+
+        font-size:
+            23px;
+
+    }
+
+
+    .amount-section {
+
+        padding:
+            17px;
+
+    }
+
+
+    .amount-input-wrapper {
+
+        height:
+            52px;
+
+    }
+
+
+    .amount-input-wrapper span {
+
+        padding:
+            0 11px;
+
+    }
+
+}
