@@ -207,7 +207,7 @@ service cloud.firestore {
       // trades that have explicitly been approved for public display.
       // Keep this query-compatible for collectionGroup(db, "trades").
       allow list:
-        if resource.data.public == true
+        if (resource.data.public == true && resource.data.createdByRole == "admin")
         || isAdmin()
         ||
         (
@@ -217,7 +217,7 @@ service cloud.firestore {
         );
 
       allow get:
-        if resource.data.public == true
+        if (resource.data.public == true && resource.data.createdByRole == "admin")
         || isAdmin()
         ||
         (
@@ -234,7 +234,15 @@ service cloud.firestore {
       allow create:
         if signedIn()
         &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.public == false
+        &&
+        (
+          (isAdmin() && request.resource.data.createdByRole == "admin")
+          ||
+          (!isAdmin() && request.resource.data.createdByRole == "member")
+        );
 
 
       // ----------------------------------------------------------
@@ -243,6 +251,19 @@ service cloud.firestore {
 
       allow update:
         if isAdmin()
+        &&
+        (
+          (
+            resource.data.createdByRole == "admin"
+            && request.resource.data.createdByRole == "admin"
+          )
+          ||
+          (
+            !resource.data.keys().hasAny(["createdByRole"])
+            && resource.data.userId == request.auth.uid
+            && request.resource.data.createdByRole == "admin"
+          )
+        )
         ||
         (
           signedIn()
@@ -250,11 +271,12 @@ service cloud.firestore {
           resource.data.userId == request.auth.uid
           &&
           request.resource.data.userId == request.auth.uid
-          // Public visibility is admin-controlled. Members cannot publish
-          // their own journal trades to the public homepage.
-          && request.resource.data.public == resource.data.public
-          && request.resource.data.approvedBy == resource.data.approvedBy
-          && request.resource.data.approvedAt == resource.data.approvedAt
+          &&
+          resource.data.createdByRole == "member"
+          &&
+          request.resource.data.createdByRole == "member"
+          &&
+          request.resource.data.public == false
         );
 
 
@@ -322,9 +344,10 @@ service cloud.firestore {
 
     match /trades/{tradeId} {
 
-      // Public trade feed.
+      // Public trade feed: admin-originated trades only.
       allow read:
-        if resource.data.public == true;
+        if resource.data.public == true
+        && resource.data.createdByRole == "admin";
 
       // Admin.
       allow read, create, update, delete:
@@ -334,15 +357,29 @@ service cloud.firestore {
       allow create:
         if signedIn()
         &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.public == false
+        &&
+        (
+          (isAdmin() && request.resource.data.createdByRole == "admin")
+          ||
+          (!isAdmin() && request.resource.data.createdByRole == "member")
+        );
 
-      // User updates own trade.
+      // User updates own trade. Members can never publish.
       allow update:
         if signedIn()
         &&
         resource.data.userId == request.auth.uid
         &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.createdByRole == resource.data.createdByRole
+        &&
+        resource.data.createdByRole == "member"
+        &&
+        request.resource.data.public == false;
 
       // User deletes own trade.
       allow delete:

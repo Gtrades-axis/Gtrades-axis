@@ -2010,8 +2010,7 @@
 
       trades.sort((a,b) => toMillis(b.updated || b.closed || b.created || b.date) - toMillis(a.updated || a.closed || a.created || a.date));
       
-      // ADMIN REGULATED: ONLY show trades explicitly approved for public display.
-      // `public: true` is the canonical approval flag written by the admin panel.
+      // ADMIN REGULATED: ONLY show trades with public: true
       const publicTrades = trades.filter(t => t.public === true);
       const latest = publicTrades.slice(0, 8);
       
@@ -2058,9 +2057,8 @@
     }
 
     // ============================================================
-    // LISTEN ONLY FOR ADMIN-APPROVED PUBLIC TRADES
-    // `public: true` is written by the admin panel; Firestore uses the
-    // collection-group index declared in firestore.indexes.json.
+    // LISTEN FOR ALL TRADES - FILTER FOR PUBLIC IN JAVASCRIPT
+    // ADMIN REGULATED - NO INDEX NEEDED
     // ============================================================
     console.log('🔍 Connecting to trade feed...');
 
@@ -2073,10 +2071,11 @@
       `;
     }
 
-    // Firestore returns only admin-approved public trades.
+    // Get ALL trades, then filter for public:true in JavaScript
     const publicTradesQuery = query(
       collectionGroup(db, 'trades'),
-      where('public', '==', true)
+      where('public', '==', true),
+      where('createdByRole', '==', 'admin')
     );
 
     onSnapshot(publicTradesQuery, renderPublicTrades, (error) => {

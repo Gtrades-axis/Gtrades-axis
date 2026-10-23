@@ -27,6 +27,7 @@ import {
 let trades = [];
 let accounts = {};
 let currentUser = null;
+let currentUserRole = "member";
 let editingTrade = null;
 let selectedAccountId = "all";
 let equityChartInstance = null;
@@ -429,7 +430,8 @@ async function migrateLegacyTrades() {
                     ...legacyDoc.data(),
                     id: legacyDoc.id,
                     userId: currentUser.uid,
-                    public: legacyDoc.data().public === true,
+                    public: false,
+                    createdByRole: currentUserRole === "admin" ? "admin" : "member",
                     migratedFromLegacy: true,
                     migratedAt: new Date().toISOString()
                 }));
@@ -453,10 +455,22 @@ async function loadTrades() {
         await migrateLegacyTrades();
         // IMPORTANT: read ONLY the signed-in student's canonical journal.
         const snapshot = await getDocs(tradesCollection());
-        snapshot.forEach(item => {
+        for (const item of snapshot.docs) {
             const data = item.data();
+            // Backfill the immutable creator-role marker for older trades
+            // that were created by this admin before public community trades
+            // were restricted to admin-originated records.
+            if (currentUserRole === "admin" && !data.createdByRole) {
+                try {
+                    await updateDoc(item.ref, { createdByRole: "admin", public: false });
+                    data.createdByRole = "admin";
+                    data.public = false;
+                } catch (migrationError) {
+                    console.warn("Could not backfill admin trade marker:", migrationError.message);
+                }
+            }
             trades.push({ id: item.id, ...data, userId: currentUser.uid });
-        });
+        }
 
         trades.sort((a, b) => {
             const av = Date.parse(a.updated || a.created || a.date || "") || 0;
@@ -486,6 +500,7 @@ async function addTradeToFirestore(trade) {
         id: tradeId,
         userId: currentUser.uid,
         userEmail: currentUser.email || "",
+        createdByRole: currentUserRole === "admin" ? "admin" : "member",
         public: false,
         created: cleanTrade.created || new Date().toISOString(),
         updated: new Date().toISOString(),
@@ -1653,6 +1668,7 @@ function startApp() {
 
             const data = userDoc.data();
             const role = data.role || "member";
+            currentUserRole = role;
             const membership = data.membership || "free";
             const hasPremium = role === "admin" || membership === "premium";
 
