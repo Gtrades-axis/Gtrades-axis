@@ -1,15 +1,15 @@
 {
-  "indexes": [
+  "indexes": [],
+  "fieldOverrides": [
     {
       "collectionGroup": "trades",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
+      "fieldPath": "public",
+      "indexes": [
         {
-          "fieldPath": "public",
+          "queryScope": "COLLECTION_GROUP",
           "order": "ASCENDING"
         }
       ]
     }
-  ],
-  "fieldOverrides": []
+  ]
 }
