@@ -668,7 +668,19 @@
       .section-title { font-size: 11px; }
       input, select, textarea { padding: 12px 14px; font-size: 13px; }
     }
-  </style>
+  
+    .rejected-payment-notice { display:flex; gap:14px; align-items:flex-start; margin:16px 0; padding:16px; border:1px solid rgba(255,82,82,.35); border-radius:14px; background:rgba(255,82,82,.08); }
+    .rejected-payment-notice[hidden] { display:none !important; }
+    .rejected-payment-icon { font-size:24px; color:#ff6b6b; line-height:1; }
+    .rejected-payment-content { flex:1; min-width:0; }
+    .rejected-payment-content strong { display:block; color:#ff8585; margin-bottom:5px; }
+    .rejected-payment-content p { margin:0 0 12px; color:#cbd5e1; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .rejected-payment-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .retry-payment-btn,.retry-secondary-btn { border:0; border-radius:9px; padding:10px 14px; cursor:pointer; font-weight:700; }
+    .retry-payment-btn { background:#00c897; color:#06100d; }
+    .retry-secondary-btn { background:rgba(255,255,255,.08); color:#f0f4fa; border:1px solid rgba(255,255,255,.12); }
+    @media (max-width:600px) { .rejected-payment-actions { flex-direction:column; } .retry-payment-btn,.retry-secondary-btn { width:100%; } }
+</style>
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -807,6 +819,18 @@
 
       <div id="paymentMessage" class="message"></div>
 
+      <div id="rejectedPaymentNotice" class="rejected-payment-notice" hidden aria-live="polite">
+        <div class="rejected-payment-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <div class="rejected-payment-content">
+          <strong>Your previous payment was rejected</strong>
+          <p id="rejectedPaymentReason">Please review the reason below and submit a new payment.</p>
+          <div class="rejected-payment-actions">
+            <button type="button" id="makePaymentAgain" class="retry-payment-btn"><i class="fa-solid fa-rotate-right"></i> Make Payment Again</button>
+            <button type="button" id="tryDifferentMethod" class="retry-secondary-btn"><i class="fa-solid fa-arrows-rotate"></i> Try a Different Method</button>
+          </div>
+        </div>
+      </div>
+
       <button id="submitPayment" class="submit-btn" type="submit" disabled>
         <i class="fa-solid fa-paper-plane"></i> Submit Payment
       </button>
@@ -855,6 +879,8 @@
     const mpesaBox = $("mpesaBox"), paypalBox = $("paypalBox"), kesRow = $("kesRow"), paypalRow = $("paypalRow");
     const mpesaOption = $("mpesaOption"), paypalOption = $("paypalOption");
     const submitPayment = $("submitPayment"), paymentMessage = $("paymentMessage");
+    const rejectedPaymentNotice = $("rejectedPaymentNotice"), rejectedPaymentReason = $("rejectedPaymentReason");
+    const makePaymentAgain = $("makePaymentAgain"), tryDifferentMethod = $("tryDifferentMethod");
     const successModal = $("successModal"), successClose = $("successClose"), loadingScreen = $("loadingScreen");
     const paymentForm = $("paymentForm");
 
@@ -875,6 +901,39 @@
     function showMessage(text, type = "error") { paymentMessage.textContent = text; paymentMessage.className = "message " + type; }
     function clearMessage() { paymentMessage.textContent = ""; paymentMessage.className = "message"; }
     function showLoading(show) { loadingScreen.classList.toggle("active", show); }
+
+    async function loadRejectedPaymentNotice() {
+      if (!currentUser || !rejectedPaymentNotice) return;
+      try {
+        const q = query(collection(db, "payments"), where("userId", "==", currentUser.uid), limit(20));
+        const snap = await getDocs(q);
+        if (snap.empty) { rejectedPaymentNotice.hidden = true; return; }
+        const payments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        payments.sort((a,b) => {
+          const timeOf = p => p.submittedAt?.toMillis?.() || p.rejectedAt?.toMillis?.() || p.approvedAt?.toMillis?.() || 0;
+          return timeOf(b) - timeOf(a);
+        });
+        const payment = payments[0];
+        if (String(payment.status || "").toLowerCase() !== "rejected") { rejectedPaymentNotice.hidden = true; return; }
+        const reason = String(payment.rejectionReason || "The administrator rejected this payment. Please submit a new payment with valid details and proof.").trim();
+        rejectedPaymentReason.textContent = `Reason: ${reason}${payment.plan ? `\nPlan: ${payment.plan}` : ""}${payment.paymentMethod ? `\nPrevious method: ${payment.paymentMethod}` : ""}`;
+        rejectedPaymentNotice.hidden = false;
+      } catch (error) { console.warn("Could not load rejected payment notice:", error); }
+    }
+
+    function preparePaymentRetry(useDifferentMethod = false) {
+      rejectedPaymentNotice.hidden = true;
+      clearMessage();
+      paymentForm.scrollIntoView({ behavior:"smooth", block:"start" });
+      if (useDifferentMethod) {
+        const alternate = selectedMethod === "Mpesa" ? "PayPal" : "Mpesa";
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${alternate}"]`);
+        if (radio) { radio.checked = true; radio.dispatchEvent(new Event("change", { bubbles:true })); }
+      }
+      transactionId.focus();
+    }
+    makePaymentAgain?.addEventListener("click", () => preparePaymentRetry(false));
+    tryDifferentMethod?.addEventListener("click", () => preparePaymentRetry(true));
 
     function updatePlanDisplay() {
       const plan = membershipPlan.value, price = getPrice(plan);
@@ -965,6 +1024,7 @@
       } catch {}
       accountMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account details loaded.';
       await checkExistingPayments();
+      await loadRejectedPaymentNotice();
       submitPayment.disabled = false;
     });
 

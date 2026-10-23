@@ -134,6 +134,18 @@ const submitPayment =
 const paymentMessage =
     document.getElementById("paymentMessage");
 
+const rejectedPaymentNotice =
+    document.getElementById("rejectedPaymentNotice");
+
+const rejectedPaymentReason =
+    document.getElementById("rejectedPaymentReason");
+
+const makePaymentAgain =
+    document.getElementById("makePaymentAgain");
+
+const tryDifferentMethod =
+    document.getElementById("tryDifferentMethod");
+
 const successModal =
     document.getElementById("successModal");
 
@@ -341,6 +353,66 @@ function hasMonthlyPremium() {
     );
 }
 
+
+async function loadRejectedPaymentNotice() {
+
+    if (!currentUser || !rejectedPaymentNotice) return;
+
+    try {
+        const paymentsRef = collection(db, "payments");
+        const q = query(
+            paymentsRef,
+            where("userId", "==", currentUser.uid)
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            rejectedPaymentNotice.hidden = true;
+            return;
+        }
+
+        const payments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        payments.sort((a, b) => {
+            const timeOf = p => p.submittedAt?.toMillis?.() || p.rejectedAt?.toMillis?.() || p.approvedAt?.toMillis?.() || 0;
+            return timeOf(b) - timeOf(a);
+        });
+        const payment = payments[0];
+
+        if (String(payment.status || "").toLowerCase() !== "rejected") {
+            rejectedPaymentNotice.hidden = true;
+            return;
+        }
+
+        const reason = String(payment.rejectionReason || "The administrator rejected this payment. Please submit a new payment with a valid transaction code and proof.").trim();
+        const plan = payment.plan || "";
+        const method = payment.paymentMethod || "";
+
+        rejectedPaymentReason.textContent =
+            `Reason: ${reason}${plan ? `\nPlan: ${plan}` : ""}${method ? `\nPrevious method: ${method}` : ""}`;
+
+        rejectedPaymentNotice.hidden = false;
+    } catch (error) {
+        // If the optional rejection history query is unavailable, do not block payment.
+        console.warn("Could not load rejected payment notice:", error);
+    }
+}
+
+function preparePaymentRetry(useDifferentMethod = false) {
+    if (rejectedPaymentNotice) rejectedPaymentNotice.hidden = true;
+    clearMessage();
+    paymentForm?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (useDifferentMethod) {
+        const current = getSelectedPaymentMethod();
+        const alternate = current === "Mpesa" ? "PayPal" : "Mpesa";
+        if (paymentMethodSelect) paymentMethodSelect.value = alternate;
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${alternate}"]`);
+        if (radio) { radio.checked = true; radio.dispatchEvent(new Event("change", { bubbles: true })); }
+    }
+    transactionId?.focus();
+}
+
+makePaymentAgain?.addEventListener("click", () => preparePaymentRetry(false));
+tryDifferentMethod?.addEventListener("click", () => preparePaymentRetry(true));
 
 // ============================================================
 // CHECK EXISTING PAYMENT
@@ -715,6 +787,8 @@ onAuthStateChanged(
             submitPayment.disabled =
                 false;
         }
+
+        await loadRejectedPaymentNotice();
 
 
         console.log(

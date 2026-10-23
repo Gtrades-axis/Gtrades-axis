@@ -707,7 +707,34 @@
                 padding: 18px 14px;
             }
         }
-    </style>
+    
+        .rejected-payment-notice {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin: 16px 0;
+            padding: 16px;
+            border: 1px solid rgba(255, 82, 82, 0.35);
+            border-radius: 14px;
+            background: rgba(255, 82, 82, 0.08);
+        }
+        .rejected-payment-notice[hidden] { display: none !important; }
+        .rejected-payment-icon { font-size: 24px; color: #ff6b6b; line-height: 1; }
+        .rejected-payment-content { flex: 1; min-width: 0; }
+        .rejected-payment-content strong { display: block; color: #ff8585; margin-bottom: 5px; }
+        .rejected-payment-content p { margin: 0 0 12px; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .rejected-payment-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .retry-payment-btn, .retry-secondary-btn {
+            border: 0; border-radius: 9px; padding: 10px 14px; cursor: pointer; font-weight: 700;
+        }
+        .retry-payment-btn { background: #00c897; color: #06100d; }
+        .retry-secondary-btn { background: rgba(255,255,255,.08); color: #f0f4fa; border: 1px solid rgba(255,255,255,.12); }
+        .retry-payment-btn:hover, .retry-secondary-btn:hover { filter: brightness(1.08); }
+        @media (max-width: 600px) {
+            .rejected-payment-actions { flex-direction: column; }
+            .retry-payment-btn, .retry-secondary-btn { width: 100%; }
+        }
+</style>
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 
@@ -870,6 +897,22 @@
 
                 <!-- MESSAGE -->
                 <div id="paymentMessage" class="message"></div>
+
+                <div id="rejectedPaymentNotice" class="rejected-payment-notice" hidden aria-live="polite">
+                    <div class="rejected-payment-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+                    <div class="rejected-payment-content">
+                        <strong>Your previous payment was rejected</strong>
+                        <p id="rejectedPaymentReason">Please review the reason below and submit a new payment.</p>
+                        <div class="rejected-payment-actions">
+                            <button type="button" id="makePaymentAgain" class="retry-payment-btn">
+                                <i class="fa-solid fa-rotate-right"></i> Make Payment Again
+                            </button>
+                            <button type="button" id="tryDifferentMethod" class="retry-secondary-btn">
+                                <i class="fa-solid fa-arrows-rotate"></i> Try a Different Method
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- SUBMIT -->
                 <button id="submitPayment" class="submit-btn" type="submit" disabled>

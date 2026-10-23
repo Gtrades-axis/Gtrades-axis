@@ -1621,11 +1621,16 @@ async function rejectPayment(payment) {
   const reason =
     prompt(
       "Why are you rejecting this payment?\n\n" +
-      "Leave blank if you do not want to add a reason."
+      "Enter the reason the member should see. A reason is required."
     );
 
 
   if (reason === null) {
+    return;
+  }
+
+  if (!reason.trim()) {
+    alert("A rejection reason is required so the member knows what to correct before making another payment.");
     return;
   }
 
