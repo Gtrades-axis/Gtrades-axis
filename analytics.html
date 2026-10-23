@@ -279,9 +279,9 @@
 }
 </script>
 <script type="module">
-
+import { logoutUser } from './js/auth.js';
 import { auth, db } from './js/firebase.js';
-import { collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js';
+import { collection, onSnapshot, doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js';
 
 /* =========================================================
@@ -337,6 +337,106 @@ function escapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   ACCOUNT SELECTOR
+========================================================= */
+function populateAccountSelector() {
+    let selector = document.getElementById("analyticsAccountSelector");
+    if (!selector) {
+        const header = document.querySelector(".page-header");
+        if (!header) return;
+        const wrapper = document.createElement("div");
+        wrapper.className = "analytics-account-filter";
+        wrapper.style.cssText = "display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;";
+        wrapper.innerHTML = `
+          <label for="analyticsAccountSelector" style="font-size:.9rem;color:#94a3b8">Account</label>
+          <select id="analyticsAccountSelector" style="min-width:190px;padding:9px 12px;border-radius:8px;border:1px solid #2a3450;background:#111827;color:#fff">
+          </select>`;
+        header.querySelector("div")?.appendChild(wrapper);
+        selector = wrapper.querySelector("select");
+        selector.addEventListener("change", () => {
+            selectedAccountId = selector.value || "all";
+            refreshAnalytics();
+        });
+    }
+
+    const current = selectedAccountId;
+    selector.innerHTML = `<option value="all">All accounts</option>`;
+    Object.values(accounts)
+      .sort((a,b) => String(a.name || a.title || a.accountName || a.id).localeCompare(String(b.name || b.title || b.accountName || b.id)))
+      .forEach(account => {
+          const option = document.createElement("option");
+          option.value = account.id;
+          option.textContent = account.name || account.title || account.accountName || `Account ${account.id}`;
+          selector.appendChild(option);
+      });
+    selector.value = Object.keys(accounts).includes(current) || current === "all" ? current : "all";
+    selectedAccountId = selector.value;
+}
+
+function createAccountSelector() {
+    populateAccountSelector();
+}
+
+/* =========================================================
+   PREMIUM ACCESS
+   Admins always have Analytics access.
+========================================================= */
+function normalizeAccess(value) {
+    return String(value ?? "").trim().toLowerCase();
+}
+
+function toDateValue(value) {
+    if (!value) return null;
+    if (typeof value.toDate === "function") return value.toDate();
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function hasAnalyticsAccess(data, claims = {}) {
+    const role = normalizeAccess(data.role || claims.role);
+    if (role === "admin" || claims.admin === true || claims.isAdmin === true) return true;
+    if (data.isPremium === true || data.premiumAccess === true || data.hasPremiumAccess === true) return true;
+    const membership = normalizeAccess(data.membership || data.membershipStatus || data.subscription || claims.membership);
+    const plan = normalizeAccess(data.membershipPlan || data.plan || data.subscriptionPlan || claims.membershipPlan);
+    if (!['premium','paid','active','lifetime'].includes(membership) && plan !== 'lifetime') return false;
+    if (plan === 'lifetime' || membership === 'lifetime') return true;
+    const expiry = toDateValue(data.membershipExpiresAt || data.expiresAt || data.subscriptionExpiresAt);
+    return !expiry || expiry.getTime() > Date.now();
+}
+
+function initPremiumLock(containerId = "app", onUnlock = null) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.classList.add("loading");
+    onAuthStateChanged(auth, async user => {
+        currentUser = user;
+        if (!user) {
+            container.classList.remove("loading");
+            container.classList.add("locked");
+            return;
+        }
+        try {
+            let claims = {};
+            try { claims = (await user.getIdTokenResult(true)).claims || {}; } catch (_) {}
+            const snap = await getDoc(doc(db, "users", user.uid));
+            const data = snap.exists() ? snap.data() : {};
+            const access = hasAnalyticsAccess(data, claims);
+            window.currentUser = { uid: user.uid, ...data };
+            window.isAdmin = normalizeAccess(data.role || claims.role) === "admin" || claims.admin === true || claims.isAdmin === true;
+            window.hasPremiumAccess = access;
+            container.classList.remove("loading");
+            container.classList.toggle("locked", !access);
+            if (access && typeof onUnlock === "function") onUnlock(data);
+        } catch (error) {
+            console.error("Analytics access check failed:", error);
+            container.classList.remove("loading");
+            container.classList.add("locked");
+        }
+    });
 }
 
 
