@@ -790,7 +790,7 @@
       <div class="proof-upload">
         <div class="form-group">
           <label><i class="fa-solid fa-paperclip"></i> Payment Proof</label>
-          <input id="paymentProof" type="file" accept="image/jpeg,image/png,application/pdf">
+          <input id="paymentProof" type="file" accept="image/jpeg,image/png,application/pdf" required>
           <div class="file-hint"><i class="fa-solid fa-circle-info"></i> JPG, PNG or PDF — max 5MB.</div>
         </div>
       </div>
@@ -835,9 +835,10 @@
 
   <!-- FIREBASE & LOGIC (same as original, but with cleaned UI) -->
   <script type="module">
-    import { auth, db } from "/js/firebase.js";
+    import { auth, db, app } from "/js/firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import { doc, getDoc, collection, addDoc, query, where, getDocs, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
+    import { doc, getDoc, collection, setDoc, query, where, getDocs, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
     // Config
     const MONTHLY_PRICE = 50, LIFETIME_PRICE = 200;
@@ -858,6 +859,8 @@
     const paymentForm = $("paymentForm");
 
     let currentUser = null, currentExchangeRate = null, selectedMethod = "", submitting = false;
+    const functions = getFunctions(app);
+    const getPaymentProofUploadUrl = httpsCallable(functions, "getPaymentProofUploadUrl");
 
     const params = new URLSearchParams(window.location.search);
     const urlPlan = params.get("plan");
@@ -1003,6 +1006,7 @@
       if (!transaction) { showMessage("Enter transaction code or PayPal ID."); return; }
       const price = getPrice(plan);
       if (!price) { showMessage("Invalid plan."); return; }
+      if (!paymentProof.files || !paymentProof.files.length) { showMessage("Please attach your payment proof (JPG, PNG or PDF)."); return; }
       let amountKES = null;
       if (selectedMethod === "Mpesa") {
         if (!currentExchangeRate) await loadExchangeRate();
@@ -1043,7 +1047,22 @@
           paymentData.currency = "USD"; paymentData.paypalEmail = PAYPAL_EMAIL;
         }
         if (proofName) { paymentData.proofFileName = proofName; paymentData.proofFileType = proofType; paymentData.proofFileSize = proofSize; }
-        await addDoc(collection(db, "payments"), paymentData);
+
+        const paymentRef = doc(collection(db, "payments"));
+        const proofFile = paymentProof.files[0];
+        const safeFileName = proofFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const proofPath = `payments/${currentUser.uid}/${paymentRef.id}/${safeFileName}`;
+        const signed = await getPaymentProofUploadUrl({ key: proofPath, contentType: proofFile.type });
+        submitPayment.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading proof...';
+        const uploadResponse = await fetch(signed.data.url, {
+          method: "PUT",
+          headers: { "Content-Type": proofFile.type },
+          body: proofFile
+        });
+        if (!uploadResponse.ok) throw new Error(`Cloudflare R2 upload failed (${uploadResponse.status}).`);
+        paymentData.proofStoragePath = proofPath;
+        paymentData.proofStorageProvider = "cloudflare-r2";
+        await setDoc(paymentRef, paymentData);
         showLoading(false);
         successModal.classList.add("active");
       } catch (error) {

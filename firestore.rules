@@ -38,7 +38,11 @@ service cloud.firestore {
     }
 
     function hasPremiumAccess() {
-      return isAdmin() || isPremium();
+      return isAdmin() || (isPremium() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.membershipPlan == "Lifetime"
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.membershipExpiresAt == null
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.membershipExpiresAt > request.time
+      ));
     }
 
 
@@ -472,7 +476,10 @@ service cloud.firestore {
         && request.resource.data.transactionId.size() > 0
         && request.resource.data.name is string
         && request.resource.data.email is string
-        && request.resource.data.submittedAt != null;
+        && request.resource.data.submittedAt != null
+        && request.resource.data.proofStoragePath is string
+        && request.resource.data.proofStorageProvider == "cloudflare-r2"
+        && request.resource.data.proofStoragePath.matches("payments/" + request.auth.uid + "/.*");
 
       allow read:
         if isAdmin()

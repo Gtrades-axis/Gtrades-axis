@@ -17,8 +17,8 @@
 // 10. Firestore document uses userId == Firebase UID
 // ============================================================
 
-import { auth, db } from "./firebase.js";
-import { getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+import { auth, db, app } from "./firebase.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
 
 import {
     onAuthStateChanged
@@ -36,8 +36,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 
-const storage = getStorage();
-
 // ============================================================
 // CONFIGURATION
 // ============================================================
@@ -50,6 +48,9 @@ const MPESA_NAME = "David Thuku";
 
 const RATE_API =
     "https://api.frankfurter.dev/v2/rate/USD/KES";
+
+const functions = getFunctions(app);
+const getPaymentProofUploadUrl = httpsCallable(functions, "getPaymentProofUploadUrl");
 
 
 // ============================================================
@@ -77,8 +78,16 @@ const nameStatus =
 const membershipPlan =
     document.getElementById("membershipPlan");
 
-const paymentMethod =
+const paymentMethodSelect =
     document.getElementById("paymentMethod");
+
+const paymentMethodRadios =
+    document.querySelectorAll('input[name="paymentMethod"]');
+
+function getSelectedPaymentMethod() {
+    if (paymentMethodSelect?.value) return paymentMethodSelect.value;
+    return document.querySelector('input[name="paymentMethod"]:checked')?.value || "";
+}
 
 const currencyBox =
     document.getElementById("currencyBox");
@@ -858,7 +867,7 @@ function updatePaymentDisplay() {
         membershipPlan?.value || "";
 
     const method =
-        paymentMethod?.value || "";
+        getSelectedPaymentMethod();
 
     const price =
         getPlanPrice(plan);
@@ -1182,15 +1191,23 @@ membershipPlan?.addEventListener(
 // PAYMENT METHOD CHANGE
 // ============================================================
 
-paymentMethod?.addEventListener(
+paymentMethodSelect?.addEventListener(
     "change",
     () => {
-
         clearMessage();
-
         updatePaymentDisplay();
     }
 );
+
+paymentMethodRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+        clearMessage();
+        updatePaymentDisplay();
+        if (!currentExchangeRate && radio.value === "Mpesa") {
+            getExchangeRate();
+        }
+    });
+});
 
 
 // ============================================================
@@ -1345,7 +1362,7 @@ function validatePayment() {
 
 
     const method =
-        paymentMethod?.value || "";
+        getSelectedPaymentMethod();
 
 
     const transaction =
@@ -1491,7 +1508,7 @@ paymentForm?.addEventListener(
             membershipPlan.value;
 
         const method =
-            paymentMethod.value;
+            getSelectedPaymentMethod();
 
         const transaction =
             transactionId.value.trim();
@@ -1723,21 +1740,21 @@ paymentForm?.addEventListener(
                     : null;
 
             if (proofFile) {
-                await uploadBytes(
-                    storageRef(storage, proofPath),
-                    proofFile,
-                    {
-                        contentType: proofFile.type,
-                        customMetadata: {
-                            uploadedBy: currentUser.uid,
-                            paymentId: paymentRef.id
-                        }
-                    }
-                );
-            }
-
-            if (proofPath) {
+                const signed = await getPaymentProofUploadUrl({
+                    key: proofPath,
+                    contentType: proofFile.type
+                });
+                submitPayment.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading proof...';
+                const uploadResponse = await fetch(signed.data.url, {
+                    method: "PUT",
+                    headers: { "Content-Type": proofFile.type },
+                    body: proofFile
+                });
+                if (!uploadResponse.ok) {
+                    throw new Error(`Cloudflare R2 upload failed (${uploadResponse.status}).`);
+                }
                 paymentData.proofStoragePath = proofPath;
+                paymentData.proofStorageProvider = "cloudflare-r2";
             }
 
             await setDoc(
@@ -1773,7 +1790,7 @@ paymentForm?.addEventListener(
             membershipPlan.value =
                 "";
 
-            paymentMethod.value =
+            getSelectedPaymentMethod() =
                 "";
 
             transactionId.value =

@@ -4,8 +4,8 @@
 // EXISTING STUDENT PAYMENT SYSTEM
 // ============================================================
 
-import { auth, db } from "./firebase.js";
-import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+import { auth, db, app } from "./firebase.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
 
 import {
   onAuthStateChanged
@@ -18,6 +18,7 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
@@ -50,7 +51,9 @@ const closeModal = document.getElementById("closeModal");
 
 let allPayments = [];
 let currentAdmin = null;
-const storage = getStorage();
+const functions = getFunctions(app);
+const getPaymentProofDownloadUrl = httpsCallable(functions, "getPaymentProofDownloadUrl");
+const deletePaymentProof = httpsCallable(functions, "deletePaymentProof");
 
 
 // ============================================================
@@ -997,11 +1000,10 @@ async function openPaymentModal(payment) {
 
   if (!proofUrl && payment.proofStoragePath) {
     try {
-      proofUrl = await getDownloadURL(
-        storageRef(storage, payment.proofStoragePath)
-      );
+      const signed = await getPaymentProofDownloadUrl({ key: payment.proofStoragePath });
+      proofUrl = signed.data.url;
     } catch (error) {
-      console.warn("Unable to generate proof URL:", error);
+      console.warn("Unable to generate Cloudflare R2 proof URL:", error);
     }
   }
 
@@ -1537,52 +1539,34 @@ async function approvePayment(payment) {
     // UPDATE PAYMENT
     // --------------------------------------------------------
 
-    await updateDoc(
-      doc(
-        db,
-        "payments",
-        payment.id
-      ),
-      {
-
-        status:
-          "approved",
-
-        approvedAt:
-          serverTimestamp(),
-
-        approvedBy:
-          currentAdmin.uid
-
-      }
-    );
-
-
     // --------------------------------------------------------
-    // UPDATE STUDENT
+    // ATOMICALLY APPROVE PAYMENT + ACTIVATE MEMBERSHIP
     // --------------------------------------------------------
 
-    await updateDoc(
-      userRef,
-      {
+    const batch = writeBatch(db);
+    const paymentRef = doc(db, "payments", payment.id);
+    const membershipUpdate = {
+      membership: "premium",
+      membershipPlan: payment.plan,
+      status: "active",
+      role: "member",
+      membershipUpdatedAt: serverTimestamp(),
+      membershipUpdatedBy: currentAdmin.uid
+    };
 
-        membership:
-          "premium",
+    if (payment.plan === "Monthly") {
+      membershipUpdate.membershipExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    } else {
+      membershipUpdate.membershipExpiresAt = null;
+    }
 
-        status:
-          "active",
-
-        role:
-          "member",
-
-        membershipUpdatedAt:
-          serverTimestamp(),
-
-        membershipUpdatedBy:
-          currentAdmin.uid
-
-      }
-    );
+    batch.update(paymentRef, {
+      status: "approved",
+      approvedAt: serverTimestamp(),
+      approvedBy: currentAdmin.uid
+    });
+    batch.update(userRef, membershipUpdate);
+    await batch.commit();
 
 
     alert(
@@ -1725,13 +1709,15 @@ async function deletePayment(payment) {
 
   try {
 
-    await deleteDoc(
-      doc(
-        db,
-        "payments",
-        payment.id
-      )
-    );
+    if (payment.proofStoragePath) {
+      try {
+        await deletePaymentProof({ key: payment.proofStoragePath });
+      } catch (proofError) {
+        console.warn("Could not delete R2 payment proof:", proofError);
+      }
+    }
+
+    await deleteDoc(doc(db, "payments", payment.id));
 
 
     alert(
