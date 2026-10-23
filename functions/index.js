@@ -91,6 +91,30 @@ exports.getR2UploadUrl = onCall(
   }
 );
 
+exports.checkPaymentSystem = onCall(
+  { secrets: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET] },
+  async (request) => {
+    requireAuth(request);
+    try {
+      const client = getR2Client();
+      await client.send(new GetObjectCommand({
+        Bucket: R2_BUCKET.value(),
+        Key: "__gtrades_axis_payment_system_probe__"
+      }));
+    } catch (error) {
+      // A missing probe object is expected; authentication/configuration errors are not.
+      const status = error?.$metadata?.httpStatusCode;
+      const code = error?.Code || error?.name || "";
+      if (status === 404 || code === "NoSuchKey" || code === "NotFound") {
+        return { configured: true, bucket: R2_BUCKET.value() };
+      }
+      console.error("Payment R2 diagnostic failed:", error);
+      throw new HttpsError("failed-precondition", "Cloudflare R2 payment storage is not configured correctly.");
+    }
+    return { configured: true, bucket: R2_BUCKET.value() };
+  }
+);
+
 exports.getPaymentProofUploadUrl = onCall(
   { secrets: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET] },
   async (request) => {

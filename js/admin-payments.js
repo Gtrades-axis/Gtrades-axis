@@ -1549,7 +1549,6 @@ async function approvePayment(payment) {
       membership: "premium",
       membershipPlan: payment.plan,
       status: "active",
-      role: "member",
       membershipUpdatedAt: serverTimestamp(),
       membershipUpdatedBy: currentAdmin.uid
     };

@@ -31,6 +31,7 @@ let editingTrade = null;
 let selectedAccountId = "all";
 let equityChartInstance = null;
 let monthlyChartInstance = null;
+let exitExecutionsDraft = [];
 
 // --------------------------------------------------------------
 // PROFESSIONAL JOURNAL NOTIFICATIONS
@@ -175,6 +176,133 @@ function calculateOutcomeRR(params) {
         return priceRR * (percentage / 100);
     }
     return 0;
+}
+
+
+function calculateExitLeg(price, percent, context) {
+    const entry = Number(context.entry) || 0;
+    const lotSize = Number(context.lotSize) || 0;
+    const riskAmount = Number(context.riskAmount) || 0;
+    const pipSize = Number(context.pipSize) || getPipSize(context.pair);
+    const pipValue = Number(context.pipValue) || getPipValue(context.pair);
+    const exit = Number(price) || 0;
+    const allocation = Math.max(0, Math.min(100, Number(percent) || 0));
+
+    if (!entry || !exit || !lotSize || pipSize <= 0 || pipValue <= 0 || allocation <= 0) {
+        return { price: exit, percent: allocation, pnl: 0, rr: 0 };
+    }
+
+    const signedMove = String(context.direction || "BUY").toUpperCase() === "SELL"
+        ? entry - exit
+        : exit - entry;
+    const pips = signedMove / pipSize;
+    const pnl = pips * pipValue * lotSize * (allocation / 100);
+    const rr = riskAmount > 0 ? pnl / riskAmount : 0;
+
+    return { price: exit, percent: allocation, pnl, rr };
+}
+
+function getExitRowsFromForm() {
+    const container = document.getElementById("exitExecutions");
+    if (!container) return [];
+    return [...container.querySelectorAll(".exit-row")].map(row => ({
+        price: Number(row.querySelector("[data-exit-price]")?.value) || 0,
+        percent: Math.max(0, Math.min(100, Number(row.querySelector("[data-exit-percent]")?.value) || 0))
+    }));
+}
+
+function renderExitExecutions(rows = exitExecutionsDraft) {
+    const container = document.getElementById("exitExecutions");
+    if (!container) return;
+
+    exitExecutionsDraft = (rows || []).map(item => ({
+        price: Number(item.price) || 0,
+        percent: Math.max(0, Math.min(100, Number(item.percent) || 0))
+    }));
+
+    if (!exitExecutionsDraft.length) {
+        container.innerHTML = `<div class="account-empty"><strong>No exits recorded yet</strong><span>Add an exit or partial to document the actual execution.</span></div>`;
+        calculateAll();
+        return;
+    }
+
+    container.innerHTML = exitExecutionsDraft.map((row, index) => `
+        <div class="exit-row" data-exit-index="${index}">
+            <div class="form-group">
+                <label>Exit ${index + 1} Price</label>
+                <input type="number" step="any" data-exit-price value="${row.price || ""}" placeholder="Actual exit price" />
+            </div>
+            <div class="form-group">
+                <label>Closed %</label>
+                <input type="number" step="0.01" min="0" max="100" data-exit-percent value="${row.percent || ""}" placeholder="e.g. 50" />
+            </div>
+            <div class="form-group">
+                <label>Exit P/L</label>
+                <input type="text" data-exit-pnl class="calculated-field" value="$0.00" readonly />
+            </div>
+            <div class="form-group">
+                <label>Exit R</label>
+                <input type="text" data-exit-rr class="calculated-field" value="0.00R" readonly />
+            </div>
+            <div class="form-group">
+                <label>Position Left</label>
+                <input type="text" data-exit-remaining class="calculated-field" value="100%" readonly />
+            </div>
+            <button type="button" class="exit-remove" data-remove-exit="${index}" aria-label="Remove exit ${index + 1}"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    `).join("");
+
+    calculateAll();
+}
+
+function addExitExecution() {
+    exitExecutionsDraft = getExitRowsFromForm();
+    const used = exitExecutionsDraft.reduce((sum, row) => sum + row.percent, 0);
+    const remaining = Math.max(0, 100 - used);
+    exitExecutionsDraft.push({ price: 0, percent: remaining > 0 ? Number(remaining.toFixed(2)) : 0 });
+    renderExitExecutions();
+}
+
+function removeExitExecution(index) {
+    exitExecutionsDraft = getExitRowsFromForm();
+    if (exitExecutionsDraft.length <= 1) {
+        exitExecutionsDraft = [];
+    } else {
+        exitExecutionsDraft.splice(index, 1);
+    }
+    renderExitExecutions();
+}
+
+function calculateExitSummary() {
+    const entry = num("entry");
+    const lotSize = num("lotSize");
+    const pair = val("pair") || "EURUSD";
+    const direction = val("direction") || "BUY";
+    const pipSize = getPipSize(pair);
+    const pipValue = getPipValue(pair);
+    const stopLoss = num("stopLoss");
+    const riskDistance = Math.abs(entry - stopLoss);
+    const riskAmount = (riskDistance / pipSize) * pipValue * lotSize;
+    const rows = getExitRowsFromForm();
+    const totalPercent = rows.reduce((sum, row) => sum + row.percent, 0);
+
+    const computed = rows.map(row => calculateExitLeg(row.price, row.percent, {
+        entry, lotSize, riskAmount, pipSize, pipValue, pair, direction
+    }));
+
+    const grossProfit = computed.reduce((sum, row) => sum + row.pnl, 0);
+    const commission = Math.max(0, num("commission"));
+    const netProfit = grossProfit - commission;
+    const weightedExitDenominator = computed.reduce((sum, row) => sum + row.percent, 0);
+    const weightedExit = weightedExitDenominator > 0
+        ? computed.reduce((sum, row) => sum + (row.price * row.percent), 0) / weightedExitDenominator
+        : 0;
+    const realizedRR = riskAmount > 0 ? grossProfit / riskAmount : 0;
+    const remaining = Math.max(0, 100 - totalPercent);
+    let result = "Pending";
+    if (totalPercent > 0) result = totalPercent >= 100 ? (grossProfit > 0.005 ? "Win" : grossProfit < -0.005 ? "Loss" : "Breakeven") : "Partial";
+
+    return { rows, computed, totalPercent, remaining, grossProfit, commission, netProfit, weightedExit, realizedRR, result, riskAmount };
 }
 
 function getPipSize(pair) {
@@ -394,129 +522,76 @@ async function deleteTradeFromFirestore(tradeId) {
 function buildTradeFromForm(isUpdate = false) {
     const accountId = val("tradeAccount");
     const account = getAccount(accountId);
-    const result = normalizeResult(val("result"));
-
+    const existing = editingTrade || {};
+    const exitSummary = calculateExitSummary();
+    const result = exitSummary.result;
     const currentEntry = num("entry");
     const currentSL = num("stopLoss");
     const currentTP = num("takeProfit");
-    const exitPrice = num("exitPrice");
-    const partialPercent = num("partialPercent");
-    const profit = num("profit");
-    const commission = num("commission");
     const lotSize = num("lotSize");
     const balance = num("balance");
-
-    const existing = editingTrade || {};
-
-    // Calculate risk and RR
     const pipSize = getPipSize(val("pair"));
     const pipValue = getPipValue(val("pair"));
     const slDistance = Math.abs(currentEntry - currentSL);
-    const slPips = slDistance / pipSize;
-    const actualRisk = slPips * pipValue * lotSize;
+    const actualRisk = exitSummary.riskAmount;
     const tpDistance = Math.abs(currentTP - currentEntry);
     const projectedRR = slDistance > 0 ? tpDistance / slDistance : 0;
+    const lastExit = exitSummary.computed.filter(row => row.price > 0).at(-1);
 
     let entryModel = val("entryModel");
     if (entryModel === "__custom__") entryModel = val("entryModelCustom").trim();
 
-    // Calculate outcome RR
-    const outcomeRR = calculateOutcomeRR({
-        result,
-        actualProfit: profit,
-        riskAmount: actualRisk,
-        plannedRR: projectedRR,
-        entry: currentEntry,
-        stopLoss: currentSL,
-        exitPrice: exitPrice,
-        direction: val("direction"),
-        partialPercent: partialPercent
-    });
-
-    const finalRR = result === "Pending" ? projectedRR : outcomeRR;
-
     return {
         id: isUpdate && existing.id ? existing.id : undefined,
-        accountId: accountId,
-        userId: currentUser.uid,
-        userEmail: currentUser.email || "",
-        date: val("tradeDate") || getLocalDate(),
-        time: val("tradeTime") || getLocalTime(),
-        pair: val("pair"),
-        direction: val("direction"),
-        session: val("session"),
-        broker: val("broker"),
-        account: account?.name || "",
-        accountBalance: num("tradeAccountBalance"),
-        accountRiskSetting: val("tradeRiskSetting"),
-        currency: val("currencyDisplay"),
-        pipValue: val("pipValueDisplay"),
-        htfSwing: val("htfSwing"),
-        htfInternal: val("htfInternal"),
-        mtfSwing: val("mtfSwing"),
-        mtfInternal: val("mtfInternal"),
-        ltfStructure: val("ltfStructure"),
-        liquidity: val("liquidity"),
-        poi: val("poi"),
-        entryModel: entryModel,
-        entryConfirmation: val("entryConfirmation"),
-        tradeValid: val("tradeValid"),
+        accountId, userId: currentUser.uid, userEmail: currentUser.email || "",
+        date: val("tradeDate") || getLocalDate(), time: val("tradeTime") || getLocalTime(),
+        pair: val("pair"), direction: val("direction"), session: val("session"), broker: val("broker"),
+        account: account?.name || "", accountBalance: num("tradeAccountBalance"),
+        accountRiskSetting: val("tradeRiskSetting"), currency: val("currencyDisplay"), pipValue: val("pipValueDisplay"),
+        htfSwing: val("htfSwing"), htfInternal: val("htfInternal"), mtfSwing: val("mtfSwing"), mtfInternal: val("mtfInternal"),
+        ltfStructure: val("ltfStructure"), liquidity: val("liquidity"), poi: val("poi"), entryModel,
+        entryConfirmation: val("entryConfirmation"), tradeValid: val("tradeValid"),
         confluences: {
-            htfSwing: isChecked("confHTFSwing"),
-            htfInternal: isChecked("confHTFInternal"),
-            mtfSwing: isChecked("confMTFSwing"),
-            mtfInternal: isChecked("confMTFInternal"),
-            htfDemand: isChecked("confHTFDemand"),
-            htfSupply: isChecked("confHTFSupply"),
-            mtfDemand: isChecked("confMTFDemand"),
-            mtfSupply: isChecked("confMTFSupply"),
-            premium: isChecked("confPremium"),
-            discount: isChecked("confDiscount"),
-            sweep: isChecked("confSweep"),
-            choch: isChecked("confChoch"),
-            bos: isChecked("confBos"),
-            mitigation: isChecked("confMitigation"),
-            refined: isChecked("confRefined"),
-            extreme: isChecked("confExtreme")
+            htfSwing: isChecked("confHTFSwing"), htfInternal: isChecked("confHTFInternal"),
+            mtfSwing: isChecked("confMTFSwing"), mtfInternal: isChecked("confMTFInternal"),
+            htfDemand: isChecked("confHTFDemand"), htfSupply: isChecked("confHTFSupply"),
+            mtfDemand: isChecked("confMTFDemand"), mtfSupply: isChecked("confMTFSupply"),
+            premium: isChecked("confPremium"), discount: isChecked("confDiscount"), sweep: isChecked("confSweep"),
+            choch: isChecked("confChoch"), bos: isChecked("confBos"), mitigation: isChecked("confMitigation"),
+            refined: isChecked("confRefined"), extreme: isChecked("confExtreme")
         },
-        entry: currentEntry,
-        stopLoss: currentSL,
-        takeProfit: currentTP,
-        exitPrice: exitPrice,
+        entry: currentEntry, stopLoss: currentSL, takeProfit: currentTP,
+        exitPrice: lastExit?.price || 0,
+        partialPercent: exitSummary.totalPercent,
+        exitExecutions: exitSummary.computed.map((row, index) => ({
+            index: index + 1,
+            price: row.price,
+            percent: row.percent,
+            pnl: Number(row.pnl.toFixed(2)),
+            rr: Number(row.rr.toFixed(4))
+        })),
+        totalExitPercent: Number(exitSummary.totalPercent.toFixed(2)),
+        remainingPercent: Number(exitSummary.remaining.toFixed(2)),
+        weightedExitPrice: exitSummary.weightedExit || 0,
         initialEntry: existing.initialEntry ?? currentEntry,
         initialStopLoss: existing.initialStopLoss ?? currentSL,
         initialTakeProfit: existing.initialTakeProfit ?? currentTP,
-        initialRR: existing.initialRR ?? projectedRR,
-        plannedRR: projectedRR,
-        lotSize: lotSize,
-        balance: balance,
-        riskSettingAmount: num("riskSettingAmount"),
-        riskAmount: actualRisk,
-        risk: num("risk"),
-        rr: finalRR,
-        potentialProfit: num("potentialProfit"),
-        potentialLoss: num("potentialLoss"),
-        profit: profit,
-        commission: commission,
-        result: result,
-        status: result === "Pending" ? "Pending" : "Closed",
-        confidence: val("confidence"),
-        emotion: val("emotion"),
-        discipline: val("discipline"),
-        patience: val("patience"),
-        tradeSummary: val("tradeSummary"),
-        strengths: val("strengths"),
-        mistakes: val("mistakes"),
-        lessonLearned: val("lessonLearned"),
-        improvementPlan: val("improvementPlan"),
-        notes: val("notes"),
-        beforeChart: val("beforeChart"),
-        duringChart: val("duringChart"),
-        afterChart: val("afterChart"),
-        public: existing.public || false,
-        created: existing.created || new Date().toISOString(),
-        updated: new Date().toISOString(),
-        closed: existing.closed || (result === "Pending" ? null : new Date().toISOString())
+        initialRR: existing.initialRR ?? projectedRR, plannedRR: projectedRR,
+        lotSize, balance, riskSettingAmount: num("riskSettingAmount"), riskAmount: actualRisk, risk: num("risk"),
+        rr: exitSummary.realizedRR,
+        realizedRR: exitSummary.realizedRR,
+        potentialProfit: num("potentialProfit"), potentialLoss: num("potentialLoss"),
+        profit: Number(exitSummary.grossProfit.toFixed(2)),
+        grossProfit: Number(exitSummary.grossProfit.toFixed(2)),
+        commission: Number(exitSummary.commission.toFixed(2)),
+        netProfit: Number(exitSummary.netProfit.toFixed(2)),
+        result,
+        status: exitSummary.totalPercent >= 100 ? "Closed" : (exitSummary.totalPercent > 0 ? "Partial" : "Pending"),
+        confidence: val("confidence"), emotion: val("emotion"), discipline: val("discipline"), patience: val("patience"),
+        tradeSummary: val("tradeSummary"), strengths: val("strengths"), mistakes: val("mistakes"), lessonLearned: val("lessonLearned"),
+        improvementPlan: val("improvementPlan"), notes: val("notes"), beforeChart: val("beforeChart"), duringChart: val("duringChart"), afterChart: val("afterChart"),
+        public: existing.public || false, created: existing.created || new Date().toISOString(), updated: new Date().toISOString(),
+        closed: exitSummary.totalPercent >= 100 ? (existing.closed || new Date().toISOString()) : null
     };
 }
 
@@ -533,6 +608,17 @@ async function saveTrade(e) {
     const accountId = val("tradeAccount");
     if (!accountId || !getAccount(accountId)) {
         showJournalNotification("Please select a trading account.", "error");
+        return;
+    }
+
+    const exitRows = getExitRowsFromForm();
+    const totalExitPercent = exitRows.reduce((sum, row) => sum + row.percent, 0);
+    if (totalExitPercent > 100.0001) {
+        showJournalNotification("Exit percentages cannot exceed 100%.", "error");
+        return;
+    }
+    if (exitRows.some(row => row.percent > 0 && row.price <= 0)) {
+        showJournalNotification("Every exit percentage must have an actual exit price.", "error");
         return;
     }
 
@@ -630,56 +716,18 @@ async function closeTrade(tradeId) {
     const trade = trades.find(t => t.id === tradeId);
     if (!trade) { showJournalNotification("Trade could not be found.", "error"); return; }
 
-    const profitInput = prompt("Enter actual Profit / Loss:", "0");
-    if (profitInput === null) return;
-    const profit = Number(profitInput) || 0;
+    const existingExits = Array.isArray(trade.exitExecutions) && trade.exitExecutions.length
+        ? trade.exitExecutions.map(row => ({ price: row.price, percent: row.percent }))
+        : (Number(trade.exitPrice) > 0 ? [{ price: trade.exitPrice, percent: Number(trade.partialPercent) || 100 }] : []);
 
-    const commissionInput = prompt("Enter Commission:", String(trade.commission || 0));
-    if (commissionInput === null) return;
-    const commission = Number(commissionInput) || 0;
+    populateForm(trade);
+    exitExecutionsDraft = existingExits;
+    renderExitExecutions();
 
-    const exitPriceInput = prompt("Exit / Close Price (leave blank if not applicable):", String(trade.exitPrice || ""));
-    const exitPrice = exitPriceInput === null ? Number(trade.exitPrice) || 0 : (Number(exitPriceInput) || 0);
-
-    const riskAmount = Number(trade.riskAmount) || 0;
-    let result = "Breakeven";
-    if (profit > 0) result = "Win";
-    else if (profit < 0) result = "Loss";
-
-    let actualRR = 0;
-    const plannedRR = Number(trade.initialRR ?? trade.plannedRR ?? trade.rr) || 0;
-
-    if (result === "Win") {
-        actualRR = Math.abs(plannedRR);
-    } else if (result === "Loss") {
-        actualRR = riskAmount > 0 ? -(Math.abs(profit) / riskAmount) : 0;
-    } else if (result === "Breakeven") {
-        actualRR = 0;
-    }
-
-    const updatedTrade = {
-        ...trade,
-        profit,
-        commission,
-        exitPrice,
-        result,
-        status: "Closed",
-        rr: actualRR,
-        closed: new Date().toISOString(),
-        updated: new Date().toISOString()
-    };
-
-    try {
-        await updateTradeInFirestore(tradeId, updatedTrade);
-        await recalculateAccountBalance(trade.accountId);
-        await loadTrades();
-        await loadAccounts();
-        refreshUI();
-        showJournalNotification("Trade closed successfully.", "success");
-    } catch (error) {
-        console.error("❌ CLOSE TRADE ERROR:", error);
-        showJournalNotification("Unable to close trade. Please try again.", "error");
-    }
+    const message = existingExits.length
+        ? "The trade is now loaded into the journal. Add or edit every actual exit/partial, then save the trade."
+        : "The trade is now loaded into the journal. Enter the actual exit price(s) and percentages, then save the trade.";
+    showJournalNotification(message, "info");
 }
 
 // --------------------------------------------------------------
@@ -854,20 +902,15 @@ function calculateAll() {
     const balance = parseFloat(val("balance")) || 0;
     const accountId = val("tradeAccount");
     const account = getAccount(accountId);
-
     const pipSize = getPipSize(pair);
     const pipValue = getPipValue(pair);
-    setValue("pipValueDisplay", `$${pipValue.toFixed(2)} / lot`);
-
     const riskPercent = account ? Number(account.riskPercent) || 0 : 0;
     const riskSettingAmount = balance * (riskPercent / 100);
     setValue("riskSettingAmount", riskSettingAmount > 0 ? riskSettingAmount.toFixed(2) : "");
     setText("summaryRiskSetting", money(riskSettingAmount));
 
-    let slDistance = 0, tpDistance = 0;
-    if (entry && stopLoss) slDistance = Math.abs(entry - stopLoss);
-    if (entry && takeProfit) tpDistance = Math.abs(takeProfit - entry);
-
+    const slDistance = entry && stopLoss ? Math.abs(entry - stopLoss) : 0;
+    const tpDistance = entry && takeProfit ? Math.abs(takeProfit - entry) : 0;
     const slPips = slDistance / pipSize;
     const actualRisk = slPips * pipValue * lotSize;
     setValue("riskAmount", actualRisk > 0 ? actualRisk.toFixed(2) : "");
@@ -876,40 +919,50 @@ function calculateAll() {
     setValue("risk", actualRisk > 0 ? actualRiskPercent.toFixed(2) : "");
 
     const projectedRR = slDistance > 0 ? tpDistance / slDistance : 0;
-    setValue("projectedRR", projectedRR !== 0 ? projectedRR.toFixed(2) : "");
+    setValue("projectedRR", projectedRR ? projectedRR.toFixed(2) : "");
     setText("summaryProjectedRR", projectedRR.toFixed(2));
 
-    let actualRR = projectedRR;
-    const exitPrice = parseFloat(val("exitPrice")) || 0;
-    const result = normalizeResult(val("result"));
-    const profit = parseFloat(val("profit")) || 0;
-
-    if (result !== "Pending" && exitPrice !== 0) {
-        const direction = val("direction");
-        const rrFromExit = calculatePriceRR(entry, stopLoss, exitPrice, direction);
-        if (result === "Win") {
-            actualRR = rrFromExit > 0 ? rrFromExit : projectedRR;
-        } else if (result === "Loss") {
-            actualRR = actualRisk > 0 ? -(Math.abs(profit) / actualRisk) : 0;
-        } else if (result === "Partial") {
-            const partial = parseFloat(val("partialPercent")) || 0;
-            actualRR = rrFromExit * (partial / 100);
-        } else {
-            actualRR = rrFromExit;
-        }
-    }
-
-    setValue("rr", actualRR !== 0 ? actualRR.toFixed(2) : "");
+    const exitSummary = calculateExitSummary();
+    const result = exitSummary.result;
+    const actualRR = exitSummary.realizedRR;
+    setValue("rr", actualRR ? actualRR.toFixed(2) : "");
     setText("summaryRR", actualRR.toFixed(2));
+    setValue("profit", exitSummary.grossProfit ? exitSummary.grossProfit.toFixed(2) : "0.00");
+    setValue("result", result);
+    setValue("exitPrice", exitSummary.computed.filter(row => row.price > 0).at(-1)?.price || "");
+    setValue("partialPercent", exitSummary.totalPercent ? exitSummary.totalPercent.toFixed(2) : "0");
 
     const potentialProfit = actualRisk * projectedRR;
     setValue("potentialLoss", actualRisk > 0 ? actualRisk.toFixed(2) : "");
     setValue("potentialProfit", potentialProfit > 0 ? potentialProfit.toFixed(2) : "");
-
     setText("summaryRiskAmount", money(actualRisk));
     setText("summaryRiskPercent", `${actualRiskPercent.toFixed(2)}%`);
     setText("summaryPotentialProfit", money(potentialProfit));
     setText("summaryPotentialLoss", money(actualRisk));
+
+    const container = document.getElementById("exitExecutions");
+    if (container) {
+        exitSummary.computed.forEach((row, index) => {
+            const element = container.querySelector(`.exit-row[data-exit-index="${index}"]`);
+            if (!element) return;
+            const pnl = element.querySelector("[data-exit-pnl]");
+            const rr = element.querySelector("[data-exit-rr]");
+            const remaining = element.querySelector("[data-exit-remaining]");
+            if (pnl) pnl.value = signedMoney(row.pnl);
+            if (rr) rr.value = `${row.rr.toFixed(2)}R`;
+            if (remaining) {
+                const used = exitSummary.computed.slice(0, index + 1).reduce((sum, item) => sum + item.percent, 0);
+                remaining.value = `${Math.max(0, 100 - used).toFixed(2)}%`;
+            }
+        });
+    }
+
+    setText("summaryClosedPercent", `${exitSummary.totalPercent.toFixed(2)}%`);
+    setText("summaryRemainingPercent", `${exitSummary.remaining.toFixed(2)}%`);
+    setText("summaryGrossProfit", signedMoney(exitSummary.grossProfit));
+    setText("summaryCommission", money(exitSummary.commission));
+    setText("summaryNetProfit", signedMoney(exitSummary.netProfit));
+    setText("summaryWeightedExit", exitSummary.weightedExit ? Number(exitSummary.weightedExit).toFixed(5) : "—");
 }
 
 // --------------------------------------------------------------
@@ -1430,11 +1483,13 @@ function populateForm(trade) {
     setValue("entry", trade.entry);
     setValue("stopLoss", trade.stopLoss);
     setValue("takeProfit", trade.takeProfit);
-    setValue("exitPrice", trade.exitPrice ?? "");
     setValue("lotSize", trade.lotSize);
-    setValue("profit", trade.profit);
-    setValue("commission", trade.commission);
-    setValue("result", trade.result);
+    setValue("commission", trade.commission ?? 0);
+    const savedExits = Array.isArray(trade.exitExecutions) && trade.exitExecutions.length
+        ? trade.exitExecutions.map(row => ({ price: row.price, percent: row.percent }))
+        : (Number(trade.exitPrice) > 0 ? [{ price: trade.exitPrice, percent: Number(trade.partialPercent) || 100 }] : []);
+    exitExecutionsDraft = savedExits;
+    renderExitExecutions(savedExits);
     setValue("confidence", trade.confidence);
     setValue("emotion", trade.emotion);
     setValue("discipline", trade.discipline);
@@ -1490,6 +1545,8 @@ function setupEvents() {
                 setDefaultDateTime();
                 populateAccountSelectors();
                 updateTradeAccountInfo();
+                exitExecutionsDraft = [];
+                renderExitExecutions([]);
                 calculateAll();
             }, 20);
         });
@@ -1515,7 +1572,7 @@ function setupEvents() {
         });
     }
 
-    ["pair", "entry", "stopLoss", "takeProfit", "lotSize", "exitPrice", "partialPercent", "result", "profit"]
+    ["pair", "entry", "stopLoss", "takeProfit", "lotSize", "commission"]
     .forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -1525,6 +1582,19 @@ function setupEvents() {
     });
 
     document.getElementById("entryModel")?.addEventListener("change", syncEntryModelInput);
+    document.getElementById("addExitBtn")?.addEventListener("click", addExitExecution);
+    document.getElementById("exitExecutions")?.addEventListener("input", () => {
+        exitExecutionsDraft = getExitRowsFromForm();
+        calculateAll();
+    });
+    document.getElementById("exitExecutions")?.addEventListener("change", () => {
+        exitExecutionsDraft = getExitRowsFromForm();
+        calculateAll();
+    });
+    document.getElementById("exitExecutions")?.addEventListener("click", event => {
+        const button = event.target.closest("[data-remove-exit]");
+        if (button) removeExitExecution(Number(button.dataset.removeExit));
+    });
     document.getElementById("addAccountBtn")?.addEventListener("click", () => openAccountModal());
     document.getElementById("closeAccountModal")?.addEventListener("click", closeAccountModal);
     document.getElementById("cancelAccountBtn")?.addEventListener("click", closeAccountModal);
@@ -1608,6 +1678,7 @@ function startApp() {
             renderAccountManager();
             setupEvents();
             setDefaultDateTime();
+            if (!exitExecutionsDraft.length) renderExitExecutions([]);
             checkEditTrade();
 
             console.log("✅ GTRADES-AXIS™ Journal connected to Firestore.");

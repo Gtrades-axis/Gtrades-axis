@@ -38,9 +38,12 @@ export function initPremiumLock(containerId = 'app', onUnlock = null) {
       }
 
       const data = userDoc.data();
-      const role = data.role || 'member';
-      const membership = data.membership || 'free';
-      const hasPremium = (role === 'admin' || membership === 'premium');
+      const role = String(data.role || 'member').trim().toLowerCase();
+      const membership = String(data.membership || '').trim().toLowerCase();
+      const plan = String(data.membershipPlan || '').trim().toLowerCase();
+      const expiresAt = data.membershipExpiresAt?.toDate?.() || (data.membershipExpiresAt ? new Date(data.membershipExpiresAt) : null);
+      const notExpired = !expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() > Date.now();
+      const hasPremium = role === 'admin' || (membership === 'premium' && (plan === 'lifetime' || notExpired));
 
       // ─── Remove loading state ──────────────────────────────
       container.classList.remove('loading');

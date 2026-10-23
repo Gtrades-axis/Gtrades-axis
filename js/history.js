@@ -54,9 +54,13 @@ function normalizeTrade(raw) {
   if (!raw || typeof raw !== "object") return null;
 
   const result = normalizeResult(raw.result);
-  const status = raw.status === "Closed" || result !== "Pending"
+  const exitExecutions = Array.isArray(raw.exitExecutions) ? raw.exitExecutions : [];
+  const totalExitPercent = Number(raw.totalExitPercent ?? raw.partialPercent ?? (exitExecutions.length ? exitExecutions.reduce((sum, row) => sum + (Number(row.percent) || 0), 0) : (raw.exitPrice ? 100 : 0))) || 0;
+  const status = raw.status === "Closed" || totalExitPercent >= 99.999
     ? "Closed"
-    : "Pending";
+    : totalExitPercent > 0
+      ? "Partial"
+      : "Pending";
 
   return {
     ...raw,
@@ -81,6 +85,12 @@ function normalizeTrade(raw) {
     rr: Number(raw.rr) || 0,
     profit: raw.profit ?? 0,
     commission: raw.commission ?? 0,
+    grossProfit: raw.grossProfit ?? raw.profit ?? 0,
+    netProfit: raw.netProfit ?? ((Number(raw.profit) || 0) - (Number(raw.commission) || 0)),
+    exitExecutions,
+    totalExitPercent,
+    remainingPercent: Number(raw.remainingPercent ?? Math.max(0, 100 - totalExitPercent)),
+    weightedExitPrice: raw.weightedExitPrice ?? raw.exitPrice ?? 0,
     result,
     status
   };
@@ -379,6 +389,19 @@ function getConfluenceLabels(confluences) {
     .join(", ");
 }
 
+function getExitExecutionHtml(trade) {
+  const exits = Array.isArray(trade.exitExecutions) ? trade.exitExecutions : [];
+  if (!exits.length) return `<div class="detail-row"><div class="label">Actual Exits</div><div class="value">No exit executions recorded.</div></div>`;
+  const rows = exits.map((exit, index) => `
+    <div class="detail-row">
+      <div class="label">Exit ${index + 1}</div>
+      <div class="value">Price: ${escapeHtml(exit.price)} • Closed: ${escapeHtml(exit.percent)}% • P/L: ${escapeHtml(signedMoney(exit.pnl))} • R: ${escapeHtml(Number(exit.rr || 0).toFixed(2))}R</div>
+    </div>`).join("");
+  return `
+    <div class="detail-row"><div class="label">Exit Summary</div><div class="value">Closed ${escapeHtml(trade.totalExitPercent)}% • Remaining ${escapeHtml(trade.remainingPercent)}% • Weighted Exit ${escapeHtml(trade.weightedExitPrice || "—")}</div></div>
+    ${rows}`;
+}
+
 function openViewModal(trade) {
   const modal = getElement("viewModal");
   const body = getElement("modalBody");
@@ -409,7 +432,7 @@ function openViewModal(trade) {
         <div class="value">${escapeHtml(value || "-")}</div>
       </div>
     `)
-    .join("");
+    .join("") + getExitExecutionHtml(trade);
 
   modal.classList.add("active");
 }
@@ -451,14 +474,15 @@ function exportCSV() {
   const headers = [
     "Date", "Time", "Pair", "Direction", "Session", "Account",
     "Entry", "Stop Loss", "Take Profit", "Exit Price", "Risk %",
-    "Risk Amount", "RR", "Profit", "Commission", "Result", "Status", "Notes"
+    "Risk Amount", "RR", "Gross Profit", "Commission", "Net Profit", "Closed %", "Remaining %", "Exit Count", "Result", "Status", "Notes"
   ];
 
   const escapeCsv = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
   const rows = filteredTrades.map((trade) => [
     trade.date, trade.time, trade.pair, trade.direction, trade.session,
     trade.account, trade.entry, trade.stopLoss, trade.takeProfit, trade.exitPrice,
-    trade.risk, trade.riskAmount, trade.rr, trade.profit, trade.commission,
+    trade.risk, trade.riskAmount, trade.rr, trade.grossProfit, trade.commission, trade.netProfit,
+    trade.totalExitPercent, trade.remainingPercent, Array.isArray(trade.exitExecutions) ? trade.exitExecutions.length : 0,
     trade.result, trade.status, trade.notes
   ]);
 
