@@ -250,6 +250,11 @@ service cloud.firestore {
           resource.data.userId == request.auth.uid
           &&
           request.resource.data.userId == request.auth.uid
+          // Public visibility is admin-controlled. Members cannot publish
+          // their own journal trades to the public homepage.
+          && request.resource.data.public == resource.data.public
+          && request.resource.data.approvedBy == resource.data.approvedBy
+          && request.resource.data.approvedAt == resource.data.approvedAt
         );
 
 

@@ -2058,8 +2058,9 @@
     }
 
     // ============================================================
-    // LISTEN FOR ALL TRADES - FILTER FOR PUBLIC IN JAVASCRIPT
-    // ADMIN REGULATED - NO INDEX NEEDED
+    // LISTEN ONLY FOR ADMIN-APPROVED PUBLIC TRADES
+    // `public: true` is written by the admin panel; Firestore uses the
+    // collection-group index declared in firestore.indexes.json.
     // ============================================================
     console.log('🔍 Connecting to trade feed...');
 
@@ -2072,7 +2073,7 @@
       `;
     }
 
-    // Get ALL trades, then filter for public:true in JavaScript
+    // Firestore returns only admin-approved public trades.
     const publicTradesQuery = query(
       collectionGroup(db, 'trades'),
       where('public', '==', true)
