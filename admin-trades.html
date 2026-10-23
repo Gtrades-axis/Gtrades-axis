@@ -8,13 +8,81 @@ import {auth,db} from "./js/firebase.js";
 import {onAuthStateChanged} from "firebase/auth";
 import {collectionGroup,query,where,onSnapshot,getDoc,doc,updateDoc} from "firebase/firestore";
 const list=document.getElementById('tradeList'), connection=document.getElementById('connection');
-let allTrades=[]; let unsubscribe=null;
+let allTrades=[]; let unsubscribe=null; let ownerRoleCache=new Map();
 const esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 const dateValue=v=>{if(!v)return 0;if(typeof v?.toDate==='function')return v.toDate().getTime();const n=Date.parse(String(v));return Number.isNaN(n)?0:n;};
 const fmtDate=t=>{if(t.date)return esc((t.date+' '+(t.time||'')).trim());return esc(t.updated||t.created||'—');};
 const money=n=>(Number(n)||0).toFixed(2);
-function render(){const sf=document.getElementById('statusFilter').value,pf=document.getElementById('publicFilter').value;let rows=allTrades.filter(t=>t.createdByRole==='admin'&&(sf==='all'||t.status===sf)&&(pf==='all'||(pf==='public'?t.public===true:t.public!==true)));rows.sort((a,b)=>dateValue(b.updated||b.created||b.date)-dateValue(a.updated||a.created||a.date));document.getElementById('total').textContent=allTrades.filter(t=>t.createdByRole==='admin').length;document.getElementById('closedCount').textContent=allTrades.filter(t=>t.createdByRole==='admin'&&t.status==='Closed').length;document.getElementById('pendingCount').textContent=allTrades.filter(t=>t.createdByRole==='admin'&&(t.status==='Pending'||t.result==='Pending')).length;document.getElementById('publicCount').textContent=allTrades.filter(t=>t.createdByRole==='admin'&&t.public===true).length;if(!rows.length){list.innerHTML='<div class="empty">No journal trades match this filter.</div>';return;}list.innerHTML='<div class="table-wrap"><table><thead><tr><th>Date / Time</th><th>Student</th><th>Account</th><th>Pair</th><th>Direction</th><th>Result</th><th>RR</th><th>P/L</th><th>Risk %</th><th>Visibility</th><th>Action</th></tr></thead><tbody>'+rows.map(t=>{const pub=t.public===true,rr=Number(t.rr)||0,pl=(Number(t.profit)||0)-(Number(t.commission)||0);return `<tr><td>${fmtDate(t)}</td><td><span class="muted">${esc(t.userEmail||t.userId||'—')}</span></td><td>${esc(t.account||t.accountId||'—')}</td><td><strong>${esc(t.pair||'—')}</strong></td><td>${esc(t.direction||'—')}</td><td><span class="badge ${t.status==='Closed'?'closed':'pending'}">${esc(t.result||t.status||'—')}</span></td><td class="${rr>=0?'positive':'negative'}">${rr.toFixed(2)}R</td><td class="${pl>=0?'positive':'negative'}">${pl>=0?'+':''}$${money(pl)}</td><td>${money(t.risk)}%</td><td><span class="badge ${pub?'public':'private'}">${pub?'Public':'Private'}</span></td><td><button class="action" data-uid="${esc(t.userId)}" data-id="${esc(t.id)}" data-public="${pub}">${pub?'Hide':'Show'}</button></td></tr>`;}).join('')+'</tbody></table></div>';document.querySelectorAll('.action').forEach(btn=>btn.onclick=async()=>{try{btn.disabled=true;const ref=doc(db,'users',btn.dataset.uid,'trades',btn.dataset.id);await updateDoc(ref,{public:btn.dataset.public!=='true', visibilityUpdatedAt:new Date().toISOString()});}catch(e){console.error(e);alert('Could not update visibility: '+e.message);}finally{btn.disabled=false;}});}
-function startLiveFeed(){if(unsubscribe)unsubscribe();connection.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting to live journal feed…';const q=query(collectionGroup(db,'trades'));unsubscribe=onSnapshot(q,snapshot=>{allTrades=snapshot.docs.map(d=>{const parent=d.ref.parent.parent;const data=d.data();return {id:d.id,userId:parent?.id||data.userId||'',...data};});render();connection.innerHTML='<i class="fa-solid fa-circle" style="font-size:8px"></i> LIVE — '+allTrades.length+' journal trade(s)';},error=>{console.error('LIVE JOURNAL ERROR',error);connection.textContent='Live feed error: '+error.message;list.innerHTML='<div class="empty error">Cannot read student journal trades.<br><span class="muted">'+esc(error.message)+'</span></div>';});}
+async function resolveOwnerRole(userId, data){
+  if(data.createdByRole) return String(data.createdByRole).toLowerCase();
+  if(!userId) return 'member';
+  if(ownerRoleCache.has(userId)) return ownerRoleCache.get(userId);
+  try{
+    const snap=await getDoc(doc(db,'users',userId));
+    const role=snap.exists() && snap.data()?.role==='admin' ? 'admin' : 'member';
+    ownerRoleCache.set(userId,role);
+    return role;
+  }catch(e){
+    console.warn('Could not resolve trade owner role:',userId,e);
+    return 'member';
+  }
+}
+
+async function hydrateRoles(){
+  await Promise.all(allTrades.map(async t=>{
+    t.createdByRole=await resolveOwnerRole(t.userId,t);
+  }));
+}
+
+async function render(){
+  const sf=document.getElementById('statusFilter').value;
+  const pf=document.getElementById('publicFilter').value;
+  const adminTrades=allTrades.filter(t=>t.createdByRole==='admin');
+  let rows=allTrades.filter(t=>{
+    if(sf!=='all' && t.status!==sf) return false;
+    if(pf==='public' && !(t.createdByRole==='admin' && t.public===true)) return false;
+    if(pf==='private' && t.public===true && t.createdByRole==='admin') return false;
+    return true;
+  });
+  rows.sort((a,b)=>dateValue(b.updated||b.created||b.date)-dateValue(a.updated||a.created||a.date));
+
+  document.getElementById('total').textContent=allTrades.length;
+  document.getElementById('closedCount').textContent=allTrades.filter(t=>t.status==='Closed').length;
+  document.getElementById('pendingCount').textContent=allTrades.filter(t=>t.status==='Pending'||t.result==='Pending').length;
+  document.getElementById('publicCount').textContent=adminTrades.filter(t=>t.public===true).length;
+
+  if(!rows.length){list.innerHTML='<div class="empty">No journal trades match this filter.</div>';return;}
+
+  list.innerHTML='<div class="table-wrap"><table><thead><tr><th>Date / Time</th><th>Owner</th><th>Account</th><th>Pair</th><th>Direction</th><th>Result</th><th>RR</th><th>P/L</th><th>Risk %</th><th>Origin</th><th>Visibility</th><th>Action</th></tr></thead><tbody>'+rows.map(t=>{
+    const isAdmin=t.createdByRole==='admin';
+    const pub=t.public===true && isAdmin;
+    const rawPublic=t.public===true;
+    const rr=Number(t.rr)||0;
+    const pl=(Number(t.profit)||0)-(Number(t.commission)||0);
+    let visibility;
+    let action;
+    if(isAdmin){
+      visibility=`<span class="badge ${pub?'public':'private'}">${pub?'Public':'Private'}</span>`;
+      action=`<button class="action" data-uid="${esc(t.userId)}" data-id="${esc(t.id)}" data-public="${rawPublic}">${pub?'Hide':'Show'}</button>`;
+    }else{
+      visibility=`<span class="badge private">Private</span>`;
+      action='<span class="muted">🔒 Member trade</span>';
+    }
+    return `<tr><td>${fmtDate(t)}</td><td><span class="muted">${esc(t.userEmail||t.userId||'—')}</span></td><td>${esc(t.account||t.accountId||'—')}</td><td><strong>${esc(t.pair||'—')}</strong></td><td>${esc(t.direction||'—')}</td><td><span class="badge ${t.status==='Closed'?'closed':'pending'}">${esc(t.result||t.status||'—')}</span></td><td class="${rr>=0?'positive':'negative'}">${rr.toFixed(2)}R</td><td class="${pl>=0?'positive':'negative'}">${pl>=0?'+':''}$${money(pl)}</td><td>${money(t.risk)}%</td><td><span class="badge ${isAdmin?'public':'private'}">${isAdmin?'Admin':'Member'}</span></td><td>${visibility}</td><td>${action}</td></tr>`;
+  }).join('')+'</tbody></table></div>';
+
+  document.querySelectorAll('.action').forEach(btn=>btn.onclick=async()=>{
+    try{
+      btn.disabled=true;
+      const makePublic=btn.dataset.public!=='true';
+      const trade=allTrades.find(t=>t.id===btn.dataset.id && t.userId===btn.dataset.uid);
+      if(!trade || trade.createdByRole!=='admin') throw new Error('Only admin-created trades can be published.');
+      const ref=doc(db,'users',btn.dataset.uid,'trades',btn.dataset.id);
+      await updateDoc(ref,{public:makePublic,approvedBy:makePublic?auth.currentUser.uid:null,approvedAt:makePublic?new Date().toISOString():null,visibilityUpdatedAt:new Date().toISOString()});
+    }catch(e){console.error(e);alert('Could not update visibility: '+e.message);}finally{btn.disabled=false;}
+  });
+}
+function startLiveFeed(){if(unsubscribe)unsubscribe();connection.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting to live journal feed…';const q=query(collectionGroup(db,'trades'));unsubscribe=onSnapshot(q,async snapshot=>{allTrades=snapshot.docs.map(d=>{const parent=d.ref.parent.parent;const data=d.data();return {id:d.id,userId:parent?.id||data.userId||'',...data};});await hydrateRoles();await render();connection.innerHTML='<i class="fa-solid fa-circle" style="font-size:8px"></i> LIVE — '+allTrades.length+' journal trade(s)';},error=>{console.error('LIVE JOURNAL ERROR',error);connection.textContent='Live feed error: '+error.message;list.innerHTML='<div class="empty error">Cannot read student journal trades.<br><span class="muted">'+esc(error.message)+'</span></div>';});}
 document.getElementById('refreshBtn').onclick=()=>render();document.getElementById('statusFilter').onchange=render;document.getElementById('publicFilter').onchange=render;
 onAuthStateChanged(auth,async user=>{if(!user){list.innerHTML='<div class="empty error">Please log in.</div>';return;}try{const me=await getDoc(doc(db,'users',user.uid));if(me.data()?.role!=='admin'){list.innerHTML='<div class="empty error">Admin access required.</div>';return;}startLiveFeed();}catch(e){list.innerHTML='<div class="empty error">'+esc(e.message)+'</div>';}});
 </script></body></html>
