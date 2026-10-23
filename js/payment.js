@@ -18,22 +18,25 @@
 // ============================================================
 
 import { auth, db } from "./firebase.js";
+import { getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 import {
-    doc,
     getDoc,
     collection,
-    addDoc,
     query,
     where,
     getDocs,
-    serverTimestamp
+    serverTimestamp,
+    doc as firestoreDoc,
+    setDoc,
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+
+const storage = getStorage();
 
 // ============================================================
 // CONFIGURATION
@@ -1398,6 +1401,15 @@ function validatePayment() {
         };
     }
 
+    if (!paymentProof?.files?.length) {
+
+        return {
+            valid: false,
+            message:
+                "Please attach your payment proof (JPG, PNG or PDF)."
+        };
+    }
+
 
     const price =
         getPlanPrice(plan);
@@ -1690,15 +1702,48 @@ paymentForm?.addEventListener(
             );
 
 
+            // Generate the payment ID before writing so the proof can be
+            // stored privately under the user's own payment path.
             const paymentRef =
-                await addDoc(
-                    collection(
-                        db,
-                        "payments"
-                    ),
-                    paymentData
+                firestoreDoc(
+                    collection(db, "payments")
                 );
 
+            const proofFile =
+                paymentProof?.files?.[0];
+
+            const safeFileName =
+                proofFile
+                    ? proofFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
+                    : "proof";
+
+            const proofPath =
+                proofFile
+                    ? `payments/${currentUser.uid}/${paymentRef.id}/${safeFileName}`
+                    : null;
+
+            if (proofFile) {
+                await uploadBytes(
+                    storageRef(storage, proofPath),
+                    proofFile,
+                    {
+                        contentType: proofFile.type,
+                        customMetadata: {
+                            uploadedBy: currentUser.uid,
+                            paymentId: paymentRef.id
+                        }
+                    }
+                );
+            }
+
+            if (proofPath) {
+                paymentData.proofStoragePath = proofPath;
+            }
+
+            await setDoc(
+                paymentRef,
+                paymentData
+            );
 
             console.log(
                 "Payment created:",

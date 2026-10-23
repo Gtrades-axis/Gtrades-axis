@@ -1,39 +1,94 @@
-const { onCall } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { defineSecret } = require("firebase-functions/params");
 const { S3Client, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
-const s3 = new S3Client({
-  endpoint: "https://1b6abc3b17e716d22ca9984ebbbc529f.r2.cloudflarestorage.com",
-  region: "auto",
-  credentials: {
-    accessKeyId: "fb681664900c82a44443ff34b4d76cc0",
-    secretAccessKey: "84d18c35880dc526467890e0d33008bfd3a5c7b1ade5177bd9723c88170ac69d",
+// SECURITY: R2 credentials must never be committed to source control.
+// Configure these Firebase secrets before deploying:
+//   firebase functions:secrets:set R2_ACCOUNT_ID
+//   firebase functions:secrets:set R2_ACCESS_KEY_ID
+//   firebase functions:secrets:set R2_SECRET_ACCESS_KEY
+//   firebase functions:secrets:set R2_BUCKET
+
+const R2_ACCOUNT_ID = defineSecret("R2_ACCOUNT_ID");
+const R2_ACCESS_KEY_ID = defineSecret("R2_ACCESS_KEY_ID");
+const R2_SECRET_ACCESS_KEY = defineSecret("R2_SECRET_ACCESS_KEY");
+const R2_BUCKET = defineSecret("R2_BUCKET");
+
+function getR2Client() {
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${R2_ACCOUNT_ID.value()}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: R2_ACCESS_KEY_ID.value(),
+      secretAccessKey: R2_SECRET_ACCESS_KEY.value(),
+    },
+  });
+}
+
+function requireAuth(request) {
+  if (!request.auth?.uid) {
+    throw new HttpsError("unauthenticated", "You must be logged in.");
+  }
+  return request.auth.uid;
+}
+
+function validateKey(key) {
+  if (
+    typeof key !== "string" ||
+    key.length > 300 ||
+    !/^(videos|thumbnails|payments)\/[A-Za-z0-9._\/-]+$/.test(key) ||
+    key.includes("..")
+  ) {
+    throw new HttpsError("invalid-argument", "Invalid storage key.");
+  }
+}
+
+exports.getR2UploadUrl = onCall(
+  {
+    secrets: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET],
   },
-});
+  async (request) => {
+    requireAuth(request);
+    const { key, contentType } = request.data || {};
 
-exports.getR2UploadUrl = onCall(async (request) => {
-  if (!request.auth) throw new Error("You must be logged in to upload.");
-  const { key, contentType } = request.data;
-  if (!key || !contentType) throw new Error("Missing file key or content type.");
-  const command = new PutObjectCommand({
-    Bucket: "gtrades-assets",
-    Key: key,
-    ContentType: contentType,
-  });
-  const url = await getSignedUrl(s3, command, { expiresIn: 900 });
-  return { url };
-});
+    if (!key || !contentType) {
+      throw new HttpsError("invalid-argument", "Missing upload information.");
+    }
 
-exports.getR2DownloadUrl = onCall(async (request) => {
-  if (!request.auth) throw new Error("You must be logged in to download.");
-  const { key } = request.data;
-  if (!key) throw new Error("Missing file key.");
-  const command = new GetObjectCommand({
-    Bucket: "gtrades-assets",
-    Key: key,
-  });
-  const url = await getSignedUrl(s3, command, { expiresIn: 900 });
-  return { url };
-});
+    validateKey(key);
 
-console.log("✅ Cloudflare R2 functions loaded.");
+    const command = new PutObjectCommand({
+      Bucket: R2_BUCKET.value(),
+      Key: key,
+      ContentType: contentType,
+    });
+
+    const url = await getSignedUrl(getR2Client(), command, { expiresIn: 900 });
+    return { url, expiresIn: 900 };
+  }
+);
+
+exports.getR2DownloadUrl = onCall(
+  {
+    secrets: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET],
+  },
+  async (request) => {
+    requireAuth(request);
+    const { key } = request.data || {};
+
+    if (!key) {
+      throw new HttpsError("invalid-argument", "Missing file key.");
+    }
+
+    validateKey(key);
+
+    const command = new GetObjectCommand({
+      Bucket: R2_BUCKET.value(),
+      Key: key,
+    });
+
+    const url = await getSignedUrl(getR2Client(), command, { expiresIn: 900 });
+    return { url, expiresIn: 900 };
+  }
+);

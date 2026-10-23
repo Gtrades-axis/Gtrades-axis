@@ -5,6 +5,7 @@
 // ============================================================
 
 import { auth, db } from "./firebase.js";
+import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 
 import {
   onAuthStateChanged
@@ -49,6 +50,7 @@ const closeModal = document.getElementById("closeModal");
 
 let allPayments = [];
 let currentAdmin = null;
+const storage = getStorage();
 
 
 // ============================================================
@@ -960,7 +962,7 @@ paymentsTable.addEventListener(
 // PAYMENT MODAL
 // ============================================================
 
-function openPaymentModal(payment) {
+async function openPaymentModal(payment) {
 
   const status =
     getStatus(payment);
@@ -986,12 +988,22 @@ function openPaymentModal(payment) {
     );
 
 
-  const proofUrl =
+  let proofUrl =
     payment.proofUrl ||
     payment.proofURL ||
     payment.paymentProofUrl ||
     payment.receiptUrl ||
     null;
+
+  if (!proofUrl && payment.proofStoragePath) {
+    try {
+      proofUrl = await getDownloadURL(
+        storageRef(storage, payment.proofStoragePath)
+      );
+    } catch (error) {
+      console.warn("Unable to generate proof URL:", error);
+    }
+  }
 
 
   const proofName =
@@ -1447,6 +1459,20 @@ async function approvePayment(payment) {
 
   }
 
+
+  if (getStatus(payment) !== "pending") {
+    alert("Only pending payments can be approved.");
+    return;
+  }
+
+  const expectedAmount =
+    payment.plan === "Monthly" ? 50 :
+    payment.plan === "Lifetime" ? 200 : null;
+
+  if (expectedAmount === null || getAmountUSD(payment) !== expectedAmount) {
+    alert("This payment has an invalid plan or amount and cannot be approved.");
+    return;
+  }
 
   const confirmed =
     confirm(

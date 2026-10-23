@@ -460,20 +460,19 @@ service cloud.firestore {
 
       allow create:
         if signedIn()
-        &&
-        (
-          (
-            request.resource.data.userId != null
-            &&
-            request.resource.data.userId == request.auth.uid
-          )
-          ||
-          (
-            request.resource.data.uid != null
-            &&
-            request.resource.data.uid == request.auth.uid
-          )
-        );
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "pending"
+        && request.resource.data.plan in ["Monthly", "Lifetime"]
+        && (
+          (request.resource.data.plan == "Monthly" && request.resource.data.amountUSD == 50) ||
+          (request.resource.data.plan == "Lifetime" && request.resource.data.amountUSD == 200)
+        )
+        && request.resource.data.paymentMethod in ["Mpesa", "PayPal"]
+        && request.resource.data.transactionId is string
+        && request.resource.data.transactionId.size() > 0
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.submittedAt != null;
 
       allow read:
         if isAdmin()

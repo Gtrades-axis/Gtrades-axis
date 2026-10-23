@@ -849,7 +849,7 @@
                 <!-- PROOF -->
                 <div class="form-group" style="margin-top:18px;">
                     <label><i class="fa-solid fa-paperclip"></i> Payment Proof</label>
-                    <input id="paymentProof" type="file" accept="image/jpeg,image/png,application/pdf">
+                    <input id="paymentProof" type="file" accept="image/jpeg,image/png,application/pdf" required>
                     <div class="file-hint">JPG, PNG or PDF — maximum 5MB.</div>
                 </div>
 
@@ -906,38 +906,8 @@
         </div>
     </div>
 
-    <!-- SCRIPTS (unchanged – same logic) -->
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase": "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"
-            }
-        }
-    </script>
-
-    <script type="module">
-        // ─── EXACT SAME JS AS BEFORE – JUST PASTE YOUR FULL SCRIPT HERE ───
-        // (To keep the answer concise, I’m referencing your existing script.
-        //  In production, copy your entire working script from the old payment page.
-        //  All IDs and logic are identical – only the HTML/CSS changed.)
-        //
-        // For completeness, I'll include the minimal structure – but you must
-        // copy your existing JS that handles auth, Firestore, exchange rate, etc.
-        // ──────────────────────────────────────────────────────────────
-
-        import { auth, db } from "/js/firebase.js";
-        import { onAuthStateChanged } from "firebase/auth";
-        import { doc, getDoc, collection, addDoc, query, where, getDocs, limit, serverTimestamp } from "firebase/firestore";
-
-        // ─── ALL YOUR EXISTING CODE GOES HERE ───
-        // (I’m omitting the full JS to keep the answer focused on UI,
-        //  but you can simply replace the old payment page’s HTML with this
-        //  and keep the same script – it will work because the IDs are identical.)
-
-        console.log("Payment page loaded – reuse your existing script.");
-    </script>
+    <!-- PAYMENT SYSTEM -->
+    <script type="module" src="/js/payment.js"></script>
 
 </body>
 </html>
