@@ -260,7 +260,44 @@
       padding: 50px;
     }
 
-    @media (max-width: 600px) {
+        .sort-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sort-control label {
+      color: #aeb9c9;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .sort-control select {
+      min-width: 220px;
+      border: 1px solid #293545;
+      background: #080c12;
+      color: #fff;
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .sort-control select:focus {
+      border-color: #1597ff;
+    }
+
+    .video-upload-date {
+      color: #8290a3;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+@media (max-width: 600px) {
       .hero h1 {
         font-size: 26px;
       }
@@ -304,6 +341,17 @@
 
   <div class="filters">
 
+    <div class="sort-control">
+      <label for="videoSort">Arrange by</label>
+      <select id="videoSort" aria-label="Arrange videos">
+        <option value="newest">Upload date — newest first</option>
+        <option value="oldest">Upload date — oldest first</option>
+        <option value="name-asc">Name — A to Z</option>
+        <option value="name-desc">Name — Z to A</option>
+        <option value="category-asc">Category — A to Z</option>
+        <option value="category-desc">Category — Z to A</option>
+      </select>
+    </div>
 
 <button
   class="filter-btn active"
@@ -515,6 +563,9 @@ const filterButtons =
   document.querySelectorAll(
     ".filter-btn"
   );
+
+const videoSort =
+  document.getElementById("videoSort");
 
 
 /* ============================================================
@@ -851,6 +902,42 @@ function renderVideos() {
 
 
   /* ----------------------------------------------------------
+     SORT
+  ---------------------------------------------------------- */
+
+  const sortMode = videoSort?.value || "newest";
+
+  const textValue = (value) =>
+    String(value ?? "").trim().toLowerCase();
+
+  const uploadTime = (video) =>
+    getTimestamp(
+      video.createdAt ||
+      video.uploadedAt ||
+      video.updatedAt
+    );
+
+  filtered.sort((a, b) => {
+    switch (sortMode) {
+      case "oldest":
+        return uploadTime(a) - uploadTime(b);
+      case "name-asc":
+        return textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "name-desc":
+        return textValue(b.title || b.name).localeCompare(textValue(a.title || a.name));
+      case "category-asc":
+        return textValue(a.category || "General").localeCompare(textValue(b.category || "General")) ||
+          textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "category-desc":
+        return textValue(b.category || "General").localeCompare(textValue(a.category || "General")) ||
+          textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "newest":
+      default:
+        return uploadTime(b) - uploadTime(a);
+    }
+  });
+
+  /* ----------------------------------------------------------
      EMPTY
   ---------------------------------------------------------- */
 
@@ -1013,6 +1100,10 @@ function createVideoCard(
           }
         </span>
 
+      </div>
+
+      <div class="video-upload-date">
+        Uploaded ${escapeHTML(formatUploadDate(video))}
       </div>
 
     </div>
@@ -1230,6 +1321,26 @@ function showPlayerError(
 }
 
 
+function formatUploadDate(video) {
+
+  const value =
+    video.createdAt ||
+    video.uploadedAt ||
+    video.updatedAt;
+
+  const millis = getTimestamp(value);
+
+  if (!millis) return "date unavailable";
+
+  return new Date(millis).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+
+}
+
+
 /* ============================================================
    HTML ESCAPE
 ============================================================ */
@@ -1309,6 +1420,11 @@ filterButtons.forEach(
 
   }
 );
+
+
+videoSort?.addEventListener("change", () => {
+  renderVideos();
+});
 
 
 /* ============================================================

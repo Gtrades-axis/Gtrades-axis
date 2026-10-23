@@ -343,6 +343,41 @@
       cursor: not-allowed;
     }
 
+    .sort-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+
+    .sort-row label {
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sort-row select {
+      min-width: 230px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #1b2739;
+      background: #0a101a;
+      color: #ffffff;
+      outline: none;
+    }
+
+    .sort-row select:focus {
+      border-color: #2563eb;
+    }
+
+    .resource-upload-date {
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 12px;
+    }
+
     .filters {
       display: flex;
 
@@ -1012,6 +1047,19 @@
         </div>
 
 
+        <div class="sort-row">
+          <label for="resourceSort">Arrange by</label>
+          <select id="resourceSort" aria-label="Arrange resources">
+            <option value="newest">Upload date — newest first</option>
+            <option value="oldest">Upload date — oldest first</option>
+            <option value="name-asc">Name — A to Z</option>
+            <option value="name-desc">Name — Z to A</option>
+            <option value="category-asc">Category — A to Z</option>
+            <option value="category-desc">Category — Z to A</option>
+          </select>
+        </div>
+
+
         <!-- FILTERS -->
 
         <div
@@ -1192,6 +1240,9 @@
 
     const filters =
       document.querySelectorAll(".filter");
+
+    const resourceSort =
+      document.getElementById("resourceSort");
 
     const logoutBtn =
       document.getElementById("logoutBtn");
@@ -1681,6 +1732,27 @@
     }
 
 
+    function resourceUploadTime(resource) {
+      return getTimestampValue(
+        resource.createdAt ||
+        resource.uploadedAt ||
+        resource.updatedAt
+      );
+    }
+
+
+    function formatResourceUploadDate(resource) {
+      const millis = resourceUploadTime(resource);
+      if (!millis) return "date unavailable";
+
+      return new Date(millis).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+
     /* ========================================================
        RENDER RESOURCES
        ======================================================== */
@@ -1731,6 +1803,32 @@
               keyword
             )
         );
+
+
+      /* ------------------------------------------------------
+         SORT
+      ------------------------------------------------------ */
+
+      const sortMode = resourceSort?.value || "newest";
+      const textValue = (value) => String(value ?? "").trim().toLowerCase();
+
+      filtered.sort((a, b) => {
+        switch (sortMode) {
+          case "oldest":
+            return resourceUploadTime(a) - resourceUploadTime(b);
+          case "name-asc":
+            return textValue(a.title || a.name || a.fileName).localeCompare(textValue(b.title || b.name || b.fileName));
+          case "name-desc":
+            return textValue(b.title || b.name || b.fileName).localeCompare(textValue(a.title || a.name || a.fileName));
+          case "category-asc":
+            return textValue(a.category || "General").localeCompare(textValue(b.category || "General")) || textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+          case "category-desc":
+            return textValue(b.category || "General").localeCompare(textValue(a.category || "General")) || textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+          case "newest":
+          default:
+            return resourceUploadTime(b) - resourceUploadTime(a);
+        }
+      });
 
 
       /* ------------------------------------------------------
@@ -1922,6 +2020,10 @@
 
           Cloudflare R2
 
+        </div>
+
+        <div class="resource-upload-date">
+          Uploaded ${escapeHTML(formatResourceUploadDate(resource))}
         </div>
 
 
@@ -2569,6 +2671,11 @@
 
       }
     );
+
+
+    resourceSort?.addEventListener("change", () => {
+      renderResources();
+    });
 
 
     /* ========================================================
