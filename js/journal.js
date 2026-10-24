@@ -182,25 +182,33 @@ function calculateOutcomeRR(params) {
 
 function calculateExitLeg(price, percent, context) {
     const entry = Number(context.entry) || 0;
+    const stopLoss = Number(context.stopLoss) || 0;
     const lotSize = Number(context.lotSize) || 0;
-    const riskAmount = Number(context.riskAmount) || 0;
     const pipSize = Number(context.pipSize) || getPipSize(context.pair);
     const pipValue = Number(context.pipValue) || getPipValue(context.pair);
     const exit = Number(price) || 0;
     const allocation = Math.max(0, Math.min(100, Number(percent) || 0));
 
-    if (!entry || !exit || !lotSize || pipSize <= 0 || pipValue <= 0 || allocation <= 0) {
-        return { price: exit, percent: allocation, pnl: 0, rr: 0 };
+    if (!entry || !exit || allocation <= 0) {
+        return { price: exit, percent: allocation, pnl: 0, rr: 0, fullPositionRR: 0 };
     }
 
-    const signedMove = String(context.direction || "BUY").toUpperCase() === "SELL"
-        ? entry - exit
-        : exit - entry;
-    const pips = signedMove / pipSize;
-    const pnl = pips * pipValue * lotSize * (allocation / 100);
-    const rr = riskAmount > 0 ? pnl / riskAmount : 0;
+    const direction = String(context.direction || "BUY").toUpperCase();
+    const signedMove = direction === "SELL" ? entry - exit : exit - entry;
 
-    return { price: exit, percent: allocation, pnl, rr };
+    // Money P/L can still use pip-value/lot-size assumptions, but R-multiple must not.
+    // RR is derived directly from price movement versus the ORIGINAL stop distance.
+    let pnl = 0;
+    if (lotSize > 0 && pipSize > 0 && pipValue > 0) {
+        const pips = signedMove / pipSize;
+        pnl = pips * pipValue * lotSize * (allocation / 100);
+    }
+
+    const riskDistance = Math.abs(entry - stopLoss);
+    const fullPositionRR = riskDistance > 0 ? signedMove / riskDistance : 0;
+    const rr = fullPositionRR * (allocation / 100);
+
+    return { price: exit, percent: allocation, pnl, rr, fullPositionRR };
 }
 
 function getExitRowsFromForm() {
@@ -288,7 +296,7 @@ function calculateExitSummary() {
     const totalPercent = rows.reduce((sum, row) => sum + row.percent, 0);
 
     const computed = rows.map(row => calculateExitLeg(row.price, row.percent, {
-        entry, lotSize, riskAmount, pipSize, pipValue, pair, direction
+        entry, stopLoss, lotSize, riskAmount, pipSize, pipValue, pair, direction
     }));
 
     const grossProfit = computed.reduce((sum, row) => sum + row.pnl, 0);
@@ -298,7 +306,9 @@ function calculateExitSummary() {
     const weightedExit = weightedExitDenominator > 0
         ? computed.reduce((sum, row) => sum + (row.price * row.percent), 0) / weightedExitDenominator
         : 0;
-    const realizedRR = riskAmount > 0 ? grossProfit / riskAmount : 0;
+    // Realized RR = sum of each actual exit's price-based R contribution.
+    // Example: 50% at +2R and 50% at +4R = +3R realized.
+    const realizedRR = computed.reduce((sum, row) => sum + (Number(row.rr) || 0), 0);
     const remaining = Math.max(0, 100 - totalPercent);
     let result = "Pending";
     if (totalPercent > 0) result = totalPercent >= 100 ? (grossProfit > 0.005 ? "Win" : grossProfit < -0.005 ? "Loss" : "Breakeven") : "Partial";
@@ -594,6 +604,7 @@ function buildTradeFromForm(isUpdate = false) {
         initialRR: existing.initialRR ?? projectedRR, plannedRR: projectedRR,
         lotSize, balance, riskSettingAmount: num("riskSettingAmount"), riskAmount: actualRisk, risk: num("risk"),
         rr: exitSummary.realizedRR,
+        actualRR: exitSummary.realizedRR,
         realizedRR: exitSummary.realizedRR,
         potentialProfit: num("potentialProfit"), potentialLoss: num("potentialLoss"),
         profit: Number(exitSummary.grossProfit.toFixed(2)),
@@ -1023,6 +1034,37 @@ function calculateMaxDrawdown(closedTrades, startingBalance) {
     return maxDrawdown;
 }
 
+function getTradeRealizedRR(trade) {
+    if (!trade || typeof trade !== "object") return 0;
+    const entry = Number(trade.initialEntry ?? trade.entry) || 0;
+    const stopLoss = Number(trade.initialStopLoss ?? trade.stopLoss) || 0;
+    const riskDistance = Math.abs(entry - stopLoss);
+    const direction = String(trade.direction || "BUY").toUpperCase();
+    if (entry && stopLoss && riskDistance > 0) {
+        const exits = Array.isArray(trade.exitExecutions) ? trade.exitExecutions : [];
+        if (exits.length) {
+            return exits.reduce((sum, row) => {
+                const price = Number(row?.price) || 0;
+                const percent = Math.max(0, Math.min(100, Number(row?.percent) || 0));
+                if (!price || percent <= 0) return sum;
+                const signedMove = direction === "SELL" ? entry - price : price - entry;
+                return sum + (signedMove / riskDistance) * (percent / 100);
+            }, 0);
+        }
+        const exitPrice = Number(trade.exitPrice) || 0;
+        if (exitPrice) {
+            let percent = Number(trade.totalExitPercent ?? trade.partialPercent);
+            if (!Number.isFinite(percent) || percent <= 0) {
+                percent = String(trade.status || "").toLowerCase() === "closed" ? 100 : 100;
+            }
+            percent = Math.max(0, Math.min(100, percent));
+            const signedMove = direction === "SELL" ? entry - exitPrice : exitPrice - entry;
+            return (signedMove / riskDistance) * (percent / 100);
+        }
+    }
+    return Number(trade.actualRR ?? trade.realizedRR ?? trade.rr ?? 0) || 0;
+}
+
 function calculateStatistics() {
     const all = getFilteredTrades();
     const closed = all.filter(t => t.status === "Closed");
@@ -1039,7 +1081,8 @@ function calculateStatistics() {
     const grossProfit = wins.reduce((sum, t) => sum + Math.max(Number(t.profit) || 0, 0), 0);
     const grossLoss = losses.reduce((sum, t) => sum + Math.abs(Math.min(Number(t.profit) || 0, 0)), 0);
     const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
-    const averageRR = closed.length === 0 ? 0 : closed.reduce((s, t) => s + (Number(t.rr) || 0), 0) / closed.length;
+    const rrValues = closed.map(getTradeRealizedRR).filter(Number.isFinite);
+    const averageRR = rrValues.length === 0 ? 0 : rrValues.reduce((s, value) => s + value, 0) / rrValues.length;
 
     let startingBalance = 0;
     if (selectedAccountId === "all") {
