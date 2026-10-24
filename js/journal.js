@@ -519,7 +519,6 @@ async function addTradeToFirestore(trade) {
         createdAt: serverTimestamp()
     });
 
-    console.log("✅ TRADE WRITTEN TO FIRESTORE:", tradeId);
     return tradeId;
 }
 
@@ -727,7 +726,7 @@ async function deleteTrade(tradeId) {
     const trade = trades.find(t => t.id === tradeId);
     if (!trade) { showJournalNotification("Trade could not be found.", "error"); return; }
 
-    if (!confirm(`Delete ${trade.pair || "this trade"}?\n\nThis will permanently remove the trade from Firebase.`)) {
+    if (!confirm(`Delete ${trade.pair || "this trade"}?\n\nThis will permanently remove the trade from your journal.`)) {
         return;
     }
 
@@ -1754,7 +1753,7 @@ function startApp() {
             if (!exitExecutionsDraft.length) renderExitExecutions([]);
             checkEditTrade();
 
-            console.log("✅ GTRADES-AXIS™ Journal connected to Firestore.");
+            console.log("✅ GTRADES-AXIS™ Journal ready.");
 
         } catch (error) {
             console.error("❌ Journal initialization failed:", error);

@@ -272,7 +272,7 @@ function renderTable() {
 
   document.querySelectorAll(".delete-btn").forEach((button) => {
     button.onclick = async () => {
-      if (confirm("Delete this trade permanently from Firebase?")) {
+      if (confirm("Delete this trade permanently?")) {
         await deleteTrade(button.dataset.id);
       }
     };
@@ -546,7 +546,7 @@ async function clearAll() {
     return;
   }
 
-  if (!confirm("Delete ALL your journal trades permanently from Firebase?")) return;
+  if (!confirm("Delete ALL your journal trades permanently?")) return;
 
   try {
     for (const trade of trades) {

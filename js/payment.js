@@ -1837,7 +1837,7 @@ paymentForm?.addEventListener(
                     body: proofFile
                 });
                 if (!uploadResponse.ok) {
-                    throw new Error(`Cloudflare R2 upload failed (${uploadResponse.status}). Please check the R2 bucket CORS configuration and Firebase Functions deployment.`);
+                    throw new Error(`Secure upload failed (${uploadResponse.status}). Please try again. If the problem continues, contact support.`);
                 }
                 paymentData.proofStoragePath = proofPath;
                 paymentData.proofStorageProvider = "cloudflare-r2";
@@ -1985,7 +1985,7 @@ paymentForm?.addEventListener(
             ) {
 
                 message =
-                    "Payment was rejected by Firestore security rules. Please check your login session and payment rules.";
+                    "Your payment submission could not be saved. Please sign in again and retry.";
             }
 
 

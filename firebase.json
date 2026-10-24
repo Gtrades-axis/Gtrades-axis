@@ -11,6 +11,10 @@
     "trailingSlash": false,
     "rewrites": [
       {
+        "source": "/admin-resources",
+        "destination": "/admin-resources.html"
+      },
+      {
         "source": "/academy-admin",
         "destination": "/academy.html"
       },

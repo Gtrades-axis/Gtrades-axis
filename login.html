@@ -123,7 +123,7 @@
                 const userSnap = await getDoc(userRef);
 
                 if (!userSnap.exists()) {
-                    console.log("🆕 New Google User. Creating Firestore Record...");
+
                     try {
                         await setDoc(userRef, {
                             uid: user.uid,
@@ -136,13 +136,13 @@
                             createdAt: serverTimestamp(),
                             updatedAt: serverTimestamp()
                         });
-                        console.log("✅ Firestore User Document Created.");
+
                     } catch (firestoreError) {
                         console.error("❌ FIRESTORE WRITE ERROR:", firestoreError);
                         return showError("Failed to register Google user in database: " + firestoreError.message);
                     }
                 } else {
-                    console.log("✅ Existing User Found in Firestore.");
+
                 }
 
                 // 🔽 FIXED: Redirects to the HTML file, not the route

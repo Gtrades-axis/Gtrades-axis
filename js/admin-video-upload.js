@@ -34,13 +34,13 @@ function upload(file, key, progress) {
     xhr.upload.onprogress = e => {
       if (e.lengthComputable) progress(Math.round(e.loaded / e.total * 100));
     };
-    xhr.onerror = () => reject(new Error("Network/CORS error while uploading to R2."));
+    xhr.onerror = () => reject(new Error("The upload could not be completed. Check your connection and try again."));
     xhr.onabort = () => reject(new Error("Upload cancelled."));
     xhr.onload = () => {
       let data = {};
-      try { data = xhr.responseText ? JSON.parse(xhr.responseText) : {}; } catch { reject(new Error("R2 Worker returned invalid JSON.")); return; }
+      try { data = xhr.responseText ? JSON.parse(xhr.responseText) : {}; } catch { reject(new Error("The upload service returned an invalid response.")); return; }
       if (xhr.status < 200 || xhr.status >= 300 || data.success === false) {
-        reject(new Error(data.error || data.message || `R2 upload failed (${xhr.status}).`));
+        reject(new Error(data.error || data.message || `Upload failed (${xhr.status}).`));
         return;
       }
       const returnedKey = data.key || data.fileKey || key;
@@ -79,7 +79,7 @@ async function handleSubmit(event) {
   $("progressBox").style.display = "block";
   $("bar").style.width = "0%";
   $("percent").textContent = "0%";
-  setStatus("Uploading video to Cloudflare R2…");
+  setStatus("Uploading video…");
 
   try {
     const key = `videos/${Date.now()}-${crypto.randomUUID().slice(0,8)}-${cleanName(file.name)}`;
@@ -99,7 +99,7 @@ async function handleSubmit(event) {
     let thumbnailUrl = "";
     let thumbnailKey = "";
     if (thumb) {
-      setStatus("Uploading thumbnail to Cloudflare R2…");
+      setStatus("Uploading thumbnail…");
       thumbnailKey = `video-thumbnails/${Date.now()}-${crypto.randomUUID().slice(0,8)}-${cleanName(thumb.name)}`;
       const thumbResult = await upload(thumb, thumbnailKey, () => {});
       thumbnailKey = thumbResult.key;

@@ -109,7 +109,7 @@ exports.checkPaymentSystem = onCall(
         return { configured: true, bucket: R2_BUCKET.value() };
       }
       console.error("Payment R2 diagnostic failed:", error);
-      throw new HttpsError("failed-precondition", "Cloudflare R2 payment storage is not configured correctly.");
+      throw new HttpsError("failed-precondition", "The payment proof service is temporarily unavailable.");
     }
     return { configured: true, bucket: R2_BUCKET.value() };
   }

@@ -116,7 +116,7 @@ document.getElementById("makeAdmin")?.addEventListener("click", () => updateMemb
 document.getElementById("demoteBtn")?.addEventListener("click", () => updateMember({role:"user"}, "Administrator demoted to Member."));
 document.getElementById("suspendUser")?.addEventListener("click", () => updateMember({status:"suspended", active:false}, "Member suspended."));
 document.getElementById("deleteUser")?.addEventListener("click", async () => {
-  if (!currentMember || !confirm("Delete this member profile from Firestore? This does not delete their Firebase Authentication account.")) return;
+  if (!currentMember || !confirm("Delete this member profile? This action removes the member profile data but does not remove their sign-in account.")) return;
   try { await deleteDoc(doc(db, "users", currentMember.id)); alert("Member profile deleted."); closeMemberModal(); }
   catch (error) { console.error(error); alert(`Could not delete member: ${error.message}`); }
 });

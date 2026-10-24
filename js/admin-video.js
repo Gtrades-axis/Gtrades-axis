@@ -711,7 +711,7 @@ function uploadFile(
             reject(
               new Error(
                 response.error ||
-                "Cloudflare upload failed."
+                "Upload failed."
               )
             );
 
@@ -749,7 +749,7 @@ function uploadFile(
 
           reject(
             new Error(
-              "Network error while uploading to Cloudflare R2."
+              "The upload could not be completed. Check your connection and try again."
             )
           );
 

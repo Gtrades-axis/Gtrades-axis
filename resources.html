@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Premium Resources | GTRADES-AXIS™</title>
+  <title>Resource Library | GTRADES-AXIS™</title>
 
   <meta
     name="description"
@@ -925,7 +925,7 @@
       <li class="active">
         <a href="/resources">
           <i class="fa-solid fa-folder-open"></i>
-          <span>Premium Resources</span>
+          <span>Resources</span>
         </a>
       </li>
 
@@ -991,11 +991,11 @@
       <div>
 
         <div class="page-title">
-          GTRADES-AXIS™ LIBRARY
+          GTRADES-AXIS™ RESOURCE LIBRARY
         </div>
 
         <div class="page-subtitle">
-          Your trading tools, strategies, journals and learning materials.
+          Your trading tools, strategies, templates and learning materials.
         </div>
 
       </div>
@@ -1153,26 +1153,17 @@
           <i class="fa-solid fa-circle-notch fa-spin"></i>
 
           <div>
-            Connecting to GTRADES-AXIS™...
+            Preparing your resource library…
           </div>
 
           <small>
-            Loading your resources...
+            Please wait while your library is prepared.
           </small>
 
         </div>
 
       </section>
-
-
-      <!-- DEBUG -->
-
-      <div
-        class="debug-panel"
-        id="debugPanel"
-      ></div>
-
-    </div>
+</div>
 
 
     <!-- FOOTER -->
@@ -1272,15 +1263,7 @@
        DEBUG
        ======================================================== */
 
-    function debug(message, data = null) {
-
-      console.log(
-        "[GTRADES-AXIS RESOURCES]",
-        message,
-        data ?? ""
-      );
-
-    }
+    function debug(message, data = null) { /* production: no member-facing debug output */ }
 
 
     /* ========================================================
@@ -1378,7 +1361,7 @@
 
             showError(
               "Your account information could not be found.",
-              "Firestore users document does not exist for this account."
+              "Your account profile could not be loaded."
             );
 
             return;
@@ -1490,11 +1473,11 @@
           <i class="fa-solid fa-circle-notch fa-spin"></i>
 
           <div>
-            Loading your resources...
+            Please wait while your library is prepared.
           </div>
 
           <small>
-            Connecting to Firestore
+            Syncing your library
           </small>
 
         </div>
@@ -1562,6 +1545,12 @@
             const data =
               resourceDoc.data();
 
+
+            // Member library only shows published resources. Legacy records
+            // without a published field remain visible for backwards compatibility.
+            if (data.published === false || data.status === "draft") {
+              return;
+            }
 
             resources.push({
 
@@ -1755,7 +1744,7 @@
 
     function formatResourceUpdateDate(resource) {
       const millis = resourceUpdateTime(resource);
-      if (!millis) return "date unavailable";
+      if (!millis) return "";
       return new Date(millis).toLocaleDateString("en-US", {
         year: "numeric", month: "short", day: "numeric"
       });
@@ -1764,7 +1753,7 @@
 
     function formatResourceUploadDate(resource) {
       const millis = resourceUploadTime(resource);
-      if (!millis) return "date unavailable";
+      if (!millis) return "";
 
       return new Date(millis).toLocaleDateString("en-US", {
         year: "numeric",
@@ -1965,8 +1954,7 @@
          ------------------------------------------------------ */
 
       const title =
-        resource.title ||
-        "Untitled Resource";
+        resource.title || resource.name || resource.fileName || "Resource";
 
 
       const category =
@@ -1975,8 +1963,7 @@
 
 
       const description =
-        resource.description ||
-        "GTRADES-AXIS™ trading resource.";
+        String(resource.description || "").trim();
 
 
       const type =
@@ -2039,18 +2026,10 @@
         </div>
 
 
-        <div class="resource-storage">
-
-          <i class="fa-solid fa-cloud"></i>
-
-          Cloudflare R2
-
-        </div>
-
+        ${formatResourceUploadDate(resource) ? `
         <div class="resource-upload-date">
-          Uploaded ${escapeHTML(formatResourceUploadDate(resource))}
-          <span class="resource-updated-date"> · Updated ${escapeHTML(formatResourceUpdateDate(resource))}</span>
-        </div>
+          Added ${escapeHTML(formatResourceUploadDate(resource))}
+        </div>` : ""}
 
 
         <div class="resource-action">
@@ -2281,7 +2260,7 @@
       if (!key) {
 
         throw new Error(
-          "This resource has no R2 file key."
+          "This resource is not available for download yet."
         );
       }
 
@@ -2321,7 +2300,7 @@
 
 
         alert(
-          "This resource has no R2 file attached."
+          "This resource is not available for download yet."
         );
 
         return;
@@ -2881,24 +2860,15 @@
     );
 
     debug(
-      "GTRADES-AXIS™ PREMIUM RESOURCES"
+      "GTRADES-AXIS™ RESOURCE LIBRARY"
     );
 
     debug(
-      "Storage: Cloudflare R2"
+      "Resource delivery initialized"
     );
 
     debug(
-      "Worker:",
-      R2_WORKER
-    );
-
-    debug(
-      "Delivery route: /?key="
-    );
-
-    debug(
-      "Firestore collection: resources"
+      "Resource library initialized"
     );
 
     debug(

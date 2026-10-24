@@ -60,7 +60,7 @@ const FALLBACK_MODULES = [
       ]
     }
   }
-  // Add more fallback modules if needed – for now two are enough to test.
+  
 ];
 
 let currentUser = null;
@@ -140,29 +140,26 @@ async function loadModules() {
   try {
     const querySnapshot = await getDocs(collection(db, "academy_modules"));
     if (querySnapshot.empty) {
-      console.warn("⚠️ No modules found in Firestore. Using fallback sample data.");
-      modules = FALLBACK_MODULES;
+      modules = [];
     } else {
       modules = [];
       querySnapshot.forEach((doc) => {
         modules.push({ id: doc.id, ...doc.data() });
       });
-      console.log(`📦 Loaded ${modules.length} modules from Firestore.`);
+
     }
     // Sort by order
     modules.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (e) {
     console.error("Error loading modules:", e);
-    // Fallback to sample data
-    modules = FALLBACK_MODULES;
-    console.log("🔄 Using fallback modules due to error.");
+    modules = [];
   }
 }
 
 // ─── Render Dashboard ──────────────────────────────────────────
 function renderDashboard() {
   if (!modules.length) {
-    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">No modules available yet. Check back soon!</div>`;
+    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">No academy modules are currently published.</div>`;
     return;
   }
 

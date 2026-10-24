@@ -498,7 +498,7 @@
       <nav>
         <ul class="menu">
           <li><a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-          <li><a href="/resources"><i class="fa-solid fa-folder-open"></i> Premium Resources</a></li>
+          <li><a href="/resources"><i class="fa-solid fa-folder-open"></i> Resources</a></li>
           <li><a href="/academy"><i class="fa-solid fa-graduation-cap"></i> Premium Academy</a></li>
           <li><a href="/videos"><i class="fa-solid fa-circle-play"></i> Videos</a></li>
           <li><a href="/journal"><i class="fa-solid fa-chart-line"></i> Trading Journal</a></li>
@@ -626,8 +626,9 @@
   </script>
 
   <script type="module">
-    import { auth } from "./js/firebase.js";
+    import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
     // ─── AUTH GUARD ──────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
@@ -653,23 +654,44 @@
     });
 
     // ─── SUPPORT FORM ────────────────────────────────────────────
-    document.getElementById('supportForm').addEventListener('submit', function(e) {
+    document.getElementById('supportForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const status = document.getElementById('supportStatus');
       const name = document.getElementById('supportName').value.trim();
       const email = document.getElementById('supportEmail').value.trim();
       const message = document.getElementById('supportMessage').value.trim();
+      const user = auth.currentUser;
 
-      if (!name || !email || !message) {
-        status.textContent = 'Please fill in all required fields.';
+      if (!user || !name || !email || !message) {
+        status.textContent = !user ? 'Please sign in again before submitting a support request.' : 'Please fill in all required fields.';
         status.style.color = '#e74c3c';
         return;
       }
 
-      // Simulate sending (replace with Firebase, EmailJS, etc.)
-      status.textContent = '✅ Your support request has been sent! We\'ll get back to you shortly.';
-      status.style.color = '#18b663';
-      this.reset();
+      const submitButton = this.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
+      status.textContent = 'Submitting your request…';
+      status.style.color = '#94a3b8';
+
+      try {
+        await addDoc(collection(db, 'support_requests'), {
+          userId: user.uid,
+          name,
+          email,
+          message,
+          status: 'open',
+          createdAt: serverTimestamp()
+        });
+        status.textContent = 'Your support request has been submitted successfully.';
+        status.style.color = '#18b663';
+        this.reset();
+      } catch (error) {
+        console.error('Support request submission failed:', error);
+        status.textContent = 'We could not submit your request. Please try again or contact support directly.';
+        status.style.color = '#e74c3c';
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
     });
 
     console.log('✅ Support page ready.');

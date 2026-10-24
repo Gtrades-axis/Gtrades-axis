@@ -727,7 +727,7 @@ function bind() {
         toast("Content updated successfully.", "success");
       } else {
         await deleteContent(type, source, id);
-        toast("Content record deleted. The R2 file was kept.", "success");
+        toast("Content record deleted.", "success");
       }
     } catch (error) {
       console.error("CONTENT CRUD ERROR:", error);
@@ -1584,7 +1584,7 @@ async function deleteContent(type, source, id) {
   const data = snap.data();
   const label = data.title || data.name || data.fileName || "this item";
 
-  if (!confirm(`Delete "${label}" from ${source}? This removes the Firestore record. The R2 file is kept.`)) {
+  if (!confirm(`Delete "${label}" from ${source}? This removes the published content record.`)) {
     return;
   }
 
@@ -2565,7 +2565,7 @@ function createUploadStudio(
             ${
               isVideo
                 ? "Video Upload Studio"
-                : "Resource Upload Studio"
+                : "Premium Resources Upload Studio"
             }
           </h2>
 
@@ -2573,7 +2573,7 @@ function createUploadStudio(
             Upload multiple ${
               isVideo
                 ? "academy videos"
-                : "academy resources"
+                : "resource-library files"
             }
             securely with live progress tracking.
           </p>
@@ -4424,7 +4424,7 @@ async function startUpload(
     );
 
     console.error(
-      "Set window.R2_WORKER_ENDPOINT to your existing Cloudflare R2 Worker URL."
+      "The upload service is not configured."
     );
 
     return;
@@ -4854,7 +4854,7 @@ function uploadWithProgress(
 
           reject(
             new Error(
-              "Network error while uploading to Cloudflare R2."
+              "The upload could not be completed. Check your connection and try again."
             )
           );
         };

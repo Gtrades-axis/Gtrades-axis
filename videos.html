@@ -611,7 +611,7 @@ function buildR2URL(videoKey) {
   if (!videoKey) {
 
     throw new Error(
-      "This video does not have an R2 file key."
+      "This video is currently unavailable."
     );
 
   }
@@ -1162,7 +1162,7 @@ function openVideo(
     );
 
     showPlayerError(
-      "This video has no R2 file attached."
+      "This video is currently unavailable."
     );
 
     return;
@@ -1191,15 +1191,9 @@ function openVideo(
   }
 
 
-  console.log(
-    "R2 VIDEO KEY:",
-    videoKey
-  );
+  /* production diagnostic removed */
 
-  console.log(
-    "R2 VIDEO URL:",
-    videoURL
-  );
+  /* production diagnostic removed */
 
 
   currentVideoKey =
@@ -1336,7 +1330,7 @@ function updateTime(video) {
 
 function formatUpdateDate(video) {
   const millis = updateTime(video);
-  if (!millis) return "date unavailable";
+  if (!millis) return "";
   return new Date(millis).toLocaleDateString("en-US", {
     year: "numeric", month: "short", day: "numeric"
   });
@@ -1352,7 +1346,7 @@ function formatUploadDate(video) {
 
   const millis = getTimestamp(value);
 
-  if (!millis) return "date unavailable";
+  if (!millis) return "";
 
   return new Date(millis).toLocaleDateString("en-US", {
     year: "numeric",
@@ -1487,10 +1481,7 @@ console.log(
   "✅ GTRADES-AXIS™ Video Academy loaded"
 );
 
-console.log(
-  "☁️ Cloudflare R2 Worker:",
-  R2_WORKER
-);
+/* production diagnostic removed */
 
 </script>
 

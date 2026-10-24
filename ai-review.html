@@ -438,7 +438,7 @@
 
     <!-- Dynamic badge – updated by JS -->
     <div class="membership-badge" id="membershipBadge">
-      <i class="fa-solid fa-crown"></i> <span id="badgeText">Loading...</span>
+      <i class="fa-solid fa-crown"></i> <span id="badgeText">Checking access…</span>
     </div>
 
     <nav>
@@ -469,7 +469,7 @@
         <div class="feature-item"><i class="fa-solid fa-check"></i> Professional Trading Journal</div>
         <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Trading Academy</div>
         <div class="feature-item"><i class="fa-solid fa-check"></i> AI Trade Review</div>
-        <div class="feature-item"><i class="fa-solid fa-check"></i> Premium Resources</div>
+        <div class="feature-item"><i class="fa-solid fa-check"></i> Resources</div>
         <div class="feature-item"><i class="fa-solid fa-check"></i> Private Videos</div>
       </div>
       <div class="lock-buttons">
@@ -639,7 +639,6 @@
 
         // Check premium access (robust)
         const isPremium = hasPremiumAccess(data);
-        console.log('🔐 Has premium access?', isPremium);
 
         app.classList.remove('loading');
 
