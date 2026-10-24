@@ -78,8 +78,13 @@ async function render(){
       const trade=allTrades.find(t=>t.id===btn.dataset.id && t.userId===btn.dataset.uid);
       if(!trade || trade.createdByRole!=='admin') throw new Error('Only admin-created trades can be published.');
       const ref=doc(db,'users',btn.dataset.uid,'trades',btn.dataset.id);
-      await updateDoc(ref,{public:makePublic,approvedBy:makePublic?auth.currentUser.uid:null,approvedAt:makePublic?new Date().toISOString():null,visibilityUpdatedAt:new Date().toISOString()});
-    }catch(e){console.error(e);alert('Could not update visibility: '+e.message);}finally{btn.disabled=false;}
+await updateDoc(ref,{
+  createdByRole:"admin",
+  public:makePublic,
+  approvedBy:makePublic?auth.currentUser.uid:null,
+  approvedAt:makePublic?new Date().toISOString():null,
+  visibilityUpdatedAt:new Date().toISOString()
+});    }catch(e){console.error(e);alert('Could not update visibility: '+e.message);}finally{btn.disabled=false;}
   });
 }
 function startLiveFeed(){if(unsubscribe)unsubscribe();connection.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting to live journal feed…';const q=query(collectionGroup(db,'trades'));unsubscribe=onSnapshot(q,async snapshot=>{allTrades=snapshot.docs.map(d=>{const parent=d.ref.parent.parent;const data=d.data();return {id:d.id,userId:parent?.id||data.userId||'',...data};});await hydrateRoles();await render();connection.innerHTML='<i class="fa-solid fa-circle" style="font-size:8px"></i> LIVE — '+allTrades.length+' journal trade(s)';},error=>{console.error('LIVE JOURNAL ERROR',error);connection.textContent='Live feed error: '+error.message;list.innerHTML='<div class="empty error">Cannot read student journal trades.<br><span class="muted">'+esc(error.message)+'</span></div>';});}
