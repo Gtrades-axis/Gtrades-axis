@@ -1,0 +1,60 @@
+[debug] [2026-10-24T08:56:00.408Z] ----------------------------------------------------------------------
+[debug] [2026-10-24T08:56:00.416Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\david\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:indexes
+[debug] [2026-10-24T08:56:00.421Z] CLI Version:   15.28.2
+[debug] [2026-10-24T08:56:00.421Z] Platform:      win32
+[debug] [2026-10-24T08:56:00.422Z] Node Version:  v24.19.0
+[debug] [2026-10-24T08:56:00.422Z] Detected Agent: unknown
+[debug] [2026-10-24T08:56:00.423Z] Time:          Sat Oct 24 2026 11:56:00 GMT+0300 (East Africa Time)
+[debug] [2026-10-24T08:56:00.423Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-24T08:56:11.243Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-24T08:56:11.244Z] > authorizing via signed-in user (davidthuku574@gmail.com)
+[debug] [2026-10-24T08:56:11.244Z] [iam] checking project gtrades-axis for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-10-24T08:56:11.303Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:11.304Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:11.307Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/gtrades-axis:testIamPermissions [none]
+[debug] [2026-10-24T08:56:11.308Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/gtrades-axis:testIamPermissions  x-goog-user-project=gtrades-axis
+[debug] [2026-10-24T08:56:11.308Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/gtrades-axis:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-10-24T08:56:12.950Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/gtrades-axis:testIamPermissions 200
+[debug] [2026-10-24T08:56:12.950Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/gtrades-axis:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'gtrades-axis'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-10-24T08:56:12.973Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:12.973Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:12.974Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default) [none]
+[debug] [2026-10-24T08:56:15.649Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default) 200
+[debug] [2026-10-24T08:56:15.650Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default) {"name":"projects/gtrades-axis/databases/(default)","uid":"98e67d76-bd82-4897-89de-a74a76d232d3","createTime":"2026-07-06T07:50:49.963232Z","updateTime":"2026-07-06T07:50:49.963232Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-10-24T07:56:17.548065Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"ILTT1qik0pcDMKbwk5+F0ZcD"}
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-10-24T08:56:15.656Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:15.656Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:15.657Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/gtrades-axis:test [none]
+[debug] [2026-10-24T08:56:15.658Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/gtrades-axis:test [omitted]
+[debug] [2026-10-24T08:56:17.344Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/gtrades-axis:test 200
+[debug] [2026-10-24T08:56:17.344Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/gtrades-axis:test {}
+[info] +  cloud.firestore: rules file firestore.rules compiled successfully 
+[info] i  firestore: deploying indexes... 
+[debug] [2026-10-24T08:56:17.348Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:17.348Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:17.348Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default)/collectionGroups/-/indexes [none]
+[debug] [2026-10-24T08:56:17.785Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default)/collectionGroups/-/indexes 200
+[debug] [2026-10-24T08:56:17.785Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default)/collectionGroups/-/indexes {"indexes":[{"name":"projects/gtrades-axis/databases/(default)/collectionGroups/Composite%20Index/indexes/CICAgJim14AK","queryScope":"COLLECTION_GROUP","fields":[{"fieldPath":"public","order":"ASCENDING"},{"fieldPath":"name","order":"ASCENDING"},{"fieldPath":"__name__","order":"ASCENDING"}],"state":"READY","density":"SPARSE_ALL"},{"name":"projects/gtrades-axis/databases/(default)/collectionGroups/trades/indexes/CICAgOjXh4EK","queryScope":"COLLECTION","fields":[{"fieldPath":"status","order":"ASCENDING"},{"fieldPath":"closed","order":"DESCENDING"},{"fieldPath":"__name__","order":"DESCENDING"}],"state":"READY","density":"SPARSE_ALL"},{"name":"projects/gtrades-axis/databases/(default)/collectionGroups/trades/indexes/CICAgJjF9oIK","queryScope":"COLLECTION_GROUP","fields":[{"fieldPath":"public","order":"ASCENDING"},{"fieldPath":"name","order":"ASCENDING"},{"fieldPath":"__name__","order":"ASCENDING"}],"state":"READY","density":"SPARSE_ALL"},{"name":"projects/gtrades-axis/databases/(default)/collectionGroups/Composite%20Index/indexes/CICAgJiUpoMK","queryScope":"COLLECTION","fields":[{"fieldPath":"public","order":"ASCENDING"},{"fieldPath":"name","order":"ASCENDING"},{"fieldPath":"__name__","order":"ASCENDING"}],"state":"READY","density":"SPARSE_ALL"}]}
+[debug] [2026-10-24T08:56:17.785Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:17.785Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:17.786Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* [none]
+[debug] [2026-10-24T08:56:18.206Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* 200
+[debug] [2026-10-24T08:56:18.206Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* {"fields":[{"name":"projects/gtrades-axis/databases/(default)/collectionGroups/__default__/fields/*","indexConfig":{"indexes":[{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"ASCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"DESCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","arrayConfig":"CONTAINS"}],"state":"READY"}]}},{"name":"projects/gtrades-axis/databases/(default)/collectionGroups/trades/fields/public","indexConfig":{"indexes":[{"queryScope":"COLLECTION_GROUP","fields":[{"fieldPath":"public","order":"ASCENDING"}],"state":"READY"}],"ancestorField":"projects/gtrades-axis/databases/(default)/collectionGroups/__default__/fields/*"}}]}
+[debug] [2026-10-24T08:56:18.206Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:18.206Z] Checked if tokens are valid: true, expires at: 1792833161289
+[debug] [2026-10-24T08:56:18.207Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default) [none]
+[debug] [2026-10-24T08:56:18.732Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default) 200
+[debug] [2026-10-24T08:56:18.733Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gtrades-axis/databases/(default) {"name":"projects/gtrades-axis/databases/(default)","uid":"98e67d76-bd82-4897-89de-a74a76d232d3","createTime":"2026-07-06T07:50:49.963232Z","updateTime":"2026-07-06T07:50:49.963232Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-10-24T07:56:21.275445Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IOSSuqqk0pcDMKbwk5+F0ZcD"}
+[info] i  firestore: The following indexes are defined in your project but are not present in your firestore indexes file:
+	(Composite%20Index) -- (public,ASCENDING) (name,ASCENDING)  -- Density:SPARSE_ALL 
+	(trades) -- (status,ASCENDING) (closed,DESCENDING)  -- Density:SPARSE_ALL 
+	(trades) -- (public,ASCENDING) (name,ASCENDING)  -- Density:SPARSE_ALL 
+	(Composite%20Index) -- (public,ASCENDING) (name,ASCENDING)  -- Density:SPARSE_ALL  
