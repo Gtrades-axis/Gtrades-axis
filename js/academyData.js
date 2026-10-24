@@ -241,7 +241,7 @@ export const ALL_MODULES = [
         { question: "What does LC-1 stand for?", options: ["Liquidity Capture 1", "Low Confidence 1", "Long Call 1", "Limit Close 1"], correct: 0 },
         { question: "What is the main purpose of a confirmation checklist?", options: ["Avoid impulsive entries", "Increase position size", "Trade more frequently", "Use higher leverage"], correct: 0 },
         { question: "What is LTF RE?", options: ["Lower Timeframe Re-entry", "Long Term Fibonacci Retracement", "Limit Trade Framework", "Liquidity Trend Reversal"], correct: 0 },
-        { question: "What is a recommended minimum risk-to-reward ratio?", options: ["1:1", "2:1", "5:1", "10:1"], correct: 1 }
+        { question: "What is a recommended minimum risk-to-reward ratio?", options: ["1:1", "4:1", "5:1", "10:1"], correct: 1 }
       ]
     }
   },
@@ -270,7 +270,7 @@ export const ALL_MODULES = [
         type: "video",
         videoUrl: "",
         pdfUrl: "",
-        notes: "<h3>Risk-to-Reward (R:R)</h3><p>Minimum target: 2:1 R:R.</p>"
+        notes: "<h3>Risk-to-Reward (R:R)</h3><p>Minimum target: 4:1 R:R.</p>"
       }
     ],
     quiz: {

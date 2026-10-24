@@ -3,6 +3,8 @@
 // ============================================================
 
 import { auth, db } from "./firebase.js";
+import { calculateProjectedRR } from "./trade-metrics.js?v=20261024-3r-journal";
+const JOURNAL_MIN_PROJECTED_RR = 3;
 import {
     onAuthStateChanged,
     signOut
@@ -560,7 +562,7 @@ function buildTradeFromForm(isUpdate = false) {
     const slDistance = Math.abs(currentEntry - currentSL);
     const actualRisk = exitSummary.riskAmount;
     const tpDistance = Math.abs(currentTP - currentEntry);
-    const projectedRR = slDistance > 0 ? tpDistance / slDistance : 0;
+    const projectedRR = calculateProjectedRR({ entry: currentEntry, stopLoss: currentSL, takeProfit: currentTP, direction: val("direction") });
     const lastExit = exitSummary.computed.filter(row => row.price > 0).at(-1);
 
     let entryModel = val("entryModel");
@@ -634,6 +636,18 @@ async function saveTrade(e) {
     const accountId = val("tradeAccount");
     if (!accountId || !getAccount(accountId)) {
         showJournalNotification("Please select a trading account.", "error");
+        return;
+    }
+
+    const projectedRRForValidation = calculateProjectedRR({
+        entry: num("entry"),
+        stopLoss: num("stopLoss"),
+        takeProfit: num("takeProfit"),
+        direction: val("direction")
+    });
+    const editingClosedTrade = editingTrade && String(editingTrade.status || "").toLowerCase() === "closed";
+    if (!editingClosedTrade && projectedRRForValidation + 1e-9 < JOURNAL_MIN_PROJECTED_RR) {
+        showJournalNotification(`Projected RR must be at least ${JOURNAL_MIN_PROJECTED_RR.toFixed(2)}R. Check Entry, SL, TP and direction.`, "error");
         return;
     }
 
@@ -944,7 +958,7 @@ function calculateAll() {
     const actualRiskPercent = balance > 0 ? (actualRisk / balance) * 100 : 0;
     setValue("risk", actualRisk > 0 ? actualRiskPercent.toFixed(2) : "");
 
-    const projectedRR = slDistance > 0 ? tpDistance / slDistance : 0;
+    const projectedRR = calculateProjectedRR({ entry, stopLoss, takeProfit, direction: val("direction") });
     setValue("projectedRR", projectedRR ? projectedRR.toFixed(2) : "");
     setText("summaryProjectedRR", projectedRR.toFixed(2));
 

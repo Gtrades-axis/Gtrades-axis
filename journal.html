@@ -1256,7 +1256,7 @@
                         <div class="card-header">
                             <div>
                                 <h2><i class="fa-solid fa-pen-to-square"></i> New Trade</h2>
-                                <p>Projected RR is calculated from Entry/SL/TP. Actual RR is based on your exit (profit/loss and exit price).</p>
+                                <p>Projected RR is calculated from Entry/SL/TP and must be at least 3.00R for new setups. Actual RR is calculated from your real exits and may be lower or higher.</p>
                             </div>
                             <div class="card-badge"><i class="fa-solid fa-circle"></i> Ready</div>
                         </div>
@@ -1362,7 +1362,7 @@
                                     <div class="form-group"><label for="riskAmount" class="calculated-label">Actual Risk Amount</label><input type="number" step="0.01" id="riskAmount" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="risk" class="calculated-label">Risk %</label><input type="number" step="0.01" id="risk" class="calculated-field" readonly /></div>
                                     <!-- Projected RR (planned) -->
-                                    <div class="form-group"><label for="projectedRR" class="calculated-label">Projected RR (Plan)</label><input type="number" step="0.01" id="projectedRR" class="calculated-field" readonly /></div>
+                                    <div class="form-group"><label for="projectedRR" class="calculated-label">Projected RR (Plan · Min 3R)</label><input type="number" step="0.01" id="projectedRR" class="calculated-field" readonly /><small style="display:block;margin-top:6px;color:#94a3b8">New setups require at least 3.00R projected RR.</small></div>
                                     <!-- Actual RR (based on exit) -->
                                     <div class="form-group"><label for="rr" class="calculated-label">Actual RR (Gross)</label><input type="number" step="0.01" id="rr" class="calculated-field" readonly /></div>
                                     <div class="form-group"><label for="potentialProfit" class="calculated-label">Potential Profit</label><input type="number" step="0.01" id="potentialProfit" class="calculated-field" readonly /></div>
@@ -1499,7 +1499,7 @@
     </script>
 
     <!-- ===== JOURNAL ENGINE: CANONICAL FIRESTORE VERSION ===== -->
-    <script type="module" src="/js/journal.js?v=20260829-2"></script>
+    <script type="module" src="/js/journal.js?v=20261024-4rr"></script>
 </button>
   <script src="js/mobile-nav.js" defer></script>
 </body>

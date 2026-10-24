@@ -283,6 +283,7 @@ import { logoutUser } from './js/auth.js';
 import { auth, db } from './js/firebase.js';
 import { collection, onSnapshot, doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js';
+import { MIN_PROJECTED_RR, calculateRealizedRR } from './js/trade-metrics.js?v=20261024-4rr';
 
 /* =========================================================
    GTRADES-AXIS™ ANALYTICS
@@ -672,35 +673,7 @@ function getClosedTrades() {
 ========================================================= */
 
 function getTradeRealizedRR(trade) {
-    if (!trade || typeof trade !== "object") return 0;
-    const entry = number(trade.initialEntry ?? trade.entry);
-    const stopLoss = number(trade.initialStopLoss ?? trade.stopLoss);
-    const riskDistance = Math.abs(entry - stopLoss);
-    const direction = String(trade.direction || "BUY").toUpperCase();
-
-    if (entry && stopLoss && riskDistance > 0) {
-        const exits = Array.isArray(trade.exitExecutions) ? trade.exitExecutions : [];
-        if (exits.length) {
-            return exits.reduce((sum, row) => {
-                const price = number(row?.price);
-                const percent = Math.max(0, Math.min(100, number(row?.percent)));
-                if (!price || percent <= 0) return sum;
-                const move = direction === "SELL" ? entry - price : price - entry;
-                return sum + (move / riskDistance) * (percent / 100);
-            }, 0);
-        }
-
-        const exitPrice = number(trade.exitPrice);
-        if (exitPrice) {
-            let percent = number(trade.totalExitPercent ?? trade.partialPercent);
-            if (percent <= 0) percent = 100;
-            percent = Math.max(0, Math.min(100, percent));
-            const move = direction === "SELL" ? entry - exitPrice : exitPrice - entry;
-            return (move / riskDistance) * (percent / 100);
-        }
-    }
-
-    return number(trade.actualRR ?? trade.realizedRR ?? trade.rr ?? 0);
+    return calculateRealizedRR(trade);
 }
 
 function getTradeResult(trade) {
@@ -2106,11 +2079,11 @@ function buildAICoach(stats) {
 
 
     if (
-        stats.averageRR < 2
+        stats.averageRR < 0
     ) {
 
         recs.push(
-            "Your average RR is below 2R. Review your trade management and target selection."
+            `Your average realized RR is negative. New setups must be planned at a minimum of ${MIN_PROJECTED_RR.toFixed(0)}R before entry.`
         );
 
     }

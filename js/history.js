@@ -4,6 +4,7 @@
    ============================================================ */
 
 import { auth, db } from "./firebase.js";
+import { calculateRealizedRR, calculateProjectedRR, averageRealizedRR } from "./trade-metrics.js?v=20261024-4rr";
 import {
   onAuthStateChanged,
   signOut
@@ -50,38 +51,6 @@ function normalizeResult(value) {
   return "Pending";
 }
 
-function calculateRealizedRR(raw) {
-  if (!raw || typeof raw !== "object") return 0;
-  const entry = Number(raw.initialEntry ?? raw.entry) || 0;
-  const stopLoss = Number(raw.initialStopLoss ?? raw.stopLoss) || 0;
-  const riskDistance = Math.abs(entry - stopLoss);
-  const direction = String(raw.direction || "BUY").toUpperCase();
-
-  if (entry && stopLoss && riskDistance > 0) {
-    const exits = Array.isArray(raw.exitExecutions) ? raw.exitExecutions : [];
-    if (exits.length) {
-      return exits.reduce((sum, row) => {
-        const price = Number(row?.price) || 0;
-        const percent = Math.max(0, Math.min(100, Number(row?.percent) || 0));
-        if (!price || percent <= 0) return sum;
-        const move = direction === "SELL" ? entry - price : price - entry;
-        return sum + (move / riskDistance) * (percent / 100);
-      }, 0);
-    }
-
-    const exitPrice = Number(raw.exitPrice) || 0;
-    if (exitPrice) {
-      let percent = Number(raw.totalExitPercent ?? raw.partialPercent);
-      if (!Number.isFinite(percent) || percent <= 0) percent = 100;
-      percent = Math.max(0, Math.min(100, percent));
-      const move = direction === "SELL" ? entry - exitPrice : exitPrice - entry;
-      return (move / riskDistance) * (percent / 100);
-    }
-  }
-
-  return Number(raw.actualRR ?? raw.realizedRR ?? raw.rr ?? 0) || 0;
-}
-
 function normalizeTrade(raw) {
   if (!raw || typeof raw !== "object") return null;
 
@@ -112,8 +81,8 @@ function normalizeTrade(raw) {
     initialEntry: Number(raw.initialEntry ?? raw.entry) || 0,
     initialStopLoss: Number(raw.initialStopLoss ?? raw.stopLoss) || 0,
     initialTakeProfit: Number(raw.initialTakeProfit ?? raw.takeProfit) || 0,
-    initialRR: Number(raw.initialRR ?? raw.plannedRR ?? raw.rr) || 0,
-    plannedRR: Number(raw.plannedRR ?? raw.initialRR ?? raw.rr) || 0,
+    initialRR: Number(raw.initialRR ?? raw.plannedRR) || calculateProjectedRR({ entry: raw.initialEntry ?? raw.entry, stopLoss: raw.initialStopLoss ?? raw.stopLoss, takeProfit: raw.initialTakeProfit ?? raw.takeProfit, direction: raw.direction }),
+    plannedRR: Number(raw.plannedRR ?? raw.initialRR) || calculateProjectedRR({ entry: raw.initialEntry ?? raw.entry, stopLoss: raw.initialStopLoss ?? raw.stopLoss, takeProfit: raw.initialTakeProfit ?? raw.takeProfit, direction: raw.direction }),
     rr: calculateRealizedRR(raw),
     actualRR: calculateRealizedRR(raw),
     realizedRR: calculateRealizedRR(raw),
@@ -321,12 +290,7 @@ function updateStats() {
     (sum, trade) => sum + (Number(trade.profit) || 0) - (Number(trade.commission) || 0),
     0
   );
-  const rrValues = closed
-    .map((trade) => Number(trade.rr))
-    .filter((value) => Number.isFinite(value));
-  const averageRr = rrValues.length
-    ? rrValues.reduce((sum, value) => sum + value, 0) / rrValues.length
-    : 0;
+  const averageRr = averageRealizedRR(closed);
 
   let bestStreak = 0;
   let currentStreak = 0;
