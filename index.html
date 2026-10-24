@@ -2071,11 +2071,11 @@
       `;
     }
 
-    // Get ALL trades, then filter for public:true in JavaScript
+    // Public feed: only admin-created trades explicitly marked public.
     const publicTradesQuery = query(
       collectionGroup(db, 'trades'),
-      where('public', '==', true),
-      where('createdByRole', '==', 'admin')
+      where('createdByRole', '==', 'admin'),
+      where('public', '==', true)
     );
 
     onSnapshot(publicTradesQuery, renderPublicTrades, (error) => {
