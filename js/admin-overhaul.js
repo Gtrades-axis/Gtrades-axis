@@ -1507,21 +1507,35 @@ async function editContent(type, source, id) {
   if (type === "resources") {
     const title = prompt("Resource title:", data.title || data.name || "");
     if (title === null) return;
+    const description = prompt("Description:", data.description || "");
+    if (description === null) return;
     const category = prompt("Category:", data.category || "General");
     if (category === null) return;
+    const typeValue = prompt("Resource type (document, worksheet, template, checklist, other):", data.type || "document");
+    if (typeValue === null) return;
     const premiumValue = prompt(
       "Premium? Enter yes or no:",
       data.premiumOnly === true || data.premium === true ? "yes" : "no"
     );
     if (premiumValue === null) return;
+    const publishedValue = prompt(
+      "Published? Enter yes or no:",
+      data.published === false || data.status === "draft" ? "no" : "yes"
+    );
+    if (publishedValue === null) return;
 
     const premium = premiumValue.trim().toLowerCase() === "yes";
+    const published = publishedValue.trim().toLowerCase() !== "no";
     await updateDoc(doc(db, source, id), {
       title: title.trim(),
       name: title.trim(),
+      description: description.trim(),
       category: category.trim() || "General",
+      type: typeValue.trim() || "document",
       premium,
       premiumOnly: premium,
+      published,
+      status: published ? "published" : "draft",
       updatedAt: serverTimestamp()
     });
     return;
