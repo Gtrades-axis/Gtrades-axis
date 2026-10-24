@@ -531,11 +531,9 @@ function listenLatestResources(){
                 </p>
 
 
-                <a href="${
-                    data.fileUrl || "#"
-                }" target="_blank">
+                <a href="/resources?resource=${encodeURIComponent(resource.id)}">
 
-                View →
+                View Resource →
 
                 </a>
 

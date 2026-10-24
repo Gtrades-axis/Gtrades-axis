@@ -1908,8 +1908,27 @@
         }
       );
 
+      focusRequestedResource();
+
     }
 
+
+    function focusRequestedResource() {
+      const requestedId = new URLSearchParams(window.location.search).get("resource");
+      if (!requestedId) return;
+
+      const card = document.getElementById(`resource-${requestedId}`);
+      if (!card) return;
+
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.style.outline = "2px solid #0f8cff";
+      card.style.boxShadow = "0 0 0 4px rgba(15,140,255,.14), 0 14px 40px rgba(0,0,0,.35)";
+
+      window.setTimeout(() => {
+        card.style.outline = "";
+        card.style.boxShadow = "";
+      }, 2800);
+    }
 
     /* ========================================================
        CREATE RESOURCE CARD
@@ -1947,6 +1966,11 @@
             ? ""
             : " locked"
         );
+
+      if (resource.id) {
+        card.id = `resource-${resource.id}`;
+        card.dataset.resourceId = resource.id;
+      }
 
 
       /* ------------------------------------------------------
