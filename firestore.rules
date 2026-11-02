@@ -423,8 +423,11 @@ service cloud.firestore {
 
     match /videos/{videoId} {
 
+      // Every signed-in student may read videos explicitly marked Free.
+      // Premium members and administrators may read all videos.
       allow read:
-        if hasPremiumAccess();
+        if signedIn()
+        && (resource.data.premiumOnly != true || hasPremiumAccess());
 
       allow write:
         if isAdmin();
