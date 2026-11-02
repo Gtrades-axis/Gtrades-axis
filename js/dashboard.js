@@ -1,3 +1,4 @@
+console.log("DASHBOARD VIDEO COUNT BUILD: 2026-11-02-STUDENT-FIX-3");
 // ============================================================
 // GTRADES-AXIS™
 // USER DASHBOARD – FINAL FIXED VERSION
