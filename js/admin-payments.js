@@ -135,7 +135,7 @@ async function loadPayments() {
       <td colspan="8" class="loading">
         <i class="fa-solid fa-spinner fa-spin"></i>
         <br>
-        Retrieving payments…
+        Loading payments...
       </td>
     </tr>
   `;
@@ -1003,7 +1003,7 @@ async function openPaymentModal(payment) {
       const signed = await getPaymentProofDownloadUrl({ key: payment.proofStoragePath });
       proofUrl = signed.data.url;
     } catch (error) {
-      console.warn("Unable to prepare payment proof:", error);
+      console.warn("Unable to generate Cloudflare R2 proof URL:", error);
     }
   }
 
@@ -1549,6 +1549,7 @@ async function approvePayment(payment) {
       membership: "premium",
       membershipPlan: payment.plan,
       status: "active",
+      role: "member",
       membershipUpdatedAt: serverTimestamp(),
       membershipUpdatedBy: currentAdmin.uid
     };
@@ -1717,7 +1718,7 @@ async function deletePayment(payment) {
       try {
         await deletePaymentProof({ key: payment.proofStoragePath });
       } catch (proofError) {
-        console.warn("Could not delete payment proof:", proofError);
+        console.warn("Could not delete R2 payment proof:", proofError);
       }
     }
 

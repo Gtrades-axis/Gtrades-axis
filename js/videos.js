@@ -79,7 +79,7 @@ function buildR2URL(key) {
 
   if (!key) {
     throw new Error(
-      "This video is currently unavailable."
+      "This video has no R2 object key."
     );
   }
 
@@ -568,7 +568,7 @@ function openVideo(
       );
 
       showPlayerError(
-        "This video is currently unavailable."
+        "This video has no R2 file attached."
       );
 
       return;

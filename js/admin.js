@@ -1404,7 +1404,7 @@ function updateSystemStatus(){
 
     <span>
 
-    System Online
+    Firebase Connected
 
     </span>
 

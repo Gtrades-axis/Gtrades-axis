@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Resource Library | GTRADES-AXIS™</title>
+  <title>Premium Resources | GTRADES-AXIS™</title>
 
   <meta
     name="description"
@@ -341,41 +341,6 @@
     .refresh:disabled {
       opacity: 0.55;
       cursor: not-allowed;
-    }
-
-    .sort-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-      margin: 12px 0;
-      flex-wrap: wrap;
-    }
-
-    .sort-row label {
-      color: #94a3b8;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .sort-row select {
-      min-width: 230px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #1b2739;
-      background: #0a101a;
-      color: #ffffff;
-      outline: none;
-    }
-
-    .sort-row select:focus {
-      border-color: #2563eb;
-    }
-
-    .resource-upload-date {
-      margin-top: 8px;
-      color: #64748b;
-      font-size: 12px;
     }
 
     .filters {
@@ -892,8 +857,7 @@
         padding: 18px 15px;
       }
     }
-  .resource-updated-date { opacity: .78; }
-</style>
+  </style>
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 
@@ -925,7 +889,7 @@
       <li class="active">
         <a href="/resources">
           <i class="fa-solid fa-folder-open"></i>
-          <span>Resources</span>
+          <span>Premium Resources</span>
         </a>
       </li>
 
@@ -991,11 +955,11 @@
       <div>
 
         <div class="page-title">
-          GTRADES-AXIS™ RESOURCE LIBRARY
+          GTRADES-AXIS™ LIBRARY
         </div>
 
         <div class="page-subtitle">
-          Your trading tools, strategies, templates and learning materials.
+          Your trading tools, strategies, journals and learning materials.
         </div>
 
       </div>
@@ -1045,21 +1009,6 @@
             <i class="fa-solid fa-rotate-right"></i>
           </button>
 
-        </div>
-
-
-        <div class="sort-row">
-          <label for="resourceSort">Arrange by</label>
-          <select id="resourceSort" aria-label="Arrange resources">
-            <option value="newest">Upload date — newest first</option>
-            <option value="oldest">Upload date — oldest first</option>
-            <option value="name-asc">Name — A to Z</option>
-            <option value="name-desc">Name — Z to A</option>
-            <option value="category-asc">Category — A to Z</option>
-            <option value="category-desc">Category — Z to A</option>
-            <option value="updated-newest">Last updated — newest first</option>
-            <option value="updated-oldest">Last updated — oldest first</option>
-          </select>
         </div>
 
 
@@ -1153,17 +1102,26 @@
           <i class="fa-solid fa-circle-notch fa-spin"></i>
 
           <div>
-            Preparing your resource library…
+            Connecting to GTRADES-AXIS™...
           </div>
 
           <small>
-            Please wait while your library is prepared.
+            Loading your resources...
           </small>
 
         </div>
 
       </section>
-</div>
+
+
+      <!-- DEBUG -->
+
+      <div
+        class="debug-panel"
+        id="debugPanel"
+      ></div>
+
+    </div>
 
 
     <!-- FOOTER -->
@@ -1235,9 +1193,6 @@
     const filters =
       document.querySelectorAll(".filter");
 
-    const resourceSort =
-      document.getElementById("resourceSort");
-
     const logoutBtn =
       document.getElementById("logoutBtn");
 
@@ -1263,7 +1218,15 @@
        DEBUG
        ======================================================== */
 
-    function debug(message, data = null) { /* production: no member-facing debug output */ }
+    function debug(message, data = null) {
+
+      console.log(
+        "[GTRADES-AXIS RESOURCES]",
+        message,
+        data ?? ""
+      );
+
+    }
 
 
     /* ========================================================
@@ -1361,7 +1324,7 @@
 
             showError(
               "Your account information could not be found.",
-              "Your account profile could not be loaded."
+              "Firestore users document does not exist for this account."
             );
 
             return;
@@ -1473,11 +1436,11 @@
           <i class="fa-solid fa-circle-notch fa-spin"></i>
 
           <div>
-            Please wait while your library is prepared.
+            Loading your resources...
           </div>
 
           <small>
-            Syncing your library
+            Connecting to Firestore
           </small>
 
         </div>
@@ -1545,12 +1508,6 @@
             const data =
               resourceDoc.data();
 
-
-            // Member library only shows published resources. Legacy records
-            // without a published field remain visible for backwards compatibility.
-            if (data.published === false || data.status === "draft") {
-              return;
-            }
 
             resources.push({
 
@@ -1724,45 +1681,6 @@
     }
 
 
-    function resourceUploadTime(resource) {
-      return getTimestampValue(
-        resource.createdAt ||
-        resource.uploadedAt ||
-        resource.updatedAt
-      );
-    }
-
-
-    function resourceUpdateTime(resource) {
-      return getTimestampValue(
-        resource.updatedAt ||
-        resource.modifiedAt ||
-        resource.createdAt ||
-        resource.uploadedAt
-      );
-    }
-
-    function formatResourceUpdateDate(resource) {
-      const millis = resourceUpdateTime(resource);
-      if (!millis) return "";
-      return new Date(millis).toLocaleDateString("en-US", {
-        year: "numeric", month: "short", day: "numeric"
-      });
-    }
-
-
-    function formatResourceUploadDate(resource) {
-      const millis = resourceUploadTime(resource);
-      if (!millis) return "";
-
-      return new Date(millis).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-      });
-    }
-
-
     /* ========================================================
        RENDER RESOURCES
        ======================================================== */
@@ -1813,36 +1731,6 @@
               keyword
             )
         );
-
-
-      /* ------------------------------------------------------
-         SORT
-      ------------------------------------------------------ */
-
-      const sortMode = resourceSort?.value || "newest";
-      const textValue = (value) => String(value ?? "").trim().toLowerCase();
-
-      filtered.sort((a, b) => {
-        switch (sortMode) {
-          case "oldest":
-            return resourceUploadTime(a) - resourceUploadTime(b);
-          case "name-asc":
-            return textValue(a.title || a.name || a.fileName).localeCompare(textValue(b.title || b.name || b.fileName));
-          case "name-desc":
-            return textValue(b.title || b.name || b.fileName).localeCompare(textValue(a.title || a.name || a.fileName));
-          case "category-asc":
-            return textValue(a.category || "General").localeCompare(textValue(b.category || "General")) || textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
-          case "category-desc":
-            return textValue(b.category || "General").localeCompare(textValue(a.category || "General")) || textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
-          case "updated-newest":
-            return resourceUpdateTime(b) - resourceUpdateTime(a);
-          case "updated-oldest":
-            return resourceUpdateTime(a) - resourceUpdateTime(b);
-          case "newest":
-          default:
-            return resourceUploadTime(b) - resourceUploadTime(a);
-        }
-      });
 
 
       /* ------------------------------------------------------
@@ -1908,27 +1796,8 @@
         }
       );
 
-      focusRequestedResource();
-
     }
 
-
-    function focusRequestedResource() {
-      const requestedId = new URLSearchParams(window.location.search).get("resource");
-      if (!requestedId) return;
-
-      const card = document.getElementById(`resource-${requestedId}`);
-      if (!card) return;
-
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
-      card.style.outline = "2px solid #0f8cff";
-      card.style.boxShadow = "0 0 0 4px rgba(15,140,255,.14), 0 14px 40px rgba(0,0,0,.35)";
-
-      window.setTimeout(() => {
-        card.style.outline = "";
-        card.style.boxShadow = "";
-      }, 2800);
-    }
 
     /* ========================================================
        CREATE RESOURCE CARD
@@ -1967,18 +1836,14 @@
             : " locked"
         );
 
-      if (resource.id) {
-        card.id = `resource-${resource.id}`;
-        card.dataset.resourceId = resource.id;
-      }
-
 
       /* ------------------------------------------------------
          DATA
          ------------------------------------------------------ */
 
       const title =
-        resource.title || resource.name || resource.fileName || "Resource";
+        resource.title ||
+        "Untitled Resource";
 
 
       const category =
@@ -1987,7 +1852,8 @@
 
 
       const description =
-        String(resource.description || "").trim();
+        resource.description ||
+        "GTRADES-AXIS™ trading resource.";
 
 
       const type =
@@ -2050,10 +1916,13 @@
         </div>
 
 
-        ${formatResourceUploadDate(resource) ? `
-        <div class="resource-upload-date">
-          Added ${escapeHTML(formatResourceUploadDate(resource))}
-        </div>` : ""}
+        <div class="resource-storage">
+
+          <i class="fa-solid fa-cloud"></i>
+
+          Cloudflare R2
+
+        </div>
 
 
         <div class="resource-action">
@@ -2284,7 +2153,7 @@
       if (!key) {
 
         throw new Error(
-          "This resource is not available for download yet."
+          "This resource has no R2 file key."
         );
       }
 
@@ -2324,7 +2193,7 @@
 
 
         alert(
-          "This resource is not available for download yet."
+          "This resource has no R2 file attached."
         );
 
         return;
@@ -2702,11 +2571,6 @@
     );
 
 
-    resourceSort?.addEventListener("change", () => {
-      renderResources();
-    });
-
-
     /* ========================================================
        REFRESH
        ======================================================== */
@@ -2884,15 +2748,24 @@
     );
 
     debug(
-      "GTRADES-AXIS™ RESOURCE LIBRARY"
+      "GTRADES-AXIS™ PREMIUM RESOURCES"
     );
 
     debug(
-      "Resource delivery initialized"
+      "Storage: Cloudflare R2"
     );
 
     debug(
-      "Resource library initialized"
+      "Worker:",
+      R2_WORKER
+    );
+
+    debug(
+      "Delivery route: /?key="
+    );
+
+    debug(
+      "Firestore collection: resources"
     );
 
     debug(

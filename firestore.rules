@@ -38,7 +38,11 @@ service cloud.firestore {
     }
 
     function hasPremiumAccess() {
-      return isAdmin() || isPremium();
+      return isAdmin() || (isPremium() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.membershipPlan == "Lifetime"
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.membershipExpiresAt == null
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.membershipExpiresAt > request.time
+      ));
     }
 
 
@@ -203,7 +207,7 @@ service cloud.firestore {
       // trades that have explicitly been approved for public display.
       // Keep this query-compatible for collectionGroup(db, "trades").
       allow list:
-        if (resource.data.public == true && resource.data.createdByRole == "admin")
+        if resource.data.public == true
         || isAdmin()
         ||
         (
@@ -213,7 +217,7 @@ service cloud.firestore {
         );
 
       allow get:
-        if (resource.data.public == true && resource.data.createdByRole == "admin")
+        if resource.data.public == true
         || isAdmin()
         ||
         (
@@ -230,15 +234,7 @@ service cloud.firestore {
       allow create:
         if signedIn()
         &&
-        request.resource.data.userId == request.auth.uid
-        &&
-        request.resource.data.public == false
-        &&
-        (
-          (isAdmin() && request.resource.data.createdByRole == "admin")
-          ||
-          (!isAdmin() && request.resource.data.createdByRole == "member")
-        );
+        request.resource.data.userId == request.auth.uid;
 
 
       // ----------------------------------------------------------
@@ -247,19 +243,6 @@ service cloud.firestore {
 
       allow update:
         if isAdmin()
-        &&
-        (
-          (
-            resource.data.createdByRole == "admin"
-            && request.resource.data.createdByRole == "admin"
-          )
-          ||
-          (
-            !resource.data.keys().hasAny(["createdByRole"])
-            && resource.data.userId == request.auth.uid
-            && request.resource.data.createdByRole == "admin"
-          )
-        )
         ||
         (
           signedIn()
@@ -267,12 +250,6 @@ service cloud.firestore {
           resource.data.userId == request.auth.uid
           &&
           request.resource.data.userId == request.auth.uid
-          &&
-          resource.data.createdByRole == "member"
-          &&
-          request.resource.data.createdByRole == "member"
-          &&
-          request.resource.data.public == false
         );
 
 
@@ -340,10 +317,9 @@ service cloud.firestore {
 
     match /trades/{tradeId} {
 
-      // Public trade feed: admin-originated trades only.
+      // Public trade feed.
       allow read:
-        if resource.data.public == true
-        && resource.data.createdByRole == "admin";
+        if resource.data.public == true;
 
       // Admin.
       allow read, create, update, delete:
@@ -353,29 +329,15 @@ service cloud.firestore {
       allow create:
         if signedIn()
         &&
-        request.resource.data.userId == request.auth.uid
-        &&
-        request.resource.data.public == false
-        &&
-        (
-          (isAdmin() && request.resource.data.createdByRole == "admin")
-          ||
-          (!isAdmin() && request.resource.data.createdByRole == "member")
-        );
+        request.resource.data.userId == request.auth.uid;
 
-      // User updates own trade. Members can never publish.
+      // User updates own trade.
       allow update:
         if signedIn()
         &&
         resource.data.userId == request.auth.uid
         &&
-        request.resource.data.userId == request.auth.uid
-        &&
-        request.resource.data.createdByRole == resource.data.createdByRole
-        &&
-        resource.data.createdByRole == "member"
-        &&
-        request.resource.data.public == false;
+        request.resource.data.userId == request.auth.uid;
 
       // User deletes own trade.
       allow delete:
@@ -419,11 +381,8 @@ service cloud.firestore {
 
     match /videos/{videoId} {
 
-      // Every signed-in student may read videos explicitly marked Free.
-      // Premium members and administrators may read all videos.
       allow read:
-        if signedIn()
-        && (resource.data.premiumOnly == false || hasPremiumAccess());
+        if hasPremiumAccess();
 
       allow write:
         if isAdmin();
@@ -582,18 +541,5 @@ service cloud.firestore {
       allow read, write:
         if false;
     }
-
-    // ============================================================
-    // SUPPORT REQUESTS
-    // ============================================================
-    match /support_requests/{requestId} {
-      allow create: if signedIn()
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.status == "open";
-      allow read: if isAdmin()
-        || (signedIn() && resource.data.userId == request.auth.uid);
-      allow update, delete: if isAdmin();
-    }
-
   }
 }

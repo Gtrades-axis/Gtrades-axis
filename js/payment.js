@@ -1711,9 +1711,6 @@ paymentForm?.addEventListener(
                 userId:
                     currentUser.uid,
 
-                uid:
-                    currentUser.uid,
-
                 name:
                     name,
 
@@ -1817,19 +1814,10 @@ paymentForm?.addEventListener(
                     : null;
 
             if (proofFile) {
-                let signed;
-                try {
-                    signed = await getPaymentProofUploadUrl({
-                        key: proofPath,
-                        contentType: proofFile.type
-                    });
-                } catch (callError) {
-                    console.error("Payment proof signing failed:", callError);
-                    throw new Error(
-                        callError?.message ||
-                        "The payment proof service is unavailable. Please try again or contact support."
-                    );
-                }
+                const signed = await getPaymentProofUploadUrl({
+                    key: proofPath,
+                    contentType: proofFile.type
+                });
                 submitPayment.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading proof...';
                 const uploadResponse = await fetch(signed.data.url, {
                     method: "PUT",
@@ -1837,7 +1825,7 @@ paymentForm?.addEventListener(
                     body: proofFile
                 });
                 if (!uploadResponse.ok) {
-                    throw new Error(`Secure upload failed (${uploadResponse.status}). Please try again. If the problem continues, contact support.`);
+                    throw new Error(`Cloudflare R2 upload failed (${uploadResponse.status}).`);
                 }
                 paymentData.proofStoragePath = proofPath;
                 paymentData.proofStorageProvider = "cloudflare-r2";
@@ -1876,12 +1864,8 @@ paymentForm?.addEventListener(
             membershipPlan.value =
                 "";
 
-            if (paymentMethodSelect) {
-                paymentMethodSelect.value = "";
-            }
-            document.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
-                radio.checked = false;
-            });
+            getSelectedPaymentMethod() =
+                "";
 
             transactionId.value =
                 "";
@@ -1985,7 +1969,7 @@ paymentForm?.addEventListener(
             ) {
 
                 message =
-                    "Your payment submission could not be saved. Please sign in again and retry.";
+                    "Payment was rejected by Firestore security rules. Please check your login session and payment rules.";
             }
 
 

@@ -13,15 +13,15 @@ const WORKER_URL =
 // ============================================================
 
 function cleanKey(key) {
-  if (typeof key !== "string") throw new Error("Invalid file reference.");
+  if (typeof key !== "string") throw new Error("Invalid R2 file key.");
   let cleaned = key.trim().replace(/\\/g, "/").replace(/^\/+/, "");
   cleaned = cleaned.replace(/\/{2,}/g, "/").replace(/^\.\//, "");
-  if (!cleaned || cleaned.includes("..")) throw new Error("Invalid file reference.");
+  if (!cleaned || cleaned.includes("..")) throw new Error("Invalid R2 file key.");
   cleaned = cleaned.split("/").map((part, i) => {
     if (i === 0) return part.replace(/[^a-zA-Z0-9_-]/g, "_");
     return part.replace(/[^a-zA-Z0-9._-]/g, "_");
   }).filter(Boolean).join("/");
-  if (!cleaned) throw new Error("Invalid file reference.");
+  if (!cleaned) throw new Error("Invalid R2 file key.");
   return cleaned;
 }
 
@@ -172,7 +172,7 @@ export async function uploadToR2(
 
           reject(
             new Error(
-              `Upload failed (${xhr.status}): ${message}`
+              `Cloudflare R2 upload failed (${xhr.status}): ${message}`
             )
           );
 
@@ -215,7 +215,7 @@ export async function uploadToR2(
             new Error(
               data.error ||
               data.message ||
-              "Upload failed."
+              "Cloudflare R2 upload failed."
             )
           );
 
@@ -248,7 +248,7 @@ export async function uploadToR2(
 
         reject(
           new Error(
-            "The upload could not be completed. Check your connection and try again."
+            "Network/CORS error while uploading to Cloudflare R2."
           )
         );
 

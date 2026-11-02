@@ -1,4 +1,3 @@
-console.log("DASHBOARD VIDEO COUNT BUILD: 2026-11-02-STUDENT-FIX-3");
 // ============================================================
 // GTRADES-AXIS™
 // USER DASHBOARD – FINAL FIXED VERSION
@@ -13,7 +12,6 @@ import {
     onSnapshot,
     collection,
     query,
-    where,
     orderBy,
     limit
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -369,16 +367,11 @@ function listenStats(){
     // ===============================
 
 
-    const hasVideoPremiumAccess =
-        userData.role === "admin" ||
-        userData.membership === "premium";
-
-    const videosRef = hasVideoPremiumAccess
-        ? collection(db, "videos")
-        : query(
-            collection(db, "videos"),
-            where("premiumOnly", "==", false)
-          );
+    const videosRef =
+        collection(
+            db,
+            "videos"
+        );
 
 
 
@@ -538,9 +531,11 @@ function listenLatestResources(){
                 </p>
 
 
-                <a href="/resources?resource=${encodeURIComponent(resource.id)}">
+                <a href="${
+                    data.fileUrl || "#"
+                }" target="_blank">
 
-                View Resource →
+                View →
 
                 </a>
 

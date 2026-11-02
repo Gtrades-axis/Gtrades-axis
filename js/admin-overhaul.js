@@ -727,7 +727,7 @@ function bind() {
         toast("Content updated successfully.", "success");
       } else {
         await deleteContent(type, source, id);
-        toast("Content record deleted.", "success");
+        toast("Content record deleted. The R2 file was kept.", "success");
       }
     } catch (error) {
       console.error("CONTENT CRUD ERROR:", error);
@@ -1507,35 +1507,21 @@ async function editContent(type, source, id) {
   if (type === "resources") {
     const title = prompt("Resource title:", data.title || data.name || "");
     if (title === null) return;
-    const description = prompt("Description:", data.description || "");
-    if (description === null) return;
     const category = prompt("Category:", data.category || "General");
     if (category === null) return;
-    const typeValue = prompt("Resource type (document, worksheet, template, checklist, other):", data.type || "document");
-    if (typeValue === null) return;
     const premiumValue = prompt(
       "Premium? Enter yes or no:",
       data.premiumOnly === true || data.premium === true ? "yes" : "no"
     );
     if (premiumValue === null) return;
-    const publishedValue = prompt(
-      "Published? Enter yes or no:",
-      data.published === false || data.status === "draft" ? "no" : "yes"
-    );
-    if (publishedValue === null) return;
 
     const premium = premiumValue.trim().toLowerCase() === "yes";
-    const published = publishedValue.trim().toLowerCase() !== "no";
     await updateDoc(doc(db, source, id), {
       title: title.trim(),
       name: title.trim(),
-      description: description.trim(),
       category: category.trim() || "General",
-      type: typeValue.trim() || "document",
       premium,
       premiumOnly: premium,
-      published,
-      status: published ? "published" : "draft",
       updatedAt: serverTimestamp()
     });
     return;
@@ -1584,7 +1570,7 @@ async function deleteContent(type, source, id) {
   const data = snap.data();
   const label = data.title || data.name || data.fileName || "this item";
 
-  if (!confirm(`Delete "${label}" from ${source}? This removes the published content record.`)) {
+  if (!confirm(`Delete "${label}" from ${source}? This removes the Firestore record. The R2 file is kept.`)) {
     return;
   }
 
@@ -2565,7 +2551,7 @@ function createUploadStudio(
             ${
               isVideo
                 ? "Video Upload Studio"
-                : "Premium Resources Upload Studio"
+                : "Resource Upload Studio"
             }
           </h2>
 
@@ -2573,7 +2559,7 @@ function createUploadStudio(
             Upload multiple ${
               isVideo
                 ? "academy videos"
-                : "resource-library files"
+                : "academy resources"
             }
             securely with live progress tracking.
           </p>
@@ -4424,7 +4410,7 @@ async function startUpload(
     );
 
     console.error(
-      "The upload service is not configured."
+      "Set window.R2_WORKER_ENDPOINT to your existing Cloudflare R2 Worker URL."
     );
 
     return;
@@ -4854,7 +4840,7 @@ function uploadWithProgress(
 
           reject(
             new Error(
-              "The upload could not be completed. Check your connection and try again."
+              "Network error while uploading to Cloudflare R2."
             )
           );
         };
