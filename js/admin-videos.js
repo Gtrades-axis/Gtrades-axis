@@ -598,7 +598,7 @@ function uploadFile(file, key, type) {
 
                 reject(
                     new Error(
-                        `Cloudflare upload failed (${xhr.status})`
+                        `Upload failed (${xhr.status})`
                     )
                 );
 
@@ -618,7 +618,7 @@ function uploadFile(file, key, type) {
 
                 reject(
                     new Error(
-                        "Cloudflare returned an invalid response."
+                        "The upload service returned an invalid response."
                     )
                 );
 
@@ -630,7 +630,7 @@ function uploadFile(file, key, type) {
                 reject(
                     new Error(
                         response.error ||
-                        "R2 upload failed."
+                        "Upload failed."
                     )
                 );
 

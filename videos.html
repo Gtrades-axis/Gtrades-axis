@@ -260,7 +260,44 @@
       padding: 50px;
     }
 
-    @media (max-width: 600px) {
+        .sort-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sort-control label {
+      color: #aeb9c9;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .sort-control select {
+      min-width: 220px;
+      border: 1px solid #293545;
+      background: #080c12;
+      color: #fff;
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .sort-control select:focus {
+      border-color: #1597ff;
+    }
+
+    .video-upload-date {
+      color: #8290a3;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+@media (max-width: 600px) {
       .hero h1 {
         font-size: 26px;
       }
@@ -304,6 +341,19 @@
 
   <div class="filters">
 
+    <div class="sort-control">
+      <label for="videoSort">Arrange by</label>
+      <select id="videoSort" aria-label="Arrange videos">
+        <option value="newest">Upload date — newest first</option>
+        <option value="oldest">Upload date — oldest first</option>
+        <option value="name-asc">Name — A to Z</option>
+        <option value="name-desc">Name — Z to A</option>
+        <option value="category-asc">Category — A to Z</option>
+        <option value="category-desc">Category — Z to A</option>
+            <option value="updated-newest">Last updated — newest first</option>
+            <option value="updated-oldest">Last updated — oldest first</option>
+      </select>
+    </div>
 
 <button
   class="filter-btn active"
@@ -428,9 +478,13 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  where,
+  doc,
+  getDoc
 }
 from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+import { accessFromData } from "./js/premium-lock.js";
 
 
 /* ============================================================
@@ -516,6 +570,9 @@ const filterButtons =
     ".filter-btn"
   );
 
+const videoSort =
+  document.getElementById("videoSort");
+
 
 /* ============================================================
    STATE
@@ -558,7 +615,7 @@ function buildR2URL(videoKey) {
   if (!videoKey) {
 
     throw new Error(
-      "This video does not have an R2 file key."
+      "This video is currently unavailable."
     );
 
   }
@@ -575,11 +632,7 @@ function buildR2URL(videoKey) {
    LOAD VIDEOS
 ============================================================ */
 
-async function loadVideos() {
-
-  console.log(
-    "GTRADES-AXIS™: Loading videos..."
-  );
+async function loadVideos(hasPremiumAccess = false) {
 
   videosContainer.innerHTML = `
     <div class="status">
@@ -589,164 +642,58 @@ async function loadVideos() {
 
   try {
 
-    let snapshot;
-
-    /* --------------------------------------------------------
-       TRY CREATED DATE ORDER
-    -------------------------------------------------------- */
-
-    try {
-
-      const videosQuery =
-        query(
-          collection(
-            db,
-            "videos"
-          ),
-          orderBy(
-            "createdAt",
-            "desc"
-          )
+    // Free students only query documents explicitly marked as free.
+    // Premium members and admins may load the complete video collection.
+    const videosQuery = hasPremiumAccess
+      ? collection(db, "videos")
+      : query(
+          collection(db, "videos"),
+          where("premiumOnly", "==", false)
         );
 
-      snapshot =
-        await getDocs(
-          videosQuery
-        );
-
-    } catch (orderError) {
-
-      console.warn(
-        "createdAt ordering failed. Loading normally.",
-        orderError
-      );
-
-      snapshot =
-        await getDocs(
-          collection(
-            db,
-            "videos"
-          )
-        );
-
-    }
-
-
-    /* --------------------------------------------------------
-       BUILD ARRAY
-    -------------------------------------------------------- */
+    const snapshot = await getDocs(videosQuery);
 
     videos = [];
 
-    snapshot.forEach(
-      videoDoc => {
+    snapshot.forEach(videoDoc => {
+      const data = videoDoc.data();
 
-        const data =
-          videoDoc.data();
+      // Do not surface videos an administrator has intentionally disabled.
+      if (data.published === false || data.active === false) return;
 
-        const video =
-          {
-            id:
-              videoDoc.id,
+      videos.push({
+        id: videoDoc.id,
+        ...data
+      });
+    });
 
-            ...data
-          };
-
-        console.log(
-          "VIDEO DOCUMENT:",
-          video
-        );
-
-        videos.push(
-          video
-        );
-
-      }
-    );
-
-
-    /* --------------------------------------------------------
-       LOCAL SORT
-    -------------------------------------------------------- */
-
-    videos.sort(
-      (a, b) => {
-
-        const aTime =
-          getTimestamp(
-            a.createdAt
-          );
-
-        const bTime =
-          getTimestamp(
-            b.createdAt
-          );
-
-        return bTime - aTime;
-
-      }
-    );
-
-
-    console.log(
-      "TOTAL VIDEOS:",
-      videos.length
-    );
-
-
-    /* --------------------------------------------------------
-       RENDER
-    -------------------------------------------------------- */
+    videos.sort((a, b) => {
+      const aTime = getTimestamp(a.createdAt || a.uploadedAt || a.updatedAt);
+      const bTime = getTimestamp(b.createdAt || b.uploadedAt || b.updatedAt);
+      return bTime - aTime;
+    });
 
     renderVideos();
 
-
-    /* --------------------------------------------------------
-       OPEN FIRST VIDEO
-    -------------------------------------------------------- */
-
-    if (
-      videos.length > 0
-    ) {
-
-      const firstVideo =
-        videos[0];
-
-      console.log(
-        "FIRST VIDEO:",
-        firstVideo
-      );
-
-      openVideo(
-        firstVideo,
-        false
-      );
-
+    if (videos.length > 0) {
+      openVideo(videos[0], false);
     } else {
-
       videosContainer.innerHTML = `
         <div class="status">
           No videos available yet.
         </div>
       `;
-
     }
 
   } catch (error) {
-
-    console.error(
-      "FIRESTORE VIDEO ERROR:",
-      error
-    );
+    console.error("VIDEO_LIBRARY_LOAD_FAILED", error);
 
     videosContainer.innerHTML = `
       <div class="status">
-        Unable to load videos.
+        Unable to load videos. Please refresh and try again.
       </div>
     `;
-
   }
-
 }
 
 
@@ -849,6 +796,46 @@ function renderVideos() {
 
   }
 
+
+  /* ----------------------------------------------------------
+     SORT
+  ---------------------------------------------------------- */
+
+  const sortMode = videoSort?.value || "newest";
+
+  const textValue = (value) =>
+    String(value ?? "").trim().toLowerCase();
+
+  const uploadTime = (video) =>
+    getTimestamp(
+      video.createdAt ||
+      video.uploadedAt ||
+      video.updatedAt
+    );
+
+  filtered.sort((a, b) => {
+    switch (sortMode) {
+      case "oldest":
+        return uploadTime(a) - uploadTime(b);
+      case "name-asc":
+        return textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "name-desc":
+        return textValue(b.title || b.name).localeCompare(textValue(a.title || a.name));
+      case "category-asc":
+        return textValue(a.category || "General").localeCompare(textValue(b.category || "General")) ||
+          textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "category-desc":
+        return textValue(b.category || "General").localeCompare(textValue(a.category || "General")) ||
+          textValue(a.title || a.name).localeCompare(textValue(b.title || b.name));
+      case "updated-newest":
+        return updateTime(b) - updateTime(a);
+      case "updated-oldest":
+        return updateTime(a) - updateTime(b);
+      case "newest":
+      default:
+        return uploadTime(b) - uploadTime(a);
+    }
+  });
 
   /* ----------------------------------------------------------
      EMPTY
@@ -1015,6 +1002,10 @@ function createVideoCard(
 
       </div>
 
+      <div class="video-upload-date">
+        Uploaded ${escapeHTML(formatUploadDate(video))} · Updated ${escapeHTML(formatUpdateDate(video))}
+      </div>
+
     </div>
 
   `;
@@ -1067,7 +1058,7 @@ function openVideo(
     );
 
     showPlayerError(
-      "This video has no R2 file attached."
+      "This video is currently unavailable."
     );
 
     return;
@@ -1096,15 +1087,9 @@ function openVideo(
   }
 
 
-  console.log(
-    "R2 VIDEO KEY:",
-    videoKey
-  );
+  /* production diagnostic removed */
 
-  console.log(
-    "R2 VIDEO URL:",
-    videoURL
-  );
+  /* production diagnostic removed */
 
 
   currentVideoKey =
@@ -1230,6 +1215,44 @@ function showPlayerError(
 }
 
 
+function updateTime(video) {
+  return getTimestamp(
+    video.updatedAt ||
+    video.modifiedAt ||
+    video.createdAt ||
+    video.uploadedAt
+  );
+}
+
+function formatUpdateDate(video) {
+  const millis = updateTime(video);
+  if (!millis) return "";
+  return new Date(millis).toLocaleDateString("en-US", {
+    year: "numeric", month: "short", day: "numeric"
+  });
+}
+
+
+function formatUploadDate(video) {
+
+  const value =
+    video.createdAt ||
+    video.uploadedAt ||
+    video.updatedAt;
+
+  const millis = getTimestamp(value);
+
+  if (!millis) return "";
+
+  return new Date(millis).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+
+}
+
+
 /* ============================================================
    HTML ESCAPE
 ============================================================ */
@@ -1311,32 +1334,43 @@ filterButtons.forEach(
 );
 
 
+videoSort?.addEventListener("change", () => {
+  renderVideos();
+});
+
+
 /* ============================================================
    AUTHENTICATION
 ============================================================ */
 
 onAuthStateChanged(
   auth,
-  user => {
-
-    console.log(
-      "GTRADES-AXIS™ AUTH STATE:",
-      user
-    );
-
+  async user => {
 
     if (!user) {
-
-      window.location.href =
-        "/login";
-
+      window.location.href = "/login";
       return;
-
     }
 
+    try {
+      let claims = {};
+      try {
+        claims = (await user.getIdTokenResult(true)).claims || {};
+      } catch (_) {}
 
-    loadVideos();
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      const userData = userSnap.exists() ? userSnap.data() : {};
+      const premiumAccess = accessFromData(userData, claims);
 
+      await loadVideos(premiumAccess);
+    } catch (error) {
+      console.error("VIDEO_ACCESS_CHECK_FAILED", error);
+      videosContainer.innerHTML = `
+        <div class="status">
+          Unable to load videos. Please refresh and try again.
+        </div>
+      `;
+    }
   }
 );
 
@@ -1348,11 +1382,9 @@ onAuthStateChanged(
 console.log(
   "✅ GTRADES-AXIS™ Video Academy loaded"
 );
+console.log("VIDEO ACCESS BUILD: 2026-11-02-STUDENT-FIX-3");
 
-console.log(
-  "☁️ Cloudflare R2 Worker:",
-  R2_WORKER
-);
+/* production diagnostic removed */
 
 </script>
 

@@ -8,7 +8,7 @@
 //   - Firestore metadata
 //
 // STORAGE:
-//   - Cloudflare R2
+//   - 
 //   - Same Worker delivery route used by Videos
 //
 // IMPORTANT:
@@ -200,7 +200,7 @@ async function loadResources() {
       <i class="fa-solid fa-circle-notch fa-spin"></i>
 
       <div>
-        Loading your resources...
+        Preparing your library…
       </div>
 
     </div>
@@ -598,16 +598,7 @@ function createResourceCard(resource) {
       </p>
 
     </div>
-
-    <div class="resource-storage">
-
-      <i class="fa-solid fa-cloud"></i>
-
-      Cloudflare R2
-
-    </div>
-
-    <div class="resource-action">
+<div class="resource-action">
 
       ${
         premiumOnly && !hasPremiumAccess
@@ -838,7 +829,7 @@ function buildR2FileURL(key) {
   if (!key) {
 
     throw new Error(
-      "This resource has no R2 file key."
+      "This resource is not available for download yet."
     );
 
   }
@@ -874,7 +865,7 @@ async function downloadResource(
     );
 
     alert(
-      "This resource has no R2 file attached."
+      "This resource is not available for download yet."
     );
 
     return;
@@ -943,422 +934,17 @@ async function downloadResource(
     // LOG RESOURCE KEY
     // ========================================================
 
-    console.log(
-      "================================================"
-    );
-
-    console.log(
-      "GTRADES-AXIS™ RESOURCE DOWNLOAD"
-    );
-
-    console.log(
-      "R2 KEY:",
-      key
-    );
-
-    // ========================================================
-    // BUILD WORKER URL
-    // ========================================================
-
-    const url =
-      buildR2FileURL(key);
-
-    console.log(
-      "R2 WORKER URL:",
-      url
-    );
-
-    // ========================================================
-    // FETCH
-    // ========================================================
-
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
-
-    console.log(
-      "R2 RESPONSE STATUS:",
-      response.status
-    );
-
-    console.log(
-      "R2 RESPONSE TYPE:",
-      response.headers.get(
-        "content-type"
-      )
-    );
-
-    // ========================================================
-    // CHECK RESPONSE
-    // ========================================================
-
-    if (!response.ok) {
-
-      let errorMessage =
-        `Resource access failed (${response.status}).`;
-
-      try {
-
-        const errorData =
-          await response.json();
-
-        if (errorData?.error) {
-
-          errorMessage =
-            errorData.error;
-        }
-
-      } catch {
-        // Response was not JSON.
-      }
-
-      throw new Error(
-        errorMessage
-      );
-
-    }
-
-    // ========================================================
-    // GET BLOB
-    // ========================================================
-
-    const blob =
-      await response.blob();
-
-    console.log(
-      "RESOURCE BLOB SIZE:",
-      blob.size
-    );
-
-    if (!blob.size) {
-
-      throw new Error(
-        "The resource file is empty."
-      );
-
-    }
-
-    // ========================================================
-    // FILE NAME
-    // ========================================================
-
-    let filename =
-
-      resource.fileName ||
-
-      resource.filename ||
-
-      key
-        .split("/")
-        .pop() ||
-
-      "GTRADES-AXIS-Resource";
-
-    // Remove invalid Windows filename characters
-
-    filename =
-      filename.replace(
-        /[<>:"/\\|?*]/g,
-        "_"
-      );
-
-    // ========================================================
-    // CREATE BLOB URL
-    // ========================================================
-
-    const blobURL =
-      URL.createObjectURL(blob);
-
-    // ========================================================
-    // CREATE DOWNLOAD LINK
-    // ========================================================
-
-    const link =
-      document.createElement("a");
-
-    link.href =
-      blobURL;
-
-    link.download =
-      filename;
-
-    link.style.display =
-      "none";
-
-    document.body.appendChild(
-      link
-    );
-
-    link.click();
-
-    link.remove();
-
-    // ========================================================
-    // CLEANUP
-    // ========================================================
-
-    setTimeout(() => {
-
-      URL.revokeObjectURL(
-        blobURL
-      );
-
-    }, 5000);
-
-    console.log(
-      "RESOURCE DOWNLOAD STARTED:",
-      filename
-    );
-
-  } catch (error) {
-
-    console.error(
-      "================================================"
-    );
-
-    console.error(
-      "GTRADES-AXIS™ RESOURCE DOWNLOAD ERROR:",
-      error
-    );
-
-    console.error(
-      "RESOURCE:",
-      resource
-    );
-
-    console.error(
-      "R2 KEY:",
-      key
-    );
-
-    alert(
-      error?.message ||
-      "Unable to download this resource."
-    );
-
-  } finally {
-
-    // ========================================================
-    // RESTORE BUTTON
-    // ========================================================
-
-    if (button) {
-
-      button.disabled = false;
-
-      button.innerHTML =
-        originalText;
-
-    }
-
-  }
-
-}
-
-// ============================================================
-// FILTER BUTTONS
-// ============================================================
-
-filters.forEach((button) => {
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      filters.forEach((btn) => {
-
-        btn.classList.remove(
-          "active"
-        );
-
-      });
-
-      button.classList.add(
-        "active"
-      );
-
-      activeCategory =
-        button.dataset.category ||
-        "All";
-
-      renderResources();
-
-    }
-  );
-
-});
-
-// ============================================================
-// SEARCH
-// ============================================================
-
-searchInput?.addEventListener(
-  "input",
-  () => {
-
-    renderResources();
-
-  }
-);
-
-// ============================================================
-// REFRESH
-// ============================================================
-
-refreshBtn?.addEventListener(
-  "click",
-  async () => {
-
-    if (
-      refreshBtn.disabled
-    ) {
-
-      return;
-    }
-
-    refreshBtn.disabled =
-      true;
-
-    const original =
-      refreshBtn.innerHTML;
-
-    refreshBtn.innerHTML =
-      `<i class="fa-solid fa-spinner fa-spin"></i>`;
-
-    try {
-
-      await loadResources();
-
-    } catch (error) {
-
-      console.error(
-        "REFRESH ERROR:",
-        error
-      );
-
-    } finally {
-
-      refreshBtn.disabled =
-        false;
-
-      refreshBtn.innerHTML =
-        original;
-
-    }
-
-  }
-);
-
-// ============================================================
-// LOGOUT
-// ============================================================
-
-logoutBtn?.addEventListener(
-  "click",
-  async () => {
-
-    try {
-
-      await signOut(auth);
-
-      window.location.href =
-        "/login";
-
-    } catch (error) {
-
-      console.error(
-        "LOGOUT ERROR:",
-        error
-      );
-
-      alert(
-        "Unable to logout."
-      );
-
-    }
-
-  }
-);
-
-// ============================================================
-// ERROR STATE
-// ============================================================
-
-function showError(message) {
-
-  if (!grid) {
-    return;
-  }
-
-  grid.innerHTML = `
-
-    <div class="error-state">
-
-      <i
-        class="fa-solid fa-circle-exclamation"
-      ></i>
-
-      <h3>
-        Unable to load resources
-      </h3>
-
-      <p>
-        ${escapeHTML(message)}
-      </p>
-
-      <button
-        type="button"
-        id="retryResourcesBtn"
-      >
-        <i class="fa-solid fa-rotate-right"></i>
-        Try Again
-      </button>
-
-    </div>
-
-  `;
-
-  const retryButton =
-    document.getElementById(
-      "retryResourcesBtn"
-    );
-
-  retryButton?.addEventListener(
-    "click",
-    () => {
-
-      loadResources();
-
-    }
-  );
-
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-console.log(
-  "================================================"
-);
+    /* production diagnostics disabled */
 
 console.log(
   "✅ GTRADES-AXIS™ Premium Resources Loaded"
 );
 
 console.log(
-  "☁️ Storage: Cloudflare R2"
+  ""
 );
 
-console.log(
-  "☁️ Worker:",
-  R2_WORKER
-);
+/* production diagnostic removed */
 
 console.log(
   "☁️ Resource delivery route: /?key="

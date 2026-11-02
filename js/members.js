@@ -50,7 +50,7 @@ onAuthStateChanged(auth, async (user) => {
             table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d4f;">Access Denied. Admin only.</td></tr>`;
             return;
         }
-        console.log("✅ Admin verified. Loading members...");
+        console.log("✅ Admin verified. Preparing member list…");
         loadMembersRealtime();
     } catch (error) {
         console.error("Auth error:", error);
@@ -65,7 +65,7 @@ function loadMembersRealtime() {
         unsubscribe = null;
     }
 
-    table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">Loading members...</td></tr>`;
+    table.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;">Preparing member list…</td></tr>`;
 
     unsubscribe = onSnapshot(collection(db, "users"),
         (snapshot) => {

@@ -668,7 +668,19 @@
       .section-title { font-size: 11px; }
       input, select, textarea { padding: 12px 14px; font-size: 13px; }
     }
-  </style>
+  
+    .rejected-payment-notice { display:flex; gap:14px; align-items:flex-start; margin:16px 0; padding:16px; border:1px solid rgba(255,82,82,.35); border-radius:14px; background:rgba(255,82,82,.08); }
+    .rejected-payment-notice[hidden] { display:none !important; }
+    .rejected-payment-icon { font-size:24px; color:#ff6b6b; line-height:1; }
+    .rejected-payment-content { flex:1; min-width:0; }
+    .rejected-payment-content strong { display:block; color:#ff8585; margin-bottom:5px; }
+    .rejected-payment-content p { margin:0 0 12px; color:#cbd5e1; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .rejected-payment-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .retry-payment-btn,.retry-secondary-btn { border:0; border-radius:9px; padding:10px 14px; cursor:pointer; font-weight:700; }
+    .retry-payment-btn { background:#00c897; color:#06100d; }
+    .retry-secondary-btn { background:rgba(255,255,255,.08); color:#f0f4fa; border:1px solid rgba(255,255,255,.12); }
+    @media (max-width:600px) { .rejected-payment-actions { flex-direction:column; } .retry-payment-btn,.retry-secondary-btn { width:100%; } }
+</style>
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -696,7 +708,7 @@
   <div class="plan-summary">
     <div>
       <div class="plan-label">Selected Membership</div>
-      <div class="plan-name" id="selectedPlanName">Loading...</div>
+      <div class="plan-name" id="selectedPlanName">Preparing…</div>
     </div>
     <div class="plan-price" id="selectedPlanPrice">$0</div>
   </div>
@@ -710,14 +722,14 @@
       <div class="form-grid">
         <div class="form-group">
           <label>Full Name</label>
-          <input id="userName" type="text" readonly placeholder="Loading...">
+          <input id="userName" type="text" readonly placeholder="Preparing…">
         </div>
         <div class="form-group">
           <label>Email Address</label>
-          <input id="userEmail" type="email" readonly placeholder="Loading...">
+          <input id="userEmail" type="email" readonly placeholder="Preparing…">
         </div>
       </div>
-      <div id="accountMessage"><i class="fa-solid fa-spinner fa-spin"></i> Loading account...</div>
+      <div id="accountMessage"><i class="fa-solid fa-spinner fa-spin"></i> Preparing account…</div>
 
       <!-- Plan -->
       <div class="section-title"><i class="fa-solid fa-crown"></i> Membership Plan</div>
@@ -751,7 +763,7 @@
       <div class="currency-box">
         <div class="currency-header">
           <h3><i class="fa-solid fa-calculator"></i> Payment Amount</h3>
-          <span class="rate-badge" id="rateBadge"><i class="fa-solid fa-circle"></i> Loading rate...</span>
+          <span class="rate-badge" id="rateBadge"><i class="fa-solid fa-circle"></i> Retrieving current rate…</span>
         </div>
         <div class="currency-row">
           <span>Premium Price</span>
@@ -759,7 +771,7 @@
         </div>
         <div class="currency-row">
           <span>Exchange Rate</span>
-          <strong id="rateDisplay">Loading...</strong>
+          <strong id="rateDisplay">Preparing…</strong>
         </div>
         <div class="currency-row" id="kesRow">
           <span>M-PESA Amount</span>
@@ -790,7 +802,7 @@
       <div class="proof-upload">
         <div class="form-group">
           <label><i class="fa-solid fa-paperclip"></i> Payment Proof</label>
-          <input id="paymentProof" type="file" accept="image/jpeg,image/png,application/pdf">
+          <input id="paymentProof" type="file" accept="image/jpeg,image/png,application/pdf" required>
           <div class="file-hint"><i class="fa-solid fa-circle-info"></i> JPG, PNG or PDF — max 5MB.</div>
         </div>
       </div>
@@ -806,6 +818,18 @@
       </div>
 
       <div id="paymentMessage" class="message"></div>
+
+      <div id="rejectedPaymentNotice" class="rejected-payment-notice" hidden aria-live="polite">
+        <div class="rejected-payment-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <div class="rejected-payment-content">
+          <strong>Your previous payment was rejected</strong>
+          <p id="rejectedPaymentReason">Please review the reason below and submit a new payment.</p>
+          <div class="rejected-payment-actions">
+            <button type="button" id="makePaymentAgain" class="retry-payment-btn"><i class="fa-solid fa-rotate-right"></i> Make Payment Again</button>
+            <button type="button" id="tryDifferentMethod" class="retry-secondary-btn"><i class="fa-solid fa-arrows-rotate"></i> Try a Different Method</button>
+          </div>
+        </div>
+      </div>
 
       <button id="submitPayment" class="submit-btn" type="submit" disabled>
         <i class="fa-solid fa-paper-plane"></i> Submit Payment
@@ -835,9 +859,10 @@
 
   <!-- FIREBASE & LOGIC (same as original, but with cleaned UI) -->
   <script type="module">
-    import { auth, db } from "/js/firebase.js";
+    import { auth, db, app } from "/js/firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import { doc, getDoc, collection, addDoc, query, where, getDocs, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
+    import { doc, getDoc, collection, setDoc, query, where, getDocs, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
     // Config
     const MONTHLY_PRICE = 50, LIFETIME_PRICE = 200;
@@ -854,10 +879,14 @@
     const mpesaBox = $("mpesaBox"), paypalBox = $("paypalBox"), kesRow = $("kesRow"), paypalRow = $("paypalRow");
     const mpesaOption = $("mpesaOption"), paypalOption = $("paypalOption");
     const submitPayment = $("submitPayment"), paymentMessage = $("paymentMessage");
+    const rejectedPaymentNotice = $("rejectedPaymentNotice"), rejectedPaymentReason = $("rejectedPaymentReason");
+    const makePaymentAgain = $("makePaymentAgain"), tryDifferentMethod = $("tryDifferentMethod");
     const successModal = $("successModal"), successClose = $("successClose"), loadingScreen = $("loadingScreen");
     const paymentForm = $("paymentForm");
 
     let currentUser = null, currentExchangeRate = null, selectedMethod = "", submitting = false;
+    const functions = getFunctions(app);
+    const getPaymentProofUploadUrl = httpsCallable(functions, "getPaymentProofUploadUrl");
 
     const params = new URLSearchParams(window.location.search);
     const urlPlan = params.get("plan");
@@ -872,6 +901,39 @@
     function showMessage(text, type = "error") { paymentMessage.textContent = text; paymentMessage.className = "message " + type; }
     function clearMessage() { paymentMessage.textContent = ""; paymentMessage.className = "message"; }
     function showLoading(show) { loadingScreen.classList.toggle("active", show); }
+
+    async function loadRejectedPaymentNotice() {
+      if (!currentUser || !rejectedPaymentNotice) return;
+      try {
+        const q = query(collection(db, "payments"), where("userId", "==", currentUser.uid), limit(20));
+        const snap = await getDocs(q);
+        if (snap.empty) { rejectedPaymentNotice.hidden = true; return; }
+        const payments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        payments.sort((a,b) => {
+          const timeOf = p => p.submittedAt?.toMillis?.() || p.rejectedAt?.toMillis?.() || p.approvedAt?.toMillis?.() || 0;
+          return timeOf(b) - timeOf(a);
+        });
+        const payment = payments[0];
+        if (String(payment.status || "").toLowerCase() !== "rejected") { rejectedPaymentNotice.hidden = true; return; }
+        const reason = String(payment.rejectionReason || "The administrator rejected this payment. Please submit a new payment with valid details and proof.").trim();
+        rejectedPaymentReason.textContent = `Reason: ${reason}${payment.plan ? `\nPlan: ${payment.plan}` : ""}${payment.paymentMethod ? `\nPrevious method: ${payment.paymentMethod}` : ""}`;
+        rejectedPaymentNotice.hidden = false;
+      } catch (error) { console.warn("Could not load rejected payment notice:", error); }
+    }
+
+    function preparePaymentRetry(useDifferentMethod = false) {
+      rejectedPaymentNotice.hidden = true;
+      clearMessage();
+      paymentForm.scrollIntoView({ behavior:"smooth", block:"start" });
+      if (useDifferentMethod) {
+        const alternate = selectedMethod === "Mpesa" ? "PayPal" : "Mpesa";
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${alternate}"]`);
+        if (radio) { radio.checked = true; radio.dispatchEvent(new Event("change", { bubbles:true })); }
+      }
+      transactionId.focus();
+    }
+    makePaymentAgain?.addEventListener("click", () => preparePaymentRetry(false));
+    tryDifferentMethod?.addEventListener("click", () => preparePaymentRetry(true));
 
     function updatePlanDisplay() {
       const plan = membershipPlan.value, price = getPrice(plan);
@@ -896,7 +958,7 @@
         mpesaOption.classList.add("active"); paypalOption.classList.remove("active");
         mpesaBox.classList.add("active"); paypalBox.classList.remove("active");
         kesRow.style.display = "flex"; paypalRow.style.display = "none";
-        if (!currentExchangeRate) { amountDisplay.value = "Loading rate..."; return; }
+        if (!currentExchangeRate) { amountDisplay.value = "Retrieving current rate…"; return; }
         const kes = Math.round(price * currentExchangeRate);
         kesAmount.textContent = formatKES(kes);
         mpesaAmount.textContent = formatKES(kes);
@@ -923,7 +985,7 @@
     membershipPlan.addEventListener("change", () => { clearMessage(); updatePlanDisplay(); });
 
     async function loadExchangeRate() {
-      rateDisplay.textContent = "Loading..."; rateBadge.textContent = "Loading rate...";
+      rateDisplay.textContent = "Loading..."; rateBadge.textContent = "Retrieving current rate…";
       try {
         const res = await fetch(RATE_API, { cache: "no-store" });
         if (!res.ok) throw new Error("Rate unavailable");
@@ -962,6 +1024,7 @@
       } catch {}
       accountMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account details loaded.';
       await checkExistingPayments();
+      await loadRejectedPaymentNotice();
       submitPayment.disabled = false;
     });
 
@@ -1003,6 +1066,7 @@
       if (!transaction) { showMessage("Enter transaction code or PayPal ID."); return; }
       const price = getPrice(plan);
       if (!price) { showMessage("Invalid plan."); return; }
+      if (!paymentProof.files || !paymentProof.files.length) { showMessage("Please attach your payment proof (JPG, PNG or PDF)."); return; }
       let amountKES = null;
       if (selectedMethod === "Mpesa") {
         if (!currentExchangeRate) await loadExchangeRate();
@@ -1043,7 +1107,22 @@
           paymentData.currency = "USD"; paymentData.paypalEmail = PAYPAL_EMAIL;
         }
         if (proofName) { paymentData.proofFileName = proofName; paymentData.proofFileType = proofType; paymentData.proofFileSize = proofSize; }
-        await addDoc(collection(db, "payments"), paymentData);
+
+        const paymentRef = doc(collection(db, "payments"));
+        const proofFile = paymentProof.files[0];
+        const safeFileName = proofFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const proofPath = `payments/${currentUser.uid}/${paymentRef.id}/${safeFileName}`;
+        const signed = await getPaymentProofUploadUrl({ key: proofPath, contentType: proofFile.type });
+        submitPayment.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading proof...';
+        const uploadResponse = await fetch(signed.data.url, {
+          method: "PUT",
+          headers: { "Content-Type": proofFile.type },
+          body: proofFile
+        });
+        if (!uploadResponse.ok) throw new Error(`Secure upload failed (${uploadResponse.status}).`);
+        paymentData.proofStoragePath = proofPath;
+        paymentData.proofStorageProvider = "cloudflare-r2";
+        await setDoc(paymentRef, paymentData);
         showLoading(false);
         successModal.classList.add("active");
       } catch (error) {

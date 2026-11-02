@@ -3,6 +3,7 @@
 // ============================================================
 
 import { auth, db } from "./firebase.js";
+import { calculateRealizedRR, averageRealizedRR } from "./trade-metrics.js?v=20261024-4rr";
 import {
   onAuthStateChanged,
   updateProfile,
@@ -180,11 +181,8 @@ function normalizeTrade(trade) {
   let result = String(t.result ?? t.outcome ?? "").trim().toLowerCase();
   if (result === "break even" || result === "break-even" || result === "breakeven") result = "breakeven";
   if (!result) result = pnl > 0 ? "win" : pnl < 0 ? "loss" : "breakeven";
-  let rr = Number(t.actualRR);
-  if (!Number.isFinite(rr)) rr = Number(t.rr);
-  if (!Number.isFinite(rr)) rr = Number(t.plannedRR);
-  if (!Number.isFinite(rr)) rr = 0;
-  return { ...t, profit: pnl, result, actualRR: rr, rr };
+  const rr = calculateRealizedRR(t);
+  return { ...t, profit: pnl, result, actualRR: rr, realizedRR: rr, rr };
 }
 
 function subscribeJournalData() {
@@ -227,7 +225,7 @@ function calculateStatistics(trades) {
   if (profit) profit.textContent="$"+totalProfit.toFixed(2);
   const decisive=wins+losses;
   if (winRate) winRate.textContent=(decisive ? wins/decisive*100 : 0).toFixed(1)+"%";
-  if (rrAverage) rrAverage.textContent=(rrTotal/trades.length).toFixed(2);
+  if (rrAverage) rrAverage.textContent=averageRealizedRR(trades).toFixed(2);
   if (currentStreak) currentStreak.textContent=maxStreak;
   if (profitFactor) profitFactor.textContent=(grossLoss ? grossProfit/grossLoss : grossProfit).toFixed(2);
   if (bestTrade) bestTrade.textContent=best===-Infinity?"$0.00":"$"+best.toFixed(2);
@@ -312,7 +310,7 @@ function loadJournalSummary(trades = journalTrades) {
   if (journalEntries) journalEntries.textContent=data.length;
   let wins=0, losses=0, rrSum=0;
   data.forEach(t=>{ rrSum+=t.actualRR; if(t.result==="win"||t.profit>0) wins++; else if(t.result==="loss"||t.profit<0) losses++; });
-  if (journalWins) journalWins.textContent=wins; if (journalLosses) journalLosses.textContent=losses; if (journalRR) journalRR.textContent=data.length?(rrSum/data.length).toFixed(2)+"R":"0R";
+  if (journalWins) journalWins.textContent=wins; if (journalLosses) journalLosses.textContent=losses; if (journalRR) journalRR.textContent=data.length?averageRealizedRR(data).toFixed(2)+"R":"0R";
 }
 
 // ─── ACHIEVEMENTS ──────────────────────────────────────────

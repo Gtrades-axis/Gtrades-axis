@@ -340,7 +340,7 @@ function buildAICoach() {
     { label: "Total Trades", value: total, detail: `${wins}W / ${losses}L / ${breakevens}BE` },
     { label: "Win Rate", value: winRate.toFixed(1) + "%", detail: winRate >= 50 ? "📈 Above average" : "📉 Focus on setups" },
     { label: "Net Profit", value: `$${netProfit.toFixed(2)}`, detail: netProfit >= 0 ? "✅ Profitable" : "❌ Review risk" },
-    { label: "Avg RR", value: avgRR.toFixed(1), detail: avgRR >= 2.0 ? "👍 Great" : "⚠️ Aim for 2:1+" },
+    { label: "Avg RR", value: avgRR.toFixed(1), detail: avgRR >= 0 ? "Realized performance" : "Review execution" },
     { label: "Consistency", value: consistency.toFixed(1) + "%", detail: consistency >= 50 ? "✅ Stable" : "⚠️ Needs work" },
     { label: "Streak", value: streak > 0 ? `🔥 +${streak}` : streak < 0 ? `❄️ ${streak}` : "➖ 0", detail: streak !== 0 ? "Keep going!" : "Stay focused" }
   ];
@@ -352,7 +352,7 @@ function buildAICoach() {
   // ── Recommendations ──
   const recs = [];
   if (winRate < 50) recs.push("Improve win rate by sticking to high‑probability setups.");
-  if (avgRR < 2.0) recs.push("Aim for a minimum 2:1 risk‑reward ratio.");
+  if (avgRR < 0) recs.push("Average realized RR is negative. Keep every new planned setup at a minimum 4:1 RR before entry.");
   if (netProfit < 0) recs.push("Review losing trades for common mistakes.");
   if (trades.length > 10 && consistency < 50) recs.push("Your performance is inconsistent – journal emotions.");
   if (streak < -2) recs.push("You're on a losing streak – take a break.");

@@ -12,8 +12,6 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-console.log("✅ Firebase imports done");
-
 const form = document.getElementById("registerForm");
 console.log("📝 Form element:", form);
 
@@ -68,7 +66,6 @@ if (form) {
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             });
-            console.log("✅ Firestore document created");
 
             alert("✅ Registration successful!\n\nVerification email sent. Please check your inbox.");
             console.log("➡️ Redirecting to pending.html");

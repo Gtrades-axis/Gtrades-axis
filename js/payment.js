@@ -17,8 +17,8 @@
 // 10. Firestore document uses userId == Firebase UID
 // ============================================================
 
-import { auth, db } from "./firebase.js";
-import { getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+import { auth, db, app } from "./firebase.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js";
 
 import {
     onAuthStateChanged
@@ -36,8 +36,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 
-const storage = getStorage();
-
 // ============================================================
 // CONFIGURATION
 // ============================================================
@@ -50,6 +48,9 @@ const MPESA_NAME = "David Thuku";
 
 const RATE_API =
     "https://api.frankfurter.dev/v2/rate/USD/KES";
+
+const functions = getFunctions(app);
+const getPaymentProofUploadUrl = httpsCallable(functions, "getPaymentProofUploadUrl");
 
 
 // ============================================================
@@ -77,8 +78,16 @@ const nameStatus =
 const membershipPlan =
     document.getElementById("membershipPlan");
 
-const paymentMethod =
+const paymentMethodSelect =
     document.getElementById("paymentMethod");
+
+const paymentMethodRadios =
+    document.querySelectorAll('input[name="paymentMethod"]');
+
+function getSelectedPaymentMethod() {
+    if (paymentMethodSelect?.value) return paymentMethodSelect.value;
+    return document.querySelector('input[name="paymentMethod"]:checked')?.value || "";
+}
 
 const currencyBox =
     document.getElementById("currencyBox");
@@ -124,6 +133,18 @@ const submitPayment =
 
 const paymentMessage =
     document.getElementById("paymentMessage");
+
+const rejectedPaymentNotice =
+    document.getElementById("rejectedPaymentNotice");
+
+const rejectedPaymentReason =
+    document.getElementById("rejectedPaymentReason");
+
+const makePaymentAgain =
+    document.getElementById("makePaymentAgain");
+
+const tryDifferentMethod =
+    document.getElementById("tryDifferentMethod");
 
 const successModal =
     document.getElementById("successModal");
@@ -332,6 +353,66 @@ function hasMonthlyPremium() {
     );
 }
 
+
+async function loadRejectedPaymentNotice() {
+
+    if (!currentUser || !rejectedPaymentNotice) return;
+
+    try {
+        const paymentsRef = collection(db, "payments");
+        const q = query(
+            paymentsRef,
+            where("userId", "==", currentUser.uid)
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            rejectedPaymentNotice.hidden = true;
+            return;
+        }
+
+        const payments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        payments.sort((a, b) => {
+            const timeOf = p => p.submittedAt?.toMillis?.() || p.rejectedAt?.toMillis?.() || p.approvedAt?.toMillis?.() || 0;
+            return timeOf(b) - timeOf(a);
+        });
+        const payment = payments[0];
+
+        if (String(payment.status || "").toLowerCase() !== "rejected") {
+            rejectedPaymentNotice.hidden = true;
+            return;
+        }
+
+        const reason = String(payment.rejectionReason || "The administrator rejected this payment. Please submit a new payment with a valid transaction code and proof.").trim();
+        const plan = payment.plan || "";
+        const method = payment.paymentMethod || "";
+
+        rejectedPaymentReason.textContent =
+            `Reason: ${reason}${plan ? `\nPlan: ${plan}` : ""}${method ? `\nPrevious method: ${method}` : ""}`;
+
+        rejectedPaymentNotice.hidden = false;
+    } catch (error) {
+        // If the optional rejection history query is unavailable, do not block payment.
+        console.warn("Could not load rejected payment notice:", error);
+    }
+}
+
+function preparePaymentRetry(useDifferentMethod = false) {
+    if (rejectedPaymentNotice) rejectedPaymentNotice.hidden = true;
+    clearMessage();
+    paymentForm?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (useDifferentMethod) {
+        const current = getSelectedPaymentMethod();
+        const alternate = current === "Mpesa" ? "PayPal" : "Mpesa";
+        if (paymentMethodSelect) paymentMethodSelect.value = alternate;
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${alternate}"]`);
+        if (radio) { radio.checked = true; radio.dispatchEvent(new Event("change", { bubbles: true })); }
+    }
+    transactionId?.focus();
+}
+
+makePaymentAgain?.addEventListener("click", () => preparePaymentRetry(false));
+tryDifferentMethod?.addEventListener("click", () => preparePaymentRetry(true));
 
 // ============================================================
 // CHECK EXISTING PAYMENT
@@ -707,6 +788,8 @@ onAuthStateChanged(
                 false;
         }
 
+        await loadRejectedPaymentNotice();
+
 
         console.log(
             "Authenticated payment user:",
@@ -858,7 +941,7 @@ function updatePaymentDisplay() {
         membershipPlan?.value || "";
 
     const method =
-        paymentMethod?.value || "";
+        getSelectedPaymentMethod();
 
     const price =
         getPlanPrice(plan);
@@ -1182,15 +1265,23 @@ membershipPlan?.addEventListener(
 // PAYMENT METHOD CHANGE
 // ============================================================
 
-paymentMethod?.addEventListener(
+paymentMethodSelect?.addEventListener(
     "change",
     () => {
-
         clearMessage();
-
         updatePaymentDisplay();
     }
 );
+
+paymentMethodRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+        clearMessage();
+        updatePaymentDisplay();
+        if (!currentExchangeRate && radio.value === "Mpesa") {
+            getExchangeRate();
+        }
+    });
+});
 
 
 // ============================================================
@@ -1345,7 +1436,7 @@ function validatePayment() {
 
 
     const method =
-        paymentMethod?.value || "";
+        getSelectedPaymentMethod();
 
 
     const transaction =
@@ -1491,7 +1582,7 @@ paymentForm?.addEventListener(
             membershipPlan.value;
 
         const method =
-            paymentMethod.value;
+            getSelectedPaymentMethod();
 
         const transaction =
             transactionId.value.trim();
@@ -1620,6 +1711,9 @@ paymentForm?.addEventListener(
                 userId:
                     currentUser.uid,
 
+                uid:
+                    currentUser.uid,
+
                 name:
                     name,
 
@@ -1723,21 +1817,30 @@ paymentForm?.addEventListener(
                     : null;
 
             if (proofFile) {
-                await uploadBytes(
-                    storageRef(storage, proofPath),
-                    proofFile,
-                    {
-                        contentType: proofFile.type,
-                        customMetadata: {
-                            uploadedBy: currentUser.uid,
-                            paymentId: paymentRef.id
-                        }
-                    }
-                );
-            }
-
-            if (proofPath) {
+                let signed;
+                try {
+                    signed = await getPaymentProofUploadUrl({
+                        key: proofPath,
+                        contentType: proofFile.type
+                    });
+                } catch (callError) {
+                    console.error("Payment proof signing failed:", callError);
+                    throw new Error(
+                        callError?.message ||
+                        "The payment proof service is unavailable. Please try again or contact support."
+                    );
+                }
+                submitPayment.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading proof...';
+                const uploadResponse = await fetch(signed.data.url, {
+                    method: "PUT",
+                    headers: { "Content-Type": proofFile.type },
+                    body: proofFile
+                });
+                if (!uploadResponse.ok) {
+                    throw new Error(`Secure upload failed (${uploadResponse.status}). Please try again. If the problem continues, contact support.`);
+                }
                 paymentData.proofStoragePath = proofPath;
+                paymentData.proofStorageProvider = "cloudflare-r2";
             }
 
             await setDoc(
@@ -1773,8 +1876,12 @@ paymentForm?.addEventListener(
             membershipPlan.value =
                 "";
 
-            paymentMethod.value =
-                "";
+            if (paymentMethodSelect) {
+                paymentMethodSelect.value = "";
+            }
+            document.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
+                radio.checked = false;
+            });
 
             transactionId.value =
                 "";
@@ -1878,7 +1985,7 @@ paymentForm?.addEventListener(
             ) {
 
                 message =
-                    "Payment was rejected by Firestore security rules. Please check your login session and payment rules.";
+                    "Your payment submission could not be saved. Please sign in again and retry.";
             }
 
 

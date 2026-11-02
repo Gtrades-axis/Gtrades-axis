@@ -107,7 +107,7 @@ onAuthStateChanged(auth, async (user) => {
     // LOGIN / REGISTER REDIRECT
     // ========================================================
     if (currentPath === '/login' || currentPath === '/register') {
-        console.log("✅ User Role found in Firestore:", userData.role);
+
         if (userData.role === "admin") {
             window.location.href = '/admin'; // Admin automatically goes here
         } else {
@@ -126,7 +126,7 @@ onAuthStateChanged(auth, async (user) => {
     window.isPremiumPage = PREMIUM_PAGES.includes(currentPath);
 
     console.log("Current User", window.currentUser);
-    console.log("Premium Access:", window.hasPremiumAccess);
+
 });
 
 // ============================================================

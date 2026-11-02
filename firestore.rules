@@ -203,7 +203,7 @@ service cloud.firestore {
       // trades that have explicitly been approved for public display.
       // Keep this query-compatible for collectionGroup(db, "trades").
       allow list:
-        if resource.data.public == true
+        if (resource.data.public == true && resource.data.createdByRole == "admin")
         || isAdmin()
         ||
         (
@@ -213,7 +213,7 @@ service cloud.firestore {
         );
 
       allow get:
-        if resource.data.public == true
+        if (resource.data.public == true && resource.data.createdByRole == "admin")
         || isAdmin()
         ||
         (
@@ -230,7 +230,15 @@ service cloud.firestore {
       allow create:
         if signedIn()
         &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.public == false
+        &&
+        (
+          (isAdmin() && request.resource.data.createdByRole == "admin")
+          ||
+          (!isAdmin() && request.resource.data.createdByRole == "member")
+        );
 
 
       // ----------------------------------------------------------
@@ -239,6 +247,19 @@ service cloud.firestore {
 
       allow update:
         if isAdmin()
+        &&
+        (
+          (
+            resource.data.createdByRole == "admin"
+            && request.resource.data.createdByRole == "admin"
+          )
+          ||
+          (
+            !resource.data.keys().hasAny(["createdByRole"])
+            && resource.data.userId == request.auth.uid
+            && request.resource.data.createdByRole == "admin"
+          )
+        )
         ||
         (
           signedIn()
@@ -246,6 +267,12 @@ service cloud.firestore {
           resource.data.userId == request.auth.uid
           &&
           request.resource.data.userId == request.auth.uid
+          &&
+          resource.data.createdByRole == "member"
+          &&
+          request.resource.data.createdByRole == "member"
+          &&
+          request.resource.data.public == false
         );
 
 
@@ -313,9 +340,10 @@ service cloud.firestore {
 
     match /trades/{tradeId} {
 
-      // Public trade feed.
+      // Public trade feed: admin-originated trades only.
       allow read:
-        if resource.data.public == true;
+        if resource.data.public == true
+        && resource.data.createdByRole == "admin";
 
       // Admin.
       allow read, create, update, delete:
@@ -325,15 +353,29 @@ service cloud.firestore {
       allow create:
         if signedIn()
         &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.public == false
+        &&
+        (
+          (isAdmin() && request.resource.data.createdByRole == "admin")
+          ||
+          (!isAdmin() && request.resource.data.createdByRole == "member")
+        );
 
-      // User updates own trade.
+      // User updates own trade. Members can never publish.
       allow update:
         if signedIn()
         &&
         resource.data.userId == request.auth.uid
         &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid
+        &&
+        request.resource.data.createdByRole == resource.data.createdByRole
+        &&
+        resource.data.createdByRole == "member"
+        &&
+        request.resource.data.public == false;
 
       // User deletes own trade.
       allow delete:
@@ -377,8 +419,11 @@ service cloud.firestore {
 
     match /videos/{videoId} {
 
+      // Every signed-in student may read videos explicitly marked Free.
+      // Premium members and administrators may read all videos.
       allow read:
-        if hasPremiumAccess();
+        if signedIn()
+        && (resource.data.premiumOnly == false || hasPremiumAccess());
 
       allow write:
         if isAdmin();
@@ -472,7 +517,10 @@ service cloud.firestore {
         && request.resource.data.transactionId.size() > 0
         && request.resource.data.name is string
         && request.resource.data.email is string
-        && request.resource.data.submittedAt != null;
+        && request.resource.data.submittedAt != null
+        && request.resource.data.proofStoragePath is string
+        && request.resource.data.proofStorageProvider == "cloudflare-r2"
+        && request.resource.data.proofStoragePath.matches("payments/" + request.auth.uid + "/.*");
 
       allow read:
         if isAdmin()
@@ -534,5 +582,18 @@ service cloud.firestore {
       allow read, write:
         if false;
     }
+
+    // ============================================================
+    // SUPPORT REQUESTS
+    // ============================================================
+    match /support_requests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "open";
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
   }
 }

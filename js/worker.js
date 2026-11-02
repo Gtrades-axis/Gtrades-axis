@@ -51,6 +51,25 @@ export default {
           );
         }
 
+        // Payment proofs are stored under a dedicated namespace in R2.
+        // Keep their object keys predictable and prevent path traversal.
+        if (key.startsWith("payments/")) {
+          const parts = key.split("/");
+          const allowedExt = /\.(jpe?g|png|pdf)$/i;
+          if (parts.length < 4 || !allowedExt.test(key)) {
+            return json(
+              { success: false, error: "Invalid payment proof path." },
+              400
+            );
+          }
+          if (file.size > 5 * 1024 * 1024) {
+            return json(
+              { success: false, error: "Payment proof must be 5MB or smaller." },
+              413
+            );
+          }
+        }
+
         await env.GTRADES_ASSETS.put(
           key,
           file.stream(),

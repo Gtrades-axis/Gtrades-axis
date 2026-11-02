@@ -850,7 +850,7 @@
   <script>
     // ================================================================
     //  GTRADES-AXIS™ BACKTESTING ENGINE (Beaveron UI Style)
-    //  Uses Lightweight Charts + Synthetic Dukascopy-like data
+    //  Uses Lightweight Charts + generated practice market data
     // ================================================================
 
     (function() {
@@ -872,7 +872,7 @@
       let db = null;
       let auth = null;
       let currentUser = null;
-      let isPremium = true; // demo mode
+      let isPremium = false;
 
       // ---------- State ----------
       const state = {
@@ -949,49 +949,11 @@
         return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       }
 
-      // ---------- DUKASCOPY DATA FETCH (stub) ----------
-      // Replace this with a real fetch to your backend proxy or the Dukascopy API.
-      // For now, it generates synthetic data that mimics Dukascopy-like granularity.
+      // ---------- PRACTICE MARKET DATA ----------
+      // The replay engine uses generated candle sequences for structured
+      // practice sessions. No external market-data API key is exposed in the client.
       function fetchHistoricalData(pair, timeframe, startDate, endDate) {
-  // Map your timeframe to Twelve Data's format
-  const intervalMap = {
-    'M1': '1min',
-    'M5': '5min',
-    'M15': '15min',
-    'H1': '1h',
-    'H4': '4h'
-  };
-  const interval = intervalMap[timeframe] || '1h';
-  
-  // Your free API key
-  const apiKey = 'YOUR_TWELVEDATA_API_KEY';
-  
-  const url = `https://api.twelvedata.com/time_series?symbol=${pair}&interval=${interval}&start_date=${startDate}&end_date=${endDate}&apikey=${apiKey}`;
-  
-  return fetch(url)
-    .then(res => {
-      if (!res.ok) throw new Error('Failed to fetch data');
-      return res.json();
-    })
-    .then(data => {
-      if (!data.values || data.values.length === 0) {
-        throw new Error('No data returned');
-      }
-      // Convert to our candle format
-      return data.values.map(c => ({
-        time: new Date(c.datetime).getTime(),
-        open: parseFloat(c.open),
-        high: parseFloat(c.high),
-        low: parseFloat(c.low),
-        close: parseFloat(c.close)
-      }));
-    })
-    .catch(err => {
-      console.error('Twelve Data error:', err);
-      // Fallback to synthetic data if API fails
-      return generateSyntheticData(pair, timeframe);
-    });
-}
+        return Promise.resolve(generateSyntheticData(pair, timeframe));
       }
 
       // ---------- Firebase Auth ----------
@@ -1002,10 +964,10 @@
           db = firebase.firestore();
           firebaseInitialized = true;
         } catch (e) {
-          console.warn('Firebase init skipped. Running in demo mode.');
-          currentUser = { email: 'demo@gtrades.com', uid: 'demo123' };
-          isPremium = true;
-          userEmail.textContent = 'demo@gtrades.com';
+          console.error('Account services are unavailable.');
+          currentUser = null;
+          isPremium = false;
+          userEmail.textContent = 'Account unavailable';
           checkPremiumAccess();
           return;
         }
@@ -1149,8 +1111,8 @@
         state.isPlaying = false;
         state.currentIndex = -1;
 
-        // Fetch data (synthetic for now)
-        fetchDukascopyData(pair, timeframe, dateVal, dateVal).then((candles) => {
+        // Prepare replay data
+        fetchHistoricalData(pair, timeframe, dateVal, dateVal).then((candles) => {
           state.candles = candles;
           if (!chartInstance) initChart();
           updateChart(state.candles, -1);
@@ -1492,20 +1454,16 @@
           if (firebaseConfig.apiKey !== 'AIzaSyDemoKeyReplaceMe') {
             initFirebase();
           } else {
-            currentUser = { email: 'demo@gtrades.com', uid: 'demo123' };
-            isPremium = true;
-            userEmail.textContent = 'demo@gtrades.com';
-            premiumGate.style.display = 'none';
-            labContent.style.display = 'flex';
-            initSession();
+            currentUser = null;
+            isPremium = false;
+            userEmail.textContent = 'Account unavailable';
+            checkPremiumAccess();
           }
         } catch (e) {
-          currentUser = { email: 'demo@gtrades.com', uid: 'demo123' };
-          isPremium = true;
-          userEmail.textContent = 'demo@gtrades.com';
-          premiumGate.style.display = 'none';
-          labContent.style.display = 'flex';
-          initSession();
+          currentUser = null;
+          isPremium = false;
+          userEmail.textContent = 'Account unavailable';
+          checkPremiumAccess();
         }
 
         loadingOverlay.style.display = 'none';
