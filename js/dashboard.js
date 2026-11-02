@@ -12,6 +12,7 @@ import {
     onSnapshot,
     collection,
     query,
+    where,
     orderBy,
     limit
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -367,11 +368,16 @@ function listenStats(){
     // ===============================
 
 
-    const videosRef =
-        collection(
-            db,
-            "videos"
-        );
+    const hasVideoPremiumAccess =
+        userData.role === "admin" ||
+        userData.membership === "premium";
+
+    const videosRef = hasVideoPremiumAccess
+        ? collection(db, "videos")
+        : query(
+            collection(db, "videos"),
+            where("premiumOnly", "==", false)
+          );
 
 
 
